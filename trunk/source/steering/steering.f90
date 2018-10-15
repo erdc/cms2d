@@ -9,7 +9,7 @@
     implicit none
     
     noptset = 3          !Option identifying the mode of simulation
-    noptwse = 3      !0-none, 1-eta2=eta1, 2-eta2=tide2, 3-eta2=tide2+eta1-tide1
+    noptwse = 3          !0-none, 1-eta2=eta1, 2-eta2=tide2, 3-eta2=tide2+eta1-tide1
     nopttime = 0         !0-Interval-based, 1-Time-based
     noptvel = 1          !0-none, 1-vel2=vel1
     noptzb  = 1          !0-none, 1-zb2=zb,2-bed change,3-interpolate from datasets
@@ -1700,7 +1700,7 @@
       call diag_print_message('*** Starting CMS-Wave run ***',' ')	  
       open(dgunit,file=dgfile,access='append') !Open before CMS-Wave run
       
-      call cms_wave !(noptset,nsteer)
+      call cms_wave_inline                         !call cms_wave !(noptset,nsteer)  !modified 10/15/2018
       
       close(dgunit) !Close after CMS-Wave run
       call diag_print_message(' ','*** CMS-Wave run succesful ***')

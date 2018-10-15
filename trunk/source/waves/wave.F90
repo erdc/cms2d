@@ -74,51 +74,51 @@
     endif
 
     if(noptset==3)then !Wave-Flow coupling
-	   nsteer=nsteer+1
-	   open(dgunit,file=dgfile,access='append') 
-       call CMS_Wave
-       close(dgunit)
-       call steer_init !Needs to be called after CMS-Wave
-       call interp_coef_flwav
-       call interp_coef_wavfl
-       !if(n2Dor3D==3) call allocate_wavestress3D2   !For 3D
-       call rol_init	  
-       call freememory_fl_wav 
-       call getwave        
-       !if(n2Dor3D==3) call getwave3D    !For 3D
-       call diag_print_message('*** Finished CMS-Wave Run ***',' ',&
-             '*** Starting CMS-Flow Run ***' )      
-       timehrs=ctime/3600.0
-       tswave1=ctime
-       tswave2=tswave1
-       ramp=min(timehrs/rampdur,1.0)
-       call tidevalue(tswave2,tide2)
-       tide1=tide2
-       do ii=1,ncellsD
-          wavestrx1(ii)=wavestrx2(ii)
-          wavestry1(ii)=wavestry2(ii)            
-          Whgt1(ii)=Whgt2(ii)            
-          Wper1(ii)=Wper2(ii)            
-          Wunitx1(ii)=Wunitx2(ii)
-          Wunity1(ii)=Wunity2(ii)
-          waveibr1(ii)=waveibr2(ii)
-          wavediss1(ii)=wavediss2(ii) !Alex, Aug 3, 2009
-          !Needed here to initialize time zero
-          wavestrx(ii)=wavestrx2(ii)*ramp
-          wavestry(ii)=wavestry2(ii)*ramp
-          Whgt(ii)=Whgt2(ii)*sqrt(ramp) !because E~Hs^2
-          Wper(ii)=Wper2(ii)          
-          Wunitx(ii)=Wunitx2(ii)
-          Wunity(ii)=Wunity2(ii)
-          waveibr(ii)=waveibr2(ii)
-          wavediss(ii)=wavediss2(ii)*ramp
-       enddo
-       !do ii=1,ncells3DD
-       !   wavestrx3D1(ii)=wavestrx3D2(ii)
-       !   wavestry3D1(ii)=wavestry3D2(ii)
-       !   wavestrx3D(ii)=wavestrx3D2(ii)*ramp
-       !   wavestry3D(ii)=wavestry3D2(ii)*ramp
-       ! enddo
+	  nsteer=nsteer+1
+	  open(dgunit,file=dgfile,access='append') 
+      call CMS_Wave_inline                      !call CMS_Wave   !modified MEB 10/15/2018
+      close(dgunit)
+      call steer_init !Needs to be called after CMS-Wave
+      call interp_coef_flwav
+      call interp_coef_wavfl
+      !if(n2Dor3D==3) call allocate_wavestress3D2   !For 3D
+      call rol_init	  
+      call freememory_fl_wav 
+      call getwave        
+      !if(n2Dor3D==3) call getwave3D    !For 3D
+      call diag_print_message('*** Finished CMS-Wave Run ***',' ',&
+            '*** Starting CMS-Flow Run ***' )      
+      timehrs=ctime/3600.0
+      tswave1=ctime
+      tswave2=tswave1
+      ramp=min(timehrs/rampdur,1.0)
+      call tidevalue(tswave2,tide2)
+      tide1=tide2
+      do ii=1,ncellsD
+        wavestrx1(ii)=wavestrx2(ii)
+        wavestry1(ii)=wavestry2(ii)            
+        Whgt1(ii)=Whgt2(ii)            
+        Wper1(ii)=Wper2(ii)            
+        Wunitx1(ii)=Wunitx2(ii)
+        Wunity1(ii)=Wunity2(ii)
+        waveibr1(ii)=waveibr2(ii)
+        wavediss1(ii)=wavediss2(ii) !Alex, Aug 3, 2009
+        !Needed here to initialize time zero
+        wavestrx(ii)=wavestrx2(ii)*ramp
+        wavestry(ii)=wavestry2(ii)*ramp
+        Whgt(ii)=Whgt2(ii)*sqrt(ramp) !because E~Hs^2
+        Wper(ii)=Wper2(ii)          
+        Wunitx(ii)=Wunitx2(ii)
+        Wunity(ii)=Wunity2(ii)
+        waveibr(ii)=waveibr2(ii)
+        wavediss(ii)=wavediss2(ii)*ramp
+      enddo
+      !do ii=1,ncells3DD
+      !   wavestrx3D1(ii)=wavestrx3D2(ii)
+      !   wavestry3D1(ii)=wavestry3D2(ii)
+      !   wavestrx3D(ii)=wavestrx3D2(ii)*ramp
+      !   wavestry3D(ii)=wavestry3D2(ii)*ramp
+      ! enddo
   	elseif(noptset==4)then !Constant wave conditions
   	  timehrs=ctime/3600.0
   	  ramp=min(timehrs/rampdur,1.0)
@@ -277,7 +277,7 @@
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    subroutine WVBRK2(CAB,JBV,II,JM,JJ)
+    subroutine WVBRK2_alex(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
 !  energy dissipation term is Battjes and Janssen's(1978)
 !    bore model with a breaker parameter based on Miche's criterion of
@@ -350,12 +350,12 @@
     endif
     
     return
-    endsubroutine WVBRK2
+    endsubroutine WVBRK2_alex
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    subroutine WVBRK4(CAB,JBV,II,JM,JJ)
+    subroutine WVBRK4_alex(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
 !  energy dissipation term is Battjes and Janssen's(1978)
 !    bore model with a breaker parameter based on Miche's criterion of
@@ -436,7 +436,7 @@
 !    endif  
     
     return
-    endsubroutine WVBRK4
+    endsubroutine WVBRK4_alex
     
 !****************************************************************    
     function wave_diss(h,Hs,T,L) result(Dbr)

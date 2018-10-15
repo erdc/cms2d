@@ -1,5 +1,5 @@
 !======================================================================
-module global
+module global_inline
 ! CMS-Wave 
 !======================================================================
     implicit none
@@ -11,5 +11,5 @@ module global
     integer, parameter :: IJPMX=IPMX*JPMX,IJGPX=IGPX*JGPX
     integer, parameter :: KOMX=4000,NOMX=80000
     
-endmodule global
+endmodule global_inline
     

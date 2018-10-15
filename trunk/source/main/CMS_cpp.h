@@ -2,6 +2,9 @@
 ** CMS Preprocessor Definitions
 */
 
+/* Turn ON/OFF MergedCode flag */
+#define MERGED_CODE
+
 /* Turn ON/OFF Windows */
 #define WIN_OS
 
