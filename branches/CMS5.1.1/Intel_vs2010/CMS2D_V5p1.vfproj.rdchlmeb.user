@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioUserFile ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{CBBA6C9A-9D83-4792-8F77-E72DB8D581B9}">
+	<Configurations>
+		<Configuration Name="Debug|Win32" CommandArguments="CB-Aug2014-MD-m-R4A.cmcards" WorkingDirectory="C:\!Temp\LihwaZekiTest\Chespeake-Bay-Aug2014-CCMS-Flow-exp"/>
+		<Configuration Name="Release|Win32" CommandArguments="CB-regional-flow100m.cmcards" WorkingDirectory="C:\!Temp\LihwaZekiTest"/>
+		<Configuration Name="Debug|x64" CommandArguments="CB-regional-flow100m.cmcards" WorkingDirectory="C:\!Temp\LihwaZekiTest"/>
+		<Configuration Name="Release|x64" CommandArguments="CB-regional-flow100m.cmcards" WorkingDirectory="C:\!Temp\LihwaZekiTest"/></Configurations></VisualStudioUserFile>
