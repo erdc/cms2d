@@ -213,6 +213,25 @@
     return
     endsubroutine removequotes
     
+!*****************************************************************
+    subroutine countquotes(string,count)
+!*****************************************************************
+    integer :: i,j,js,je,nn
+    character(len=*),intent(in) :: string
+    integer, intent(out) :: count
+    
+    count=0
+    nn=len_trim(string)
+    js=1; je=nn
+    do i=1,nn
+      if(string(i:i)=='"') then
+        count=count+1  
+      endif
+    enddo
+
+    return
+    endsubroutine countquotes
+
 !!***********************************************************************    
 !    subroutine copy_file_to_temp(file,tempfile)
 !!***********************************************************************    
@@ -245,7 +264,7 @@
 !      close(100,status='delete',iostat=ierr)
 !    endif
 !
-!    ! Make a copy of hot_start.h5 to temp.h5 and read from that.
+!    ! Make a copy of ICFILE to temp.h5 and read from that.
 !    !res = system('copy '//trim(file)//' '//trim(tempfile)//' > trash.txt')
 !    ierr = systemqq('copy '//trim(file)//' '//trim(tempfile)//' > trash.txt')
 !    inquire(file='trash.txt',exist=foundfile)

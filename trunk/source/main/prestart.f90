@@ -211,8 +211,10 @@
 #ifdef DEV_MODE
     if(q3d) call q3d_print !Quasi-3D
     if(veg) call veg_print !Vegetation
-    call wave_print
 #endif
+
+    call wave_print                                   !moved out of DEV_MODE conditional call - Mitch 06/23/2017
+
 #ifdef DREDGE
     if(dredging) call dredge_print !dredge module   
 #endif
@@ -297,11 +299,12 @@
     endsubroutine prestart
 
 !******************************************
-    subroutine read_lat_dataset
+    subroutine read_latlon_dataset(dset,string)
 !******************************************    
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: lat,latpath,idmap,avg_lat
+    use geo_def, only: lat,latpath,idmap
+    use geo_def, only: lon,lonpath
     use comvarbl, only: mpfile
 #ifdef XMDF_IO    
     use xmdf
@@ -309,41 +312,53 @@
     use diag_lib
     use prec_def
     implicit none
-    integer :: i,LFILE_ID,LAT_ID,iloc,ierr
+    integer :: i,LFILE_ID,LAT_ID,LON_ID, iloc,ierr
     real(4) :: vtemp(ncellsfull)
+    real(4),      intent(inout) :: dset(*)
+    character(4), intent(in)    :: string
     
 #ifdef XMDF_IO
+    select case(string)
+    case('Lats')
     call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
     iloc=index(latpath,'/',BACK=.TRUE.)
     latpath = latpath(1:iloc)        
     call XF_OPEN_GROUP(LFILE_ID,trim(latpath),LAT_ID,ierr)
     call XF_READ_PROPERTY_FLOAT(LAT_ID,'Lats',ncellsfull,vtemp(1),ierr)
     if(ierr<0) then
-      !write (*,*) "Error reading all Latitudes - using average value of those found"
-      !call XF_GET_PROPERTY_NUMBER(LAT_ID,'Lats',nlat,ierr)          !get number of values in 'Lats' 
-      !call XF_READ_PROPERTY_FLOAT(LAT_ID,'Lats',nlat,vtemp(1),ierr)  !only retrieve that number
-      !avg_lat = sum(vtemp(1:nlat))/real(nlat)                   !mean value for lats
-      !vtemp = avg_lat
       write (*,*) "Error reading all Latitudes - setting latitude to zero."      
-      lat = 0.0
+        dset(1:ncellsfull) = 0.0
       return
     endif
     call XF_CLOSE_FILE(LFILE_ID,ierr)
+    case('Lons')
+      call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
+      iloc=index(lonpath,'/',BACK=.TRUE.)
+      lonpath = lonpath(1:iloc)        
+      call XF_OPEN_GROUP(LFILE_ID,trim(lonpath),LON_ID,ierr)
+      call XF_READ_PROPERTY_FLOAT(LON_ID,'Lons',ncellsfull,vtemp(1),ierr)
+      if(ierr<0) then
+        write (*,*) "Error reading all Longitudes - setting longitude to zero."      
+        dset(1:ncellsfull) = 0.0
+        return
+      endif
+      call XF_CLOSE_FILE(LFILE_ID,ierr)
+    end select
     
-    vtemp(1)=vtemp(2) !SMS bug fix, SMS always outputs 0.0 for first cell
+    if (vtemp(1) == 0.0) vtemp(1)=vtemp(2) !SMS bug fix, SMS always outputs 0.0 for first cell
     do i=1,ncellsfull 
       if(idmap(i)/=0)then
-        lat(idmap(i)) = vtemp(i)
+        dset(idmap(i)) = vtemp(i)
       endif
     enddo
 #else
-    call diag_print_warning('Cannot read latitude dataset without XMDF libraries',&
-      '  Setting latitude to zero')
-    lat = 0.0    
+    call diag_print_warning('Cannot read lat/long dataset without XMDF libraries',&
+      '  Setting to zero')
+    dset = 0.0    
 #endif
     
     return
-    endsubroutine read_lat_dataset
+    endsubroutine read_latlon_dataset
 
 !*****************************************************       
     subroutine ignr_cards(cardname,foundcard)

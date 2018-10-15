@@ -1659,7 +1659,7 @@
     use wave_flowgrid_def
     use cms_def
 #ifdef XMDF_IO
-    use in_lib, only: readscalsteph5,readvecsteph5
+    use in_xmdf_lib, only: readscalsteph5,readvecsteph5
 #endif   
     use rol_def, only: roller,Sr,rolflux
     use sed_def, only: sedtrans,wavesedtrans,dzb

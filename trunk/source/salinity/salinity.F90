@@ -93,7 +93,7 @@
       icsal = 1  
       
     case('SALINITY_IC_DATASET') !Spatially variable dataset
-      call card_dataset(77,grdfile,flowpath,salfile,salpath)
+      call card_dataset(77,grdfile,flowpath,salfile,salpath,1)
       salinitconst = .false.  
       icsal = 2
         
@@ -157,7 +157,7 @@ d1: do k=1,10
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)  
       case('SALINITY_CURVE')
-        call card_dataset(77,mpfile,flowpath,sal_str(nsalstr)%salfile,sal_str(nsalstr)%salpath)
+        call card_dataset(77,mpfile,flowpath,sal_str(nsalstr)%salfile,sal_str(nsalstr)%salpath,1)
         
       case('SALINITY_CONSTANT')
         backspace(77)
@@ -198,7 +198,7 @@ d1: do k=1,10
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)  
       case('SALINITY_CURVE')
-        call card_dataset(77,mpfile,flowpath,salfile,salpath)
+        call card_dataset(77,mpfile,flowpath,salfile,salpath,1)
         isaltype = 2
         
       case('SALINITY_CONSTANT')
@@ -305,9 +305,12 @@ d1: do k=1,10
     use comvarbl, only:  ntsch
     use sal_def
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
+    
     implicit none
+    character(len=10):: aext
     integer :: ierr,i,j,isal
 
     !------ Boundary Conditions -------------------------
@@ -331,13 +334,16 @@ d1: do k=1,10
     if(icsal==1)then !Constant value
       sal = salic
     elseif(icsal==2)then !Specified dataset
+      call fileext(trim(salfile),aext)      
+      select case (aext)
+      case('h5')
 #ifdef XMDF_IO      
       call readscalh5(salfile,salpath,sal,ierr)
-#else
-      write(*,*) 'ERROR: Cannot read salinity initial condition without XMDF'
-      read(*,*)
-      stop
 #endif
+      case('txt')
+        call readscalTxt(salfile,sal,ierr)
+      end select
+      
       if(ierr/=0)then
         write(*,*) 'ERROR: Check path for salinity initial concentration dataset'
         write(*,*) 'Press any key to continue.'

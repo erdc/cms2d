@@ -77,7 +77,7 @@
 #ifdef PROFILE
       call watch_start('Initialize')
 #endif  
-      call prestart  !set defualts and read card file'      
+      call prestart  !set defaults and read card file'      
             
       call sim_start_print  !Start timer here   !!Added MEB 4/14/2016
 
@@ -171,6 +171,9 @@
         do ii=1,numREGCells
           i=REGCells(ii)          
           depthT = eta(i) - zb(i)
+          if(depthT .eq. 0) then
+            depthT = max(depthT,0.0000001)
+          endif
           U(i) = (xface_QN(cellfaces(3,i)) +xface_QN(cellfaces(7,i)))/2.0
           u(i) = u(i)/DepthT
           v(i) = (yface_QN(cellfaces(1,i)) +yface_QN(cellfaces(5,i)))/2.0

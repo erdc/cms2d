@@ -96,7 +96,19 @@
 !***********************************************************    
     subroutine stat_init
 ! Initialize global statistics variables
-! written by Alex Sanchez, USACE=CHL
+! There are several variables that contain the timing information for the calculations of statistics
+! depending on the type of statistics.  These are: 
+!   tstat     (global stats)
+!   tflowstat (hydrodynamic stats)
+!   tsedstat  (sediment stats)
+!   tsalstat  (salinity stats)
+!   twavstat  (wave stats)
+! These variables are each composed as an array of three timing values as follows:
+!   tstat(1) - Beginning time
+!   tstat(2) - Ending time
+!   tstat(3) - Update interval
+!
+! written by Alex Sanchez, USACE CHL
 !***********************************************************    
     use size_def        
     use cms_def, only: noptset
@@ -348,7 +360,7 @@
     use comvarbl, only: dtimebeg
     implicit none
     
-    !IUpdate nterval
+    !Update Interval
     tsalstat(3) = max(tsalstat(3),dtimebeg)
       
     !Replace with global if not declared
@@ -430,7 +442,7 @@
     
 451 format(A,F10.2,A)      
       write(iuniti,*)	
-	  write(iuniti,'(A,A)')  trim(groupname),'  Statistics:                ON'
+	  write(iuniti,'(A,A,A)')  ' ',trim(groupname),' Statistics:                ON'
 	  write(iuniti,451,iostat=ierr)    '   Starting at:                ',tgroupstat(1)/3600.0,' hrs'
 	  write(iuniti,451,iostat=ierr)    '   Ending at:                  ',tgroupstat(2)/3600.0,' hrs'
       write(iuniti,451,iostat=ierr)    '   Duration:                   ',(tgroupstat(2)-tgroupstat(1))/3600.0,' hrs'
@@ -446,16 +458,16 @@
     use stat_def
     implicit none
     
-    if(flowstats) call stat_udate_flow  !Flow statistics
-    if(sedstats)  call stat_udate_sed   !Sediment statistics
-    if(salstats)  call stat_udate_sal   !Salinity statistics
+    if(flowstats) call stat_update_flow  !Flow statistics
+    if(sedstats)  call stat_update_sed   !Sediment statistics
+    if(salstats)  call stat_update_sal   !Salinity statistics
     if(wavestats) call stat_update_wave !Wave statistics
     
     return
     endsubroutine stat_update
     
 !***************************************************************************
-    subroutine stat_udate_flow()
+    subroutine stat_update_flow()
 ! Calculate the flow statistics
 !
 ! Revision list:
@@ -736,10 +748,10 @@
     endif
     
     return
-    endsubroutine stat_udate_flow
+    endsubroutine stat_update_flow
     
 !***********************************************************    
-    subroutine stat_udate_sed()
+    subroutine stat_update_sed()
 ! Calculate Sediment Statistics 
 ! written by Alex Sanchez, USACE=CHL
 !***********************************************************        
@@ -794,7 +806,7 @@
     
     rdninv = 1.0/max(float(nsedstatcount),1.0)
     
-    !Averaging is done by multiplying by the time increment than dividing the time interval
+    !Averaging is done by multiplying by the time increment then dividing the time interval
     fac = tsedstat(3)/(tsedstat(2)-tsedstat(1))
        
     !Sediment Transport
@@ -837,10 +849,10 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine stat_udate_sed
+    endsubroutine stat_update_sed
     
 !***********************************************************    
-    subroutine stat_udate_sal()
+    subroutine stat_update_sal()
 ! Calculate Salinity Statistics 
 ! written by Alex Sanchez, USACE=CHL
 !***********************************************************        
@@ -902,7 +914,7 @@
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine stat_udate_sal
+    endsubroutine stat_update_sal
     
 !***********************************************************    
     subroutine stat_update_wave
@@ -982,8 +994,9 @@
     
 !*****************************************************************************************
     subroutine stat_write_flow()
-! Writes the flow tatistics
+! Writes the flow statistics
 ! Author: Alex Sanchez, USACE-CHL
+! Modified for ASCII output by Mitchell Brown, USACE-CHL - 02/27/2018
 !*****************************************************************************************
 #include "CMS_cpp.h"
     use size_def, only: ncellpoly
@@ -995,32 +1008,48 @@
 #ifdef XMDF_IO
     use out_lib, only: writescalh5,writevech5
 #endif
+    use out_lib, only: writescalTxt,writevecTxt
+    use out_def, only: write_xmdf_output
+
     implicit none
+    character(len=10) aext
+    character(len=200) dirpath
     
-    write(msg2,'(A,F7.2,A)') 'Writing Flow Statistics at: ',timehrs,' hrs'
+    !call fileext(statfile,aext)
+    if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
+      aext='h5        '
+      write(msg2,'(A,F7.2,A)') 'Writing XMDF Flow Statistics at: ',timehrs,' hrs'
+    else
+      aext='txt       '
+      write(msg2,'(A,F7.2,A)') 'Writing ASCII Flow Statistics at: ',timehrs,' hrs'
+    endif
+    if(write_xmdf_output .or. timehrs .ne. 0.d0) then
     call diag_print_message(' ',msg2,' ')
+    endif  
     
+    select case(aext)
+    case ('h5')
 #ifdef XMDF_IO
     !Water levels
-    call writescalh5(statfile,statpath,'Water_Elevation_Max',etamax,'m',timehrs,1)
-    call writescalh5(statfile,statpath,'Water_Elevation_Min',etamin,'m',timehrs,1)
-    call writescalh5(statfile,statpath,'Water_Elevation_Max_Time',tetamax,'hrs',timehrs,1)
-    call writescalh5(statfile,statpath,'Water_Elevation_Min_Time',tetamin,'hrs',timehrs,1)
-    call writescalh5(statfile,statpath,'Water_Elevation_Avg',etamean,'m',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Max',etamax,'m',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Min',etamin,'m',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Max_Time',tetamax,'hrs',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Min_Time',tetamin,'hrs',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Avg',etamean,'m',timehrs,1)
     call writescalh5(statfile,statpath,'Hydroperiod',hydper,'none',timehrs,1)
-    call writescalh5(statfile,statpath,'Water_Elevation_Grad_Max_Mag',etamaxgrad,'none',timehrs,1)
+      call writescalh5(statfile,statpath,'WSE_Grad_Max_Mag',etamaxgrad,'none',timehrs,1)
     !Current Velocities
-    call writevech5(statfile,statpath,'Current_Velocity_Max',umax,vmax,'m/s',timehrs,1)
-    call writescalh5(statfile,statpath,'Current_Velocity_Max_Mag',uvmax,'m/s',timehrs,1)
-    call writescalh5(statfile,statpath,'Current_Velocity_Max_Time',tuvmax,'m/s',timehrs,1)
-    !call writescalh5(statfile,statpath,'Current_Velocity_X_Max',umax,'m/s',timehrs,1)
-    !call writescalh5(statfile,statpath,'Current_Velocity_Y_Max',vmax,'m/s',timehrs,1)
-    !call writescalh5(statfile,statpath,'Current_Velocity_X_Max_Time',tumax,'m/s',timehrs,1)
-    !call writescalh5(statfile,statpath,'Current_Velocity_Y_Max_Time',tvmax,'m/s',timehrs,1)
+      call writevech5 (statfile,statpath,'Current_Vel_Max',umax,vmax,'m/s',timehrs,1)
+      call writescalh5(statfile,statpath,'Current_Vel_Max_Mag',uvmax,'m/s',timehrs,1)
+      call writescalh5(statfile,statpath,'Current_Vel_Max_Time',tuvmax,'m/s',timehrs,1)
+      !call writescalh5(statfile,statpath,'Current_Vel_X_Max',umax,'m/s',timehrs,1)
+      !call writescalh5(statfile,statpath,'Current_Vel_Y_Max',vmax,'m/s',timehrs,1)
+      !call writescalh5(statfile,statpath,'Current_Vel_X_Max_Time',tumax,'m/s',timehrs,1)
+      !call writescalh5(statfile,statpath,'Current_Vel_Y_Max_Time',tvmax,'m/s',timehrs,1)
     call writevech5(statfile,statpath,'Current_Residual',ur,vr,'m/s',timehrs,1)
     call writescalh5(statfile,statpath,'Current_Residual_Mag',uvr,'m/s',timehrs,1)     
     call writescalh5(statfile,statpath,'Flow_Curvature',uvcurv,'1/m',timehrs,1)
-    call writescalh5(statfile,statpath,'Cur_Grad_Max_Mag',uvmaxgrad,'1/s',timehrs,1)
+      call writescalh5(statfile,statpath,'Current_Grad_Max_Mag',uvmaxgrad,'1/s',timehrs,1)
     
     if(ncellpoly==0)then
       call writescalh5(statfile,statpath,'Grid_Qual_Smoothness',qareachg,'none',timehrs,1)
@@ -1058,9 +1087,58 @@
     call writescalh5(statfile,statpath,'dudy_Max',umaxcurvy,'1/s',timehrs,1)
     call writescalh5(statfile,statpath,'dvdx_Max',vmaxcurvx,'1/s',timehrs,1)
     call writescalh5(statfile,statpath,'dvdy_Max',vmaxcurvy,'1/s',timehrs,1)
-#else
-    call diag_print_warning('Cannot write flow statistics without XMDF libraries')
 #endif
+    case('txt')
+       dirpath='Statistics' 
+      
+      !Only write ASCII output at end, not the beginning. 
+      if(timehrs.ne.0.d0) then
+        !Water levels
+        call writescalTxt(statfile,dirpath,'WSE_Max',etamax,1)
+        call writescalTxt(statfile,dirpath,'WSE_Min',etamin,1)
+        call writescalTxt(statfile,dirpath,'WSE_Max_Time',tetamax,1)
+        call writescalTxt(statfile,dirpath,'WSE_Min_Time',tetamin,1)
+        call writescalTxt(statfile,dirpath,'WSE_Avg',etamean,1)
+        call writescalTxt(statfile,dirpath,'Hydroperiod',hydper,1)
+        call writescalTxt(statfile,dirpath,'WSE_Grad_Max_Mag',etamaxgrad,1)
+        !Current Velocities
+        call writevecTxt (statfile,dirpath,'Current_Vel_Max',umax,vmax,1)
+        call writescalTxt(statfile,dirpath,'Current_Vel_Max_Mag',uvmax,1)
+        call writescalTxt(statfile,dirpath,'Current_Vel_Max_Time',tuvmax,1)
+        call writevecTxt (statfile,dirpath,'Current_Residual',ur,vr,1)
+        call writescalTxt(statfile,dirpath,'Current_Residual_Mag',uvr,1)     
+        call writescalTxt(statfile,dirpath,'Flow_Curvature',uvcurv,1)
+        call writescalTxt(statfile,dirpath,'Current_Grad_Max_Mag',uvmaxgrad,1)
+      
+        if(ncellpoly==0)then
+          call writescalTxt(statfile,dirpath,'Grid_Qual_Smoothness',qareachg,1)
+          call writescalTxt(statfile,dirpath,'Grid_Qual_Courant_X',qcflxmax,1)
+          call writescalTxt(statfile,dirpath,'Grid_Qual_Courant_Y',qcflymax,1)
+          call writescalTxt(statfile,dirpath,'Grid_Qual_Froude_X',qFrxmax,1)
+          call writescalTxt(statfile,dirpath,'Grid_Qual_Froude_Y',qFrymax,1)
+        endif
+      
+        call writescalTxt(statfile,dirpath,'Vx_Norm_Res_Avg',rsuavg,1)
+        call writescalTxt(statfile,dirpath,'Vy_Norm_Res_Avg',rsvavg,1)
+        call writescalTxt(statfile,dirpath,'Pres_Norm_Res_Avg',rspavg,1)
+        call writescalTxt(statfile,dirpath,'Vx_Norm_Res_Max',rsumax,1)
+        call writescalTxt(statfile,dirpath,'Vy_Norm_Res_Max',rsvmax,1)
+        call writescalTxt(statfile,dirpath,'Pres_Norm_Res_Max',rspmax,1)
+        
+        if(ncellpoly==0)then
+          call writescalTxt(statfile,dirpath,'Courant_Max_X',cflxmax,1)
+          call writescalTxt(statfile,dirpath,'Courant_Max_Y',cflymax,1)
+          call writescalTxt(statfile,dirpath,'Froude_Max_X',frxmax,1)    
+          call writescalTxt(statfile,dirpath,'Froude_Max_Y',frymax,1)
+        endif
+    
+        call writescalTxt(statfile,dirpath,'dudx_Max',umaxcurvx,1)
+        call writescalTxt(statfile,dirpath,'dudy_Max',umaxcurvy,1)
+        call writescalTxt(statfile,dirpath,'dvdx_Max',vmaxcurvx,1)
+        call writescalTxt(statfile,dirpath,'dvdy_Max',vmaxcurvy,1)
+      endif  
+        
+    end select
     
     return
     endsubroutine stat_write_flow
@@ -1069,6 +1147,7 @@
     subroutine stat_write_sed()
 ! Writes the sediment transport statistics
 ! Author: Alex Sanchez, USACE-CHL
+! Modified for ASCII output by Mitchell Brown, USACE-CHL - 02/27/2018
 !********************************************************************************************
 #include "CMS_cpp.h"
     use size_def, only: ncellsD
@@ -1079,14 +1158,30 @@
 #ifdef XMDF_IO
     use out_lib, only: writescalh5,writevech5
 #endif
+    use out_lib, only: writescalTxt,writevecTxt
+    use out_def, only: write_xmdf_output
+
     implicit none
+    character(len=10) aext
+    character(len=200) dirpath
     real(ikind) :: ones(ncellsD)
     
-    write(msg2,'(A,F7.2,A)') 'Writing Sediment Statistics at: ',timehrs,' hrs'
+    !call fileext(statfile,aext)
+    if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
+      aext='h5        '
+      write(msg2,'(A,F7.2,A)') 'Writing XMDF Sediment Statistics at: ',timehrs,' hrs'
+    else
+      aext='txt       '
+      write(msg2,'(A,F7.2,A)') 'Writing ASCII Sediment Statistics at: ',timehrs,' hrs'
+    endif
+    if(write_xmdf_output .or. timehrs .ne. 0.d0) then
     call diag_print_message(' ',msg2,' ')
+    endif  
     
     ones = 1.0
     
+    select case(aext)
+    case ('h5')
 #ifdef XMDF_IO
     call writescalh5(statfile,statpath,'Ones',ones,'none',timehrs,1) !Used in SMS for flux calculations
     call writevech5(statfile,statpath,'Sed_Transp_Max',qtxmax,qtymax,'m/s',timehrs,1)
@@ -1096,9 +1191,21 @@
     call writescalh5(statfile,statpath,'Sed_Transp_Gross_Mag',qtg,'kg/m/s',timehrs,1)
     call writescalh5(statfile,statpath,'Conc_Norm_Res_Avg',rsCtm,'none',timehrs,1)
     !call writescalh5(statfile,statpath,'Conc_Norm_Res_Max',rsCtmax,'none',timehrs,1)
-#else
-    call diag_print_warning('Cannot write simulation statistics without XMDF')
 #endif
+    case('txt')
+      dirpath='Statistics' 
+      
+      !Only write ASCII output at end, not the beginning. 
+      if(timehrs.ne.0.d0) then
+        call writescalTxt(statfile,dirpath,'Ones',ones,1) !Used in SMS for flux calculations
+        call writevecTxt (statfile,dirpath,'Sed_Transp_Max',qtxmax,qtymax,1)
+        call writescalTxt(statfile,dirpath,'Sed_Transp_Max_Mag',qtmax,1)
+        call writevecTxt (statfile,dirpath,'Sed_Transp_Net',qtxn,qtyn,1)
+        call writescalTxt(statfile,dirpath,'Sed_Transp_Net_Mag',qtn,1)
+        call writescalTxt(statfile,dirpath,'Sed_Transp_Gross_Mag',qtg,1)
+        call writescalTxt(statfile,dirpath,'Conc_Norm_Res_Avg',rsCtm,1)
+      endif    
+    end select
     
     return
     endsubroutine stat_write_sed
@@ -1107,6 +1214,7 @@
     subroutine stat_write_sal()
 ! Writes the salinity transport statistics
 ! Author: Alex Sanchez, USACE-CHL
+! Modified for ASCII output by Mitchell Brown, USACE-CHL - 02/27/2018
 !***************************************************************************************
 #include "CMS_cpp.h"
     use stat_def
@@ -1116,20 +1224,43 @@
 #ifdef XMDF_IO
     use out_lib, only: writescalh5
 #endif
-    implicit none
+    use out_lib, only: writescalTxt,writevecTxt
+    use out_def, only: write_xmdf_output
 
-    write(msg2,'(A,F7.2,A)') 'Writing Salinity Statistics at: ',timehrs,' hrs'
+    implicit none
+    character(len=10) aext
+    character(len=200) dirpath
+
+    if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
+      aext='h5        '
+      write(msg2,'(A,F7.2,A)') 'Writing XMDF Salinity Statistics at: ',timehrs,' hrs'
+    else
+      aext='txt       '
+      write(msg2,'(A,F7.2,A)') 'Writing ASCII Salinity Statistics at: ',timehrs,' hrs'
+    endif
+    if(write_xmdf_output .or. timehrs .ne. 0.d0) then
     call diag_print_message(' ',msg2,' ')
+    endif  
     
+    select case(aext)
+    case ('h5')
 #ifdef XMDF_IO
     call writescalh5(statfile,statpath,'Salinity_Max',salmax,'ppt',timehrs,1)
     call writescalh5(statfile,statpath,'Salinity_Min',salmin,'ppt',timehrs,1)
     call writescalh5(statfile,statpath,'Salinity_Avg',salavg,'ppt',timehrs,1)
     call writescalh5(statfile,statpath,'Salinity_Norm_Res',rssalm,'none',timehrs,1) 
-#else
-    call diag_print_warning('Cannot write salinity statistics without XMDF libraries')
 #endif 
+    case ('txt')
+      dirpath='Statistics' 
 
+      !Only write ASCII output at end, not the beginning. 
+      if(timehrs.ne.0.d0) then
+        call writescalTxt(statfile,dirpath,'Salinity_Max',salmax,1)
+        call writescalTxt(statfile,dirpath,'Salinity_Min',salmin,1)
+        call writescalTxt(statfile,dirpath,'Salinity_Avg',salavg,1)
+        call writescalTxt(statfile,dirpath,'Salinity_Norm_Res',rssalm,1) 
+      endif
+    end select 
     return
     endsubroutine stat_write_sal
     
@@ -1137,6 +1268,7 @@
     subroutine stat_write_wave()
 ! Writes the wave statistics
 ! Author: Alex Sanchez, USACE-CHL
+! Modified for ASCII output by Mitchell Brown, USACE-CHL - 02/27/2018
 !*****************************************************************************************
 #include "CMS_cpp.h"
     use stat_def
@@ -1146,11 +1278,26 @@
 #ifdef XMDF_IO
     use out_lib, only: writescalh5,writevech5
 #endif
+    use out_lib, only: writescalTxt,writevecTxt
+    use out_def, only: write_xmdf_output
+
     implicit none
+    character(len=10) aext
+    character(len=200) dirpath
     
-    write(msg2,'(A,F7.2,A)') 'Writing Wave Statistics at: ',timehrs,' hrs'
+    if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
+      aext='h5        '
+      write(msg2,'(A,F7.2,A)') 'Writing XMDF Wave Statistics at: ',timehrs,' hrs'
+    else
+      aext='txt       '
+      write(msg2,'(A,F7.2,A)') 'Writing ASCII Wave Statistics at: ',timehrs,' hrs'
+    endif
+    if(write_xmdf_output .or. timehrs .ne. 0.d0) then
     call diag_print_message(' ',msg2,' ')
+    endif  
     
+    select case (aext)
+    case('h5')
 #ifdef XMDF_IO
     call writescalh5(statfile,statpath,'Wave_Height_Max',whgtmax,'m',timehrs,1)
     call writescalh5(statfile,statpath,'Wave_Breaking_Max',wdissmax,'none',timehrs,1)          
@@ -1159,9 +1306,20 @@
     call writevech5(statfile,statpath,'Wave_Height_Mean_Vec',whgtmeanx,whgtmeany,'m/s',timehrs,1)
     call writescalh5(statfile,statpath,'Wave_Period_Mean',wpermean,'sec',timehrs,1)
     !call writevech5(statfile,statpath,'Bed_Slope_Max',bedmaxslpx,bedmaxslpy,'none',timehrs,1)
-#else
-    call diag_print_warning('Cannot write wave statistics without XMDF libraries')
 #endif 
+    case('txt')
+      dirpath='Statistics' 
+      
+      !Only write ASCII output at end, not the beginning. 
+      if(timehrs.ne.0.d0) then
+        call writescalTxt(statfile,dirpath,'Wave_Height_Max',whgtmax,1)
+        call writescalTxt(statfile,dirpath,'Wave_Breaking_Max',wdissmax,1)          
+        call writescalTxt(statfile,dirpath,'Ursell_Max',ursellmax,1)    
+        call writescalTxt(statfile,dirpath,'Wave_Height_Mean',whgtmean,1)
+        call writevecTxt (statfile,dirpath,'Wave_Height_Mean_Vec',whgtmeanx,whgtmeany,1)
+        call writescalTxt(statfile,dirpath,'Wave_Period_Mean',wpermean,1)
+      endif        
+    end select
 
     return
     endsubroutine stat_write_wave
@@ -1180,14 +1338,20 @@
     use sed_def, only: sedtrans
     use diag_lib
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5,readvech5
+    use in_xmdf_lib, only: readscalh5,readvech5
     use xmdf
 #endif
+    use in_lib, only: readscalTxt,readvecTxt
     use out_def, only: simlabel
+    
     implicit none    
-    integer :: nn,error,fid,gid
+    integer :: nn,error,fid,gid,kunit
     character(len=200) :: apath
+    character(len=10)  :: aext
      
+    call fileext(trim(statfile),aext)
+    select case (aext)
+      case('h5')
 #ifdef XMDF_IO  
     nn=len_trim(statpath)    
     call XF_OPEN_FILE(trim(statfile),READONLY,fid,error)   
@@ -1240,10 +1404,27 @@
     
     apath = statpath(1:nn) // 'Sed_Transp_Max'  
     call readvech5(statfile,apath,qtxmax,qtymax,error)
-    
-#else
-    call diag_print_error('Cannot read statistics without XMDF Libraries')
 #endif
+      case('txt')  
+        kunit=600  
+        open(kunit,FILE=statfile)
+        
+        call readvecTxt(statfile,umax,umax,error)      !'Current_Max'   
+        call readscalTxt(statfile,uvmax,error)         !'Current_Max_Mag'  
+        call readscalTxt(statfile,uvmax,error)         !'Water_Level_Max'  
+        call readvecTxt(statfile,ur,vr,error)          !'Current_Residual'  
+        call readscalTxt(statfile,uvr,error)           !'Current_Residual_Mag'  
+        call readscalTxt(statfile,hydper,error)        !'Hydroperiod'  
+        call readscalTxt(statfile,etamaxgrad,error)    !'WSE_Max_Grad_Mag'  
+        call readscalTxt(statfile,uvmaxgrad,error)     !'Cur_Max_Grad_Mag'  
+    
+        if(.not.sedtrans) return   
+        call readvecTxt(statfile,qtxn,qtyn,error)      !'Sed_Transp_Net'  
+        call readscalTxt(statfile,qtn,error)           !'Sed_Transp_Net_Mag'  
+        call readscalTxt(statfile,qtg,error)           !'Sed_Transp_Gross_Mag'  
+        call readvecTxt(statfile,qtxmax,qtymax,error)  !'Sed_Transp_Max'  
+        close(kunit)
+      end select   
     
     return
     endsubroutine stat_read

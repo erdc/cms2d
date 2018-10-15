@@ -116,6 +116,7 @@
 		<File RelativePath="..\source\solvers\ilutp.f90"/>
 		<File RelativePath="..\source\input\in_def.F90"/>
 		<File RelativePath="..\source\input\in_lib.f90"/>
+		<File RelativePath="..\source\input\in_xmdf_lib.f90"/>
 		<File RelativePath="..\source\explicit\initialize_flow_arrays.f90"/>
 		<File RelativePath="..\source\explicit\initialize_flow_arrays_Tel_v02.f90"/>
 		<File RelativePath="..\source\input\input.F90"/>

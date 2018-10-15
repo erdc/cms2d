@@ -653,7 +653,7 @@
     !Latitudes  
     if(len_trim(latpath)>0 .and. trim(latpath)/='NONE')then
       allocate(lat(ncellsD))
-      call read_lat_dataset !Required because latitude dataset is saved as a group property
+      call read_latlon_dataset(lat,'Lats')  !Required because latitude dataset is saved as a group property
       avg_lat = sum(lat(1:ncells))/real(ncells,kind=ikind) !mean value
       deallocate(lat)
     endif

@@ -18,7 +18,7 @@ module out_lib
 !
 ! written by Alex Sanchez, USACE-CHL
 !            Weiming Wu, NCCHE
-!            Mitchel Brown, USACE-CHL
+!            Mitchell Brown, USACE-CHL
 !==============================================================================    
 #include "CMS_cpp.h"
     implicit none
@@ -164,6 +164,9 @@ contains
 ! written by Alex Sanchez, USACE-ERDC-CHL, 
 ! Last modified April 8, 2011
 !***********************************************************************
+    use IFPORT
+    use diag_lib, only: diag_print_error
+    
     implicit none
     integer :: nunit
     character(len=*) :: aname
@@ -230,10 +233,10 @@ contains
     cosAng = cos(azimuth_fl*deg2rad)
     sinAng = sin(azimuth_fl*deg2rad)
     do i=nc,1,-1
-!     xtemp = xOrigin + x(i)*cosAng - y(i)*sinAng     !This writes the .xy files out with the wrong angle convention  !meb 01/13/2017
-!     ytemp = yOrigin + x(i)*sinAng + y(i)*cosAng
-      xtemp = xOrigin + x(i)*cosAng + y(i)*sinAng     !This write the file out correctly.                             !meb 01/13/2017
-      ytemp = yOrigin - x(i)*sinAng + y(i)*cosAng
+     xtemp = xOrigin + x(i)*cosAng - y(i)*sinAng     !This writes the .xy files out with the wrong angle convention  !meb 01/13/2017   !switched back 05/22/2018
+     ytemp = yOrigin + x(i)*sinAng + y(i)*cosAng
+!      xtemp = xOrigin + x(i)*cosAng + y(i)*sinAng     !This write the file out correctly.                             !meb 01/13/2017
+!      ytemp = yOrigin - x(i)*sinAng + y(i)*cosAng
       write(nunit,207) i,xtemp,ytemp
     enddo
     write(nunit,208)
@@ -251,14 +254,15 @@ contains
     use comvarbl, only: timehrs,reftime
     use diag_def, only: debug_mode
     use prec_def
+    
     implicit none  
     !Input/Output
     character(len=*),intent(in) :: aname,avarname,asuffix
     real(ikind),intent(in) :: var(ncellsD)
     !Internal Variables
-    integer :: i,nunit,id,nc
-    character(len=200) :: filedat,filesup
-    logical :: isnankind
+    integer :: i,nunit,id,nc,k,ierr
+    character(len=200) :: filedat,filesup,aline,cardname
+    logical :: isnankind, found, foundfile
 
 103 format('DATA    "',A,'"')
 301 format('DATASET')
@@ -284,7 +288,20 @@ contains
     else
       nc = ncells
     endif  
-    if(timehrs<1.e-6)then
+    
+    !Testing new way
+    inquire(file=filedat,exist=found)
+    if(found) then
+      !File exists. but this is a cold start and at the beginning. Delete the file and start over so you don't get duplicate records.  05/21/2018
+      if (timehrs .eq. 0.d0) then
+        open(nunit,file=filedat)
+        close(nunit,status='DELETE')
+        found = .false.  !reset this so it goes through the next section properly.
+      endif
+    endif
+    
+    if(.not.found) then   !file doesn't exist, so write header information
+    !if(timehrs<1.e-6)then       !Old way
       open(nunit,file=filedat,status='unknown',action='write')
       write(nunit,301)
       write(nunit,302)  
@@ -296,9 +313,25 @@ contains
       write(nunit,309) reftime
       write(nunit,310)   
       filesup = trim(aname) // '_sol.sup'  
-      open(46,file=filesup,status='old',position='append')
-      write(46,103) trim(filedat)
+
+      !Only add the filename the first time.
+      open(46,file=filesup,status='old')
+      foundfile=.false.
+      do k=1,1000
+        read(46,'(A100)',iostat=ierr) aline
+        if(ierr/=0) exit
+        i = index(aline,trim(filedat))
+        if (i.gt.0) then
+          foundfile=.true.
+          exit
+        endif
+      enddo
       close(46)
+      if(.not.foundfile) then
+        open(46,file=filesup,status='old',position='append')
+        write(46,103) trim(filedat)
+        close(46)
+      endif  
     else
       open(nunit,file=filedat,status='old',position='append')
       backspace(nunit)
@@ -435,15 +468,16 @@ contains
     character(len=*),intent(in) :: aname,avarname,asuffix
     real(ikind),intent(in) :: varx(ncellsD),vary(ncellsD)
     !Internal Variables
-    integer :: i,nunit,id,nc
+    integer :: i,nunit,id,nc,ierr,k
     real(ikind) :: cosAng,sinAng,xvec,yvec
-    character(len=200) :: filedat,filesup
-    logical :: isnankind
+    character(len=200) :: filedat,filesup,aline,cardname
+    logical :: isnankind, found, foundfile
 
 103 format('DATA    "',A,'"')
 301 format('DATASET')
 302 format('OBJTYPE "scat2d"')
 304 format('BEGVEC')
+303 format('VECTYPE 0')     !missing from file format - added 031618 MEB
 305 format('OBJID',1x,I5)
 306 format('ND',1x,I6)
 307 format('NC',1x,I6)
@@ -464,11 +498,25 @@ contains
     else
       nc = ncells
     endif 
-    if(timehrs<1.e-6)then
+
+    !Testing new way
+    inquire(file=filedat,exist=found)
+    if(found) then
+      !File exists. but this is a cold start and at the beginning. Delete the file and start over so you don't get duplicate records.  05/21/2018
+      if (timehrs .eq. 0.d0) then
+        open(nunit,file=filedat)
+        close(nunit,status='DELETE')
+        found = .false.  !reset this so it goes through the next section properly.
+      endif
+    endif
+   
+    if(.not.found) then   !file doesn't exist, so write header information
+    !if(timehrs<1.e-6)then
       open(nunit,file=filedat,status='unknown',action='write')
       write(nunit,301)
       write(nunit,302)  
       write(nunit,304)
+      write(nunit,303)
       write(nunit,305) id
       write(nunit,306) nc
       write(nunit,307) nc
@@ -476,9 +524,25 @@ contains
       write(nunit,309) reftime
       write(nunit,310)
       filesup = trim(aname) // '_sol.sup'  
-      open(46,file=filesup,status='old',position='append')
-      write(46,103) trim(filedat)
+
+      !Search for filename and only add the filename the first time
+      open(46,file=filesup,status='old')
+      foundfile=.false.
+      do k=1,1000
+        read(46,'(A100)',iostat=ierr) aline
+        if(ierr/=0) exit
+        i = index(aline,trim(filedat))
+        if (i.gt.0) then
+          foundfile=.true.
+          exit
+        endif
+      enddo
       close(46)
+      if(.not.foundfile) then
+        open(46,file=filesup,status='old',position='append')
+        write(46,103) trim(filedat)
+        close(46)
+      endif  
     else
       open(nunit,file=filedat,status='old',position='append')
       backspace(nunit)
@@ -504,6 +568,148 @@ contains
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! SMS End
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+
+!**************************************************************************
+    subroutine writescalTxt(afile,apath,dname,var,iwritedry)
+! writes a scalar dataset to a TXT dataset file with id number PID
+! - APATH differs in this from the XMDF format to allow for a subdirectory
+!   to hold the many statistics ASCII files in one location.
+! written by Mitchell Brown, USACE-ERDC-CHL  
+! afile = filename
+! apath = subdirectory to place files (will create if it doesn't exist)
+! dname = dataset name for this variable
+!**************************************************************************
+    use size_def, only: ncellsD,ncellsfull,ncellpoly
+    use interp_lib, only: interp_scal_cell2node
+    use prec_def
+    use diag_lib, only: diag_print_error
+#ifdef WIN_OS    
+    use IFPORT
+#endif
+    implicit none
+    !Input/Output
+    character(len=*),intent(in) :: afile,apath,dname
+    real(ikind),intent(in) :: var(ncellsD)
+    integer,intent(in) :: iwritedry
+    !Internal variables
+    integer :: kunit,j
+    real(8) :: timed  !Must be double    
+    real(4) :: scalout(ncellsfull) !Must be single
+    character(len=200) :: afullpath, thefile, ppath, pname
+    character(len=10)  :: pext
+    logical :: found, created
+    
+    call fileparts(afile,ppath,pname,pext)  !Break 'afile' into <directory path>, <name>, and <extension>.
+    
+    kunit = 601
+    if(ncellpoly>0)then
+      call interp_scal_cell2node(var,scalout,iwritedry)
+    else
+      call map_scal_active2full(var,scalout,iwritedry)  
+    endif
+    
+!    afullpath=trim(apath)//trim(aname)    
+    if (apath==' ') then
+      thefile=trim(pname)//"_"//trim(dname)//'.txt'  !Don't create a directory and put into the current directory path
+    else
+#ifdef WIN_OS        
+      inquire(directory=trim(apath), exist=found)
+      if (.not.found) then 
+        created=MakeDirQQ(trim(apath))
+        if (.not.created) then
+          call diag_print_error('Failed to create subdirectory- '//trim(apath))
+        endif
+      endif
+#else
+      inquire(file=trim(apath), exist=found)
+      if (.not.found) then 
+        call system('mkdir '//(trim(apath)))
+      endif
+#endif
+      thefile=trim(apath)//'/'//trim(pname)//"_"//trim(dname)//'.txt'
+    endif  
+
+200 FORMAT (I0,x,I1,5x,'!Number of cells, Number of dimensions')    
+201 FORMAT (25(E10.3,2x))
+    
+    open(kunit,FILE=thefile)
+    write(kunit,200) ncellsfull, 1  !Always 1 for Scalar
+    write(kunit,201) (scalout(j),j=1,ncellsfull)
+    close(kunit)
+    
+    return
+    end subroutine writescalTxt
+    
+!**************************************************************************
+    subroutine writevecTxt(afile,apath,dname,varx,vary,iwritedry)
+! writes a vector dataset to the TXT dataset file with id ncellsfull PID
+!
+! written by Mitchell Brown, USACE-ERDC-CHL  
+! afile = filename
+! apath = subdirectory to place files (will create if it doesn't exist)
+! dname = dataset name for this variable    
+!**************************************************************************
+    use size_def, only: ncellsD,ncellsfull,ncellpoly
+    use diag_lib, only: diag_print_error
+    use interp_lib, only: interp_vec_cell2node
+    use prec_def
+#ifdef WIN_OS
+    use IFPORT
+#endif
+    implicit none
+    !Input/Output    
+    character(len=*),intent(in) :: afile,apath,dname
+    real(ikind),     intent(in) :: varx(ncellsD),vary(ncellsD)
+    integer,         intent(in) :: iwritedry    
+    !Internal Variables
+    integer :: kunit,j
+    real*8 :: timed !Must be double for XMDF subs    
+    real*4 :: vecout(ncellsfull*2) !Must be single 
+    character(len=200) :: afullpath, thefile, ppath, pname
+    character(len=10)  :: pext
+    logical :: found, created
+    
+    call fileparts(afile,ppath,pname,pext)  !Break 'afile' into <directory path>, <name>, and <extension>.
+    
+    kunit = 602
+    if(ncellpoly>0)then
+      call interp_vec_cell2node(varx,vary,vecout,iwritedry)
+    else
+      call map_vec_active2full(varx,vary,vecout,iwritedry)  
+    endif
+    
+!    afullpath=trim(apath)//trim(aname)    
+    if (apath==' ') then
+      thefile=trim(pname)//"_"//trim(dname)//'.txt'  !Don't create a directory and put into the current directory path
+    else
+#ifdef WIN_OS        
+      inquire(directory=trim(apath), exist=found)
+      if (.not.found) then 
+        created=MakeDirQQ(trim(apath))
+        if (.not.created) then
+          call diag_print_error('Failed to create subdirectory- '//trim(apath))
+        endif
+      endif
+#else
+      inquire(file=trim(apath), exist=found)
+      if (.not.found) then 
+        call system('mkdir '//(trim(apath)))
+      endif
+#endif
+      thefile=trim(apath)//'/'//trim(pname)//"_"//trim(dname)//'.txt'
+    endif  
+
+200 FORMAT (I0,x,I1,5x,'!Number of cells, Number of dimensions')    
+202 FORMAT (25(E10.3,x,E10.3,2x))
+    
+    open(kunit,FILE=thefile)
+    write(kunit,200) ncellsfull, 2  !Always 2 for Vector
+    write(kunit,202) (vecout(j),j=1,ncellsfull*2)
+    close(kunit)    
+          
+    return
+    end subroutine writevecTxt
+    
     
 #ifdef XMDF_IO
 !**************************************************************************

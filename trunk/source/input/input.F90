@@ -119,7 +119,7 @@
 !    endsubroutine card_file
     
 !*****************************************************************************
-    subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath)
+    subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim)
 ! Reads a dataset card from the CMS conrol/card file
 !
 ! written by Alex Sanchez, USACE-CHL
@@ -130,13 +130,17 @@
     integer,intent(in) :: inunit
     character(len=*),intent(in) :: defaultfile,defaultpath
     character(len=*),intent(inout) :: datafile,datapath
+    integer, intent(in) :: ndim
     !Internal Variables
     character(len=10)  :: aext
     character(len=37)  :: cardname
     character(len=200) :: apath,aname
     character(len=400) :: aline
-    integer :: ierr
+    integer :: ierr, ival,nquotes,aNumber
     logical :: foundfile
+! added 5/21/2018
+    integer :: ival1,ival2
+    logical :: isMP, isLatLong
     
     backspace(inunit)
     read(inunit,'(A)') aline
@@ -145,17 +149,55 @@
       call diag_print_error('Could not read dataset card: ',cardname)
     endif
     call fileparts(datafile,apath,aname,aext)
-    if(len_trim(aext)==0)then !Is NOT a file. Is path
+    if(len_trim(aext)==0)then !Is NOT a file. It is a path
       datapath = datafile
       datafile = defaultfile !Assume the file is the grid file
       return  
     endif            
-    if(aext(1:2)=='h5')then
+    select case(aext)
+    case('h5')
+      call countquotes(aline,nquotes)        !Account for lacking final quote on Bed Layer cards
+      if(mod(nquotes,2).eq.1) then
+        aline=trim(aline)//' "'
+      endif
       read(aline,*,iostat=ierr) cardname, datafile, datapath 
+      
       if(ierr/=0 .and. cardname(1:20)/='INITIAL_STARTUP_FILE')then
         call diag_print_warning('Path not specified for dataset card: ',cardname)
       endif
+      
+      !If boundary condition dataset, do not add to list
+      isMP = .false. ; isLatLong = .false.   !some modifications to this area 5/21/2018
+      ival=-1
+      ival = INDEX(datafile,"mp")
+      if (ival .gt. 0) then
+        isMP = .true.
+        ival1 = -1; ival2= -1
+        ival1 = INDEX(datapath,"Lats")
+        ival2 = INDEX(datapath,"Lons")
+        if (ival1 .gt. 0) isLatLong=.true.
+        if (ival2 .gt. 0) isLatLong=.true.
     endif
+      
+      if (ival .le. 0) then
+        if(datapath(1:10).eq.'Datasets/ ') then                           
+          continue                                               !If this happens, most likely it is a blank Dxx_DATASET from the Bed Layer Block that SMS writes.  Ignore and continue.
+        else
+          call addXMDFDataset2List (datafile,datapath,ndim)      !Add file and path to a running list of all XMDF files for output to ASCII later, if requested.
+        endif  
+!added 5/21/2018
+      elseif (isLatLong) then
+          call addXMDFDataset2List (datafile,datapath,ndim)      !Add file and path to a running list of all XMDF files for output to ASCII later, if requested.
+!
+      endif
+    case('bid')  
+      read(aline,*,iostat=ierr) cardname, datafile, datapath 
+      if(len_trim(datapath)==0) then  !Path may need to be read as an integer into a string
+        read(aline,*,iostat=ierr) cardname, datafile, aNumber
+        write(datapath,'(I1)') aNumber      !Temporarily one digit limitation.  If needed, can do more.
+      endif
+    end select
+    
     inquire(file=datafile,exist=foundfile)       
     if(.not.foundfile)then !If not found, try adding path
       datafile  = trim(defaultpath)//datafile
@@ -166,7 +208,62 @@
     endif
     
     return
-    endsubroutine card_dataset
+    end subroutine card_dataset
+
+!*****************************************************************************
+    subroutine addXMDFDataset2List (datafile,datapath,ndim)
+! Reads a dataset card from the CMS conrol/card file
+!
+! written by Mitchell Brown, USACE-CHL - 02/22/2018
+!*****************************************************************************
+    use cms_def, only: dsetList, ndsets
+    implicit none
+    character(len=*),intent(in) :: datafile,datapath
+    integer, intent(in) :: ndim
+
+    integer :: i
+    character(len=200),allocatable :: oldfiles(:),oldpaths(:)
+    integer, allocatable :: olddims(:)
+!  added 5/21/2018
+    logical :: exists
+    exists = .false.
+
+    !increase total number of datafiles in list by 1 and move old information to new array
+    if (ndsets==0) then
+      allocate(dsetList(1))
+      ndsets = 1
+    else
+      !check to see if dataset is already in list - 05/21/2018
+      do i=1,ndsets
+        if (dsetList(i)%path == trim(datapath)) exists = .true.
+        if (exists) return
+      enddo
+        
+      !Move old information to temp array     
+      allocate(oldfiles(ndsets),oldpaths(ndsets),olddims(ndsets))
+      do i=1,ndsets                     
+        oldfiles(i) = trim(dsetList(i)%filename)
+        oldpaths(i) = trim(dsetList(i)%path)
+        olddims(i)  = dsetList(i)%ndim
+      enddo
+      !Increase allocation by 1
+      deallocate (dsetList)
+      allocate (dsetList(ndsets+1))
+      !Move information back from temp array     
+      do i=1,ndsets                     
+        dsetList(i)%filename = trim(oldfiles(i))
+        dsetList(i)%path     = trim(oldpaths(i))
+        dsetList(i)%ndim     = olddims(i)
+      enddo
+      ndsets = ndsets + 1
+    endif
+    dsetList(ndsets)%filename = trim(datafile)  !Add new file
+    dsetList(ndsets)%path     = trim(datapath)  !Add new path
+    dsetList(ndsets)%ndim     = ndim            !Add new dimension
+    if (allocated(oldfiles)) deallocate(oldfiles,oldpaths)
+    
+    return
+    end subroutine addXMDFDataset2List
 
 !***************************************************************************    
     subroutine card_datetime(inunit,iyr,imo,iday,ihr,imin,isec)
@@ -250,7 +347,8 @@
     case('h5')
       call bndpath2id(bidpath,idnum)
     case('2dm','bid')
-      read(bidpath,*) idnum
+      call bndpath2id(bidpath,idnum)
+      !read(bidpath,*) idnum
     case default
       call diag_print_error('Unsupported Boundary ID File type: ',bidpath,&
         '  File must be *.h5, *.2dm, or *.bid')

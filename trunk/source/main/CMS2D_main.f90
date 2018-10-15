@@ -40,13 +40,13 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     Version  = 5.1   !CMS version
-    Revision = 1     !Revision number
+    Revision = 2     !Revision number
 #ifdef DEV_MODE
     release  = .false.
 #else
     release = .true.
 #endif
-    rdate    = '10/04/2018'
+    rdate    = '10/15/2018'
     
     !n2Dor3D=2    !=2 for 2D; =3 for 3D    
     
@@ -95,39 +95,39 @@
 	endif
 #endif
 
-#ifdef DREDGE
-    !special output for drege-multiple grains size CHETN'
-    if (dredging) then
-      allocate(dper(ncellsD))
-      iper = 50
-      open(unit=4044,file='beddist.txt')
-      write(4044,*)'X Z d50 F1 F2 F3'
-      do k=2517,2539
-        id = idmap(k)        
-        depthT= -6.8 + 20*(zb(ID)+6.8)
-        j=1
-        jlay = j
-        call sedpercentile_bedlayer(iper,jlay,dper)        
-        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed) 
-        j=1
-        jlay = j
-        call sedpercentile_bedlayer(iper,jlay,dper)          
-        depthT = depthT - 20*db(id,j)/2.0               
-        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)        
-        do j=2,nlay
-          jlay = j
-          call sedpercentile_bedlayer(iper,jlay,dper)              
-          depthT = depthT - 20*db(id,j-1)/2.0 - 20*db(id,j)/2.0
-          write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)
-        enddo
-        j=nlay
-        jlay = j
-        call sedpercentile_bedlayer(iper,jlay,dper)          
-        depthT = depthT - 20*db(id,j)/2.0               
-        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)          
-      enddo
-    endif !dredging
-#endif
+!#ifdef DREDGE
+!    !special output for drege-multiple grains size CHETN'
+!    if (dredging) then
+!      allocate(dper(ncellsD))
+!      iper = 50
+!      open(unit=4044,file='beddist.txt')
+!      write(4044,*)'X Z d50 F1 F2 F3'
+!      do k=2517,2539
+!        id = idmap(k)        
+!        depthT= -6.8 + 20*(zb(ID)+6.8)
+!        j=1
+!        jlay = j
+!        call sedpercentile_bedlayer(iper,jlay,dper)        
+!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed) 
+!        j=1
+!        jlay = j
+!        call sedpercentile_bedlayer(iper,jlay,dper)          
+!        depthT = depthT - 20*db(id,j)/2.0               
+!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)        
+!        do j=2,nlay
+!          jlay = j
+!          call sedpercentile_bedlayer(iper,jlay,dper)              
+!          depthT = depthT - 20*db(id,j-1)/2.0 - 20*db(id,j)/2.0
+!          write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)
+!        enddo
+!        j=nlay
+!        jlay = j
+!        call sedpercentile_bedlayer(iper,jlay,dper)          
+!        depthT = depthT - 20*db(id,j)/2.0               
+!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)          
+!      enddo
+!    endif !dredging
+!#endif
     
     endprogram CMS2D
     

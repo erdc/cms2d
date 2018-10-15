@@ -707,11 +707,12 @@
     use struct_def
     use flow_def, only: viscos
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif
+    use in_lib, only: readscalTxt
     implicit none
     integer :: i,i1,itg,im,iwr,icv,irm,kk,ierr   !hli(11/19/13)
-    
+    character(len=10) :: aext    
 !
 !   Read rubble mound information from datasets or specify constants (hli, 12/10/12)
 !
@@ -723,12 +724,16 @@
       allocate(structmeth(ncellsfull))
       permeability=0.0; rockdiam=0.0; structporo=0.0; structbaseD=0.0; structmeth=0
 
+      call fileext(trim(arubmoundfile),aext)      
+      select case (aext)
+      case('h5')
 #ifdef XMDF_IO
       call readscalh5(arubmoundfile,arubmoundpath,permeability,ierr)
-#else
-      write(*,*) 'ERROR: Cannot read rubble mound permeability dataset without XMDF libraries'
-      stop
 #endif
+      case('txt')
+        call readscalTxt(arubmoundfile,permeability,ierr)
+      end select
+      
       numrubmound=0
       if(ierr<0) stop
       do i=1,ncellsfull
@@ -762,12 +767,17 @@
             rubmounddia(i)=rockdia_const
           enddo
         else
+
+          call fileext(trim(arockdiamfile),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(arockdiamfile,arockdiampath,rockdiam,ierr)
-#else
-          write(*,*) 'ERROR: Cannot read structure rock diameter dataset without XMDF libraries'
-          stop
 #endif
+          case('txt')
+            call readscalTxt(arockdiamfile,rockdiam,ierr)
+          end select
+          
           kk=0
           do i=1,ncellsfull
             if(rockdiam(i).gt.0.0) then
@@ -782,12 +792,17 @@
             rubmoundporo(i)=structporo_const
           enddo
         else
+
+          call fileext(trim(astructporofile),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructporofile,astructporopath,structporo,ierr)
-#else
-          write(*,*) 'ERROR: Cannot read structure porosity dataset without XMDF libraries'
-          stop
 #endif
+          case('txt')
+            call readscalTxt(astructporofile,structporo,ierr)
+          end select
+          
           kk=0
           do i=1,ncellsfull
             if(structporo(i).gt.0.0) then
@@ -802,12 +817,16 @@
             rubmoundbotm(i)=structbaseD_const
           enddo
         else
+          call fileext(trim(astructbaseDfile),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructbaseDfile,astructbaseDpath,structbaseD,ierr)
-#else
-          write(*,*) 'ERROR: Cannot read rubble mound base depth dataset without XMDF libraries'
-          stop
 #endif
+          case('txt')
+            call readscalTxt(astructbaseDfile,structbaseD,ierr)
+          end select
+          
           kk=0
           do i=1,ncellsfull
             if(structbaseD(i).gt.0.0) then
@@ -822,12 +841,16 @@
             methrubmoundab(i)=rubmoundmeth 
           enddo
         else
+          call fileext(trim(astructmethfile),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructmethfile,astructmethpath,structmeth,ierr)
-#else
-          write(*,*) 'ERROR: Cannot read rubble mound method XMDF libraries'
-          stop
 #endif
+          case('txt')
+            call readscalTxt(astructmethfile,structmeth,ierr)
+          end select
+          
           kk=0
           do i=1,ncellsfull
             if(structmeth(i).gt.0.0) then

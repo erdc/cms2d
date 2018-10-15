@@ -744,9 +744,11 @@
     use diag_def
     use diag_lib
 #ifdef XMDF_IO 
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
     use prec_def
+    
     implicit none
     !Input/Output
     integer,intent(in) :: j  !Bed layer id
@@ -757,6 +759,7 @@
     real(ikind) :: per(nperdiam),dper(nperdiam)
     real(ikind) :: dtemp(ncellsD)
     character(len=200) :: file,path
+    character(len=10) :: aext
     
     !Read percentile diameter datasets
     !and determine number of input datasets
@@ -765,11 +768,17 @@
       if(bedlay(j)%perdiam(i)%inp)then
         file = bedlay(j)%perdiam(i)%file  
         path = bedlay(j)%perdiam(i)%path
+
+        call fileext(trim(file),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO     
         call readscalh5(file,path,dtemp,ierr) 
-#else
-        call diag_print_error('Cannot read bed composition without XMDF libraries')
 #endif       
+        case('txt')
+          call readscalTxt(file,dtemp,ierr)
+        end select
+        
         if(ierr<0)then
           bedlay(j)%perdiam(i)%inp = .false.    
           call dper_read_error_msg(file,path)
@@ -915,12 +924,15 @@
     use size_def
     use sed_def
 #ifdef XMDF_IO     
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
+    
     implicit none
     integer :: i,j,ks,ierr
     character(len=200) :: apath
     character(len=5) :: apbk,alay
+    character(len=10):: aext
     character(len=*) ::pbkfilelay,pbkpathlay
 
 62  format('_',I2.2)
@@ -935,22 +947,25 @@
       do ks=1,nsed
         write(apbk,62) ks
         apath = trim(pbkpathlay) // trim(apbk) // alay
+
+        call fileext(trim(pbkfilelay),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO         
         call readscalh5(pbkfilelay,apath,pbk(:,ks,j),ierr)
         if(ierr/=0)then
           apath = trim(pbkpathlay) // trim(apbk)
           call readscalh5(pbkfilelay,apath,pbk(:,ks,j),ierr)
-          !if(ierr/=0)then
-            !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-            !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
-            !call diag_print_error('Could not read scalar dataset from',msg2,msg3)
-          !endif
         endif
-#else
-        write(*,*) 'ERROR: Cannot read bed composition without XMDF'
-        read(*,*)
-        stop
 #endif
+        case('txt')
+          call readscalTxt(pbkfilelay,pbk(:,ks,j),ierr)    
+          if(ierr/=0)then
+            apath = trim(pbkpathlay) // trim(apbk)
+            call readscalTxt(pbkfilelay,pbk(:,ks,j),ierr)
+          endif
+        end select
+        
       enddo
     !enddo 
     

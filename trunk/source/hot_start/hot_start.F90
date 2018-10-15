@@ -265,7 +265,7 @@
     use sal_def, only: saltrans,sal
     use heat_def, only: heattrans, heat
     use hot_def
-    use in_lib, only: readscallasth5,readveclasth5
+    use in_xmdf_lib, only: readscallasth5,readveclasth5
     use out_def, only: outlist,simlabel
     use xmdf
     !use ifport, only: system

@@ -14,21 +14,21 @@ module flow_def
   real(ikind) :: sqrtgrav !Square-root of graviational constant [m^(1/2)/s]
     
   !Water properties
-  integer :: idensit      !Equation of state for water density, 0-none, 1-Ekart (1958), 2-UNESCO (1981), 3-Fofonoff (1985)
-  real(ikind):: rhow      !Water density [kg/m^3]
-  real(ikind):: watertemp !Water temperature [ºC]
-  integer :: iviscos      !Equation used to estimate the water kinematic viscosity, 0-user specified, 1-temp, 2-temp and salinity
-  real(ikind):: viscos    !Kinematic viscosity [m^2/s]   
-  integer :: isalt        !Method for estimating salinity, 0-none(default), 1-user specified, 2-initial condition
-  integer :: iheat        !Method for estimating temperature, 0-none(default), 1-user specified, 2-initial condition
-  real(ikind):: watersalt !Water salinity used to estimate density and viscosity [ppt]
+  integer     :: idensit      !Equation of state for water density, 0-none, 1-Ekart (1958), 2-UNESCO (1981), 3-Fofonoff (1985)
+  integer     :: iviscos      !Equation used to estimate the water kinematic viscosity, 0-user specified, 1-temp, 2-temp and salinity
+  integer     :: isalt        !Method for estimating salinity, 0-none(default), 1-user specified, 2-initial condition
+  integer     :: iheat        !Method for estimating temperature, 0-none(default), 1-user specified, 2-initial condition
+  real(ikind) :: rhow         !Water density [kg/m^3]
+  real(ikind) :: watertemp    !Water temperature [ºC]
+  real(ikind) :: viscos       !Kinematic viscosity [m^2/s]   
+  real(ikind) :: watersalt !Water salinity used to estimate density and viscosity [ppt]
         
   !Wetting and Drying
   logical :: ponding,narrowchannels
-  integer, allocatable :: iwet(:),iwet1(:),iwet2(:) !1-wet, 0-dry
   real(ikind) :: hmin !Wetting and drying depth [m]
   real(ikind) :: hdry !Wetting and drying criteria [m]
   real(ikind) :: hdry1,hdry2 !Wetting and drying depth for narrow channels 1 and 2 cells wide (only for cartesian grids) [m]
+  integer, allocatable :: iwet(:),iwet1(:),iwet2(:) !1-wet, 0-dry
     
   !Types
   integer, allocatable :: iextrap(:),icorner(:)
@@ -77,6 +77,7 @@ module flow_def
     logical :: pred_corr !Predictor-corrector
 	  real(ikind) :: ctsch,ctsch1,ctsch2,wtsch   !Temporal scheme variables
 	endtype numimp
+
   type(numimp) :: usch,vsch,ppsch
   logical :: volcor,flowvolbal
   real(ikind) :: volH2Ocumstg,volH2Ocumbnd,volH2Ocumflux
@@ -86,16 +87,16 @@ module flow_def
   logical :: crossdiff
   integer:: mturbul !Turbulence model ID
   character(len=32) :: aturb(0:5) !Turbulence model name
+  real(ikind) :: cviscon,cvisbot,cvishor,cviswav,cviswavbrk,cvismax
+  real(ikind) :: cvishor2areaavg2,cvishor2areaavg
+  real(ikind), allocatable :: vis(:),viskfl(:,:),visk(:,:)
+  real(ikind), allocatable :: diswall(:)
   data aturb /'CONSTANT',&      !0
 	            'FALCONER',&      !1
 	            'PARABOLIC',&     !2
               'SUBGRID-WU',&    !3
 	            'MIXING-LENGTH',& !4
 	            'SUBGRID'/        !5	
-  real(ikind):: cviscon,cvisbot,cvishor,cviswav,cviswavbrk,cvismax
-  real(ikind):: cvishor2areaavg2,cvishor2areaavg
-  real(ikind), allocatable :: vis(:),viskfl(:,:),visk(:,:)
-	real(ikind), allocatable :: diswall(:)
 	
 	!Coriolis
   integer :: icoriolisplane !1=f-plane,2=beta-plane
@@ -104,6 +105,4 @@ module flow_def
     
   !Temporal Wave Interpolation      
   logical :: wave_interp = .true.     !If false, then wave input is constant until next wave update.   MEB  01/22/2014
-
-         
-endmodule flow_def
+end module flow_def

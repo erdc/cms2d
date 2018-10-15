@@ -2783,13 +2783,13 @@ d2:   do j=1,nj
     real(ikind),intent(inout),optional :: dphix(ncellsD),dphiy(ncellsD)
     !Internal variables
     integer :: i,ii,j,k,nck,jcn
+    real(ikind) :: phitemp, phiktemp
     !logical :: isnankind
     
-!$OMP PARALLEL
 !--- First-Second Order Interpolation ----------------------
     selectcase(ibc)        
     case(-1) !Modified Zero-gradient at wet/dry faces
-!$OMP DO PRIVATE(i,j,k,nck,jcn)
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)
@@ -2810,23 +2810,28 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !i   
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(0) !No treatment
-!$OMP DO PRIVATE(i,j,k,nck,jcn)
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)
           nck=cell2cell(k,i) !Forward connectivity
           jcn=llec2llec(k,i) !Backward connectivity
-          phik(k,i)=fintp(k,i)*phi(nck)+(1.0-fintp(k,i))*phi(i) !First order for skewed cells
-          phik(jcn,nck)=phik(k,i)
+          phitemp=phi(nck)
+
+          phiktemp = fintp(k,i)*phi(nck)+(1.0-fintp(k,i))*phi(i) !First order for skewed cells
+          phik(k,i)= phiktemp
+
+          phiktemp = phik(k,i)
+          phik(jcn,nck) = phiktemp
         enddo !j
       enddo !i   
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(1) !Zero-gradient at wet/dry faces
-!$OMP DO PRIVATE(i,j,k,nck,jcn)
+!!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)
@@ -2846,10 +2851,10 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !i   
-!$OMP END DO
+!!$OMP END PARALLEL DO
     
     case(2) !Zero-gradient at dry boundary faces
-!$OMP DO PRIVATE(i,j,k,nck,jcn)
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)
@@ -2863,10 +2868,10 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !i   
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(3) !Zero at dry faces
-!$OMP DO PRIVATE(i,j,k,nck,jcn)
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)
@@ -2880,13 +2885,13 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !i   
-!$OMP END DO   
+!$OMP END PARALLEL DO   
         
     endselect
 
 !--- Skewness correction ----------------------------------------
     if(skewcor .and. present(dphiy))then 
-!$OMP DO PRIVATE(i,ii,j,k,nck,jcn)  
+!$OMP PARALLEL DO PRIVATE(i,ii,j,k,nck,jcn)  
       do ii=1,ncelljoint
         i=idcelljoint(ii)  
         !if(iwet(i)==0) cycle
@@ -2908,8 +2913,8 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !ii
-!$OMP END DO
-!$OMP DO PRIVATE(i,j,k,nck,jcn)  
+!$OMP END PARALLEL DO
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)  
       do i=1,ncellpoly
         !if(iwet(i)==0) cycle
         !if(maxval(cell2cell(1:ncface(i),i))>ncells) cycle
@@ -2933,9 +2938,9 @@ d2:   do j=1,nj
           phik(jcn,nck)=phik(k,i)
         enddo !j
       enddo !i
-!$OMP END DO
+!$OMP END PARALLEL DO
     endif
-!$OMP END PARALLEL
+!!$OMP END PARALLEL
     
     return
     endsubroutine interp_scal_cell2face 

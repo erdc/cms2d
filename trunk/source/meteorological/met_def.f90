@@ -40,8 +40,6 @@ module met_def
       character(len=100) :: name        !Station Name
       character(len=200) :: file        !Station file name *.txt (also used as wind speed file)
       character(len=200) :: path        !Station file name *.txt (also used as wind direction file)
-      !character(len=200) :: presfile    !pressure Station file name *.txt (also used as wind speed file)
-      !character(len=200) :: prespath    !Station file name *.txt (also used as wind direction file)
       integer       :: ntimes      !Number of times
       integer       :: inc         !Counter for temporal interpolation
       real(ikind)   :: wndfac      !Temporal factor for each station [-] (.e.g. 2-min avg to 30-min avg)
@@ -64,6 +62,7 @@ module met_def
     logical :: windconst
     integer :: nwnd_inc,nwtimes         
     real(ikind), pointer :: wndvalsx(:),wndvalsy(:),wndtimes(:)    
+    real(ikind), allocatable :: wndspeed(:),wnddirection(:)
     !type wndcurv_type
     !  integer :: inc
     !  integer :: ntimes

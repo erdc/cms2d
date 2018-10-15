@@ -1,23 +1,35 @@
-== Version 5.0.4 (4/21/2017) ==
+== Version 5.1.2 (10/15/2018) [incorporating some developmental features from a non-versioned branch]
+* New feature: Added card (WRITE_ASCII_INPUT_FILES   ON|OFF) to tell CMS to write out ASCII versions of all input
+** Info: All ASCII input files are written to the subfolder "ASCII_Input"
+* New feature: Added card (OUTPUT_FILE_TYPE   XMDF|ASCII) to tell CMS to write only ASCII solutions
+** Info: All ASCII output/solutions are written to the subfolder "ASCII_Solutions"
+** Info: All ASCII Statistics files are written to the subfolder "Statistics"
+* Change: Updated internal wave code to latest version, 30 March 2018
+
+== Version 5.1.1 (10/15/2018) == 
+* Change: Added in CMS-Wave stand-alone (Mar 2018) for use when only waves are desired
+* Info: Investigating reason why old inline wave model doesn't produce same results.
+
+== Version 5.0.4 (04/21/2017) ==
 * Compatibility: Reworked several files (mostly explicit-related) for linux compilation.
 * Bug fix: Changed variable from REAL to INTEGER as related to explicit boundary conditions.
 * Bug fix: Corrected the lack of include statements in some subroutines for compile-time definitions.
 * Change: Removed unused statements relating to buffer usage (no performance increase with buffering).
 * Change: Moved many WRITE statements with diagnostic output to a separate file.  Will be removed completely later.
 
-== Version 5.0 3 (03/22/2017) ==
+== Version 5.0.3 (03/22/2017) ==
 * Change: Cleaned up some of the diagnostic output to screen and file.
 * Change: Forced location of CMS_DIAG.txt to be in Flow directory if being run, otherwise in the Wave directory.
 * Change: Removed debug information in CMS-Wave (GSM TYPE #) and at end of run for dredging module.
 * Bug fix: Resolved issues associated with Wave/Flow interpolation in both directions.
 * Bug fix: Removed output of 'total.wav' when running with Sea/Swell.  Bug in logic.
 
-== Version 5.0 2 (02/23/2017) ==
+== Version 5.0.2 (02/23/2017) ==
 * New feature: Dredge module updated to support multiple sediment grain sizes
 * Known issue: Avalanching with multi grain sizes is not consistent.  Evaluating for solution.
 * Bug fix: Uncommon crash during runs with sediment transport active.  Divide by zero fixed with double precision variable.
 
-== Version 5.0 1 (11/10/2016) == 
+== Version 5.0.1 (11/10/2016) == 
 * Initial Release of CMS that contains both Explicit and Implicit schemes
 * New feature: Supports Explict solution scheme
 * New feature: Supports Telescoping files with the Explicit solution scheme
@@ -46,7 +58,7 @@
 * Change: Updated CMS-wave code with 3-2 15May2014 code.
 * Bug fix: Found problem in wave dissipation and breaking index when wave reflection is turned on. 
 * New feature: Dredging module (beta).
-* New feature: Turnning on the ASCII output also outputs the boundary ID file (*.bid). This feature is activated usign OUTPUT_ASCII_INPUT ON !ON | OFF.  
+* New feature: Turning on the ASCII output also outputs the boundary ID file (*.bid). This feature is activated using OUTPUT_ASCII_INPUT ON !ON | OFF.  
 
 == Version 4.1 Release 49 (11/14/14) ==
 * Bug fix: Found problem reading hot start file when working in a non-local directory.

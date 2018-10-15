@@ -168,13 +168,8 @@
     db1min = 1.0e-4        !Minimum active layer thickness [m]
     dbmax = 0.5            !Maximum bed layer thickness [m]
 
-    !--- Constant wave parameters for testing and idealized cases -------------
-    constant_waves = .false.
-    !waveheight = 0.08
-    !waveperiod = 1.5
-    !wavedir = 0.0
-
     !--- Wave-induced sediment transport -----------------------------
+    !wavesedtrans = .true. !bdj
     wavesedtrans = .false.
     scaleoffshore = 1.0
     scaleonshore = 1.0
@@ -233,6 +228,7 @@
         cardname=asedmodel(i)
         if(cdum(1:3)==cardname(1:3))then
           isedmodel = i
+          !write(*,*)'bdj in sediment.F90 and isedmodel = ',isedmodel                                                                                                                                                                                                               
           exit
         endif
       enddo          
@@ -261,7 +257,7 @@
       
     !---- Hardbottom --------------------  
     case('HARDBOTTOM_DATASET')
-      call card_dataset(77,grdfile,flowpath,hbfile,hbpath) 
+      call card_dataset(77,grdfile,flowpath,hbfile,hbpath,1) 
       if(hbpath(1:4)/='NONE')then 
         hardbottom = .true.
       else
@@ -304,6 +300,7 @@
         cardname=acapac(i)
         if(cdum(1:2)==cardname(1:2))then
           icapac = i
+          !write(*,*)'bdj in sedimnet.F90, cdum, icapac = ',cdum,icapac                                                                       
           exit
         endif
       enddo
@@ -1025,7 +1022,7 @@
       read(77,*) cardname, sedfluxfile, sedfluxpath(nsedflux)         
         
     case('CUSTOM_DATASET')
-      call card_dataset(77,grdfile,flowpath,afile,apath)
+      call card_dataset(77,grdfile,flowpath,afile,apath,1)
       nn = len_trim(apath)
       read(apath(nn-1:nn),'(I2)') ipr
       do i=1,nperdiam
@@ -1039,7 +1036,7 @@
             
     case default  
       if(cardname(4:11)=='_DATASET')then                    
-        call card_dataset(77,grdfile,flowpath,afile,apath)
+        call card_dataset(77,grdfile,flowpath,afile,apath,1)
         read(cardname(2:3),'(I2)') ipr
         do i=1,nperdiam
           if(ipr==iper(i))then
@@ -1322,8 +1319,12 @@ d1: do ii=1,30
           bedlay(jlay)%idbinp = 1
         
         case('INITIAL_THICKNESS_DATASET','THICKNESS_DATASET')
-          backspace(77)
-          read(77,*) cardname, bedlay(jlay)%dbfile, bedlay(jlay)%dbpath 
+!          backspace(77)
+!          read(77,*) cardname, bedlay(jlay)%dbfile, bedlay(jlay)%dbpath 
+
+          call card_dataset(77,grdfile,flowpath,file,path,1)
+          bedlay(jlay)%dbfile = file
+          bedlay(jlay)%dbpath = path
           bedlay(jlay)%idbinp = 3
           
         case('BED_COMPOSITION_INPUT','COMPOSITION_INPUT','COMPOSITION')
@@ -1362,12 +1363,12 @@ d1: do ii=1,30
           bedlay(jlay)%ipbkinp = 4
         
         case('FRACTIONS_DATASET','SEDIMENT_FRACTIONS_DATASET')
-          call card_dataset(77,grdfile,flowpath,bedlay(jlay)%pbkfile,bedlay(jlay)%pbkpath)
+          call card_dataset(77,grdfile,flowpath,bedlay(jlay)%pbkfile,bedlay(jlay)%pbkpath,1)
           bedlay(jlay)%ipbkinp = 5
           
         case default
           if(cardname(4:11)=='_DATASET')then   
-            call card_dataset(77,grdfile,flowpath,file,path)
+            call card_dataset(77,grdfile,flowpath,file,path,1)
             if(len_trim(file)>0 .and. len_trim(path)>0)then !Make sure card is not empty  
               read(cardname(2:3),'(I2)') ipr
               do i=1,nperdiam
@@ -1504,16 +1505,19 @@ d1: do ii=1,30
     use wave_flowgrid_def    
     use const_def, only: deg2rad,small,eps
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
     use math_lib, only: avgval
     use diag_lib
     use prec_def
+    
     implicit none
     integer :: i,j,jj,ks,ierr,k
     real(ikind), allocatable :: d16lay(:),d35lay(:),d50lay(:),d84lay(:),d90lay(:)
     character(len=200) :: file,path
     character(len=100) :: msg2
+    character(len=10) :: aext
     
     !Internal variables
     solid = 1.0-poros
@@ -1662,11 +1666,16 @@ d1: do ii=1,30
           OutPerDiam(ipd(35)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(90)) = .true.
 !          allocate(d50lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d50lay,ierr) !Dataset should be in mm
-#else
-          call diag_print_error('Cannot read initial D50 dataset from *.h5 file without XMDF libraries')
 #endif         
+          case('txt')
+            call readscalTxt(file,d50lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path)          
           call bed_d50sigma(nsed,diam,diamlim,d50lay,bedlay(j)%geostddev,pbk(:,:,j)) !Note: assumes units of mm for d50, diam, sedsigma       
           deallocate(d50lay)
@@ -1678,30 +1687,47 @@ d1: do ii=1,30
           !close(4045)
           !stop
           
-          
         case(2)  !D16, D50, D84
           OutPerDiam(ipd(16)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(84)) = .true.
           allocate(d16lay(ncellsD),d50lay(ncellsD),d84lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(16))%file; path = bedlay(j)%perdiam(ipd(16))%path
+
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d16lay,ierr) !Dataset should be in mm    
-#else
-          call diag_print_error('Cannot read initial D16 dataset from *.h5 file without XMDF libraries')         
 #endif          
+          case('txt')
+            call readscalTxt(file,d16lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path)       
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
+          
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d50lay,ierr)   
-#else
-          call diag_print_error('Cannot read initial D50 dataset from *.h5 file without XMDF libraries')            
 #endif          
+          case('txt')
+            call readscalTxt(file,d50lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path)     
           file = bedlay(j)%perdiam(ipd(84))%file; path = bedlay(j)%perdiam(ipd(84))%path
+
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d84lay,ierr)    
-#else
-          call diag_print_error('Cannot read initial D84 dataset from *.h5 file without XMDF libraries')             
 #endif         
+          case('txt')
+            call readscalTxt(file,d84lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path)          
           call bed_d16d50d84(nsed,diam,diamlim,d16lay,d50lay,d84lay,pbk(:,:,j))
           deallocate(d16lay,d50lay,d84lay)
@@ -1710,25 +1736,42 @@ d1: do ii=1,30
           OutPerDiam(ipd(35)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(90)) = .true. 
           allocate(d35lay(ncellsD),d50lay(ncellsD),d90lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(35))%file; path = bedlay(j)%perdiam(ipd(35))%path
+
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d35lay,ierr)  
-#else
-          call diag_print_error('Cannot read initial D35 dataset from *.h5 file without XMDF libraries')           
 #endif          
+          case('txt')
+            call readscalTxt(file,d35lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path)       
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
+          
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d50lay,ierr)   
-#else
-          call diag_print_error('Cannot read initial D50 dataset from *.h5 file without XMDF libraries')            
 #endif          
+          case('txt')
+            call readscalTxt(file,d50lay,ierr)
+          end select
           if(ierr<0) call dper_read_error_msg(file,path)   
           file = bedlay(j)%perdiam(ipd(90))%file; path = bedlay(j)%perdiam(ipd(90))%path
+          
+          call fileext(trim(file),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(file,path,d90lay,ierr)  
-#else
-          call diag_print_error('Cannot read initial D90 dataset from *.h5 file without XMDF libraries')                
 #endif         
+          case('txt')
+            call readscalTxt(file,d90lay,ierr)
+          end select
+          
           if(ierr<0) call dper_read_error_msg(file,path) 
           call bed_d35d50d90(nsed,diam,diamlim,d35lay,d50lay,d90lay,pbk(:,:,j)) !Calculates grain size distribution from D35,D50,D90
           deallocate(d35lay,d50lay,d90lay)
@@ -1813,12 +1856,17 @@ d1: do ii=1,30
         case(1) !Constant layer thickness
           db(:,j) = bedlay(j)%dbconst
         case(3) !Thickness datasets 
+            
+          call fileext(trim(bedlay(j)%dbfile),aext)      
+          select case (aext)
+          case('h5')
 #ifdef XMDF_IO
           call readscalh5(bedlay(j)%dbfile,bedlay(j)%dbpath,db(:,j),ierr)
-#else
-          call diag_print_error('Cannot read initial bed layer thickness ',&
-             'datasets from *.h5 file without XMDF libraries')
 #endif         
+          case('txt')
+            call readscalTxt(bedlay(j)%dbfile,db(:,j),ierr)
+          end select
+          
           if(ierr/=0)then
             call diag_print_error('Problem reading bed layer thickness dataset')
           endif
@@ -1876,9 +1924,17 @@ d1: do ii=1,30
       if(variableD50)then !read d50 dataset
         file = bedlay(1)%perdiam(ipd(50))%file
         path = bedlay(1)%perdiam(ipd(50))%path
+
+        call fileext(trim(file),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
         call readscalh5(file,path,d50,ierr)
 #endif       
+        case('txt')
+          call readscalTxt(file,d50,ierr)
+        end select
+        
         if(ierr<0) call dper_read_error_msg(file,path)        
         d50 = d50/1000.0
       endif      
@@ -2000,11 +2056,16 @@ d1: do ii=1,30
     endif        
     
     if(iadapttot==3)then
+      call fileext(trim(aLtotfile),aext)      
+      select case (aext)
+      case('h5')
 #ifdef XMDF_IO
       call readscalh5(aLtotfile,aLtotpath,vLtot,ierr)
-#else
-      call diag_print_error('Cannot read adaptation length from *.h5 file without XMDF libraries')
 #endif     
+      case('txt')
+        call readscalTxt(aLtotfile,vLtot,ierr)
+      end select
+      
     endif  
     
     !Avalanching                         
@@ -2049,6 +2110,7 @@ d1: do ii=1,30
       case(3); mhe = 0.5 !Watanabe
       case(4); mhe = 0.3 !Soulbsy-Van Rijn      
       case(5); mhe = 0.6 !Wu
+      case(6); mhe = 1.0 !Temporary matching (1) until guidance from BDJ
       endselect
     endif
     
@@ -2519,41 +2581,35 @@ d1: do ii=1,30
     use sed_def
 #ifdef XMDF_IO
     use xmdf
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif
+    use in_lib, only: readscalTxt
     use diag_lib
     use prec_def
+    
     implicit none
     integer :: i,ih,ierr,idhardtemp(ncellsD)
     character(len=100) :: msg2,msg3,msg4,msg5
+    character(len=10) :: aext
 
+    call fileext(trim(hbfile),aext)      
+    select case (aext)
+    case('h5')
 #ifdef XMDF_IO
     call readscalh5(hbfile,hbpath,hardzb,ierr)
-#else
-    call diag_print_error('Cannot read hardbottom from *.h5 file without XMDF libraries')
-#endif
     if(ierr/=0)then
       write(msg2,*) '  File: ',trim(hbfile)
       write(msg3,*) '  Path: ',trim(hbpath)
       call diag_print_error('Could not open hardbottom dataset: ',msg2,msg3)
     endif
-    
-!!Read hardbottom info from parameters file
-!    call XF_OPEN_FILE(hbfile,readonly,pid,ierr)
-!    call XF_OPEN_GROUP(pid,hbpath,gid,ierr)
-!    if(ierr<0)then
-!      write(*,*) 'ERROR: Could not find hardbottom dataset: '
-!      write(*,*) ' File: ',trim(hbfile)
-!      write(*,*) ' Path: ',trim(hbpath)
-!      !write(*,*) harddeptemp(1),harddeptemp(ncellsfull)
-!      write(*,*) 'Press any key to continue.'
-!      read(*,*)
-!      call XF_CLOSE_FILE(pid,ierr)
-!      stop
-!    endif
-!    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,ncellsfull,harddeptemp,ierr)
-!    call XF_CLOSE_GROUP(gid,ierr)
-!    call XF_CLOSE_FILE(pid,ierr)
+#endif
+    case('txt')
+      call readscalTxt(hbfile,hardzb,ierr)
+      if(ierr/=0)then
+        write(msg2,*) '  File: ',trim(hbfile)
+        call diag_print_error('Could not open hardbottom dataset: ',msg2)
+    endif
+    end select
     
 !Find number and id of hardbottom cells
     do i=1,ncells
@@ -2689,8 +2745,8 @@ d1: do ii=1,30
 !************************************************************************      
     use size_def
     use geo_def, only: dzbx,dzby
-    use flow_def, only: u,v,vis,h,iwet
-    use wave_flowgrid_def, only: Wunitx,Wunity    
+    use flow_def, only: u,v,us,vs,vis,h,iwet !bdj added us, vs
+    use wave_flowgrid_def, only: Wunitx,Wunity,Wang,Whgt,Wlen,Wper !bdj added Wang,Whgt,Wlen,Wper
     use fric_def, only: fricbedslope,cmb
     use const_def, only: small
     use sed_def
@@ -2698,9 +2754,8 @@ d1: do ii=1,30
     implicit none
     integer :: i
     real(ikind) :: fac
-
-!$OMP PARALLEL   
-!$OMP DO PRIVATE(i,fac)              
+    real(ikind) :: CSSlp,CSBlp,CSsg,Hrms,sigT,CSPb,qb,qbx,qby,qsx,qsy !bdj
+!$OMP PARALLEL DO PRIVATE(i,fac)              
     do i=1,ncells
       !--- Total-load sediment concentrations 
       ! and fraction of suspended sediments ---  
@@ -2719,28 +2774,96 @@ d1: do ii=1,30
       qtx(i)=qtx(i)-dcoeff*sum(qbk(i,:))*dzbx(i)
       qty(i)=qty(i)-dcoeff*sum(qbk(i,:))*dzby(i)  
     enddo !i
-!$OMP END DO 
+!$OMP END PARALLEL DO 
       
     !--- Wave-induced sediment transports ----------
      if(wavesedtrans)then
-!$OMP DO PRIVATE(i)	     
+!$OMP PARALLEL DO PRIVATE(i)	     
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
       enddo
-!$OMP END DO    
+!$OMP END PARALLEL DO    
     endif      
 
-!$OMP DO PRIVATE(i)          
+! bdj some heavy-handed cshore mods
+if (icapac.eq.6) then
+   CSSlp = 0.5
+   CSBlp = 0.001
+   CSsg = rhosed/1000.
+!$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
+   do i=1,ncells
+      !--- Total-load sediment concentrations 
+      ! and fraction of suspended sediments ---  
+      Ct(i)=sum(Ctk(i,:))
+      Ctstar(i)=sum(Ctkstar(i,:))
+      rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
+      !--- Total-load sediment transport vectors ---
+      !Suspended advective transport
+      qsx=1.*(u(i)-(CSSlp*us(i)))*h(i)*Ct(i)
+      qsy=1.*(v(i)-(CSSlp*vs(i)))*h(i)*Ct(i) 	    
+
+      !Bedload transport
+      Hrms = Whgt(i)/sqrt(2.)  
+      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+      call prob_bedload(sigT,Wper(i),CSsg,diam(1),CSPb)
+      !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
+      qb = rhosed*(CSPb*CSBlp*sigT**3.)/(9.81*(CSsg-1.))
+      qbx = 1.*qb*wunitx(i)
+      qby = 1.*qb*wunity(i)
+      
+      !Total = sus + bedload
+      qtx(i) = qsx + qbx
+      qty(i) = qsy + qby
+
+      ! if(i.ge.1514.and.i.le.1524) then 
+      !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
+      !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)
+      ! endif
+   enddo
+!$OMP END PARALLEL DO   
+endif
+
+! bdj end some heavy-handed cshore mods
+!$OMP PARALLEL DO PRIVATE(i)          
     do i=1,ncells
       qtx(i)=iwet(i)*qtx(i)  !kg/m/s
       qty(i)=iwet(i)*qty(i)  !kg/m/s
     enddo
-!$OMP END DO
-!$OMP END PARALLEL   
+!$OMP END PARALLEL DO
       
     return
     endsubroutine sed_total
+    
+    subroutine prob_bedload(sigT,Tp,CSsg,d50,CSPb)
+! calculates the probability of bedload transport, Pb
+! written by Brad Johnson, USACE-CHL;
+! shear is on the basis of waves alone at this point
+!************************************************************************      
+    use prec_def
+    implicit none
+    integer :: i,numsteps
+    real(ikind) :: sigT,Tp,CSsg,d50,CSPb
+    real(ikind) :: fw,shields,tau_c,tau,t,u,dum
+ 
+    fw = 0.02
+    shields = 0.05
+    tau_c = 9810.*(CSsg-1.)*d50*shields
+    numsteps = 20 
+    dum = 0.
+    do i = 1,numsteps
+      t = (float(i)-1.)/float(numsteps)*Tp
+      u = sqrt(2.)*sigT*sin(t*2.*3.14/Tp)
+      tau = 1000*fw/2.*u**2.
+      if(tau.gt.tau_c) dum = dum+1.
+      !write(*,*),'bdj sigT,t,u,tau,tau_c,dum',sigT,t,u,tau,tau_c,dum
+    enddo
+    CSPb = dum/float(numsteps)
+    !write(*,*),'bdj in prob_bedload',sigT,Tp,Pb    
+
+    return
+    endsubroutine prob_bedload
+
     
 !***********************************************************************   
     subroutine print_sedvar(i,ks)

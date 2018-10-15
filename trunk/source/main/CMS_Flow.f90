@@ -75,7 +75,7 @@
        if(hot_out) call hot_write
        if(timehrs > timeout)then !Avoids writing before end of last simulation        
          call write_output     !Global variable snapshots
-         call stat_update      !Gloval variable statistics
+         call stat_update      !Global variable statistics
        endif
 !#ifdef DEV_MODE
 !       if(pred_corr) call flow_pred !Flow prediction based on simple explicit scheme  
@@ -143,6 +143,7 @@
 !#endif        
      if(iconv==3 .and. dtimebeg/deltime<=10)then
        write(6,*) 'Time Step Reduced'
+       call diag_print_message('Time Step Reduced')
        mtime = 0
        jtime = jtime+1
        deltime = dtimebeg/2**jtime !Avoids precision errors, Use double precision

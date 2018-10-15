@@ -55,7 +55,7 @@
     use size_def
     use veg_def
 #ifdef XMDF_IO  
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
     implicit none
     integer :: ierr

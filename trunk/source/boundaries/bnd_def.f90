@@ -112,6 +112,8 @@ module bnd_def
       logical                       :: istidal     !true for tidal, false for harmonic
       character(len=100)            :: station     !Name of station
       integer                       :: ntc         !Tidal constituents used
+      integer                       :: nti         !Order of temporal interpolation (default=2) !hli(10/6/17)
+      integer                       :: inc         !Current time step of boundary data  !hli(10/6/17)
       real(ikind),      allocatable :: amp(:)      !Amplitude [m] (constituent) 
       real(ikind),      allocatable :: speed(:)    !Speed [rad/hrs] (constituent)
       real(ikind),      allocatable :: phase(:)    !Phase [rad] (constituent)
@@ -128,6 +130,13 @@ module bnd_def
       real(ikind),      allocatable :: wsevar(:)   !Temporally constant spatially variation along boundary [m] (cell)
       real(ikind),      allocatable :: wseadj(:)   !Current wse adjusted for wave and wind setup [m] (cell)
       logical                       :: wseadjust   !Turns on or off the wse adjustment/correction due to wind and waves 
+      character(len=200)            :: offsetfile  !Offset file           (hli,10/04/17)
+      character(len=200)            :: offsetpath  !Offset path
+      integer                       :: ioffsetmode !1-Constant offset, 2-Offset curve 
+      integer                       :: ntimesoffset!Times in offset curve 
+      real(ikind)                   :: wsecurveoffset !Interpolated offset Values [m] 
+      real(ikind),          pointer :: offsettimes(:) !Offset times [hrs] 
+      real(ikind),          pointer :: offsetcurve(:) !Input offset Values [m]           
     endtype TH_type   
     type(TH_type), allocatable :: TH_str(:)
    
@@ -161,6 +170,13 @@ module bnd_def
       character(len=200)       :: wsefile    !Water level data file
       character(len=200)       :: wsepath    !Water level data file
       logical                  :: wseadjust  !Turns on or off the wse adjustment/correction due to wind and waves
+      character(len=200)       :: offsetfile !Offset file (hli,01/19/17)
+      character(len=200)       :: offsetpath !Offset path     
+      integer                  :: ioffsetmode !1-Constant offset, 2-Offset curve 
+      integer                  :: ntimesoffset!Times in offset curve 
+      real(ikind)              :: wsecurveoffset !Interpolated offset Values [m] 
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs] 
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]           
     endtype H_type    
     type(H_type), allocatable :: H_str(:)    
            
@@ -443,6 +459,6 @@ module bnd_def
     type(NTHV_type), allocatable :: NTHV_str(:)
     
     integer, allocatable :: bndcorner(:)
-    integer              :: nbndcorner
+    integer              :: nbndcorner,ioffsetmode !hli
     
 endmodule bnd_def
