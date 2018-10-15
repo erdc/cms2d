@@ -84,13 +84,13 @@ module sed_def
     !Transport Variables
     real(ikind) :: Awatan,Awidg
     integer :: icapac
-    character(len=10) :: acapac(5)
+    character(len=10) :: acapac(6)
     data acapac / 'LUND-CIRP',& !1
                   'VAN_RIJN',&  !2
                   'WATANABE',&  !3
                   'SOULSBY',&   !4
-                  'WU'/         !5
-    
+                  'WU',&        !5
+                  'CSHORE'/     !6 bdj
     !Mixing    
     logical :: sedconstmix
     real(ikind) :: schmidt,cmixsed,cmixbedload
@@ -143,6 +143,7 @@ module sed_def
     real(ikind) :: Ltot,Lerotot,Ldeptot,Ttot
     real(ikind) :: Lbed,Lerobed,Ldepbed,Tbed,fbed
     real(ikind) :: Lsus,Lerosus,Ldepsus,Tsus,alphasus
+    real(ikind) :: ftot,fsus  !added bdj
     !Total-load 
     character(len=32) :: atotm(6)
     data atotm /'CONSTANT_LENGTH',&           !1
@@ -303,7 +304,7 @@ module sed_def
     type(sed_bnd_srcsnk_type), allocatable :: sed_bnd_srcsnk(:)
     
     !Constant wave parameters for testing and idealized cases	   !From Chris' Code
-    logical :: constant_waves
+    !logical :: constant_waves
     
     !Percentile Datasets
     integer :: nperinp !Number of input percentile datasets

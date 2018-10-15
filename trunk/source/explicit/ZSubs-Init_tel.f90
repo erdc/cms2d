@@ -18,13 +18,14 @@
       use bnd_def
       use sal_def
       use EXP_TELESCOPING
-      USE diag_def, only: dgunit
+      USE diag_def, only: dgunit,dgfile
       
       IMPLICIT NONE
       !LOCAL VARIABLES
       INTEGER i,j,id_t
       INTEGER ICNT_E,ICNT_N,ICNT_W,ICNT_S,ICNTT
       REAL(ikind) sum
+      LOGICAL isOpen
 
 
       if(nQstr .gt. 0) then
@@ -136,7 +137,12 @@
         
         enddo !end of NQdriver
 
+        inquire(unit=DGUNIT,opened=isOpen)
+        if(.not. isOpen) then
+          open(dgunit,file=dgfile,access='append') 
+        endif
         write(DGUNIT,*)'finished initializing flow time series bcs'
+        close (DGUNIT)
         
         Endif !(Q_single)
 
@@ -239,13 +245,13 @@
              do j=1,H_Str(i)%ncells - 1
               id1 = H_Str(i)%cells(j)
               id2 = H_Str(i)%cells(j+1)
-              write(*,*)'---------------------------------------'
-              write(*,*)'j,id1,id2 ',j,id1,id2
-              write(*,*)'sgn ',  SWABC(i)%sgn(j) 
-              write(*,*)'rad ',  SWABC(i)%rad(j) 
-              write(*,*)'cell ',  SWABC(i)%cell(j) 
-              write(*,*)'del',  SWABC(i)%del(j) 
-              write(*,*)'width ',  SWABC(i)%wdth(j) 
+              !write(*,*)'---------------------------------------'
+              !write(*,*)'j,id1,id2 ',j,id1,id2
+              !write(*,*)'sgn ',  SWABC(i)%sgn(j) 
+              !write(*,*)'rad ',  SWABC(i)%rad(j) 
+              !write(*,*)'cell ',  SWABC(i)%cell(j) 
+              !write(*,*)'del',  SWABC(i)%del(j) 
+              !write(*,*)'width ',  SWABC(i)%wdth(j) 
              enddo  
 
           enddo !ndriver 

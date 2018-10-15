@@ -264,7 +264,7 @@ TYPE CHParms_type
   integer numDEPTHS
   real, allocatable :: Depth(:),Tcrit_Ev(:),Tcrit_Dv(:)
 END TYPE CHParms_type	
-TYPE (CHParms_type) CHparms
+TYPE (CHParms_type), SAVE :: CHparms
 
 logical :: cohesive=.FALSE.,cohesive_read=.FALSE.,cohes_flow_bc=.false.
 logical :: cohes_cards_read = .false., SMAG

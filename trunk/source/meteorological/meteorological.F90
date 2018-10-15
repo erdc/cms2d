@@ -168,7 +168,7 @@
       
       !--- Wind Curve -----------------------------------------  
       case('WIND_INPUT_CURVE')  
-        call card_dataset(77,mpfile,flowpath,windfile,windpath)
+        call card_dataset(77,mpfile,flowpath,windfile,windpath,2)
         windconst = .true.    
       
       case('WIND_SPEED_CURVE')
@@ -197,7 +197,7 @@
       !--- Atmospheric Pressure Curve ---------------------------------  
       case('ATM_PRESSURE_INPUT_CURVE','ATM_PRESSURE_CURVE',&
                'PRESSURE_INPUT_CURVE',    'PRESSURE_CURVE')
-        call card_dataset(77,mpfile,flowpath,presfile,prespath)
+        call card_dataset(77,mpfile,flowpath,presfile,prespath,1)
         presconst = .true.        
       
       !--- Spatially Variable Wind and Atmospheric Pressure ------------  
@@ -347,7 +347,7 @@ d1: do ii=1,15
 	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
 	  selectcase(cardname)
         case('WIND_FILE')  
-          call card_dataset(77,mpfile,flowpath,windfile,windpath)
+          call card_dataset(77,mpfile,flowpath,windfile,windpath,1)
           if(len_trim(windfile)==0)then
             windfile = windpath
             windpath = ''
@@ -613,24 +613,27 @@ d1: do ii=1,4
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************         
 #include "CMS_cpp.h"
+    use diag_lib
+    use prec_def
+    use met_def
+    use met_lib,   only: read_stdmetfile,wind_heightcorr
     use geo_def, only: azimuth_fl
     use comvarbl, only: flowpath,tjulday0,tmax
     use const_def, only: deg2rad
-    use met_def
-    use met_lib, only: read_stdmetfile,wind_heightcorr
+    use comvarbl,  only: version
+    use out_def,   only: write_ascii_input
+    use in_lib,    only: read_tsd,read_xys
 #ifdef XMDF_IO
     use xmdf
-    use in_lib, only: read_dataseth5,read_tsd,read_xys
-#else
-    use in_lib, only: read_tsd,read_xys
+    use in_xmdf_lib, only: read_dataseth5
 #endif
-    use diag_lib
-    use prec_def
+
     implicit none
     integer :: i,ndat
     real(ikind) :: ang,fac,wndspd,wnddir,tjulend,tjuldaybegwnd
     real(ikind),pointer :: wdat(:,:)
     character :: aext*10,aname*100,atype*100
+    character :: apath*100,awindcurve*100       !Added for new format since WindCurve isn't a folder holding other datasets.
     !logical :: foundfile
     
     !call fileparts(windfile,apath,aname,aext)
@@ -651,8 +654,6 @@ d1: do ii=1,4
       call read_dataseth5(windfile,windpath,'Times',nwtimes,wndtimes)
       call read_dataseth5(windfile,windpath,'Magnitude',nwtimes,wndvalsx)
       call read_dataseth5(windfile,windpath,'Direction',nwtimes,wndvalsy)
-#else
-      call diag_print_error('Cannot read wind curves from *.h5 without XMDF libraries')
 #endif
     elseif(aext(1:3)=='txt')then !Standard Met File
       tjulend = tjulday0 + tmax/24.0
@@ -675,6 +676,13 @@ d1: do ii=1,4
         call diag_print_error('Time series length in wind speed and direction ',&
           '  files do not match')  
       endif    
+    endif
+    
+    !keep speeds and magnitudes if needed for writing ascii output later
+    if(write_ascii_input)then
+      allocate(wndspeed(nwtimes),wnddirection(nwtimes))
+      wndspeed=wndvalsx
+      wnddirection=wndvalsy
     endif
     
     fac=wndfac*wind_heightcorr(wndht) !Temporal and vertical coordinate factors
@@ -1673,8 +1681,8 @@ d1: do ii=1,20
           
         case('WIND_DIRECTION_CURVE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%path
-          call fileext(metsta(nMetSta)%path,aext)
+	      read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed curve - 10/03/2017        
+          call fileext(metsta(nMetSta)%file,aext)
           if(aext(1:2)=='h5')then
             backspace(77)
 	        read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path  
@@ -1683,7 +1691,12 @@ d1: do ii=1,20
           
         case('PRESSURE_INPUT_CURVE')
           backspace(77)
+	      read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed and wind_direction curves - 10/03/2017
+          call fileext(metsta(nMetSta)%file,aext)
+          if(aext(1:2)=='h5')then
+            backspace(77)
 	      read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path
+          endif
           pressta = .true.
           
         case('COORDINATES')
@@ -1774,10 +1787,9 @@ d1: do ii=1,20
     use comvarbl, only: flowpath,tjulday0,tmax
     use const_def, only: deg2rad
 #ifdef XMDF_IO
-    use in_lib, only: read_dataseth5,read_xys,read_tsd
-#else
-    use in_lib, only: read_xys,read_tsd
+    use in_xmdf_lib, only: read_dataseth5
 #endif
+    use in_lib, only: read_xys,read_tsd
     use met_def
     use met_lib, only: read_stdmetfile,wind_heightcorr
     use diag_lib
@@ -1841,12 +1853,9 @@ d1: do ii=1,20
       !Read Files
       if(aext(1:2)=='h5')then
 #ifdef XMDF_IO
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Times',&
-             metsta(ista)%ntimes,metsta(ista)%times)
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Magnitude',&
-             metsta(ista)%ntimes,metsta(ista)%wndvalsx)
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Direction',&
-             metsta(ista)%ntimes,metsta(ista)%wndvalsy)
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Times',     metsta(ista)%ntimes,metsta(ista)%times)
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Magnitude', metsta(ista)%ntimes,metsta(ista)%wndvalsx)
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Direction', metsta(ista)%ntimes,metsta(ista)%wndvalsy)
 #else
         call diag_print_error('Cannot read wind time series from *.h5 file without XMDF libraries')
 #endif

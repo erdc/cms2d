@@ -201,6 +201,11 @@
           cadvf3 = yface_CadvF(3,i)   
           cadvf7 = yface_CadvF(7,i)
           cadvf8 = yface_CadvF(8,i)          
+          
+          if(cadvf1.lt.0 .or. cadvf2.lt.0 .or. cadvf3.lt.0 .or. cadvf5.lt.0 .or. cadvf7.lt.0 .or. cadvf8.lt.0)then
+            continue
+          endif
+          
           FLuxExp = (xface_q(cadvf1)*xface_length(cadvf1) + xface_q(cadvf2)*xface_length(cadvf2)+xface_q(cadvf7)*xface_length(cadvf7) + xface_q(cadvf8)*xface_length(cadvf8))/ &       
                     (xface_length(cadvf1) + xface_length(cadvf2)+xface_length(cadvf7) + xface_length(cadvf8)) 
           if(FluxEXP.lt.0) then

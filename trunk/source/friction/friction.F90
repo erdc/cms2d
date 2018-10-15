@@ -190,7 +190,7 @@
       read(77,*) cardname,roughscaletrans
       
     case('MANNINGS_N_DATASET','MANNING_N_DATASET','MANNINGS_DATASET','MANNNING_DATASET')
-      call card_dataset(77,grdfile,flowpath,fricfile,fricpath)
+      call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       mbedfric = 2     
       constbotfric = .false.
     
@@ -201,7 +201,7 @@
       constbotfric = .true.
           
     case('BOTTOM_FRICTION_COEF_DATASET','BOTTOM_FRICTION_DATASET','FRICTION_COEFFICIENT_DATASET')
-      call card_dataset(77,grdfile,flowpath,fricfile,fricpath)
+      call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       mbedfric = 1 
       constbotfric = .false.
         
@@ -219,7 +219,7 @@
       constbotfric = .true.         
           
     case('ROUGHNESS_HEIGHT_DATASET','ROUGHNESS_DATASET')
-      call card_dataset(77,grdfile,flowpath,fricfile,fricpath)
+      call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       mbedfric = 3    
       constbotfric = .false.
         
@@ -289,10 +289,12 @@
     use sed_def, only: sedtrans,d50,d90,singlesize,singleD50
     use diag_lib
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
     implicit none
     integer :: i,k,nck,ierr
+    character(len=10) :: aext
     
     !Allocate and initialize
     allocate(coefman(ncellsD),cfrict(ncellsD),z0(ncellsD))    
@@ -317,6 +319,9 @@
     !  cbotfric = 0.025
     !  mbedfric = 2
     !endif
+    call fileext(trim(fricfile),aext)
+    
+    
     if(constbotfric)then !Constant value
       selectcase(mbedfric)
       case(1); cfrict = fricscale*cbotfric
@@ -324,6 +329,9 @@
       case(3); z0 = fricscale*cbotfric/30.0 !Convert from physical roughness height to hydraulic roughness length *********
       endselect  
     else                 !User-defined Dataset
+      select case (aext)    !Added case to accept ASCII input of grid-specific datasets - meb 022118
+
+      case('h5')
 #ifdef XMDF_IO
       selectcase(mbedfric)
       case(1) !Friction coefficient
@@ -343,9 +351,27 @@
         z0 = z0/30.0 !Convert from physical roughness height to hydraulic roughness length *********
         z0 = fricscale*z0
       endselect      
-#else
-      call diag_print_error('Cannot read bottom roughness dataset without XMDF libraries')
 #endif
+      case('txt') 
+        selectcase(mbedfric)
+        case(1) !Friction coefficient
+          call readscalTxt(fricfile,cfrict,ierr)
+          if(ierr<0) call rough_read_error_msg2(fricfile)  
+          !where(cfrict<1.0e-6) cfrict=1.0e-6
+          cfrict = fricscale*cfrict
+        case(2) !Manning's
+          call readscalTxt(fricfile,coefman,ierr)
+          if(ierr<0) call rough_read_error_msg2(fricfile)  
+          !where(coefman<1.0e-6) coefman=1.0e-6
+          coefman = fricscale*coefman
+        case(3) !Roughness height
+          call readscalTxt(fricfile,z0,ierr)
+          if(ierr<0) call rough_read_error_msg2(fricfile)  
+          where(z0<1.0e-5) z0=1.0e-5
+          z0 = z0/30.0 !Convert from physical roughness height to hydraulic roughness length *********
+          z0 = fricscale*z0
+        endselect      
+      endselect  
     endif
 
     !Bed slope friction factor
@@ -403,11 +429,28 @@
 !**************************************************
     use diag_lib
     implicit none
-    character(len=200) :: afile,apath,msg2,msg3
+    character(len=200),intent(in) :: afile
+    character(len=200),intent(in) :: apath
+    character(len=200) :: msg2,msg3
     
     write(msg2,*) '       File: ',trim(afile)
-    write(msg2,*) '       Path: ',trim(apath)    
+    write(msg3,*) '       Path: ',trim(apath)    
     call diag_print_error('Could not find roughness dataset ',msg2,msg3,&
+      '  Check input files and restart')
+    
+    stop         
+    endsubroutine
+
+!**************************************************    
+    subroutine rough_read_error_msg2(afile)
+!**************************************************
+    use diag_lib
+    implicit none
+    character(len=200),intent(in) :: afile
+    character(len=200) :: msg2,msg3
+    
+    write(msg2,*) '       File: ',trim(afile)
+    call diag_print_error('Could not find roughness dataset ',msg2,&
       '  Check input files and restart')
     
     stop         

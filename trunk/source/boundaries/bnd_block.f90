@@ -8,7 +8,7 @@
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************
     use bnd_def, only: nparsim,parsim,q_str,nqstr,th_str,nthstr,h_str,nhstr,mh_str,nmhstr,mhv_str,nmhvstr,nh_str,nnhstr,nhv_str,nnhvstr
-    use bnd_def, only: nth_str,nnthstr,nthv_str,nnthvstr
+    use bnd_def, only: nth_str,nnthstr,nthv_str,nnthvstr,ioffsetmode !1-Constant offset, 2-Offset curve (hli,01/18/17)
     use sal_def, only: nsalstr,sal_str
     use geo_def, only: azimuth_fl,projection
     use geo_lib, only: proj_default
@@ -37,12 +37,15 @@
     
     !Flux Boundary
     integer     :: ifluxmode   !1-Constant flux, 2-Total Flux curve
+!    integer     :: ioffsetmode   !1-Constant offset, 2-Offset curve (hli,01/18/17)
     logical     :: fluxblockread
     real(ikind) :: cmvel       !Coefficient [-]
     real(ikind) :: angle_flux  !Angle of flow clockwise from north [rad]
     real(ikind) :: qfluxconst
     integer     :: ifluxunits  !Input flux units: 0-m^3/s/cell,1-m^3/s,2-ft^3/s
+
     character(len=200) :: fluxfile,fluxpath  !Flux data file and path
+    character(len=200) :: offsetfile,offsetpath  !offset data file and path (hli,01/18/17)
     integer    :: ntiq 
     
     !Time-series Smoothing
@@ -121,7 +124,8 @@
     real(ikind) :: sedbnd
     
     interface
-      subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave)
+      subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave, &
+         ioffsetmode,offsetfile,offsetpath,wseoffset,nti)   !hli(10/04/17)
         use prec_def
         implicit none
         integer,intent(inout) :: ibndtype
@@ -133,6 +137,10 @@
         real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
         real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
         character(len=6), pointer :: name(:) !Tidal Consitituent names (constituent)    
+        character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
+        integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
+        integer,         intent(out)   :: nti                   !(hli,10/04/17)
+        real(ikind),     intent(inout) :: wseoffset             !(hli,10/04/17)
       endsubroutine
     endinterface
     
@@ -278,12 +286,15 @@
     sedpath = ''
     sedbnd = undef
     
-    do kk=1,60
+    do !kk=1,60
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle  
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=="*") cycle  
       selectcase(cardname)
+      case('BOUNDARY_END','END')
+        exit
+          
       case('NAME')
         backspace(77)
         read(77,*) cardname,bndname
@@ -307,9 +318,9 @@
         fluxblockread = .true.
         
       case('WSE_BEGIN','WSE_BOUNDARY_BEGIN','WSE_FORCING_BEGIN')
-        call wse_block(ibndtype,istidal,wsefile,wsepath,&
-           wseconst,wseoffset,dwsex,dwsey,minterp,ntiwse,nsiwse,nswwse,&
-           nssiwse,nsswwse,wseout,wseadjust)
+        call wse_block(ibndtype,istidal,wsefile,wsepath,wseconst, &
+           ioffsetmode,offsetfile,offsetpath,wseoffset, &  !(hli)
+           dwsex,dwsey,minterp,ntiwse,nsiwse,nswwse,nssiwse,nsswwse,wseout,wseadjust)
         wseblockread = .true.
         
       case('VEL_BEGIN')
@@ -318,7 +329,8 @@
         velblockread = .true.
         
       case('TIDAL_CONSTITUENTS_BEGIN','TIDAL_BEGIN')     
-        call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave)
+        call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave, &
+           ioffsetmode,offsetfile,offsetpath,wseoffset,ntiwse)       !(hli 10/04/17)
         istidal = .true.
         
       case('HARMONIC_CONSTITUENTS_BEGIN','HARMONIC_BEGIN')
@@ -367,11 +379,9 @@
       !  read(77,*) cardname,sedbnd
       !  isedtype = 2
       
-      case('BOUNDARY_END','END')
-        exit
-          
       case default
         foundcard = .false.
+        call diag_print_warning('Unrecognized Card: '//trim(cardname))
         
       endselect
     enddo
@@ -477,6 +487,9 @@
       TH_str(nTHstr)%ntc = ntc
       TH_str(nTHstr)%wseadjust = wseadjust
       TH_str(nTHstr)%station = station
+      TH_str(nTHstr)%offsetfile = offsetfile !hli
+      TH_str(nTHstr)%offsetpath = offsetpath !hli
+      TH_str(nTHstr)%nti = ntiwse !hli
       if(ntc==0) return
       allocate(TH_str(nTHstr)%amp(ntc),TH_str(nTHstr)%speed(ntc))
       allocate(TH_str(nTHstr)%phase(ntc),TH_str(nTHstr)%name(ntc))
@@ -514,6 +527,9 @@
       H_str(nHstr)%nsi = nsiwse
       H_str(nHstr)%nsw = nswwse
       H_str(nHstr)%wseadjust = wseadjust
+      H_str(nHstr)%offsetfile = offsetfile !hli
+      H_str(nHstr)%offsetpath = offsetpath !hli
+      
       
     case(4) !MH - Multiple WSE
       call multiwse_alloc

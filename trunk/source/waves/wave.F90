@@ -60,7 +60,7 @@
     use diag_def
     use diag_lib
 #ifdef XMDF_IO
-    use in_lib, only: readscalsteph5,readvecsteph5
+    use in_xmdf_lib, only: readscalsteph5,readvecsteph5
 #endif
     use wave_flowgrid_def
     implicit none

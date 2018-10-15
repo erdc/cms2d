@@ -40,6 +40,15 @@ module cms_def
     character(len=200) :: wavsimfile,wavepath,wavename  !Alex
     character(len=200) :: radpath,wavpath,perpath,dirpath,disspath
     
+    integer :: ndsets
+    type dset_type !Node string driver
+      character(len=200) :: filename
+      character(len=200) :: path
+      integer :: ndim
+    endtype dset_type
+    type(dset_type), allocatable :: dsetList(:)
+    
+    
 endmodule cms_def
 
 !===================================================================

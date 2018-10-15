@@ -5,13 +5,12 @@
 	use geo_def, only: igridtype
       implicit none
       
-      write(*,*)'igridtype = ',igridtype
-      
+!      write(*,*)'igridtype = ',igridtype
       if(igridtype .eq. 0) then
-           Write(*,*)'      using explicit cartesian grid solver'         
+!           Write(*,*)'      using explicit cartesian grid solver'         
           call CMS_FLOW_EXP_C
       elseif(igridtype .eq. 1) then
-          Write(*,*)'      using explicit telescoping grid solver'
+!          Write(*,*)'      using explicit telescoping grid solver'
           call CmS_FLOW_EXP_T
       elseif(igridtype .gt. 1) then
           write(*,*)'Grid Type not supported by the explicit solver'

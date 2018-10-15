@@ -113,7 +113,7 @@ module geo_def
     real(ikind) :: azimuth_fl  !Grid orientation (degrees)
     real(ikind) :: xOrigin,yOrigin !Cartesian grid origin (m)
     integer, allocatable :: icol(:),irow(:) 
-    real*4, allocatable :: dyy(:),Z(:),dxx(:),lat(:) !temporary variables, must be single
+    real*4, allocatable :: dyy(:),Z(:),dxx(:),lat(:),lon(:) !temporary variables, must be single
     integer, allocatable :: idmap(:),mapid(:)
     integer, allocatable :: cell_type(:)
     integer :: kkface(4)

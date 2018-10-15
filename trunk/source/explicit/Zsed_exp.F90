@@ -31,7 +31,7 @@
 349 format(' Sediment: iter      Ctk_res')
 359 format(5x,I10,1x,E13.4,1x)
     
-    !set zb1 = zb, which is needed for some implicit sub-routiensused here to work properly
+    !set zb1 = zb, which is needed for some implicit sub-routines used here to work properly
     zb1 = zb
       
     !=== Hiding and exposure function ====
@@ -157,7 +157,6 @@
 
     !=== Solve each A-D equation =====================
            do ks=1,nsed   
-           
           do j=1,NQstr  
           if(QstringEXP(j)%vface) then
             IDO = Q_str(j)%NCells
@@ -220,7 +219,6 @@
       enddo
 !$OMP END DO      
 
-
 !$OMP DO PRIVATE (NCE,NCN,VOLN)
       do i=1,ncells
       Ctkstar(i,ks)=CtstarP(i,ks) !*pbk(i,ks,1)       
@@ -241,7 +239,6 @@
          do i=1,ncells
           if(active(i,3)) ctk(i,ks) = adss(i)%concn
          enddo
-
            enddo !ks 
          
 !        ii=cell2cell(440,2)   

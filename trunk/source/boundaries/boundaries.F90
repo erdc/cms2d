@@ -298,15 +298,15 @@
     !Default units
     qunits = 'm^3/s/cell'
     
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       cardname = ''
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)
       case('RATING_CURVE','STAGE_FLOW_CURVE','STAGE_FLUX_CURVE')
-        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath)
+        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1)
         ibndtype = 1 !Q-1
         ifluxmode = 3
         
@@ -318,11 +318,11 @@
         ifluxmode = 1
         
       case('FLUX_CURVE','FLUX_DATA','FLUX_TIMESERIES','CURVE')
-        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath)
+        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1)
         ibndtype = 1 !Q-1
         ifluxmode = 2
         
-      case('FLUX_UNITS','UNITS')
+      case('FLUX_UNITS','UNITS')     !For SMS 11.2 and previous - value is per cell, not total and so the FLUX_UNITS will be written to file from SMS 12.x and after.
         backspace(77)
         read(77,'(A)') aline
         read(aline,*,iostat=ierr) cardname,qunits
@@ -392,7 +392,8 @@
 
 !**************************************************************************    
     subroutine wse_block(ibndtype,istidal,wsefile,wsepath,wseconst,&
-     wseoffset,dwsex,dwsey,minterp,nti,nsi,nsw,nssi,nssw,wseout,wseadjust)
+     ioffsetmode,offsetfile,offsetpath,wseoffset,&        !(hli,01/18/17)
+     dwsex,dwsey,minterp,nti,nsi,nsw,nssi,nssw,wseout,wseadjust)
 ! Reads an wse boundary condition block from the card file
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************************************
@@ -404,8 +405,9 @@
     
     implicit none
     !Input/Output
-    character(len=*),intent(inout) :: wsefile,wsepath
+    character(len=*),intent(inout) :: wsefile,wsepath,offsetfile,offsetpath !(hli,01/18/17)
     integer,         intent(inout) :: ibndtype,minterp,nti,nsi,nsw,nssi,nssw
+    integer,         intent(out)   :: ioffsetmode                           !(hli,01/18/17)
     real(ikind),     intent(inout) :: wseconst,wseoffset,dwsex,dwsey
     logical,         intent(inout) :: istidal,wseout,wseadjust
     !Internal Variables
@@ -417,12 +419,12 @@
     
     ibndtype = 0  !Undefined
     
-    do kk=1,20
+    do !  Removed the limit of only reading 20 cards in this block.  !kk=1,20  MEB 06/27/2018
       foundcard = .true. 
       cardname = ''
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       !call bnd_time_smooth_cards(cardname,nti,nsi,nsw,foundcard)
       !if(foundcard) cycle 
       !call bnd_space_smooth_cards(cardname,nssi,nssw,foundcard)
@@ -438,12 +440,12 @@
         nti = 0
         
       case('WSE_CURVE','CURVE')
-        call card_dataset(77,mpfile,flowpath,wsefile,wsepath)
+        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1)
         ibndtype = 3
         istidal = .false.
         
       case('WSE_DATA','WSE_DATASET','DATASET','DATA','CURVES')      
-        call card_dataset(77,mpfile,flowpath,wsefile,wsepath)
+        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1)
         ibndtype = 4
         istidal = .false.
         
@@ -499,8 +501,13 @@
           nssw = nssw + 1
         endif
         
-      case('WSE_OFFSET','OFFSET_WSE','OFFSET')
+      case('WSE_OFFSET','OFFSET_WSE','OFFSET','WSE_OFFSET_CONSTANT','OFFSET_CONSTANT')
         call card_scalar(77,'m','m',wseoffset,ierr)  
+        ioffsetmode=1
+        
+      case('WSE_OFFSET_CURVE','OFFSET_WSE_CURVE','OFFSET_CURVE')
+        call card_dataset(77,mpfile,flowpath,offsetfile,offsetpath,1)   
+        ioffsetmode=2
       
       case('WSE_ADJUSTMENT','ADJUSTMENT','WIND_WAVE_CORRECTION',&
          'WIND_WAVE_ADJUSTMENT','CORRECTION')  
@@ -574,17 +581,17 @@
     
     ibndtype = 0  !Undefined
     
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)        
       case('VEL_BOUNDARY_END','VEL_END','VEL_FORCING_END','END')
         exit
           
       case('VEL_DATA','VEL_DATASET','DATASET','DATA','CURVES')  
-        call card_dataset(77,mpfile,flowpath,velfile,velpath)
+        call card_dataset(77,mpfile,flowpath,velfile,velpath,2)
         ibndtype = 5 !=MHV
         
       case('VEL_NEST','VEL_PARENT','SIMULATION','SOLUTION','VEL_SOLUTION')
@@ -647,9 +654,10 @@
     endsubroutine vel_block
      
 !************************************************************************
-    subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave)
+    subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,&
+       ioffsetmode,offsetfile,offsetpath,wseoffset,nti)
 ! Reads a tidal constituent block from the card file
-!
+! Add "nti" for curve inperpolation
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
     use geo_def, only: azimuth_fl
@@ -662,7 +670,12 @@
     
     implicit none
     !Input/Output
+    character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
+    integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
+    real(ikind),     intent(inout) :: wseoffset
+    
     integer,intent(inout) :: ibndtype
+    integer,intent(out)  :: nti                   !(hli,10/06/17)
     integer              :: ntc         !Tidal constituents used
     real(ikind)          :: angle_wave  !Incident angle of tidal wave
     real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
@@ -690,12 +703,15 @@
     ampunits = 'm'
     phaunits = 'deg'
     ntc = 0 !Number of tidal constituents used
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)
+      case('TIDAL_CONSTITUENTS_END','TIDAL_END','END')
+        exit
+          
       case('AMPLITUDE_UNITS')
         backspace(77)
         read(77,*) cardname,ampunits
@@ -736,8 +752,12 @@
         endif
         ibndtype = 2
         
-      case('TIDAL_CONSTITUENTS_END','TIDAL_END','END')
-        exit
+      case('WSE_OFFSET_CURVE','OFFSET_WSE_CURVE','OFFSET_CURVE')     !hli(10/04/17)
+        call card_dataset(77,mpfile,flowpath,offsetfile,offsetpath,1)   
+        ioffsetmode=2
+        nti=2
+ !     write(3000,*)'mpfile= ',mpfile,'flowpath = ',flowpath           !hli(10/04/17)
+ !     write(3000,*)'offsetfile= ',offsetfile,'offsetpath = ',offsetpath  !hli(10/04/17)
           
       case default
         foundcard = .false.
@@ -798,12 +818,15 @@
     phaunits = 'deg'
     spdunits = 'deg'
     ntc = 0 !Number of tidal constituents used
-    do kk=1,20
+    do !  Removed the limit of only reading 20 cards in this block.  !kk=1,20  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)
+      case('HARMONIC_CONSTITUENTS_END','HARMONIC_END','END')
+        exit
+          
       case('AMPLITUDE_UNITS')
         backspace(77)
         read(77,*) cardname,ampunits
@@ -835,9 +858,6 @@
         !speedtemp(ntc) = speedtemp(ntc)*180.0 !convert from cycles/hr to deg/hr
         ibndtype = 2
         
-      case('HARMONIC_CONSTITUENTS_END','HARMONIC_END','END')
-        exit
-          
       case default
         foundcard = .false.
           
@@ -909,12 +929,15 @@
     tstapath = ''
     ntc = 0
     
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)  
+      case('TIDAL_STATION_END','STATION_END','END')
+        exit
+        
        case('DATABASE_NAME','STATION_DATABASE')
         backspace(77)
         read(77,*) cardname,tstaname
@@ -960,9 +983,6 @@
           angle_wave = angle_wave - 360.0
         endif
         angle_wave = angle_wave*deg2rad !Convert to rad  
-        
-      case('TIDAL_STATION_END','STATION_END','END')
-        exit
         
       case default
         foundcard = .false.
@@ -1089,12 +1109,15 @@
     character(len=200) :: mpfilepar,flowpathpar,flownamepar
     logical :: foundcard
     
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)        
+      case('PARENT_END','PARENT_SIMULATION_END','END')
+        exit
+          
       case('CONTROL_FILE','PARENT_CONTROL_FILE','PARENT_CTL_FILE','CTL_FILE')
         backspace(77)
         read(77,*) cardname,ctlfilepar !,NH_str(nNHstr)%ctlpath
@@ -1122,10 +1145,10 @@
       !  read(77,*) cardname,velfilepar
         
       case('WSE_SOLUTION','WSE_DATASET','WSE_FILE','PARENT_WSE_FILE','WSE_OUT_FILE','WSE_SOL_FILE')
-        call card_dataset(77,mpfilepar,flowpathpar,wsefilepar,wsepathpar)
+        call card_dataset(77,mpfilepar,flowpathpar,wsefilepar,wsepathpar,1)
         
       case('VEL_SOLUTION','VEL_DATASET','VEL_FILE','PARENT_VEL_FILE','VEL_OUT_FILE','VEL_SOL_FILE')
-        call card_dataset(77,mpfilepar,flowpathpar,velfilepar,velpathpar)
+        call card_dataset(77,mpfilepar,flowpathpar,velfilepar,velpathpar,2)
         
       case('STARTING_DATE_TIME','START_DATE_TIME','PARENT_STARTING_DATE_TIME')
         call card_datetime(77,iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar)  !YYYY-MM-DD HH:MM:SS UTC 
@@ -1144,9 +1167,6 @@
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
         call proj_horiz_block(77,projpar)
         
-      case('PARENT_END','PARENT_SIMULATION_END','END')
-        exit
-          
       case default
         foundcard = .false.
           
@@ -1180,12 +1200,15 @@
     character :: cardname*37
     logical :: foundcard
     
-    do kk=1,10
+    do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)
+      case('TIDAL_DATABASE_END','DATABASE_END','END')
+        exit
+          
       case('CONSTITUENTS')
         backspace(77)
         read(77,*) cardname,ntcin
@@ -1208,20 +1231,17 @@
        case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
         call proj_horiz_block(77,projtdb)    
        
-       case('SPACE_SMOOTH_ITER','SPACE_SMOOTH_ITERATIONS','SPACIAL_SMOOTHING_ITERATIONS',&
+       case('SPACE_SMOOTH_ITER','SPACE_SMOOTH_ITERATIONS','SPATIAL_SMOOTHING_ITERATIONS',&
         'SMOOTHING_ITERATIONS','SMOOTH_ITERATIONS','SMOOTHING_ITER')
         backspace(77)
         read(77,*) cardname,nssi
         
-      case('SPACE_SMOOTH_WIDTH','SPACAIAL_SMOOTHING_WIDTH','SMOOTHING_WIDTH','SMOOTH_WIDTH')
+      case('SPACE_SMOOTH_WIDTH','SPATIAL_SMOOTHING_WIDTH','SMOOTHING_WIDTH','SMOOTH_WIDTH')
         backspace(77)
         read(77,*) cardname,nssw
         if(mod(nssw,2)/=0)then !Make sure it is odd
           nssw = nssw + 1
         endif    
-        
-      case('TIDAL_DATABASE_END','DATABASE_END','END')
-        exit
           
       case default
         foundcard = .false.
@@ -1235,7 +1255,7 @@
 !**********************************************************    
     subroutine tidal_alloc
 !**********************************************************
-    use bnd_def, only: TH_str,nTHstr,ntf,TH_type
+    use bnd_def, only: TH_str,nTHstr,ntf,TH_type,ioffsetmode !(hli 10/04/17)
 
     implicit none
     integer :: i,ntc
@@ -1268,7 +1288,13 @@
     endif
     
     !Initialize
+    TH_str(nTHstr)%ioffsetmode = ioffsetmode  !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    TH_str(nTHstr)%offsetfile = ''
+    TH_str(nTHstr)%offsetpath = ''    
+    TH_str(nTHstr)%wsecurveoffset = 0.0
     TH_str(nTHstr)%ntc = 0
+    TH_str(nTHstr)%nti = 2     !hli(10/06/17)
+    TH_str(nTHstr)%inc = 1     !hli(10/06/17)
     TH_str(nTHstr)%angle = -999.0
     TH_str(nTHstr)%dwsex = 0.0
     TH_str(nTHstr)%dwsey = 0.0
@@ -1284,7 +1310,7 @@
     subroutine singlewse_alloc
 ! Resizes the single water level boundary condition variable    
 !*************************************************************
-    use bnd_def, only: H_str,nHstr,H_type
+    use bnd_def, only: H_str,nHstr,H_type,ioffsetmode
 
     implicit none
     integer :: i
@@ -1307,6 +1333,11 @@
     endif
     
     !Initialize and set default values
+!    write(3000,*)'ioffsetmode (singlewse) = ',ioffsetmode 
+    H_str(nHstr)%ioffsetmode = ioffsetmode  !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    H_str(nHstr)%offsetfile = ''
+    H_str(nHstr)%offsetpath = ''    
+    H_str(nHstr)%wsecurveoffset = 0.0
     H_str(nHstr)%wseoffset = 0.0
     H_str(nHstr)%dwsex = 0.0
     H_str(nHstr)%dwsey = 0.0
@@ -1520,7 +1551,7 @@ d1: do i=1,ntf
       read(77,*,iostat=ierr) cardname
       backspace(77)
       if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       selectcase(cardname)
       case('HARMONIC_END','HARMONICS_END','HARMONIC_COMPONENTS_END','END')  
         exit  
@@ -1569,7 +1600,8 @@ d1: do i=1,ntf
 !********************************************************************************
 #include "CMS_cpp.h"
     use bnd_def  
-    use bnd_lib, only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata
+    use bnd_lib, only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata, &
+                       read_offsetwsedata !(hli,01/20/17)
     use cms_def, only: cmswave
     use comvarbl, only: tjulday0
     use const_def, only: deg2rad,rad2deg
@@ -1587,7 +1619,7 @@ d1: do i=1,ntf
     
     implicit none      
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
-    integer :: iriv,iwse,icsh,korient,id1,id2,ibnd,ipar,idpar
+    integer :: iriv,iwse,icsh,korient,id1,id2,ibnd,ipar,idpar,kk
     character(len=10) :: aext
     real(ikind) :: dep,cosang,sinang,val,distx,disty,tjuldaypar,xtrapdist
     integer :: ibndtemp(ncellsD)
@@ -1736,6 +1768,14 @@ d1: do i=1,ntf
           TH_str(iwse)%psi(j,k) = TH_str(iwse)%psi(j,k) + TH_str(iwse)%speed(k)*val
         enddo
       enddo
+      if(TH_str(iwse)%ioffsetmode==2)then !Time-series offset (hli,10/04/17)
+        !Read offset data           
+        call read_offsetwsedata(TH_str(iwse)%offsetfile,TH_str(iwse)%offsetpath,&
+             TH_str(iwse)%ntimesoffset,TH_str(iwse)%offsettimes,TH_str(iwse)%offsetcurve)
+!        write(3000,*)'TH_str(iwse)%offsetfile = ',TH_str(iwse)%offsetfile
+!        write(3000,*)'TH_str(iwse)%offsettimes = ',TH_str(iwse)%offsettimes
+!        write(3000,*)'TH_str(iwse)%offsetcurve = ',TH_str(iwse)%offsetcurve
+      endif
     enddo !i-str   
 
 !--- Single Water Level BC (Type 3=H) -------------------------------------------
@@ -1784,6 +1824,12 @@ d1: do i=1,ntf
           distx=x(ii)-x(i); disty=y(ii)-y(i)
           H_str(iwse)%wsevar(j) = distx*H_str(iwse)%dwsex + disty*H_str(iwse)%dwsey !Spatially variable and temporally constant water level
         enddo
+      endif
+      
+      if(H_str(iwse)%ioffsetmode==2)then !Time-series offset (hli,01/18/17)
+        !Read offset data           
+        call read_offsetwsedata(H_str(iwse)%offsetfile,H_str(iwse)%offsetpath,&
+             H_str(iwse)%ntimesoffset,H_str(iwse)%offsettimes,H_str(iwse)%offsetcurve)
       endif
     enddo !iwse
 
@@ -1907,6 +1953,7 @@ d1: do i=1,ntf
       call diag_print_error('Cross-shore boundary condition not supported')
     endif
     ibndtemp = 0 !Temporary array for reordering CS_str cells
+         
     do icsh=1,nCSstr    
       !Read cell/node string  
       call read_bndstr(CS_str(icsh)%bidfile,CS_str(icsh)%bidpath,&
@@ -2233,53 +2280,53 @@ d1: do i=1,ntf
     ibnd = 0 !Counter for all cell strings
     
     !River boundary
-    do iriv=1,nQstr
-      call copy2bnd(ibnd,1,Q_str(iriv)%ncells,Q_str(iriv)%cells,Q_str(iriv)%faces)
+    do kk=1,nQstr
+      call copy2bnd(ibnd,1,Q_str(kk)%ncells,Q_str(kk)%cells,Q_str(kk)%faces,Q_str(kk)%idnum)
     enddo 
 
     !Tidal/Harmonic boundary
-    do iwse=1,nTHstr  
-      call copy2bnd(ibnd,2,TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces)
+    do kk=1,nTHstr  
+      call copy2bnd(ibnd,2,TH_str(kk)%ncells,TH_str(kk)%cells,TH_str(kk)%faces,TH_str(kk)%idnum)
     enddo
     
     !Single Water Level BC  
-    do iwse=1,nHstr
-      call copy2bnd(ibnd,3,H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces)
+    do kk=1,nHstr
+      call copy2bnd(ibnd,3,H_str(kk)%ncells,H_str(kk)%cells,H_str(kk)%faces,H_str(kk)%idnum)
     enddo      
 
     !Multiple Water Surface Elevation BC  
-    do iwse=1,nMHstr
-      call copy2bnd(ibnd,4,MH_str(iwse)%ncells,MH_str(iwse)%cells,MH_str(iwse)%faces)
+    do kk=1,nMHstr
+      call copy2bnd(ibnd,4,MH_str(kk)%ncells,MH_str(kk)%cells,MH_str(kk)%faces,MH_str(kk)%idnum)
     enddo
 
     !Multiple Water Surface Elevation and Velocity BC 
-    do iwse=1,nMHVstr
-      call copy2bnd(ibnd,5,MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces)
+    do kk=1,nMHVstr
+      call copy2bnd(ibnd,5,MHV_str(kk)%ncells,MHV_str(kk)%cells,MHV_str(kk)%faces,MHV_str(kk)%idnum)
     enddo
     
     !Cross-shore BC 
-    do icsh=1,nCSstr
-      call copy2bnd(ibnd,6,CS_str(icsh)%ncells,CS_str(icsh)%cells,CS_str(icsh)%faces)
+    do kk=1,nCSstr
+      call copy2bnd(ibnd,6,CS_str(kk)%ncells,CS_str(kk)%cells,CS_str(kk)%faces, CS_str(kk)%idnum)
     enddo
     
     !Nested Water Surface Elevation BC  
-    do iwse=1,nNHstr
-      call copy2bnd(ibnd,7,NH_str(iwse)%ncells,NH_str(iwse)%cells,NH_str(iwse)%faces)
+    do kk=1,nNHstr
+      call copy2bnd(ibnd,7,NH_str(kk)%ncells,NH_str(kk)%cells,NH_str(kk)%faces, NH_str(kk)%idnum)
     enddo
     
     !Nested Water Surface Elevation and Velocity BC 
-    do iwse=1,nNHVstr
-      call copy2bnd(ibnd,8,NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces)
+    do kk=1,nNHVstr
+      call copy2bnd(ibnd,8,NHV_str(kk)%ncells,NHV_str(kk)%cells,NHV_str(kk)%faces, NHV_str(kk)%idnum)
     enddo
     
     !Nested Tidal Database WSE Boundary
-    do iwse=1,nNTHstr
-      call copy2bnd(ibnd,9,NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces)
+    do kk=1,nNTHstr
+      call copy2bnd(ibnd,9,NTH_str(kk)%ncells,NTH_str(kk)%cells,NTH_str(kk)%faces, NTH_str(kk)%idnum)
     enddo
     
     !Nested Tidal Database WSE and Velocity Boundary
-    do iwse=1,nNTHVstr
-      call copy2bnd(ibnd,10,NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces)
+    do kk=1,nNTHVstr
+      call copy2bnd(ibnd,10,NTHV_str(kk)%ncells,NTHV_str(kk)%cells,NTHV_str(kk)%faces, NTHV_str(kk)%idnum)
     enddo
     
     !Wall boundary
@@ -2329,13 +2376,13 @@ d1: do i=1,ntf
     return
     contains
 !******************************************************************************    
-    subroutine copy2bnd(ibnd,ibndtype,nbndcells,ibndcells,jbndfaces)
+    subroutine copy2bnd(ibnd,ibndtype,nbndcells,ibndcells,jbndfaces,idnum)
 !******************************************************************************    
     use bnd_def, only: bnd_str
     
     implicit none
     integer,intent(inout) :: ibnd
-    integer,intent(in) :: ibndtype,nbndcells
+    integer,intent(in) :: ibndtype,nbndcells,idnum
     integer,intent(in),dimension(nbndcells) :: ibndcells,jbndfaces
     
     ibnd = ibnd + 1
@@ -2345,6 +2392,7 @@ d1: do i=1,ntf
     allocate(bnd_str(ibnd)%faces(nbndcells))
     bnd_str(ibnd)%cells(:) = ibndcells(:)
     bnd_str(ibnd)%faces(:) = jbndfaces(:)
+    bnd_str(ibnd)%idnum = idnum
     
     return
     endsubroutine copy2bnd
@@ -2365,6 +2413,7 @@ d1: do i=1,ntf
     use const_def, only: rad2deg,deg2rad
     use out_def, only: write_ascii_input,outprefix
     use prec_def, only: ikind
+    use met_def,   only: wndspeed,wnddirection
     
     implicit none
     integer :: iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar,ibnd
@@ -2468,7 +2517,12 @@ d1: do i=1,ntf
         write(iunit(i),141) '      Cellstring File:          ',trim(TH_str(iwse)%bidfile)    
         write(iunit(i),141) '      Cellstring Path:          ',trim(TH_str(iwse)%bidpath)
         write(iunit(i),261) '      Boundary Cells:         ',TH_str(iwse)%ncells
-        write(iunit(i),353) '      Water Level Offset:     ',TH_str(iwse)%wseoffset,' m'
+        if (TH_str(iwse)%ioffsetmode.eq.1) then
+          write(iunit(i),353) '      Water Level/Sea Level Change Offset:     ',TH_str(iwse)%wseoffset,' m'
+        elseif (TH_str(iwse)%ioffsetmode.eq.2)then
+          write(iunit(i),141) '      Water Level/Sea Level Change Curve File: ',trim(TH_str(iwse)%offsetfile)    
+        endif
+        
         if(abs(TH_str(iwse)%dwsex)>1.0e-9 .or. abs(TH_str(iwse)%dwsey)>1.0e-9)then
           !Rotate gradients to the global coordinate system
           cosang=cos(-azimuth_fl*deg2rad); sinang=sin(-azimuth_fl*deg2rad)
@@ -2537,7 +2591,11 @@ d1: do i=1,ntf
         else !Constant
           write(iunit(i),353) '      Water Level Value:      ',H_str(iwse)%wseconst,' m'  
         endif  
-        write(iunit(i),353)   '      Water Level Offset:     ',H_str(iwse)%wseoffset,' m'
+        if (H_str(iwse)%ioffsetmode.eq.1) then
+          write(iunit(i),353) '      Water Level/Sea Level Change Offset:     ',H_str(iwse)%wseoffset,' m'
+        elseif (H_str(iwse)%ioffsetmode.eq.2)then
+          write(iunit(i),141) '      Water Level/Sea Level Change Curve File: ',trim(H_str(iwse)%offsetfile)    
+        endif
         if(abs(H_str(iwse)%dwsex)>1.0e-9 .or. abs(H_str(iwse)%dwsey)>1.0e-9)then
           !Rotate gradients to the global coordinate system
           cosang=cos(-azimuth_fl*deg2rad); sinang=sin(-azimuth_fl*deg2rad)
@@ -2840,11 +2898,199 @@ d1: do i=1,ntf
     
     close(dgunit)
     
+    !All boundary information has been read in, write the appropriate information out at this time.
     if(write_ascii_input)then
+#ifdef WIN_OS
+      call write_datasets_to_ascii()   !added 02/21/18 meb        !Only possible on Windows
+#endif      
+      call write_boundary_to_ascii()   !added 02/15/18 meb
+      call write_wind_to_ascii()       !added 02/28/18 meb
+      if(allocated(wndspeed)) deallocate(wndspeed,wnddirection)   !Free up memory no longer needed
+      !call write_wave_to_ascii()
+    endif
+    
+    return
+    endsubroutine bnd_print
+
+!****************************************************
+    subroutine write_wind_to_ascii()
+! Write out ASCII wind file  
+! Completed by Mitch Brown, 02/28/2018
+    use const_def, only: deg2rad
+    use geo_def,   only: azimuth_fl
+    use met_def
+    use met_lib,   only: wind_heightcorr
+    use prec_def,  only: ikind
+#ifdef WIN_OS
+    use IFPORT
+#endif
+    use diag_lib,  only: diag_print_error
+
+    implicit none
+    integer            :: i,ival,velunit,dirunit
+    character(len=100) :: windvelfile, winddirfile, astring, astring2, astring3, aname, apath, indirpath
+    character(len=10)  :: aext
+    logical            :: found,created
+    
+    if(windfile(1:1)==' ') then   !Windfile is empty, nothing to do here.
+      return
+    endif
+    velunit = 700
+    dirunit = 701
+    call fileparts(windfile,apath,aname,aext)
+    select case(aext)
+    case('h5')
+      ival=index(windfile,'_mp')-1
+    case('xys')
+      return        !Files were already read from this format.  Do not overwrite the files.
+    end select
+    
+    !Save all these files to a subdirectory named "ASCII_Input"
+    indirpath='ASCII_Input'
+#ifdef WIN_OS    
+    inquire(directory=trim(indirpath), exist=found)
+    if(.not.found) then
+      created=MakeDirQQ(trim(indirpath))
+      if(.not.created)then
+        call diag_print_error('Failed to create subdirectory- '//trim(indirpath))
+      endif
+    endif
+#else
+    inquire(file=trim(indirpath), exist=found)
+    if (.not.found) then 
+      call system('mkdir '//(trim(indirpath)))
+    endif
+#endif
+      
+    windvelfile = trim(indirpath)// '/' //trim(aname(1:ival))// '_wind_vel.xys'
+    winddirfile = trim(indirpath)// '/' //trim(aname(1:ival))// '_wind_dir.xys'
+    open(velunit,file=windvelfile)
+    open(dirunit,file=winddirfile)
+    
+    write(velunit,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,nwtimes,'"','"'
+    write(dirunit,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,nwtimes,'"','"'
+
+    do i=1,nwtimes
+      write(astring, '(F10.1)') wndtimes(i)
+      write(astring2,'(F10.1)') wndspeed(i)
+      write(astring3,'(F10.1)') wnddirection(i)
+      write(velunit,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))  !write speed
+      write(dirunit,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring3))  !write direction
+    enddo
+    close(velunit)
+    close(dirunit)
+    
+    return
+    end subroutine write_wind_to_ascii    
+    
+#ifdef WIN_OS
+!only possible on Windows with XMDF
+!****************************************************
+    subroutine write_datasets_to_ascii()
+! Write separate files containing grid-specific datasets that may be used in a CMS run.  
+! An example is the bottom friction dataset that contains a Mannings or Roughness value 
+!   for each cell in the grid.
+! Completed by Mitch Brown, 02/21/2018
+    
+    use cms_def, only: dsetList,ndsets
+    use size_def, only: ncells,ncellsD
+    use prec_def, only: ikind
+    use geo_def, only: lat,lon
+    use out_lib, only: writescalTxt,writevecTxt
+    use in_xmdf_lib, only: readscalh5,readvech5
+    
+    implicit none
+    integer :: i, j, ibegin, iend, ierr
+    character(len=200) :: apath,aname,astring,dsetname,indirpath
+    character(len=10) :: aext
+    real(ikind) :: var(ncellsD),vecx(ncellsD),vecy(ncellsD)
+        
+200 FORMAT (I0,x,I1,5x,'!Number of values, Number of dimensions')    
+201 FORMAT (25(E10.3,2x))
+202 FORMAT (25(E10.3,x,E10.3,2x))
+    do i=1,ndsets
+      call fileparts(trim(dsetList(i)%filename),apath,aname,aext)
+      ibegin=index(dsetList(i)%path,'/',.true.)+1
+      iend=len_trim(dsetList(i)%path)
+      !Set datasetname for file
+      dsetname=dsetList(i)%path
+      dsetname=trim(dsetname(ibegin:iend))
+      astring = trim(aname)//"_"//trim(dsetname)//'.txt'
+      indirpath='ASCII_Input'
+      
+      !Determine dimension of dataset and write out appropriately
+      select case (dsetList(i)%ndim)
+      case(0)
+        !Latitudes or Longitudes.  Write to scalar file.  Lat/Long section added 5/21/2018.
+        if (dsetname=='Lats') then
+          allocate(lat(ncellsD))
+          call read_latlon_dataset(lat,'Lats')  !Required because latitude dataset is saved as a group property
+          call writescalTxt(dsetList(i)%filename,trim(indirpath),trim(dsetname),lat,1)
+          deallocate(lat)
+        else
+          allocate(lon(ncellsD))
+          call read_latlon_dataset(lon,'Lons')  !Required because latitude dataset is saved as a group property
+          call writescalTxt(dsetList(i)%filename,trim(indirpath),trim(dsetname),lon,1)
+          deallocate(lon)
+        endif  
+      case(1)
+        !Write to scalar file
+        call readscalh5(dsetList(i)%filename,dsetList(i)%path,var,ierr)
+        call writescalTxt(dsetList(i)%filename,trim(indirpath),trim(dsetname),var,1)
+      case(2)
+        !Write to vector file
+        call readvech5(dsetList(i)%filename,dsetList(i)%path,vecx,vecy,ierr)
+        call writevecTxt(dsetList(i)%filename,trim(indirpath),trim(dsetname),vecx,vecy,2)
+      end select
+    enddo
+    
+    return
+    end subroutine write_datasets_to_ascii
+#endif
+
+!****************************************************
+    subroutine write_boundary_to_ascii()
+! Write files containing boundary forcing information so that it will be available to be read in later.
+! Go in standard order of boundaries and write out a .bid file and .xys file containing the forcing information.
+! Multiple WSE extracted boundaries will be more difficult and added later.
+! Completed by Mitch Brown, 02/20/2018
+    
+    use bnd_def,  only: nbndstr,bnd_str,nqstr,q_str,nthstr,th_str,nhstr,h_str
+    use out_def,  only: outprefix
+    use prec_def, only: ikind
+    use geo_def,  only: mapid
+    use diag_lib, only: diag_print_error
+#ifdef WIN_OS
+    use IFPORT
+#endif
+    
+    implicit none
+    integer              :: kunit,i,j, val, ibnd, nstrcells, correctID
+    integer, allocatable :: ibndcells(:)
+    character(len=200)   :: bidoutfile, xysoutfile, astring,astring2, abnd, indirpath
+    logical              :: found,created
+    
+    !Save all these files to a subdirectory named "ASCII_Input"
+    indirpath='ASCII_Input'
+#ifdef WIN_OS    
+    inquire(directory=trim(indirpath), exist=found)
+    if(.not.found) then
+      created=MakeDirQQ(trim(indirpath))
+      if(.not.created)then
+        call diag_print_error('Failed to create subdirectory- '//trim(indirpath))
+      endif
+    endif
+#else
+    inquire(file=trim(indirpath), exist=found)
+    if (.not.found) then 
+      call system('mkdir '//(trim(indirpath)))
+    endif
+#endif
+
+    !Write Boundary ID file
       kunit=912
-      bidoutfile = trim(outprefix) // '.bid'   !ASCII Boundary ID File  
+    bidoutfile = trim(indirpath)// '/' //trim(outprefix) // '.bid'   !ASCII Boundary ID File  
       open(kunit,file=bidoutfile)
-      !write(kunit,*) nbndstr,' !# of cellstrings'
       write(astring,'(I4)') nbndstr
       write(kunit,*) adjustl(trim(astring)),' !# of cellstrings'
       do ibnd=1,nbndstr
@@ -2854,7 +3100,7 @@ d1: do i=1,ntf
         nstrcells = 0
         do j=1,bnd_str(ibnd)%ncells
            i = mapid(bnd_str(ibnd)%cells(j))
-           if(i/=ibndcells(nstrcells))then
+        if (i .ne. ibndcells(nstrcells)) then
              nstrcells = nstrcells + 1
              ibndcells(nstrcells) = i
            endif
@@ -2866,13 +3112,66 @@ d1: do i=1,ntf
           write(astring,'(I7)') ibndcells(j)
           write(kunit,*) adjustl(trim(astring))
         enddo
+      !Write forcing information
+      select case(bnd_str(ibnd)%ibndtype)
+      case(1) !Flux boundaries - ISTRTYPE = 1
+        !Find correct boundary in list
+        correctID = -1
+        do i=1,nqstr
+          if(q_str(i)%IDNUM == bnd_str(ibnd)%IDNUM) then
+            correctID = i
+            exit
+          endif
+        enddo
+        if(correctID .lt. 0) call diag_print_error('Could not locate correct Boundary string')
+        !Write curve information for correct boundary
+        if (q_str(correctID)%ifluxmode == 2) then    !if iFluxMode==2(CURVE) instead of 1(CONSTANT)
+          write(abnd,'(I0)') q_str(correctID)%idnum  !Use ID number from SMS (Boundary_#2 = 2) as the number to write out.          
+          xysoutfile = trim(indirpath)// '/' //trim(outprefix) // '_q_'// trim(abnd) // '.xys'    !ASCII Boundary Forcing file
+          open(kunit+1,file=xysoutfile)
+          write(kunit+1,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,q_str(correctID)%ntimes,'"','"'
+          do i=1,q_str(correctID)%ntimes
+            if(q_str(correctID)%qcurv(i) == -0.0) then
+              q_str(correctID)%qcurv(i) = 0.0
+            endif
+            write(astring, '(F10.2)') q_str(correctID)%times(i)
+            write(astring2,'(F10.2)') q_str(correctID)%qcurv(i)
+            write(kunit+1,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))
+          enddo
+          close(kunit+1)
+        endif
+      case(2) !Tidal Harmonic boundaries - ISTRTYPE = 2 (Nothing to write here)
+        continue
+      case(3) !Single WSE boundaries - ISTRTYPE = 3
+        !Find correct boundary in list
+        do i=1,nhstr
+          if(h_str(i)%IDNUM == bnd_str(ibnd)%IDNUM) then
+            correctID = i
+            exit
+          endif
+        enddo
+        if(correctID .lt. 0) call diag_print_error('Error: Could not locate correct Boundary string')
+        !Write curve information for correct boundary
+        write(abnd,'(I0)') h_str(correctID)%idnum  !Use ID number from SMS (Boundary_#2 = 2) as the number to write out.          
+        xysoutfile = trim(indirpath)// '/' //trim(outprefix) // '_h_'// trim(abnd) // '.xys'    !ASCII Boundary Forcing file
+        open(kunit+1,file=xysoutfile)
+        write(kunit+1,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,h_str(correctID)%ntimes,'"','"'
+        do i=1,h_str(correctID)%ntimes
+            if(h_str(correctID)%wsecurv(i) == -0.0) then
+              h_str(correctID)%wsecurv(i) = 0.0
+            endif
+          write(astring, '(F10.2)') h_str(correctID)%times(i)
+          write(astring2,'(F10.4)') h_str(correctID)%wsecurv(i)
+          write(kunit+1,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))
+        enddo
+        close(kunit+1)
+      end select  
         deallocate(ibndcells)
       enddo
       close(kunit)
-    endif
     
     return
-    endsubroutine bnd_print
+    end subroutine write_boundary_to_ascii
 
 !***********************************************************************
     subroutine bound_uv()
@@ -3857,8 +4156,19 @@ d1: do i=1,ntf
                 - TH_STR(iwse)%phase(k) + TH_str(iwse)%psi(j,k))
           enddo
         endif
+ !       write(3000,*)'ioffsetmode (bnd_eval) = ',TH_str(iwse)%ioffsetmode 
+ !       write(3000,*)'TH_str(iwse)%wseoffset = ',TH_str(iwse)%wseoffset 
+        if(TH_str(iwse)%ioffsetmode==1)then !Constant (hli,10/05/17)
+           wsebnd = wsebnd + TH_str(iwse)%wseoffset !Add Offset 
+        elseif(TH_str(iwse)%ioffsetmode==2)then !Time-series
+           call plagr_fit(TH_str(iwse)%ntimesoffset,TH_str(iwse)%offsettimes,timehrs,nb,lb,TH_str(iwse)%nti,np,TH_str(iwse)%inc)  !hli(10/06/17)
+           TH_str(iwse)%wsecurveoffset = sum(lb(1:np+1)*TH_str(iwse)%offsetcurve(TH_str(iwse)%inc:TH_str(iwse)%inc+np))           !hli(10/06/17)
+           wsebnd = wsebnd + TH_str(iwse)%wsecurveoffset
+        endif
         TH_str(iwse)%wsebnd(j) = (1.0-ramp)*TH_str(iwse)%wsebnd0(j) &
                       + ramp*(wsebnd + TH_str(iwse)%wsevar(j))
+!        write(3000,*)'j = ',j
+!        write(3000,*)'TH_str(iwse)%wsebnd(j) = ',TH_str(iwse)%wsebnd(j)
       enddo !j-cell
     enddo !iwse-str
 
@@ -3877,10 +4187,22 @@ d1: do i=1,ntf
       endif
 !!745   format(2(F8.3,1x),I4,I3,5F12.4) !for testing
 !!      write(23,745) timehrs,wsebnd,H_str(iwse)%inc,np,lb(1:np+1) !for testing
+      !wsebnd = wsebnd + H_str(iwse)%wseoffset !Add Offset
+      if(H_str(iwse)%ioffsetmode==1)then !Constant (hli,01/19/17)
       wsebnd = wsebnd + H_str(iwse)%wseoffset !Add Offset
+      elseif(H_str(iwse)%ioffsetmode==2)then !Time-series
+!        write(3000,*)'ntimesoffset = ',H_str(iwse)%ntimesoffset,'offsettimes =',H_str(iwse)%offsettimes 
+!        call SINTER(H_str(iwse)%offsettimes,H_str(iwse)%offsetcurve,H_str(iwse)%times,H_str(iwse)%wsecurveoffset,H_str(iwse)%ntimesoffset,H_str(iwse)%ntimes)  
+        call plagr_fit(H_str(iwse)%ntimesoffset,H_str(iwse)%offsettimes,timehrs,nb,lb,H_str(iwse)%nti,np,H_str(iwse)%inc)  
+!        write(3000,*)'iwse =',iwse,'H_str(iwse)%nti = ',H_str(iwse)%nti,'H_str(iwse)%inc =',H_str(iwse)%inc
+        H_str(iwse)%wsecurveoffset = sum(lb(1:np+1)*H_str(iwse)%offsetcurve(H_str(iwse)%inc:H_str(iwse)%inc+np))
+        wsebnd = wsebnd + H_str(iwse)%wsecurveoffset
+      endif
+!      wsebnd = wsebnd + H_str(iwse)%wseoffset !Add Offset
       do j=1,H_str(iwse)%ncells
         H_str(iwse)%wsebnd(j) = (1.0-ramp)*H_str(iwse)%wsebnd0(j)+ramp*(wsebnd + H_str(iwse)%wsevar(j))    
       enddo
+!      write(3000,*)'ioffsetmode (bnd_eval) = ',H_str(iwse)%ioffsetmode 
     enddo ! end of each cell string
     
 !--- Multiple Water Level BC (Type 4=MH) ----------------------------------------
@@ -4480,13 +4802,29 @@ d1: do i=1,ntf
     subroutine bndpath2id(apath,id)
 !*********************************************************    
     implicit none
-    integer :: i,j,nn
+    integer :: i,j,nn,ierr
     integer,intent(out) :: id    
     character(len=*),intent(in) :: apath
     
     nn = len_trim(apath)
     id = 1
+    ierr = -1  !added 5/21/2018 meb
     if(nn==0) return    
+    
+    !Test to see if apath is only a number
+    select case(nn)
+    case (1)
+      read(apath,'(I1)',iostat=ierr) id
+    case (2)
+      read(apath,'(I2)',iostat=ierr) id
+    case (3)
+      read(apath,'(I3)',iostat=ierr) id
+    end select 
+
+    if(ierr==0) then 
+      return
+    endif
+        
     do i=nn,1,-1
       selectcase(apath(i:i))
       case('#')        

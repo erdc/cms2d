@@ -112,7 +112,7 @@
 #ifdef PROFILE
       call watch_start('Initialize')
 #endif       
-      call prestart  !set defualts and read card file'
+      call prestart  !set defaults and read card file'
             
       call sim_start_print  !Start timer here   !!Added MEB 4/14/2016
 

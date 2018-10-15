@@ -203,10 +203,10 @@
         call card_scalar(77,'m','m',yorigin,ierr)
 		  
       case('CELL_LATITUDES')
-        call card_dataset(77,mpfile,flowpath,latfile,latpath)
+        call card_dataset(77,mpfile,flowpath,latfile,latpath,0)  !0 for Lats and Lons - 05/21/2018
 		
       case('CELL_LONGITUDES')
-        call card_dataset(77,mpfile,flowpath,lonfile,lonpath) 
+        call card_dataset(77,mpfile,flowpath,lonfile,lonpath,0)  !0 for Lats and Lons - 05/21/2018 
 		  
       case('AVERAGE_LATITUDE','LATITUDE_AVERAGE')
         call card_scalar(77,'deg','deg',avg_lat,ierr)	 
@@ -292,8 +292,8 @@
     close(dgunit)
     
     if(write_ascii_input)then
-      call diag_print_message('Writing ASCII grid file')
       if(igridtype<1)then !Nonuniform Cartesian grid
+      call diag_print_message('Writing ASCII grid file')
         call grid_cart_write_ascii  
       !elseif
       endif
@@ -623,7 +623,7 @@
     implicit none
     integer :: i,ii,j,k,id,nck,nck2,ndum
     integer, allocatable :: loctemp(:,:)    
-    integer, parameter :: inan = -99.0
+    integer, parameter :: inan = -99
     real(ikind), parameter :: fnan = -999.0          
     real(ikind) :: xg,yg,val,cosAng,sinAng   
     real(ikind), allocatable :: xtemp(:),ytemp(:),dxtemp(:),dytemp(:),ztemp(:)
@@ -644,6 +644,7 @@
     ztemp(0) = 0
     idmap(0) = 0
     do ii=1,ncellsfull
+      continue
       read(55,*) id,xtemp(ii),ytemp(ii),dxtemp(ii),dytemp(ii),&
           loctemp(ii,1),loctemp(ii,2),loctemp(ii,3),loctemp(ii,4),&
           loctemp(ii,5),loctemp(ii,6),loctemp(ii,7),loctemp(ii,8),&
@@ -729,7 +730,9 @@
     dx = 0.0; dy = 0.0
     ndum = ncells
     do ii=1,ncellsfull         
-      if(idmap(ii)==0) cycle
+      if(idmap(ii)==0) then
+        cycle
+      endif
       i = idmap(ii) 
       mapid(i) = ii
       x(i) = xtemp(ii)
@@ -892,7 +895,7 @@
     endif        
 
 !**** TEMPORARY *******************
-!Set contant manning, surface elevation
+!Set constant manning, surface elevation
 !    manncont = 0.025
 !    do i=1,ncellsD
 !      coefman(i) = manncont   !Wu
@@ -1380,7 +1383,7 @@ loopj: do j=1,numnode  !number of faces
     use diag_lib, only: diag_print_error
     use prec_def
 #ifdef XMDF_IO
-    use in_lib, only: read_dataseth5,readscalsteph5
+    use in_xmdf_lib, only: read_dataseth5,readscalsteph5
 #endif
     implicit none
     
@@ -1437,7 +1440,7 @@ loopj: do j=1,numnode  !number of faces
     use diag_lib, only: diag_print_error
     use comvarbl, only: timehrs,ramp
 #ifdef XMDF_IO    
-    use in_lib, only: read_dataseth5,readscalsteph5
+    use in_xmdf_lib, only: read_dataseth5,readscalsteph5
 #endif
     use bnd_def, only: nbndstr,bnd_str
     use prec_def
@@ -2531,6 +2534,8 @@ d1: do k=1,10
         backspace(kunit)
         read(kunit,*) cardname, aline
         ierr = -1
+        if (aline(1:7)=='NAVD   ') aline(1:7)='NAVD88 '
+        if (aline(1:7)=='NGVD   ') aline(1:7)='NGVD27 '
         do i=0,size(aVertDatum)-1
           if(aline(1:6)==aVertDatum(i))then
             proj%iVertDatum = i

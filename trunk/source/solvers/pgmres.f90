@@ -35,13 +35,16 @@
       !ro = sqrt(adak(ncells,vv(1:ncells,1)))
       
       ro=0.0
-!$OMP PARALLEL DO PRIVATE(ii,term) REDUCTION(+:ro)   
+!!$OMP PARALLEL DO PRIVATE(ii,term) REDUCTION(+:ro)   
       do ii=1,ncells
         term=sum(acoef(1:ncface(ii),ii)*phi(cell2cell(1:ncface(ii),ii)))
         vv(ii,1)=term+su(ii)-ap(ii)*phi(ii)
+!        if (isnan(vv(ii,1))) then
+!          stop '"vv(ii,1)" is a NaN'
+!        endif
         ro=ro+vv(ii,1)*vv(ii,1)
       enddo 
-!$OMP END PARALLEL DO 
+!!$OMP END PARALLEL DO 
       ro=sqrt(ro+small)     
        
       if(itr.eq.1) eps11=eps1*ro

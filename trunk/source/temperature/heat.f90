@@ -98,7 +98,7 @@
       icheat = 1  
       
     case('HEAT_IC_DATASET', 'TEMPERATURE_IC_DATASET') !Spatially variable dataset
-      call card_dataset(77,grdfile,flowpath,heatfile,heatpath)
+      call card_dataset(77,grdfile,flowpath,heatfile,heatpath,1)
       heatinitconst = .false.  
       icheat = 2
         
@@ -163,7 +163,7 @@ d1: do k=1,10
 	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
 	  selectcase(cardname)  
       case('HEAT_CURVE', 'TEMPERATURE_CURVE')
-        call card_dataset(77,mpfile,flowpath,heat_str(nheatstr)%heatfile,heat_str(nheatstr)%heatpath)
+        call card_dataset(77,mpfile,flowpath,heat_str(nheatstr)%heatfile,heat_str(nheatstr)%heatpath,1)
         
       case('HEAT_FILE_CURVE','TEMPERATURE_FILE_CURVE')
          call heatstr_resize
@@ -320,9 +320,12 @@ d1: do k=1,10
     use comvarbl, only:  ntsch
     use heat_def
 #ifdef XMDF_IO
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif   
+    use in_lib, only: readscalTxt
+    
     implicit none
+    character(len=10) :: aext
     integer :: ierr,i,j,iheat
 
     !------ Boundary Conditions -------------------------
@@ -346,13 +349,16 @@ d1: do k=1,10
     if(icheat==1)then !Constant value
       heat = heatic
     elseif(icheat==2)then !Specified dataset
+      call fileext(trim(heatfile),aext)      
+      select case (aext)
+      case('h5')
 #ifdef XMDF_IO      
       call readscalh5(heatfile,heatpath,heat,ierr)
-#else
-      write(*,*) 'ERROR: Cannot read temperature initial condition without XMDF'
-      read(*,*)
-      stop
 #endif
+      case('txt')
+        call readscalTxt(heatfile,heat,ierr)
+      end select
+      
       if(ierr/=0)then
         write(*,*) 'ERROR: Check path for temperature initial concentration dataset'
         write(*,*) 'Press any key to continue.'

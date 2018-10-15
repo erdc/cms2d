@@ -152,13 +152,13 @@ contains
     endif
     open(38,file=bidfile,status='old')
     read(38,*) nbndstr       !# of boundary strings
-    if(idbnd>nbndstr)then
+    if(idbnd>nbndstr)then                                   !Removed this check because each type of boundary has it's own BID file now.  MEB 02/21/2018
       call diag_print_error('Boundary ID number is larger than the number of ',&
         '  strings in the Boundary ID File: ',bidfile)
     endif
     do k=1,nbndstr
       read(38,*) nstrelem  
-      if(k/=idbnd)then
+      if(k/=idbnd)then                                      !No need to skip elements at present time.  MEB 02/21/2018 
         read(38,*) (idum,i=1,nstrelem) !Skip elements
       else
         allocate(ielem(nstrelem)) 
@@ -434,7 +434,7 @@ contains
     use in_lib, only: read_xys,read_tsd
 
 #ifdef XMDF_IO    
-    use in_lib, only: read_dataseth5
+    use in_xmdf_lib, only: read_dataseth5
 #endif
     implicit none
 
@@ -472,6 +472,56 @@ contains
     endsubroutine read_fluxdata
 
 !*****************************************************************************
+    subroutine read_offsetwsedata(datfile,datpath,ntimes,times,wseoffset)
+! Reads a wse offset curve
+! written by Honghai Li, USACE-CHL (01/19/17)
+!*****************************************************************************    
+#include "CMS_cpp.h"
+    use in_lib, only: read_xys,read_tsd
+    use comvarbl, only: tjulday0
+    use diag_lib, only: diag_print_error
+    use prec_def, only: ikind
+#ifdef XMDF_IO    
+    use in_xmdf_lib, only: read_dataseth5
+#endif
+    
+    implicit none
+    !Input/Output
+    integer,intent(out):: ntimes
+    real(ikind),intent(inout),pointer:: times(:)
+    real(ikind),intent(inout),pointer:: wseoffset(:)
+    character(len=*),intent(in) :: datfile,datpath
+    !Internal Variables
+    integer :: ndat
+    character(len=10) :: aext
+    character(len=100) :: aname,atype
+    real(ikind) :: tjuldaybegwse
+    real(ikind), pointer :: dat(:,:)
+
+    call fileext(datfile,aext)
+    if(aext(1:2)=='h5')then
+#ifdef XMDF_IO
+      call read_dataseth5(datfile,datpath,'Offset_Times',ntimes,times)
+      call read_dataseth5(datfile,datpath,'Offset',ntimes,wseoffset)
+#else
+      call diag_print_error('Cannot read wse offset time series from *.h5 file without XMDF libraries')
+#endif
+    elseif(aext(1:3)=='xys')then
+      call read_xys(datfile,ntimes,times,wseoffset)
+    elseif(aext(1:3)=='tsd')then
+      call read_tsd(datfile,aname,atype,ndat,ntimes,tjuldaybegwse,times,dat)
+      allocate(wseoffset(ntimes))
+      wseoffset = dat(:,1)
+      deallocate(dat)
+!      write(2000,*)'times = ',times,'tjuldaybegwse =',tjuldaybegwse,'tjulday0 =',tjulday0 
+      times = times/3600.0 + 24.0*(tjuldaybegwse - tjulday0) !Note conversions to hours
+!      write(2000,*)'times = ',times
+    endif
+    
+    return
+    endsubroutine read_offsetwsedata
+
+!*****************************************************************************
     subroutine read_snglwsedata(datfile,datpath,ntimes,times,wse)
 ! Reads a single water level boundary condition
 ! written by Alex Sanchez, USACE-CHL
@@ -482,7 +532,7 @@ contains
     use diag_lib, only: diag_print_error
     use prec_def, only: ikind
 #ifdef XMDF_IO
-    use in_lib,   only: read_dataseth5
+    use in_xmdf_lib,   only: read_dataseth5
 #endif
     
     implicit none

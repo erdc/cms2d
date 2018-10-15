@@ -1,19 +1,18 @@
       subroutine update_momentum()
-      use EXP_Global_def
-      USE EXP_bndcond_def	
-      use EXP_Structures_def
+      use EXP_Global_def, only: mixing,ncn,nce,ncs,ncw,ncsw,fuu,ue,gvv,ve,fuv,gvu,advect,qx
+      use EXP_Global_def, only: num_fg_m_cells,fg_m_cells,num_fg_a_cells,fg_a_cells,qy,advectx,advecty,active,rhoprim,dt,qyn,qxn
+      use EXP_Structures_def, only: structures,srm_on,srmu,srmv
       use flow_def, only: vis,eta,u,v,fcoriolis,grav,uv
-      use geo_def
-      use sed_def
+      use geo_def, only: cell2cell,zb,dx,dy,azimuth_fl
       use comvarbl, only: timesecs
       use const_def, only: pi,deg2rad    
       use met_def, only: tauwindx,tauwindy,pressatm
       use wave_flowgrid_def, only: wavestrx,wavestry     
       use fric_def, only: cfrict,uelwc
       use prec_def, only: ikind
-      USE EXP_transport_def 
-      use NupdateMod
-      use sal_def
+      !USE EXP_transport_def 
+      !use NupdateMod
+      !use sal_def
       use size_def, only: ncells
       
       implicit none
@@ -126,7 +125,7 @@
         enddo	
 !$OMP END single      
       endif !ADVECT
-!$omp END parallel 
+!$OMP END PARALLEL
 
       if(mixing .or. advect) then
 !$omp parallel do private(DXT, DYT)              !NLH 07/18/08
@@ -142,23 +141,23 @@
       ! update density differential due to salinity  
       !CR - 11/20/2009 modified to be able to turn this off.
 !      if(saltrans .and. saltsimD) then
-!!$omp do       
+!!$omp parallel do       
 !       do i=1,ncells
-!         !RHOPrim(i) = 0.000808*salt(i).Conc
+!         RHOPrim(i) = 0.000808*salt(i).Conc
 !       enddo
-!!$omp end do       
+!!$omp end parallel do       
 !      endif   
     
-      if (any(abs(eta).gt.1.0e+3)) then
+      if (any(eta.gt.1.0e+3)) then
         print*,'ETA values greater than 100 are evident.  Reduce the timestep'
-        do i=1,ncells
-          if (abs(eta(i)) .gt. 1.0e+3) then
-            ncw=cell2cell(4,i)
-            print*,I, cell2cell(4,i), dx(i), dx(ncw), zb(i), eta(i), zb(ncw), eta(ncw)
+        stop
+        !do i=1,ncells
+        !  if (eta(i) .gt. 1.0e+3) then
+        !    ncw=cell2cell(4,i)
+        !    print*,I, cell2cell(4,i), dx(i), dx(ncw), zb(i), eta(i), zb(ncw), eta(ncw)
+        !  endif
+        !enddo
           endif
-        enddo
-      endif
-      continue
 
 !$omp parallel do private(ncw,deltax,hplus,hmnexp,detadx,tauwind,coriolis,hgt,spd,cd)
       do i=1,ncells

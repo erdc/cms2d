@@ -58,6 +58,8 @@
     !=== Incipient Motion Correction for Bedslop ======
     if(ibedslope==1) call bedslopecor_dey
     
+    !write(*,*)'bdj in sed_imp,ready to go to sedcapac, icapac=',icapac
+    
     !=== Transport Capacity =====
     selectcase(icapac)  !CtstarP(i,ks),rs(i,ks)
     case(1); call sedcapac_lundcirp !Lund-CIRP
@@ -65,6 +67,7 @@
     case(3); call sedcapac_watanabe !Watanabe
     case(4); call sedcapac_soulsby  !Soulsby (1997)
     case(5); call wucapac           !Wu et al. (2000) (under testing)
+    case(6); call sedcapac_cshore   !bdj                                        
     endselect
     
     !if(cohesivesed) call cohsedentrain !Cohesive sediment   !Wu 
@@ -497,11 +500,15 @@
         ddk=(rskface*visk(k,i)+(1.0-rskface)*cmixbedload*bsvel(i)*diam(ks))*hk(k,i)*dsxy(k,i) !Note: visk already includes Schmidt number and base value
         !ddk=rskface*dk(i,k)/schmidt+dsxy(k,i)*hk(k,i)*cmixsed
         acoef(k,i)=schmcoef(ddk,flux(k,i))  
+!        acoef(k,i)=0.0 !bdj  !ASK BRAD                           
         if(isnankind(acoef(k,i)) .or. abs(acoef(k,i))>1.0e20)then
           call diag_print_var(i,4)
           call diag_print_error('Problem calculating transport capacity')     
         endif
       enddo      
+      ! if(i.ge.1514.and.i.le.1524) then
+      !    write(*,*)'bdj i, h(i), u(i), acoef(1,i), Ct(i)',i, h(i), u(i), acoef(1,i), Ct(i)
+      ! endif
 
       !--- Wetting and drying -------------------------
       if(iwet(i)==1)then

@@ -316,7 +316,7 @@
 
           CASE DEFAULT
             READ(1,*) CARDNAME
-            WRITE(*,*)' WARNING: UNRECOGNIZED CARD: '//TRIM(CARDNAME)
+            !WRITE(*,*)' WARNING: UNRECOGNIZED CARD: '//TRIM(CARDNAME)
             UNRECOGNIZED = .TRUE.
          
         END SELECT

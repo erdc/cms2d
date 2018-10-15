@@ -1,3 +1,32 @@
+== ASCII Input updates (Brown) - 03/07/2018
+Files modified:
+* bnd_def.f90
+* met_def.f90
+* sed_def.f90
+* definitions.f90
+
+* bnd_lib.f90
+* in_lib.f90
+* in_xmdf_lib.f90
+* out_lib.f90
+
+* bnd_block.f90
+* boundaries.f90
+* CMS_Flow.f90
+* CMS2D_main.f90
+* geospatial.f90
+* heat.f90
+* hot_start.f90
+* input.f90
+* meteorological.f90
+* output.f90
+* salinity.f90
+* sed_bed.f90
+* sediment.f90
+* statistics.f90
+* structures.f90
+* tools.f90
+
 == Temperature updates (Li, Wu, Brown) - 05/03/2016
 Files modified:
 * CMS_Flow.f90
@@ -20,3 +49,4 @@ Files added:
 * heat_bnd.f90
 * heat_def.f90
 * heatflux.f90
+

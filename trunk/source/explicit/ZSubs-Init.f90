@@ -17,14 +17,14 @@
       use out_def, only: goutfile
       use bnd_def
       use sal_def
-      use diag_def, only: dgunit
+      use diag_def, only: dgunit,dgfile
       
       IMPLICIT NONE
       !LOCAL VARIABLES
       INTEGER i,j,id_t
       INTEGER ICNT_E,ICNT_N,ICNT_W,ICNT_S,ICNTT
       REAL(ikind) sum
-
+      LOGICAL isOpen
 
       if(nQstr .gt. 0) then
                 
@@ -133,7 +133,12 @@
         
         enddo !end of NQdriver
 
+        inquire(unit=DGUNIT,opened=isOpen)
+        if(.not. isOpen) then
+          open(dgunit,file=dgfile,access='append') 
+        endif
         write(DGUNIT,*)'finished initializing flow time series bcs'
+        close (DGUNIT)
         
         Endif !(Q_single)
 

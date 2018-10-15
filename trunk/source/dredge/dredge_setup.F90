@@ -271,7 +271,7 @@
     character*200 file,path
 	logical :: foundcard
     
-    open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD',access='APPEND')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+    open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
     
     write(2056,*)'IN placement block num areas = ',num_place_areas
     
@@ -289,13 +289,13 @@
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
       selectcase(cardname) 
 
-      case('AREA')
+      case('AREA','AREA_DATASET')
       backspace(77)
       read(77,*)cardname,File,Path             
       dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas) = trim(File)
       dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas) = trim(Path)
       
-      case('PLACEMENT_METHOD')   
+      case('START_METHOD','PLACEMENT_METHOD')   
         backspace(77)
         read(77,*)cardname,METHOD
         selectcase(trim(METHOD))
@@ -304,6 +304,7 @@
         
         case('CELL')
           dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=2      
+          
         case default
           write(*,*)'PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED'
           STOP
@@ -353,10 +354,19 @@
     use dredge_def
     implicit none
 
-    integer i
+    integer      :: i
+    logical      :: found
+    character*50 :: dredge_diag_file
     type(dredge_operations_type), allocatable :: dredge_operations_TMP(:)
     
-    open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD',access='APPEND') !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+    !First time opening this file
+    dredge_diag_file='dredge_module_diagnostics.txt'
+    INQUIRE(FILE=dredge_diag_file,EXIST=FOUND)
+    IF (FOUND) THEN
+      OPEN(2056,FILE=dredge_diag_file)
+      CLOSE(2056,STATUS='DELETE')
+    ENDIF
+    open(unit=2056,file=dredge_diag_file,status='NEW')
 
     write(2056,*)
     write(2056,*) 'Number of Dredge Operations= ',ndredge_operations
@@ -623,8 +633,9 @@
     use sed_def, only: singlesize,nsed    
 #ifdef XMDF_IO
     use xmdf
-    use in_lib, only: readscalh5
+    use in_xmdf_lib, only: readscalh5
 #endif
+    use in_lib, only: readscalTxt
     implicit none
 
     integer :: error,dfile_id,dcell_id,sumcells,k,i,j,summax,kk,ii,jj,ncnt
@@ -638,6 +649,7 @@
     character*300 :: line  
     character*1   :: ext1
     character*19, allocatable :: linePA(:)
+    character(len=10) :: aext
     logical       :: found
 
     allocate (TMPARRAY(ncellsfull))
@@ -646,14 +658,17 @@
     allocate(dredgeTS_Vars(ndredge_operations,10))
     allocate(DredgeUnit(ndredge_operations))   
 
-    !First time opening this file
-    dredge_diag_file='dredge_module_diagnostics.txt'
-    INQUIRE(FILE=dredge_diag_file,EXIST=FOUND)
-    IF (FOUND) THEN
-      OPEN(2056,FILE=dredge_diag_file)
-      CLOSE(2056,STATUS='DELETE')
-    ENDIF
-    open(unit=2056,file=dredge_diag_file,status='NEW')
+!    open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD',access='APPEND') !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+
+    !
+    !!First time opening this file
+    !dredge_diag_file='dredge_module_diagnostics.txt'
+    !INQUIRE(FILE=dredge_diag_file,EXIST=FOUND)
+    !IF (FOUND) THEN
+    !  OPEN(2056,FILE=dredge_diag_file)
+    !  CLOSE(2056,STATUS='DELETE')
+    !ENDIF
+    !open(unit=2056,file=dredge_diag_file,status='NEW')
 
     do k=1,ndredge_operations
       write(2056,*) ' '        
@@ -668,6 +683,10 @@
       datafile = dredge_operations(k)%DredgeSourceAreaFile
       datapath = dredge_operations(k)%DredgeSourceAreaPath
       error = -999
+      
+      call fileext(trim(datafile),aext)      
+      select case (aext)
+      case('h5')
 #ifdef XMDF_IO
       call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error)  
       write(2056,*)'Internal dredge data file number = ',error
@@ -676,6 +695,9 @@
       call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
       write(2056,*)'Internal dredge data read error  = ',error      
 #endif
+      case('txt')
+        call readscalTxt(datafile,TMPARRAY,error)
+      end select
       
       sumcells = 0
       do i = 1,ncellsfull
@@ -686,7 +708,7 @@
       dredge_operations(k)%dredge_depth = 0.0
       kk=0
       do i = 1,ncellsfull
-        if(TMPARRAY(i) > -999) then
+        if(TMPARRAY(i) > 1.0e-20) then
           kk=kk+1
           write(2056,*)k,i,kk,idmap(i)
           dredge_operations(k)%DredgeAreaCells(kk) = idmap(i) 

@@ -33,6 +33,7 @@
     real(ikind) :: fcf,fwf,fcwf,BDpart,Ustc,Ustw,Hrms,phi,alfa,ur,gamma,um
     real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac
     !logical :: isnankind
+    !write(*,*)'bdj in sedcapac_lundcirp , noptset = ',noptset                                                              
 
     iripple = 1               
 	if(noptset>=3)then  !Waves
@@ -360,3 +361,123 @@
     
     return
     endsubroutine sedcapac_watanabe
+
+!********************************************************************
+subroutine sedcapac_cshore
+  ! Calculates the transport capacity based on the CSHORE model
+  ! written by Brad Johnson, USACE-CHL
+  !********************************************************************    
+  use size_def
+  use geo_def, only: mapid,dzbx,dzby
+  use flow_def
+  use const_def
+  use wave_flowgrid_def
+  use sed_def
+  use sed_lib, only: critslpcor_dey
+  use rol_def, only: roller
+  use cms_def
+  use prec_def
+  implicit none
+  integer :: i,ks,iripple
+  real(ikind) :: tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb
+  real(ikind) :: fcf,fwf,fcwf,BDpart,Ustc,Ustw,Hrms,sigT,phi,alfa,ur,gamma,um
+  real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac
+  real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs
+
+  !write(*,*)'bdj in sedcapac_cshore , noptset = ',noptset
+  iripple = 1               
+  gamma = 0.78	  
+!Parallel statements added 6/20/2018 - meb  
+!$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  
+  do i=1,ncells	 
+    if(iwet(i)==0)then
+      CtstarP(i,:)=0.0
+      rsk(i,:)=1.0
+      cycle 
+    endif
+
+    do ks=1,nsed
+      CSDb = wavediss(i)
+      CSefff = .02
+      CSeffb = .015
+      CSsg = rhosed/1000.
+      CSwf = wsfall(ks)
+      Hrms = Whgt(i)/sqrt(2.)  
+      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+      call get_CSDf(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSDf)
+      call prob_susload(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSPs)
+      CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
+      CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing CSHORE convention of depth integrated 
+      ! write(*,*)'bdj i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf',i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf
+      ! volumentric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
+      ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
+      ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
+    enddo
+  enddo
+!$OMP END PARALLEL DO  
+  
+  return
+endsubroutine sedcapac_cshore
+
+subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
+  ! calculates the probability of sediment suspention, Ps
+  ! written by Brad Johnson, USACE-CHL;
+  !************************************************************************      
+  use prec_def
+  implicit none
+  integer :: i,numsteps
+  real(ikind) :: u,v,sigT,alpha,Tp,CSwf,CSPs
+  real(ikind) :: fw,rho,mag_r,r,f,dr,Uwc,Vwc,Ua,diss
+  
+  fw = 0.02  
+  rho = 1000.;
+  numsteps = 100 
+  mag_r = 5.
+  dr = 2.*mag_r/numsteps
+  CSPs = 0.
+  do i = 1,numsteps
+    ! write(*,*) CSPs
+    r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
+    f = 1/sqrt(2.*3.14)*exp(-.5*r**2.);
+    Uwc = 1*abs(u)+1.*sigT*cos(alpha)*r;
+    Vwc = 1*abs(v)+1.*sigT*sin(alpha)*r;
+    Ua = sqrt(Uwc**2.+Vwc**2.);
+    diss = .5*fw*rho*Ua**3.;
+    if(((diss/rho)**(0.33333)).gt.CSwf) then
+      CSPs = CSPs+dr*f
+    endif
+  enddo
+  !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSPs',u,v,sigT,alpha,Tp,CSwf,CSPs
+  return
+endsubroutine prob_susload
+
+subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
+  ! calculates the energy dissipation in the BBL
+  ! written by Brad Johnson, USACE-CHL;
+  !************************************************************************      
+  use prec_def
+  implicit none
+  integer :: i,numsteps
+  real(ikind) :: u,v,sigT,alpha,Tp,CSwf,CSDf
+  real(ikind) :: fw,rho,mag_r,r,f,dr,Uwc,Vwc,Ua,diss
+  
+  fw = 0.02  
+  rho = 1000.;
+  numsteps = 100 
+  mag_r = 5.
+  dr = 2.*mag_r/numsteps
+  CSDf = 0.
+  do i = 1,numsteps
+     ! write(*,*) CSPs
+     r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
+     f = 1/sqrt(2.*3.14)*exp(-.5*r**2.);
+     Uwc = 1*abs(u)+1.*sigT*cos(alpha)*r;
+     Vwc = 1*abs(v)+1.*sigT*sin(alpha)*r;
+     Ua = sqrt(Uwc**2.+Vwc**2.);
+     diss = .5*fw*rho*Ua**3.;
+     CSDf = CSDf + dr*diss*f;
+  enddo
+
+  !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSDf',u,v,sigT,alpha,Tp,CSwf,CSDf
+  return
+endsubroutine get_CSDf
