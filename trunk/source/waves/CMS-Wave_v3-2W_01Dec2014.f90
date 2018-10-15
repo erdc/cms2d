@@ -1,4 +1,9 @@
-Subroutine CMS_Wave !(noptset,nsteer)     !Wu
+Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
+!
+! Note: Presently used for Inline Steering, MEB 10/4/2018
+!       Adding '_inline' to all subroutines (and references), MEB 10/9/2018
+!
+
 !***************************************************************C
 !                      CMS-Wave (ver.3.2)                       C
 !   (Wave Action Balance Equation with Diffraction effect)      C
@@ -17,7 +22,7 @@ Subroutine CMS_Wave !(noptset,nsteer)     !Wu
 !  Miche's breaker index in order to include current effects.
 !---------------------------------------------------------------
 #include "CMS_cpp.h"
-      use global
+      use GLOBAL_INLINE
       use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
       use hot_def, only: coldstart
       use comvarbl, only: ctime
@@ -143,10 +148,10 @@ Subroutine CMS_Wave !(noptset,nsteer)     !Wu
     endif
 !
       if(noptset.eq.3)then
-        call GetWaveFilenames (SimFile) !Alex
+        call GetWaveFilenames_inline (SimFile) !Alex
       else
-        CALL GetSimNameFile (SimFile) !Get sim file from the command line
-        CALL STWfiles (SimFile)       !Read names of the STWAVE data files if file name exists     
+        CALL GetSimNameFile_inline (SimFile) !Get sim file from the command line
+        CALL STWfiles_inline (SimFile)       !Read names of the STWAVE data files if file name exists     
       endif
 !
       inquire(file=OptsFile,exist=foundfile) 
@@ -3531,22 +3536,22 @@ Subroutine CMS_Wave !(noptset,nsteer)     !Wu
 !-----------------------------------------------------
 !  initial integrated energy density for each region
 !-----------------------------------------------------
-      CALL INITL
+      CALL INITL_inline
 !---------------------------------------------------
 !  calculation of wave action balance equation
 !  (main of calculation including subroutine calc) 
 !---------------------------------------------------
-      CALL SETIN(IKAP)
+      CALL SETIN_inline(IKAP)
 !--------------------------------
 !  output of calculated results
 !--------------------------------
 80    continue
 !!      if (ibreak.ge.2) call dfds  !Alex, commented, subroutine has a bug
-      if (irs.ge.1.and.irs0.eq.0) call rstress
+      if (irs.ge.1.and.irs0.eq.0) call rstress_inline
 90    continue
 !--------------------------------
 !     if (ixmdf.ne.2) then
-        CALL OUTFILE
+        CALL OUTFILE_inline
 !     endif
 !----------------------
 !  end of calculation
@@ -3585,7 +3590,7 @@ Subroutine CMS_Wave !(noptset,nsteer)     !Wu
 !
 #ifdef XMDF_IO
       if (ixmdf.ge.1) then
-        CALL XMDFOUT
+        CALL XMDFOUT_inline
       endif
 #endif
 
@@ -3615,11 +3620,11 @@ Subroutine CMS_Wave !(noptset,nsteer)     !Wu
 contains
 #ifdef XMDF_IO
 !********************************************************************************
-      subroutine xmdfout
+      subroutine xmdfout_inline
 !********************************************************************************      
       use comvarbl, only: reftime
       use xmdf
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       use cms_def, only: noptset,noptzb,nsteer,dtsteer           !Alex
       use comvarbl, only: ctime
       REAL, ALLOCATABLE :: height(:),period(:),dir(:),brkdiss(:),radstr(:)  !Alex 
@@ -3876,7 +3881,7 @@ contains
      	      STOP
           ENDIF
 ! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ERROR) for proper vector direction
-            CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
+          CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
         ENDIF
         IF(noptset.eq.3) CALL XF_DATASET_REFTIME(DID,REFTIME,ERROR)
         CALL XF_WRITE_VECTOR_TIMESTEP(DID,TIME2,NIJ,2,radstr,ERROR)
@@ -4042,19 +4047,19 @@ contains
       write(*,'(A)') 'Press <RETURN> to continue'
       read(*,*)
       return 
-      end subroutine
+    end subroutine
 #endif
-      END     !SUBROUTINE OR PROGRAM, Alex
+  END     !SUBROUTINE OR PROGRAM, Alex
 !
 !
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  INITIAL WAVE CONDITION AT UPWAVE BOUNDARY
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE INITL
+      SUBROUTINE INITL_inline
 !--------------------------------------------------
 !  setup of mesh size, angular-frequency spectrum
 !--------------------------------------------------
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
@@ -4143,12 +4148,12 @@ contains
 !  wave spectrum calculation in forward (incident waves) 
 !    and backward (reflected waves) direction
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE SETIN(IKAP)
+      SUBROUTINE SETIN_inline(IKAP)
 !-------------------------------------------------------
 !  in this subroutine, calc(ii) is the main subroutine 
 !    which calculates wave action balance equation
 !-------------------------------------------------------
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       use wave_lib, only: wave_Hmax
       COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
@@ -4242,7 +4247,7 @@ contains
 !------------------------------------------------------------------------
    60 continue
 
-      CALL CALC(II,IKAP)
+      CALL CALC_inline(II,IKAP)
 !------------------------------------------------------------------------
 !  by CALC, si(jj,nn,mm),sj(jj) are obtained
 !------------------------------------------------------------------------
@@ -4933,7 +4938,7 @@ contains
       i3=iii+1
 
       if(irs.ge.1) then
-        call sxycalc(iii)
+        call sxycalc_inline(iii)
         if(irs.ge.2) then
           if(iii.gt.1.and.iii.lt.igmx) then
             deplow=.05
@@ -5242,12 +5247,12 @@ contains
   812 continue
 
       if(ibreak.eq.2) then
-        call dissip1(iii)
+        call dissip1_inline(iii)
       end if
 
 !Commented by Alex, dissipation should be calculated in wave breaking subroutines
 !!      if(ibreak.eq.3) then
-!!        call dissip(iii)
+!!        call dissip_inline(iii)
 !!      end if
 339   continue
 
@@ -5567,7 +5572,7 @@ contains
 
   140 IRC=1
 
-      CALL CALC(II,IKAP)
+      CALL CALC_inline(II,IKAP)
 !------------------------------------------------------------------------
 !  by CALC, si(jj,nn,mm),sj(jj) are obtained
 !------------------------------------------------------------------------
@@ -5634,7 +5639,7 @@ contains
       DMNR(INV,JJ)=PD-DEG
   220 CONTINUE
   
-      if(irs.ge.1) call sxycalc(inv)
+      if(irs.ge.1) call sxycalc_inline(inv)
 
       IF(II.GE.IGMX) GOTO 250
       II=II+1
@@ -5662,12 +5667,12 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  main of calculation by using sub. sgma, veloc, setab, gsm
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE CALC(II,IKAP)
+      SUBROUTINE CALC_inline(II,IKAP)
 !------------------------------------------------------------
 !  independent variables are x,y,q(angle)
 !  intrinsic frequency is obtained form dispersion relation
 !------------------------------------------------------------
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -5759,7 +5764,7 @@ contains
 !  sigma is used to define wave action,
 !    and to check whether wave exists or not
 !--------------------------------------------------
-      call sgma(ii,jb,je,ifc)
+      call sgma_inline(ii,jb,je,ifc)
 !      write(*,6666) fc,ii
 ! 6666 format(' Freq.',f10.3,/,'  sub.sgma at I='i3,' is OK')
 
@@ -5851,22 +5856,22 @@ contains
 !       end if
 
 ! -- c and cg in current field are calculated
-      CALL VELOC(II,JB,JE,FC)
+      CALL VELOC_inline(II,JB,JE,FC)
 ! -- cases of sg, cw, ak=-1 are contained, GSM matrix is modified after
 !      write(*,6667) ii
 ! 6667 format('  sub.veloc at I='i3,' is OK')
 
 ! -- matrix to be solved is made
 ! -- matrix size of nmx=md*jmsh is defined in subroutine setab 
-      CALL SETAB(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
+      CALL SETAB_inline(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
 !      write(*,6668) ii
 ! 6668 format('  sub.setab at I='i3,' is OK')
 
 ! -- solution of matrix
       MARK=0
-      if(isolv.eq.0) CALL GSR(II,JB,JE,NMX,MARK)
-      if(isolv.eq.1) CALL ADI(II,JB,JE,NMX,MARK)
-      if(isolv.eq.2) CALL GSM(II,JB,JE,NMX,MARK)
+      if(isolv.eq.0) CALL GSR_inline(II,JB,JE,NMX,MARK)
+      if(isolv.eq.1) CALL ADI_inline(II,JB,JE,NMX,MARK)
+      if(isolv.eq.2) CALL GSM_inline(II,JB,JE,NMX,MARK)
 
 !     if(mark.ge.1) then
       if(ws.ge..1.or.mark.ge.1) then
@@ -6007,14 +6012,14 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !   subroutine for intrinsic angular frequency
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      subroutine sgma(ii,jb,je,nn)
+      subroutine sgma_inline(ii,jb,je,nn)
 !--------------------------------------
 !  sgma0(j,m) is at ii-1
 !  sgma1(j,m) is at ii
 !    for determination of wave action
 !    and for check of wave existing
 !--------------------------------------
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
       common /vpai/pai2,pai,hpai,rad,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
       common /data/nf,md,imax,jmax,igmx,jgmx,jcpb,jcpe,jcb,JCE,NFF,MDD
@@ -6037,8 +6042,8 @@ contains
       if(depm.lt..01) depm=.01
       um=u1(ii,jj)
       vm=v1(ii,jj)
-      call wccg(dcm(mm),depm,um,vm,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),depm,um,vm,om,cw,cg,sig,akk) !Alex
+      call wccg_inline(dcm(mm),depm,um,vm,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),depm,um,vm,om,cw,cg,sig,akk) !Alex
       sgma1(jj,mm)=sig
       wk2(jj,nn,mm)=akk
    1  continue
@@ -6057,26 +6062,26 @@ contains
       um=u1(i1,jj)
       vm=v1(i1,jj)
       do 3 mm=imd,md
-      call wccg(dcm(mm),depm,um,vm,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),depm,um,vm,om,cw,cg,sig,akk) !Alex
+      call wccg_inline(dcm(mm),depm,um,vm,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),depm,um,vm,om,cw,cg,sig,akk) !Alex
       sgma0(jj,mm)=sig
     3 continue
    20 continue
       end if
 
       return
-      end
+      end subroutine
 
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine for C and Cg in wave-current field
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      subroutine veloc(ii,jb,je,fc)
+      subroutine veloc_inline(ii,jb,je,fc)
 !---------------------------------------------------
 !  variables needed for determination of
 !   wave breaking dissipation are also calculated
 !---------------------------------------------------
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
       common /data/nf,md,imax,jmax,igmx,jgmx,jcpb,jcpe,jcb,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
@@ -6114,8 +6119,8 @@ contains
       u11=u(ii,jb)
       v11=v(ii,jb)
       do 100 mm=imd,md
-      call wccg(dcm(mm),dep11,u11,v11,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),dep11,u11,v11,om,cw,cg,sig,akk) !Alex
+      call wccg_inline(dcm(mm),dep11,u11,v11,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),dep11,u11,v11,om,cw,cg,sig,akk) !Alex
       cwk(1,1,mm)=cw
       cgk(1,1,mm)=cg
   100 continue
@@ -6124,8 +6129,8 @@ contains
       u12=u(i1,jb)
       v12=v(i1,jb)
       do 110 mm=imd,md
-      call wccg(dcm(mm),dep12,u12,v12,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),dep12,u12,v12,om,cw,cg,sig,akk)
+      call wccg_inline(dcm(mm),dep12,u12,v12,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),dep12,u12,v12,om,cw,cg,sig,akk)
       cwk(1,2,mm)=cw
       cgk(1,2,mm)=cg
   110 continue
@@ -6139,8 +6144,8 @@ contains
       u21=u(ii,jjb)
       v21=v(ii,jjb)
       do 120 mm=imd,md
-      call wccg(dcm(mm),dep21,u21,v21,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),dep21,u21,v21,om,cw,cg,sig,akk) !Alex
+      call wccg_inline(dcm(mm),dep21,u21,v21,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),dep21,u21,v21,om,cw,cg,sig,akk) !Alex
       cwk(jj1,1,mm)=cw
       cgk(jj1,1,mm)=cg
   120 continue
@@ -6149,8 +6154,8 @@ contains
       u22=u(i1,jjb)
       v22=v(i1,jjb)
       do 130 mm=imd,md
-      call wccg(dcm(mm),dep22,u22,v22,om,cw,cg,sig,akk)
-      !call wccg3(dcm(mm),dep22,u22,v22,om,cw,cg,sig,akk) !Alex
+      call wccg_inline(dcm(mm),dep22,u22,v22,om,cw,cg,sig,akk)
+      !call wccg3_inline(dcm(mm),dep22,u22,v22,om,cw,cg,sig,akk) !Alex
       cwk(jj1,2,mm)=cw
       cgk(jj1,2,mm)=cg
   130 continue
@@ -6181,8 +6186,8 @@ contains
       um=u1(ii,jjb1)
       vm=v1(ii,jjb1)
       if(depb.lt..01) depb=.01
-      call wccg(dmnj(jjb1),depb,um,vm,omt3,cw,cg,sig,akk)
-      !call wccg3(dmnj(jjb1),depb,um,vm,omt3,cw,cg,sig,akk) !Alex
+      call wccg_inline(dmnj(jjb1),depb,um,vm,omt3,cw,cg,sig,akk)
+      !call wccg3_inline(dmnj(jjb1),depb,um,vm,omt3,cw,cg,sig,akk) !Alex
       sigm(jj)=sig
       cmn(jj)=cw
       wlmn(jj)=pai2/akk
@@ -6206,7 +6211,7 @@ contains
 !  subroutine for dispersion relation in current
 !      (om-kcos(q)*u-ksin(q)*v)^2=g*k*tanh(k*d)
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      subroutine wccg(q,d,u,v,om,cw,cg,sg,akk)
+      subroutine wccg_inline(q,d,u,v,om,cw,cg,sg,akk)
 !-----------------------------------------------------
 !  when no solution and cg+u<0, sg=-1,....., are set
 !-----------------------------------------------------
@@ -6277,9 +6282,9 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !   setting of matrix components                     
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE SETAB(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
+      SUBROUTINE SETAB_inline(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
 !  akap= coefficient of diffraction term
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX,MPMX
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX,MPMX
       COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -6320,18 +6325,18 @@ contains
 !     if(iprpp.ne.-1.and.dxx.gt.300.) ifast=1
       winp1=0.00002*om2/g/dth/.03
       deca1=0.01*om35/g/dth/dfc
-        if(md.eq.7.and.iprp.eq.2) then
+      if(md.eq.7.and.iprp.eq.2) then
         winp1=0.000027*om2/g/dth/.03
         deca1=0.012*om35/g/dth/dfc
-        end if
+      end if
 !
 !     if(iwind.ge.1) then
-!     winp1=0.00002*om2/g/dth/.03
-!     deca1=0.01*om35/g/dth/dfc
+!       winp1=0.00002*om2/g/dth/.03
+!       deca1=0.01*om35/g/dth/dfc
 !     end if
       if(dvarx(ii).gt.300.) then
-      winp1=winp1*sqrt(300./dvarx(ii))
-      deca1=deca1*(300./dvarx(ii))**.6
+        winp1=winp1*sqrt(300./dvarx(ii))
+        deca1=deca1*(300./dvarx(ii))**.6
       end if
 !
 !     winp1=0.000021*om2/g/dth/.03
@@ -6345,12 +6350,12 @@ contains
       if(ix1(ii).eq.0.and.aakap.gt.1.) aakap=1.
       winln=10.
       if(ws.ge..1) then
-!     winln=5.
-      if(hs0.lt..5) winln=1.5
-      ph00=ph0*3.
-      if(ph00.gt.1.25) ph00=1.25
+!       winln=5.
+        if(hs0.lt..5) winln=1.5
+        ph00=ph0*3.
+        if(ph00.gt.1.25) ph00=1.25
 ! --- the above ph00 keep long waves in the upwind lake area.
-      om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
+        om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
       end if
 !
       gamma1=0.0001*aakap
@@ -6360,542 +6365,540 @@ contains
       NMX=(MD-imd+1)*JMESH
       NN=0
       DO 10 N=1,NMX
-      DO 20 M=1,5
-      AA(M,N)=0.
-      IA(M,N)=0
-   20 CONTINUE
-      B(N)=0.
+        DO 20 M=1,5
+          AA(M,N)=0.
+          IA(M,N)=0
+   20   CONTINUE
+        B(N)=0.
    10 CONTINUE
       jgrav=0
       if(igrav.eq.1) then
-      do jm=jb,je
-      if(ijb(ii,jm).eq.4.or.ijb(ii,jm).eq.5) then
-      jgrav=jgrav+1
-      end if
-      end do
+        do jm=jb,je
+          if(ijb(ii,jm).eq.4.or.ijb(ii,jm).eq.5) then
+            jgrav=jgrav+1
+          end if
+        end do
       end if
 
 ! -- iteration for J mesh
       DO 30 JM=1,JMESH
-      JBM=JB+JM
-      JJ=JBM-1
-      t3=tp
-      if(ii.ge.2) t3=t13(ii-1,jj)
-      if(ii.eq.1.and.depmax0.lt..01) t3=1.
-      om1=pai2/t3/om
+        JBM=JB+JM
+        JJ=JBM-1
+        t3=tp
+        if(ii.ge.2) t3=t13(ii-1,jj)
+        if(ii.eq.1.and.depmax0.lt..01) t3=1.
+        om1=pai2/t3/om
 !
-      if(iwind.ge.1) then
-      ws=sqrt(v10(ii,jj)**2+u10(ii,jj)**2)
-      wd=atan2(v10(ii,jj),u10(ii,jj))
-      end if
+        if(iwind.ge.1) then
+          ws=sqrt(v10(ii,jj)**2+u10(ii,jj)**2)
+          wd=atan2(v10(ii,jj),u10(ii,jj))
+        end if
 !
-      if(ws.gt..1) then
-      om1=(pai2/(t3+1.))/om
-      if(nonln.eq.1) winp1=winp2*1.5
-      end if
+        if(ws.gt..1) then
+          om1=(pai2/(t3+1.))/om
+          if(nonln.eq.1) winp1=winp2*1.5
+        end if
 !
-      nln=0
-      if(nonln.eq.1) then
-      cc=om1
-      if(om1.gt.winln) cc=winln
-      cc1=(cosh(min(9.424,om**2*abs(d1(ii,jj))/g))/6200.)
-      cc1=min(tanh((d1(ii,jj)/100.)**2),cc1)
-      cc2=cc**12*cc1**2
-      om52=om5*cc2
-      om81=om8*cc2
-      if(om1.lt.winln) nln=1
-      end if
+        nln=0
+        if(nonln.eq.1) then
+          cc=om1
+          if(om1.gt.winln) cc=winln
+          cc1=(cosh(min(9.424,om**2*abs(d1(ii,jj))/g))/6200.)
+          cc1=min(tanh((d1(ii,jj)/100.)**2),cc1)
+          cc2=cc**12*cc1**2
+          om52=om5*cc2
+          om81=om8*cc2
+          if(om1.lt.winln) nln=1
+        end if
 !
-      hsij=hs0
-      if(ii.ge.2) hsij=h13(ii-1,jj)
-      cc=hsij/(abs(d1(ii,jj))+.01)
-      if(cc.gt.1.) cc=1.
+        hsij=hs0
+        if(ii.ge.2) hsij=h13(ii-1,jj)
+        cc=hsij/(abs(d1(ii,jj))+.01)
+        if(cc.gt.1.) cc=1.
         if(imud.ge.0) then
-           aamud=amud(ii,jj)*cc
+          aamud=amud(ii,jj)*cc
         else
-           aamud=sqrt(2.*amud(ii,jj)/om)*cc
+          aamud=sqrt(2.*amud(ii,jj)/om)*cc
         end if
 !
 !  following gam is changed in coefficiets A1, A2, A3      
-      gam=2./om/dvary(jj)**2*gamma1
+        gam=2./om/dvary(jj)**2*gamma1
 !  above gam should be changed due to spatial variation of intrin-
 !  sic aungular frequency due to spatial change of current field
 !
-      JBV=IJB(II,JJ)
-      J1=JM+1
-      II1=II+1
-      hx1=(dep(ii,jj)+dep(ii,jbm))/2.
-      hx2=(dep(ii1,jj)+dep(ii1,jbm))/2.
-      hy1=(dep(ii,jj)+dep(ii1,jj))/2.
-      hy2=(dep(ii,jbm)+dep(ii1,jbm))/2.
-      ht=d1(ii,jj)
+        JBV=IJB(II,JJ)
+        J1=JM+1
+        II1=II+1
+        hx1=(dep(ii,jj)+dep(ii,jbm))/2.
+        hx2=(dep(ii1,jj)+dep(ii1,jbm))/2.
+        hy1=(dep(ii,jj)+dep(ii1,jj))/2.
+        hy2=(dep(ii,jbm)+dep(ii1,jbm))/2.
+        ht=d1(ii,jj)
 ! --  do not use the smooth for above ht, can cause asymmetric
-      if(ht.lt..01) ht=.01
-      ux1=(u(ii,jj)+u(ii,jbm))/2.
-      ux2=(u(ii1,jj)+u(ii1,jbm))/2.
-      uy1=(u(ii,jj)+u(ii1,jj))/2.
-      uy2=(u(ii,jbm)+u(ii1,jbm))/2.
-      vx1=(v(ii,jj)+v(ii,jbm))/2.
-      vx2=(v(ii1,jj)+v(ii1,jbm))/2.
-      vy1=(v(ii,jj)+v(ii1,jj))/2.
-      vy2=(v(ii,jbm)+v(ii1,jbm))/2.
-      um=u1(ii,jj)
-      vm=v1(ii,jj)
-      dhx=hx2-hx1
-      dhy=hy2-hy1
-      dux=ux2-ux1
-      dvx=vx2-vx1
-      duy=uy2-uy1
-      dvy=vy2-vy1
-      JJM=JM
+        if(ht.lt..01) ht=.01
+        ux1=(u(ii,jj)+u(ii,jbm))/2.
+        ux2=(u(ii1,jj)+u(ii1,jbm))/2.
+        uy1=(u(ii,jj)+u(ii1,jj))/2.
+        uy2=(u(ii,jbm)+u(ii1,jbm))/2.
+        vx1=(v(ii,jj)+v(ii,jbm))/2.
+        vx2=(v(ii1,jj)+v(ii1,jbm))/2.
+        vy1=(v(ii,jj)+v(ii1,jj))/2.
+        vy2=(v(ii,jbm)+v(ii1,jbm))/2.
+        um=u1(ii,jj)
+        vm=v1(ii,jj)
+        dhx=hx2-hx1
+        dhy=hy2-hy1
+        dux=ux2-ux1
+        dvx=vx2-vx1
+        duy=uy2-uy1
+        dvy=vy2-vy1
+        JJM=JM
 !
 ! -- setup of energy dissipation term
-! -- JJM= local #, JJ= global #
-      cab=0.
-      if (IWVBK.eq.1) then
-        CALL WVBRK1(CAB,JBV,II,JJM,JJ,fc)
-      elseif (IWVBK.eq.2) then
-	    CALL WVBRK2(CAB,JBV,II,JJM,JJ)
-	  elseif (IWVBK.eq.3) then
-	    CALL WVBRK3(CAB,JBV,II,JJM,JJ)
-	  elseif (IWVBK.eq.4) then
-	    CALL WVBRK4(CAB,JBV,II,JJM,JJ) !Alex
-	  else
-	    CALL WVBRK(CAB,JBV,II,JJM,JJ,um,vm,fc)
-      end if
+! -- JJM= local #, JJ= GLOBAL_INLINE #
+        cab=0.
+        if (IWVBK.eq.1) then
+          CALL WVBRK1_inline(CAB,JBV,II,JJM,JJ,fc)
+        elseif (IWVBK.eq.2) then
+          CALL WVBRK2_alex(CAB,JBV,II,JJM,JJ)           !Alex
+        elseif (IWVBK.eq.3) then
+          CALL WVBRK3_inline(CAB,JBV,II,JJM,JJ)
+        elseif (IWVBK.eq.4) then
+          CALL WVBRK4_alex(CAB,JBV,II,JJM,JJ)           !Alex
+        else
+          CALL WVBRK_inline(CAB,JBV,II,JJM,JJ,um,vm,fc)
+        end if
 !
-      thc=float(imd-1)*dth-hpai
-      if(iview.ge.1) thc=thc-dth/2.
+        thc=float(imd-1)*dth-hpai
+        if(iview.ge.1) thc=thc-dth/2.
 ! -- iteration for k direction
-      DO 60 KK=imd,MD
-      thc=thc+dth
+        DO 60 KK=imd,MD
+          thc=thc+dth
+          CWX1=(CWK(J1,1,kk)+CWK(JM,1,kk))/2.0
+          CWX2=(CWK(J1,2,kk)+CWK(JM,2,kk))/2.0
+          CWY1=(CWK(JM,1,kk)+CWK(JM,2,kk))/2.0
+          CWY2=(CWK(J1,1,kk)+CWK(J1,2,kk))/2.0
+          CGX1=(CGK(J1,1,kk)+CGK(JM,1,kk))/2.0
+          CGX2=(CGK(J1,2,kk)+CGK(JM,2,kk))/2.0
+          CGY1=(CGK(JM,1,kk)+CGK(JM,2,kk))/2.0
+          CGY2=(CGK(J1,1,kk)+CGK(J1,2,kk))/2.0
+          ccg1=cwy1*cgy1
+          ccg2=cwy2*cgy2
+          ccgm=0.5*(ccg1+ccg2)
+          ccgn=0.5*(cwx1*cgx1+cwx2+cgx2)
+          cgu1=(cgx1*cosa(kk)+ux1)/dxx
+          cgu2=(cgx2*cosa(kk)+ux2)/dxx
+          cgv1=(cgy1*sina(kk)+vy1)/dvary(jj)
+          cgv2=(cgy2*sina(kk)+vy2)/dvary(jj)
+          ccgt=(ccgm/dxx**2+ccgn/dvary(jj)**2)/2./om*gamma1
+          if(cgu1.le.0.0) then
+            uuu1=0.0
+          else
+            uuu1=cgu1
+          end if
+          if(cgu2.le.0.0) then
+            uuu2=0.0
+          else
+            uuu2=cgu2
+          end if
+          vvv1=cgv1
+          vvv2=cgv2
 !
-      CWX1=(CWK(J1,1,kk)+CWK(JM,1,kk))/2.0
-      CWX2=(CWK(J1,2,kk)+CWK(JM,2,kk))/2.0
-      CWY1=(CWK(JM,1,kk)+CWK(JM,2,kk))/2.0
-      CWY2=(CWK(J1,1,kk)+CWK(J1,2,kk))/2.0
-      CGX1=(CGK(J1,1,kk)+CGK(JM,1,kk))/2.0
-      CGX2=(CGK(J1,2,kk)+CGK(JM,2,kk))/2.0
-      CGY1=(CGK(JM,1,kk)+CGK(JM,2,kk))/2.0
-      CGY2=(CGK(J1,1,kk)+CGK(J1,2,kk))/2.0
-      ccg1=cwy1*cgy1
-      ccg2=cwy2*cgy2
-      ccgm=0.5*(ccg1+ccg2)
-      ccgn=0.5*(cwx1*cgx1+cwx2+cgx2)
-      cgu1=(cgx1*cosa(kk)+ux1)/dxx
-      cgu2=(cgx2*cosa(kk)+ux2)/dxx
-      cgv1=(cgy1*sina(kk)+vy1)/dvary(jj)
-      cgv2=(cgy2*sina(kk)+vy2)/dvary(jj)
-      ccgt=(ccgm/dxx**2+ccgn/dvary(jj)**2)/2./om*gamma1
-      if(cgu1.le.0.0) then
-      uuu1=0.0
-      else
-      uuu1=cgu1
-      end if
-      if(cgu2.le.0.0) then
-      uuu2=0.0
-      else
-      uuu2=cgu2
-      end if
-      vvv1=cgv1
-      vvv2=cgv2
+          q1=dcm(kk)-dth/2.0
+          call wccg_inline(q1,ht,um,vm,om,cw1,cg1,sg1,akk1)
+          !call wccg3_inline(q1,ht,um,vm,om,cw1,cg1,sg1,akk1) !Alex
+          rkd1=akk1*ht
+          sgh1=g2*akk1**2/cosh(min(10.,rkd1))**2/sg1
+          q2=dcm(kk)+dth/2.0
+          call wccg_inline(q2,ht,um,vm,om,cw2,cg2,sg2,akk2)
+          !call wccg3_inline(q2,ht,um,vm,om,cw2,cg2,sg2,akk2) !Alex
+          rkd2=akk2*ht
+          sgh2=g2*akk2**2/cosh(min(10.,rkd2))**2/sg2
+          rkd=(rkd1+rkd2)/2.
+          akk=(akk1+akk2)/2.
+          cgg=(cg1+cg2)/2.
+          agg=akk*cgg/dth**2*gamma2
+          ann=(cg1+cg2)/(cw1+cw2)
+          aan=(1.+(2.*ann-1.)**2*cosh(min(10.,2.*rkd)))/2./ann**2-1.
+          bbn=aan/ann/om
 !
-      q1=dcm(kk)-dth/2.0
-      call wccg(q1,ht,um,vm,om,cw1,cg1,sg1,akk1)
-      !call wccg3(q1,ht,um,vm,om,cw1,cg1,sg1,akk1) !Alex
-      rkd1=akk1*ht
-      sgh1=g2*akk1**2/cosh(min(10.,rkd1))**2/sg1
-      q2=dcm(kk)+dth/2.0
-      call wccg(q2,ht,um,vm,om,cw2,cg2,sg2,akk2)
-      !call wccg3(q2,ht,um,vm,om,cw2,cg2,sg2,akk2) !Alex
-      rkd2=akk2*ht
-      sgh2=g2*akk2**2/cosh(min(10.,rkd2))**2/sg2
-      rkd=(rkd1+rkd2)/2.
-      akk=(akk1+akk2)/2.
-      cgg=(cg1+cg2)/2.
-      agg=akk*cgg/dth**2*gamma2
-      ann=(cg1+cg2)/(cw1+cw2)
-      aan=(1.+(2.*ann-1.)**2*cosh(min(10.,2.*rkd)))/2./ann**2-1.
-      bbn=aan/ann/om
+          cc=1./dth
+          if(igrav.ge.1) then
+            if(igrav.ge.2.or.jgrav.ge.2) then
+              cc=tanh(5.*fc*hsij**2)*tanh(sqrt(g*hsij)/(ws+.01))*cc
+            end if
+          end if
+          sin2q1=sin(2.*q1)/2.
+          sin2q2=sin(2.*q2)/2.
+          vt1=sin2q1*dux/dxx+sin(q1)**2*dvx/dxx-(cos(q1)**2*duy+sin2q1*dvy) &
+              /dvary(jj)+(sgh1*dhx/dxx*sin(q1)-sgh1*dhy/dvary(jj)*cos(q1))/akk1
+          vt1=vt1*cc
+          vt2=sin2q2*dux/dxx+sin(q2)**2*dvx/dxx-(cos(q2)**2*duy+sin2q2*dvy) &
+              /dvary(jj)+(sgh2*dhx/dxx*sin(q2)-sgh2*dhy/dvary(jj)*cos(q2))/akk2
+          vt2=vt2*cc
 !
-      cc=1./dth
-      if(igrav.ge.1) then
-      if(igrav.ge.2.or.jgrav.ge.2) then
-      cc=tanh(5.*fc*hsij**2)*tanh(sqrt(g*hsij)/(ws+.01))*cc
-      end if
-      end if
-      sin2q1=sin(2.*q1)/2.
-      sin2q2=sin(2.*q2)/2.
-      vt1=sin2q1*dux/dxx+sin(q1)**2*dvx/dxx-(cos(q1)**2*duy+sin2q1*dvy) &
-      /dvary(jj)+(sgh1*dhx/dxx*sin(q1)-sgh1*dhy/dvary(jj)*cos(q1))/akk1
-      vt1=vt1*cc
-      vt2=sin2q2*dux/dxx+sin(q2)**2*dvx/dxx-(cos(q2)**2*duy+sin2q2*dvy) &
-      /dvary(jj)+(sgh2*dhx/dxx*sin(q2)-sgh2*dhy/dvary(jj)*cos(q2))/akk2
-      vt2=vt2*cc
-!
-      NN=NN+1
+          NN=NN+1
 !
 ! -- coef.of A1
-      ccg=gam*ccgm
-!       *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
+          ccg=gam*ccgm
+!              *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
 ! -- absolute w was good, so above statement was omitted.
 !
-      winp=0.
-      sinp=0.
-      fd1=1.
+          winp=0.
+          sinp=0.
+          fd1=1.
 !
-!     wc=ws*1.05
-      fd1=(1.+ws*.3)/sqrt(cgy1**2+ws**2+2.*cgy1*ws*cos(wd-thc)+.1)
-!     fd1=(1.+ws*.8)/sqrt(cgy1**2+ws**2+2.*cgy1*ws*cos(wd-thc)+.1)
-      if(fd1.gt.2.) fd1=2.
+!         wc=ws*1.05
+          fd1=(1.+ws*.3)/sqrt(cgy1**2+ws**2+2.*cgy1*ws*cos(wd-thc)+.1)
+!         fd1=(1.+ws*.8)/sqrt(cgy1**2+ws**2+2.*cgy1*ws*cos(wd-thc)+.1)
+          if(fd1.gt.2.) fd1=2.
 !
-      ac=0.
-      if(scp(jj,kk).gt..0) ac=2.*sqrt(scp(jj,kk)*om)
-!     fd2=1./tanh(om*(abs(d1(ii,jj))+.01)/cwy1)
-      fd2=1./tanh(rkd)
-      deca=deca1*(ac/cwy1)**1.5*cgy1*fd1*fd2
-      if(iback.eq.0) deca=deca/(1.+5.*tanh(hsg(jj)))
+          ac=0.
+          if(scp(jj,kk).gt..0) ac=2.*sqrt(scp(jj,kk)*om)
+!         fd2=1./tanh(om*(abs(d1(ii,jj))+.01)/cwy1)
+          fd2=1./tanh(rkd)
+          deca=deca1*(ac/cwy1)**1.5*cgy1*fd1*fd2
+          if(iback.eq.0) deca=deca/(1.+5.*tanh(hsg(jj)))
 !
-      f1=1.
-      if(ws.ge..1.and.iback.eq.0) then
-      cc2=cos((wd-thc)/2.)
-!     f1=wss*cc2-cgy1
-      f1=wss*cos(wd-thc)-cgy1
-!     if(d1(ii,jj).lt.3.) f1=f1*tanh(d1(ii,jj)/3.)
-      if(d1(ii,jj).lt.5.) f1=f1*(2.-tanh(d1(ii,jj)/2.))
-!     if(ii.ge.2) then
-!     if(d1(ii-1,jj).gt..1) then
-!     f1=f1*(1.+cos(dmn(ii-1,jj)*rad-wd)**2)/2.
-!     end if
-!     end if
+          f1=1.
+          if(ws.ge..1.and.iback.eq.0) then
+            cc2=cos((wd-thc)/2.)
+!           f1=wss*cc2-cgy1
+            f1=wss*cos(wd-thc)-cgy1
+!           if(d1(ii,jj).lt.3.) f1=f1*tanh(d1(ii,jj)/3.)
+            if(d1(ii,jj).lt.5.) f1=f1*(2.-tanh(d1(ii,jj)/2.))
+!           if(ii.ge.2) then
+!             if(d1(ii-1,jj).gt..1) then
+!               f1=f1*(1.+cos(dmn(ii-1,jj)*rad-wd)**2)/2.
+!             end if
+!           end if
 !
-      if(f1.lt.0.) f1=0.
-      if(nonln.eq.1.and.f1.lt.1.) f1=1.
-      f2=1.
-      if(cgy1.lt.ws) f2=ws/cgy1
-      f3=log10(f2)
-      winp=winp1*f1*f3/f2
-      cc1=1.-tanh(d1(ii,jj)/5.)
-      cc3=1.
-      if(ii.ge.2) then
-        cc3=cos((dbig(jj)-wd)/2.)
-!       if(d1(ii,jj).eq.d1(ii-1,jj)) then
-        winp=winp/(.8+3.*tanh(hsg(jj))+.5*cc1)*(cc2*cc3)**10
-!       else
-!       winp=winp/(.8+3.*tanh(hsg(jj))+.5*cc1)*(cc2*cc3)**50
-!       end if
-      end if
-!     write(69,'(2i5,5f13.6)') ii,jj,fc,winp,f1,f2,f3
+            if(f1.lt.0.) f1=0.
+            if(nonln.eq.1.and.f1.lt.1.) f1=1.
+            f2=1.
+            if(cgy1.lt.ws) f2=ws/cgy1
+            f3=log10(f2)
+            winp=winp1*f1*f3/f2
+            cc1=1.-tanh(d1(ii,jj)/5.)
+            cc3=1.
+            if(ii.ge.2) then
+              cc3=cos((dbig(jj)-wd)/2.)
+!             if(d1(ii,jj).eq.d1(ii-1,jj)) then
+              winp=winp/(.8+3.*tanh(hsg(jj))+.5*cc1)*(cc2*cc3)**10
+!             else
+!             winp=winp/(.8+3.*tanh(hsg(jj))+.5*cc1)*(cc2*cc3)**50
+!             end if
+            end if
+!           write(69,'(2i5,5f13.6)') ii,jj,fc,winp,f1,f2,f3
 !
-!     if(iwind.ge.1) then
-!     ph00=33./ws
-!     if(ph00.gt.1.25) ph00=1.25
-!     om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
-!     wdd4=0.005*cos(thc-wd)**40
-!     0.005=0.0002*g*8/3.14159
-!     sinp=wdd4*f1/f2/om51*afact
-!     else
-      sinp=wdd(kk)*f1/f2/om51*afact
-!     end if
+!           if(iwind.ge.1) then
+!             ph00=33./ws
+!             if(ph00.gt.1.25) ph00=1.25
+!             om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
+!             wdd4=0.005*cos(thc-wd)**40
+!             0.005=0.0002*g*8/3.14159
+!             sinp=wdd4*f1/f2/om51*afact
+!           else
+            sinp=wdd(kk)*f1/f2/om51*afact
+!           end if
 !
-      if(ii.ge.2) then
-        if (d1(ii-1,jj).lt..1) sinp=0.
-      endif
-!     sinp=sinp*(cc2*cc3)**4
-      if(scp(jj,kk).lt.sinp) scp(jj,kk)=sinp
-!     if(ifast.eq.1) then
-!     if(deca.gt.winp) deca=winp
-!     end if
-      end if
+            if(ii.ge.2) then
+              if (d1(ii-1,jj).lt..1) sinp=0.
+            endif
+!           sinp=sinp*(cc2*cc3)**4
+            if(scp(jj,kk).lt.sinp) scp(jj,kk)=sinp
+!           if(ifast.eq.1) then
+!             if(deca.gt.winp) deca=winp
+!           end if
+          end if
 !
-      amp=.01
-      if(ii.ge.2) amp=h13(ii-1,jj)/sqrt(ht)
-      cc=bfric(ii,jj)
-      if(cc.gt..08.and.amp.gt..5) then
-      if(tp.ge.8.) then
-      cc=.08+(cc-.08)/4.
-      else
-      cc=.08+(cc-.08)/2.
-      end if
-      end if
-      fric=om2g*cc*amp/sinh(min(5.,rkd))**2
+          amp=.01
+          if(ii.ge.2) amp=h13(ii-1,jj)/sqrt(ht)
+          cc=bfric(ii,jj)
+          if(cc.gt..08.and.amp.gt..5) then
+            if(tp.ge.8.) then
+              cc=.08+(cc-.08)/4.
+            else
+              cc=.08+(cc-.08)/2.
+            end if
+          end if
+          fric=om2g*cc*amp/sinh(min(5.,rkd))**2
 !
-      winp=winp*sqrt(afact)
-      if(iprp.eq.3.and.jbv.eq.2) then
-      winp=0.
-      deca=0.
-      end if
-!     if(hs0.lt..3.and.ws.lt..01) deca=0.
-      if(ws.lt..01.and.iback.eq.0) deca=0.
+          winp=winp*sqrt(afact)
+          if(iprp.eq.3.and.jbv.eq.2) then
+            winp=0.
+            deca=0.
+          end if
+!         if(hs0.lt..3.and.ws.lt..01) deca=0.
+          if(ws.lt..01.and.iback.eq.0) deca=0.
 !
-      if(imud.ge.0) then
-      a1=uuu2+max(cab,deca)+ccg-winp+fric+om4/cwy1**2*aamud
+          if(imud.ge.0) then
+            a1=uuu2+max(cab,deca)+ccg-winp+fric+om4/cwy1**2*aamud
 !     amud is the viscosity that has the unit of m*m/s
 !     (for the sea water at 35 F, amud=0.0000018 m*m/s)
-      else
-      cc=rkd1+rkd2+sinh(min(5.,rkd1+rkd2))
-      a1=uuu2+max(cab,deca)+ccg-winp+fric+aamud*cgg*akk**2/cc
-      end if
+          else
+            cc=rkd1+rkd2+sinh(min(5.,rkd1+rkd2))
+            a1=uuu2+max(cab,deca)+ccg-winp+fric+aamud*cgg*akk**2/cc
+          end if
 !
-      if(nln.eq.1) then
-      cc=scp(jj,kk)+1.e-10
-      if(rkd.lt.pai) then
-      c1=scp(jj,kk)
-      if(kk.ne.imd) c1=scp(jj,kk-1)
-      c2=scp(jj,kk)
-      if(kk.ne.md) c2=scp(jj,kk+1)
-      a1=a1-bbn*(c1**3+c2**3-2.*scp(jj,kk)**3)*akk**3*om81*ann**4/cc
-      end if
+          if(nln.eq.1) then
+            cc=scp(jj,kk)+1.e-10
+            if(rkd.lt.pai) then
+              c1=scp(jj,kk)
+              if(kk.ne.imd) c1=scp(jj,kk-1)
+              c2=scp(jj,kk)
+              if(kk.ne.md) c2=scp(jj,kk+1)
+              a1=a1-bbn*(c1**3+c2**3-2.*scp(jj,kk)**3)*akk**3*om81*ann**4/cc
+            end if
 ! --- B= k^3 sig^8 n^4 [(fp/f)^4 N]^3/g = k^3 sig^5 n^4 [(fp/f)^4 F]^3/(g pai2^2)
-      c1=0.
-      c2=0.
-      if(ifc.ne.1) c1=si(jj,ifc-1,kk)
-      if(ifc.ne.nf) c2=si(jj,ifc+1,kk)
-      a1=a1-ann*(3.*c2**3-2.*si(jj,ifc,kk)**3-c1**3)*akk**3*om52*ann**4/cc
-      end if
+            c1=0.
+            c2=0.
+            if(ifc.ne.1) c1=si(jj,ifc-1,kk)
+            if(ifc.ne.nf) c2=si(jj,ifc+1,kk)
+            a1=a1-ann*(3.*c2**3-2.*si(jj,ifc,kk)**3-c1**3)*akk**3*om52*ann**4/cc
+          end if
 !
-      if(vvv2.ge.0.0) a1=a1+vvv2
-      if(vvv1.lt.0.0) a1=a1-vvv1
-      if(vt1.ge.0.0.and.vt2.ge.0.0) a1=a1+vt2
-      if(vt1.lt.0.0.and.vt2.ge.0.0) a1=a1+vt2-vt1
-      if(vt1.lt.0.0.and.vt2.lt.0.0) a1=a1-vt1
-      if(jj.ne.jb.and.jj.ne.je) a1=a1+ccgt
-      a1=a1+2.*agg
-      aa(1,nn)=a1
-!        if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-      ia(1,nn)=nn
+          if(vvv2.ge.0.0) a1=a1+vvv2
+          if(vvv1.lt.0.0) a1=a1-vvv1
+          if(vt1.ge.0.0.and.vt2.ge.0.0) a1=a1+vt2
+          if(vt1.lt.0.0.and.vt2.ge.0.0) a1=a1+vt2-vt1
+          if(vt1.lt.0.0.and.vt2.lt.0.0) a1=a1-vt1
+          if(jj.ne.jb.and.jj.ne.je) a1=a1+ccgt
+          a1=a1+2.*agg
+          aa(1,nn)=a1
+!         if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+          ia(1,nn)=nn
 
 ! -- coef.of A2
-      a2=gam*(-ccg1+0.5*ccgm)
-!       *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
+          a2=gam*(-ccg1+0.5*ccgm)
+!            *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
 ! -- absolute w was good, so above statement was omitted.
-      if(vvv1.ge.0.0) a2=a2-vvv1
-      aa(2,nn)=a2
-!        if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
-      ia(2,nn)=nn-(md-imd+1)
+          if(vvv1.ge.0.0) a2=a2-vvv1
+          aa(2,nn)=a2
+!         if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
+          ia(2,nn)=nn-(md-imd+1)
 
 ! -- coef.of A3
-      a3=gam*(-ccg2+0.5*ccgm)
-!       *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
+          a3=gam*(-ccg2+0.5*ccgm)
+!            *(2.0*pai2*fc)/abs(sgma1(jb+jm-1,kk))
 ! -- absolute w was good, so above statement was omitted.
-      if(vvv2.lt.0.0) a3=a3+vvv2
-      aa(3,nn)=a3
-!        if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
-      ia(3,nn)=nn+md-imd+1
+          if(vvv2.lt.0.0) a3=a3+vvv2
+          aa(3,nn)=a3
+!         if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
+          ia(3,nn)=nn+md-imd+1
 
 ! -- coef.of A4
-      a4=0.0
-      if(vt1.ge.0.0) a4=-vt1
-      a4=a4-agg
-      if(mod(nn-1,md-imd+1).eq.0) then
-        aa(4,nn)=0.0
-        ia(4,nn)=0
-      else
-        aa(4,nn)=a4
-!          if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
-        ia(4,nn)=nn-1
-      end if
+          a4=0.0
+          if(vt1.ge.0.0) a4=-vt1
+          a4=a4-agg
+          if(mod(nn-1,md-imd+1).eq.0) then
+            aa(4,nn)=0.0
+            ia(4,nn)=0
+          else
+            aa(4,nn)=a4
+!           if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
+            ia(4,nn)=nn-1
+          end if
 
 ! -- coef.of A5
-      a5=0.0
-      if(vt2.lt.0.0) a5=vt2
-      a5=a5-agg
-      if(mod(nn,md-imd+1).eq.0) then
-        aa(5,nn)=0.0
-        ia(5,nn)=0
-      else
-        aa(5,nn)=a5
-!          if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
-        ia(5,nn)=nn+1
-      end if
+          a5=0.0
+          if(vt2.lt.0.0) a5=vt2
+          a5=a5-agg
+          if(mod(nn,md-imd+1).eq.0) then
+            aa(5,nn)=0.0
+            ia(5,nn)=0
+          else
+            aa(5,nn)=a5
+!           if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
+            ia(5,nn)=nn+1
+          end if
 
 ! -- coef.of B(N)
-      if(jbv.eq.6.or.jbv.eq.7.or.jbv.eq.8.or.jbv.eq.9) then
-        b(nn)=0.0
-      else
-!         beta=1.
-!         scpc=0.
-!         if(jj.ne.jb.and.jj.ne.je) then
-!           do ikk=imd,md
-!           scpc=scpc+scp(jj,ikk)/cosh(abs(kk-ikk)*dth*beta)**2
-!           end do
-!           scpc=scpc*dth*beta/2.
-!         end if
-        b(nn)=uuu1*scp(jj,kk)
-        if(jj.ne.jb.and.jj.ne.je) b(nn)=b(nn)+ccgt*scp(jj,kk)
-!       if(jj.ne.jb.and.jj.ne.je) b(nn)=b(nn)+akk*cgg*scpc
-!         if(sgma1(jj,kk).lt.0.0) b(nn)=0.0
-      end if
+          if(jbv.eq.6.or.jbv.eq.7.or.jbv.eq.8.or.jbv.eq.9) then
+            b(nn)=0.0
+          else
+!           beta=1.
+!           scpc=0.
+!           if(jj.ne.jb.and.jj.ne.je) then
+!             do ikk=imd,md
+!               scpc=scpc+scp(jj,ikk)/cosh(abs(kk-ikk)*dth*beta)**2
+!             end do
+!             scpc=scpc*dth*beta/2.
+!           end if
+            b(nn)=uuu1*scp(jj,kk)
+            if(jj.ne.jb.and.jj.ne.je) b(nn)=b(nn)+ccgt*scp(jj,kk)
+!           if(jj.ne.jb.and.jj.ne.je) b(nn)=b(nn)+akk*cgg*scpc
+!           if(sgma1(jj,kk).lt.0.0) b(nn)=0.0
+          end if
 !
 ! -- boundary conditions at j=1
-      if(jm.eq.1.and.jbv.eq.2) then
-        a1=a1+a2
-        aa(1,nn)=a1
-!          if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        aa(2,nn)=0.0
-        ia(2,nn)=0
-      else if(jm.eq.1.and.jbv.eq.3) then
-        aa(2,nn)=0.0
-        ia(2,nn)=0 
-      else if(jm.eq.1.and.jbv.eq.9) then
-        aa(2,nn)=0.0
-        ia(2,nn)=0
-        b(nn)=0.0
-      else if(jm.eq.1.and.jbv.eq.4) then
-      vkr=0.0
-      agl=0.0
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        if(ick3.eq.1) then
-          vkr=ckr(ii,jj)
-          agl=akr(ii,jj)
-        else               !EJH
-           agl=akr(ii,jj)  !EJH   
-        end if
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        a2=vkr**2*a2
+          if(jm.eq.1.and.jbv.eq.2) then
+            a1=a1+a2
+            aa(1,nn)=a1
+!           if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            aa(2,nn)=0.0
+            ia(2,nn)=0
+          else if(jm.eq.1.and.jbv.eq.3) then
+            aa(2,nn)=0.0
+            ia(2,nn)=0 
+          else if(jm.eq.1.and.jbv.eq.9) then
+            aa(2,nn)=0.0
+            ia(2,nn)=0
+            b(nn)=0.0
+          else if(jm.eq.1.and.jbv.eq.4) then
+            vkr=0.0
+            agl=0.0
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            if(ick3.eq.1) then
+              vkr=ckr_inline(ii,jj)
+              agl=akr_inline(ii,jj)
+            else               !EJH
+              agl=akr_inline(ii,jj)  !EJH   
+            end if
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            a2=vkr**2*a2
 !************************************
-        if(thc.lt.agl*rad) a2=0.0
+            if(thc.lt.agl*rad) a2=0.0
 !************************************
-        na2=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
-        if(na2.eq.ia(1,nn)) then
-          aa(1,nn)=a1+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        else if(na2.eq.ia(3,nn)) then
-          aa(3,nn)=a3+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
-        else if(na2.eq.ia(4,nn)) then
-          aa(4,nn)=a4+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
-        else if(na2.eq.ia(5,nn)) then
-          aa(5,nn)=a5+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
-        else
-          aa(2,nn)=a2
-!            if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
-          ia(2,nn)=na2
-        end if
-      else if(jm.eq.1.and.jbv.eq.6) then
-      vkr=0.0
-      agl=0.0
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        if(ick3.eq.1) then
-          vkr=ckr(ii,jj)
-          agl=akr(ii,jj)
-        else               !EJH
-           agl=akr(ii,jj)  !EJH    
-        end if
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        a2=vkr**2*a2
+            na2=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
+            if(na2.eq.ia(1,nn)) then
+              aa(1,nn)=a1+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            else if(na2.eq.ia(3,nn)) then
+              aa(3,nn)=a3+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
+            else if(na2.eq.ia(4,nn)) then
+              aa(4,nn)=a4+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
+            else if(na2.eq.ia(5,nn)) then
+              aa(5,nn)=a5+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
+            else
+              aa(2,nn)=a2
+!             if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
+              ia(2,nn)=na2
+            end if
+          else if(jm.eq.1.and.jbv.eq.6) then
+            vkr=0.0
+            agl=0.0
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            if(ick3.eq.1) then
+              vkr=ckr_inline(ii,jj)
+              agl=akr_inline(ii,jj)
+            else               !EJH
+              agl=akr_inline(ii,jj)  !EJH    
+            end if
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            a2=vkr**2*a2
 !***********************************
-        if(thc.lt.agl*rad) a2=0.0
+            if(thc.lt.agl*rad) a2=0.0
 !***********************************
-        na2=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
-        b(nn)=0.0
-        if(na2.eq.ia(1,nn)) then
-          aa(1,nn)=a1+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        else if(na2.eq.ia(3,nn)) then
-          aa(3,nn)=a3+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
-        else if(na2.eq.ia(4,nn)) then
-          aa(4,nn)=a4+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
-        else if(na2.eq.ia(5,nn)) then
-          aa(5,nn)=a5+a2
-!            if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
-        else
-          aa(2,nn)=a2
-!            if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
-          ia(2,nn)=na2
-        end if
-      end if
+            na2=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
+            b(nn)=0.0
+            if(na2.eq.ia(1,nn)) then
+              aa(1,nn)=a1+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            else if(na2.eq.ia(3,nn)) then
+              aa(3,nn)=a3+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
+            else if(na2.eq.ia(4,nn)) then
+              aa(4,nn)=a4+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
+            else if(na2.eq.ia(5,nn)) then
+              aa(5,nn)=a5+a2
+!             if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
+            else
+              aa(2,nn)=a2
+!             if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
+              ia(2,nn)=na2
+            end if
+          end if
 !
 ! -- boundary conditions at j=end
-      if(jm.eq.jmesh.and.jbv.eq.2) then
-        a1=a1+a3
-        aa(1,nn)=a1
-!          if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        aa(3,nn)=0.0
-        ia(3,nn)=0
-      else if(jm.eq.jmesh.and.jbv.eq.3) then
-        aa(3,nn)=0.0
-        ia(3,nn)=0
-      else if(jm.eq.jmesh.and.jbv.eq.9) then
-        aa(3,nn)=0.0
-        ia(3,nn)=0
-        b(nn)=0.0
-      else if(jm.eq.jmesh.and.jbv.eq.5) then
-      vkr=0.0
-      agl=0.0
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        if(ick3.eq.1) then
-           vkr=ckr(ii,jj)
-           agl=akr(ii,jj)
-        else               !EJH
-           agl=akr(ii,jj)  !EJH   
-        end if
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        a3=vkr**2*a3
+          if(jm.eq.jmesh.and.jbv.eq.2) then
+            a1=a1+a3
+            aa(1,nn)=a1
+!           if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            aa(3,nn)=0.0
+            ia(3,nn)=0
+          else if(jm.eq.jmesh.and.jbv.eq.3) then
+            aa(3,nn)=0.0
+            ia(3,nn)=0
+          else if(jm.eq.jmesh.and.jbv.eq.9) then
+            aa(3,nn)=0.0
+            ia(3,nn)=0
+            b(nn)=0.0
+          else if(jm.eq.jmesh.and.jbv.eq.5) then
+            vkr=0.0
+            agl=0.0
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            if(ick3.eq.1) then
+              vkr=ckr_inline(ii,jj)
+              agl=akr_inline(ii,jj)
+            else               !EJH
+              agl=akr_inline(ii,jj)  !EJH   
+            end if
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            a3=vkr**2*a3
 !**********************************
-        if(thc.gt.agl*rad) a3=0.0
+            if(thc.gt.agl*rad) a3=0.0
 !**********************************
-        na3=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
-        if(na3.eq.ia(1,nn)) then
-          aa(1,nn)=a1+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        else if(na3.eq.ia(2,nn)) then
-          aa(2,nn)=a2+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
-        else if(na3.eq.ia(4,nn)) then
-          aa(4,nn)=a4+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
-        else if(na3.eq.ia(5,nn)) then
-          aa(5,nn)=a5+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
-        else
-          aa(3,nn)=a3
-!            if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
-          ia(3,nn)=na3
-        end if
-      else if(jm.eq.jmesh.and.jbv.eq.7) then
-      vkr=0.0
-      agl=0.0
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        if(ick3.eq.1) then
-           vkr=ckr(ii,jj)
-           agl=akr(ii,jj)
-        else               !EJH
-           agl=akr(ii,jj)  !EJH    
-        end if
-!** ckr(ii,jj),akr(ii,jj) are functions **
-        a3=vkr**2*a3
+            na3=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
+            if(na3.eq.ia(1,nn)) then
+              aa(1,nn)=a1+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            else if(na3.eq.ia(2,nn)) then
+              aa(2,nn)=a2+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
+            else if(na3.eq.ia(4,nn)) then
+              aa(4,nn)=a4+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
+            else if(na3.eq.ia(5,nn)) then
+              aa(5,nn)=a5+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
+            else
+              aa(3,nn)=a3
+!             if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
+              ia(3,nn)=na3
+            end if
+          else if(jm.eq.jmesh.and.jbv.eq.7) then
+            vkr=0.0
+            agl=0.0
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            if(ick3.eq.1) then
+              vkr=ckr_inline(ii,jj)
+              agl=akr_inline(ii,jj)
+            else               !EJH
+              agl=akr_inline(ii,jj)  !EJH    
+            end if
+!** ckr_inline(ii,jj),akr_inline(ii,jj) are functions **
+            a3=vkr**2*a3
 ! --********************************
-        if(thc.gt.agl*rad) a3=0.0
+            if(thc.gt.agl*rad) a3=0.0
 ! --********************************
-        na3=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
-        b(nn)=0.0
-        if(na3.eq.ia(1,nn)) then
-          aa(1,nn)=a1+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
-        else if(na3.eq.ia(2,nn)) then
- 
-          aa(2,nn)=a2+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
-        else if(na3.eq.ia(4,nn)) then
-          aa(4,nn)=a4+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
-        else if(na3.eq.ia(5,nn)) then
-          aa(5,nn)=a5+a3
-!            if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
-        else
-          aa(3,nn)=a3
-!            if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
-          ia(3,nn)=na3
-        end if
-      end if
+            na3=nn+md-imd+2-2*kk + int(2.*agl*rad/dth)
+            b(nn)=0.0
+            if(na3.eq.ia(1,nn)) then
+              aa(1,nn)=a1+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
+            else if(na3.eq.ia(2,nn)) then
+              aa(2,nn)=a2+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
+            else if(na3.eq.ia(4,nn)) then
+              aa(4,nn)=a4+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(4,nn)=0.0
+            else if(na3.eq.ia(5,nn)) then
+              aa(5,nn)=a5+a3
+!             if(sgma1(jj,kk).lt.0.0) aa(5,nn)=0.0
+            else
+              aa(3,nn)=a3
+!             if(sgma1(jj,kk).lt.0.0) aa(3,nn)=0.0
+              ia(3,nn)=na3
+            end if
+          end if
 !
 ! -- iteration for k
-   60 CONTINUE
+   60   CONTINUE
 ! -- iteration for j
    30 CONTINUE
 
@@ -6905,7 +6908,7 @@ contains
 !!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !!  subroutine to obtain wave breaking energy dissipation term
 !!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!      SUBROUTINE WVBRK2(CAB,JBV,II,JM,JJ,om)
+!      SUBROUTINE WVBRK2_inline(CAB,JBV,II,JM,JJ,om)
 !!---------------------------------------------------------------
 !!  energy dissipation term is Battjes and Janssen's(1978)
 !!    bore model with a breaker parameter based on Miche's criterion of
@@ -6913,7 +6916,7 @@ contains
 !!  parameters used in this subroutine are calculated 
 !!    in subroutine veloc
 !!---------------------------------------------------------------
-!      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+!      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
 !      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
 !      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
 !      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
@@ -6977,7 +6980,7 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE WVBRK(CAB,JBV,II,JM,JJ,um,vm,fc)
+      SUBROUTINE WVBRK_inline(CAB,JBV,II,JM,JJ,um,vm,fc)
 !---------------------------------------------------------------
 !  energy dissipation term is the extended (by Sakai et al.)
 !    Goda's breaker index in order to include current effects
@@ -6985,7 +6988,7 @@ contains
 !  parameters used in this subroutine are calculated 
 !    in subroutine veloc
 !---------------------------------------------------------------
-    USE GLOBAL, ONLY: A,NPF,MPD,IPMX,JPMX,IGPX,JGPX
+    USE GLOBAL_INLINE, ONLY: A,NPF,MPD,IPMX,JPMX,IGPX,JGPX
     implicit none
     integer :: ii,jm,jj,jbv
     real :: cab,um,vm,slj,g,qstar,ed,ced,alf,SL43,TANB,EXD
@@ -7094,7 +7097,7 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE WVBRK3(CAB,JBV,II,JM,JJ)
+      SUBROUTINE WVBRK3_inline(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
 !  energy dissipation term is Chawla and Kirby (2002)
 !    breaker model in order to include both current and depth limited
@@ -7102,7 +7105,7 @@ contains
 !    following Thornton and Guza's approach (1983)
 !  parameters used in this subroutine are calculated in subroutine velo!  
 !---------------------------------------------------------------
-    USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+    USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
     implicit none
     integer :: ii,jj,jm,jbv
     real :: slj,wnk,g,gama,beta,H13,Hrms,dep,cab
@@ -7173,14 +7176,14 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE WVBRK1(CAB,JBV,II,JM,JJ,fc)
+      SUBROUTINE WVBRK1_inline(CAB,JBV,II,JM,JJ,fc)
 !---------------------------------------------------------------
 !  energy dissipation term is formulated by using a modified
 !    Miche's breaker index in order to include current effects
 !  parameters used in this subroutine are calculated 
 !    in subroutine veloc
 !---------------------------------------------------------------
-    USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+    USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
     implicit none
     integer :: ii,jj,jm,jbv
     real :: HB,H13,Hrms,X1,X2,PR1,PR2,PX1,PX2
@@ -7266,46 +7269,46 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  FINDING REFLECTION COEFF.
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      FUNCTION CKR(II,JJ)
+      FUNCTION CKR_inline(II,JJ)
 !  ****   FINDING REFLECTION COEFF. CALLED BY SETAB
-      USE GLOBAL, ONLY: KOMX,NOMX,IPMX,JPMX
+      USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
       COMMON /REFA/KRMX,KR(2,4*IPMX),RK(4*IPMX),yangl(4*IPMX)
       K=1
    20 IF(KR(1,K).EQ.II) GOTO 10
    40 K=K+1
       IF(K.LE.KRMX) GOTO 20
-      CKR=0
+      CKR_inline=0
       GOTO 30
    10 IF(KR(2,K).NE.JJ) GOTO 40
-      CKR=RK(K)
+      CKR_inline=RK(K)
    30 RETURN
-      END
+      END FUNCTION
 
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  FINDING structure angle
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      FUNCTION aKR(II,JJ)
+      FUNCTION aKR_inline(II,JJ)
 !  ****   FINDING structure angle CALLED BY SETAB
-      USE GLOBAL, ONLY: KOMX,NOMX,IPMX,JPMX
+      USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
       COMMON /REFA/KRMX,KR(2,4*IPMX),RK(4*IPMX),yangl(4*IPMX)
       K=1
    20 IF(KR(1,K).EQ.II) GOTO 10
    40 K=K+1
       IF(K.LE.KRMX) GOTO 20
-      aKR=0
+      aKR_inline=0
       GOTO 30
    10 IF(KR(2,K).NE.JJ) GOTO 40
-      aKR=yangl(K)
+      aKR_inline=yangl(K)
    30 RETURN
-      END
+      END FUNCTION
 
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  CALCULATION OF Matrix BY GAUS-SEIDEL METHOD
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE GSM(II,JB,JE,NMX,MARK)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
+      SUBROUTINE GSM_inline(II,JB,JE,NMX,MARK)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
@@ -7414,8 +7417,8 @@ contains
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to output the results 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE OUTFILE
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      SUBROUTINE OUTFILE_inline
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       double precision edate
       REAL, ALLOCATABLE :: SPCT(:),SPCT1(:),dep0(:,:),dsss(:,:),tmp(:,:)
       REAL, ALLOCATABLE :: gxx1(:), gyy1(:)
@@ -8766,10 +8769,10 @@ contains
 !
       DEALLOCATE (SPCT,SPCT1,dep0,dsss,gxx1,gyy1,tmp)
       RETURN
-      END
+      END SUBROUTINE
 
 !********************************************************************************
-      SUBROUTINE GetSimNameFile (SimFile)
+      SUBROUTINE GetSimNameFile_inline (SimFile)
 ! PC 
 !     use IFPORT
       !use DFPORT
@@ -8803,24 +8806,26 @@ contains
         SimFile = 'none'
       ENDIF
       RETURN
-      END
+      END SUBROUTINE
+
+! Use ExistFile from other version as there are no changes
 !
 !********************************************************************************
-      LOGICAL FUNCTION ExistFile (FileName)
+!      LOGICAL FUNCTION ExistFile_inline (FileName)
 !---- ExistFile -------------------------------------------------------S
 !  PURPOSE - Determines whether or not a file exists.
 !  ARGUMENT DEFINITIONS
 !     FileName - Name of the file.
 !  ARGUMENT DECLARATIONS
-      CHARACTER FileName*(*)
+!      CHARACTER FileName*(*)
 !----------------------------------------------------------------------F
 !
-      INQUIRE (FILE = FileName, EXIST = ExistFile)
-      RETURN
-      END
+!      INQUIRE (FILE = FileName, EXIST = ExistFile_inline)
+!      RETURN
+!      END FUNCTION
 !
 !********************************************************************************
-      SUBROUTINE STWfiles (SimFile)
+      SUBROUTINE STWfiles_inline (SimFile)
 !---STWfiles---------------------------------------------------------S
 ! PURPOSE Reads the names of the STWAVE data files from the sim file
 ! ARGUMENT DEFINITIONS
@@ -9024,10 +9029,10 @@ contains
         XMDFFile = trim(ThePath)//FileName(1:iloc-1) //"_out.h5" !Alex                          
 200     CLOSE (41)
       ENDIF
-      END
+      END SUBROUTINE
 !
 !********************************************************************************
-      SUBROUTINE GetPath (NAME, PATH)
+      SUBROUTINE GetPath_inline (NAME, PATH)
 !--GetPath -----------------------------------------------------
 ! PURPOSE - get the path from the name - used to get proj directory
 ! ARGUMENT DECLARATION
@@ -9048,10 +9053,10 @@ contains
       ENDIF
 
       RETURN
-      END
+      END SUBROUTINE
 !
 !********************************************************************************
-      SUBROUTINE StripPath(FNAME)
+      SUBROUTINE StripPath_inline(FNAME)
 !--StripPath----------------------------------------------------
 ! PURPOSE-Strip the path from the file name used
 !---------------------------------------------------------------
@@ -9080,10 +9085,10 @@ contains
       END IF
 
       RETURN
-      END
+      END SUBROUTINE
 !
 !********************************************************************************
-      SUBROUTINE SetPath(PATH,FNAME)
+      SUBROUTINE SetPath_inline(PATH,FNAME)
 !--SetPath------------------------------------------------------
 ! PURPOSE This subroutine takes a filename and a path and puts
 !         the path at the beginning of the filename.
@@ -9118,12 +9123,12 @@ contains
         GO TO 999
       ENDIF
       FNAME = NEWNAME
-      END
+      END SUBROUTINE
 !
 
 !********************************************************************************
-      subroutine dissip1(i)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      subroutine dissip1_inline(i)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
       common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
       common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -9184,11 +9189,11 @@ contains
 
 !      DEALLOCATE (exx,eyy)
       return
-      end
+      end subroutine
 
 !********************************************************************************
-      subroutine dissip(i)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      subroutine dissip_inline(i)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
       common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
       common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -9246,11 +9251,11 @@ contains
 
       DEALLOCATE (exx,eyy)
       RETURN
-      END
+      END SUBROUTINE
 
 !********************************************************************************
-      subroutine dfds
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      subroutine dfds_inline
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
       COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
@@ -9272,39 +9277,39 @@ contains
       do j=1,jgmx
         exx(1,j)=(-3.*ex(1,j)+4.*ex(2,j)-ex(3,j))/dx2
         exx(igmx,j)=(3.*ex(igmx,j)-4.*ex(ni1,j)+ex(igmx-2,j))/dx2ni
-	end do
+	  end do
 
 !     Y-derivatives on y-boundaries:
       dy2=dvary(1)+dvary(2)
       dy2nj=dvary(jgmx)+dvary(nj1)
       do i=1,igmx
-      eyy(i,1)=(-3.*ey(i,1)+4.*ey(i,2)-ey(i,3))/dy2
-      eyy(i,jgmx)=(3.*ey(i,jgmx)-4.*ey(i,nj1)+ey(i,jgmx-2))/dy2nj
+        eyy(i,1)=(-3.*ey(i,1)+4.*ey(i,2)-ey(i,3))/dy2
+        eyy(i,jgmx)=(3.*ey(i,jgmx)-4.*ey(i,nj1)+ey(i,jgmx-2))/dy2nj
       end do
 
 !     X-derivatives on internal grid pts & y-boundaries:
       do j=1,jgmx
-         do i=2,igmx-1
-         dx2=dvarx(i)+(dvarx(i-1)+dvarx(i+1))/2.
-         exx(i,j)=(ex(i+1,j)-ex(i-1,j))/dx2
-         end do
+        do i=2,igmx-1
+          dx2=dvarx(i)+(dvarx(i-1)+dvarx(i+1))/2.
+          exx(i,j)=(ex(i+1,j)-ex(i-1,j))/dx2
+        end do
       end do
 
 !     Y-derivatives on internal grid pts & x-boundaries:
       do j=2,nj1
-         do i=1,igmx
-         dy2=dvary(j)+(dvary(j-1)+dvary(j+1))/2.
-         eyy(i,j)=(ey(i,j+1)-ey(i,j-1))/dy2
+        do i=1,igmx
+          dy2=dvary(j)+(dvary(j-1)+dvary(j+1))/2.
+          eyy(i,j)=(ey(i,j+1)-ey(i,j-1))/dy2
 !!         diss(i,j)=min(diss(i,j),exx(i,j)+eyy(i,j)) !Alex, IMPORTANT
 !!         diss(i,j)=exx(i,j)+eyy(i,j) !Alex, IMPORTANT
          !!diss(i,j)=(exx(i,j-1)+eyy(i,j-1)+exx(i,j)+eyy(i,j)+exx(i,j+1)+eyy(i,j+1))/3.
-         if(diss(i,j).gt.0.) diss(i,j)=0.
-	     end do
+          if(diss(i,j).gt.0.) diss(i,j)=0.
+	    end do
       end do
 
       do i=1,igmx
-         diss(i,1) =diss(i,2)
-         diss(i,jgmx)=diss(i,nj1)
+        diss(i,1) =diss(i,2)
+        diss(i,jgmx)=diss(i,nj1)
       end do
 
       if(iplane.eq.1) then
@@ -9320,11 +9325,11 @@ contains
 
       deallocate(exx,eyy)
       return
-      end
+      end subroutine
 
 !********************************************************************************
-      subroutine sxycalc(i)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      subroutine sxycalc_inline(i)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
       common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
       common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
       common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
@@ -9383,11 +9388,11 @@ contains
 !     end do
 
       return
-      end
+      end subroutine
 
 !********************************************************************************
-      subroutine rstress
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,KOMX
+      subroutine rstress_inline
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,KOMX
       common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
       common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
       common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
@@ -9614,10 +9619,10 @@ contains
 !
       DEALLOCATE (exx,eyy,sr)
       return
-      end
+      end subroutine
 
 !********************************************************************************
-      SUBROUTINE RUNNING_TIME(TIME_BEGIN,TIME_END)
+      SUBROUTINE RUNNING_TIME_inline(TIME_BEGIN,TIME_END)
 
       REAL TIME_BEGIN,TIME_END,RTIME
       INTEGER HH,MM
@@ -9638,8 +9643,8 @@ contains
 !  CALCULATION OF Matrix BY GAUS-SEIDEL METHOD---revised version
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      SUBROUTINE GSR(II,JB,JE,NMX,MARK)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
+      SUBROUTINE GSR_inline(II,JB,JE,NMX,MARK)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
@@ -9756,14 +9761,14 @@ contains
    90 DEALLOCATE (x0)
 !
       RETURN
-      END
+      END SUBROUTINE
 !
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  CALCULATION OF Matrix BY TDMA and Line by line
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&      
-      SUBROUTINE ADI(II,JB,JE,NMX,MARK)
-      USE GLOBAL, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
+      SUBROUTINE ADI_inline(II,JB,JE,NMX,MARK)
+      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
@@ -9902,10 +9907,10 @@ contains
  90   DEALLOCATE (AN,AS,AE,AW,AP,SU,F,F0,AA1,BB1,CC1,DD1,JJ,MM,NE,NW)  
 
       RETURN
-      END
+      END SUBROUTINE
       
 !********************************************************************************      
-      subroutine getwavefilenames(SimFile)
+      subroutine getwavefilenames_inline(SimFile)
 !********************************************************************************
       use cms_def, only: wavsimfile,wavepath,wavename 
       implicit none
@@ -9927,7 +9932,7 @@ contains
       integer :: iloc
       
       SimFile = trim(wavepath) // WavSimFile
-      CALL STWfiles (SimFile)
+      CALL STWfiles_inline (SimFile)
       !OptsFile   = trim(wavepath) // OptsFile                      !meb 02/27/2013 - These instructions were just done in STWfiles, no need to do over.
       !DepFile    = trim(wavepath) // DepFile
       !CurrFile   = trim(wavepath) // CurrFile
@@ -9952,4 +9957,4 @@ contains
       !XMDFFile = trim(wavepath) // XMDFFile      
       
       return
-      end
+      end subroutine

@@ -11,6 +11,10 @@
 !   Alex Sanchez, USACE-CHL - sediment transport + hydrodynamics
 !   Lihwa Lin, USACE-CHL - wave transformation
 !   Mitch Brown, USACE-CHL - auxiliary subroutines
+! notes
+!   noptset==1 - CMS Wave only
+!   noptset==2 - CMS Flow only
+!   noptset==3 - CMS Flow/Wave Steering
 !****************************************************************************************
 #include "CMS_cpp.h"
 #ifdef UNIT_TEST
@@ -35,14 +39,14 @@
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    Version  = 5.0   !CMS version
-    Revision = 4     !Revision number
+    Version  = 5.1   !CMS version
+    Revision = 1     !Revision number
 #ifdef DEV_MODE
     release  = .false.
 #else
     release = .true.
 #endif
-    rdate    = '04/21/2017'
+    rdate    = '10/04/2018'
     
     !n2Dor3D=2    !=2 for 2D; =3 for 3D    
     
@@ -54,9 +58,13 @@
     call get_com_arg      !get command line arguments
     call print_header     !screen and debug file header  
     
-	if(noptset==1) then
+	if(noptset==1) then   !CMS-Wave only, use Stand alone code   MEB  10/15/2018
 	  call sim_start_print  !start timer here
-	  dtsteer=3.0; ctime=0.0; coldstart=.true.
+!Might check to see if dtsteer already set
+      dtsteer=3.0
+!
+      ctime=0.0
+      coldstart=.true.
 
       open(dgunit,file=dgfile,access='append') !Note: Needs to be open for CMS-Wave
       call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)       
@@ -150,6 +158,7 @@
     
     do i=0,min(narg,2)
       if(i==0 .and. narg==0)then
+!CMS was called with no arguments
         write(*,*) ' '
         write(*,*) 'Type name of CMS-Flow Card File or '
         write(*,*) '  CMS-Wave Sim File and Press <RETURN>'
@@ -220,6 +229,7 @@
       endselect      
     enddo
 
+!CMS was called with no arguments but user entered Flow parameter filename, also ask for Wave info
     if(cmsflow .and. .not.cmswave .and. narg==0)then
       write(*,*) ' '
       write(*,*) 'Type name of CMS-Wave Sim File'
@@ -240,6 +250,7 @@
         cmswave = .true.          
         noptset = 3   	    
 	  endif
+!CMS was called with no arguments but user entered Wave parameter filename, also ask for Flow info
     elseif(.not.cmsflow .and. cmswave .and. narg==0)then
       write(*,*) ' '
       write(*,*) 'Type name of CMS-Flow Card File'
