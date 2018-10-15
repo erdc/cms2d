@@ -1,0 +1,260 @@
+!**********************************************************************
+    subroutine card_scalar(inunit,defunits,tounits,scalar,ierr)
+! Reads a scalar from the card file
+! written by Alex Sanchez, USACE-CHL
+!**********************************************************************
+    use prec_def
+    use diag_lib
+    use unitconv_lib
+    implicit none
+    !Input/Output
+    integer,         intent(in) :: inunit   !Input card file unit
+    character(len=*),intent(in) :: defunits !Default unit string
+    character(len=*),intent(in) :: tounits  !Output unit string    
+    real(ikind),     intent(out) :: scalar  !Scalar value
+    integer,         intent(out) :: ierr    !Error code
+    !Internal
+    character(len=10) :: fromunits,temp
+    character         :: extra_attr
+    character(len=37) :: cardname
+    character(len=200) :: aline    
+    real(ikind) :: scalarin
+    
+    scalarin = -9999.0    
+    backspace(inunit)
+    read(inunit,'(A)') aline
+    fromunits  = ' '    
+    extra_attr = ' '
+!    read(aline,*,iostat=ierr) cardname,scalarin,fromunits,extra_attr
+    read(aline,*,end=50) cardname,scalarin,fromunits,extra_attr
+50  if(fromunits==' ' .and. abs(scalarin+9999.0)<1.0e-5)then
+      call diag_print_error('Invalid Card Specification: ',&
+        aline,'  Missing Card Value')
+      ierr = -1
+    else
+      scalar = scalarin
+      if (extra_attr .ne. ' ') fromunits = trim(fromunits)//' '//extra_attr
+      ierr = 0
+    endif
+    if(ierr==-1 .or. fromunits(1:1)==' ' .or. &
+      fromunits(1:1)=='!' .or. fromunits(1:1)=='#')then
+      fromunits = defunits !None specified in file, use default value
+    endif
+
+    !General linear unit conversion
+    call unitconv_scal(fromunits,tounits,scalar)
+    
+    return
+    endsubroutine card_scalar
+
+!*****************************************************************
+    subroutine card_boolean(inunit,bool,ierr)
+! Reads a boolean (true or false) from the card file
+! written by Alex Sanchez, USACE-CHL
+!*****************************************************************    
+    use diag_lib
+    implicit none
+    !Input/Output    
+    integer, intent(in) :: inunit
+    logical, intent(inout) :: bool
+    integer, intent(out) :: ierr
+    !Internal
+    character(len=37) :: cardname,cdum    
+    
+    ierr = 0
+    backspace(inunit)
+    read(inunit,*,iostat=ierr) cardname, cdum     
+    if(ierr/=0)then
+      ierr = -1
+      call diag_print_warning('Could not read CMS-Flow Control file card: ',cardname)
+    endif
+    call uppercase(cdum)
+    if(cdum(1:2)=='ON')then
+      bool = .true.
+    elseif(cdum(1:3)=='OFF')then
+      bool = .false.
+    else
+      ierr = -2
+      call diag_print_warning('Invalid value for card: ',cardname,&
+        '  Value must be either ON or OFF')
+    endif
+        
+    return
+    endsubroutine card_boolean
+    
+!!*****************************************************************************
+!    subroutine card_file(inunit,defaultfile,defaultpath,filename)
+!!*****************************************************************************
+!    use diag_lib
+!    implicit none
+!    !Input/Output
+!    integer,intent(in) :: inunit
+!    character(len=*),intent(in) :: defaultfile,defaultpath
+!    character(len=*),intent(inout) :: filename
+!    !Internal Variables
+!    integer :: ierr
+!    character(len=37)  :: cardname
+!    character(len=200) :: apath,aname
+!    character(len=10)  :: aext
+!    logical :: foundfile
+!    
+!    backspace(inunit)
+!	read(inunit,*,iostat=ierr) cardname, filename
+!    
+!    if(ierr/=0)then
+!      filename = trim(defaultpath) // trim(defaultfile)
+!    endif
+!    
+!    call fileparts(filename,apath,aname,aext)  
+!        
+!    if(apath(1:2)=='.')then !Relative path
+!        
+!    if(apath(1:1)=='.')then !Relative path
+!        
+!    elseif(len_trim(apath)==0)then
+!      filename = trim(defaultpath) // filename  
+!    endif
+!    
+!    return
+!    endsubroutine card_file
+    
+!*****************************************************************************
+    subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath)
+! Reads a dataset card from the CMS conrol/card file
+!
+! written by Alex Sanchez, USACE-CHL
+!*****************************************************************************
+    use diag_lib
+    implicit none
+    !Input/Output
+    integer,intent(in) :: inunit
+    character(len=*),intent(in) :: defaultfile,defaultpath
+    character(len=*),intent(inout) :: datafile,datapath
+    !Internal Variables
+    character(len=10)  :: aext
+    character(len=37)  :: cardname
+    character(len=200) :: apath,aname
+    character(len=400) :: aline
+    integer :: ierr
+    logical :: foundfile
+    
+    backspace(inunit)
+    read(inunit,'(A)') aline
+    read(aline,*,iostat=ierr) cardname, datafile    
+    if(ierr/=0)then
+      call diag_print_error('Could not read dataset card: ',cardname)
+    endif
+    call fileparts(datafile,apath,aname,aext)
+    if(len_trim(aext)==0)then !Is NOT a file. Is path
+      datapath = datafile
+      datafile = defaultfile !Assume the file is the grid file
+      return  
+    endif            
+    if(aext(1:2)=='h5')then
+      read(aline,*,iostat=ierr) cardname, datafile, datapath 
+      if(ierr/=0 .and. cardname(1:20)/='INITIAL_STARTUP_FILE')then
+        call diag_print_warning('Path not specified for dataset card: ',cardname)
+      endif
+    endif
+    inquire(file=datafile,exist=foundfile)       
+    if(.not.foundfile)then !If not found, try adding path
+      datafile  = trim(defaultpath)//datafile
+      inquire(file=datafile,exist=foundfile)
+      if(.not.foundfile)then
+        call diag_print_error('Could not find file: ',datafile)  
+      endif  
+    endif
+    
+    return
+    endsubroutine card_dataset
+
+!***************************************************************************    
+    subroutine card_datetime(inunit,iyr,imo,iday,ihr,imin,isec)
+! Reads a date and time card using the format (ISO Standard)
+!   STARTING_DATE_TIME  YYYY-MM-DD HH:MM:SS UTC
+!
+! written by Alex Sanchez, USACE-CHL
+!***************************************************************************   
+    use diag_lib
+    use prec_def
+    implicit none
+    !Input/Output
+    integer,intent(in) :: inunit
+    integer,intent(out) :: iyr,imo,iday,ihr,imin,isec
+    !Internal variables
+    integer :: iloc,ierr
+    character(len=37) :: cdum
+    character(len=200) :: aline
+    
+    ierr = 0
+    backspace(inunit)
+    read(inunit,'(A)') aline
+    
+784 format(I4,'-',I2,'-',I2) !YYYY-MM-DD
+    iloc = index(aline,'-',back=.false.)
+    cdum = aline(iloc-4:)
+    read(cdum,784,iostat=ierr) iyr,imo,iday
+    
+    if(ierr/=0)then
+      call diag_print_error('Could not read date: ',aline)
+    endif
+    
+673 format(I2,':',I2,':',I2) !hh:mm:ss    
+    iloc = index(aline,':',back=.false.)
+    cdum = aline(iloc-2:)
+    read(cdum,673,iostat=ierr) ihr,imin,isec
+    
+    if(ierr/=0)then
+      call diag_print_error('Could not read date: ',cdum)
+    endif
+        
+    return
+    endsubroutine card_datetime
+    
+!*****************************************************************    
+    subroutine card_bid(defpath,bidfile,bidpath,idnum)
+! Reads a boundary ID card for example:
+! CELLSTRING "flow_mp.h5" " "PROPERTIES/Model Params/Boundary_#1" 
+! written by Alex Sanchez, USACE-CHL
+!*****************************************************************
+    use diag_lib
+    implicit none
+    !Input
+    character(len=*),intent(in)    :: defpath  !Default input path
+    character(len=*),intent(inout) :: bidfile  !Boundary ID File (*.h5, *.2dm, *,bid) (including directory path)
+    character(len=*),intent(inout) :: bidpath  !Boundary ID Path (for XMDF files)
+    integer,         intent(out)   :: idnum    !Boundary ID number within bid file
+    !Internal Variables
+    character(len=10) :: aext
+    character(len=37) :: cardname
+    character(len=200) :: aname,apath
+    logical :: foundfile
+    
+    !Read file and path
+    backspace(77)
+    read(77,*) cardname,bidfile,bidpath
+    call fileparts(bidfile,apath,aname,aext)
+    
+    !Check file exists and guess path if necessary
+    inquire(file=bidfile,exist=foundfile)  
+    if(.not.foundfile .and. len_trim(apath)==0)then
+      bidfile = trim(defpath) // trim(bidfile)
+      inquire(file=bidfile,exist=foundfile) 
+    endif
+    if(.not.foundfile)then
+      call diag_print_error('Could not find Boundary ID file: ',bidfile)
+    endif  
+    
+    call lowercase(aext)
+    selectcase(aext)
+    case('h5')
+      call bndpath2id(bidpath,idnum)
+    case('2dm','bid')
+      read(bidpath,*) idnum
+    case default
+      call diag_print_error('Unsupported Boundary ID File type: ',bidpath,&
+        '  File must be *.h5, *.2dm, or *.bid')
+    endselect
+    
+    return
+    endsubroutine card_bid    

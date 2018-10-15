@@ -1,0 +1,270 @@
+OSU TIDAL PREDICTION Software (OTPS)
+=====================================================================
+AUTHORS:
+  Gary Egbert & Lana Erofeeva
+  College of Atmospheric and Oceanic Sciences
+  104 COAS Admin. Bldg.
+  Oregon State University
+  Corvallis, OR 97331-5503
+  
+  E-mail:  egbert@coas.oregonstate.edu                                      
+  Fax:     (541) 737-2064
+  Ph.:     (541) 737-2947                                        
+  http://volkov.oce.orst.edu/tides/
+
+COPYRIGHT: OREGON STATE UNIVERSITY, 2012
+(see the file COPYRIGHT for lisence agreement)
+=====================================================================
+******************************************************************************
+1. INTRODUCTION
+
+OTPS accomplish 2 tasks:
+- extracting harmonic constants from barotropic tidal solutions
+  in OTIS format (see below) at given locations;
+- predicting tides at given times and locations.
+
+Predictions are based on global and/or regional barotropic inverse
+tidal solutions obtained with OTIS and available for download at:
+  http://volkov.oce.orst.edu/tides/
+
+******************************************************************************
+2. MODEL FILE FORMAT
+
+The files are big_endian binary, recorded in bytes on a UNIX system.
+
+There is one header record, which gives the grid size (n grid cells in
+longitude and m grid cells in latitude), number of constituents (nc),
+limits of the area (theta_lim(2),phi_lim(2)), and constituent names
+(c_id(nc)). The header is followed by nc records, each giving the
+either elevation fields (m, ocean tide) OR transports fields (m^2/s)
+for one constituent.
+
+Everything is given as complex amplitudes, so that the partial tide
+for a single constituent of frequency w is given by
+
+     h(t,x) = Re [ h(x) exp { i [w (t - t0) + V0(t0)] } ]
+
+where V0(t0) is the astronomical argument for the constituent at t0.
+Note that with the usual conventions, amplitude and phase are given
+by    amp = | h |    phase = atan (-Im(h)/Re(h)) .
+
+To read with a simple FORTRAN program:
+         .
+         .
+         .
+      integer n,m,nc
+      real theta_lim(2),phi_lim(2)
+      character*4  c_id(21)
+      complex, allocatable: h(:,:,:),uv(:,:,:)
+      complex, allocatable: u(:,:,:),v(:,:,:)
+         .
+         .
+         .
+      open(unit=1,file='h_tpxo6.2',form='unformatted',
+     *     status='old',convert='big_endian')
+ccc  (header)
+      read(1) n,m,nc,theta_lim,phi_lim,c_id(1:nc) 
+      allocate(h(nc,n,m))
+      do ic=1,nc
+       read(1)h(ic,:,:)
+      enddo   
+         .
+         .
+         .
+      allocate(uv(2,n,m),u(nc,n,m),v(nc,n,m))
+      open(unit=1,file='u_tpxo6.2',form='unformatted',)
+     *     status='old',convert='big_endian')
+ccc  (skip header)
+      read(1)
+      do ic=1,nc 
+       read(1) uv
+       u(ic,:,:)=uv(1,:,:)
+       v(ic,:,:)=uv(2,:,:) 
+      enddo 
+         .
+         .
+         .
+
+  you now have elevations (m/s) in array h  and transports in
+  arrays u and v for nc constituents on a  n x m grid, more precisely:
+
+==> u(1,.,.) gives the complex amplitude of  zonal transport 
+            (m**2/s) to the East ... call this U
+==> u(2,.,.) gives meridional transport
+            (m**2/s) to the North  ... call this V
+
+******************************************************************************
+3. GRID
+
+There are "n" divisions in longitude, "m" in latitude. The elevations
+and transports are given on a C-grid ... so the locations at which U
+and V and h are given are not exactly the same.  The layout of the grid
+looks like this:
+   
+          U(2,1) - h(2,1) - U(2,2) - h(2,2) - ....
+                     |                 |
+                     |                 |
+                     |                 |
+                   V(2,1)            V(2,2)
+                     |                 |
+                     |                 |
+                     |                 |
+          U(1,1) - h(1,1) - U(2,1) - h(2,1) - ....<== theta_lim(1)
+                     |                 |
+                     |                 |
+                     |                 |
+                   V(1,1)            V(2,1)        <== theta_lim(1)-dy/2
+                     ^ 
+                     |
+          ^        phi_lim(1)
+          |
+        phi_lim(1)-dx/2
+
+The lats and lons (in degrees) for individual grid nodes are:
+
+For h-nodes   lat(i,j) =  theta_lim(1) + (j-.5)*dy
+              lon(i,j) =  phi_lim(1) + (i-.5)*dx
+
+For U-nodes:  lat(i,j) =  theta_lim(1) + (j-.5)*dy
+              lon(i,j) =  phi_lim(1) + (i- 1)*dx
+
+For V-nodes:  lat(i,j) =  theta_lim(1) + (j- 1)*dy
+              lon(i,j) =  phi_lim(1) + (i-.5)*dx
+
+Here dx,dy is resolution in longitude and latitude correspondingly.
+Most of OTIS solutions are given on C grids uniform in lats,lons, but
+some of them (i.e. Arctic solution) are given on C grids uniform in
+kilometers. The OTPS is applicable for such solutions also.
+ 
+
+******************************************************************************
+4. SETUP file "setup.inp"
+
+This is EXAMPLE  of the file containing your input information.
+
+The original version of file is included in OTPS and given below:
+
+                           ! 1. tidal model control file
+lat_lon_time               ! 2. latitude/longitude/time file
+z                          ! 3. z/U/V/u/v
+m2,s2,n2,k2,k1,o1,p1,q1    ! 4. tidal constituents to include
+AP                         ! 5. AP/RI
+oce                        ! 6. oce/geo
+1                          ! 7. 1/0 correct for minor constituents
+tmp                        ! 8. output file (ASCII)
+
+
+Comments on lines 1-7
+
+1. Tidal model control file (ASCII, supplied with the model, starting
+   from "Model_") contains AT LEAST 3 lines:
+
+   elevation model file name
+   transport model file name
+   bathymetry grid file name
+   {name of function to convert x,y to lon,lat}
+
+   Leave line 1 blank, if are not sure which model to use. In this case
+   all models from "model.list" are checked. File "./model.list" should
+   contain all your DATA/Model_* files and is done as:
+
+   ls -1 DATA/Model_*>model.list
+
+   Please have all Model_* files ready in subdirectory DATA
+
+   Please show FULL path to the model files in the "Model_*" file
+   unless they are located in /DATA (download default).
+
+   4th line in Model_* file is used ONLY for models calculated on
+   uniform grid in km. Converting functions are provided with 
+   current version of OTPS. Please upgrade OTPS if a function is
+   missing.
+
+2. latitude, longitude and time file is an ASCII file, consisting 
+   eighter of 2 OR 8 columns:
+   latitude (degrees) longitude (degrees) [yyyy mm dd hh mm ss]
+   Common sign convention:
+   lat>0 - degrees North, lon>0 - degrees East
+   lat<0 - degrees South, lon<0 - degrees West
+   [yyyy mm dd hh mm ss] - year month day hour seconds GMT
+   These 6 columns are needed for tide predictions only.
+   You may leave them empty if only extracting HC.
+   If you want tidal predictions at the same times, but different locations,
+   you may also provide only 2 columns in the file. BUT then you have to
+   provide also 6 column file, consisting of times, given as
+    yyyy mm dd hh mm ss
+   In this case predict_tide usage will be:
+
+   predict_tide -ttime_file<setup.inp
+
+   This option is useful, if you want to obtain time series at open boundary nodes.
+   
+3. Extract HC/predict tide for:
+   z/U/V/u/v - elevation(m) /WE transport(m^2/s)/ SN transport(m^2/s)/
+                             WE velocity (cm/s) / SN velocity (cm/s)
+   NOTE: Changed, Nov 2004: now for any of u/v/U/V all components
+         (that is U V u v) are calculated by predict_tide.
+
+4. Constituent names should be in LOWER case and separated by comma.
+   Leave the line blank, if ALL model constituents are included
+
+5. AP/RI - output amplitude and phase(GMT) OR real/imaginary parts.
+           Only used when extracting HC.
+           May leave blank, if predicting tide.
+
+6. Only needed for tide prediction. 1/0 - Do/Not correct for the minor
+   constituents defined in weights.h. Only works if the 8 tidal constituents
+   fields are in the model: m2,s2,n2,k2,k1,o1,p1,q1
+
+7. oce/geo - extract ocean/geocentric HC for elevations only.
+             Geocentric tide is appropriate for comparison to or
+             correction of altimetry data.
+             May leave blank if not z on line 3.
+
+******************************************************************************
+5. COMPILING and RUNNING OTPS
+
+Exmaple of makefile for gfortran compiler is provided.
+To compile:
+
+make extract_HC
+make predict_tide
+
+Like it is shown in the makefile, if you are NOT on a Unix system, you have
+to provide options to convert from big_endian binary when compiling 
+(-convert big_endian -assume byterecl for Intel f95;
+ -byteswapio for pgf90).
+Other possibility is to insert the option convert="big_endian" in the open
+statement in the source codes.
+Your specific OS/Fortran compiler might not have these options. In this
+case please consult your local computer support on how to read big_endian
+binary files on your system or contact us on your particular purpose.
+
+Run AFTER editing setup.inp:
+
+extract_HC<setup.inp                   # have lat/lon file ready
+predict_tide<setup.inp                 # have lat/lon/time file ready
+
+******************************************************************************
+6. ADDING new model
+
+  Download compressed and tarred model from
+  http://volkov.oce.orst.edu/tides/
+     a) into the OTPS directory
+        - uncompress and tar xvf;
+          DONE!
+     b) into any destination:
+        - uncompress and tar xvf;
+        - cd DATA;
+        - edit Model_* control file for exact path to the model
+          files;
+        - cp file Model_* into subdirectory DATA of the OTPS directory
+
+******************************************************************************
+
+Any questions, contact  Gary Egbert (541)-737-2947
+                        egbert@coas.oregonstate.edu
+                    or  Lana Erofeeva (541)-737-3964
+                        serofeev@coas.oregonstate.edu
+
+

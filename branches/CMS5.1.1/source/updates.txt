@@ -1,0 +1,22 @@
+== Temperature updates (Li, Wu, Brown) - 05/03/2016
+Files modified:
+* CMS_Flow.f90
+* comp_lib.f90
+* diag_lib.f90
+* flow.f90
+* flow_def.f90
+* flow_imp.f90
+* hot_def.f90
+* hot_start.f90
+* out_lib.f90
+* output.f90
+* prestart.f90
+* solv_def.f90
+* solvers.f90
+* stat_def.f90
+
+Files added:
+* heat.f90
+* heat_bnd.f90
+* heat_def.f90
+* heatflux.f90
