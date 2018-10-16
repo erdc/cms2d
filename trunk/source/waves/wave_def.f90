@@ -11,5 +11,5 @@ module global_inline
     integer, parameter :: IJPMX=IPMX*JPMX,IJGPX=IGPX*JGPX
     integer, parameter :: KOMX=20000, NOMX=80000
     
-endmodule global_inline
+end module global_inline
     

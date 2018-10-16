@@ -88,12 +88,13 @@ module hot_def
     real(ikind) :: hottime !Time to write hot start file
     real(ikind) :: timeout !Last output time
     character(len=200) :: hotfile,hotfile2,hotpath  !Output hot start file
-    character(len=200) :: ahotfile,ahotpath         !Output auto hot start file 2/3/2017 MEB
+    character(len=200) :: autohotfile,autohotpath   !Output auto hot start file 2/3/2017 MEB
     real(ikind) :: hstarttime   ! MEB - 05/18/2012
     logical :: hot_pres
     logical :: hot_eta
     logical :: hot_vel
     logical :: hot_wet
     logical :: hot_flux
+    character(len=15) :: HotName, AutoHotName  !Hold just the name of the file, not the extension
     
-endmodule hot_def
+end module hot_def

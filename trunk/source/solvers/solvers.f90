@@ -182,7 +182,8 @@ d1: do k=1,10
     
     nt = 40
     nf = nmaxfaces+1
-    allocate(aa_matrix(nf*ncellsD),alu(nt*ncellsD))
+    allocate(aa_matrix(nf*ncellsD))
+    allocate(alu(nt*ncellsD))
     aa_matrix = 0.0; alu=0.0
     allocate(ia(ncells+1),ja(nt*ncellsD),iua(ncells))
     allocate(nposition1(nf*ncellsD,nmaxfaces),nposition2(nf*ncellsD,nmaxfaces))

@@ -13,8 +13,9 @@
     use out_def
     use cms_def, only: cmswave
     use comvarbl
-#ifdef DEV_MODE
     use wave_flowgrid_def, only: constant_waves
+
+#ifdef DEV_MODE
     use fric_def, only: mbedfric
     use flow_exp_mod
     use flow_semi_mod
@@ -39,8 +40,9 @@
     do while(ctime < stimet) !Note that stimet includes ramp period
        call timing   !ntime, mtime, dtime, ctime, timehrs, ramp         
        if(cmswave) call wave_eval !Run wave model, and interpolate in space and time
-#ifdef DEV_MODE       
        if(constant_waves) call wave_const_update !Set constant wave parameters, for idealized cases and lab experiments
+
+#ifdef DEV_MODE       
        if(mbedfric == 0) call fric_rough_eval
 #endif 
 

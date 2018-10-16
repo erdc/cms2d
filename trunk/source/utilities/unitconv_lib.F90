@@ -401,7 +401,7 @@ contains
       iunittype = 2; iunitid = 3
     case('d','dy','day','days')
       iunittype = 2; iunitid = 4
-    case('w','wk','week','weeks')
+    case('w','wk','week','weeks','wks')
       iunittype = 2; iunitid = 5
     case('y','yr','yrs','year','years')
       iunittype = 2; iunitid = 6

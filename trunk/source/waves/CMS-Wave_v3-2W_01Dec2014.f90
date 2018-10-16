@@ -6474,6 +6474,7 @@ contains
 ! -- iteration for k direction
         DO 60 KK=imd,MD
           thc=thc+dth
+!
           CWX1=(CWK(J1,1,kk)+CWK(JM,1,kk))/2.0
           CWX2=(CWK(J1,2,kk)+CWK(JM,2,kk))/2.0
           CWY1=(CWK(JM,1,kk)+CWK(JM,2,kk))/2.0
@@ -6882,6 +6883,7 @@ contains
               aa(1,nn)=a1+a3
 !             if(sgma1(jj,kk).lt.0.0) aa(1,nn)=1.0
             else if(na3.eq.ia(2,nn)) then
+ 
               aa(2,nn)=a2+a3
 !             if(sgma1(jj,kk).lt.0.0) aa(2,nn)=0.0
             else if(na3.eq.ia(4,nn)) then

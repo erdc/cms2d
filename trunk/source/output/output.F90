@@ -191,7 +191,7 @@
     integer :: i,j,cell,ierr
     character(len=37) :: cardname,cdum,ptname
     character(len=37) :: group(ngroups)
-    character(len=120) :: saveargs
+    character(len=120) :: saveargs,astring
     real(ikind) :: xsave,ysave
     logical :: foundcard
     
@@ -532,6 +532,24 @@
         
       case('OUTPUT_GLOBAL_XMDF','GLOBAL_XMDF','GLOBAL_XMDF_OUTPUT')
         call card_boolean(77,write_xmdf_output,ierr)  
+        write_sup = .false.
+
+        
+      case('WRITE_ASCII_OUTPUT_FILES')
+        call card_boolean(77,write_xmdf_output,ierr)
+        write_xmdf_output = .not.write_xmdf_output
+        write_sup = .true.
+
+      case('OUTPUT_FILE_TYPE')
+        backspace(77)
+        read(77,*) cardname,astring
+        if(astring=="XMDF") then
+          write_xmdf_output = .true.
+          write_sup = .false.
+      else
+          write_xmdf_output = .false.
+          write_sup = .true.
+        endif
         
       !Hydrodynamics  
       case('VEL_MAG_OUTPUT','OUTPUT_VELOCITY_MAGNITUDE','VELOCITY_MAGNITUDE_OUTPUT')
@@ -939,8 +957,7 @@
 !*************************************************************
 #include "CMS_cpp.h"
     use flow_def, only: waveflux
-    use comvarbl, only: iyr,imo,iday,ihr,imin,isec,&
-       timehrs,reftime,pred_corr,casename
+    use comvarbl, only: iyr,imo,iday,ihr,imin,isec,timehrs,reftime,pred_corr,casename
     use geo_def, only: areap,bathydata
     use sed_def
     use sal_def
@@ -955,14 +972,17 @@
     use diag_lib
     use comvarbl, only: flowpath,nfsch,input_ver
     use diag_def, only: debug_mode
+    use wave_flowgrid_def, only: constant_waves
 #ifdef XMDF_IO
     use xmdf
+    use IFPORT  !XMDF infers on Windows
 #endif   
+
     implicit none      
     integer :: i,ierr,ncase,npath,nn
-    character(len=200) :: apath,aname
+    character(len=200) :: apath,aname,outdirpath
     character(len=10) :: aext
-    logical :: foundfile
+    logical :: foundfile,found,created
     
 #ifdef XMDF_IO
     call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
@@ -1100,7 +1120,7 @@
     endif
     
     !Waves
-    if(noptset<=2)then
+    if(noptset<=2 .and. .not.constant_waves) then    !Modified by Mitch to print out wave information if CONSTANT_WAVES_xxx are specified.  06/23/2017
       outlist(7)%ilist  = 0
       outlist(12)%ilist = 0        !Output details outdated
       write_wave_detail = .false.  !Wave details
@@ -1262,7 +1282,23 @@
     
     !Initialize Super ASCII files
     if(write_sup)then
-      aname = trim(flowpath) // trim(casename)
+      !Save all these solution files to a subdirectory named "ASCII_Solutions"
+      outdirpath='ASCII_Solutions'
+#ifdef WIN_OS      
+      inquire(directory=trim(outdirpath), exist=found)
+      if(.not.found) then
+        created=MakeDirQQ(trim(outdirpath))
+        if(.not.created)then
+          call diag_print_error('Failed to create subdirectory- '//trim(outdirpath))
+        endif
+      endif
+#else
+      inquire(file=trim(outdirpath), exist=found)
+      if(.not.found) then
+        call system('mkdir '//(trim(outdirpath)))
+      endif
+#endif
+      aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)
       call write_sup_file(aname) !Super File *.sup
       call write_xy_file(aname,casename)  !XY coordinate file *.xy  
     endif
@@ -1270,7 +1306,7 @@
     !Write static variables
     if(write_areap)then
       if(write_sup)then  
-        aname = trim(flowpath) // trim(casename)  
+        aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)  
         call write_scal_dat_file(aname,'area','area',areap)
       endif
 #ifdef XMDF_IO
@@ -1296,6 +1332,7 @@
     use sal_def, only: saltrans
     use heat_def, only: heattrans
     use diag_def, only: dgunit,dgfile,debug_mode
+    
     implicit none
     integer :: i,ii,j,k,iunit(2),ierr
     character(len=200) :: apath,aname,astring
@@ -1312,57 +1349,61 @@
     do i=1,2
       write(iunit(i),*)
 	  write(iunit(i),888)       'Global Output'
-      if(len_trim(outpath)>0)then
-	    write(iunit(i),787)       '  Output Path:                 ',trim(outpath)
-      endif
       write(iunit(i),787)         '  Simulation Label:            ',trim(simlabel)
-	  call fileparts(outlist(1)%afile,apath,aname,aext)
-  	  astring=trim(aname) // '.' // aext 	         
-      write(iunit(i),787)         '  Water Level File:            ',trim(astring)
-      call fileparts(outlist(2)%afile,apath,aname,aext)
-  	  astring=trim(aname) // '.' // aext 	 
-      write(iunit(i),787)         '  Current Velocity File:       ',trim(astring)
-      if(outlist(3)%write_dat)then
-        call fileparts(outlist(3)%afile,apath,aname,aext)
-        astring=trim(aname) // '.' // aext 	
-        write(iunit(i),787)       '  Eddy Viscosity File:         ',trim(astring)
-      endif
-      if(sedtrans .or. saltrans .or. heattrans)then
-        call fileparts(outlist(9)%afile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext
-        write(iunit(i),787)       '  Transport File:              ',trim(astring)
-      endif   
-      if(sedtrans)then
-        call fileparts(outlist(5)%afile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext 	
-        write(iunit(i),787)       '  Morphology Change File:      ',trim(astring)
-      endif
-      if(outlist(7)%write_dat)then
-        call fileparts(outlist(7)%afile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext 
-        write(iunit(i),787)       '  Wave File:                   ',trim(astring)
-      endif
-      if(outlist(8)%write_dat)then
-        call fileparts(outlist(8)%afile,apath,aname,aext)
-  	    astring=trim(aname) // '.' // aext 
-        write(iunit(i),787)       '  Meteorological File:         ',trim(astring)
-      endif
-      if(outlist(10)%write_dat)then
-        call fileparts(outlist(10)%afile,apath,aname,aext)
-  	    astring=trim(aname) // '.' // aext
-        write(iunit(i),787)       '  Bed Composition File:        ',trim(astring)
-      endif  
-      if(outlist(13)%write_dat)then
-        call fileparts(outlist(13)%afile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext
-        write(iunit(i),787)       '  Bed Friction/Roughness File: ',trim(astring)
-      endif
-      if(write_tecplot)then
-        write(iunit(i),787)       '  Tecplot Snapshot File:       ',trim(datfile)
-      endif
-      if(debug_mode)then
-        write(iunit(i),787)       '  Diagnostic File:             ',trim(dgoutfile)
-      endif      
+      if(.not.write_xmdf_output) then
+        write(iunit(i),787)       '  Output Path:                  ASCII_Solutions/'
+      else
+        if(len_trim(outpath)>0)then
+	      write(iunit(i),787)       '  Output Path:                 ',trim(outpath)
+        endif
+        call fileparts(outlist(1)%afile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext 	         
+        write(iunit(i),787)         '  Water Level File:            ',trim(astring)
+        call fileparts(outlist(2)%afile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext 	 
+        write(iunit(i),787)         '  Current Velocity File:       ',trim(astring)
+        if(outlist(3)%write_dat)then
+          call fileparts(outlist(3)%afile,apath,aname,aext)
+          astring=trim(aname) // '.' // aext 	
+          write(iunit(i),787)       '  Eddy Viscosity File:         ',trim(astring)
+        endif
+        if(sedtrans .or. saltrans .or. heattrans)then
+          call fileparts(outlist(9)%afile,apath,aname,aext)
+	      astring=trim(aname) // '.' // aext
+          write(iunit(i),787)       '  Transport File:              ',trim(astring)
+        endif   
+        if(sedtrans)then
+          call fileparts(outlist(5)%afile,apath,aname,aext)
+	      astring=trim(aname) // '.' // aext 	
+          write(iunit(i),787)       '  Morphology Change File:      ',trim(astring)
+        endif
+        if(outlist(7)%write_dat)then
+          call fileparts(outlist(7)%afile,apath,aname,aext)
+	      astring=trim(aname) // '.' // aext 
+          write(iunit(i),787)       '  Wave File:                   ',trim(astring)
+        endif
+        if(outlist(8)%write_dat)then
+          call fileparts(outlist(8)%afile,apath,aname,aext)
+  	      astring=trim(aname) // '.' // aext 
+          write(iunit(i),787)       '  Meteorological File:         ',trim(astring)
+        endif
+        if(outlist(10)%write_dat)then
+          call fileparts(outlist(10)%afile,apath,aname,aext)
+  	      astring=trim(aname) // '.' // aext
+          write(iunit(i),787)       '  Bed Composition File:        ',trim(astring)
+        endif  
+        if(outlist(13)%write_dat)then
+          call fileparts(outlist(13)%afile,apath,aname,aext)
+	      astring=trim(aname) // '.' // aext
+          write(iunit(i),787)       '  Bed Friction/Roughness File: ',trim(astring)
+        endif
+        if(write_tecplot)then
+          write(iunit(i),787)       '  Tecplot Snapshot File:       ',trim(datfile)
+        endif
+        if(debug_mode)then
+          write(iunit(i),787)       '  Diagnostic File:             ',trim(dgoutfile)
+        endif      
+	  endif
       if(obs_cell)then
         !write(iunit(i),*)  
         write(iunit(i),888) 'Observation Cells:              ON' 
@@ -2088,7 +2129,7 @@ implicit none
     real(8) :: timed
     character(len=5) :: alay
     character(len=3) :: aperdiam
-    character(len=200) :: apath,aname
+    character(len=200) :: apath,aname,outdirpath
     logical :: header,check_time_list
     
 71  format(1x,'(',I1,')')
@@ -2096,16 +2137,16 @@ implicit none
     
     nn = len_trim(simlabel)
     apath = simlabel(1:nn)//'/'
+    outdirpath = 'ASCII_Solutions'
     
-    aname = trim(flowpath) // trim(casename)
+    aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)
     
     if(debug_mode)then
       nd = ncellsD
-      nc = ncellsD
     else
       nd = ncells
-      nc = ncells
     endif
+    nc = nd
     
     timed = timehrs !Double precision
     
@@ -2114,8 +2155,6 @@ implicit none
       call print_output_header(header)
       eta(ncells+1:ncellsD)=p(ncells+1:ncellsD)*gravinv
       call write_scal_dat_file(aname,'Water_Elevation','eta',eta) !SUPER ASCII File      
-      !call sms_write_dat_scal(aname,'eta','Water_Elevation',&
-      !     reftime,timed,'hours',nd,nc,ncellsD,eta,iwet)
       if(write_presres)then !Pressure Residuals
         call write_scal_dat_file(aname,'Pres_Norm_Res','rsp',rsp) !SUPER ASCII File
       endif
@@ -2349,80 +2388,80 @@ implicit none
       endif
     endif  
     
-    !BED GROUP
-    if(check_time_list(10))then      
-      !Sediment Percentiles   
-      val=1000.0*d50 !Convert from m to mm
-      !call writescalh5(outlist(10)%afile,apath,'D50',val,'mm',timehrs,1)   
-      if(outperdiam(ipd(90)))then
-        val=1000.0*d90 !Convert from m to mm
-        !call writescalh5(outlist(10)%afile,apath,'D90',val,'mm',timehrs,1)     
-      endif    
-      do ii=1,nperdiam
-        if(iper(ii)==50 .or. iper(ii)==90) cycle !Already output above  
-        if(outperdiam(ii))then
-          call sedpercentile(iper(ii),val)
-          val=1000.0*val !Convert from m to mm
-          4324 format('D',I02)
-          write(aperdiam,4324) iper(ii)
-          !call writescalh5(outlist(10)%afile,apath,aperdiam,val,'mm',timehrs,1)  
-        endif
-      enddo      
-    endif
+    !BED GROUP                 !These were all previously commented out - meb 03/02/2018
+    !if(check_time_list(10))then      
+    !  !Sediment Percentiles   
+    !  val=1000.0*d50 !Convert from m to mm
+    !  !call writescalh5(outlist(10)%afile,apath,'D50',val,'mm',timehrs,1)   
+    !  if(outperdiam(ipd(90)))then
+    !    val=1000.0*d90 !Convert from m to mm
+    !    !call writescalh5(outlist(10)%afile,apath,'D90',val,'mm',timehrs,1)     
+    !  endif    
+    !  do ii=1,nperdiam
+    !    if(iper(ii)==50 .or. iper(ii)==90) cycle !Already output above  
+    !    if(outperdiam(ii))then
+    !      call sedpercentile(iper(ii),val)
+    !      val=1000.0*val !Convert from m to mm
+    !      4324 format('D',I02)
+    !      write(aperdiam,4324) iper(ii)
+    !      !call writescalh5(outlist(10)%afile,apath,aperdiam,val,'mm',timehrs,1)  
+    !    endif
+    !  enddo      
+    !endif
     
-    !MIXED SEDIMENT GROUP
-    if(check_time_list(11))then
-      do ks=1,nsed
-        aname='Concentration_'//aconc(ks)
+    !MIXED SEDIMENT GROUP   !These were all previously commented out - meb 03/02/2018
+    !if(check_time_list(11))then
+      !do ks=1,nsed
+        !aname='Concentration_'//aconc(ks)
         !call writescalh5(outlist(11)%afile,apath,aname,Ctk(:,ks),'kg/m^3',timehrs,0)            
-        if(isedmodel/=3)then   
-          aname='Capacity_' // aconc(ks)
+        !if(isedmodel/=3)then   
+          !aname='Capacity_' // aconc(ks)
           !call writescalh5(outlist(11)%afile,apath,aname,Ctkstar(:,ks),'kg/m^3',timehrs,0)
-        endif            
+        !endif            
 !        aname = 'Fraction_Suspended_' // aconc(ks)
 !        call writescalh5(outlist(11)%afile,apath,aname,rsk(:,ks),'none',timehrs,0)                      
 !        aname = 'Fraction_Mix_Layer_' // trim(aconc(ks))
 !        call writescalh5(outlist(11)%afile,apath,aname,pbk(:,ks,1),'none',timehrs,1)                   
 !        aname='Beta_t'//aconc(ks)
 !        call writescalh5(outlist(11)%afile,apath,aname,btk(:,ks),'',timehrs,0)      
-      enddo !ks
-      do j=1,nlay
-        if(j<=9)then
-          write(alay,71) j
-        else
-          write(alay,72) j
-        endif 
-        aname = 'Thickness' // alay
+      !enddo !ks
+      !do j=1,nlay
+      !  if(j<=9)then
+      !    write(alay,71) j
+      !  else
+      !    write(alay,72) j
+      !  endif 
+      !  aname = 'Thickness' // alay
         !call writescalh5(outlist(12)%afile,apath,aname,db(:,j),'m',timehrs,1)   
-        do ks=1,nsed               
-          aname = 'Fraction_' // trim(aconc(ks)) // alay
+      !  do ks=1,nsed               
+      !    aname = 'Fraction_' // trim(aconc(ks)) // alay
           !call writescalh5(outlist(12)%afile,apath,aname,pbk(:,ks,j),'none',timehrs,1)              
-        enddo
-      enddo !j          
-    endif
+      !  enddo
+      !enddo !j          
+    !endif
     
     !WAVE DETAILS GROUP (Outdated)
 !    if(check_time_list(12))then      
 !    endif  
     
-    !ROUGHNESS GROUP
-    if(check_time_list(13))then    
-      if(write_meanbedshear)then
+    !ROUGHNESS GROUP                 !These were all previously commented out - meb 03/02/2018
+    !if(check_time_list(13))then    
+    !  if(write_meanbedshear)then
         !call writescalh5(outlist(13)%afile,apath,'Bed_Shear_Stress_Mean',bsxy,'Pa',timehrs,0)
-      endif
-      if(write_normapprough)then
-        do i=1,ncells
-          val(i) = fric_normapprough(uelwc(i),uv(i),cfrict(i)) !Normalized apparent roughness
-        enddo  
+    !  endif
+    !  if(write_normapprough)then
+    !    do i=1,ncells
+    !      val(i) = fric_normapprough(uelwc(i),uv(i),cfrict(i)) !Normalized apparent roughness
+    !    enddo  
         !call writescalh5(outlist(13)%afile,apath,'Norm_App_Rough',val,'-',timehrs,0)  
-      endif
-      if(write_normrough)then
-        do i=1,ncells
-          val(i) = z0(i)/h(i) !Normalized roughness
-        enddo  
+    !  endif
+    !  if(write_normrough)then
+    !    do i=1,ncells
+    !      val(i) = z0(i)/h(i) !Normalized roughness
+    !    enddo  
         !call writescalh5(outlist(13)%afile,apath,'Norm_Rough',val,'-',timehrs,0)  
-      endif
-    endif
+    !  endif
+    !endif
     
     return
     endsubroutine write_output_sup
@@ -2641,29 +2680,28 @@ implicit none
 ! Writes CMS-Flow Debug Information
 ! Alex Sanchez, USACE-ERDC-CHL    
 !***********************************************************************
-    use size_def
+    use size_def, only: ncellsd
     use geo_def, only: zb
-    use flow_def
-    use comvarbl
-    use met_def
-    use wave_flowgrid_def
-    use sed_def
-    use cms_def
+    use flow_def, only: p,dpx,dpy,pp,h,vis,u,v,rsu,rsv,rsp
+    use comvarbl, only: flowpath,casename
     use out_def, only: dgoutfile,simlabel,write_sup
     use out_lib, only: write_scal_dat_file,write_vec_dat_file
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none   
     integer :: nn
     real(ikind) :: val(ncellsD),vecx(ncellsD),vecy(ncellsD)
     character :: apath*100,aname*100
+    character(len=100) :: outdirpath
     
 !!    timehrs = niter + maxit*ntime
     nn=len_trim(simlabel)
     apath=simlabel(1:nn)//'/'
+    outdirpath='ASCII_Solutions'
     
     val=0.0; vecx=0.0; vecy=0.0  !Initialize    
 
-    aname = trim(flowpath) // trim(casename)      
+    aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)      
     call write_scal_dat_file(aname,'Pressure_Debug','pres',p)
     call write_scal_dat_file(aname,'dpx_Debug','dpx',dpx)
     call write_scal_dat_file(aname,'dpy_Debug','dpy',dpy)
@@ -2685,6 +2723,7 @@ implicit none
 ! written by Alex Sanchez    
 !**********************************************    
     use out_def, only: outseries
+    use diag_lib, only: diag_print_warning
     use prec_def
     use unitconv_lib, only: unitconv_var
     implicit none
@@ -2698,15 +2737,27 @@ implicit none
     character(len=1000) :: aline
     
     !Get number of list and time information    
+    fromunits = 'hrs'
+
     backspace(77)
     read(77,*) cardname, nlist
     backspace(77)
     allocate(tlist(nlist,3))
+    read(77,'(A)',iostat=ierr) aline
+    if (cardname == 'TIME_LIST_1' .and. nlist .eq. 0) then   !Always turn on output to Time List 1 - MEB 03/14/2018
+      call diag_print_warning('TIME_LIST_1 is turned off','Enabling for minimal hourly output for 720 hrs')
+      nlist = 1
+      if (allocated(tlist)) deallocate(tlist)
+      allocate(tlist(nlist,3))
+      tlist(1,1) = 0
+      tlist(1,2) = 720
+      tlist(1,3) = 1
+    else
+      read(aline,*,iostat=ierr) cardname, nsum, ((tlist(i,j),j=1,3),i=1,nlist), fromunits
+    endif
+    
     allocate(nn(nlist))
     allocate(inc(nlist))
-    fromunits = 'hrs'
-    read(77,'(A)',iostat=ierr) aline
-    read(aline,*,iostat=ierr) cardname, nsum, ((tlist(i,j),j=1,3),i=1,nlist), fromunits
     
     tounits = 'hrs'
     call unitconv_var(fromunits,tounits,fac,con)
@@ -2771,23 +2822,25 @@ implicit none
     use out_def, only: obs,obs_cell
     implicit none
     integer, parameter:: ntemp=1000
-    integer :: i,n,itemp(ntemp)
+    integer :: i,n,itemp(ntemp), count
     character(len=37) :: adum(ntemp)
     
+    count=0
     do n=1,ntemp
 !      read(77,'(I,A)',err=881) itemp(n),adum(n)
 !!      read(77,*,err=881) itemp(n),adum(n)
-      read(77,*,err=881) itemp(n) !,adum(n)
+      read(77,*,err=881) itemp(n),adum(n)
       if(itemp(n)==0)then
         backspace(77)
         exit
       endif  
+      count=count+1
     enddo       
-881 obs(i)%ncells=n-1
-    if(n-1==0) return
+881 obs(i)%ncells=count
+    if(count==0) return
     obs_cell=.true. 
-    allocate(obs(i)%cells(obs(i)%ncells))
-    allocate(obs(i)%identifiers(obs(i)%ncells))
+    allocate(obs(i)%cells(count))
+    allocate(obs(i)%identifiers(count))
     do n=1,obs(i)%ncells
       obs(i)%cells(n) = itemp(n)
       obs(i)%identifiers(n) = adum(n)
@@ -2810,7 +2863,9 @@ implicit none
     use sal_def, only: saltrans
     use heat_def, only: heattrans
     use sed_def, only: sedtrans
+#ifdef DEV_MODE  
     use q3d_def, only: q3d
+#endif    
     use out_def, only: obs
     implicit none
     integer :: i,j,k,nn,npath
@@ -2841,9 +2896,10 @@ implicit none
 	      do j=1,obs(i)%nvar !variables
 	        if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
 	        if(i==3 .and. j==4 .and. .not.saltrans) cycle
+#ifdef DEV_MODE            
 	        if(i==1 .and. j==4 .and. .not.q3d) cycle
             if(i==3 .and. j==5 .and. .not.q3d) cycle
-
+#endif
 	        open(obs(i)%units(j),file=obs(i)%files(j))
 	        write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
 	        close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
@@ -2956,7 +3012,7 @@ implicit none
 		
 !********************************************************************************   
     subroutine write_obs_var(i,j,var)
-! Writes an observayion cell variable to its corresponding file
+! Writes an observation cell variable to its corresponding file
 ! written by Alex Sanchez, USACE-ERDC-CHL
 !********************************************************************************   
     use size_def, only: ncellsD
