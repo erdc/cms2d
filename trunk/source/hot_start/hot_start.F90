@@ -10,7 +10,7 @@
 !
 ! written by Weiming, Wu, NCCHE,
 !            Alex Sanchez, USACE-CHL
-!            Mitchel Brown, USACE-CHL
+!            Mitchell Brown, USACE-CHL
 !==================================================================    
 
 !******************************************************************    
@@ -20,6 +20,7 @@
 !******************************************************************
     use hot_def
     use comvarbl, only: flowpath
+
     implicit none   
     integer :: npath
     
@@ -31,14 +32,18 @@
     hotdt = 0.0    !hrs
     hottime = 0.0  !hrs     
     timeout = -1.0 !hrs
-    ahotfile = 'Auto_Hot_Start.h5'
-!!    hotpath = 'Datasets/'//simlabel
-    hotpath = 'Datasets/'               !'Dataset'  - had to change because the path wasn't written correctly
+    
+    autohotname = 'AutoHotStart'
+    hotname     = 'SingleHotStart'
+    autohotfile = trim(AutoHotName)//'.h5'
+    hotfile     = trim(HotName)//'.h5'
+    autohotpath = 'Datasets/'
+    hotpath     = 'Datasets/'    
+
     icfile  = 'Initial_Cond_File.h5'
-    icpath  = 'Datasets/'               !'Dataset'  - had to change because the path wasn't written correctly
+    icpath      = 'Datasets/'    
     ictime  = -999.0  !hrs
     npath   = len_trim(flowpath)
-    hotfile = flowpath(1:npath) // 'Hot_Start.h5'      
     icpres = .false.
     icwse  = .false.
     icvel  = .false.
@@ -68,7 +73,7 @@
     selectcase(cardname)
       !----- Initial Condition (Input) ----------------------------------------
       case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE')
-        call card_dataset(77,icfile,flowpath,icfile,icpath)
+        call card_dataset(77,icfile,flowpath,icfile,icpath,1)
         atemp = icfile
         call uppercase(atemp) 
         if(atemp(1:7)=='DEFAULT' .or. atemp(1:4)=='NONE')then
@@ -106,8 +111,9 @@
         hot_out = .true.  
 
       case('AUTO_HOT_START_INTERVAL','HOT_START_INTERVAL','HOT_START_OUTPUT_INTERVAL')
-        backspace(77)
-        read(77,*) cardname, hotdt  	
+        !backspace(77)
+        !read(77,*) cardname, hotdt  	
+        call card_scalar(77,'hrs','hrs',hotdt,ierr)
         hot_recur = .true.	  
         hot_out = .true.   
         
@@ -141,23 +147,396 @@
     endif
     
     call fileext(icfile,aext)
-    if(aext(1:2)=='h5')then
+    select case(aext)
+    case('h5')
 #ifdef XMDF_IO
       call hot_read_xmdf
 #else
       call diag_print_error('Cannot read hot start from *.h5 file without XMDF libraries')
 #endif
-    else
-      call hot_read_dat !Not implemented yet
-    endif   
+    
+    case('sup')
+      call hot_read_sup(icfile) !Implementation in progress
+      
+    case default
+      call diag_print_error('Unknown file type with extension, '//trim(aext))
+    end select
 
     return
     endsubroutine hot_read
     
 !********************************************************************
+    subroutine hot_read_sup(supfile)
+! Reads initial condition file from an SMS ASCII dataset (*.dat) file 
+! written by Alex Sanchez, USACE-CHL    
+! completed by Mitchell Brown, 03/20/2018
+!********************************************************************    
+    use diag_lib,   only: diag_print_error, diag_print_message
+    use flow_def,   only: eta,u,v,h,p,iwet,grav,gravinv,flux
+    use sed_def,    only: sedtrans,zb1,nsed,ctk,db,pbk
+    use sal_def,    only: saltrans,sal
+    use heat_def,   only: heattrans,heat
+    use geo_def,    only: zb
+    use in_def,     only: scaldattype,vecdattype
+    use in_lib,     only: read_dat
+    use hot_def,    only: icpres,icwse,icvel,icwet,icflux,ictime
+    use size_def,   only: ncellsfull,ncellpoly,ncellsD,ncells
+    use prec_def,   only: ikind
+    use interp_lib, only: interp_scal_node2cell
+    use comvarbl,   only: timehrs    
+    use unitconv_lib, only: unitconv_scal    
+    
+    implicit none
+    character(len=*), intent(in) :: supfile
+    character(len=200) :: cardname, datfile,astring
+    character :: ictimeunits*10
+    integer :: kunit,ierr,istart,iend,imid,ival,ks,j, i
+    logical :: foundfile, founddataset
+    logical :: icsingle = .false., icmulti = .false.
+    integer :: nscal,nvec
+    type(scaldattype), pointer :: scaldat(:)
+    type(vecdattype),  pointer :: vecdat(:)
+    real(4) :: etemp(ncells),utemp(ncells),vtemp(ncells),wtemp(ncells)
+    real(ikind) :: temp(ncellsD)
+    
+    kunit = 500
+    ierr = 0
+    inquire(FILE=trim(supfile),exist=foundfile)
+    if (foundfile) then
+      open(kunit,file=trim(supfile),status='OLD')
+    else
+      call diag_print_error('Could not open file: ',trim(supfile))
+      ierr=-1
+    endif
+    
+    write(*,*) 'Starting Hot Start'
+
+    do while(ierr==0)
+      read(kunit,*,iostat=ierr) cardname
+      if(ierr==-1) exit !End of File
+      
+      if(cardname(1:4).eq.'DATA') then
+        backspace(kunit)
+        read(kunit,*) cardname, datfile
+        istart=index(trim(datfile),'_',.true.)+1  !from the back end, look for '_' and get the index of that location
+        iend  =index(trim(datfile),'.',.true.)-1  !from the back end, look for '.' and get the index of that location
+        astring=datfile(istart:iend)
+        
+        select case(astring(1:4))
+        case ('eta ')   !Water Elevation
+          call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+          if(scaldat(1)%nd /= ncells)then
+            call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+          endif
+          if(nscal.ne.1) call diag_print_error('Problem reading Water_Elevation data from '//trim(datfile))
+          
+          icwse = .true.
+          call diag_print_message ('   Read Initial Water Level:            '//trim(datfile))
+          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+          if(ncellpoly>0)then
+            call interp_scal_node2cell(etemp,eta) !Interpolate node to cell centers
+          else
+            call map_scal_full2active(etemp,eta) !Convert from full to active grid 
+          endif
+          !write(*,*) 'IC - Before P assignment, p(1) = ',p(1)
+       !section added 07/06/2018  meb
+          if (.not.icpres) then 
+            p = eta*grav           !don't overwrite the pressures if already read in.  
+          endif
+          !write(*,*) 'IC - After P assignment,  p(1) = ',p(1)
+          if(ictime < 0) then
+            ictime = scaldat(1)%time(scaldat(1)%nt)  !Modify start time to match the initial conditions file.
+            call unitconv_scal(scaldat(1)%time_units,'hrs',ictime)          
+          elseif (ictime .ne. scaldat(1)%time(scaldat(1)%nt)) then
+            call diag_print_error('Differing times in Hot Start files','Cannot continue')
+          endif
+       !Deallocate after
+          deallocate(scaldat)
+           
+        case ('vel ')   !Current Velocity
+          call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+          if(vecdat(1)%nd /= ncells)then
+            call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+          endif
+          if(nvec.ne.1) call diag_print_error('Problem reading Current_Velocity data from '//trim(datfile))
+          
+          icvel = .true.
+          call diag_print_message ('   Read Initial Current Velocities:     '//trim(datfile))
+
+          !Velocities
+          utemp(:) = vecdat(1)%val(:,1,vecdat(1)%nt)
+          vtemp(:) = vecdat(1)%val(:,2,vecdat(1)%nt)        
+          if(ncellpoly>0)then
+            call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
+            call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers
+          else
+            call map_scal_full2active(utemp,u) !Convert from full to active grid 
+            call map_scal_full2active(vtemp,v) !Convert from full to active grid 
+          endif
+
+          if(ictime < 0) then
+            ictime = vecdat(1)%time(vecdat(1)%nt)  !Modify start time to match the initial conditions file.
+            call unitconv_scal(vecdat(1)%time_units,'hrs',ictime)          
+          elseif (ictime .ne. vecdat(1)%time(vecdat(1)%nt)) then
+            call diag_print_error('Differing times in Hot Start files','Cannot continue')
+          endif
+          deallocate(vecdat)
+
+        case ('p   ')   !Water Pressure
+          call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+          if(.not. icwse) then     !Don't overwrite eta, if it was already read in.
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Water_Pressure data from '//trim(datfile))
+          
+            icpres = .true.
+            call diag_print_message ('   Read Initial Water Pressure :        '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,p) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,p) !Convert from full to active grid 
+            endif
+            eta = p*gravinv
+          endif  
+
+          if(ictime < 0) then
+            ictime = scaldat(1)%time(scaldat(1)%nt)  !Modify start time to match the initial conditions file.
+            call unitconv_scal(scaldat(1)%time_units,'hrs',ictime)          
+          elseif (ictime .ne. scaldat(1)%time(scaldat(1)%nt)) then
+            call diag_print_error('Differing times in Hot Start files','Cannot continue')
+          endif
+          deallocate(scaldat)
+            
+        case ('wet ')   !Wet/Dry
+          call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+          if(scaldat(1)%nd /= ncells)then
+            call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+          endif
+          if(nscal.ne.1) call diag_print_error('Problem reading Wet/Dry states from '//trim(datfile))
+          
+          icwet = .true.
+          call diag_print_message ('   Read wet/dry states:                 '//trim(datfile))
+          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+          if(ncellpoly>0)then
+            call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+          else
+            call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+          endif
+          deallocate(scaldat)
+          iwet = temp
+            
+        case ('Flux')   !Fluxes                           - Multiple possible
+          call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+          if(scaldat(1)%nd /= ncells)then
+            call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+          endif
+          if(nscal.ne.1) call diag_print_error('Problem reading cell-face fluxes from '//trim(datfile))
+          
+          if (.not. icflux) call diag_print_message ('   Read cell-face fluxes:               '//trim(datfile))
+          icflux = .true. !Switch to true so this only prints once
+          
+          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)
+          if(ncellpoly>0)then
+            call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+          else
+            call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+          endif
+          
+          !Should be more than one face.  Determine which one this is
+          istart = index(datfile,'Flux')+4
+          iend   = index(datfile,'.',.true.)-1
+          astring=datfile(istart:iend)
+          read(astring,'(I1)') ival
+
+          !Save values to the appropriate dimension of the array
+          flux(ival,:)=temp          
+                
+        case ('dept')   !Water Depth (at hotstart time)
+          if(sedtrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Depth from '//trim(datfile))
+          
+            icwse = .true.
+            call diag_print_message ('   Read Initial Water Depths:           '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,zb) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,zb) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+            zb = -zb
+            zb1 = zb
+          endif  
+              
+        case ('conc')   !Sediment Concentration           - Multiple possible
+          if(sedtrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Initial Sediment Concentrations from '//trim(datfile))
+            
+            call diag_print_message ('   Read Initial Sediment Concentration: '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+          
+            if(nsed==1 .and. .not.icsingle) then  !Single Grain Size
+              Ctk(:,1)=temp
+              icsingle=.true.
+            else              !Multiple Grain Sizes
+              !Determine which concentration file this is
+              istart = index(datfile,'conc')+4
+              iend   = index(datfile,'.',.true.)-1
+              astring=datfile(istart:iend)
+              read(astring,'(I1)') ks
+
+              !Save values to the appropriate dimension of the array
+              Ctk(:,ks)=temp          
+              icmulti=.true.
+            endif
+          endif  
+
+        case ('thic')   !Layer thickness                  - Multiple possible
+          if(sedtrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Initial Layer Thicknesses from '//trim(datfile))
+            
+            call diag_print_message ('   Read Initial Layer Thicknesses:      '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+          
+            !Multiple Grain Sizes
+            !Determine which thickness file this is
+            istart = index(datfile,'thick')+5
+            iend   = index(datfile,'.',.true.)-1
+            astring=datfile(istart:iend)
+            ival = len_trim(astring)
+            select case(ival)
+            case (1)
+              read(astring,'(I1)') j
+            case (2)
+              read(astring,'(I2)') j
+            end select
+
+            !Save values to the appropriate dimension of the array
+            db(:,j)=temp          
+          endif  
+            
+        case ('frac')   !Fraction of grain size per layer - Multiple possible
+          if(sedtrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Bed Composition from '//trim(datfile))
+            
+            call diag_print_message ('   Read Initial Bed Composition:        '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+          
+            !Multiple Grain Sizes
+            !Determine which bed composition file this is
+            istart = index(datfile,'frac')+4
+            imid   = index(datfile,'-',.true.)-1
+            iend   = index(datfile,'.',.true.)-1
+            astring=datfile(istart:imid)
+            ival=len_trim(astring)
+            select case (ival)
+            case (1)
+              read(astring,'(I1)') j   !Layer number
+            case (2)
+              read(astring,'(I2)') j   !Layer number
+            end select
+
+            astring=datfile(imid+2:iend)
+            ival=len_trim(astring)
+            select case (ival)
+            case (1)
+              read(astring,'(I1)') ks  !Size class number
+            case (2)
+              read(astring,'(I2)') ks  !Size class number
+            end select
+          
+            !Save values to the appropriate dimension of the array
+            pbk(:,ks,j)=temp
+          endif  
+
+        case ('sal ')   !Salinity Concentration
+          if(saltrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Salinity Concentration from '//trim(datfile))
+          
+            icwse = .true.
+            call diag_print_message ('   Read Initial Salinity Concentration: '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,sal) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,sal) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+          endif  
+
+        case ('heat')   !Temperature
+          if(heattrans) then
+            call read_dat (datfile,nscal,scaldat,nvec,vecdat)
+            if(scaldat(1)%nd /= ncells)then
+              call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
+            endif
+            if(nscal.ne.1) call diag_print_error('Problem reading Temperature from '//trim(datfile))
+          
+            icwse = .true.
+            call diag_print_message ('   Read Initial Temperatures:           '//trim(datfile))
+            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
+            if(ncellpoly>0)then
+              call interp_scal_node2cell(etemp,heat) !Interpolate node to cell centers
+            else
+              call map_scal_full2active(etemp,heat) !Convert from full to active grid 
+            endif
+            deallocate(scaldat)
+          endif  
+
+        end select
+      endif
+     
+    enddo
+    close(kunit)
+    
+    return
+    end subroutine hot_read_sup
+    
+!********************************************************************
     subroutine hot_read_dat()
 ! Reads initial condition file from an SMS ASCII dataset (*.dat) file 
 ! written by Alex Sanchez, USACE-CHL    
+! completed by Mitchell Brown, 03/20/2018
 !********************************************************************    
     use size_def
     use flow_def, only: eta,u,v,h,p,iwet,grav
@@ -175,6 +554,7 @@
     real(4) :: etemp(ncellsfull),utemp(ncellsfull),vtemp(ncellsfull),wtemp(ncellsfull)
     real(ikind) :: wet(ncellsD)
     integer :: i
+    
     
     call read_dat(icfile,nscal,scaldat,nvec,vecdat)
     
@@ -268,13 +648,13 @@
     use in_xmdf_lib, only: readscallasth5,readveclasth5
     use out_def, only: outlist,simlabel
     use xmdf
-    !use ifport, only: system
     use DFLIB, only: systemqq
     use diag_lib
     use prec_def
+    
     implicit none
     integer :: res !Added MEB - 05/18/2012 for hot start fixes
-    integer :: i,j,k,ks,fid,gid,nn,ierr,ntimes,npath
+    integer :: i,j,k,ks,fid,gid,nn,ierr,ntimes,npath,fileCopied
     real(ikind) :: temphr,temp(ncellsD)
     real(8), allocatable :: timesd(:)
     real(ikind), allocatable :: d35(:)
@@ -284,13 +664,13 @@
     character(len=10) :: theext 
     logical :: ok
     character(len=30) :: wse_names(5)
-    character(len=300) :: msg
+    character(len=300) :: msg,astring
     
     tfile=trim(icfile)   
     call fileparts(icfile,thepath,thename,theext)
     
 !****************** MEB - 05/18/2012
-! XMDF error keeps hot_start.h5 from being deleted after reading
+! XMDF error keeps ICFILE, AutoHotStart.h5 or SingleHotStart.h5, from being deleted after reading
 
     ! Check if temp.h5 file exists, if so, delete it
     tfile=trim(thepath)//'temp.h5'
@@ -300,13 +680,25 @@
       close(100,status='delete',iostat=ierr)
     endif
 
-    ! Make a copy of hot_start.h5 to temp.h5 and read from that.
+    ! Make a copy of ICFILE to temp.h5 and read from that. 
+!This may need to change for linux MEB 10/16/2018
     !res = system('copy '//trim(icfile)//' '//trim(tfile)//' > file')
-    res = systemqq('copy '//trim(icfile)//' '//trim(tfile)//' > file')
+    astring = 'copy "' // trim(icfile) // '" "' // trim(tfile) // '" > file'
+    res = systemqq(trim(astring))
+
     inquire(file='file', exist=ok)
+    !Checking for existence of 'file' is not good enough.  
+    !Read 'file' and look for the text 'copied' on Windows
+    !Modify for appropriate message on Linux
     if(ok)then            !remove scratch file
       open(100,file='file',iostat=ierr)
+      read(100,'(A300)') astring
+      fileCopied=index(astring,'opied')
+      if (filecopied .gt. 0) then 
       close(100,status='delete',iostat=ierr)
+      else
+        call diag_print_error(' ','*** Error copying IC file to temporary file ***','See "file" for message')
+      endif
     endif
 !******************     
 
@@ -398,7 +790,7 @@
       if(k<=9)then
          write(apath,'(A,A4,I1)') icpath(1:npath),'Flux',k
       else
-         write(apath,'(A,A4,I1)') icpath(1:npath),'Flux',k
+         write(apath,'(A,A4,I2)') icpath(1:npath),'Flux',k    !If over 9, then there are two digits to the Flux - meb 03/20/2018
       endif
       call readscallasth5(tfile,apath,ntimes,temp,reftimehot,temphr,ierr)      
       if(ierr<0)then
@@ -633,7 +1025,7 @@ loopj:  do j=1,nlay
 !---- Heat Transfer ------------------------
     if(heattrans)then
       apath = icpath(1:npath) // 'Temperature'
-      call readscallasth5(tfile,apath,ntimes,sal,reftimehot,temphr,ierr)
+      call readscallasth5(tfile,apath,ntimes,heat,reftimehot,temphr,ierr)  !Fixed 03/20/2018 - changed 'sal' to 'heat'
       if(ierr<0)then
         call diag_print_warning('Unable to find initial temperatures',&
            '   Setting temperatures to 15 deg')
@@ -757,15 +1149,15 @@ loopj:  do j=1,nlay
         !call diag_print_warning('Initial Condition Time set to zero...')        
       endif  
     endif
-    stime = timehrs*3600.0
+    stime = timehrs*3600.0     !stime is elapsed time in seconds
     ctime = stime
     timesecs = dble(ctime)
     hstarttime = timehrs
 !!    nspinup=max(nspinup,5) !********
     
     write(msg2,755) '  Hot Start Time:   ',timehrs,' hours'
-    write(msg3,755) '  Last Output Time: ',timeout,' hours'
-    call diag_print_message(' ',msg2,msg3)   
+    !write(msg3,755) '  Last Output Time: ',timeout,' hours'
+    call diag_print_message(' ',msg2)   
     
     !--- Simulation Statistics ----
     if(calc_stats)then
@@ -795,8 +1187,9 @@ loopj:  do j=1,nlay
     !---- Apply wet/dry ------------
     !Dry nodes     
     do i=1,ncellsD
+      !write(*,*) 'Hot Init - p(i) ',p(i),i
       h(i) = p(i)*gravinv - zb(i)
-      if(h(i)<hmin+1.0e-5)then    
+      if(h(i)<hmin+1.0e-5)then    !if dry
         h(i) = hmin
         iwet(i) = 0  
         u(i) = 0.0
@@ -805,7 +1198,7 @@ loopj:  do j=1,nlay
         if(.not.icpres)then
           p(i) = (h(i)+zb(i)-1.0e-4)*grav
         endif
-      else
+      else                        !if wet
         iwet(i) = 1
         eta(i)=p(i)*gravinv
       endif
@@ -853,6 +1246,7 @@ loopj:  do j=1,nlay
       case(3); call sedcapac_watanabe !Watanabe  
       case(4); call sedcapac_soulsby  !Soulsby (1997)
       case(5); call wucapac           !Wu et al. 2000 (under testing)
+      case(6); call sedcapac_cshore   !CSHORE (bdj)
       endselect   
 !!      CtstarP = 0.0
       !Concentrations
@@ -959,37 +1353,156 @@ loopj:  do j=1,nlay
 ! written by Alex Sanchez, USACE-CHL
 !******************************************************************
 #include "CMS_cpp.h"
-    use hot_def, only: hottime,hot_timehr,&
-        hotdt,hot_recur,icfile,hotpath
-    use comvarbl, only: timehrs
+    use hot_def, only: hottime,hot_timehr,hot_recur,hotdt,hotname,autohotname,hotfile,hotpath,autohotfile,autohotpath
+    use comvarbl, only: timehrs,casename
     use diag_def
     use diag_lib
     use prec_def
+    use out_def, only: write_sup
+#ifdef WIN_OS    
+    use IFPORT
+#endif
+    
     implicit none
     real(ikind) :: eps
-    logical :: ihot
+    logical :: iSingleHot,iAutoHot,found,created
+    character(len=200) :: hotdirpath, aname
     
     eps = 1.e-10    
-    ihot = .false. 
-    if(hot_timehr .and. abs(timehrs-hottime)<=eps) ihot = .true.      
-    if(hot_recur .and. mod(timehrs,hotdt)<=eps) ihot = .true.   
-    if(.not.ihot) return              
-        
-    write(msg,'(A,F13.4,A)') 'Writing Hotstart File at: ',timehrs,' hrs'
+    iSingleHot = .false. ; iAutoHot = .false.
+    if(hot_timehr .and. abs(timehrs-hottime)<=eps) iSingleHot = .true.      
+    if(hot_recur  .and. mod(timehrs,hotdt)<=eps)   iAutoHot   = .true.   
+    if(.not.iSingleHot .and. .not.iAutoHot) return              
+    hotdirpath='ASCII_HotStart'
+
+    if(write_sup)then
+      if (iSingleHot) then
+        aname = trim(hotdirpath)//'/'//hotname
+        write(msg,'(A,F13.4,A)') 'Writing Single Hotstart File at:    ',timehrs,' hrs'
     call diag_print_message(' ',msg)
-    
+        call write_hotstart_sup(hotdirpath,aname)  !Super File *.sup and individual ASCII Dataset *.dat files
+      endif
+      if (iAutoHot)   then
+        aname = trim(hotdirpath)//'/'//autohotname
+        write(msg,'(A,F13.4,A)') 'Writing Recurring Hotstart File at: ',timehrs,' hrs'
+        call diag_print_message(' ',msg)
+        call write_hotstart_sup(hotdirpath,aname)  !Super File *.sup and individual ASCII Dataset *.dat files
+      endif
+    else
 #ifdef XMDF_IO
-    call hot_write_xmdf !XMDF hot file
-#else
-    !call hot_write_bin !Binary hot file, not implemented yet
-    call diag_print_error('Cannot write out hot start file without XMDF libraries')    
+      if (iSingleHot) then
+        write(msg,'(A,F13.4,A)') 'Writing Single Hotstart File at:    ',timehrs,' hrs'
+        call diag_print_message(' ',msg)
+        call hot_write_xmdf (hotfile,hotpath)         !XMDF single hot file
+      endif
+      if (iAutoHot)   then
+        write(msg,'(A,F13.4,A)') 'Writing Recurring Hotstart File at: ',timehrs,' hrs'
+        call diag_print_message(' ',msg)
+        call hot_write_xmdf (autohotfile,autohotpath) !XMDF recurring hot file
+      endif
 #endif
+    endif
 
     return
     endsubroutine hot_write
 
+!***********************************************************************    
+    subroutine hotstart_file_init
+! Initializes the ASCII hotstart files
+! written by Mitchell Brown, USACE-CHL - 03/16/18
+!***********************************************************************
+    use out_lib,  only: write_xy_file
+    use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_recur, coldstart,icfile
+    use comvarbl, only: casename
+    use diag_def, only: debug_mode
+    use diag_lib, only: diag_print_error
+#ifdef WIN_OS
+    use ifport,   only: makedirqq
+#endif
+    
+    implicit none
+    character(len=200) :: hotdirpath, aname, filesup, filexy, tfile, astring
+    logical            :: iSingleHot, iAutoHot, found, created, res, ok
+    integer            :: nunit,ierr,filecopied
+
+    iSingleHot = .false. ; iAutoHot = .false.
+    if(hot_out)   iSingleHot = .true.      
+    if(hot_recur) iAutoHot   = .true.   
+    
+    !Save all these files to a subdirectory named "ASCII_HotStart"
+    hotdirpath='ASCII_HotStart'
+
+    !Change from XMDF filename 
+    autohotfile = trim(AutoHotName)//'.sup'
+    hotfile     = trim(HotName)//'.sup'
+    tfile       = trim(hotdirpath)//'/InitialCondition.sup'
+#ifdef WIN_OS    
+    inquire(directory=trim(hotdirpath), exist=found)
+    if(.not.found) then
+      created=MakeDirQQ(trim(hotdirpath))
+      if(.not.created)then
+        call diag_print_error('Failed to create subdirectory- '//trim(hotdirpath))
+      endif
+    endif
+#else
+    inquire(file=trim(hotdirpath), exist=found)
+    if (.not.found) then 
+      call system('mkdir '//(trim(hotdirpath)))
+    endif
+#endif
+    !If this is a hotstart, write a copy of the file to a new name (long way because of the difficulty of '\' vs '/' in file paths
+    if(.not.coldstart) then
+      open(100,file=trim(icfile))
+      open(101,file=trim(tfile))
+      do
+        read(100,'(A)',iostat=ierr) astring
+        if(ierr<0) exit
+        write(101,'(A)') astring
+      enddo
+      close(100)
+      close(101)
+      !Also reset the name of the ICFILE to the new name for reading later
+      icfile=trim(tfile)
+    else
+      inquire(file=trim(tfile),exist=found)
+      if (found) then
+        open(100,file=trim(tfile))
+        close(100,status='delete')
+      endif
+    endif
+
+101 format('SUPER')
+102 format('SCAT2D  "',A,'"')       
+
+    if (iSingleHot) then
+      aname = trim(hotdirpath)//'/'//hotname
+      call write_xy_file(aname,casename)         !XY coordinate file *.xy  
+      filesup = trim(aname) // '.sup'    
+      filexy  = trim(aname) // '.xy'
+      nunit = 46
+      open(nunit,file=filesup)
+      write(nunit,101)
+      write(nunit,102) trim(filexy)    
+      close(nunit)
+    endif  
+    if (iAutoHot)   then
+      aname = trim(hotdirpath)//'/'//autohotname
+      call write_xy_file(aname,casename)         !XY coordinate file *.xy  
+      filesup = trim(aname) // '.sup'    
+      filexy  = trim(aname) // '.xy'
+      nunit = 46
+      open(nunit,file=filesup)
+      write(nunit,101)
+      write(nunit,102) trim(filexy)    
+      close(nunit)
+    endif
+
+    return
+    end subroutine hotstart_file_init
+    
+
 !******************************************************************
-    subroutine hot_write_xmdf()
+    subroutine hot_write_xmdf(outfile,outpath)
 ! Writes hot start h5 file for restarting CMS
 ! written by Alex Sanchez, USACE-CHL
 !******************************************************************
@@ -1011,6 +1524,8 @@ loopj:  do j=1,nlay
 !!    use ifport  !Only for intel compiler
     use xmdf
     implicit none
+    
+    character(len=*), intent(in) :: outfile, outpath
     integer :: j,ks
 #ifdef DEV_MODE
     integer :: i,k
@@ -1020,18 +1535,18 @@ loopj:  do j=1,nlay
     character(len=5) :: apbk,alay
     
     !delete previous hotstart file so there is only one record 
-    open(100,file=hotfile)
+    open(100,file=outfile)
     close(100,status='DELETE')  
   
     !--- Hydrodynamics ----
-    call writescalh5(hotfile,hotpath,'Water_Pressure',p,'m^2/s^2',timehrs,1)   
-    call writescalh5(hotfile,hotpath,'Water_Elevation',eta,'m',timehrs,1)
-    call writevech5(hotfile,hotpath,'Current_Velocity',u,v,'m/s',timehrs,1)
+    call writescalh5(outfile,outpath,'Water_Pressure',p,'m^2/s^2',timehrs,1)   
+    call writescalh5(outfile,outpath,'Water_Elevation',eta,'m',timehrs,1)
+    call writevech5(outfile,outpath,'Current_Velocity',u,v,'m/s',timehrs,1)
      
 #ifdef DEV_MODE    
     !Wet/dry
     var = iwet
-    call writescalh5(hotfile,hotpath,'Wet',var,'',timehrs,1)    
+    call writescalh5(outfile,outpath,'Wet',var,'',timehrs,1)    
     
     !Fluxes
     do k=1,nmaxfaces
@@ -1043,17 +1558,17 @@ loopj:  do j=1,nlay
       else
          write(aname,'(A,I2)') 'Flux',k
       endif 
-      call writescalh5(hotfile,hotpath,aname,var,'m^3/s',timehrs,1)
+      call writescalh5(outfile,outpath,aname,var,'m^3/s',timehrs,1)
     enddo
 #endif
 
 !    !Second-order temporal scheme
 !    if(ntsch==2)then
-!      call writescalh5(hotfile,hotpath,'Water_PressureS',p1,'m^2/s^2',timehrs,1)   
+!      call writescalh5(outfile,outpath,'Water_PressureS',p1,'m^2/s^2',timehrs,1)   
 !!      call writescalh5(hotfile,apath,'Water_Elevation',eta,'m',timehrs,1)
-!      call writevech5(hotfile,hotpath,'Current_VelocityS',u1,v1,'m/s',timehrs,1)
+!      call writevech5(outfile,outpath,'Current_VelocityS',u1,v1,'m/s',timehrs,1)
 !      var = iwet1
-!      call writescalh5(hotfile,hotpath,'WetS',var,'',timehrs,1)    
+!      call writescalh5(outfile,outpath,'WetS',var,'',timehrs,1)    
 !      do k=1,nmaxfaces
 !        var = flux1(:,k)
 !        if(k<=9)then
@@ -1061,7 +1576,7 @@ loopj:  do j=1,nlay
 !        else
 !           write(aname,'(A,I1)') 'FluxS',k
 !        endif 
-!        call writescalh5(hotfile,hotpath,aname,var,'m^3/s',timehrs,1)
+!        call writescalh5(outfile,outpath,aname,var,'m^3/s',timehrs,1)
 !      enddo  
 !    endif
     
@@ -1069,14 +1584,14 @@ loopj:  do j=1,nlay
     if(sedtrans)then      
       !Water depths
       var = -zb
-      call writescalh5(hotfile,hotpath,'Depth',var,'m',timehrs,1)  
+      call writescalh5(outfile,outpath,'Depth',var,'m',timehrs,1)  
 !      !Initial Water depths
 !      var = -zb0
 !      call writescalh5(hotfile,apath,'Initial_Depth',var,'m',timehrs,1)  
       !Sediment concentrations
       if(nsed==1)then !Single grain size
         aname = 'Concentration'
-        call writescalh5(hotfile,hotpath,aname,Ctk(:,1),'kg/m^3',timehrs,1)  
+        call writescalh5(outfile,outpath,aname,Ctk(:,1),'kg/m^3',timehrs,1)  
       else              !Multiple grain size
 
 62  format('_',I2.2)
@@ -1086,7 +1601,7 @@ loopj:  do j=1,nlay
         do ks=1,nsed
             write(apbk,62) ks
             aname = 'Concentration'// apbk
-          call writescalh5(hotfile,hotpath,aname,Ctk(:,ks),'kg/m^3',timehrs,1)  
+          call writescalh5(outfile,outpath,aname,Ctk(:,ks),'kg/m^3',timehrs,1)  
         enddo
         
         !Bed material composition and layer thickness
@@ -1097,11 +1612,11 @@ loopj:  do j=1,nlay
             write(alay,72) j
           endif  
           aname = 'Thickness' // alay !Bug Fix, changed apath to aname
-          call writescalh5(hotfile,hotpath,aname,db(:,j),'m',timehrs,1)  
+          call writescalh5(outfile,outpath,aname,db(:,j),'m',timehrs,1)  
           do ks=1,nsed
             write(apbk,62) ks
             aname = 'Fraction' // trim(apbk) // alay
-            call writescalh5(hotfile,hotpath,aname,pbk(:,ks,j),'none',timehrs,1)          
+            call writescalh5(outfile,outpath,aname,pbk(:,ks,j),'none',timehrs,1)          
           enddo !j
         enddo !ks      
       endif
@@ -1109,17 +1624,134 @@ loopj:  do j=1,nlay
     
     !--- Salinity Transport ----
     if(saltrans)then
-      call writescalh5(hotfile,hotpath,'Salinity',sal,'ppt',timehrs,1)  
+      call writescalh5(outfile,outpath,'Salinity',sal,'ppt',timehrs,1)  
     endif
     
     !--- Heat Transfer ----
     if(heattrans)then
-      call writescalh5(hotfile,hotpath,'Heat',sal,'ppt',timehrs,1)  
+      call writescalh5(outfile,outpath,'Heat',heat,'ppt',timehrs,1)  
     endif    
 #endif
 
     return
     endsubroutine hot_write_xmdf
+
+!***********************************************************************    
+    subroutine write_hotstart_sup (hotdirpath, aname)
+! writes the SMS Super ASCII HotStart Files
+! written by Mitchell Brown, USACE-CHL - 03/16/18
+! - starting with individual hotstart files and will eventually write all into one.
+!***********************************************************************
+    use size_def
+    use hot_def,  only: hotfile,hottime,hot_timehr,&
+        hotdt,hot_recur,icfile,hotpath
+    use geo_def,  only: zb
+    use flow_def, only: u,v,u1,v1,p,p1,eta,iwet,iwet1,flux,flux1,grav
+    use comvarbl, only: ctime,timehrs,flowpath,ntsch,casename
+    use sed_def,  only: sedtrans,nsed,Ctk,nlay,pbk,db
+    use sal_def,  only: saltrans,sal
+    use heat_def, only: heattrans, heat
+    use stat_def, only: flowstats,sedstats,salstats,heatstats
+    use out_def,  only: simlabel
+    use out_lib,  only: write_scal_dat_file,write_vec_dat_file
+    use prec_def
+    use diag_lib, only: diag_print_error
+    implicit none
+
+    character(len=*), intent(in) :: aname,hotdirpath
+    character(len=5)   :: apbk,alay    
+    character(len=100) :: lname,sname,filesup,filexy,acmd
+    character(len=200) :: apath,anarg,aline
+    integer            :: i,j,k,ks,nunit,ierr
+    real(ikind)        :: var(ncellsD)
+    
+101 format('SUPER')
+102 format('SCAT2D  "',A,'"')   
+    
+    !delete previous hotstart DAT files, so there is only one record in each
+    !!NOTE: when 'HotStart' is found in the filename, the previous file will now be deleted by the 
+    !!'write_scal_dat_file' and 'write_vel_dat_file' routines.
+    !!MEB - 03/16/2018
+    
+    !--- Hydrodynamics ----
+    call write_scal_dat_file(aname,'Water_Pressure','p',p)   
+    call write_scal_dat_file(aname,'Water_Elevation','eta',eta)
+    call write_vec_dat_file (aname,'Current_Velocity','vel',u,v)
+
+    !Wet/dry
+    var = iwet
+    call write_scal_dat_file(aname,'Wet','wet',var)
+    
+#ifdef DEV_MODE
+    !Fluxes
+    do k=1,nmaxfaces
+      do i=1,ncellsD
+        var(i) = flux(k,i)
+      enddo
+      if(k<=9)then
+        write(lname,('A,I1)') 'Flux',k
+      else
+        write(lname,('A,I2)') 'Flux',k
+      endif
+      call write_scal_dat_file(aname,lname,lname,var)
+#endif
+
+    !--- Sediment Transport ----
+    if(sedtrans)then      
+      !Water depths
+      var = -zb
+      call write_scal_dat_file(aname,'Depth','depth',var)
+
+      !Sediment concentrations
+      if(nsed==1)then !Single grain size
+        call write_scal_dat_file(aname,'Concentration','conc',Ctk(:,1))
+      else              !Multiple grain size
+
+62  format('_',I2.2)
+71  format(1x,'(',I1,')')
+72  format(1x,'(',I2,')')        
+
+        !Concentrations
+        do ks=1,nsed
+          write(apbk,62) ks
+          lname = 'Concentration'// apbk
+          sname = 'conc'// apbk
+          call write_scal_dat_file(aname,lname,sname,Ctk(:,ks))  
+        enddo
+        
+        !Bed material composition and layer thickness
+        do j=1,nlay
+          if(j<=9)then
+            write(alay,71) j
+          else
+            write(alay,72) j
+          endif  
+          lname = 'Thickness' // alay !Bug Fix, changed apath to aname
+          sname = 'thick' // alay
+          call write_scal_dat_file(aname,lname,sname,db(:,j))  
+          do ks=1,nsed
+            write(apbk,62) ks
+            lname = 'Fraction' // trim(apbk) // alay
+            sname = 'frac' // trim(apbk) // '-' // alay  !adding an underscore to the name to make it easier to read back in
+            call write_scal_dat_file(aname,lname,sname,pbk(:,ks,j))
+          enddo !j
+        enddo !ks      
+      endif
+    endif
+        
+    !--- Salinity Transport ----
+    if(saltrans)then
+      call write_scal_dat_file(aname,'Salinity','sal',sal)
+    endif
+    
+    !--- Heat Transfer ----
+    if(heattrans)then
+      call write_scal_dat_file(aname,'Heat','heat',heat)
+    endif    
+
+    return
+    endsubroutine write_hotstart_sup
+
 
 !!******************************************************************
 !    subroutine hot_write_bins
@@ -1149,19 +1781,20 @@ loopj:  do j=1,nlay
     do i=1,2	
 	  write(iunit(i),*)
 	  if(coldstart)then
-	    !write(iunit(i),'(A)') 'Hot Start:                      OFF'
         write(iunit(i),888) 'Start Mode:                     COLD'
 	  else
-	    !write(iunit(i),'(A)') 'Hot Start:                      ON'
         write(iunit(i),888) 'Start Mode:                     HOT'
+        write(iunit(i),222) '  Initial Conditions File:      ',trim(icfile)
 	  endif
   	  if(hot_out)then
-        write(iunit(i),888)   'Hot Start Output: '
-	    write(iunit(i),222) '  File:                         ',trim(hotfile)
 	    if(hot_timehr)then 
+          write(iunit(i),888) 'Single Hot Start Output: '
+	      write(iunit(i),222) '  File:                         ',trim(hotfile)
 	      write(iunit(i),645)   '  Time:                      ',hottime,' hrs'
 	    endif
 	    if(hot_recur)then
+          write(iunit(i),888) 'Recurring Hot Start Output: '
+	      write(iunit(i),222) '  File:                         ',trim(autohotfile)
 	      write(iunit(i),745)   '  Recurring Interval:          ',hotdt,' hrs'
 	    endif
 	  endif

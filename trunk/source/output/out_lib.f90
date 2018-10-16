@@ -263,6 +263,7 @@ contains
     integer :: i,nunit,id,nc,k,ierr
     character(len=200) :: filedat,filesup,aline,cardname
     logical :: isnankind, found, foundfile
+    logical :: isHotStart=.false.
 
 103 format('DATA    "',A,'"')
 301 format('DATASET')
@@ -280,6 +281,15 @@ contains
 314 format('ENDDS')    
 
     filedat = trim(aname) // '_' // trim(asuffix) // '.dat'
+
+    !Test to see if this is hotstart dat file.
+    i=index(filedat,'HotStart')
+    if (i .gt. 0) then
+      isHotStart = .true.
+      !if HotStart file, delete file previously written to'
+      open(100,file=filedat)
+      close(100,status='DELETE')
+    endif  
     
     nunit = 124
     id = 17255
@@ -312,7 +322,12 @@ contains
       write(nunit,308) trim(avarname)
       write(nunit,309) reftime
       write(nunit,310)   
-      filesup = trim(aname) // '_sol.sup'  
+      
+      if(isHotStart) then
+        filesup = trim(aname) // '.sup'  
+      else
+        filesup = trim(aname) // '_sol.sup'  
+      endif
 
       !Only add the filename the first time.
       open(46,file=filesup,status='old')
@@ -472,6 +487,7 @@ contains
     real(ikind) :: cosAng,sinAng,xvec,yvec
     character(len=200) :: filedat,filesup,aline,cardname
     logical :: isnankind, found, foundfile
+    logical :: isHotStart = .false.
 
 103 format('DATA    "',A,'"')
 301 format('DATASET')
@@ -490,6 +506,16 @@ contains
 314 format('ENDDS')    
   
     filedat = trim(aname) // '_' // trim(asuffix) // '.dat'
+
+    !Test to see if this is hotstart dat file.
+    i=index(filedat,'HotStart')
+    if (i .gt. 0) then
+      isHotStart = .true.
+
+      !if HotStart file, delete file previously written to'
+      open(100,file=filedat)
+      close(100,status='DELETE')
+    endif  
 
     nunit = 124
     id = 17255
@@ -523,8 +549,11 @@ contains
       write(nunit,308) trim(avarname)
       write(nunit,309) reftime
       write(nunit,310)
-      filesup = trim(aname) // '_sol.sup'  
-
+      if(isHotStart) then
+        filesup = trim(aname) // '.sup'  
+      else
+        filesup = trim(aname) // '_sol.sup'  
+	  endif
       !Search for filename and only add the filename the first time
       open(46,file=filesup,status='old')
       foundfile=.false.

@@ -135,10 +135,19 @@
     close(77)
 
     if(coldstart .and. hot_out)then
+      if(hot_timehr) then
       inquire(file=hotfile,exist=foundfile)
       if(foundfile)then
         open(100,file=hotfile)
         close(100,status='delete')
+      endif
+    endif  
+      if(hot_recur) then
+        inquire(file=autohotfile,exist=foundfile)
+        if(foundfile)then
+          open(100,file=autohotfile)
+          close(100,status='delete')
+        endif
       endif
     endif  
 
@@ -175,6 +184,7 @@
     call interp_init                 !Linear Interpolation
     call der_init                    !Derivatives
     call fric_init                   !Bottom and wall friction
+    if(write_sup) call hotstart_file_init  !Initialize ASCII HotStart files
     call met_init                    !Meteorologic
     if(sedtrans) call sed_init       !Sediment transport'
     if(saltrans) call sal_init       !Salinity    
