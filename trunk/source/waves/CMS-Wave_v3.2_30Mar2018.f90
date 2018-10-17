@@ -14,6 +14,8 @@
     SUBROUTINE CMS_Wave
 #endif
 
+!Test 1 for Lihwa's code
+
 !***************************************************************C
 !                      CMS-Wave (ver.3.2)                       C
 !   (Wave Action Balance Equation with Diffraction effect)      C
