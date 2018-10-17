@@ -164,8 +164,10 @@ contains
 ! written by Alex Sanchez, USACE-ERDC-CHL, 
 ! Last modified April 8, 2011
 !***********************************************************************
-    use IFPORT
     use diag_lib, only: diag_print_error
+#ifdef WIN_OS
+    use IFPORT
+#endif    
     
     implicit none
     integer :: nunit

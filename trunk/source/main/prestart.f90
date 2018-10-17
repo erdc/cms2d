@@ -364,7 +364,7 @@
 #else
     call diag_print_warning('Cannot read lat/long dataset without XMDF libraries',&
       '  Setting to zero')
-    dset = 0.0    
+    dset(1:ncellsfull) = 0.0    
 #endif
     
     return
