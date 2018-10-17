@@ -3374,11 +3374,11 @@
       go to 770
       end if
 !
-!DEC$ IF DEFINED (XMDF)
+#ifdef XMDF
       if (ixmdf.ge.1) then
         CALL XMDFOUT(ITMS)
       endif
-!DEC$ ENDIF
+#endif
 
       go to 70
 
@@ -3396,7 +3396,7 @@
 
       STOP
 
-!DEC$ IF DEFINED (XMDF)
+#ifdef XMDF
       contains
 !********************************************************************************
       subroutine xmdfout(ITMS)
@@ -3687,7 +3687,7 @@
       read(*,*)
       return
       end subroutine 
-!DEC$ ENDIF
+#endif
 
     END
 !
@@ -8113,12 +8113,12 @@
 !
         if(igetfile20.eq.1) then
 !
-        read(39,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-        read(39,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+        read(39,*) tship1,(xship1(n),yship1(n),n=1,nship)
+        read(39,*) tship2,(xship2(n),yship2(n),n=1,nship)
         backspace(39)
 !
-!         write(*,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-          write(*,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+!         write(*,*) tship1,(xship1(n),yship1(n),n=1,nship)
+          write(*,*) tship2,(xship2(n),yship2(n),n=1,nship)
 !
           do 299 n=1,nship
 
@@ -8932,10 +8932,7 @@
 
 !********************************************************************************
       SUBROUTINE GetSimNameFile (SimFile)
-! PC 
-!     use IFPORT
-      use DFPORT
-! END
+
 !---GetSimFileName---------------------------------------------------S
 ! PURPOSE - Gets the name of the simulation file (command line arg)
 ! ARGUMENT DECLARATIONS
@@ -9236,9 +9233,6 @@
 !
 !********************************************************************************
       SUBROUTINE PressReturn (MSG)
-! PC
-      use dfport
-! END
       SAVE
 !
 !---- PressReturn -----------------------------------------------------S
