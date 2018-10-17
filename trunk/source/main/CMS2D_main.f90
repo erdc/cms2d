@@ -40,13 +40,13 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     Version  = 5.1   !CMS version
-    Revision = 3     !Revision number
+    Revision = 4     !Revision number
 #ifdef DEV_MODE
     release  = .false.
 #else
     release = .true.
 #endif
-    rdate    = '10/16/2018'
+    rdate    = '10/17/2018'
     
     !n2Dor3D=2    !=2 for 2D; =3 for 3D    
     
