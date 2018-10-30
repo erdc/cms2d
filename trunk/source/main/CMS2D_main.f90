@@ -40,13 +40,13 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     Version  = 5.1   !CMS version
-    Revision = 4     !Revision number
+    Revision = 5     !Revision number
 #ifdef DEV_MODE
     release  = .false.
 #else
     release = .true.
 #endif
-    rdate    = '10/17/2018'
+    rdate    = '10/30/2018'
     
     !n2Dor3D=2    !=2 for 2D; =3 for 3D    
     
@@ -578,7 +578,7 @@
     return
     endsubroutine sim_end_print
 
- !********************************************************************************
+!********************************************************************************
     subroutine cms_print
 ! Prints the general CMS settings to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
@@ -672,4 +672,237 @@
     return
     endsubroutine cms_print
     
+!********************************************************************************
+    subroutine wave_only_print (simfile,iprpp,icur,ibreak,irs,kout,ibnd,  &
+          iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
+          imud,iwnd,isolv,ixmdf,iproc,iview,iroll)
+! Prints the known CMS-Wave parameters to the screen and diagnostic file
+! written by Mitchell Brown, USACE-CHL
+!********************************************************************************    
+    use diag_def
+    
+    implicit none
+    integer, intent(in)      :: iprpp,icur,ibreak,irs,ibnd,iwet,ibf,iark,iarkr,iwvbk
+    integer, intent(in)      :: igrav,irunup,imud,iwnd,isolv,ixmdf,iproc,iview,iroll,kout
+    integer, intent(in)      :: nonln
+    real, intent(in)         :: akap,bf,ark,arkr
+    character(len=*), intent(in) :: simfile
+    
+    integer :: iunit(2),i
+    logical :: isOpen
+    character :: aname*200,apath*200,aext*10,astring*200
+
+342 format(' ',A,F0.2,A)    
+887 format(' ',A,1x,A)
+888 format(' ',A)  
+889 format(' ',A,I0,A)  
+890 format(' ',A,F5.2)
+891 format(' ',A,I0)
+    
+    inquire(unit=dgunit,opened=isOpen)
+    if(isOpen) close(dgunit)
+    open(dgunit,file=dgfile,access='append') 
+    iunit = (/6,dgunit/)
+    call fileparts(simfile,apath,aname,aext)
+    astring=trim(aname) // '.' // aext
+    do i=1,2
+      write(iunit(i),887)  'CMS-Wave Sim File:              ',trim(astring)
+      write(iunit(i),888)  '  Mode: Waves Only'
+      select case (iview)
+        case(0)
+          write(iunit(i),888) "  Half-Plane Spectral Forcing"
+        case(1)
+          write(iunit(i),888) "  Full-Plane Spectral Forcing (ignore 'wave.spc')"
+        case(2)
+          write(iunit(i),888) "  Full-Plane Spectral Forcing (read 'wave.spc')"
+      end select
+      select case (iprpp)
+        case(0)
+          write(iunit(i),888) 'Wave Propagation:                Waves and Wind'
+        case(1)
+          write(iunit(i),888) 'Wave Propagation:                Waves (neglect wind input)'
+        case(-1)
+          write(iunit(i),888) 'Wave Propagation:                Waves and Wind (Fast Mode)'
+      end select
+
+      select case (icur)
+        case(0)
+          write(iunit(i),888) 'Wave modified by current:        OFF'
+        case(1)
+          write(iunit(i),888) 'Wave modified by current:        ON, multiple currents read sequentially'
+        case(2)
+          write(iunit(i),888) 'Wave modified by current:        ON, first current set only'
+      end select
+
+      select case (ibreak)
+        case(0)
+          write(iunit(i),888) 'Breaking/Dissipation output:     OFF'
+        case(1)
+          write(iunit(i),888) 'Breaking/Dissipation output:     ON, Breaking Indices written'
+        case(2)
+          write(iunit(i),888) 'Breaking/Dissipation output:     ON, Dissipation Fluxes written'
+      end select
+
+      select case (irs)
+        case(0)
+          write(iunit(i),888) 'Radiation Stress Output          OFF'
+        case(1)
+          write(iunit(i),888) 'Radiation Stress Output          ON'
+        case(2)
+          write(iunit(i),888) 'Radiation Stress and Wave Setup/maximum water level written'
+      end select
+
+      select case (kout)
+        case(0)
+          write(iunit(i),888) 'Spectral and Parameter Output:   OFF'
+        case default
+          write(iunit(i),889) 'Spectral and Parameter Output:   ON, Output for ',kout,' cells'
+      end select
+
+      select case (ibnd)
+        case(0)
+          write(iunit(i),888) 'Nested Grid:                     OFF'
+        case(1)
+          write(iunit(i),888) 'Nested Grid:                     ON (Linear Interpolation)'
+        case(2)
+          write(iunit(i),888) 'Nested Grid:                     ON (Morphic Interpolation)'
+      end select
+
+      select case (iwet)
+        case(0)
+          write(iunit(i),888) 'Wetting/Drying:                  ON'
+        case(1)
+          write(iunit(i),888) 'Wetting/Drying:                  OFF'
+      end select
+
+      select case (ibf)
+        case(0)
+          write(iunit(i),888) 'Bottom Friction:                 OFF'
+        case(1)
+          write(iunit(i),888) 'Bottom Friction:                 ON, Constant Darcy-Weisbach'
+          write(iunit(i),890) '  Value: ',bf
+        case(2)
+          write(iunit(i),888) 'Bottom Friction:                 ON, Variable Darcy-Weisbach'
+        case(3)
+          write(iunit(i),888) "Bottom Friction:                 ON, Constant Manning's"
+          write(iunit(i),890) '  Value: ',bf
+        case(4)
+          write(iunit(i),888) "Bottom Friction:                 ON, Variable Manning's"
+      end select
+
+      select case (iark)
+        case(0)
+          write(iunit(i),888) 'Forward Reflection:              OFF'
+        case(1)
+          write(iunit(i),888) 'Forward Reflection:              ON, Constant'
+          write(iunit(i),890) '  Value: ',ark
+        case(2)
+          write(iunit(i),888) 'Forward Reflection:              ON, Variable'
+      end select
+
+      select case (iarkr)
+        case(0)
+          write(iunit(i),888) 'Backward Reflection:             OFF'
+        case(1)
+          write(iunit(i),888) 'Backward Reflection:             ON, Constant'
+          write(iunit(i),890) '  Value: ',arkr
+        case(2)
+          write(iunit(i),888) 'Backward Reflection:             ON, Variable'
+      end select
+      
+      select case (nonln)
+        case(0)
+          write(iunit(i),888) 'Nonlinear Wave-Wave Interaction: OFF'
+        case(1)
+          write(iunit(i),888) 'Nonlinear Wave-Wave Interaction: ON'
+      end select
+      
+      select case (igrav)
+        case(0)
+          write(iunit(i),888) 'Infragravity Waves:              OFF'
+        case(1)
+          write(iunit(i),888) 'Infragravity Waves:              ON'
+      end select
+      
+      select case (irunup)
+        case(0)
+          write(iunit(i),888) 'Wave Runup Calculations:         OFF'
+        case(1)
+          write(iunit(i),888) 'Wave Runup Calculations:         ON (relative to absolute datum)'
+        case(2)
+          write(iunit(i),888) 'Wave Runup Calculations:         ON (relative to updated MWL)'
+      end select
+      
+      select case (imud)
+        case(0)
+          write(iunit(i),888) "Muddy Bottom Calculations:       ON (read from 'mud.dat')"
+        case(1)
+          write(iunit(i),888) 'Muddy Bottom Calculations:       OFF'
+      end select
+      
+      select case (iwnd)
+        case(0)
+          write(iunit(i),888) "Wind Forcing:                    ON (if 'wind.dat' exists)"
+        case(1)
+          write(iunit(i),888) "Wind Forcing:                    OFF"
+        case(2)
+          write(iunit(i),888) "Wind Forcing:                    ON (dismiss incident wave inflation under stronger wind forcing)"
+      end select
+      
+      select case (isolv)
+        case(0)
+          write(iunit(i),888) "Matrix Solver:                   GSR"
+        case(1)
+          write(iunit(i),888) "Matrix Solver:                   ADI (no parallelization)"
+      end select
+      
+      select case (ixmdf)
+        case(0)
+          write(iunit(i),888) "Output:                          ASCII"
+        case(1)
+          write(iunit(i),888) "Output:                          XMDF"
+        case(2)
+          write(iunit(i),888) "Input/Output:                    XMDF"
+        case(-1)
+          write(iunit(i),888) "Output:                          ASCII"
+      end select
+      
+      select case (iproc)
+        case(0)
+          write(iunit(i),888) "Number of Processors:            1"
+        case(1)
+          write(iunit(i),888) "Number of Processors:            1"
+        case default
+          if (isolv.eq.0) then
+            write(iunit(i),891) "Number of Processors:            ",iproc
+            write(iunit(i),888) "  Note: Processors should approximately equal Total Rows/300"
+          else
+            write(iunit(i),888) "Number of Processors:            1 (no parallelization with ADI)"
+          endif
+      end select
+      
+      select case (iwvbk)
+        case(0)
+          write(iunit(i),888) 'Wave Breaking Formula:           Extended Goda'
+        case(1)
+          write(iunit(i),888) 'Wave Breaking Formula:           Extended Miche'
+        case(2)
+          write(iunit(i),888) 'Wave Breaking Formula:           Battjes and Janssen'
+        case(3)
+          write(iunit(i),888) 'Wave Breaking Formula:           Chawla and Kirby'
+        case(4)
+          write(iunit(i),888) 'Wave Breaking Formula:           Battjes and Janssen (2007)'
+        case(5)
+          write(iunit(i),888) 'Wave Breaking Formula:           Relaxing Breaking'
+        case(6)
+          write(iunit(i),888) 'Wave Breaking Formula:           Lifting Breaking'
+      end select
+
+      write(iunit(i),889) 'Wave Roller effect:              ',iroll,' (min. 0, max. 4)'
+      write(iunit(i),342) 'Diffraction Intensity Factor:    ',akap,' (min. 0, max. 4)'
+    enddo
+    close(dgunit)
+    
+    return
+    end subroutine wave_only_print
      
