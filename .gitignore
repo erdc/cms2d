@@ -4,3 +4,11 @@
 *.obj
 
 *.zip
+
+CMS_cpp.h
+CMakeCache.txt
+CMakeFil*
+Makefile
+cmake_install.cmake
+cms
+trunk/test/*

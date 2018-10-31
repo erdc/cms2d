@@ -900,7 +900,10 @@
 
       write(iunit(i),889) 'Wave Roller effect:              ',iroll,' (min. 0, max. 4)'
       write(iunit(i),342) 'Diffraction Intensity Factor:    ',akap,' (min. 0, max. 4)'
+      write(iunit(i),888) ''
     enddo
+
+    write(dgunit,*) '*** Starting CMS-Wave Run ***'
     close(dgunit)
     
     return
