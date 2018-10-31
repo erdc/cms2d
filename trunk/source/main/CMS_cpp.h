@@ -6,7 +6,7 @@
 #define MERGED_CODE
 
 /* Turn ON/OFF Windows */
-#undef WIN_OS
+#define WIN_OS
 
 /* Turn ON/OFF Unit Testing */
 #undef UNIT_TEST

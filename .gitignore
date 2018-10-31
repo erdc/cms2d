@@ -12,4 +12,3 @@ Makefile
 cmake_install.cmake
 cms
 trunk/test/*
-.gitignore
