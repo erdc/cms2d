@@ -43,7 +43,7 @@
     integer :: nmax,imod,imod6,itime
     integer :: id1,id2,j
     real    :: totL,DepthT		
-    real    :: outinterval
+    !real    :: outinterval
     
 !!  This section used for OpenMP - added 11/26/2008
 !!$    integer omp_get_num_procs
@@ -90,7 +90,7 @@
       Call prestart_EXP      
       
       Call initialize_flow_arrays_Tel          !read in grid file and allocate variables       
-      CALL PRINT_STATUS                        !print out status information about CMS parameters
+!      CALL PRINT_STATUS                        !print out status information about CMS parameters
       call Initialize_ActivityArray_Tel
       CALL INITIALIZE_BC_Tel                   !ALL Q AND SAL  - WILL NEED WORK FOR TELE                                    
       CALL INITIALIZE_WABC_Tel                 !initialize wind, rad, and wave stresses'
@@ -282,15 +282,20 @@
         !enddo
       
        !Added by Chris Reed - submitted 10/14/16        
+!  write(*,*) 'Before update_wetdry_tel_pre'
         call update_wetdry_tel_pre()
       
+!  write(*,*) 'Before update_advection_tel'
         call update_advection_tel()      
+!  write(*,*) 'Before update_advection_tel_reg'
         call update_advection_tel_reg() 
        
         !yface_q = 0.0
         !yface_vel = 0.0      
        
+!  write(*,*) 'Before update_momentum_tel'
         call update_momentum_tel()
+!  write(*,*) 'Before update_momentum_tel_reg'
         call update_momentum_tel_reg   
 
 #ifdef PROFILE
@@ -300,6 +305,7 @@
 #ifdef PROFILE
         call watch_start('wet_dry')
 #endif 
+!  write(*,*) 'Before update_wetdry_tel'
         call update_wetdry_tel()
 #ifdef PROFILE
         call watch_stop('wet_dry')
@@ -310,11 +316,13 @@
         call watch_start('wse')
 #endif 
 
+!  write(*,*) 'Before update_wse_tel'
         call update_wse_tel()
 
 #ifdef PROFILE
         call watch_stop('wse')
 #endif         
+!  write(*,*) 'Before update_WABC'
         call update_WABC()
    
        !Modified by Chris Reed - submitted 10/14/16        
@@ -325,14 +333,14 @@
           !  ADSS(i)%qy = ADSS(i)%qy + qyn(i)*dt
           !enddo 
 !$OMP PARALLEL DO 
-        do i = 1,numxfaces
-          xSedTransQ(i) = xSedTransQ(i) + xface_qn(i)*dt
+          do i = 1,numxfaces
+            xSedTransQ(i) = xSedTransQ(i) + xface_qn(i)*dt
           enddo 
 !$OMP END PARALLEL DO
 !$OMP PARALLEL DO 
-        do i = 1,numyfaces
-          ySedTransQ(i) = ySedTransQ(i) + yface_qn(i)*dt
-        enddo
+          do i = 1,numyfaces
+            ySedTransQ(i) = ySedTransQ(i) + yface_qn(i)*dt
+          enddo
 !$OMP END PARALLEL DO                   
           tsed_elapse = tsed_elapse + dt
           if(tsed_elapse .ge. dtsed ) then   
@@ -341,15 +349,15 @@
             !  ADSS(i)%qx = 0
             !  ADSS(i)%qy = 0     
             !enddo
- !$OMP PARALLEL DO 
-        do i = 1,numxfaces
-          xSedTransQ(i) = 0
+!$OMP PARALLEL DO 
+            do i = 1,numxfaces
+              xSedTransQ(i) = 0
             enddo
 !$OMP END PARALLEL DO
 !$OMP PARALLEL DO 
-        do i = 1,numyfaces
-          ySedTransQ(i) = 0
-        enddo
+            do i = 1,numyfaces
+              ySedTransQ(i) = 0
+            enddo
 !$OMP END PARALLEL DO            
             tsed_elapse = 0.0
           endif
@@ -361,12 +369,15 @@
 #ifdef PROFILE
         call watch_start('update_vars')
 #endif     
+!  write(*,*) 'Before update_variables_tel'
         call update_variables_tel()
          
 #ifdef PROFILE
         call watch_stop('update_vars')
 #endif 
+!  write(*,*) 'Before update_culverts'
         call update_culverts()
+!  write(*,*) 'Before write_output'
         call write_output             !This is a second "write_output" during the same iteration.  MEB- 041916
 
 #ifdef DREDGE
@@ -388,8 +399,12 @@
         if(rainfall) rain_time = rain_time+dt
         
         ITIME = NTIME+1
-        OUTINTERVAL = 300.0                  ! 5 MINUTES
-        if (DT .LT. 0.25) OUTINTERVAL = 30.0 ! 0.5 MINUTES
+        
+        if (outinterval .lt. 0.0) then           ! If not already set, set based on the DT
+          if (dt .ge. 0.25) outinterval = 300.0  ! 5 minutes
+          if (dt .lt. 0.25) outinterval =  30.0  ! 0.5 minutes
+        endif
+
         IMOD  = NINT(OUTINTERVAL/DT)
         IMOD6 = NINT(OUTINTERVAL*6/DT)
 

@@ -12,3 +12,9 @@ Makefile
 cmake_install.cmake
 cms
 trunk/test/*
+
+*.suo
+
+*.user
+
+trunk/Intel_vs2010/x64/Debug/

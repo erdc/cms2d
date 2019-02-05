@@ -1,3 +1,8 @@
+== Version 5.1.6 (02/05/2019)
+* Update: Implemented input file changes for Weir and Rubble Mound Jetty structures to match the SMS 13.0+ menu interface design.
+* Bug fix: Resolved a few minor issues related to Explicit scheme with parallelization.
+* New feature: EXPLICIT_PRINT_INTERVAL allows user specified interval of time step output.
+
 == Version 5.1.5 (10/30/2018)
 * New feature: Added Stand-alone wave code that is run when only wave input is specified.  This version is basically identical to last stand-alone code.
 ** Info: Diagnostic information about stand-alone wave parameters are written to screen and diagnostic file.

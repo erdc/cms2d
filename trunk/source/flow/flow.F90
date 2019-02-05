@@ -173,6 +173,7 @@
     use time_lib, only: julday,calendar2julian,julianday2calendarmonthday
     use diag_lib
     use heat_def, only: heatic
+    use EXP_Global_def, only: outinterval
     implicit none
     integer :: i,ierr,omp_get_max_threads
     character(len=37) :: cardname,cdum
@@ -380,6 +381,11 @@
         
     case('ROLLER_MASS_FLUX','ROLLER_VOLUME_FLUX','ROLLER_FLUX_VELOCITY')
       call card_boolean(77,rolflux,ierr)    
+      
+    case('EXPLICIT_PRINT_INTERVAL')
+      call card_scalar(77,'sec','sec',outinterval,ierr)
+      continue
+
           
     !==== Numerical Methods ====================================================
     case('SOLUTION_SCHEME')
@@ -1029,44 +1035,46 @@
       endif
       write(iunit(i),'(A,F9.2,A)')   '     Density:                  ',rhow,' kg/m^3'
       write(iunit(i),'(A,1pe11.3,A)')'     Kinematic Viscosity:      ',viscos,' m^2/s'
-	  write(iunit(i),111)           '  Timing'
+	  write(iunit(i),111)            '  Timing'
 5431  format('    Simulation Start Time:      ',I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
 	  write(iunit(i),5431)  iyr,imo,iday,ihr,imin,isec
-	  write(iunit(i),'(A,F9.3,A)')  '     Hydrodynamic time step:    ',dtime,' sec'
-	  write(iunit(i),*)             '         Note: Same time step for sediment, morphology change and salinity'
-	  write(iunit(i),'(A,F11.3,A)') '     Simulation Duration:      ',tmax,' hours'
-      write(iunit(i),'(A,F10.3,A)') '     Ramp Duration:            ',rampdur,' hours'    
+	  write(iunit(i),'(A,F9.3,A)')   '     Hydrodynamic time step:    ',dtime,' sec'
+      if(nfsch==0)then    !Implicit Only
+        write(iunit(i),*)            '        Note: Same time step for sediment, morphology change and salinity'
+      endif
+	  write(iunit(i),'(A,F11.3,A)')  '     Simulation Duration:      ',tmax,' hours'
+      write(iunit(i),'(A,F10.3,A)')  '     Ramp Duration:            ',rampdur,' hours'    
 
       !write(iunit(i),*)	
-	  write(iunit(i),111)	          '  Wetting and Drying'
+	  write(iunit(i),111)	         '  Wetting and Drying'
 #ifdef DEV_MODE
-      write(iunit(i),'(A,1pe11.3,A)') '     Minimum Depth:           ',hmin,' m'
+      write(iunit(i),'(A,1pe11.3,A)')'     Minimum Depth:           ',hmin,' m'
 #endif
-	  write(iunit(i),163)             '    Drying Depth:            ',hdry,' m'	
+	  write(iunit(i),163)            '    Drying Depth:            ',hdry,' m'	
       if(ponding)then
-	    write(iunit(i),111)           '    Water Ponding:              ON'
+	    write(iunit(i),111)          '    Water Ponding:              ON'
       else
-	    write(iunit(i),111)           '    Water Ponding:              OFF'
+	    write(iunit(i),111)          '    Water Ponding:              OFF'
       endif
       if(narrowchannels)then
-	    write(iunit(i),111)           '    Narrow Channels:            ON'
-        write(iunit(i),163)             '    One-cell Drying Depth: ',hdry1,' m'	
-        write(iunit(i),163)             '    Two-cell Drying Depth: ',hdry2,' m'	
+	    write(iunit(i),111)          '    Narrow Channels:            ON'
+        write(iunit(i),163)          '    One-cell Drying Depth: ',hdry1,' m'	
+        write(iunit(i),163)          '    Two-cell Drying Depth: ',hdry2,' m'	
       else
-	    write(iunit(i),111)           '    Narrow Channels:            OFF'
+	    write(iunit(i),111)          '    Narrow Channels:            OFF'
       endif  
       
       if(noptset>=3)then
 	    !write(iunit(i),*)      
 	    if(waveflux)then
-	      write(iunit(i),111)     '  Wave Mass Flux:               ON'
+	      write(iunit(i),111)        '  Wave Mass Flux:               ON'
 	      if(rolflux)then
-	        write(iunit(i),111)   '    Roller Mass Flux:           ON'
+	        write(iunit(i),111)      '    Roller Mass Flux:           ON'
 	      else
-	        write(iunit(i),111)   '    Roller Mass Flux:           OFF'  
+	        write(iunit(i),111)      '    Roller Mass Flux:           OFF'  
 	      endif
 	    else
-	      write(iunit(i),111)     '  Wave Mass Flux:               OFF'
+	      write(iunit(i),111)        '  Wave Mass Flux:               OFF'
 	    endif
       endif
     

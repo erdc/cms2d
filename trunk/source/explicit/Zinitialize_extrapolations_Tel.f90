@@ -55,10 +55,10 @@
           enddo
         endif
         
-        write(*,*)'ext n = ',num_ext_n
-        write(*,*)'ext e = ',num_ext_e
-        write(*,*)'ext s = ',num_ext_s        
-        write(*,*)'ext w = ',num_ext_w       
+!        write(*,*)'ext n = ',num_ext_n
+!        write(*,*)'ext e = ',num_ext_e
+!        write(*,*)'ext s = ',num_ext_s        
+!        write(*,*)'ext w = ',num_ext_w       
         
         allocate(ext_w(num_ext_W,2),ext_n(num_ext_N,2), &
         ext_s(num_ext_S,2),ext_e(num_ext_E,2))

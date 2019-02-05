@@ -172,6 +172,10 @@
           spd = (uelwc(id1)*yface_gcoef(1,i)+uelwc(id2)*yface_gcoef(2,i)+uelwc(id3)*yface_gcoef(3,i)+uelwc(id4)*yface_gcoef(4,i))/2.0_ikind 
           cd =  (cfrict(id1)*yface_gcoef(1,i)+Cfrict(id2)*yface_gcoef(2,i)+cfrict(id3)*yface_gcoef(3,i)+cfrict(id4)*yface_gcoef(4,i))/2.0_ikind  
           
+          hgt=max(0.000001,hgt)
+          spd=max(0.000001,spd)
+          cd =max(0.000001,cd)
+          
           !!Option B
           !HGT = (HPLUS+HmnEXP)/2.0_ikind 
           !spd = abs(yface_vel(i))

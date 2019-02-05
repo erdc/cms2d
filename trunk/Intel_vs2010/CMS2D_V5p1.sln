@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "CMS2D_V5p1", "CMS2D_V5p1.vfproj", "{CBBA6C9A-9D83-4792-8F77-E72DB8D581B9}"
 EndProject
 Global

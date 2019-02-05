@@ -114,8 +114,11 @@
           enddo
         endif
 
-      case('WEIR_BEGIN')
+      case('WEIR_BEGIN')         !Ver 5.0 and before
         call weir_block
+        
+      case('WEIR_STRUCT_BEGIN')  !Ver 5.1 and later
+        call new_weir_block
 
       !=== Culverts ====================================            
       case('CULVERT')         !Wu
@@ -189,9 +192,9 @@
              elseif(methrubmoundab(irm)==3) then   !Ward (1964)
                 rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
                 rubmoundb(irm)=10.44/grav/rubmounddia(irm)
-             elseif(methrubmoundab(irm)==4) then   !Permeability
-                rubmounda(irm)=viscos*rubmoundporo(irm)/rubmounddia(irm)   !Note: rubmounddia=Permeability
-                rubmoundb(irm)=rubmoundporo(irm)**2/sqrt(rubmounddia(irm)) !Note: rubmounddia=Permeability
+!             elseif(methrubmoundab(irm)==4) then   !Permeability
+!                rubmounda(irm)=viscos*rubmoundporo(irm)/rubmounddia(irm)   !Note: rubmounddia=Permeability
+!                rubmoundb(irm)=rubmoundporo(irm)**2/sqrt(rubmounddia(irm)) !Note: rubmounddia=Permeability
              endif
           enddo
         endif
@@ -207,6 +210,158 @@
     return
     endsubroutine struct_cards
 
+!*****************************************************************
+    subroutine weir_alloc
+! Resizes the weir structure variables
+!*****************************************************************
+    use struct_def
+    implicit none
+
+    integer :: iwr
+    type(WR_type), allocatable :: WR_temp(:)
+    
+    iweir = iweir + 1
+    if (iweir == 1) then
+      allocate(WR_struct(1))
+    else
+      allocate(WR_temp(iweir-1))
+      do iwr=1,iweir-1
+        WR_temp(iwr) = WR_struct(iwr)
+      enddo
+      deallocate(WR_struct)
+      allocate(WR_struct(iweir))
+      do iwr=1,iweir-1
+        WR_struct(iwr) = WR_temp(iwr)
+      enddo
+      deallocate(WR_temp)
+    endif      
+    
+    !Initialize and set default values
+    WR_struct(iweir)%coefWeirLateral = 0.0
+    WR_struct(iweir)%ncells       = 0
+    WR_struct(iweir)%orientWeir   = 1
+    WR_struct(iweir)%weirType     = 1
+    WR_struct(iweir)%coefWeir_b2s = 0.0
+    WR_struct(iweir)%coefWeir_s2b = 0.0
+    WR_struct(iweir)%elevWeir     = 0.0
+    WR_struct(iweir)%methWeir     = 1
+    
+    return
+    end subroutine weir_alloc
+    
+    
+!************************************************************************************
+    subroutine new_weir_block()
+! Reads the multiple block structure for weirs (meb, 01/28/2019)
+!   Based on weir_block (hli, 02/08/13) 
+!************************************************************************************
+    use const_def, only: deg2rad
+    use struct_def
+    use diag_lib
+    implicit none
+    
+    integer :: i,iwr,ierr,maxweir
+    integer :: ival
+    real    :: rval
+    character(len=34) :: cardname
+    logical :: foundcard
+
+    foundcard = .true.
+    
+    call weir_alloc  !increment and initialize multiple weir structure
+    
+    do i=1,30
+      read(77,*,iostat=ierr) cardname
+      selectcase(cardname)
+        case('WEIR_STRUCT_END','END')
+          exit
+          
+!        case('NUMBER_WEIRS','NUMBER_WEIR')
+!          backspace(77)
+!          read(77,*) cardname,numweir
+!          allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
+!                   coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
+!                   orientweirsea(numweir),Qtotweir(numweir) )
+
+        case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
+          backspace(77)
+          read(77,*) cardname,ival
+          
+          WR_struct(iweir)%ncells = ival
+          allocate(WR_struct(iweir)%cells(ival))
+          
+!          nweir(0) = 0
+!          maxweir = 0
+!          do iwr=1,numweir
+!            maxweir = maxweir + nweir(iwr)
+!          enddo
+!          do iwr=1,numweir
+!            nweir(iwr) = nweir(iwr-1) + nweir(iwr)
+!          enddo
+
+!          allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
+
+        case('CELLS')
+          backspace(77)
+          ival = WR_struct(iweir)%ncells 
+          read(77,*) cardname, (WR_struct(iweir)%cells(iwr),iwr=1,ival)
+
+        case('DISTRIBUTION_COEFFICIENT')
+          backspace(77)
+          read(77,*) cardname, WR_struct(iweir)%coefweirlateral
+
+        case('ORIENTATION')
+          backspace(77)
+          read(77,*) cardname, ival
+          if (ival .lt. 1 .or. ival .gt. 4) then
+            call diag_print_error('Orientation value must be between 1 and 4, inclusively')
+          endif 
+          WR_struct(iweir)%orientWeir = ival
+
+        case('TYPE')
+          backspace(77)
+          read(77,*) cardname, ival 
+          if (ival .lt. 1 .or. ival .gt. 2) then
+            call diag_print_error('Weir type must be either 1 or 2')
+          endif 
+          WR_struct(iweir)%weirType = ival
+
+        case('FLOW_COEFFICIENT_FROM_BAY')
+          backspace(77)
+          read(77,*) cardname, rval
+          WR_struct(iweir)%coefWeir_b2s = rval
+          
+        case('FLOW_COEFFICIENT_FROM_SEA')
+          backspace(77)
+          read(77,*) cardname, rval
+          WR_struct(iweir)%coefWeir_s2b = rval
+          
+        case('CREST_ELEVATION')
+          backspace(77)
+          read(77,*) cardname, rval
+          WR_struct(iweir)%elevWeir = rval
+
+        case('METH','METHOD')
+          backspace(77)
+          read(77,*) cardname, ival 
+          if (ival .lt. 1 .or. ival .gt. 2) then
+            call diag_print_error('Method must be either 1 or 2')
+          endif 
+          WR_struct(iweir)%methWeir = ival
+          
+        case default
+          write(*,*) 'WARNING: Card ',cardname,' not found'
+          write(*,*) 'Press any key to continue.'
+          read(*,*)
+          foundcard = .false.
+         
+        end select
+    enddo
+    
+    return
+    endsubroutine new_weir_block
+    
+    
 !************************************************************************************
     subroutine weir_block()
 ! Reads the block structure for weirs (hli, 02/08/13) 
@@ -222,14 +377,14 @@
     do i=1,30
       read(77,*,iostat=ierr) cardname
       selectcase(cardname)
-        case('NUMBER_WEIRS')
+        case('NUMBER_WEIRS','NUMBER_WEIR')
           backspace(77)
           read(77,*) cardname,numweir
           allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
                    coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
                    orientweirsea(numweir),Qtotweir(numweir) )
 
-        case('NUM_CELL_WEIRS')
+        case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
           backspace(77)
           read(77,*) cardname,(nweir(iwr),iwr=1,numweir)              
           nweir(0) = 0
@@ -626,6 +781,43 @@
     
     return
     endsubroutine tg_schedule_block
+    
+!*****************************************************************
+    subroutine rubble_mound_alloc
+! Resizes the rubble mound structure variables
+!*****************************************************************
+    use struct_def
+    implicit none
+
+    integer :: irm
+    type(RM_type), allocatable :: RM_temp(:)
+    
+    irubmound = irubmound + 1
+    if (irubmound == 1) then
+      allocate(RM_struct(1))
+    else
+      allocate(RM_temp(irubmound-1))
+      do irm=1,irubmound-1
+        RM_temp(irm) = RM_struct(irm)
+      enddo
+      deallocate(RM_struct)
+      allocate(RM_struct(irubmound))
+      do irm=1,irubmound-1
+        RM_struct(irm) = RM_temp(irm)
+      enddo
+      deallocate(RM_temp)
+    endif      
+    
+    !Initialize and set default values
+    RM_struct(irubmound)%rockdia_const     = 0.0
+    RM_struct(irubmound)%structporo_const  = 0.0
+    RM_struct(irubmound)%structbaseD_const = 0.0
+    RM_struct(irubmound)%rubmoundmeth      = 0.0
+    RM_struct(irubmound)%ncells            = 0
+    
+    return
+    end subroutine rubble_mound_alloc
+    
 
 !*****************************************************************
     subroutine read_rubble_mound(cardname,foundcard)
@@ -636,11 +828,14 @@
     use struct_def
     implicit none
     integer :: k   !hli(11/28/12)
+    integer :: numids, irm  !meb 01/28/2019
     character(len=34) :: cardname
     logical :: foundcard
         
     foundcard = .true.
     rmblock=1
+
+    call rubble_mound_alloc         !added meb 1/28/2019
 
     read(77,*) cardname
     selectcase (cardname) 
@@ -650,53 +845,134 @@
       backspace(77)
     endselect
 
-    do k=1,10 
+    do
       read(77,*) cardname
       selectcase (cardname) 
         case('RUBBLE_MOUND_DATASET')  !Modfiy input format for rubble mound structure (hli,11/26/12)
-        backspace(77)
-        read(77,*) cardname,arubmoundfile,arubmoundpath
+          backspace(77)
+          read(77,*) cardname,arubmoundfile,arubmoundpath
+          rm_dset = .true.
 
         case('ROCK_DIAMETER_DATASET')
           backspace(77)
           read(77,*) cardname,arockdiamfile,arockdiampath
+          rm_dset = .true.
 
-        case('ROCK_DIAMETER_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,rockdia_const
-    
         case('STRUCTURE_POROSITY_DATASET')
           backspace(77)
           read(77,*) cardname,astructporofile,astructporopath    
+          rm_dset = .true.
 
-        case('STRUCTURE_POROSITY_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,structporo_const
-           
         case('STRUCTURE_BASE_DEPTH_DATASET')
           backspace(77)
           read(77,*) cardname,astructbaseDfile,astructbaseDpath    
+          rm_dset = .true.
 
-        case('STRUCTURE_BASE_DEPTH_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,structbaseD_const
-  
         case('FORCHHEIMER_COEFF_METHOD_DATASET')
           backspace(77)
           read(77,*) cardname,astructmethfile,astructmethpath    
+          rm_dset = .true.
 
+        case('CELL_IDS')
+          backspace(77)
+          read(77,*) cardname,numids    !No. of IDs
+          RM_struct(irubmound)%ncells = numids
+          allocate(RM_struct(irubmound)%cells(numids))
+          backspace(77)
+          read(77,*) cardname,numids,(RM_struct(irubmound)%cells(irm),irm=1,numids)
+          rm_dset = .false.
+             
+        case('ROCK_DIAMETER_CONSTANT')
+          backspace(77)
+          read(77,*) cardname,RM_struct(irubmound)%rockdia_const       !meb added index 1/28/2019
+          rm_dset = .false.
+    
+        case('STRUCTURE_POROSITY_CONSTANT')
+          backspace(77)
+          read(77,*) cardname,RM_struct(irubmound)%structporo_const    !meb added index 1/28/2019
+          rm_dset = .false.
+           
+        case('STRUCTURE_BASE_DEPTH_CONSTANT')
+          backspace(77)
+          read(77,*) cardname,RM_struct(irubmound)%structbaseD_const   !meb added index 1/28/2019
+          rm_dset = .false.
+  
         case('FORCHHEIMER_COEFF_METHOD')  
           backspace(77)
-          read(77,*) cardname,rubmoundmeth   
-             
+          read(77,*) cardname,RM_struct(irubmound)%rubmoundmeth        !meb added index 1/28/2019   
+          rm_dset = .false.
+          
         case('RUBBLE_MOUND_END','END')
           exit
+          
         case default
           foundcard = .false.
         endselect              
       enddo
     endsubroutine     
     
+!****************************************************    
+    subroutine weir_init
+!****************************************************
+#include "CMS_cpp.h"
+    use struct_def
+    implicit none
+    
+    integer iwr, j, kk, maxweir
+    
+    numweir = iweir
+    allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
+             coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
+             orientweirsea(numweir),Qtotweir(numweir) )
+    do iwr=1,numweir
+      nweir(iwr)=WR_struct(iwr)%ncells
+    enddo
+
+    nweir(0) = 0
+    maxweir = 0
+    do iwr=1,numweir
+      maxweir = maxweir + nweir(iwr)
+    enddo
+    do iwr=1,numweir
+      nweir(iwr) = nweir(iwr-1) + nweir(iwr)
+    enddo
+
+    allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
+
+    kk=0
+    do iwr=1,numweir
+      do j = 1,WR_struct(iwr)%ncells
+        kk=kk+1
+        idweir(kk) = WR_struct(iwr)%cells(j)
+        coefweirlateral(kk) = WR_struct(iwr)%coefWeirLateral
+      enddo
+      orientweir(iwr) = WR_struct(iwr)%orientWeir
+      iweirtype(iwr)  = WR_struct(iwr)%weirType
+      coefweir(iwr,1) = WR_struct(iwr)%coefWeir_b2s
+      coefweir(iwr,2) = WR_struct(iwr)%coefWeir_s2b
+      elevweir(iwr)   = WR_struct(iwr)%elevWeir
+      methweir(iwr)   = WR_struct(iwr)%methWeir
+    enddo
+
+    !Initialize       
+    dqweirdzdown = 0.0;  dqweirdzup = 0.0  
+     
+    do iwr=1,numweir
+      orientweirsea(iwr) = orientweir(iwr)   !Define direction of sea side at local coordinate
+      if(orientweir(iwr).eq.1) then
+        orientweirbay(iwr) = 3
+      elseif(orientweir(iwr).eq.2) then
+        orientweirbay(iwr) = 4
+      elseif(orientweir(iwr).eq.3) then
+        orientweirbay(iwr) = 1
+      elseif(orientweir(iwr).eq.4) then
+        orientweirbay(iwr) = 2
+      endif
+    enddo
+        
+    return
+    end subroutine weir_init
+        
 !****************************************************    
     subroutine struct_init
 !****************************************************
@@ -713,10 +989,11 @@
     implicit none
     integer :: i,i1,itg,im,iwr,icv,irm,kk,ierr   !hli(11/19/13)
     character(len=10) :: aext    
+    integer :: j,idum
 !
 !   Read rubble mound information from datasets or specify constants (hli, 12/10/12)
 !
-    if(rmblock.eq.1) then
+    if(rmblock.eq.1 .and. rm_dset) then    !modified for alternate input, meb 01/28/2019
       allocate(permeability(ncellsfull))
       allocate(rockdiam(ncellsfull))
       allocate(structporo(ncellsfull))
@@ -724,6 +1001,7 @@
       allocate(structmeth(ncellsfull))
       permeability=0.0; rockdiam=0.0; structporo=0.0; structbaseD=0.0; structmeth=0
 
+! read cells that are permeable from dataset
       call fileext(trim(arubmoundfile),aext)      
       select case (aext)
       case('h5')
@@ -754,126 +1032,138 @@
         nrubmound(0) = 0
         allocate(idrubmound(numrubmound)) 
 
+ 99 format(15(i0,x))
         kk=0
         do i=1,ncellsfull
           if(permeability(i).gt.0.0) then
             kk=kk+1
-            idrubmound(kk)=mapid(i)
+            idrubmound(kk)=mapid(i)  !Convert from internal to SMS Cell ID number
           endif
         enddo
+        open(200,file='CELL_IDs.txt',status='unknown')  !Remove after testing, meb
+        write(200,99) (idrubmound(i),i=1,kk)  
+        close(200)
 
-        if(rockdia_const.gt.0.0) then
-          do i=1,numrubmound
-            rubmounddia(i)=rockdia_const
-          enddo
-        else
-
-          call fileext(trim(arockdiamfile),aext)      
-          select case (aext)
-          case('h5')
+!read rock diameter from dataset
+        call fileext(trim(arockdiamfile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
           call readscalh5(arockdiamfile,arockdiampath,rockdiam,ierr)
 #endif
-          case('txt')
-            call readscalTxt(arockdiamfile,rockdiam,ierr)
-          end select
+        case('txt')
+          call readscalTxt(arockdiamfile,rockdiam,ierr)
+        end select
           
-          kk=0
-          do i=1,ncellsfull
-            if(rockdiam(i).gt.0.0) then
-              kk=kk+1
-              rubmounddia(kk)=rockdiam(i)
-            endif
-          enddo
-        endif
+        kk=0
+        do i=1,ncellsfull
+          if(rockdiam(i).gt.0.0) then
+            kk=kk+1
+            rubmounddia(kk)=rockdiam(i)
+          endif
+        enddo
 
-        if(structporo_const.gt.0.0) then
-          do i=1,numrubmound
-            rubmoundporo(i)=structporo_const
-          enddo
-        else
-
-          call fileext(trim(astructporofile),aext)      
-          select case (aext)
-          case('h5')
+! read porosity from dataset
+        call fileext(trim(astructporofile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructporofile,astructporopath,structporo,ierr)
 #endif
-          case('txt')
-            call readscalTxt(astructporofile,structporo,ierr)
-          end select
+        case('txt')
+          call readscalTxt(astructporofile,structporo,ierr)
+        end select
           
-          kk=0
-          do i=1,ncellsfull
-            if(structporo(i).gt.0.0) then
-              kk=kk+1
-              rubmoundporo(kk)=structporo(i)
-            endif
-          enddo
-        endif
+        kk=0
+        do i=1,ncellsfull
+          if(structporo(i).gt.0.0) then
+            kk=kk+1
+            rubmoundporo(kk)=structporo(i)
+          endif
+        enddo
 
-        if(structbaseD_const.gt.0.0) then
-          do i=1,numrubmound
-            rubmoundbotm(i)=structbaseD_const
-          enddo
-        else
-          call fileext(trim(astructbaseDfile),aext)      
-          select case (aext)
-          case('h5')
+! read Base depth from dataset
+        call fileext(trim(astructbaseDfile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructbaseDfile,astructbaseDpath,structbaseD,ierr)
 #endif
-          case('txt')
-            call readscalTxt(astructbaseDfile,structbaseD,ierr)
-          end select
+        case('txt')
+          call readscalTxt(astructbaseDfile,structbaseD,ierr)
+        end select
           
-          kk=0
-          do i=1,ncellsfull
-            if(structbaseD(i).gt.0.0) then
-              kk=kk+1
-              rubmoundbotm(kk)=structbaseD(i)
-            endif
-          enddo
-        endif
+        kk=0
+        do i=1,ncellsfull
+          if(structbaseD(i).gt.0.0) then
+            kk=kk+1
+            rubmoundbotm(kk)=structbaseD(i)
+          endif
+        enddo
 
-        if(rubmoundmeth.gt.0.0) then
-          do i=1,numrubmound
-            methrubmoundab(i)=rubmoundmeth 
-          enddo
-        else
-          call fileext(trim(astructmethfile),aext)      
-          select case (aext)
-          case('h5')
+! read rubble mound method from dataset
+        call fileext(trim(astructmethfile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
           call readscalh5(astructmethfile,astructmethpath,structmeth,ierr)
 #endif
-          case('txt')
-            call readscalTxt(astructmethfile,structmeth,ierr)
-          end select
+        case('txt')
+          call readscalTxt(astructmethfile,structmeth,ierr)
+        end select
           
-          kk=0
-          do i=1,ncellsfull
-            if(structmeth(i).gt.0.0) then
-              kk=kk+1
-              methrubmoundab(kk)=structmeth(i)
-            endif
-          enddo
-        endif
-
-        do irm=1,numrubmound     
-          if(methrubmoundab(irm).eq.2)then  !Kadlec and Knight (1996)
-            rubmounda(irm)=255.0*viscos*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3.7/rubmounddia(irm)**2 
-            rubmoundb(irm)=2.0*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3/rubmounddia(irm)
-          elseif(methrubmoundab(irm).eq.3)then !Ward (1964)
-            rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
-            rubmoundb(irm)=10.44/grav/rubmounddia(irm)
-          else                            !Sidiropoulou et al. (2007)
-            rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5) *rubmoundporo(irm)**0.06         
-            rubmoundb(irm)=0.194  *rubmounddia(irm)**(-1.265)*rubmoundporo(irm)**(-1.14)
-          endif 
+        kk=0
+        do i=1,ncellsfull
+          if(structmeth(i).gt.0.0) then
+            kk=kk+1
+            methrubmoundab(kk)=structmeth(i)
+          endif
         enddo
       endif  
+    else  !rmblock == 1 and rm_dset == .false.  
+      numrubmound = 0
+      do i=1,irubmound
+        numrubmound = numrubmound + RM_struct(irubmound)%ncells 
+      enddo
+
+      allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound), & 
+        rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
+        rubmoundbotm(numrubmound),idrubmound(numrubmound))   
+
+      do irm=1,numrubmound
+        nrubmound(irm)=irm
+      enddo
+
+      nrubmound(0) = 0
+      kk=0
+      do irm=1,irubmound
+        do j=1,RM_struct(irubmound)%ncells
+          kk=kk+1
+          idrubmound(kk)     = RM_struct(irubmound)%cells(j)         !don't convert, already the SMS Cell ID number
+          rubmounddia(kk)    = RM_struct(irubmound)%rockdia_const
+          rubmoundporo(kk)   = RM_struct(irubmound)%structporo_const
+          rubmoundbotm(kk)   = RM_struct(irubmound)%structbaseD_const
+          methrubmoundab(kk) = RM_struct(irubmound)%rubmoundmeth
+        enddo
+      enddo
     endif  
+    
+    if (rmblock == 1 .and. numrubmound > 0) then 
+      do irm=1,numrubmound     
+        select case (methrubmoundab(irm))
+        case (1)             !Sidiropoulou et al. (2007)
+          rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5) *rubmoundporo(irm)**0.06         
+          rubmoundb(irm)=0.194  *rubmounddia(irm)**(-1.265)*rubmoundporo(irm)**(-1.14)
+        case (2)             !Kadlec and Knight (1996)
+          rubmounda(irm)=255.0*viscos*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3.7/rubmounddia(irm)**2 
+          rubmoundb(irm)=2.0*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3/rubmounddia(irm)
+        case (3)             !Ward (1964)
+          rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
+          rubmoundb(irm)=10.44/grav/rubmounddia(irm)
+        end select
+      enddo
+    endif
+    
 !   (hli, 12/10/12)
 !
 !--- Map structure ids from full to active grid -----
@@ -881,6 +1171,7 @@
     if(numtidegate>0) call map_cell_full2active(ntidegate(numtidegate),idtidegate)
 
     !Weirs    
+    if(iweir .gt. 0) call weir_init   !If new multi block weir called, then initialize
     if(numweir>0) call map_cell_full2active(nweir(numweir),idweir)
     
     !Culverts
@@ -1921,7 +2212,7 @@
              enddo
           endif
         enddo
-        write(107,*) ctime/3600.0,Qtottidegate(itg)
+        !write(107,*) ctime/3600.0,Qtottidegate(itg)
       elseif(methtidegate(itg)==2) then
         Qtottidegate(itg)=0.0
         do im=ntidegate(itg-1)+1,ntidegate(itg)
@@ -1938,7 +2229,7 @@
             enddo
           endif
         enddo
-        write(207,*) ctime/3600.0,Qtottidegate(itg)
+        !write(207,*) ctime/3600.0,Qtottidegate(itg)
       endif
     enddo
 
@@ -1953,7 +2244,7 @@
                Qtotweir(iwr)=Qtotweir(iwr)+qweir(im)*ds(k,i)
           enddo
         enddo
-        write(108,*) ctime/3600.0,Qtotweir(iwr)
+        !write(108,*) ctime/3600.0,Qtotweir(iwr)
       elseif(methweir(iwr)==2) then
         Qtotweir(iwr)=0.0
         do im=nweir(iwr-1)+1,nweir(iwr)
@@ -1968,7 +2259,7 @@
             endif
           enddo
         enddo
-        write(208,*) ctime/3600.0,Qtotweir(iwr)
+        !write(208,*) ctime/3600.0,Qtotweir(iwr)
       endif
     enddo
 

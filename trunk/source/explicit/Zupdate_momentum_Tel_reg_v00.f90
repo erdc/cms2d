@@ -1,18 +1,18 @@
-     subroutine update_momentum_tel_reg()
-    use EXP_Global_def
-    USE EXP_bndcond_def	
-    use EXP_Structures_def
-	use flow_def 
-	use geo_def
-    use sed_def
-    use const_def, only: pi,deg2rad    
-    use met_def, only: tauwindx,tauwindy,pressatm
-    use wave_flowgrid_def, only: wavestrx,wavestry     
-    use fric_def, only: cfrict,uelwc,coefman
-    USE EXP_transport_def 
-    use NupdateMod
-    use sal_def  
-    use exp_telescoping
+    subroutine update_momentum_tel_reg()
+      use EXP_Global_def
+      USE EXP_bndcond_def	
+      use EXP_Structures_def
+      use flow_def 
+      use geo_def
+      use sed_def
+      use const_def, only: pi,deg2rad    
+      use met_def, only: tauwindx,tauwindy,pressatm
+      use wave_flowgrid_def, only: wavestrx,wavestry     
+      use fric_def, only: cfrict,uelwc,coefman
+      USE EXP_transport_def 
+      use NupdateMod
+      use sal_def  
+      use exp_telescoping
       
       implicit none
       integer i,j,id,id1,id2,id3,ii
@@ -21,8 +21,9 @@
       real(ikind) detadx,detady,cd,depth,FluxEXP
       real(ikind) advdif_i,advdif_c
       real(ikind) Nmann
+
       
-!$omp parallel 
+!!$omp parallel 
         
       ! update density differential due to salinity  
       !  if(saltrans .and. saltsimD) then
@@ -32,8 +33,11 @@
       !    enddo
 !!$omp end do       
       !  endif   
+!!$omp end parallel
       
-!$omp do private(i,id1,id2,deltax,hplus,HmnEXP,detadx,advdif_I,advdif_C,tauwind,Coriolis,hgt,spd,cd,Qyc)
+!There was an OpenMP issue here with the following 2 DO loops.  I made each one its own PARALLEL DO instead of putting individual DOs inside one PARALLEL block.  MEB  01/16/19
+     
+!$omp parallel do private(i,id1,id2,deltax,hplus,HmnEXP,detadx,advdif_I,advdif_C,tauwind,Coriolis,hgt,spd,cd,Qyc)
       do ii=1,numREGXfaces
         i=REGXfaces(ii) 
                   
@@ -77,7 +81,11 @@
           !HGT = (HPLUS+HmnEXP)/2.0_ikind 
           !spd = abs(xface_vel(i))         
           !Nmann = (coefman(id1)*dy(id2)+coefman(id2)*dy(id1))/(dY(id1)+dy(ID2))
-          !cd = grav*Nmann*Nmann/HGT**0.333            
+          !cd = grav*Nmann*Nmann/HGT**0.333    
+          
+          hgt=max(0.000001,hgt)
+          spd=max(0.000001,spd)
+          cd =max(0.000001,cd)
           
           xface_QN(i) = (xface_Q(i) + DT*( (-GRAV) *DETADX/2.0_ikind &
                         + 0.5*(wavestrx(id1) + wavestrx(id2)) - ADVDIF_I - ADVDIF_C &
@@ -86,10 +94,9 @@
           !xface_QN(i) = xface_Q(i) + DT*(- ADVDIF_I - ADVDIF_C )             
         endif  ! end "not a wall"
       enddo
-!$omp end do    
-
-
-!$omp do private(i,id1,id2,deltay,hplus,HmnEXP,detady,advdif_i,advdif_c,tauwind,Coriolis,hgt,spd,cd,QXc)
+!$omp end parallel do    
+     
+!$omp parallel do private(i,id1,id2,deltay,hplus,HmnEXP,detady,advdif_i,advdif_c,tauwind,Coriolis,hgt,spd,cd,QXc)
       do ii=1,numREGYfaces
         i=REGYfaces(ii) 
           
@@ -149,8 +156,7 @@
            
         endif  ! end "not a wall"
       enddo
-!$omp end do    
-!$OMP END PARALLEL
+!$omp end parallel do    
 
 ! !if there are structures then modify flows
 ! if(structures) then

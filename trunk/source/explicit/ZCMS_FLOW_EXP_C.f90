@@ -78,7 +78,7 @@
       
     integer :: i,id,mm,ll,ii,jj
     integer :: nmax,imod,imod6,itime
-    real    :: outinterval
+    !real    :: outinterval
     
 !!     This section used for OpenMP - added 11/26/2008
 !!$    integer omp_get_num_procs
@@ -125,7 +125,7 @@
       Call prestart_EXP      
       
       Call initialize_flow_arrays          !read in grid file and allocate variables       
-      CALL PRINT_STATUS                    !print out status information about CMS parameters
+!      CALL PRINT_STATUS                    !print out status information about CMS parameters
       call Initialize_ActivityArray
       CALL INITIALIZE_BC                                         
       CALL INITIALIZE_WABC                 !initialize wind, rad, and wave stresses'
@@ -336,11 +336,15 @@
         if(rainfall) rain_time = rain_time+dt
 
         ITIME = NTIME+1
-        OUTINTERVAL = 300.0                  ! 5 MINUTES
-        if (DT .LT. 0.25) OUTINTERVAL = 30.0 ! 0.5 MINUTES
+        
+        if (outinterval .lt. 0.0) then           ! If not already set, set based on the DT
+          if (dt .ge. 0.25) outinterval = 300.0  ! 5 minutes
+          if (dt .lt. 0.25) outinterval =  30.0  ! 0.5 minutes
+        endif
+
         IMOD  = NINT(OUTINTERVAL/DT)
         IMOD6 = NINT(OUTINTERVAL*6/DT)
-        
+
         open(dgunit,file=dgfile,access='append') 
         
         IF ((IMOD.NE.0).AND.(IMOD6.NE.0)) THEN

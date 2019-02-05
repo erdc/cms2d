@@ -65,6 +65,8 @@
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\waves\CMS-Wave_v3.2_30Mar2018.f90">
 			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\main\CMS2D_main.f90"/>
 		<File RelativePath="..\source\main\CMS_Flow.f90"/>

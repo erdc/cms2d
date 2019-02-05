@@ -1261,8 +1261,10 @@ d1: do ii=1,10
     use sed_def
     use diag_lib
     use prec_def
+    
     implicit none
     integer :: i,ii,ks,ierr,jlay,ipr,nsedchk
+    real    :: value
     character(len=37) :: cardname,cdum
     character(len=200) :: file,path
     logical :: foundcard
@@ -2585,10 +2587,12 @@ d1: do ii=1,30
 #endif
     use in_lib, only: readscalTxt
     use diag_lib
+    use diag_def, only: dgunit,dgfile
     use prec_def
     
     implicit none
     integer :: i,ih,ierr,idhardtemp(ncellsD)
+    integer :: hbwarn(ncellsD), nhbwarn
     character(len=100) :: msg2,msg3,msg4,msg5
     character(len=10) :: aext
 
@@ -2612,6 +2616,8 @@ d1: do ii=1,30
     end select
     
 !Find number and id of hardbottom cells
+    nhbwarn=0
+    hbwarn=0
     do i=1,ncells
       if(abs(hardzb(i)+999.0)>1.0e-4)then
         nhard=nhard+1
@@ -2619,15 +2625,33 @@ d1: do ii=1,30
         hardzb(i) = -hardzb(i) !Note sign change from depths to elevations
         !Check elevations
         if(hardzb(i)>zb(i)+1.0e-3)then
-          write(msg2,*) '  Cell: ',i
-          write(msg3,*) '  Hard bottom depth: ',-hardzb(i),' m'
-          write(msg4,*) '  Water Depth: ',-zb(i),' m'
-          write(msg5,*) '  Setting bed elevation as hard bottom'
-          call diag_print_warning('Specified hard bottom above bed elevation',msg2,msg3,msg4,msg5)
+          !Removing this message for now.  Adding IDs of cells to an array all to be printed at one time.  MEB 12/11/2018
+          !write(msg2,*) '  Cell: ',mapid(i)
+          !write(msg3,*) '  Hard bottom depth: ',-hardzb(i),' m'
+          !write(msg4,*) '  Water Depth: ',-zb(i),' m'
+          !write(msg5,*) '  Setting bed elevation as hard bottom'
+          !call diag_print_warning('Specified hard bottom above bed elevation',msg2,msg3,msg4,msg5)
+          nhbwarn = nhbwarn + 1
+          hbwarn(nhbwarn) = i
         endif
         hardzb(i)=min(hardzb(i),zb(i)) !Note: Hard bottom must be at or below the bed elevation
       endif
     enddo
+    
+ 99 format(15(i0,x))
+100 format('Specified hard bottom above bed elevation for ',i0,' cells.')
+101 format('Cell IDs written to file: "hb_warning.txt"')
+
+    if(nhbwarn .gt. 0) then 
+      write(msg2,100) nhbwarn
+      write(msg3,101) 
+      call diag_print_warning(msg2,msg3)
+!      write(*,99)      (hbwarn(i),i=1,nhbwarn)
+      
+      open(200,file='hb_warning.txt',status='unknown') 
+      write(200,99) (mapid(hbwarn(i)),i=1,nhbwarn)  !changed to the ID of the cell as in SMS.  01/29/2019
+      close(200)
+    endif        
     
     !Copy hardbottom info to smaller arrays
     if(nhard>0)then

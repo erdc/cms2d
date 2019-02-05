@@ -353,20 +353,31 @@ contains
 
 850 format(I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
 750 format(I0,' hrs, ',I0,' min, ',F7.3,' s')
+775 format(I0,' hrs, ',I0,' min')
 650 format(I0,' min, ',F7.3,' s')
+675 format(I0,' min, ')
 550 format(F7.3,' s')
     
     call time_s2dhs(timesec,idays,ihrs,imin,isec,imilsec)    
     sec = dble(isec) + dble(imilsec)*0.001d0
+    if (sec .lt. 0.01 .and. sec .gt. 0) sec = 0.0d0  !Don't show numbers like 0.002 seconds  MEB 01/17/2019
     
     if(idays>=1)then
       ihrs=ihrs+(idays*24)
     endif
     
     if(ihrs>=1)then
-      write(str,750,iostat=ierr) ihrs,imin,sec
+      if (sec .eq. 0.0d0) then 
+        write(str,775,iostat=ierr) ihrs,imin         !Don't write out 0.000 s   MEB 01/17/2019
+      else
+        write(str,750,iostat=ierr) ihrs,imin,sec
+      endif
     elseif(imin>=1)then
-      write(str,650,iostat=ierr) imin,sec
+      if (sec .eq. 0.0d0) then 
+        write(str,675,iostat=ierr) imin              !Don't write out 0.000 s   MEB 01/17/2019
+      else
+        write(str,650,iostat=ierr) imin,sec
+      endif
     else
       write(str,550,iostat=ierr) sec
     endif

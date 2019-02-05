@@ -171,8 +171,8 @@
      
       !if flow and waves are simulated, then WABC is turned on
       if(noptset==3) WABC = .true.
-      write(*,*)'WABC = ',wabc
-      write(*,*)'noptset = ',noptset
+!      write(*,*)'WABC = ',wabc
+!      write(*,*)'noptset = ',noptset
       
       !the WABC also applies for wind stresses, both spatially constant and variable
       if(WABC .or. windvar .or. windconst) then           

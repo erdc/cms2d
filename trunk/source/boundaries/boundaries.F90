@@ -329,7 +329,7 @@
           
       case('INFLOW_DIRECTION','INFLOW_ANGLE','ANGLE','DIRECTION','POSITIVE_FLOW_DIRECTION')
         backspace(77)
-        read(77,*) cardname,angle_flux  !degrees
+        read(77,*) cardname,angle_flux              !degrees
         angle_flux = 90.0 - angle_flux - azimuth_fl !degrees, clockwise from North, local coordinate system
         if(angle_flux<0.0)then
           angle_flux = angle_flux + 360.0
@@ -841,7 +841,7 @@
       
       case('INCIDENT_ANGLE','INCIDENT_DIRECTION')
         backspace(77)
-        read(77,*) cardname,angle_wave  !degrees
+        read(77,*) cardname,angle_wave              !degrees
         angle_wave = 90.0 - angle_wave - azimuth_fl !degrees, clockwise from North, local coordinate system
         if(angle_wave<0.0)then
           angle_wave = angle_wave + 360.0

@@ -24,7 +24,8 @@ INTEGER GUID_ID
 CHARACTER*200 GDC_PATH,GDT_PATH  
 
 !TIMING (WALL CLOCK)
-integer time_array_0(8), time_array_1(8)
+integer :: time_array_0(8), time_array_1(8)
+real    :: outinterval = -1.0
 
 !=== Flow parameters ===
 logical :: advect, mixing

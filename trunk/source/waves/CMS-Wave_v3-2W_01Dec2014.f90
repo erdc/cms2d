@@ -2699,47 +2699,48 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       jmax=nj+1
 !
       do k=1,ijstruc2
-      if(imod.eq.0) then
-      i=istruc2(k)
-!     j=jstruc2(k)
-      end if
-      if(imod.eq.2) then
-      i=imax-istruc2(k)
-!     j=jmax-jstruc2(k)
-      end if
-      if(imod.eq.1) then
-      i=jstruc2(k)
-!     j=jmax-istruc2(k)
-      end if
-      if(imod.eq.3) then
-      i=imax-jstruc2(k)
-!     j=istruc2(k)
-      end if
-      if(i.lt.ismall) ismall=i
+        if(imod.eq.0) then
+          i=istruc2(k)
+!         j=jstruc2(k)
+        end if
+        if(imod.eq.2) then
+          i=imax-istruc2(k)
+!         j=jmax-jstruc2(k)
+        end if
+        if(imod.eq.1) then
+          i=jstruc2(k)
+!         j=jmax-istruc2(k)
+        end if
+        if(imod.eq.3) then
+          i=imax-jstruc2(k)
+!         j=istruc2(k)
+        end if
+        if(i.lt.ismall) ismall=i
       end do
 !
       do k=1,ijstruc3
-        if(igetfile4.eq.0) then
-        if(k3(k).ge.6) dstruc33(k)=dstruc33(k)+tide
+        !if(igetfile4.eq.0) then
+        if(getfile4) then
+          if(k3(k).ge.6) dstruc33(k)=dstruc33(k)+tide
         end if
 !
-      if(imod.eq.0) then
-      i=istruc3(k)
-!     j=jstruc3(k)
-      end if
-      if(imod.eq.2) then
-      i=imax-istruc3(k)
-!     j=jmax-jstruc3(k)
-      end if
-      if(imod.eq.1) then
-      i=jstruc3(k)
-!     j=jmax-istruc3(k)
-      end if
-      if(imod.eq.3) then
-      i=imax-jstruc3(k)
-!     j=istruc3(k)
-      end if
-      if(i.lt.ismall) ismall=i
+        if(imod.eq.0) then
+          i=istruc3(k)
+!         j=jstruc3(k)
+        end if
+        if(imod.eq.2) then
+          i=imax-istruc3(k)
+!         j=jmax-jstruc3(k)
+        end if
+        if(imod.eq.1) then
+          i=jstruc3(k)
+!         j=jmax-istruc3(k)
+        end if
+        if(imod.eq.3) then
+          i=imax-jstruc3(k)
+!         j=istruc3(k)
+        end if
+        if(i.lt.ismall) ismall=i
       end do
 !
       do k=1,ijstruc4
