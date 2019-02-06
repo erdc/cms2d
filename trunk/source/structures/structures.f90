@@ -837,17 +837,14 @@
 
     call rubble_mound_alloc         !added meb 1/28/2019
 
-    read(77,*) cardname
-    selectcase (cardname) 
-      case('RUBBLE_MOUND_DATASET')  !Modfiy input format for rubble mound structure (hli,11/26/12)
-      backspace(77)
-      read(77,*) cardname,arubmoundfile,arubmoundpath
-      backspace(77)
-    endselect
-
     do
       read(77,*) cardname
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
+      
       selectcase (cardname) 
+        case('RUBBLE_MOUND_END','END')
+          exit
+          
         case('RUBBLE_MOUND_DATASET')  !Modfiy input format for rubble mound structure (hli,11/26/12)
           backspace(77)
           read(77,*) cardname,arubmoundfile,arubmoundpath
@@ -901,9 +898,6 @@
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%rubmoundmeth        !meb added index 1/28/2019   
           rm_dset = .false.
-          
-        case('RUBBLE_MOUND_END','END')
-          exit
           
         case default
           foundcard = .false.
