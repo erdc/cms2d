@@ -103,8 +103,9 @@
     use time_lib
     use diag_def
     use diag_lib
-    use cms_def, only: timestart,timenow
-    use solv_def, only: iconv
+    use cms_def,   only: timestart,timenow
+    use solv_def,  only: iconv
+    use sed_def,   only: scalemorph
     use prec_def
     implicit none
     integer :: ierr
@@ -123,20 +124,34 @@
         speed = dble(ctime-ctime1)/timeint !Note: computed using last speed check time interval
         ctime1 = ctime
         timerem = dble(stimet-ctime)/speed
+        msg=''; msg2=''
         call time_sec2str(timesecs,str)
-        write(msg,'(A,A)',iostat=ierr)     'Elapsed Simulation Time:  ',trim(str)
-        call diag_print_message(' ',msg)
+        write(msg,'(A,A)',iostat=ierr)       'Elapsed Simulation Time:       ',trim(str)
+
+        ! meb 02/06/2019
+        ! Adding an output statement to write out the "Elapsed Morphologic Time" if Morphologic Acceleration Factor > 1
+        if (scalemorph .gt. 1) then
+          call time_sec2str(timesecs*scalemorph,str)
+          write(msg2,'(A,A)',iostat=ierr)     '- Effective Morphologic Time:  ',trim(str)
+        endif   
+        !------------
+        call diag_print_message(' ',msg,msg2)
+
         call time_sec2str(timedur,str)
-        write(msg,'(A,A)',iostat=ierr)     'Elapsed Clock Time:       ',trim(str)
+        write(msg,'(A,A)',iostat=ierr)       'Elapsed Clock Time:            ',trim(str)
         call diag_print_message(msg)
-        write(msg,'(A,F10.3)',iostat=ierr) 'Computational Speed:      ',speed
+
+        write(str,'(F0.3)',iostat=ierr)     speed
+        write(msg,'(A,A)',iostat=ierr)       'Computational Speed:           ',trim(str)
         call diag_print_message(msg)
+
         call time_sec2str(timerem,str)
-        write(msg,'(A,A)',iostat=ierr)     'Remaining Clock Time:     ',trim(str)
+        write(msg,'(A,A)',iostat=ierr)       'Remaining Clock Time:          ',trim(str)
         call diag_print_message(msg)
+
+        continue
       endif
     endif
-    
 !#ifdef DEV_MODE
 !    if(ntime<=nspinup)then
 !     deltime = dtimebeg*dble(ntime+1)/dble(nspinup+1) !Use double precision

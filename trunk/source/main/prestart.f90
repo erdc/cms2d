@@ -240,6 +240,9 @@
 !--- Read Hot Start --------------------------------------------
     if(.not.coldstart)then !Hot Start
       call hot_read        !Overwrites initialized variables      
+      
+      ctime = timeout*3600.0  !Added 02/13/2019 meb  !Must know ctime for waves to update 
+      
       !call hot_init        !Initializes any missing variables such as Ctk, pbk  	    	  
     endif
     

@@ -1273,6 +1273,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 !
 !Hot start option      
+      n=0  !Initialize N=0, use N later to write out correct ITMS
       if(noptset.eq.3 .and. nsteer.eq.1 .and. .not.coldstart)then !Alex
         n=int(ctime/dtsteer)
         write(*,*)
@@ -1281,11 +1282,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(9,*) 'Skipping ',n,' spectra'
         do i=1,n
           read(8,*,end=410) eDate,ws,wd,fp,Tide
-            idate = int(mod(edate,100000.))
-            kdate = int(edate/100000.)
+          idate = int(mod(edate,100000.))
+          kdate = int(edate/100000.)
           if(edate.lt.99999999.) then
-          kdate=0
-          idate=int(edate)
+            kdate=0
+            idate=int(edate)
           end if
           read(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
         enddo  
@@ -1339,7 +1340,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
       end if
 !
-      itms = 0
+      itms = 0 + n  !N is number of times that were skipped during hot start or 0 if cold start.
       imod = 0
       if(iprpp.eq.1.or.iprpp.eq.-2) then
         if(iwind.ge.1) then
@@ -1475,43 +1476,43 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iplane.eq.2) then
         wd=wd/rad
         if(wd.lt.0.) wd=wd+360.
-          wd=wd-180.
-          if(iwave.eq.1) then
-            read(24,'(a150)',end=424) text
-      READ(text,*,err=423,end=424) JDATE,ws1,wd1,fp1,Tide1,xc(1),yc(1),hs13(1)
-423         continue
-            if(abs(ws1).lt..001) wd1=0.
-            ws=ws1
-            wd=wd1
-            if(abs(fp1).gt..001) fp=fp1
-            if(iprp.eq.1.or.iprp.eq.-2) ws=0.
-            write(*,*) 'Wave Spc Input Index =',JDate
-            go to 424
-          else
-            hs0=0.
-            sum=0.
-            if(abs(wd).ge.120..and.iwind.eq.0) then
-              h13=0.
-              t13=0.
-              dmn=0.
-              imod=2
-              irs0=1
+        wd=wd-180.
+        if(iwave.eq.1) then
+          read(24,'(a150)',end=424) text
+          READ(text,*,err=423,end=424) JDATE,ws1,wd1,fp1,Tide1,xc(1),yc(1),hs13(1)
+423       continue
+          if(abs(ws1).lt..001) wd1=0.
+          ws=ws1
+          wd=wd1
+          if(abs(fp1).gt..001) fp=fp1
+          if(iprp.eq.1.or.iprp.eq.-2) ws=0.
+          write(*,*) 'Wave Spc Input Index =',JDate
+          go to 424
+        else
+          hs0=0.
+          sum=0.
+          if(abs(wd).ge.120..and.iwind.eq.0) then
+            h13=0.
+            t13=0.
+            dmn=0.
+            imod=2
+            irs0=1
 !
-              do j = 1, nj
-                do i = 1, ni
-                  d1(i, j) = dep0(ni-i+1, nj-j+1) + Tide
-                enddo
-                dvary(j)=dvaryy(nj-j+1)
+            do j = 1, nj
+              do i = 1, ni
+                d1(i, j) = dep0(ni-i+1, nj-j+1) + Tide
               enddo
+              dvary(j)=dvaryy(nj-j+1)
+            enddo
 !
-              do i=1,ni
-                dvarx(i)=dvarxx(ni-i+1)
-              end do
+            do i=1,ni
+              dvarx(i)=dvarxx(ni-i+1)
+            end do
 !
-              go to 80
-            end if
-            go to 425
+            go to 80
           end if
+          go to 425
+        end if
       end if
 !
     if(noptset.ne.3)then

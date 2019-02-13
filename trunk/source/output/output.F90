@@ -2507,18 +2507,32 @@ implicit none
 !**********************************************************************   
     use diag_lib
     use comvarbl, only: timesecs
+    use sed_def,  only: scalemorph
     use time_lib
     implicit none
     logical :: header    
-    character(len=200) :: msg
+    character(len=200) :: msg,msg2
     character(len=50) :: str
     
+! meb 02/06/2019
+! Added another write statement for effective morphologic time if Morphology Acceleration Factor > 1
+    
 701 format(' WRITING GLOBAL OUTPUT - ',A)
+702 format(' WRITING GLOBAL OUTPUT -        ',A)
+703 format(' - EFFECTIVE MORPHOLOGIC TIME - ',A)   
     
     if(.not.header)then
-      call time_sec2str(timesecs,str)  
-      write(msg,701) trim(str)
-      call diag_print_message(' ',msg)
+      if (scalemorph .eq. 1) then
+        call time_sec2str(timesecs,str)  
+        write(msg,701) trim(str)
+        call diag_print_message(' ',msg)
+      else
+        call time_sec2str(timesecs,str)  
+        write(msg,702) trim(str)
+        call time_sec2str(timesecs*scalemorph,str)  
+        write(msg2,703) trim(str)
+        call diag_print_message(' ',msg,msg2)
+      endif
 	  header = .true.
 	endif
     
