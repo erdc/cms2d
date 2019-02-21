@@ -3029,7 +3029,7 @@ d1: do i=1,ntf
           deallocate(lat)
         else
           allocate(lon(ncellsD))
-          call read_latlon_dataset(lon,'Lons')  !Required because latitude dataset is saved as a group property
+          call read_latlon_dataset(lon,'Lons')  !Required because longitude dataset is saved as a group property
           call writescalTxt(dsetList(i)%filename,trim(indirpath),trim(dsetname),lon,1)
           deallocate(lon)
         endif  

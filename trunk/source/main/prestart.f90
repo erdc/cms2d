@@ -316,8 +316,8 @@
 !******************************************    
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: lat,latpath,idmap
-    use geo_def, only: lon,lonpath
+    use geo_def, only: lat,latpath,idmap,latfile
+    use geo_def, only: lon,lonpath,lonfile
     use comvarbl, only: mpfile
 #ifdef XMDF_IO    
     use xmdf
@@ -326,49 +326,78 @@
     use prec_def
     implicit none
     integer :: i,LFILE_ID,LAT_ID,LON_ID, iloc,ierr
+    integer :: ival, ndim, j
     real(4) :: vtemp(ncellsfull)
     real(4),      intent(inout) :: dset(*)
     character(4), intent(in)    :: string
+    character(len=10)  :: aext
+    character(len=200) :: apath,aname
     
+200 FORMAT (I0,x,I1)
+201 FORMAT (25(E10.3,2x))
+    
+    call fileparts(latfile,apath,aname,aext)
+    call lowercase(aext)
+    
+    select case(aext)
+    case ('h5')
 #ifdef XMDF_IO
-    select case(string)
-    case('Lats')
-    call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
-    iloc=index(latpath,'/',BACK=.TRUE.)
-    latpath = latpath(1:iloc)        
-    call XF_OPEN_GROUP(LFILE_ID,trim(latpath),LAT_ID,ierr)
-    call XF_READ_PROPERTY_FLOAT(LAT_ID,'Lats',ncellsfull,vtemp(1),ierr)
-    if(ierr<0) then
-      write (*,*) "Error reading all Latitudes - setting latitude to zero."      
-        dset(1:ncellsfull) = 0.0
-      return
-    endif
-    call XF_CLOSE_FILE(LFILE_ID,ierr)
-    case('Lons')
-      call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
-      iloc=index(lonpath,'/',BACK=.TRUE.)
-      lonpath = lonpath(1:iloc)        
-      call XF_OPEN_GROUP(LFILE_ID,trim(lonpath),LON_ID,ierr)
-      call XF_READ_PROPERTY_FLOAT(LON_ID,'Lons',ncellsfull,vtemp(1),ierr)
-      if(ierr<0) then
-        write (*,*) "Error reading all Longitudes - setting longitude to zero."      
-        dset(1:ncellsfull) = 0.0
-        return
-      endif
-      call XF_CLOSE_FILE(LFILE_ID,ierr)
-    end select
-    
+      select case(string)
+      case('Lats')
+        call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
+        iloc=index(latpath,'/',BACK=.TRUE.)
+        latpath = latpath(1:iloc)        
+        call XF_OPEN_GROUP(LFILE_ID,trim(latpath),LAT_ID,ierr)
+        call XF_READ_PROPERTY_FLOAT(LAT_ID,'Lats',ncellsfull,vtemp(1),ierr)
+        if(ierr<0) then
+          write (*,*) "Error reading all Latitudes - setting latitude to zero."      
+          dset(1:ncellsfull) = 0.0
+          return
+        endif
+        call XF_CLOSE_FILE(LFILE_ID,ierr)
+
+      case('Lons')
+        call XF_OPEN_FILE(mpfile,READONLY,LFILE_ID,ierr)
+        iloc=index(lonpath,'/',BACK=.TRUE.)
+        lonpath = lonpath(1:iloc)        
+        call XF_OPEN_GROUP(LFILE_ID,trim(lonpath),LON_ID,ierr)
+        call XF_READ_PROPERTY_FLOAT(LON_ID,'Lons',ncellsfull,vtemp(1),ierr)
+        if(ierr<0) then
+          write (*,*) "Error reading all Longitudes - setting longitude to zero."      
+          dset(1:ncellsfull) = 0.0
+          return
+        endif
+        call XF_CLOSE_FILE(LFILE_ID,ierr)
+      end select
+#endif      
+
+    case('txt')  
+      select case(string)
+      case('Lats')
+        open(6000,file=latfile)
+        read(6000,*) ival, ndim  !Always 1 for Scalar
+        if (ncellsfull .ne. ival) then
+          call diag_print_error("Mismatch between number of values in latitude file and grid cells")
+        endif
+        read(6000,201) (vtemp(j),j=1,ival)
+        close(6000)
+      case('Lons')
+        open(6001,file=lonfile)
+        read(6001,*) ival, ndim  !Always 1 for Scalar
+        if (ncellsfull .ne. ival) then
+          call diag_print_error("Mismatch between number of values in longitude file and grid cells")
+        endif
+        read(6001,201) (vtemp(j),j=1,ival)
+        close(6001)
+      end select  
+    end select          
+          
     if (vtemp(1) == 0.0) vtemp(1)=vtemp(2) !SMS bug fix, SMS always outputs 0.0 for first cell
     do i=1,ncellsfull 
       if(idmap(i)/=0)then
         dset(idmap(i)) = vtemp(i)
       endif
     enddo
-#else
-    call diag_print_warning('Cannot read lat/long dataset without XMDF libraries',&
-      '  Setting to zero')
-    dset(1:ncellsfull) = 0.0    
-#endif
     
     return
     endsubroutine read_latlon_dataset

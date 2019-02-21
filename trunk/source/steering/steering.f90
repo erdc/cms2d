@@ -1182,10 +1182,11 @@
       iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav,ierr)
     call calendar2julian(iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav,tjulwav) 
     
-    write(*,'(A,I10)') '  Wave index = ',idatewave
-    if(idatewave>10000000)then !Otherwise it is not a date
+    if(iyrwav .ge. 2000 .or. idatewave .gt. 10000000)then !Otherwise it is not a date
       write(*,'(A,I4,5(1x,I2))') '  Wave date = ',&
         iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
+    else
+      write(*,'(A,I10)') '  Wave index = ',idatewave
     endif
     
     if(imod==0)then
