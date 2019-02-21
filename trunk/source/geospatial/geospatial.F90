@@ -2359,7 +2359,7 @@ di: do i=1,ncellsD
     use prec_def
     implicit none
     !Input/Output
-    real(4),     intent(in) :: vtemp(ncellsfull) !Must be single
+    real(4),    intent(in) :: vtemp(ncellsfull) !Must be single
     real(ikind),intent(out):: var(ncellsD)
     !Internal Variables
     integer :: i,k
