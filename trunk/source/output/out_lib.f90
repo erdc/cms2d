@@ -295,11 +295,11 @@ contains
     
     nunit = 124
     id = 17255
-    !if(debug_mode)then 
+    if(debug_mode)then 
       nc = ncellsD !Include ghost cells
-    !else
-    !  nc = ncells
-    !endif  
+    else
+      nc = ncells
+    endif  
     
     !Testing new way
     inquire(file=filedat,exist=found)
@@ -521,11 +521,11 @@ contains
 
     nunit = 124
     id = 17255
-    !if(debug_mode)then 
+    if(debug_mode)then 
       nc = ncellsD !Include ghost cells
-    !else
-    !  nc = ncells
-    !endif 
+    else
+      nc = ncells
+    endif 
 
     !Testing new way
     inquire(file=filedat,exist=found)
