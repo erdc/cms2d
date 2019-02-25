@@ -1,22 +1,20 @@
 ## Coastal Modeling System (CMS)
 
-CMS is a coastal modeling system that couples a wave, circulation, and morphology model together to get better predictions in the nea-shore
+CMS is a coastal modeling system that couples a wave, circulation, and morphology model together to 
+get better predictions in the near-shore
 
 CMS is developed by the USACE - Coastal and Hydraulics Laboratory
 
 
-to build CMS On linux you must have CMAKE softward above 3.4
-in file `"source/main/CMS_cpp.h"`
+To build CMS On linux you must have CMAKE softward above 3.4
+1) In file `"source/main/CMS_cpp.h"`, change `#def WIN_OS` to `#undef WIN_OS`
 
+2) `cd trunk/source`
 
-change `#def WIN_OS` to `#undef WIN_OS`
+3) `cmake .`
 
-Then
+4) `make`
+This will leave you with a cms executable in your local directory 
 
-1. `cd trunk/source`
-
-2. `cmake .`
-
-3. `make`
-
-4. this will leave you with a cms executable in your local directory 
+To clean all of the intermediate files and old executable, type 'make clean' from the 
+"trunk/source" directory.
