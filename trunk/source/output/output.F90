@@ -1298,7 +1298,7 @@
         call system('mkdir '//(trim(outdirpath)))
       endif
 #endif
-      aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)
+      aname = trim(flowpath) // trim(outdirpath) // '/' //  trim(casename)
       call write_sup_file(aname) !Super File *.sup
       call write_xy_file(aname,casename)  !XY coordinate file *.xy  
     endif
@@ -2139,7 +2139,8 @@ implicit none
     apath = simlabel(1:nn)//'/'
     outdirpath = 'ASCII_Solutions'
     
-    aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)
+    !aname = trim(outdirpath) // '/' // trim(flowpath) // trim(casename)
+    aname = trim(flowpath) // trim(outdirpath) // '/' //  trim(casename)
     
     if(debug_mode)then
       nd = ncellsD

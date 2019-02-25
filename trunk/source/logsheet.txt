@@ -1,3 +1,8 @@
+== Version 5.1.7 (02/13/2019)
+* Bug fix: Read the friction file properly if using ASCII Input.
+* Change: Write the Wave Date out in a better format for screen text.
+* Bug fix: Resolved a file naming issue when full paths are specified on command line.
+
 == Version 5.1.6 (02/13/2019)
 * Update: Implemented input file changes for Weir and Rubble Mound Jetty structures to match the SMS 13.0+ menu interface design.
 * Bug fix: Resolved a few minor issues related to Explicit scheme with parallelization.

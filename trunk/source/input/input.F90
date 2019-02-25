@@ -33,7 +33,7 @@
       ierr = -1
     else
       scalar = scalarin
-      if (extra_attr .ne. ' ') fromunits = trim(fromunits)//' '//extra_attr
+      if (extra_attr .ne. ' ' .and. extra_attr .ne. '!') fromunits = trim(fromunits)//' '//extra_attr
       ierr = 0
     endif
     if(ierr==-1 .or. fromunits(1:1)==' ' .or. &
@@ -149,6 +149,7 @@
       call diag_print_error('Could not read dataset card: ',cardname)
     endif
     call fileparts(datafile,apath,aname,aext)
+    call lowercase(aext)
     if(len_trim(aext)==0)then !Is NOT a file. It is a path
       datapath = datafile
       datafile = defaultfile !Assume the file is the grid file
@@ -175,9 +176,8 @@
         ival1 = -1; ival2= -1
         ival1 = INDEX(datapath,"Lats")
         ival2 = INDEX(datapath,"Lons")
-        if (ival1 .gt. 0) isLatLong=.true.
-        if (ival2 .gt. 0) isLatLong=.true.
-    endif
+        if (ival1 .gt. 0 .or. ival2 .gt. 0) isLatLong=.true.
+      endif
       
       if (ival .le. 0) then
         if(datapath(1:10).eq.'Datasets/ ') then                           
@@ -196,6 +196,10 @@
         read(aline,*,iostat=ierr) cardname, datafile, aNumber
         write(datapath,'(I1)') aNumber      !Temporarily one digit limitation.  If needed, can do more.
       endif
+      
+    case('txt')
+      !Set some text to the path to make known there is a latitude file
+      datapath='ASCII_Input'
     end select
     
     inquire(file=datafile,exist=foundfile)       

@@ -5,7 +5,6 @@
 
 *.zip
 
-CMS_cpp.h
 CMakeCache.txt
 CMakeFil*
 Makefile

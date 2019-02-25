@@ -200,7 +200,7 @@ SET( CMS_SOURCE_FILES
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
 
-  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -ffree-line-length-none -ffixed-line-length-none -O3" )
+  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -fopenmp -ffree-line-length-none -ffixed-line-length-none -O3" )
 
 ELSEIF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
 

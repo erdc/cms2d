@@ -40,7 +40,8 @@ contains
     character :: adum*3,msg*200
     logical :: foundfile
     
-    inquire(file=afile,exist=foundfile)
+    inquire(file=afile,exist=foundfile)  !look for file in current directory
+  
     if(.not.foundfile)then
       write(msg,*,iostat=ierr) 'Could not find file: ',trim(afile)
       call diag_print_error(msg)

@@ -172,6 +172,7 @@
 ! completed by Mitchell Brown, 03/20/2018
 !********************************************************************    
     use diag_lib,   only: diag_print_error, diag_print_message
+    use diag_def,   only: debug_mode
     use flow_def,   only: eta,u,v,h,p,iwet,grav,gravinv,flux
     use sed_def,    only: sedtrans,zb1,nsed,ctk,db,pbk
     use sal_def,    only: saltrans,sal
@@ -190,13 +191,13 @@
     character(len=*), intent(in) :: supfile
     character(len=200) :: cardname, datfile,astring
     character :: ictimeunits*10
-    integer :: kunit,ierr,istart,iend,imid,ival,ks,j, i
+    integer :: kunit,ierr,istart,iend,imid,ival,ks,j, i,k,nd
     logical :: foundfile, founddataset
     logical :: icsingle = .false., icmulti = .false.
     integer :: nscal,nvec
     type(scaldattype), pointer :: scaldat(:)
     type(vecdattype),  pointer :: vecdat(:)
-    real(4) :: etemp(ncells),utemp(ncells),vtemp(ncells),wtemp(ncells)
+    real(4) :: etemp(ncellsD),utemp(ncellsD),vtemp(ncellsD),wtemp(ncellsD)
     real(ikind) :: temp(ncellsD)
     
     kunit = 500
@@ -210,6 +211,13 @@
     endif
     
     write(*,*) 'Starting Hot Start'
+
+    if(debug_mode)then   !Set number of cells to read from files.  Same as in write routines.
+      nd = ncellsD
+    else
+      nd = ncells
+    endif
+
 
     do while(ierr==0)
       read(kunit,*,iostat=ierr) cardname
@@ -225,19 +233,29 @@
         select case(astring(1:4))
         case ('eta ')   !Water Elevation
           call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-          if(scaldat(1)%nd /= ncells)then
+          if(scaldat(1)%nd /= nd)then
             call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
           endif
           if(nscal.ne.1) call diag_print_error('Problem reading Water_Elevation data from '//trim(datfile))
           
           icwse = .true.
           call diag_print_message ('   Read Initial Water Level:            '//trim(datfile))
-          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-          if(ncellpoly>0)then
-            call interp_scal_node2cell(etemp,eta) !Interpolate node to cell centers
-          else
-            call map_scal_full2active(etemp,eta) !Convert from full to active grid 
-          endif
+          
+          do i=1,nd
+            etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+          enddo
+          do i=nd+1,ncellsd
+            etemp(i) = 0.0
+          enddo
+
+          eta = etemp
+   !Reading input for "ncellsD" (Active) cells already.  Removing this section.  meb  02/21/2019
+          !if(ncellpoly>0)then
+          !  call interp_scal_node2cell(etemp,eta) !Interpolate node to cell centers
+          !else
+          !  call map_scal_full2active(etemp,eta) !Convert from full to active grid 
+          !endif
+          
           !write(*,*) 'IC - Before P assignment, p(1) = ',p(1)
        !section added 07/06/2018  meb
           if (.not.icpres) then 
@@ -255,7 +273,7 @@
            
         case ('vel ')   !Current Velocity
           call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-          if(vecdat(1)%nd /= ncells)then
+          if(vecdat(1)%nd /= nd)then
             call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
           endif
           if(nvec.ne.1) call diag_print_error('Problem reading Current_Velocity data from '//trim(datfile))
@@ -264,15 +282,24 @@
           call diag_print_message ('   Read Initial Current Velocities:     '//trim(datfile))
 
           !Velocities
-          utemp(:) = vecdat(1)%val(:,1,vecdat(1)%nt)
-          vtemp(:) = vecdat(1)%val(:,2,vecdat(1)%nt)        
-          if(ncellpoly>0)then
-            call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
-            call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers
-          else
-            call map_scal_full2active(utemp,u) !Convert from full to active grid 
-            call map_scal_full2active(vtemp,v) !Convert from full to active grid 
-          endif
+          do i=1,nd                                      
+            utemp(i) = vecdat(1)%val(i,1,vecdat(1)%nt)
+            vtemp(i) = vecdat(1)%val(i,2,vecdat(1)%nt)        
+          enddo
+          do i=nd+1,ncellsd                              !If nd==ncellsD, do nothing more
+            etemp(i) = 0.0
+          enddo
+          
+          u=utemp
+          v=vtemp
+
+          !if(ncellpoly>0)then
+          !  call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
+          !  call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers
+          !else
+          !  call map_scal_full2active(utemp,u) !Convert from full to active grid 
+          !  call map_scal_full2active(vtemp,v) !Convert from full to active grid 
+          !endif
 
           if(ictime < 0) then
             ictime = vecdat(1)%time(vecdat(1)%nt)  !Modify start time to match the initial conditions file.
@@ -285,19 +312,27 @@
         case ('p   ')   !Water Pressure
           call read_dat (datfile,nscal,scaldat,nvec,vecdat)
           if(.not. icwse) then     !Don't overwrite eta, if it was already read in.
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Water_Pressure data from '//trim(datfile))
           
             icpres = .true.
             call diag_print_message ('   Read Initial Water Pressure :        '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,p) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,p) !Convert from full to active grid 
-            endif
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+
+            p=etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,p) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,p) !Convert from full to active grid 
+            !endif
+            
             eta = p*gravinv
           endif  
 
@@ -311,25 +346,37 @@
             
         case ('wet ')   !Wet/Dry
           call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-          if(scaldat(1)%nd /= ncells)then
+          if(scaldat(1)%nd /= nd)then
             call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
           endif
           if(nscal.ne.1) call diag_print_error('Problem reading Wet/Dry states from '//trim(datfile))
           
           icwet = .true.
           call diag_print_message ('   Read wet/dry states:                 '//trim(datfile))
-          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-          if(ncellpoly>0)then
-            call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-          else
-            call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-          endif
-          deallocate(scaldat)
-          iwet = temp
+
+          do i=1,nd
+            etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+          enddo
+          do i=nd+1,ncellsd
+            etemp(i) = 0.0
+          enddo
+
+          temp = etemp
+          !if(ncellpoly>0)then
+          !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+          !else
+          !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+          !endif
+          
+          do i=1,nd
+            iwet(i) = int(temp(i))
+          enddo
             
+          deallocate(scaldat)
+          
         case ('Flux')   !Fluxes                           - Multiple possible
           call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-          if(scaldat(1)%nd /= ncells)then
+          if(scaldat(1)%nd /= nd)then
             call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
           endif
           if(nscal.ne.1) call diag_print_error('Problem reading cell-face fluxes from '//trim(datfile))
@@ -337,12 +384,19 @@
           if (.not. icflux) call diag_print_message ('   Read cell-face fluxes:               '//trim(datfile))
           icflux = .true. !Switch to true so this only prints once
           
-          etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)
-          if(ncellpoly>0)then
-            call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-          else
-            call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-          endif
+          do i=1,nd
+            etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+          enddo
+          do i=nd+1,ncellsd
+            etemp(i) = 0.0
+          enddo
+          
+          temp = etemp
+          !if(ncellpoly>0)then
+          !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+          !else
+          !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+          !endif
           
           !Should be more than one face.  Determine which one this is
           istart = index(datfile,'Flux')+4
@@ -356,19 +410,28 @@
         case ('dept')   !Water Depth (at hotstart time)
           if(sedtrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Depth from '//trim(datfile))
           
             icwse = .true.
             call diag_print_message ('   Read Initial Water Depths:           '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,zb) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,zb) !Convert from full to active grid 
-            endif
+            
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            zb=etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,zb) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,zb) !Convert from full to active grid 
+            !endif
+            
             deallocate(scaldat)
             zb = -zb
             zb1 = zb
@@ -377,18 +440,26 @@
         case ('conc')   !Sediment Concentration           - Multiple possible
           if(sedtrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Initial Sediment Concentrations from '//trim(datfile))
             
             call diag_print_message ('   Read Initial Sediment Concentration: '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            endif
+
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            temp = etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            !endif
             deallocate(scaldat)
           
             if(nsed==1 .and. .not.icsingle) then  !Single Grain Size
@@ -410,18 +481,26 @@
         case ('thic')   !Layer thickness                  - Multiple possible
           if(sedtrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Initial Layer Thicknesses from '//trim(datfile))
             
             call diag_print_message ('   Read Initial Layer Thicknesses:      '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            endif
+
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            temp = etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            !endif
             deallocate(scaldat)
           
             !Multiple Grain Sizes
@@ -444,18 +523,26 @@
         case ('frac')   !Fraction of grain size per layer - Multiple possible
           if(sedtrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Bed Composition from '//trim(datfile))
             
             call diag_print_message ('   Read Initial Bed Composition:        '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            endif
+
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            temp = etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
+            !endif
             deallocate(scaldat)
           
             !Multiple Grain Sizes
@@ -488,45 +575,61 @@
         case ('sal ')   !Salinity Concentration
           if(saltrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Salinity Concentration from '//trim(datfile))
           
             icwse = .true.
             call diag_print_message ('   Read Initial Salinity Concentration: '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,sal) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,sal) !Convert from full to active grid 
-            endif
+
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            sal = etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,sal) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,sal) !Convert from full to active grid 
+            !endif
             deallocate(scaldat)
           endif  
 
         case ('heat')   !Temperature
           if(heattrans) then
             call read_dat (datfile,nscal,scaldat,nvec,vecdat)
-            if(scaldat(1)%nd /= ncells)then
+            if(scaldat(1)%nd /= nd)then
               call diag_print_error('Invalid initial conditions size','  Size of dataset does not match grid.')
             endif
             if(nscal.ne.1) call diag_print_error('Problem reading Temperature from '//trim(datfile))
           
             icwse = .true.
             call diag_print_message ('   Read Initial Temperatures:           '//trim(datfile))
-            etemp(:) = scaldat(1)%val(:,scaldat(1)%nt)        
-            if(ncellpoly>0)then
-              call interp_scal_node2cell(etemp,heat) !Interpolate node to cell centers
-            else
-              call map_scal_full2active(etemp,heat) !Convert from full to active grid 
-            endif
+
+            do i=1,nd
+              etemp(i) = scaldat(1)%val(i,scaldat(1)%nt)
+            enddo
+            do i=nd+1,ncellsd
+              etemp(i) = 0.0
+            enddo
+            
+            heat = etemp
+            !if(ncellpoly>0)then
+            !  call interp_scal_node2cell(etemp,heat) !Interpolate node to cell centers
+            !else
+            !  call map_scal_full2active(etemp,heat) !Convert from full to active grid 
+            !endif
             deallocate(scaldat)
           endif  
 
         end select
       endif
      
-    enddo
+    enddo 
     close(kunit)
     
     return
@@ -1450,7 +1553,7 @@ loopj:  do j=1,nlay
       call system('mkdir '//(trim(hotdirpath)))
     endif
 #endif
-    !If this is a hotstart, write a copy of the file to a new name (long way because of the difficulty of '\' vs '/' in file paths
+    !If this is a hotstart, write a copy of the file to a new name (long way because of the difficulty of '\' vs '/' in file paths)
     if(.not.coldstart) then
       open(100,file=trim(icfile))
       open(101,file=trim(tfile))
@@ -1795,7 +1898,7 @@ loopj:  do j=1,nlay
 	    if(hot_recur)then
           write(iunit(i),888) 'Recurring Hot Start Output: '
 	      write(iunit(i),222) '  File:                         ',trim(autohotfile)
-	      write(iunit(i),745)   '  Recurring Interval:          ',hotdt,' hrs'
+	      write(iunit(i),745) '  Recurring Interval:           ',hotdt,' hrs'
 	    endif
 	  endif
 	enddo
