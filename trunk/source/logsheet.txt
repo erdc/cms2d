@@ -1,3 +1,6 @@
+== Version 5.1.8 (02/25/2019)
+* Bug fix: Needed to check that a boundary array was already allocated before an allocation in rare cases.
+
 == Version 5.1.7 (02/25/2019)
 * Bug fix: Read the friction file properly if using ASCII Input.
 * Change: Write the Wave Date out in a better format for screen text.

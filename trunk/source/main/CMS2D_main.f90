@@ -40,7 +40,7 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 7              !Revision number
+    revision = 8              !Revision number
     rdate    = '02/25/2019'
 
 #ifdef DEV_MODE

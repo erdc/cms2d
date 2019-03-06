@@ -286,8 +286,10 @@ contains
     endif
     
     
+    !Note: The variable 'bndcorner' is never used except here.  Do we even need all the extra code here for it?
     if(nstrcells/=nbndtemp)then 
       nbndcorner = nbndtemp-nstrcells
+      if (allocated(bndcorner)) deallocate (bndcorner)    !meb 03/06/2019  If another WSE cellstring has a corner, you have to deallocate first.
       allocate(bndcorner(nbndcorner))
       
       deallocate(icells)
