@@ -16,6 +16,7 @@ module cms_def
     save
     
     logical :: cmsflow, cmswave
+    logical :: inlinewave = .false.
     integer :: noptset !1-CMS-Waves only, 2-CMS-Flow only, 3-CMS-Waves and CMS-Flow, 4-CMS-Flow and Wave Input datasets
     integer :: n2Dor3D
     integer :: nsteer

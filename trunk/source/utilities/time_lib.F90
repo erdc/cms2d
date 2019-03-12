@@ -3,21 +3,21 @@ module time_lib
 ! Timing library
 !
 ! Contains:
-!   time_cpu - Returns the the CPU time in seconds 
-!   time_clock - Returns the the wall clock time in seconds
-!   time_jul - Returns the Julian time in seconds
-!   julday - Converts a Gregorian calendar date to a Julian date
-!   gregdate - Converts a Julian date to a Gregorian calendar date
+!   time_cpu        - Returns the the CPU time in seconds 
+!   time_clock      - Returns the the wall clock time in seconds
+!   time_jul        - Returns the Julian time in seconds
+!   julday          - Converts a Gregorian calendar date to a Julian date
+!   gregdate        - Converts a Julian date to a Gregorian calendar date
 !   julian2calendar - Converts a Julian time to a Gregorian calendar time
 !   calendar2julian - Converts a Gregorian calendar time to a Julian time
+!   index2calendar  - Converts a time index to a calendar time
+!   ramp_func       - Computes the ramp function
+!   time_cal2str    - Converts a calendar date and time to a nicely formatted string
+!   time_sec2str    - Converts an elapsed time in seconds to nicely formated string using
+!                     days, hours, minutes, and seconds
+!   time_s2dhs      - Converts an elapsed time in seconds to days, hours, minutes, 
+!                     seconds, and miliseconds
 !   julianday2calendarmonthday - Converts a julian date to a calendar month and day
-!   index2calendar - Converts a time index to a calendar time
-!   ramp_func - Computes the ramp function
-!   time_cal2str - Converts a calendar date and time to a nicely formatted string
-!   time_sec2str - Converts an elapsed time in seconds to nicely formated string using
-!                  days, hours, minutes, and seconds
-!   time_s2dhs - Converts an elapsed time in seconds to days, hours, minutes, 
-!                seconds, and miliseconds
 !
 ! Authors: Alex Sanchez, USACE-CHL
 !          Mitch Brown, USACE-CHL
@@ -198,7 +198,7 @@ contains
       jdays=(/31,59,90,120,151,181,212,243,273,304,334,365/)
     endif
     if(jday==0)then
-      write(msg,*) 'Year: ',iyr,', Julein day: ',jday
+      write(msg,*) 'Year: ',iyr,', Julian day: ',jday
       call diag_print_error('Invalid Julian Day: ',msg)
     endif    
     if(jday<=jdays(1))then 
@@ -291,8 +291,12 @@ contains
       iyr = 2000 + iyr
     elseif(index<99999999)then !yymmddhh
       read(adatestr,'(4I2)') iyr,imo,iday,ihr
+      if(iyr .lt. 100 .and. iyr .gt. 30) then
+        iyr = iyr + 1900
+      else
+        iyr = iyr + 2000
+      endif
       if(iyr>2030) iyr = iyr - 100
-      iyr = 2000 + iyr
     else !(ind>99999999)
       read(adatestr,'(I4,3I2)') iyr,imo,iday,ihr
     endif
@@ -352,10 +356,11 @@ contains
     real(8) :: sec
 
 850 format(I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
+875 format(I0,' days, ',I0,' hrs, ',I0,' min')    
 750 format(I0,' hrs, ',I0,' min, ',F7.3,' s')
 775 format(I0,' hrs, ',I0,' min')
 650 format(I0,' min, ',F7.3,' s')
-675 format(I0,' min, ')
+675 format(I0,' min')
 550 format(F7.3,' s')
     
     call time_s2dhs(timesec,idays,ihrs,imin,isec,imilsec)    
@@ -363,10 +368,12 @@ contains
     if (sec .lt. 0.01 .and. sec .gt. 0) sec = 0.0d0  !Don't show numbers like 0.002 seconds  MEB 01/17/2019
     
     if(idays>=1)then
-      ihrs=ihrs+(idays*24)
-    endif
-    
-    if(ihrs>=1)then
+      if (sec .eq. 0.0d0) then
+        write(str,875,iostat=ierr) idays,ihrs,imin   !Don't write out 0.000 s   MEB 01/17/2019    
+      else
+        write(str,850,iostat=ierr) idays,ihrs,imin,sec
+      endif
+    elseif(ihrs>=1)then
       if (sec .eq. 0.0d0) then 
         write(str,775,iostat=ierr) ihrs,imin         !Don't write out 0.000 s   MEB 01/17/2019
       else

@@ -15,7 +15,6 @@
       if(hardbottom) then
         do i=1,nhard
           id = idhard(i)
-          ! tdepth = depth(id)- bed(id)*scale_morph/POROS       !Changing all /POROS to *POROS - 8/28/2008 meb
           tdepth = -zb(id)- bed(id)*scalemorph*POROS
           if(tdepth.gt.hardbed(i)) then
             COHES(id)%eros = 0

@@ -23,7 +23,7 @@
           enddo          
         endif
       endif      
-
+      
 !$OMP PARALLEL DO     
       do i=1,ncells
         zb(i) = zb(i) + bed(i)*scalemorph*POROS                !Changing all /POROS to *POROS - 8/28/2008 meb     

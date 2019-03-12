@@ -101,21 +101,21 @@
       if(ierr/=0) exit
       if(cardname(1:14)=='END_PARAMETERS') exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      call ignr_cards(cardname,foundcard);   if(foundcard) cycle
-      call geo_cards(cardname,foundcard);    if(foundcard) cycle
-      call flow_cards(cardname,foundcard);   if(foundcard) cycle
-      call bnd_cards(cardname,foundcard);    if(foundcard) cycle
-      call struct_cards(cardname,foundcard); if(foundcard) cycle
-      call fric_cards(cardname,foundcard);   if(foundcard) cycle
-      call hot_cards(cardname,foundcard);    if(foundcard) cycle
-      call sed_cards(cardname,foundcard);    if(foundcard) cycle
-      call sal_cards(cardname,foundcard);    if(foundcard) cycle
-	  call heat_cards(cardname,foundcard);   if(foundcard) cycle
-      call met_cards(cardname,foundcard);    if(foundcard) cycle
-      call rol_cards(cardname,foundcard);    if(foundcard) cycle
-      call out_cards(cardname,foundcard);    if(foundcard) cycle
-      call diag_cards(cardname,foundcard);   if(foundcard) cycle
-      call wave_cards(cardname,foundcard);   if(foundcard) cycle
+      call ignr_cards(cardname,foundcard);          if(foundcard) cycle
+      call geo_cards(cardname,foundcard,.true.);    if(foundcard) cycle
+      call flow_cards(cardname,foundcard,.true.);   if(foundcard) cycle
+      call bnd_cards(cardname,foundcard);           if(foundcard) cycle
+      call struct_cards(cardname,foundcard);        if(foundcard) cycle
+      call fric_cards(cardname,foundcard);          if(foundcard) cycle
+      call hot_cards(cardname,foundcard);           if(foundcard) cycle
+      call sed_cards(cardname,foundcard);           if(foundcard) cycle
+      call sal_cards(cardname,foundcard);           if(foundcard) cycle
+	  call heat_cards(cardname,foundcard);          if(foundcard) cycle
+      call met_cards(cardname,foundcard);           if(foundcard) cycle
+      call rol_cards(cardname,foundcard);           if(foundcard) cycle
+      call out_cards(cardname,foundcard);           if(foundcard) cycle
+      call diag_cards(cardname,foundcard);          if(foundcard) cycle
+      call wave_cards(cardname,foundcard);          if(foundcard) cycle
 #ifdef DEV_MODE
       call q3d_cards(cardname,foundcard);    if(foundcard) cycle
       call veg_cards(cardname,foundcard);    if(foundcard) cycle
@@ -126,9 +126,9 @@
       call der_cards(cardname,foundcard);    if(foundcard) cycle
       call stat_cards(cardname,foundcard)
       if(.not.foundcard)then
-        write(*,*) '- ',trim(cardname),' not found'
+        write(*,*) '- Card ',trim(cardname),' not found'
         open(dgunit,file=dgfile,access='append') 
-        write(dgunit,*) '- ',trim(cardname),' not found'
+        write(dgunit,*) '- Card ',trim(cardname),' not found'
         close(dgunit)
       endif
     enddo

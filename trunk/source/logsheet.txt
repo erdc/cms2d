@@ -1,5 +1,11 @@
-== Version 5.1.8 (02/25/2019)
+== Version 5.1.8 (03/12/2019)
 * Bug fix: Needed to check that a boundary array was already allocated before an allocation in rare cases.
+* New feature: Implemented variable Morphology Acceleration Factor using a user-defined duration, MORPH_ACCEL_RAMP_DURATION.
+* New feature: Implemented a card, WRITE_ACCEL_RAMP_INFO, to write out the timing of the variable acceleration factor.
+* New feature: Implemented a command line argument, INLINE, to run the inline wave model instead of stand-alone.
+* Info: Minor changes to screen and diag file output, eliminating duplicate information.
+* Info: Minor changes when outputting time information to include number of days.
+* Info: Implemented the function equivalents, toUpper and toLower, to the subroutines for converting case.
 
 == Version 5.1.7 (02/25/2019)
 * Bug fix: Read the friction file properly if using ASCII Input.

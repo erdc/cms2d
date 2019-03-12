@@ -26,6 +26,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
       use hot_def, only: coldstart
       use comvarbl, only: ctime
+      use diag_lib, only: diag_print_message
 !$include "omp_lib.h"
 !      dimension dep0(ipmx,jpmx)
 !      dimension fsp(npf),xc(mpd),yc(mpd),wc(mpd),wcd(mpd)
@@ -138,13 +139,27 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iidate=0
 !
     if(noptset.ne.3)then
-      print*,'CMS-Wave V-3.2, last update 15 May 2014'
-      print*,'***************************************'
+
+#ifdef MERGED_CODE
+      call diag_print_message(' ')
+      call diag_print_message('**********************************************')
+      call diag_print_message('CMS-Wave V-3.2 Inline, last update 15 May 2014')
+      call diag_print_message('**********************************************')
+      call diag_print_message('  Point of Contact:')
+      call diag_print_message('  Lihwa Lin, USACE ERDC')
+      call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')
+      call diag_print_message('**********************************************')
+      call diag_print_message(' ')
+#else
+      print*,'CMS-Wave V-3.2 Inline, last update 15 May 2014'
+      print*,'**********************************************'
       print*,'  Point of Contact:'
       print*,'  Lihwa Lin, USACE ERDC'
       print*,'  mail to: Lihwa.Lin@usace.army.mil'
-      print*,'***************************************'
+      print*,'**********************************************'
       print*,' '
+#endif
+
     endif
 !
       if(noptset.eq.3)then

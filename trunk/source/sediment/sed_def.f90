@@ -21,6 +21,14 @@ module sed_def
     !Scaling factors
     real(ikind) :: scalebed, scalesus, scalemorph
     
+!meb added 03/11/2019    
+    real(ikind) :: scalemorph_orig    !Original value of 'scalemorph' as assigned by user input
+    real(ikind) :: scalemorph_ramp    !Ramp applied to full morph acceleration factor, modified for time specified by scalemorph_rampdur
+    real(ikind) :: scalemorph_rampdur !Time to slowly increase morph factor from 1 to requested value.
+    character*100 :: smorph_file      !Filename for output of morph factor ramp information
+    logical     :: write_smorph_ramp  !Boolean to write output file or not.
+!--------------------    
+    
     !Avalanching
     logical :: do_aval
     integer :: nmaxaval       !# of iterations

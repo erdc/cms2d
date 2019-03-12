@@ -131,21 +131,21 @@
 
 #ifdef MERGED_CODE
       call diag_print_message(' ')
-      call diag_print_message('***************************************')
-      call diag_print_message('CMS-Wave V-3.2, last update 30 Mar 2018')
-      call diag_print_message('***************************************')
+      call diag_print_message('***************************************************')
+      call diag_print_message('CMS-Wave V-3.2 Stand-alone, last update 30 Mar 2018')
+      call diag_print_message('***************************************************')
       call diag_print_message('  Point of Contact:')
       call diag_print_message('  Lihwa Lin, USACE ERDC')
       call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')
-      call diag_print_message('***************************************')
+      call diag_print_message('***************************************************')
       call diag_print_message(' ')
 #else
-      print*,'CMS-Wave V-3.2, last update 30 Mar 2018'
-      print*,'***************************************'
+      print*,'CMS-Wave V-3.2 Stand-alone, last update 30 Mar 2018')
+      print*,'***************************************************'
       print*,'  Point of Contact:'
       print*,'  Lihwa Lin, USACE ERDC'
       print*,'  mail to: Lihwa.Lin@usace.army.mil'
-      print*,'***************************************'
+      print*,'***************************************************'
       print*,' '
 #endif
 !
