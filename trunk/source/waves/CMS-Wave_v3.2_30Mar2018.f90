@@ -5885,7 +5885,10 @@
       fp=2*c1*cusv-g*tanh(rkd)-g*k*d/cosh(rkd)**2
       if(abs(fp).lt.1.e-10) go to 31
       kn=k-f/fp
+      
+      if (kn.eq.0.0) go to 40                       !added to avoid 'divide by zero' on next line - meb 3/13/2019
       if((abs(kn-k)/kn).lt.eps) go to 40
+      
       k=kn
 ! ** skip of large wavenumber
       vlimit=k*d
