@@ -130,9 +130,9 @@
         read(77,*)cardname,File,Path             
         dredge_operations(ndredge_operations)%DredgeSourceAreaFile = trim(File)
         dredge_operations(ndredge_operations)%DredgeSourceAreaPath = trim(Path)
-        write(msg2,*)'  Dredge file: ',trim(dredge_operations(ndredge_operations)%DredgeSourceAreaFile)
-        write(msg3,*)'  Dredge path: ',trim(dredge_operations(ndredge_operations)%DredgeSourceAreaPath)
-        call diag_print_message(msg2,msg3)
+!        write(msg2,*)'  Dredge file: ',trim(dredge_operations(ndredge_operations)%DredgeSourceAreaFile)
+!        write(msg3,*)'  Dredge path: ',trim(dredge_operations(ndredge_operations)%DredgeSourceAreaPath)
+!        call diag_print_message(msg2,msg3)
       
       case('START_METHOD')
         backspace(77)          
@@ -143,8 +143,8 @@
         case('SHALLOW')
           dredge_operations(ndredge_operations)%Dredge_Approach = 1          
         case default
-          write(*,*)'DREDGING_METHOD CARD INPUT NOT RECOGNIZED'
-          STOP
+          write(msg,*)'Incorrect value entered for Start method ',TRIM(METHOD)
+          call diag_print_error(msg)
         endselect
       
       case('START_CELL')
@@ -160,7 +160,7 @@
       case('TRIGGER_METHOD')
       !only used to check that proper trigger info is supplied
         backspace(77)          
-      read(77,*)cardname,METHOD 
+        read(77,*)cardname,METHOD 
       
       case('TRIGGER_DEPTH')
         if(METHOD(1:5) == 'DEPTH' .or. METHOD(1:7) == 'PERCENT' )then
@@ -215,20 +215,19 @@
           fromunits = ' '      
 
           read(aline,*,iostat=ierr) cardname, num_trigger_TS, (trigger_start(m),trigger_finish(m),m=1,num_trigger_TS), fromunits
-          
           if(ierr==-1 .or. fromunits(1:1)==' ' .or. &
-          fromunits(1:1)=='!' .or. fromunits(1:1)=='#')then
-          fromunits = defunits !None specified in file, use default value
+             fromunits(1:1)=='!' .or. fromunits(1:1)=='#')then
+            fromunits = defunits !None specified in file, use default value
+          endif 
+          call unitconv_var(fromunits,tounits,fac,con) 
+          do m=1,dredge_operations(ndredge_operations)%num_trigger_intervals
+            dredge_operations(ndredge_operations)%Trigger_start(m) = fac*trigger_start(m)+con 
+            dredge_operations(ndredge_operations)%Trigger_finish(m) = fac*trigger_finish(m)+con
+          enddo 
+        else
+          write(msg2,*)'Incorrect Card entered for Trigger method: ',TRIM(METHOD)
+          call diag_print_error(msg2)
         endif 
-        call unitconv_var(fromunits,tounits,fac,con) 
-        do m=1,dredge_operations(ndredge_operations)%num_trigger_intervals
-          dredge_operations(ndredge_operations)%Trigger_start(m) = fac*trigger_start(m)+con 
-          dredge_operations(ndredge_operations)%Trigger_finish(m) = fac*trigger_finish(m)+con
-        enddo 
-       else
-         write(msg2,*)'Incorrect Card entered for Trigger method: ',TRIM(METHOD)
-         call diag_print_error(msg2)
-       endif 
           
       case('DISTRIBUTION')
         backspace(77)          
@@ -529,93 +528,104 @@
 !**************************************************************    
     use dredge_def
     use prec_def
+    use diag_def, only: dgunit,dgfile
     implicit none
-    integer i,k,m
+
+    integer i,j,k,m, iunit(2)
     real(ikind) :: sum
 
-    open(unit=2055,file='dredge_module_setup.txt')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+111 format(' ',A)
+222 format(' ',A,1x,A)    
+!342 format(' ',A,F5.2,A)
+!353 format(' ',A,F6.3,A)
+!163 format(' ',A,F8.3,A)
+133 format(' ',A,F10.2)
+134 format(' ',A,F12.4)
+135 format(' ',A,I0,2(1x,F10.2))
+345 format(' ',A,F8.5)
+445 format(' ',A,1x,I0)    
+787 format(' ',A,1x,A)
+!788 format(' ',A,1x,A,A)
+!799 format(' ',A,1pe9.2)
+!845 format(' ',A,F7.3,A)    
+
+
+    iunit = (/6,dgunit/)
+    open(dgunit,file=dgfile,access='append')   !Moved dredge setup output the CMS-type diagnostic output file.  MEB 03/18/2019
     
-    write(2055,*)
-    write(2055,*)'Dredging = ',dredging
-    write(2055,*)'Number of dredge operations = ',ndredge_operations
-    write(2055,*)
-        
-    do i=1,ndredge_operations        
-      write(2055,"('operation name = ',a30)") trim(dredge_operations(i)%name)
-      if(dredge_operations(i)%active)then
-        write(2055,*)  "Initial status: active"
-      else
-        write(2055,*)  "Initial status: non-active"            
-      endif
-        
-      write(2055,*)'--------------'
-      write(2055,"('Source Area File: ',a30)")trim(dredge_operations(i)%DredgeSourceAreaFile)
-      write(2055,"('Source Area Path: ',a30)")trim(dredge_operations(i)%DredgeSourceAreaPath) 
+    do i=1,2
+      write(iunit(i),*) 
+	  write(iunit(i),111)            'Dredge Module Setup'  
+      write(iunit(i),445)            '  Number of dredge ops       ',ndredge_operations
+      do j=1,ndredge_operations
+        write(iunit(i),787)          '  Operation name:              ',trim(dredge_operations(j)%name)
+        write(iunit(i),787)          '    Source area file:          ',trim(dredge_operations(j)%DredgeSourceAreaFile)
+        write(iunit(i),787)          '    Source area path:          ',trim(dredge_operations(j)%DredgeSourceAreaPath) 
+        write(iunit(i),445)          '    Number source area cells:  ',dredge_operations(j)%NumDredgeAreaCells
+      
+        sum=0.0
+        do k=1,dredge_operations(j)%NumDredgeAreaCells
+          sum=sum + dredge_operations(j)%dredge_depth(k)
+        enddo
+        sum=sum/dredge_operations(j)%NumDredgeAreaCells
+
+        write(iunit(i),345)          '    Average dredge depth:      ',sum
+        write(iunit(i),134)          '    Dredge rate (m^3/sec):     ',dredge_operations(j)%Rate
          
-      write(2055,"('Number of Source Area Cells = ',i6)")dredge_operations(i)%NumDredgeAreaCells
-      sum=0.0
-      do k=1,dredge_operations(i)%NumDredgeAreaCells
-        sum=sum + dredge_operations(i)%dredge_depth(k)
+        if(dredge_operations(j)%dredge_approach == 2) then
+          write(iunit(i),222)        '    Dredge Start method:       ','CELL'
+          write(iunit(i),445)        '    Starting cell number:      ',dredge_operations(j)%dredge_start_cell
+        elseif(dredge_operations(j)%dredge_approach == 1) then
+          write(iunit(i),222)        '    Dredge Start method:       ','UNIFORM'
+        endif
+            
+        if(dredge_operations(j)%Trigger_Approach == 1) then
+          write(iunit(i),222)        '    Trigger method:            ','DEPTH'
+          write(iunit(i),345)        '    Trigger depth (m):         ',dredge_operations(j)%Trigger_Depth
+        elseif(dredge_operations(j)%Trigger_Approach == 2) then
+          write(iunit(i),222)        '    Trigger method:            ','VOLUME'
+          write(iunit(i),345)        '    Trigger volume (m^3):      ',dredge_operations(j)%Trigger_Vol
+        elseif(dredge_operations(j)%Trigger_Approach == 2) then
+          write(iunit(i),222)        '    Trigger method:            ','PERCENT'
+          write(iunit(i),345)        '    Trigger percent (%):       ',dredge_operations(j)%Trigger_percentage  
+        elseif(dredge_operations(j)%Trigger_Approach == 4) then
+          write(iunit(i),222)        '    Trigger method:            ','TIME PERIODS'
+          write(iunit(i),445)        '    Num. trigger time periods: ',dredge_operations(j)%num_trigger_intervals
+          do m=1,dredge_operations(j)%num_trigger_intervals
+            write(iunit(i),135)      '      Times (hrs):             ',m,dredge_operations(j)%Trigger_Start(m),dredge_operations(j)%Trigger_Finish(m)
+          enddo
+        endif
+         
+        if(dredge_operations(j)%PAMETHOD == 1) then    
+          write(iunit(i),222)        '    Distribution method        ','SEQUENTIAL'
+        elseif(dredge_operations(j)%PAMETHOD == 2) then           
+          write(iunit(i),222)        '    Distribution method        ','PERCENT'
+        endif
+            
+        write(iunit(i),445)          '    Number of placement areas: ',dredge_operations(j)%NumPlacementAreas 
+        do k=1,dredge_operations(j)%NumPlacementAreas
+          write(iunit(i),445)        '      Placement Area (PA)',k
+          write(iunit(i),787)        '        Placement area file:   ',trim(dredge_operations(j)%DredgePlaceAreaFile(k))
+          write(iunit(i),787)        '        Placement area path:   ',trim(dredge_operations(j)%DredgePlaceAreaPath(k))
+          write(iunit(i),445)        '        Number PA cells:       ',dredge_operations(j)%NumPlacementAreaCells(k)
+          
+          if(dredge_operations(j)%Placement_Approach(k) == 1) then
+            write(iunit(i),222)      '        Placement method:      ','UNIFORM'
+          elseif(dredge_operations(j)%Placement_Approach(k) == 2) then
+            write(iunit(i),222)      '        Placement method:      ','CELL'
+            write(iunit(i),445)      '        Starting cell:         ',dredge_operations(j)%Placement_start_cell(k) 
+          endif        
+          if(dredge_operations(j)%Placement_Depth(k) > -999.0) &
+            write(iunit(i),133)      '        Depth Limit (m):       ',dredge_operations(j)%Placement_Depth(k)
+          if(dredge_operations(j)%Placement_thickness(k) > -999.0) & 
+            write(iunit(i),133)      '        Thickness Limit (m):   ',dredge_operations(j)%Placement_thickness(k)
+          if(dredge_operations(j)%PAMETHOD == 2) & 
+            write(iunit(i),133)      '        Distribution % (%)     ',dredge_operations(j)%DredgePlacementAllocation(k)
+        enddo         
       enddo
-      sum=sum/dredge_operations(i)%NumDredgeAreaCells
-      write(2055,*)"Average dredge depth = ",sum
-      write(2055,"('Dredge Rate (m3/sec) = ',F12.4)") dredge_operations(i)%Rate   
-         
-      if(dredge_operations(i)%dredge_approach == 2) then
-        write(2055,*)"Dredge Start method = 'CELL'"
-        write(2055,*)"Cell number = ",dredge_operations(i)%dredge_start_cell
-      elseif(dredge_operations(i)%dredge_approach == 1) then
-        write(2055,*)"Dredge Start method = 'UNIFORM'"
-      endif
-            
-      if(dredge_operations(i)%Trigger_Approach == 1) then
-         write(2055,*)"Trigger Method = 'DEPTH'"         
-         write(2055,"('Trigger Depth (m) = ',f10.2)") dredge_operations(i)%Trigger_Depth
-      elseif(dredge_operations(i)%Trigger_Approach == 2) then
-         write(2055,*)"Trigger Method = 'VOLUME'"             
-         write(2055,"('Trigger Vol (m3) = ',f15.2)") dredge_operations(i)%Trigger_Vol
-      elseif(dredge_operations(i)%Trigger_Approach == 2) then
-         write(2055,*)"Trigger Method = 'PERCENT'"             
-         write(2055,"('Trigger % (%) = ',f15.2)") dredge_operations(i)%Trigger_percentage  
-      elseif(dredge_operations(i)%Trigger_Approach == 4) then
-         write(2055,*)"Trigger Method = 'TIME PERIODS'"             
-         write(2055,"('Number of Trigger Time Periods = ',i4)") dredge_operations(i)%num_trigger_intervals
-         do m=1,dredge_operations(i)%num_trigger_intervals
-           write(2055,"('Trigger S/F times (hrs) = ',i4,2f10.2)")m,dredge_operations(i)%Trigger_Start(m),dredge_operations(i)%Trigger_Finish(m)
-         enddo
-      endif
-         
-      if(dredge_operations(i)%PAMETHOD == 1) then    
-        write(2055,*)"Dredge Material Placement Method = 'SEQUENTIAL'"
-      elseif(dredge_operations(i)%PAMETHOD == 2) then           
-        write(2055,*)"Dredge Material Placement Method = 'PERCENT'"
-      endif
-            
-      write(2055,"('Number of placement areas = ',i3)") dredge_operations(i)%NumPlacementAreas 
-      do k=1,dredge_operations(i)%NumPlacementAreas
-        write(2055,*)'--------------'    
-        write(2055,*)'For placement area #',k
-        write(2055,"('Placement Area File: ',a30)")trim(dredge_operations(i)%DredgePlaceAreaFile(k))
-        write(2055,"('Placement Area Path: ',a30)")trim(dredge_operations(i)%DredgePlaceAreaPath(k))
-        write(2055,"('Number of Placement Area Cells = ',i6)")dredge_operations(i)%NumPlacementAreaCells(k)
-        if(dredge_operations(i)%Placement_Approach(k) == 1) then
-          write(2055,*)"Placement Method = 'UNIFORM'"
-        elseif(dredge_operations(i)%Placement_Approach(k) == 2) then
-          write(*,*)i,k,"Placement Method = 'CELL'"   
-          write(*,*)i,k,"Starting cell = ", dredge_operations(i)%Placement_start_cell(k)
-          write(2055,*)"Placement Method = 'CELL'"   
-          write(2055,*)"Starting cell = ", dredge_operations(i)%Placement_start_cell(k) 
-        endif        
-        if(dredge_operations(i)%Placement_Depth(k) > -999.0) write(2055,*)"Depth Limit =",dredge_operations(i)%Placement_Depth(k)
-        if(dredge_operations(i)%Placement_thickness(k) > -999.0) write(2055,*)"Thickness Limit =",dredge_operations(i)%Placement_thickness(k)        
-        if(dredge_operations(i)%PAMETHOD == 2) then           
-            write(2055,*)'Distribution Percentage = ',dredge_operations(i)%DredgePlacementAllocation(k)
-        endif       
-      enddo         
-      write(2055,*)
-    enddo
-        
-    close(2055)
+    enddo  
+
+    close(dgunit)
     
     return
     endsubroutine dredge_print  
@@ -626,16 +636,18 @@
 !**************************************************************       
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: idmap,x,y,dx,dy
-    use geo_def, only: zb,zb0
-    !use comvarbl, only:  ntsch
+    use geo_def,     only: idmap,x,y,dx,dy
+    use geo_def,     only: zb,zb0
+    !use comvarbl,    only:  ntsch
     use dredge_def
-    use sed_def, only: singlesize,nsed    
+    use sed_def,     only: singlesize,nsed    
 #ifdef XMDF_IO
     use xmdf
     use in_xmdf_lib, only: readscalh5
 #endif
-    use in_lib, only: readscalTxt
+    use in_lib,      only: readscalTxt
+    use diag_lib,    only: diag_print_error
+    use diag_def,    only: msg
     implicit none
 
     integer :: error,dfile_id,dcell_id,sumcells,k,i,j,summax,kk,ii,jj,ncnt
@@ -681,6 +693,12 @@
         
       ! get a list of source area cells and convert to active grid
       datafile = dredge_operations(k)%DredgeSourceAreaFile
+      inquire(file=datafile,exist=found)
+      if(.not.found)then
+        msg='File not found: '//trim(datafile)
+        call diag_print_error(msg)
+      endif
+      
       datapath = dredge_operations(k)%DredgeSourceAreaPath
       error = -999
       
@@ -729,6 +747,11 @@
         write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgePlaceAreaPath(j)))         
          
         datafile = dredge_operations(k)%DredgePlaceAreaFile(j)        
+        inquire(file=datafile,exist=found)
+        if(.not.found)then
+          msg='File not found: '//trim(datafile)
+          call diag_print_error(msg)
+        endif
         datapath = dredge_operations(k)%DredgePlaceAreaPath(j)
 
 #ifdef XMDF_IO
@@ -821,7 +844,6 @@
       if(dredge_operations(k)%dredge_approach == 2) then  !sort cells by proximity to start cell
         write(2056,*)"srt cell ",k, dredge_operations(k)%dredge_start_cell
         dredge_operations(k)%dredge_start_cell = idmap(dredge_operations(k)%dredge_start_cell)
-        write(2056,*)"srt cell ",k, dredge_operations(k)%dredge_start_cell    
         ii=dredge_operations(k)%dredge_start_cell 
         ncnt=dredge_operations(k)%NumDredgeAreaCells
         allocate(cells(ncnt),cell_dist(ncnt))

@@ -1473,8 +1473,10 @@ loopj:  do j=1,nlay
     
     eps = 1.e-10    
     iSingleHot = .false. ; iAutoHot = .false.
-    if(hot_timehr .and. abs(timehrs-hottime)<=eps) iSingleHot = .true.      
-    if(hot_recur  .and. mod(timehrs,hotdt)<=eps)   iAutoHot   = .true.   
+    if(hot_timehr .and. abs(timehrs-hottime)<=eps) iSingleHot = .true.   
+    if(hotdt.gt.0.0) then 
+      if(hot_recur  .and. mod(timehrs,hotdt)<=eps)   iAutoHot   = .true.   
+    endif  
     if(.not.iSingleHot .and. .not.iAutoHot) return              
     hotdirpath='ASCII_HotStart'
 

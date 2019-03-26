@@ -41,7 +41,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 8              !Revision number
-    rdate    = '03/12/2019'
+    rdate    = '03/18/2019'
 
 #ifdef DEV_MODE
     release  = .false.
@@ -160,7 +160,7 @@
 
     implicit none
     integer :: narg, i, ierr, nlenwav, nlenflow, ncase
-    logical :: found
+    logical :: found, restart
     character(10)  :: aext
     character(37)  :: cardname
     character(200) :: arg(0:6), astr,apath,aname
@@ -210,42 +210,58 @@
       end select          
     endif
 
-    !At least one argument now, check existence
-    do i=1,min(narg,2)
-      call fileparts(arg(i),apath,aname,aext)  
-      select case (aext)
-      case ('cmcards')
-        inquire(file=arg(i),exist=found)
-        if (.not.found) then 
-          msg=trim(astr)//' does not exist'
-          call diag_print_error(msg)
-        endif
-        ctlfile  = trim(aname) // '.cmcards'
-        flowpath = apath
-        casename = aname
-        cmsflow  = .true.
-        
-        !Search for steering cards
-        open(77,file=arg(i))
-        do 
-          read(77,*,iostat=ierr) cardname
-          if (ierr/=0) exit
-          call steering_cards(cardname)
-        enddo
-        close(77)
+    do                                            !repeat if needed
+      !At least one argument now, check existence
+      do i=1,min(narg,2)
+        call fileparts(arg(i),apath,aname,aext)  
+        select case (aext)
+        case ('cmcards')
+          inquire(file=arg(i),exist=found)
+          if (.not.found) then 
+            msg=trim(astr)//' does not exist'
+            call diag_print_error(msg)
+          endif
+          ctlfile  = trim(aname) // '.cmcards'
+          flowpath = apath
+          casename = aname
+          cmsflow  = .true.
+          
+          !Search for steering cards
+          open(77,file=arg(i))
+          do 
+            read(77,*,iostat=ierr) cardname
+            if (ierr/=0) exit
+            call steering_cards(cardname)
+          enddo
+          close(77)
+          restart = .false.
       
-      case('sim')
-        inquire(file=arg(i),exist=found)
-        if (.not.found) then
-          msg=trim(astr)//' does not exist'
-          call diag_print_error(msg)
-        endif
-        WavSimFile = trim(aname) // '.sim'
-        Wavepath   = apath
-        wavename   = aname
-        cmswave    = .true.
+        case('sim')
+          inquire(file=arg(i),exist=found)
+          if (.not.found) then
+            msg=trim(astr)//' does not exist'
+            call diag_print_error(msg)
+          endif
+          WavSimFile = trim(aname) // '.sim'
+          Wavepath   = apath
+          wavename   = aname
+          cmswave    = .true.
+          restart = .false.
         
-      end select  
+        case default                    !if first argument is not a .cmcard file or .sim file, append them together and recheck.
+          arg(1)=trim(arg(1))//' '//trim(arg(2))
+          arg(2)=''
+          narg = narg -1
+          restart=.true.                !rerun this loop
+          exit
+       
+        end select  
+      enddo
+      if (restart) then
+        cycle
+      else
+        exit
+      endif
     enddo  
 
     if (cmswave .and. .not. cmsflow .and.  narg <= 1) then     !CMS-Wave Only (no arguments)
@@ -321,11 +337,9 @@
           write(*,*) ' '
           write(*,*) '--Using steering card values or wave steering parameter defaults'
         endif
-      else
-        dtsteer = 10800.0         !3 hours default interval
-        write(*,*) ' '
-        write(*,*) '--Using steering card values or wave steering parameter defaults'
-      endif
+      endif  
+    else
+      dtsteer = 10800.0         !3 hours default interval
     endif
         
     !If wave path is empty than use path for flow    

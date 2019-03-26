@@ -290,9 +290,9 @@ d1: do k=1,10
     do i=1,2
       write(iunit(i),*)
       if(.not.heattrans)then
-        write(iunit(i),888) 'Temperature Transfer:      OFF'   
+        write(iunit(i),888)   'Temperature Transfer:           OFF'   
       else
-        write(iunit(i),888) 'Temperature Transfer:      ON'    
+        write(iunit(i),888)   'Temperature Transfer:           ON'    
         if(icheat==1)then
           write(iunit(i),153) '  Initial Water Temperature    ',heatic
         elseif(icheat==2)then

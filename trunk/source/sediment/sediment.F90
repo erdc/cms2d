@@ -1416,7 +1416,7 @@ d1: do ii=1,30
     enddo d1
 
     !Read in bed layer
-    if(bedlay(jlay)%inppbk)then
+    if(bedlay(jlay)%inppbk .and. jlay > 1)then
       write(msg2,*) 'Bed layer ',jlay,' already specified'
       call diag_print_error('Problem specify sediment bed layers',msg2)
     endif
@@ -1701,6 +1701,10 @@ d1: do ii=1,30
 #endif         
           case('txt')
             call readscalTxt(file,d50lay,ierr)
+            
+          case default
+            write(msg2,*)"Unknown file"
+            call diag_print_error(msg2)
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)          

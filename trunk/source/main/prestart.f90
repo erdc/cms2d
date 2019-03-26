@@ -186,7 +186,7 @@
     call fric_init                   !Bottom and wall friction
     if(write_sup) call hotstart_file_init  !Initialize ASCII HotStart files
     call met_init                    !Meteorologic
-    if(sedtrans) call sed_init       !Sediment transport'
+    if(sedtrans) call sed_init       !Sediment transport
     if(saltrans) call sal_init       !Salinity    
     if(heattrans) call heat_init     !Temperature    
     call out_init                    !Global Output         
