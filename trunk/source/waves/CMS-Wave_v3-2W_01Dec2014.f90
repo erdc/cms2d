@@ -1791,7 +1791,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
 !
       cc=HPAI
-      if(iview.ge.1) cc=cc+DTH/2.
+1      if(iview.ge.1) cc=cc+DTH/2.
       DO MM=1,MD
 ! *** should above be mm=imd,md but no big deal (get what needed)
         DCM(MM)=DTH*MM-cc
@@ -1808,13 +1808,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !     write(*,*) 'you are here',nf,imd,md,sum
 !
       if(sum.lt..0001) then
-      nnf=nf
-        ph0=g/ws*.9
+        nnf=nf
+        if(ws.gt.0.0001) then 
+          ph0=g/ws*.9
+        else
+          ph0=0.36
+        endif
         if(ph0.gt..36) ph0=.36
-      do nn=nnf,1,-1
-      if(fcn(nn).gt.ph0) nnf=nn
-      end do
-      dsfd(nnf,(imd+md)/2)=.0001
+        do nn=nnf,1,-1
+          if(fcn(nn).gt.ph0) nnf=nn
+        end do
+        dsfd(nnf,(imd+md)/2)=0.0001
       end if
 !
 !     if(iplane.eq.2) go to 426
@@ -4954,6 +4958,7 @@ contains
 
       i3=iii+1
 
+      iddd=0
       if(irs.ge.1) then
         call sxycalc_inline(iii)
         if(irs.ge.2) then
@@ -9456,12 +9461,12 @@ contains
 !
       do j=1,jgmx
         do i=1,igmx
-            wkpeak=cgp(i,j)
-            cgp(i,j)=pai2/(t13(i,j)+1.e-10)/(wkpeak+1.e-10)
-            c1=sqrt(g*max(d1(i,j),.01))
-            if(cgp(i,j).gt.c1) cgp(i,j)=c1
-!           ak=sinh(min(2.*wkpeak*d1(i,j),10.))
-!           cgp(i,j)=pai/t13(i,j)/wkpeak*(1.+2.*wkpeak*d1(i,j)/ak)
+          wkpeak=cgp(i,j)
+          cgp(i,j)=pai2/(t13(i,j)+1.e-10)/(wkpeak+1.e-10)
+          c1=sqrt(g*max(d1(i,j),.01))
+          if(cgp(i,j).gt.c1) cgp(i,j)=c1
+!          ak=sinh(min(2.*wkpeak*d1(i,j),10.))
+!          cgp(i,j)=pai/t13(i,j)/wkpeak*(1.+2.*wkpeak*d1(i,j)/ak)
         enddo
       enddo
 !
@@ -9481,14 +9486,14 @@ contains
           cxi1j=cgp(i1,j)*cos(dmn(i1,j)*rad)
           if(cxi1j.lt..5) cxi1j=.5
           if(dvarx(i).gt.10.) then
-          if(ibr(i1,j).eq.0.and.Wij.lt.-1.e-7) Wij=-1.e-7
-          if(ibr(i1,j-1)*ibr(i1,j+1).eq.0.and.Wij.lt.-1.e-7) Wij=-1.e-7
+            if(ibr(i1,j).eq.0.and.Wij.lt.-1.e-7) Wij=-1.e-7
+            if(ibr(i1,j-1)*ibr(i1,j+1).eq.0.and.Wij.lt.-1.e-7) Wij=-1.e-7
           end if
           Sr(i1,j)=(cxij*Sr(i,j)+dvarx(i)*Wij)/cxi1j
 !         if(Sr(i1,j).gt.0.) Sr(i1,j)=0.
         enddo
-          Sr(i1,1)=sr(i1,2)
-          Sr(i1,jgmx)=sr(i1,nj1)
+        Sr(i1,1)=sr(i1,2)
+        Sr(i1,jgmx)=sr(i1,nj1)
       enddo
 !
       do i=1,igmx
@@ -9505,49 +9510,49 @@ contains
       dx2=dvarx(1)+dvarx(2)
       dx2ni=dvarx(igmx)+dvarx(ni1)
       do j=1,jgmx
-      sxxx(1,j)=(-3.*sxx(1,j)+4.*sxx(2,j)-sxx(3,j))/dx2
-      sxyx(1,j)=(-3.*sxy(1,j)+4.*sxy(2,j)-sxy(3,j))/dx2
-      sxxx(igmx,j)=(3.*sxx(igmx,j)-4.*sxx(ni1,j)+sxx(igmx-2,j))/dx2ni
-      sxyx(igmx,j)=(3.*sxy(igmx,j)-4.*sxy(ni1,j)+sxy(igmx-2,j))/dx2ni
+        sxxx(1,j)=(-3.*sxx(1,j)+4.*sxx(2,j)-sxx(3,j))/dx2
+        sxyx(1,j)=(-3.*sxy(1,j)+4.*sxy(2,j)-sxy(3,j))/dx2
+        sxxx(igmx,j)=(3.*sxx(igmx,j)-4.*sxx(ni1,j)+sxx(igmx-2,j))/dx2ni
+        sxyx(igmx,j)=(3.*sxy(igmx,j)-4.*sxy(ni1,j)+sxy(igmx-2,j))/dx2ni
       end do
 
 !     Y-derivatives on y-boundaries:
       do i=1,igmx
-      dy2=dvary(1)+dvary(2)
-      dy2nj=dvary(jgmx)+dvary(nj1)
-      sxyy(i,1)=(-3.*sxy(i,1)+4.*sxy(i,2)-sxy(i,3))/dy2
-      syyy(i,1)=(-3.*syy(i,1)+4.*syy(i,2)-syy(i,3))/dy2
-      sxyy(i,jgmx)=(3.*sxy(i,jgmx)-4.*sxy(i,nj1)+sxy(i,jgmx-2))/dy2nj
-      syyy(i,jgmx)=(3.*syy(i,jgmx)-4.*syy(i,nj1)+syy(i,jgmx-2))/dy2nj
+        dy2=dvary(1)+dvary(2)
+        dy2nj=dvary(jgmx)+dvary(nj1)
+        sxyy(i,1)=(-3.*sxy(i,1)+4.*sxy(i,2)-sxy(i,3))/dy2
+        syyy(i,1)=(-3.*syy(i,1)+4.*syy(i,2)-syy(i,3))/dy2
+        sxyy(i,jgmx)=(3.*sxy(i,jgmx)-4.*sxy(i,nj1)+sxy(i,jgmx-2))/dy2nj
+        syyy(i,jgmx)=(3.*syy(i,jgmx)-4.*syy(i,nj1)+syy(i,jgmx-2))/dy2nj
       end do
 
 !     X-derivatives on internal grid pts & y-boundaries:
       do j=1,jgmx
-         do i=2,igmx-1
-         dx2=dvarx(i)+(dvarx(i-1)+dvarx(i+1))/2.
-         sxxx(i,j)=(sxx(i+1,j)-sxx(i-1,j))/dx2
-         sxyx(i,j)=(sxy(i+1,j)-sxy(i-1,j))/dx2
-         end do
+        do i=2,igmx-1
+          dx2=dvarx(i)+(dvarx(i-1)+dvarx(i+1))/2.
+          sxxx(i,j)=(sxx(i+1,j)-sxx(i-1,j))/dx2
+          sxyx(i,j)=(sxy(i+1,j)-sxy(i-1,j))/dx2
+        end do
       end do
 
 !     Y-derivatives on internal grid pts & x-boundaries:
       do j=2,jgmx-1
-         do i=1,igmx
-         dy2=dvary(j)+(dvary(j-1)+dvary(j+1))/2.
-         sxyy(i,j)=(sxy(i,j+1)-sxy(i,j-1))/dy2
-         syyy(i,j)=(syy(i,j+1)-syy(i,j-1))/dy2
-	 end do
+        do i=1,igmx
+          dy2=dvary(j)+(dvary(j-1)+dvary(j+1))/2.
+          sxyy(i,j)=(sxy(i,j+1)-sxy(i,j-1))/dy2
+          syyy(i,j)=(syy(i,j+1)-syy(i,j-1))/dy2
+	    end do
       end do
 !
       do i=1,igmx
-         sxxx(i,1)=sxxx(i,2)
-         sxyy(i,1)=sxyy(i,2)
-         syyy(i,1)=syyy(i,2)
-         sxyx(i,1)=sxyx(i,2)
-         sxxx(i,jgmx)=sxxx(i,nj1)
-         sxyy(i,jgmx)=sxyy(i,nj1)
-         syyy(i,jgmx)=syyy(i,nj1)
-         sxyx(i,jgmx)=sxyx(i,nj1)
+        sxxx(i,1)=sxxx(i,2)
+        sxyy(i,1)=sxyy(i,2)
+        syyy(i,1)=syyy(i,2)
+        sxyx(i,1)=sxyx(i,2)
+        sxxx(i,jgmx)=sxxx(i,nj1)
+        sxyy(i,jgmx)=sxyy(i,nj1)
+        syyy(i,jgmx)=syyy(i,nj1)
+        sxyx(i,jgmx)=sxyx(i,nj1)
       end do
 !
       if(iplane.eq.2) then
@@ -9557,80 +9562,80 @@ contains
 !
 !     Radiation stress. Set stress values to zero on dry cells:
       do j=1,jgmx
-         do i=1,igmx
-            if (d1(i,j).lt..01) then
-               wxrs(i,j)=.0
-               wyrs(i,j)=.0
-            else
-               wxrs(i,j)=-sxxx(i,j)-sxyy(i,j)
-               wyrs(i,j)=-sxyx(i,j)-syyy(i,j)
+        do i=1,igmx
+          if (d1(i,j).lt..01) then
+            wxrs(i,j)=.0
+            wyrs(i,j)=.0
+          else
+            wxrs(i,j)=-sxxx(i,j)-sxyy(i,j)
+            wyrs(i,j)=-sxyx(i,j)-syyy(i,j)
 !
 !     Rest stress values to a threshold on next-to-land cells:
 !     modified by lihwa 27aug03
 !     Check four neighbour cells (right, left, upper, lower)
-               iadd1=i+1
-               isub1=i-1
-               jadd1=j+1
-               jsub1=j-1
-               if(iadd1.gt.igmx) iadd1=igmx
-               if(isub1.lt.1)  isub1=1
-               if(jadd1.gt.jgmx) jadd1=jgmx
-               if(jsub1.lt.1)  jsub1=1
-               cc=0.
-               if(d1(iadd1,j).le..0) cc=cc+1.
-               if(d1(isub1,j).le..0) cc=cc+1.
-               if(d1(i,jadd1).le..0) cc=cc+1.
-               if(d1(i,jsub1).le..0) cc=cc+1.
-               if(cc.gt..5) then
-               ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10)
-               sdis=sqrt(dvarx(i)**2+dvary(j)**2)
-               ssc=0.0005*sdis/cc/ss
-               if(ssc.lt.1.) then
-               wxrs(i,j)=wxrs(i,j)*ssc
-               wyrs(i,j)=wyrs(i,j)*ssc
-               end if
-               go to 301
-               end if
+            iadd1=i+1
+            isub1=i-1
+            jadd1=j+1
+            jsub1=j-1
+            if(iadd1.gt.igmx) iadd1=igmx
+            if(isub1.lt.1)  isub1=1
+            if(jadd1.gt.jgmx) jadd1=jgmx
+            if(jsub1.lt.1)  jsub1=1
+            cc=0.
+            if(d1(iadd1,j).le..0) cc=cc+1.
+            if(d1(isub1,j).le..0) cc=cc+1.
+            if(d1(i,jadd1).le..0) cc=cc+1.
+            if(d1(i,jsub1).le..0) cc=cc+1.
+            if(cc.gt..5) then
+              ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10)
+              sdis=sqrt(dvarx(i)**2+dvary(j)**2)
+              ssc=0.0005*sdis/cc/ss
+              if(ssc.lt.1.) then
+                wxrs(i,j)=wxrs(i,j)*ssc
+                wyrs(i,j)=wyrs(i,j)*ssc
+              end if
+              go to 301
+            end if
 !     Check four diagonal neighbour cells
-               if(d1(iadd1,jadd1).le..0) cc=cc+1.
-               if(d1(iadd1,jsub1).le..0) cc=cc+1.
-               if(d1(isub1,jadd1).le..0) cc=cc+1.
-               if(d1(isub1,jsub1).le..0) cc=cc+1.
-               if(cc.gt..5) then
-               ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10) !Alex, to avoid divide by zero
-               sdis=sqrt(dvarx(i)**2+dvary(j)**2)
-               ssc=0.0005*sdis/cc/ss
-               if(ssc.lt.1.) then
-               wxrs(i,j)=wxrs(i,j)*ssc
-               wyrs(i,j)=wyrs(i,j)*ssc
-               end if 
-               end if
-  301          continue
+            if(d1(iadd1,jadd1).le..0) cc=cc+1.
+            if(d1(iadd1,jsub1).le..0) cc=cc+1.
+            if(d1(isub1,jadd1).le..0) cc=cc+1.
+            if(d1(isub1,jsub1).le..0) cc=cc+1.
+            if(cc.gt..5) then
+              ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10) !Alex, to avoid divide by zero
+              sdis=sqrt(dvarx(i)**2+dvary(j)**2)
+              ssc=0.0005*sdis/cc/ss
+              if(ssc.lt.1.) then
+                wxrs(i,j)=wxrs(i,j)*ssc
+                wyrs(i,j)=wyrs(i,j)*ssc
+              end if 
+            end if
+  301       continue
 !     end of modification
 
-!!               if(ibr(i,j).eq.0) then
-!!                 cc1=d1(i,j)-hs0*1.5 !Wu ****** IMPORTANT ****************
-!!                 if(cc1.lt.0.) cc1=0.
-!!                 cc=exp(min(cc1,10.))
-!!                 wxrs(i,j)=wxrs(i,j)/cc
-!!                 wyrs(i,j)=wyrs(i,j)/cc
-!!                 cc1=d1(i,j)/max(H13S(i,j),0.01)
-!!                 cc=0.5+0.5*cos(3.14159265*min(max(cc1-1.5,0.0),1.0))
-!!                 wxrs(i,j)=wxrs(i,j)*cc
-!!                 wyrs(i,j)=wyrs(i,j)*cc               
-!!               end if
-            endif
-         enddo
+!!            if(ibr(i,j).eq.0) then
+!!              cc1=d1(i,j)-hs0*1.5 !Wu ****** IMPORTANT ****************
+!!              if(cc1.lt.0.) cc1=0.
+!!              cc=exp(min(cc1,10.))
+!!              wxrs(i,j)=wxrs(i,j)/cc
+!!              wyrs(i,j)=wyrs(i,j)/cc
+!!              cc1=d1(i,j)/max(H13S(i,j),0.01)
+!!              cc=0.5+0.5*cos(3.14159265*min(max(cc1-1.5,0.0),1.0))
+!!              wxrs(i,j)=wxrs(i,j)*cc
+!!              wyrs(i,j)=wyrs(i,j)*cc               
+!!            end if
+          endif
+        enddo
       enddo
 !
       if(iplane.eq.1) then
         exx=-wxrs
         eyy=-wyrs
         do j=1,jgmx
-           do i=1,igmx
-           wxrs(i,j)=exx(imax-i,jmax-j)
-           wyrs(i,j)=eyy(imax-i,jmax-j)
-           end do
+          do i=1,igmx
+            wxrs(i,j)=exx(imax-i,jmax-j)
+            wyrs(i,j)=eyy(imax-i,jmax-j)
+          end do
         end do
       end if
 !

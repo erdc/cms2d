@@ -920,7 +920,10 @@
      
     sum2 = sum(sum1(:))
     !write(*,"(2i4,5e10.3)")id,i,sum2,sum1(:)
-    dredge_mat_gradation(:) = sum1(:)/sum2  !normalized  
+    
+    if (sum2 .ne. 0.0) then 
+      dredge_mat_gradation(:) = sum1(:)/sum2  !normalized  
+    endif
     !write(*,*)'dregmatgrad: ',dredge_mat_gradation(:)
 
     return

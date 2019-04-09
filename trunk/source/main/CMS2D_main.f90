@@ -173,6 +173,13 @@
         character(len=len(astr)) :: toUpper
       end function
     end interface
+
+    interface
+      function toLower (astr)
+        character(len=*),intent(in) :: astr
+        character(len=len(astr)) :: toLower
+      end function
+    end interface
     
     narg = command_argument_count()
     narg = min(narg,6)               !maximum 6 arguments after the executable for now.
@@ -214,6 +221,8 @@
       !At least one argument now, check existence
       do i=1,min(narg,2)
         call fileparts(arg(i),apath,aname,aext)  
+        aext=ToLower(trim(aext))
+        
         select case (aext)
         case ('cmcards')
           inquire(file=arg(i),exist=found)
@@ -247,7 +256,7 @@
           wavename   = aname
           cmswave    = .true.
           restart = .false.
-        
+          
         case default                    !if first argument is not a .cmcard file or .sim file, append them together and recheck.
           arg(1)=trim(arg(1))//' '//trim(arg(2))
           arg(2)=''

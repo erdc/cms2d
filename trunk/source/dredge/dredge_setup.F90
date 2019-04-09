@@ -688,7 +688,7 @@
       write(2056,*)'name= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaFile))
       write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaPath))
       
-      !holdover from original code - it is allcoated in card reader section and needs to be deallocated before being properly allocated in this section
+      !holdover from original code - it is allocated in card reader section and needs to be deallocated before being properly allocated in this section
       if (allocated(dredge_operations(k)%Placement_limit)) deallocate(dredge_operations(k)%Placement_limit)  
         
       ! get a list of source area cells and convert to active grid

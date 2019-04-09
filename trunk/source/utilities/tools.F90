@@ -170,7 +170,9 @@
     do i=1,len_trim(str)
       if(lge(str(i:i),'a') .and. lle(str(i:i),'z'))then
         aString(i:i) = achar(iachar(str(i:i)) - del)
-      endif
+      else
+        aString(i:i) = str(i:i)
+     endif
     enddo
 
     return
@@ -206,6 +208,8 @@
     do i=1,len_trim(str)
       if(lge(str(i:i),'A') .and. lle(str(i:i),'Z'))then
         aString(i:i) = achar(iachar(str(i:i)) + del)
+      else
+        aString(i:i) = str(i:i)
       endif
     enddo
 

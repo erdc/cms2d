@@ -760,7 +760,7 @@
       read(77,*) cardname, nlay   
       call bedlay_resize
         
-    case('BED_LAYERS_NUMBER')
+    case('BED_LAYERS_NUMBER','NUMBER_BED_LAYERS')
       backspace(77)
       read(77,*) cardname, nlayinp
       

@@ -25,9 +25,6 @@
             
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
-    write_sup = .false.          !Super ASCII files
-    write_ascii_input = .false.  !ASCII input files
-    write_tecplot = .false.      !Tecplot files 
     
     !Geometry
     write_areap     = .false.    !Turns on or off the current velocity magnitude = uv
@@ -97,13 +94,19 @@
     write_normapprough = .false.
     
     !Compression
-    ixmdfcomp = 0                !0-No compression, 1-Compression    
+    ixmdfcomp = 0                !0-No XMDF compression, 1-XMDF Compression    
     
-    !ASCII Input
+    !Input/Output
     write_ascii_input = .false.  !Turns on or off writing the ASCII input files
-    
-    !XMDF Output
-    write_xmdf_output = .true.   !Turns on or off writing XMDF output files
+    write_tecplot = .false.      !Tecplot files 
+
+#ifdef WIN_OS
+    write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
+    write_sup = .true.           !  and turns off Super ASCII files
+#else    
+    write_xmdf_output = .false.  !By default, turns off writing XMDF output files on Linux
+    write_sup = .true.           !  and turns on Super ASCII files
+#endif
     
     !Simulation label
     simlabel = 'Simulation'
@@ -533,11 +536,12 @@
       case('OUTPUT_GLOBAL_XMDF','GLOBAL_XMDF','GLOBAL_XMDF_OUTPUT')
         call card_boolean(77,write_xmdf_output,ierr)  
         write_sup = .false.
+        write_xmdf_output = .true.
 
         
       case('WRITE_ASCII_OUTPUT_FILES')
         call card_boolean(77,write_xmdf_output,ierr)
-        write_xmdf_output = .not.write_xmdf_output
+        write_xmdf_output = .false.
         write_sup = .true.
 
       case('OUTPUT_FILE_TYPE')

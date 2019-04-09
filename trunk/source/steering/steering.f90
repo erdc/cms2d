@@ -1782,9 +1782,11 @@
         Wunitx(ii)=Wunitx1(ii)
         Wunity(ii)=Wunity1(ii)
         val=sqrt(Wunitx(ii)**2+Wunity(ii)**2)
-        val=max(val,1.0e-5)
+        
+        val=max(val,1.0e-5)               !To fix a divide by zero issue, unknown date of implementation.
         Wunitx(ii)=Wunitx(ii)/val
         Wunity(ii)=Wunity(ii)/val
+        
         Wang(ii)=atan2(Wunity(ii),Wunitx(ii))
         waveibr(ii)=waveibr1(ii)
         wavediss(ii)=wavediss1(ii)  !Alex, Aug 3, 2009
