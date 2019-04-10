@@ -406,9 +406,6 @@
       case('GLOBAL_SUPER_FILES','GLOBAL_SUPER_ASCII')
         call card_boolean(77,write_sup,ierr)       
           
-      case('WRITE_ASCII_INPUT_FILES')
-        call card_boolean(77,write_ascii_input,ierr)
-          
       case('OUTPUT_WAVE_DETAILS','WAVE_OUTPUT_DETAILS')
         call card_boolean(77,write_wave_detail,ierr)
         
@@ -530,14 +527,13 @@
       case('GEOMETRY_OUTPUT','OUTPUT_GEOMETRY','GEO_CELLS_OUTPUT','OUTPUT_GEO_CELLS')
         call card_boolean(77,write_geocells,ierr)
         
-      case('OUTPUT_ASCII_INPUT')
+      case('OUTPUT_ASCII_INPUT','WRITE_ASCII_INPUT_FILES')
         call card_boolean(77,write_ascii_input,ierr)
         
       case('OUTPUT_GLOBAL_XMDF','GLOBAL_XMDF','GLOBAL_XMDF_OUTPUT')
         call card_boolean(77,write_xmdf_output,ierr)  
         write_sup = .false.
         write_xmdf_output = .true.
-
         
       case('WRITE_ASCII_OUTPUT_FILES')
         call card_boolean(77,write_xmdf_output,ierr)

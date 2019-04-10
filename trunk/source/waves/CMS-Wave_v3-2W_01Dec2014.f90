@@ -527,11 +527,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !     end if
 ! standard output files
 !
-        do l=1,179
+      do l=1,179
         if(SimFile(l:l+1).eq.'  ') exit
-        end do
-        if(l.lt.12) l=12
-        if (SimFile(l-11:l-5).eq.'swsteer') ixmdf=0
+      end do
+      if(l.lt.12) l=12
+      if (SimFile(l-11:l-5).eq.'swsteer') ixmdf=0
 !
       if(iabs(kout).ge.1.and.ixmdf.ne.2) then
       if(kout.ge.1) open (10, file = EngOutFile, status = 'unknown')

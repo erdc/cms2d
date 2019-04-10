@@ -41,7 +41,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 8              !Revision number
-    rdate    = '03/18/2019'
+    rdate    = '04/10/2019'
 
 #ifdef DEV_MODE
     release  = .false.
@@ -218,11 +218,19 @@
     endif
 
     do                                            !repeat if needed
+      continue
       !At least one argument now, check existence
       do i=1,min(narg,2)
         call fileparts(arg(i),apath,aname,aext)  
         aext=ToLower(trim(aext))
         
+        if (ToLower(trim(arg(i))) == 'inline') then
+          inlinewave = .true.
+          narg = narg -1
+          restart = .false.
+          exit
+        endif  
+          
         select case (aext)
         case ('cmcards')
           inquire(file=arg(i),exist=found)
@@ -261,7 +269,7 @@
           arg(1)=trim(arg(1))//' '//trim(arg(2))
           arg(2)=''
           narg = narg -1
-          restart=.true.                !rerun this loop
+          restart=.true.                !rerun this loop because we concatenated two arguments
           exit
        
         end select  
