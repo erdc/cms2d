@@ -406,6 +406,7 @@
       case('GLOBAL_SUPER_FILES','GLOBAL_SUPER_ASCII')
         call card_boolean(77,write_sup,ierr)       
           
+
       case('OUTPUT_WAVE_DETAILS','WAVE_OUTPUT_DETAILS')
         call card_boolean(77,write_wave_detail,ierr)
         
@@ -546,7 +547,7 @@
         if(astring=="XMDF") then
           write_xmdf_output = .true.
           write_sup = .false.
-      else
+        else
           write_xmdf_output = .false.
           write_sup = .true.
         endif
