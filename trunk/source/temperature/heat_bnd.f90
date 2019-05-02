@@ -1,7 +1,6 @@
 !**************************************************************
     subroutine heat_bc_init
 ! Initializes the heat boundary conditions
-! 
 !**************************************************************
     use heat_def
     use bnd_def
@@ -11,8 +10,8 @@
     
 !=== Find all temperature boundaries ================
     !Assumes that temperature is specified at all boundaries
-    nheatstr = nQstr + nTHstr + nHstr + nMHstr + nMHVstr + nCSstr &
-            + nNHstr + nNHVstr + nNTHstr + nNTHVstr
+    nheatstr = nQstr + nTHstr + nHstr + nMHstr + nMHVstr + nCSstr   &
+             + nNHstr + nNHVstr + nNTHstr + nNTHVstr
     allocate(heat_str(nheatstr))
     heat_str%inc = 1 !Initialize
     iheat = 0
@@ -89,7 +88,6 @@
     subroutine heat_bnd_chk(bidfile,bidpath,nbndcells,icells,kfaces,iheat)
 ! Checks the flow boundary condition file and paths 
 ! for temperature information
-
 !************************************************************************
 #include "CMS_cpp.h"
     use size_def
@@ -132,16 +130,14 @@
     allocate(heat_str(iheat)%faces(nbndcells))
     heat_str(iheat)%cells = icells
     heat_str(iheat)%faces = kfaces
-    
 #endif
-    
+
     return
     endsubroutine heat_bnd_chk
     
 !**************************************************************
     subroutine bndheateval
 ! Evaluate heat at boundary cell strings
-
 !**************************************************************    
     use size_def
     use flow_def
@@ -164,10 +160,10 @@
         inc = inc + 1
         heat_str(i)%inc = inc
       enddo
-      fac = (timehrs-heat_str(i)%timeheat(inc))/ &
+      fac = (timehrs-heat_str(i)%timeheat(inc))/                    &
             (heat_str(i)%timeheat(inc+1)-heat_str(i)%timeheat(inc))
-      heat_str(i)%heatbnd = (1.0-fac)*heat_str(i)%val(inc) + &
-                fac*heat_str(i)%val(inc+1)
+      heat_str(i)%heatbnd = (1.0-fac)*heat_str(i)%val(inc) +        &
+            fac*heat_str(i)%val(inc+1)
     enddo
  
     !do iriv=1,nQstr
@@ -277,48 +273,48 @@
   !  enddo   
 
      do iriv=1,nQstr
-     do j=1,Q_str(iriv)%ncells
-        i = Q_str(iriv)%cells(j)
-        k = Q_str(iriv)%faces(j)
-        nck = cell2cell(k,i)
-        if(flux(k,i)<0.0)then !Inflow
+       do j=1,Q_str(iriv)%ncells
+         i = Q_str(iriv)%cells(j)
+         k = Q_str(iriv)%faces(j)
+         nck = cell2cell(k,i)
+         if(flux(k,i)<0.0)then !Inflow
            suheat0(i)=suheat0(i)+acoef(k,i)*heat(nck)
            sp(i)=sp(i)-acoef(k,i)
-        else  !Outflow
+         else  !Outflow
            heat(nck)=heat(i)
-        endif
-        acoef(k,i)=0.0
-     enddo    
+         endif
+         acoef(k,i)=0.0
+       enddo    
      enddo    
 
      do iwse=1,nHstr
-     do j=1,H_str(iwse)%ncells
-        i = H_str(iwse)%cells(j)
-        k = H_str(iwse)%faces(j)
-        nck = cell2cell(k,i)
-        if(flux(k,i)<0.0)then !Inflow
+       do j=1,H_str(iwse)%ncells
+         i = H_str(iwse)%cells(j)
+         k = H_str(iwse)%faces(j)
+         nck = cell2cell(k,i)
+         if(flux(k,i)<0.0)then !Inflow
            suheat0(i)=suheat0(i)+acoef(k,i)*heat(nck)
            sp(i)=sp(i)-acoef(k,i)
-        else  !Outflow
+         else  !Outflow
            heat(nck)=heat(i)
-        endif
-        acoef(k,i)=0.0
-     enddo
+         endif
+         acoef(k,i)=0.0
+       enddo
      enddo      
 
      do iwse=1,nTHstr
-     do j=1,TH_str(iwse)%ncells
-        i = TH_str(iwse)%cells(j)
-        k = TH_str(iwse)%faces(j)
-        nck = cell2cell(k,i)
-        if(flux(k,i)<0.0)then !Inflow
+       do j=1,TH_str(iwse)%ncells
+         i = TH_str(iwse)%cells(j)
+         k = TH_str(iwse)%faces(j)
+         nck = cell2cell(k,i)
+         if(flux(k,i)<0.0)then !Inflow
            suheat0(i)=suheat0(i)+acoef(k,i)*heat(nck)
            sp(i)=sp(i)-acoef(k,i)
-        else  !Outflow
+         else  !Outflow
            heat(nck)=heat(i)
-        endif
-        acoef(k,i)=0.0
-     enddo
+         endif
+         acoef(k,i)=0.0
+       enddo
      enddo      
      
 !--- Structures --------------------

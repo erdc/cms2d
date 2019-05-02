@@ -41,7 +41,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 8              !Revision number
-    rdate    = '04/10/2019'
+    rdate    = '05/01/2019'
 
 #ifdef DEV_MODE
     release  = .false.
@@ -378,11 +378,12 @@
       dgfile  = wavepath(1:nlenwav) // dgfile
     endif
     
+    !Modified 5/1/2019 - GRDFILE was being renamed after it was already set.
     if(noptset>=2)then !Only needed if running flow
       ctlfile  = flowpath(1:nlenflow) // ctlfile     
-      grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
       mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
       telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
+      if (grdfile .eq. '') grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
     endif
     
     return

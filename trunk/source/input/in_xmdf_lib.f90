@@ -58,7 +58,7 @@ contains
     
     return
     endsubroutine read_dataseth5
-
+    
 
 !************************************************************************
     subroutine readscalh5(afile,apath,var,ierr)
@@ -72,6 +72,7 @@ contains
     use xmdf
     use prec_def
     implicit none
+    
     !Input/Output
     character(len=*), intent(in) :: afile,apath
     real(ikind), intent(out) :: var(ncellsD)
@@ -488,10 +489,10 @@ contains
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
-      write(msg4,*,iostat=ierr) '  Time step: ',itsind
-      call diag_print_warning('Could not vector time step values',msg2,msg3)
+      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg4,*,iostat=ierr) '  Time step: ',itsind
+      !call diag_print_warning('Could not read vector time step values',msg2,msg3)
       ierr = 3 !Could not read timestep
       return
     endif

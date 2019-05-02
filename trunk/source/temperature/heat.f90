@@ -43,6 +43,7 @@
     heatic = 10.0 !deg C
     icheat = 1    !1-Constant, 2-Dataset, 3-Scatter set
     schmidtheat = 1.0 !Schmidt number for heat
+    heatpath = "PROPERTIES/Model Params/TemperatureParameters"
     
     return
     endsubroutine heat_default
@@ -385,8 +386,13 @@ d1: do k=1,10
       enddo  
     enddo
 
-    call read_heat_solar   !Read solar radiation data
-    
+    !--- Read solar radiation data ----------------------
+#ifdef XMDF_IO      
+    call read_heat_solar_xmdf
+#else    
+    call read_heat_solar      
+#endif
+
     return
     endsubroutine heat_init
 
@@ -804,7 +810,7 @@ d1: do k=1,10
     idheatmax = mapid(idheatmax)
     idheatmin = mapid(idheatmin)
     
-626 format('   Avg Temp=',F6.3,', Max Temp(',I6,')=',F6.3,', Min Temp(',I6,')=',F6.3)
+626 format('   Avg Temp=',F0.3,', Max Temp(',I6,')=',F0.3,', Min Temp(',I6,')=',F0.3)
     !if(abs(Ctmax)>1.0e5 .or. abs(dzbxtr)>1.0e3) return    
     open(dgunit,file=dgfile,access='append')
     write(*,626)      heatavg,idheatmax,heatmax,idheatmin,heatmin

@@ -126,11 +126,11 @@
   	  nsteer=nsteer+1
   	  call wave_flgrid_init
 #ifdef XMDF_IO
-	  call readscalsteph5(grdfile,wavpath,nsteer,tswave1,Whgt1,ierr)  	  
-	  call readscalsteph5(grdfile,perpath,nsteer,tswave1,Wper1,ierr)  	  	  
-	  call readscalsteph5(grdfile,dirpath,nsteer,tswave1,Wang,ierr)  
+	  call readscalsteph5(grdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)  	  
+	  call readscalsteph5(grdfile,perpath, nsteer,tswave1,Wper1,    ierr)  	  	  
+	  call readscalsteph5(grdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
 	  call readscalsteph5(grdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
-  	  call readvecsteph5(grdfile,radpath,nsteer,tswave1,wavestrx1,wavestry1,ierr)
+  	  call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
 #else
       call diag_print_error('Cannot read constant wave conditions without XMDF')
 #endif
@@ -186,9 +186,10 @@
       
   	  nsteer=nsteer+1
 #ifdef XMDF_IO
-  	  call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)  	
+  	  call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)  	!ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
 #endif
-  	  if(ierr<0)then
+      select case(ierr)
+      case(:-1,1:)    !if(ierr<0 .or. ierr>0)then
   	    do i=1,ncellsD
   	      wavestrx2(i)=wavestrx1(i)
   	      wavestry2(i)=wavestry1(i)
@@ -199,12 +200,12 @@
   	      Wunitx2(i)=Wunitx1(i)
           Wunity2(i)=Wunity1(i)
         enddo  
-      else
+      case default
 #ifdef XMDF_IO
-        call readscalsteph5(grdfile,perpath,nsteer,tswave2,Wper2,ierr)  	  	  
-	    call readscalsteph5(grdfile,dirpath,nsteer,tswave2,Wang,ierr)  
-	    call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,ierr)  
-  	    call readvecsteph5(grdfile,radpath,nsteer,tswave2,wavestrx2,wavestry2,ierr)  	    
+        call readscalsteph5(grdfile,perpath, nsteer,tswave2,Wper2,              ierr)
+	    call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
+	    call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
+  	    call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif
   	    do i=1,ncellsD
   	      Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
@@ -244,7 +245,8 @@
           endif
 #endif
         enddo
-      endif  
+      end select 
+
     endif
     
     return
