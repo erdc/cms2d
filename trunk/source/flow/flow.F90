@@ -159,7 +159,7 @@
     endsubroutine flow_default
         
 !*************************************************************   
-    subroutine flow_cards(cardname,foundcard)
+    subroutine flow_cards(cardname,foundcard,doPrint)
 ! Reads wind data from Model Parameters file
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************
@@ -175,12 +175,16 @@
     use heat_def, only: heatic
     use EXP_Global_def, only: outinterval
     implicit none
+    
+    character(len=*),intent(inout) :: cardname
+    logical,intent(out)            :: foundcard
+    logical,intent(in)             :: doPrint
+    
     integer :: i,ierr,omp_get_max_threads
-    character(len=37) :: cardname,cdum
+    character(len=37) :: cdum
     character(len=12) :: stringname
     character(len=200) :: apath,aname
     character(len=10) :: aext
-    logical :: foundcard
     
     foundcard = .true.
     selectcase(cardname)
@@ -248,7 +252,7 @@
       deltime = dble(dtime)
 	  dtimebeg = dtime
       dtime1 = dtime
-      if(dtime<1.0e-6)then
+      if(dtime<1.0e-6 .and. doPrint)then
         write(msg2,*) dtime
         call diag_print_error('Invalid time step: ',msg2)
       endif  
@@ -309,7 +313,7 @@
       read(77,*) cardname, cdum
       if(cdum(1:3)=='OFF')then
         ndsch = 0
-        call diag_print_warning('Turning off advection',&
+        if(doPrint) call diag_print_warning('Turning off advection',&
           '  Only recomended for testing or idealized cases')
       endif
           
@@ -320,7 +324,7 @@
       if(cdum(1:3)=='OFF')then
         mturbul = 0   
         cviscon = 0.0
-        call diag_print_warning('Turning off diffusion',&
+        if(doPrint) call diag_print_warning('Turning off diffusion',&
           '  Only recomended for testing or idealized cases')
       endif
         
@@ -341,7 +345,7 @@
       case('SUBGRID','SUBGRID-V2')
         mturbul = 5
       case default
-        call diag_print_warning('Invalid turbulence model',&
+        if(doPrint) call diag_print_warning('Invalid turbulence model',&
           '  Check CMS-Flow Card File','  Using Subgrid model')
         mturbul = 5
       endselect
@@ -385,7 +389,6 @@
     case('EXPLICIT_PRINT_INTERVAL')
       call card_scalar(77,'sec','sec',outinterval,ierr)
       continue
-
           
     !==== Numerical Methods ====================================================
     case('SOLUTION_SCHEME')
@@ -501,7 +504,7 @@
           exit
         endif
       enddo
-      if(ndsch==0)then
+      if(ndsch==0 .and. doPrint)then
         call diag_print_warning('Turning off advection',&
           '  Only recomended for testing or idealized cases')
       endif
@@ -557,17 +560,19 @@
 !***********************************************************************
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: ncface,cell2cell,x,y,yc,avg_lat,areaavg,&
+    use geo_def,  only: ncface,cell2cell,x,y,yc,avg_lat,areaavg,&
         xorigin,yorigin,azimuth_fl,lat,latfile,latpath
     use flow_def  
     use flow_lib
-    use der_def, only: nder
+    use der_def,  only: nder
     use comvarbl
     use time_lib, only: ramp_func
     use const_def
     use secant_lib
     use prec_def
+    use sed_def,  only: scalemorph_rampdur, scalemorph_ramp, scalemorph_orig, scalemorph
     implicit none
+    
     integer :: iter    !omp_get_num_threads
     real(ikind) :: yavg,s(3),f(2),epssal,toldens,epsheat
         
@@ -599,6 +604,18 @@
     endselect
     
     !Timing variables  
+!added meb 03/11/2019
+    scalemorph_rampdur = max(scalemorph_rampdur, dtime/3600.0) !hours
+    nramp = scalemorph_rampdur*3600.0/dtime  !Number of iterations
+    scalemorph_ramp = 1.0
+    if(nramp>1)then
+      scalemorph_ramp = ramp_func(timehrs,scalemorph_rampdur)
+    endif        
+    if (scalemorph_orig .gt. 0.0) then 
+      scalemorph = max(1.0 , scalemorph_orig*scalemorph_ramp)
+    endif
+!--------------------    
+    
     rampdur = max(rampdur,dtime/3600.0) !hours
     nramp = rampdur*3600.0/dtime   !Number of iterations
     ramp = 1.0

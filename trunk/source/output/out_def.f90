@@ -19,7 +19,7 @@ module out_def
     
 !--- Output Times List ---------------------------------   
    type output_time_list
-     character(len=10) :: name
+     character(len=11) :: name
      logical :: write_dat              !Write output list group
      logical :: use_default=.true.     !To use the default name or not
      integer :: ilist                  !List id number

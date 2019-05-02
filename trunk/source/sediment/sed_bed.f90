@@ -34,7 +34,7 @@
 ! written by Alex Sanchez, USACE-ERDC-CHL  
 !**************************************************************************
     use size_def, only: ncells,ncellsD
-    use comvarbl, only: dtime
+    use comvarbl, only: dtime, timehrs
     use sed_def, only: scalemorph,solid,rhosed,alphat,&
         wsfall,Ctk,Ctkstar,Sb,dzb !,cohesivesed,Etkstar,wsfallcohsed
  	use prec_def
@@ -103,19 +103,21 @@
     use diag_def
     use diag_lib
     use sed_def
- 	  use prec_def
- 	  implicit none
- 	  integer :: i
- 	  real(ikind) :: fterm(nsed),fterm2(nsed),fterm3(nsed)
- 	  real(ikind) :: znum(nsed),zdem(nsed),Ctkp(nsed),aws(nsed)
- 	  real(ikind) :: pbksum,pbktemp(nsed),rxb,rxm,dbdz,fmdt
+    use prec_def
+    implicit none
+    
+    integer :: i
+    real(ikind) :: fterm(nsed),fterm2(nsed),fterm3(nsed)
+    real(ikind) :: znum(nsed),zdem(nsed),Ctkp(nsed),aws(nsed)
+    real(ikind) :: pbksum,pbktemp(nsed),rxb,rxm,dbdz,fmdt
 #ifdef DIAG_MODE
     logical :: isnankind
 #endif
 
     !Relaxation factors
- 	  rxb = 0.5
+ 	rxb = 0.5
     rxm = 1.0-rxb 
+
     fmdt = scalemorph*dtime !Apply morphologic scaling factor here
     
 !$OMP PARALLEL DO PRIVATE(i,dbdz,Ctkp,aws,fterm,fterm2,fterm3,znum,zdem,pbktemp,pbksum) REDUCTION(MAX:errpbk)   

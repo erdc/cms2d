@@ -13,9 +13,8 @@
       integer i,id
       real tdepth 
 
-
       !check for hardbottom conditions and set qs's and eros to zero if hardbottom is encountered
-	if(hardbottom) then
+	  if(hardbottom) then
         do i=1,nhard
           id = idhard(i)
           tdepth = -zb(id)- bed(id)*scalemorph*POROS  

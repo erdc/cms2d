@@ -40,8 +40,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 7              !Revision number
-    rdate    = '02/25/2019'
+    revision = 8              !Revision number
+    rdate    = '05/01/2019'
 
 #ifdef DEV_MODE
     release  = .false.
@@ -56,25 +56,35 @@
     stop
 #else
     call steering_default 
-    call get_com_arg      !get command line arguments
+
+    !call get_com_arg      !get command line arguments
+    call get_com_arg_v2
+    
     call print_header     !screen and debug file header  
     
-	if(noptset==1) then   !CMS-Wave only, use Stand alone code   MEB  10/15/2018
+	if(noptset==1) then   !CMS-Wave only, use Stand alone code unless INLINE card present   MEB  10/15/2018
 	  call sim_start_print  !start timer here
-!Might check to see if dtsteer already set
+
+      !Might check to see if dtsteer already set
       dtsteer=3.0
-!
+
       ctime=0.0
       coldstart=.true.
 
       open(dgunit,file=dgfile,access='append') !Note: Needs to be open for CMS-Wave
-      call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)       
+      if (inlinewave) then
+        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
+      else
+        call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
+      endif
+      
       close(dgunit)
 
       call sim_end_print
+      
 	else !if(noptset==2 .or. noptset==3) then
       !if(n2Dor3D==2) then
-!STACK:  OPEN & READ FLOW CARD FILE TO SEE IF IT EXPLICIT OR IMPLICIT
+    !STACK:  OPEN & READ FLOW CARD FILE TO SEE IF IT EXPLICIT OR IMPLICIT
 	  !nfsch = 0, implicit     !STACK:
 	  !nfsch = 1, explicit     !STACK:	    
 	  !nfsch = 0  !STACK:  implicit is defualt, nfsch updated from card file in SOLUTION_SCHEME_OPTION
@@ -131,6 +141,253 @@
 !#endif
     
     endprogram CMS2D
+    
+!************************************************
+    subroutine get_com_arg_v2
+! Gets the command line arguments
+! or runs an interactive input
+! meb 03/08/2019  Trying a more logical way to 
+!                 get the arguments and set the 
+!                 proper variables
+!************************************************  
+    use geo_def, only: grdfile,telfile
+    use cms_def
+    use comvarbl
+    use diag_def
+    use diag_lib
+    use hot_def, only: coldstart
+    use out_def, only: write_sup,write_tecplot,write_ascii_input
+
+    implicit none
+    integer :: narg, i, ierr, nlenwav, nlenflow, ncase
+    logical :: found, restart
+    character(10)  :: aext
+    character(37)  :: cardname
+    character(200) :: arg(0:6), astr,apath,aname
+    
+    character(500) :: aline
+    
+    interface
+      function toUpper (astr)
+        character(len=*),intent(in) :: astr
+        character(len=len(astr)) :: toUpper
+      end function
+    end interface
+
+    interface
+      function toLower (astr)
+        character(len=*),intent(in) :: astr
+        character(len=len(astr)) :: toLower
+      end function
+    end interface
+    
+    narg = command_argument_count()
+    narg = min(narg,6)               !maximum 6 arguments after the executable for now.
+    call GET_COMMAND(aline)
+    
+    arg=''
+    read(aline,*) (arg(i),i=0,narg)
+    
+    if (narg == 0) then !CMS was called with no arguments
+      write(*,*) ' '
+      write(*,*) 'Type name of CMS-Flow Card File or '
+      write(*,*) '  CMS-Wave Sim File and Press <RETURN>'
+      write(*,*) ' '
+      read(*,*) arg(1)
+      narg = 1
+
+      call fileparts(arg(1),apath,aname,aext)  
+      select case (aext)
+      case ('cmcards') !If Flow provided by user, ask for Wave (or no more inputs)
+        write(*,*) ' '
+        write(*,*) 'Type name of CMS-Wave Sim File'
+        write(*,*) 'or type 0 for none and Press <RETURN>'
+        read(*,*) arg(2)
+        if (arg(2)(1:1)/='0' .and. arg(2)(1:4) /= 'none') then
+          narg = narg + 1
+        endif
+      case ('sim')     !If Wave provided by user, ask for Flow (or no more inputs)
+        write(*,*) ' '
+        write(*,*) 'Type name of CMS-Flow Card File'
+        write(*,*) 'or type 0 for none and Press <RETURN>'
+        read(*,*) arg(2)
+        if (arg(2)(1:1)/='0' .and. arg(2)(1:4) /= 'none') then
+          narg = narg + 1
+        endif
+      end select          
+    endif
+
+    do                                            !repeat if needed
+      continue
+      !At least one argument now, check existence
+      do i=1,min(narg,2)
+        call fileparts(arg(i),apath,aname,aext)  
+        aext=ToLower(trim(aext))
+        
+        if (ToLower(trim(arg(i))) == 'inline') then
+          inlinewave = .true.
+          narg = narg -1
+          restart = .false.
+          exit
+        endif  
+          
+        select case (aext)
+        case ('cmcards')
+          inquire(file=arg(i),exist=found)
+          if (.not.found) then 
+            msg=trim(astr)//' does not exist'
+            call diag_print_error(msg)
+          endif
+          ctlfile  = trim(aname) // '.cmcards'
+          flowpath = apath
+          casename = aname
+          cmsflow  = .true.
+          
+          !Search for steering cards
+          open(77,file=arg(i))
+          do 
+            read(77,*,iostat=ierr) cardname
+            if (ierr/=0) exit
+            call steering_cards(cardname)
+          enddo
+          close(77)
+          restart = .false.
+      
+        case('sim')
+          inquire(file=arg(i),exist=found)
+          if (.not.found) then
+            msg=trim(astr)//' does not exist'
+            call diag_print_error(msg)
+          endif
+          WavSimFile = trim(aname) // '.sim'
+          Wavepath   = apath
+          wavename   = aname
+          cmswave    = .true.
+          restart = .false.
+          
+        case default                    !if first argument is not a .cmcard file or .sim file, append them together and recheck.
+          arg(1)=trim(arg(1))//' '//trim(arg(2))
+          arg(2)=''
+          narg = narg -1
+          restart=.true.                !rerun this loop because we concatenated two arguments
+          exit
+       
+        end select  
+      enddo
+      if (restart) then
+        cycle
+      else
+        exit
+      endif
+    enddo  
+
+    if (cmswave .and. .not. cmsflow .and.  narg <= 1) then     !CMS-Wave Only (no arguments)
+      noptset = 1   
+      casename = wavename
+    elseif(cmswave .and. .not. cmsflow .and. narg == 2) then    !CMS-Wave Only (1 argument) -- only check to see if 'INLINE' card is present      meb 03/11/2019
+      if (toUpper(trim(arg(2))) == 'INLINE') inlinewave = .true.
+      noptset = 1
+      casename = wavename
+    elseif(.not.cmswave .and. cmsflow .and. narg <= 1) then    !CMS-Flow Only
+      noptset = 2   
+    elseif (cmswave .and. cmsflow .and. narg >= 2) then        !CMS-Flow and CMS-Wave
+      noptset = 3   
+    endif
+    
+    !Get steering interval, if specified
+    if(narg>=3)then 
+      read(arg(3),*) dtsteer          
+      dtsteer = dtsteer*3600.0    !Convert from hours to seconds 
+    else
+      dtsteer = 10800.0           !3 hours default interval
+    endif
+
+    !Wave water level
+    if(narg>=4)then
+      read(arg(4),*) noptwse       
+    endif
+    
+    !Wave current velocity
+    if(narg>=5)then
+      read(arg(5),*) noptvel       
+    endif
+    
+    !Wave bed elevation
+    if(narg>=6)then
+      read(arg(6),*) noptzb       
+    endif 
+    
+    if (noptset == 3) then
+      if (narg == 2 .and. dtsteer < 0.0) then  !By this point, if Noptset is 3, then both a flow and wave grid have been read in, ask for more info.
+        write(*,*) 'Type the steering interval'
+        write(*,*) 'in hours and Press <RETURN>'
+        write(*,*) ' '
+        read(*,*) dtsteer
+        dtsteer = dtsteer*3600.0  !Convert from hours to seconds 
+        
+        if(WavSimFile(1:1) == ' ') then
+          write(*,*) ' '
+          write(*,*) 'Select the method for estimating the wave '
+          write(*,*) 'water levels from below and Press <RETURN>' 
+          write(*,*) '  0 - wse(wave_time,wave_grid)=0.0'
+          write(*,*) '  1 - wse(wave_time,wave_grid)=wse(flow_time,flow_grid)'
+          write(*,*) '  2 - wse(wave_time,wave_grid)=tide(wave_time,flow_grid)'
+          write(*,*) '  3 - wse(wave_time,wave_grid)=wse(flow_time,flow_grid) '
+          write(*,*) '        +tide(wave_time)-tide(flow_time)'
+          read(*,*) noptwse
+          noptwse = max(min(noptwse,3),0)
+          write(*,*) ' '
+          write(*,*) 'Select the method for estimating the wave '
+          write(*,*) 'current velocities from below and Press <RETURN>' 
+          write(*,*) '  0 - vel(wave_time,wave_grid)=0.0'
+          write(*,*) '  1 - vel(wave_time,wave_grid)=vel(flow_time,flow_grid)'
+          read(*,*) noptvel
+          noptvel = max(min(noptvel,1),0)
+          write(*,*) ' '
+          write(*,*) 'Select the method for estimating the wave '
+          write(*,*) 'bed elevations from below and Press <RETURN>' 
+          write(*,*) '  0 - zb(wave_grid)=zb(wave_grid)'
+          write(*,*) '  1 - zb(wave_time,wave_grid)=zb(flow_time,flow_grid)'
+          read(*,*) noptzb
+          noptzb = max(min(noptzb,1),0)
+        else
+          write(*,*) ' '
+          write(*,*) '--Using steering card values or wave steering parameter defaults'
+        endif
+      endif  
+    else
+      dtsteer = 10800.0         !3 hours default interval
+    endif
+        
+    !If wave path is empty than use path for flow    
+    nlenwav = len_trim(wavepath)
+    nlenflow = len_trim(flowpath)
+    if(nlenwav==0 .and. nlenflow>0)then
+      wavepath = flowpath !*******************  
+      nlenwav = len_trim(wavepath)
+    endif
+    
+    !Declare file names    
+    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
+    dgunit = 9
+    ncase = len_trim(casename)  
+    !dgfile  = casename(1:ncase) // '_diag.txt'
+    if(cmsflow .and. nlenflow>0)then
+      dgfile  = flowpath(1:nlenflow) // dgfile    
+    elseif(cmswave .and. nlenwav>0 .and. .not.cmsflow)then !if only waves and there is a path, put diagnostic file there.
+      dgfile  = wavepath(1:nlenwav) // dgfile
+    endif
+    
+    !Modified 5/1/2019 - GRDFILE was being renamed after it was already set.
+    if(noptset>=2)then !Only needed if running flow
+      ctlfile  = flowpath(1:nlenflow) // ctlfile     
+      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
+      telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
+      if (grdfile .eq. '') grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
+    endif
+    
+    return
+    end subroutine get_com_arg_v2    
     
 !*************************************
     subroutine get_com_arg

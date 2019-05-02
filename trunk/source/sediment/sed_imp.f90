@@ -432,24 +432,23 @@
       endfunction
     endinterface  
 
-!$OMP PARALLEL
 !.....Temporal terms
     if(ntsch==1)then
-!$OMP DO PRIVATE(i,a0)        
+!$OMP PARALLEL DO PRIVATE(i,a0)        
       do i=1,ncells          
         a0=iwet(i)*areap(i)/dtime      
         su(i)=a0*h1(i)*Ctk1(i,ks)/btk1(i,ks)
         sp(i)=-a0*(h(i)*(1.0/btk(i,ks)-1.0)+h1(i))
       enddo    
-!$OMP END DO        
+!$OMP END PARALLEL DO        
     else
-!$OMP DO PRIVATE(i,a0)    
+!$OMP PARALLEL DO PRIVATE(i,a0)    
       do i=1,ncells 
         a0=iwet(i)*areap(i)/dtime  
         su(i)=a0*(ctsch1*h1(i)*Ctk1(i,ks)/btk1(i,ks)-ctsch2*h2(i)*Ctk2(i,ks)/btk2(i,ks))
         sp(i)=-a0*(ctsch*h(i)*(1.0/btk(i,ks)-1.0)+ctsch1*h1(i)-ctsch2*h2(i))
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
     endif
 
     !!Hardbottom
@@ -465,14 +464,14 @@
     !  !CtstarP(i,ks) = Ctkstar(i,ks)/max(pbk(i,ks,1),1.0e-6)
     !enddo !ih    
     
-!$OMP DO PRIVATE(i,k,idrym,nck,ddk,awsvolp,fkip,rskface,Ctkstarhard,dzblim,Tempvar)	 !MEB 01/13/2017
+!$OMP PARALLEL DO PRIVATE(i,k,idrym,nck,ddk,awsvolp,fkip,rskface,Ctkstarhard,dzblim,Tempvar)	 !MEB 01/13/2017
     do i=1,ncells
       
       !--- Limit capacity to avoid excessive erosion or eroding past the hard bottom ---
       dzblim = min(zb(i)-hardzb(i),dzbmax)
       TempVar = alphat(i)*wsfall(ks) + 1.0e-20										 !MEB 01/13/2017
       !print*, TempVar, dtime 
-      Ctkstarhard = Ctk(i,ks) + rhosed*solid*pbk(i,ks,1)*dzblim /(TempVar*max(scalemorph,1.0)*dtime) + Sb(i,ks)/TempVar
+      Ctkstarhard = Ctk(i,ks) + rhosed*solid*pbk(i,ks,1)*dzblim /(TempVar*max(scalemorph,1.0)*dtime) + Sb(i,ks)/TempVar   !changed scalemorph to computed val - meb 03/11/2019
       
       
       Ctkstarhard = max(Ctkstarhard,0.0)
@@ -542,8 +541,7 @@
         sp(i)=0.0
       endif         
     enddo
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END PARALLEL DO
 
 !#ifdef DEV_MODE
 !    !3D Dispersion terms

@@ -38,7 +38,7 @@
     endif
     
     do while(ctime < stimet) !Note that stimet includes ramp period
-       call timing   !ntime, mtime, dtime, ctime, timehrs, ramp         
+       call timing   !ntime, mtime, dtime, ctime, timehrs, ramp                        !added scalemorph_ramp - meb 03/11/2019
        if(cmswave) call wave_eval !Run wave model, and interpolate in space and time
        if(constant_waves) call wave_const_update !Set constant wave parameters, for idealized cases and lab experiments
 
@@ -105,13 +105,17 @@
     use diag_lib
     use cms_def,   only: timestart,timenow
     use solv_def,  only: iconv
-    use sed_def,   only: scalemorph
     use prec_def
+    use sed_def,   only: scalemorph
+    use sed_def,   only: scalemorph_rampdur, scalemorph_ramp, scalemorph_orig  !added meb 03/11/2019
+    use sed_def,   only: write_smorph_ramp,smorph_file
     implicit none
-    integer :: ierr
-    real(8) :: dtimetemp,rtime !,dtimetemp2,dtime2
-    real(8) :: timedur,timerem,timelast,speed,err,timeint
+    
+    integer     :: ierr
+    real(8)     :: dtimetemp,rtime !,dtimetemp2,dtime2
+    real(8)     :: timedur,timerem,timelast,speed,err,timeint
     character(len=100) :: str
+    logical     :: found
     
     ntime = ntime + 1  !Time step iteration counter
     
@@ -158,37 +162,54 @@
 !     dtime = real(deltime,kind=ikind) !Arbitrary precision for numerical compuations
 !    else  
 !#endif        
-     if(iconv==3 .and. dtimebeg/deltime<=10)then
-       write(6,*) 'Time Step Reduced'
-       call diag_print_message('Time Step Reduced')
-       mtime = 0
-       jtime = jtime+1
-       deltime = dtimebeg/2**jtime !Avoids precision errors, Use double precision
-       dtime = real(deltime,kind=ikind) !Arbitrary precision for numerical compuations
-       !write(*,*) jtime,dtime,dtime2
-     elseif(jtime>=1)then
-       if((mtime>=2 .and. rmom(1)<rmomtargetp/100.0) .or. &
-          (mtime>=4 .and. rmom(1)<rmomtargetp/10.0))then
-         dtimetemp = dtimebeg/2**(jtime-1) !Avoids precision errors
-         rtime = mod(timesecs+dtimetemp,dtimetemp)
-         err = abs(rtime)/dtimetemp
+    if(iconv==3 .and. dtimebeg/deltime<=10)then
+      write(6,*) 'Time Step Reduced'
+      call diag_print_message('Time Step Reduced')
+      mtime = 0
+      jtime = jtime+1
+      deltime = dtimebeg/2**jtime !Avoids precision errors, Use double precision
+      dtime = real(deltime,kind=ikind) !Arbitrary precision for numerical compuations
+      !write(*,*) jtime,dtime,dtime2
+    elseif(jtime>=1)then
+      if((mtime>=2 .and. rmom(1)<rmomtargetp/100.0) .or. &
+         (mtime>=4 .and. rmom(1)<rmomtargetp/10.0))then
+        dtimetemp = dtimebeg/2**(jtime-1) !Avoids precision errors
+        rtime = mod(timesecs+dtimetemp,dtimetemp)
+        err = abs(rtime)/dtimetemp
 #ifdef DIAG_MODE
-         write(*,*) 'rtime: ',rtime,', err: ',err
+        write(*,*) 'rtime: ',rtime,', err: ',err
 #endif
-         if(rtime<0.01 .or. err<0.01)then
-           deltime = dtimetemp 
-           dtime = real(deltime,kind=ikind)
-           mtime = 0
-           jtime = jtime-1 !>=0
-           !write(*,*) jtime,dtimetemp,dtimetemp2
-         endif
-       endif        
-     endif
-     mtime = mtime + 1           
-     timesecs = timesecs + deltime
-     ctime = real(timesecs,kind=ikind)
-     timehrs = ctime/3600.0_ikind
-     ramp = ramp_func(timehrs,rampdur)
+        if(rtime<0.01 .or. err<0.01)then
+          deltime = dtimetemp 
+          dtime = real(deltime,kind=ikind)
+          mtime = 0
+          jtime = jtime-1 !>=0
+          !write(*,*) jtime,dtimetemp,dtimetemp2
+        endif
+      endif        
+    endif
+    mtime = mtime + 1           
+    timesecs = timesecs + deltime
+    ctime = real(timesecs,kind=ikind)
+    timehrs = ctime/3600.0_ikind
+    ramp = ramp_func(timehrs,rampdur)
+
+!added meb 03/11/2019     
+1001 format (2x,f8.4,6x,f10.5)
+    if (scalemorph_rampdur .gt. 0.0) then                                        !If there is a ramp, proceed
+      scalemorph_ramp = ramp_func(timehrs,scalemorph_rampdur)
+      if (scalemorph_orig .gt. 0.0) then                                         !If the original morph accel factor is not 0.0, proceed
+        scalemorph = max(1.0 , scalemorph_orig*scalemorph_ramp)
+        if(write_smorph_ramp .and. mod(timehrs,2.0)==0) then                         !If the user wants to see output, write to the file every half hour
+          if (scalemorph .gt. 1.0 .and. scalemorph .lt. scalemorph_orig) then
+            open (9,file=smorph_file,access='append')
+            write(9,1001) scalemorph,timehrs   
+            close (9)
+          endif
+        endif
+      endif
+    endif
+     
 !#ifdef DEV_MODE
 !    endif
 !#endif

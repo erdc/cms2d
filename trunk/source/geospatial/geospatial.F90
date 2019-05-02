@@ -140,7 +140,7 @@
     endsubroutine geo_default
 
 !*************************************************************
-    subroutine geo_cards(cardname,foundcard)
+    subroutine geo_cards(cardname,foundcard,doPrint)
 ! Reads the input vards from the CMS-Flow Control File and
 ! overrides default values
 ! written by Alex Sanchez, USACE-CHL
@@ -149,9 +149,12 @@
     use comvarbl, only: mpfile,flowpath,casename
     use prec_def
     implicit none
+    
     !Input/Output
     character(len=*),intent(inout) :: cardname
     logical,intent(out) :: foundcard
+    logical,intent(in)  :: doPrint
+    
     !Internal Variables
     integer :: ierr
     character(len=200) :: apath,aname

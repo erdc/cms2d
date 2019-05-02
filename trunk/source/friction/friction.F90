@@ -620,18 +620,17 @@
     !real(ikind) :: hold,fac
     logical :: isnankind
 
-!$OMP PARALLEL    
     selectcase(mbedfric) ! user specified  C_b
     case(1)
-!$OMP DO PRIVATE(i)            
+!$OMP PARALLEL DO PRIVATE(i)            
       do i=1,ncells
         coefman(i) = fric_conv_drag2man(grav,cfrict(i),h(i),hmax)
         z0(i) = fric_conv_drag2length(cfrict(i),h(i))
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(2) !Manning's equation  
-!$OMP DO PRIVATE(i)       
+!$OMP PARALLEL DO PRIVATE(i)       
       do i=1,ncells
         cfrict(i) = fric_conv_man2drag(grav,coefman(i),h(i),hmax)          
         z0(i) = fric_conv_drag2length(cfrict(i),h(i)) 
@@ -641,42 +640,42 @@
         endif
 #endif        
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
        
     case(3) !Roughness height
-!$OMP DO PRIVATE(i)             
+!$OMP PARALLEL DO PRIVATE(i)             
       do i=1,ncells
         cfrict(i) = fric_conv_length2drag(z0(i),h(i))
         coefman(i) = fric_conv_drag2man(grav,cfrict(i),h(i),hmax)
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(4) !Linear bottom friction
-!$OMP DO PRIVATE(i)             
+!$OMP PARALLEL DO PRIVATE(i)             
       do i=1,ncells
         cfrict(i) = cbotfric*h(i)/max(uelwc(i),1e-15)
         coefman(i) = fric_conv_drag2man(grav,cfrict(i),h(i),h(i))
         z0(i) = fric_conv_drag2length(cfrict(i),h(i)) 
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     case(0) !Dynamic bottom friction
-!$OMP DO PRIVATE(i) 
+!$OMP PARALLEL DO PRIVATE(i) 
       do i=1,ncells
         cfrict(i) = fric_conv_length2drag(z0(i),h(i))
         coefman(i) = fric_conv_drag2man(grav,cfrict(i),h(i),hmax)
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     endselect
       
     !Update bottom slope friction coefficient
 	if(fricbedslope .and. calcmorph)then !Only recalculate if morphology change is on
-!$OMP DO PRIVATE(i)	
+!$OMP PARALLEL DO PRIVATE(i)	
   	  do i=1,ncells
 	    cmb(i)=sqrt(1.0+dzbx(i)*dzbx(i)+dzby(i)*dzby(i))
 	  enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
     endif
 
 !!#ifdef DEV_MODE
@@ -699,77 +698,76 @@
 	if(noptset>=3)then
       selectcase(mwavcurint) 
       case(1) !Wu 2009
-!$OMP DO PRIVATE(i)                 
+!$OMP PARALLEL DO PRIVATE(i)                 
         do i=1,ncells
           call fric_wavcurmean_quad(rhow,cfrict(i),u(i),v(i),us(i),vs(i),&  
                Worb(i),uv(i),uelwc(i),bsxy(i),bsvel(i))
         enddo         
-!$OMP END DO
+!$OMP END PARALLEL DO
              
       case(2) !Soulsby's 1995 Data2 method
-!$OMP DO PRIVATE(i)
+!$OMP PARALLEL DO PRIVATE(i)
         do i=1,ncells
           call fric_wavcurmean_data2(rhow,cfrict(i),z0(i),u(i),v(i),&
                us(i),vs(i),Worbrep(i),Wper(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small)   
         enddo      
-!$OMP END DO
+!$OMP END PARALLEL DO
                                   
       case(3) !Soulsby's 1995 Data13 method
-!$OMP DO PRIVATE(i)              
+!$OMP PARALLEL DO PRIVATE(i)              
         do i=1,ncells
           call fric_wavcurmean_data13(rhow,cfrict(i),z0(i),u(i),v(i),&
                us(i),vs(i),Worbrep(i),Wper(i),Wang(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small)   
         enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
              
       case(4) !Huynh-Thanh and Temperville 1991
-!$OMP DO PRIVATE(i)              
+!$OMP PARALLEL DO PRIVATE(i)              
         do i=1,ncells
           call fric_wavcurmean_HT91(rhow,h(i),z0(i),u(i),v(i),us(i),vs(i),&
                Worbrep(i),Wper(i),Wang(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small)   
         enddo
-!$OMP END DO    
+!$OMP END PARALLEL DO    
        
       case(5) !Fredsoe 1984
-!$OMP DO PRIVATE(i)               
+!$OMP PARALLEL DO PRIVATE(i)               
         do i=1,ncells
           call fric_wavcurmean_F84(rhow,cfrict(i),z0(i),u(i),v(i),us(i),vs(i),&
                Worbrep(i),Wper(i),Wang(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small)   
         enddo
-!$OMP END DO        
+!$OMP END PARALLEL DO        
 
       case(6) !Davies et al. 1988
-!$OMP DO PRIVATE(i)               
+!$OMP PARALLEL DO PRIVATE(i)               
         do i=1,ncells
           call fric_wavcurmean_DSK88(rhow,cfrict(i),z0(i),u(i),v(i),us(i),vs(i),&
                Worbrep(i),Wper(i),Wang(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small) 
         enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
       case(7) !Grant and Madsen 1979
-!$OMP DO PRIVATE(i)               
+!$OMP PARALLEL DO PRIVATE(i)               
         do i=1,ncells
           call fric_wavcurmean_GM79(rhow,cfrict(i),z0(i),u(i),v(i),us(i),vs(i),&
                Worbrep(i),Wper(i),Wang(i),uv(i),uelwc(i),bsxy(i))
           bsvel(i)=sqrt(bsxy(i)/rhow+small)   
         enddo
-!$OMP END DO   
+!$OMP END PARALLEL DO   
 
       endselect
          
     else    !No waves   
-!$OMP DO PRIVATE(i)    
+!$OMP PARALLEL DO PRIVATE(i)    
       do i=1,ncells
         call fric_curmean_quad(rhow,cfrict(i),u(i),v(i),uv(i),uelwc(i),bsxy(i),bsvel(i))                              
       enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
     endif
-!$OMP END PARALLEL
     
     !!cfrict=0.0
     !!uelwc=0.0

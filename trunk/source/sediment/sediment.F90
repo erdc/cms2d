@@ -37,7 +37,9 @@
     use sed_def
     !use wave_flowgrid_def, only: waveheight, waveperiod, wavedir
     implicit none
+    
     integer :: i
+    logical :: found
     
     !--- Boolean variables ------------------------------------------
     sedtrans = .false.     !Calculate total-load sediment transport          
@@ -135,9 +137,12 @@
     sedsourcefile = ''
     
     !--- Scaling factors --------------------------------
-    scalebed = 1.0         !Bed-load scaling factor
-    scalesus = 1.0         !Suspended-load scaling factor
-    scalemorph = 1.0       !Morphology scaling factor    
+    scalebed = 1.0           !Bed-load scaling factor
+    scalesus = 1.0           !Suspended-load scaling factor
+    scalemorph = 1.0         !Morphology scaling factor    
+    scalemorph_orig = 1.0    !Original assigned value of Morphology scaling factor
+    scalemorph_ramp = 1.0    !Time-dependent ramp value to apply
+    scalemorph_rampdur = 0.0 !Ramp duration for morph scaling factor
     
     !--- Total-load (Beta) correction factor ----------------------------------------------------------
     ibt = 1                !0-constant btk, 1-exponential conc profile, 2-rouse conc profile
@@ -190,6 +195,14 @@
     erosdry%fac = 0.5  !fraction of erosion to move to neighboring dry cells
     erosdry%slopemin = 0.2
     erosdry%slopemax = 0.5
+    
+    write_smorph_ramp = .false.
+    smorph_file = 'morfac_ramp.txt'
+    inquire(file=smorph_file,exist=found)
+    if (found) then 
+      open (9,file=smorph_file)
+      close (9,status='delete')
+    endif
 
     return
     endsubroutine sed_default
@@ -291,7 +304,19 @@
           '   the recommended upper limit of 30')
       endif
       scalemorph = max(scalemorph,0.0)      
-        
+      scalemorph_orig = scalemorph
+      
+!meb added 3/11/2019
+!-------------------------
+      
+    case('MORPH_ACCEL_RAMP_DURATION')
+      !This sets the amount of time when the morphology acceleration faction starts increasing from one to the set value.
+      call card_scalar(77,'days','hrs',scalemorph_rampdur,ierr)
+
+    case('WRITE_ACCEL_RAMP_INFO')
+      call card_boolean(77,write_smorph_ramp,ierr)  
+!-------------------------
+      
     !---- Transport Formula ---------------------
     case('NET_TRANSPORT_CAPACITY','TRANSPORT_FORMULA')
       backspace(77)
@@ -735,7 +760,7 @@
       read(77,*) cardname, nlay   
       call bedlay_resize
         
-    case('BED_LAYERS_NUMBER')
+    case('BED_LAYERS_NUMBER','NUMBER_BED_LAYERS')
       backspace(77)
       read(77,*) cardname, nlayinp
       
@@ -1391,7 +1416,7 @@ d1: do ii=1,30
     enddo d1
 
     !Read in bed layer
-    if(bedlay(jlay)%inppbk)then
+    if(bedlay(jlay)%inppbk .and. jlay > 1)then
       write(msg2,*) 'Bed layer ',jlay,' already specified'
       call diag_print_error('Problem specify sediment bed layers',msg2)
     endif
@@ -1676,6 +1701,10 @@ d1: do ii=1,30
 #endif         
           case('txt')
             call readscalTxt(file,d50lay,ierr)
+            
+          case default
+            write(msg2,*)"Unknown file"
+            call diag_print_error(msg2)
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)          
@@ -2137,10 +2166,21 @@ d1: do ii=1,30
 !        enddo !js
 !      enddo !ih
 !    endif !hardbottom
+
+    !If user decides to write out morphology acceleration factor value (with ramp only), write out the header
+1000 format ('Accel. Factor',4x,'Time(hrs)')    
+1001 format (2x,f8.4,6x,f10.5)
+     
+    if(write_smorph_ramp .and. scalemorph_rampdur .ge. 0.0) then 
+      open (9,file=smorph_file,status='new')
+      write(9,1000) 
+      write(9,1001) 1.0, 0.0
+      close (9)
+    endif
     
     !Maximum # of iterations
     if(maxitersed<0)then !If not specified, estimate based on size of grid, grain sizes, and morphologic scaling factor
-      maxitersed = 18 + int(0.15*(real(ncells,kind=ikind)/1000.0)**0.5*nsed**1.2*scalemorph**0.8)
+      maxitersed = 18 + int(0.15*(real(ncells,kind=ikind)/1000.0)**0.5*nsed**1.2*scalemorph**0.8)  !changed scalemorph to computed 'val'
     endif
     maxitersed = max(maxitersed,5) !Minimum value
 !!    if(singlesize)then         
@@ -2387,7 +2427,10 @@ d1: do ii=1,30
       write(iunit(i),111)     '  Scaling factors '    
       write(iunit(i),665)     '    Suspended Load:           ',scalesus
       write(iunit(i),665)     '    Bed Load:                 ',scalebed
-      write(iunit(i),665)     '    Morphologic:              ',scalemorph    
+      write(iunit(i),665)     '    Morphologic:              ',scalemorph_orig    
+      if (scalemorph_rampdur .gt. 0.0) then
+        write(iunit(i),667)     '      Ramp duration (hrs):    ',scalemorph_rampdur
+      endif
      
       write(iunit(i),111)     '  Bed slope effects'   
       write(iunit(i),665)     '    Diffusion coefficient:    ',dcoeff

@@ -157,6 +157,27 @@
 
     return
     endsubroutine uppercase
+    
+!********************************************************
+    function toUpper(str) result(aString)
+!********************************************************
+    implicit none
+    character(len=*), intent(in)  :: str
+    character(len=len(str))       :: aString
+    integer :: i,del
+
+    del = iachar('a') - iachar('A')
+    do i=1,len_trim(str)
+      if(lge(str(i:i),'a') .and. lle(str(i:i),'z'))then
+        aString(i:i) = achar(iachar(str(i:i)) - del)
+      else
+        aString(i:i) = str(i:i)
+     endif
+    enddo
+
+    return
+    end function toUpper
+
 
 !********************************************************
     subroutine lowercase(str)
@@ -174,6 +195,27 @@
 
     return
     endsubroutine lowercase
+
+!********************************************************
+    function toLower(str) result(aString)
+!********************************************************
+    implicit none
+    character(len=*), intent(in)  :: str
+    character(len=len(str))       :: aString
+    integer :: i,del
+
+    del = iachar('a') - iachar('A')
+    do i=1,len_trim(str)
+      if(lge(str(i:i),'A') .and. lle(str(i:i),'Z'))then
+        aString(i:i) = achar(iachar(str(i:i)) + del)
+      else
+        aString(i:i) = str(i:i)
+      endif
+    enddo
+
+    return
+    end function toLower
+
     
 !*************************************************************
     function trimspace(str)

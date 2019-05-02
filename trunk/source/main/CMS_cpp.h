@@ -30,10 +30,10 @@
 #define PROJ_CONV
 
 /* Checks */
-#ifdef WIN_OS
-#define XMDF_IO 
+#ifdef  WIN_OS
+#define   XMDF_IO 
 #else
-#undef XMDF_IO
-#undef PROJ_CONV 
-#undef DREDGE
+#undef    XMDF_IO
+#undef    PROJ_CONV 
+#undef    DREDGE
 #endif
