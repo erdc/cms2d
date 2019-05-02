@@ -44,6 +44,7 @@
 !    Change - Moved wave smoothing variables from flow cards
 !**************************************************************
     use cms_def
+    use geo_def, only: grdfile
     use flow_def
     implicit none
     integer :: ierr
@@ -129,31 +130,31 @@
         
       case('WAVE_RSTRESS_DATASET')
         backspace(77)   
-        read(77,*) cardname,cdum,radpath    
+        read(77,*) cardname,grdfile,radpath    
         noptset = 4
         cmswave = .true.  
         
       case('WAVE_HEIGHT_DATASET')
         backspace(77)   
-        read(77,*) cardname,cdum,wavpath    
+        read(77,*) cardname,grdfile,wavpath    
         noptset = 4  
         cmswave = .true.  
         
       case('WAVE_PERIOD_DATASET')
         backspace(77)   
-        read(77,*) cardname,cdum,perpath    
+        read(77,*) cardname,grdfile,perpath    
         noptset = 4    
         cmswave = .true.  
         
       case('WAVE_DIRECTION_DATASET')
         backspace(77)   
-        read(77,*) cardname,cdum,dirpath    
+        read(77,*) cardname,grdfile,dirpath    
         noptset = 4    
         cmswave = .true.    
         
       case('WAVE_DISS_DATASET')
         backspace(77)   
-        read(77,*) cardname,cdum,disspath    
+        read(77,*) cardname,grdfile,disspath    
         noptset = 4    
         cmswave = .true.   
         

@@ -797,7 +797,6 @@
     endselect
     
     return
-    
     contains        
     
     !-----------------------------------------------------------------------------
@@ -1022,15 +1021,15 @@
       case (9)
           outlist(i)%afile  = outprefix(1:nn) // '_trans.h5'    !Transport 
       case (10)
-          outlist(i)%afile = outprefix(1:nn) // '_bedcomp.h5'   !Bed Composition
+          outlist(i)%afile  = outprefix(1:nn) // '_bedcomp.h5'   !Bed Composition
       case (11)
-          outlist(i)%afile = outprefix(1:nn) // '_sedfrac.h5'   !Sed Mix 
+          outlist(i)%afile  = outprefix(1:nn) // '_sedfrac.h5'   !Sed Mix 
       case (12)
-          outlist(i)%afile = outprefix(1:nn) // '_wave.h5'      !Wave details
+          outlist(i)%afile  = outprefix(1:nn) // '_wave.h5'      !Wave details
       case (13)
-          outlist(i)%afile = outprefix(1:nn) // '_fric.h5'      !Bed Friction/Roughness
+          outlist(i)%afile  = outprefix(1:nn) // '_fric.h5'      !Bed Friction/Roughness
       case default
-          outlist(i)%afile = outprefix(1:nn) // '_temp.h5'      !Temperature
+          outlist(i)%afile  = outprefix(1:nn) // '_temp.h5'      !Temperature
       end select
     enddo
     
@@ -1100,10 +1099,13 @@
     !Temperature
     if(.not.heattrans)then
       outlist(14)%ilist = 0 !Temperature
+    else
+      outlist(14)%ilist = 1                   !Otherwise, Temperature never got written out.  
+      outlist(14)%write_dat = .true.
     endif
     
     !Transport
-    if(.not.sedtrans .and. .not.saltrans)then  !Alex, added salinity
+    if(.not.sedtrans .and. .not.saltrans .and. .not.heattrans)then  !Alex, added salinity
       outlist(9)%ilist = 0 !Trans      
     endif
     if(.not.sedtrans)then
@@ -1260,25 +1262,34 @@
       inquire(file=goutfile,exist=foundfile)
       if(foundfile)then
         open(100,file=goutfile)
-        close(100,status='delete',err=978)     
+        close(100,status='delete',iostat=ierr)    
+        if (ierr < 0) then 
+          call diag_print_error('Could not delete output file- '//trim(goutfile))
+        endif          
       endif
       do i=1,14
         if(outlist(i)%write_dat)then
           inquire(file=outlist(i)%afile,exist=foundfile)
           if(foundfile)then
             open(100,file=outlist(i)%afile)
-            close(100,status='delete',err=978)     
+            close(100,status='delete',iostat=ierr)
+            if (ierr < 0) then
+              call diag_print_error('Could not delete output file- '//trim(outlist(i)%afile))
+            endif
           endif
         endif  
       enddo
-!       open(100,file=hotfile)
-!       close(100,status='delete',err=943)      
+!     open(100,file=hotfile)
+!     close(100,status='delete',err=943)      
     endif
     
     inquire(file=dgoutfile,exist=foundfile) 
     if(foundfile)then
       open(100,file=dgoutfile)
-      close(100,status='delete',err=978)     
+      close(100,status='delete',iostat=ierr)     
+      if (ierr < 0) then
+        call diag_print_error('Could not delete output file- '//trim(dgoutfile))
+      endif
     endif
     
     !Initialize Super ASCII files
@@ -1318,7 +1329,8 @@
 
     return
 !-----------------------------------------------------------
-978 call diag_print_error('Could not access output file ')
+!978 call diag_print_error('Could not access output file ')
+!    return
 
     endsubroutine out_init
     
@@ -1368,10 +1380,15 @@
           astring=trim(aname) // '.' // aext 	
           write(iunit(i),787)       '  Eddy Viscosity File:         ',trim(astring)
         endif
-        if(sedtrans .or. saltrans .or. heattrans)then
+        if(sedtrans .or. saltrans)then
           call fileparts(outlist(9)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext
           write(iunit(i),787)       '  Transport File:              ',trim(astring)
+        endif   
+        if(heattrans)then
+          call fileparts(outlist(14)%afile,apath,aname,aext)
+	      astring=trim(aname) // '.' // aext
+          write(iunit(i),787)       '  Temperature File:            ',trim(astring)
         endif   
         if(sedtrans)then
           call fileparts(outlist(5)%afile,apath,aname,aext)
@@ -1527,13 +1544,13 @@
     use heat_def, only: heat
     use sed_def
     use size_def
-    use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,&
+    use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,           &
         wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
 #ifdef DREDGE
     use dredge_def
 #endif
 #ifdef DEV_MODE
-    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,&
+    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,        &
       udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
 #endif
 
@@ -2083,7 +2100,6 @@ implicit none
         call writescalh5(outlist(13)%afile,apath,'Mannings_Coefficient',coefman,'-',timehrs,0)   
       endif
     endif
-    
 #endif
 
     return
@@ -2594,12 +2610,15 @@ implicit none
     !Hydro  
     val = -zb
     call writescalh5(dgoutfile,apath,'Depth_Debug',val,'m',timehrs,1)
+
     val = iwet
     call writescalh5(dgoutfile,apath,'Wet_Debug',val,'m',timehrs,1)
     call writescalh5(dgoutfile,apath,'Total_Depth_Debug',h,'m',timehrs,1)
+
     eta=iwet*p*gravinv+(-999.0)*(1-iwet)
-    call writescalh5(dgoutfile,apath,'Water_Elevation_Debug',eta,'m',timehrs,0)      
-    call writevech5(dgoutfile,apath,'Current_Velocity_Debug',u,v,'m/s',timehrs,0)
+    call writescalh5(dgoutfile,apath,'Water_Elevation_Debug',eta,'m',timehrs,0)
+    
+    call writevech5 (dgoutfile,apath,'Current_Velocity_Debug',u,v,'m/s',timehrs,0)
     call writescalh5(dgoutfile,apath,'dux_Debug',dux,'m/s',timehrs,0)
     call writescalh5(dgoutfile,apath,'duy_Debug',duy,'m/s',timehrs,0)  
     call writescalh5(dgoutfile,apath,'dvx_Debug',dvx,'m/s',timehrs,0)  
@@ -2873,17 +2892,18 @@ implicit none
 ! last upated Nov 13, 2009 - added sediment and salinity
 !********************************************************************************
 #include "CMS_cpp.h"
-    use geo_def, only: idmap
+    use geo_def,  only: idmap
     use comvarbl, only: casename,flowpath,dtimebeg
-    use hot_def, only: coldstart
-    use sal_def, only: saltrans
+    use hot_def,  only: coldstart
+    use sal_def,  only: saltrans
     use heat_def, only: heattrans
-    use sed_def, only: sedtrans
+    use sed_def,  only: sedtrans
 #ifdef DEV_MODE  
-    use q3d_def, only: q3d
+    use q3d_def,  only: q3d
 #endif    
-    use out_def, only: obs
+    use out_def,  only: obs
     implicit none
+    
     integer :: i,j,k,nn,npath
     logical :: ok
     
