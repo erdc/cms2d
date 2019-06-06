@@ -83,6 +83,7 @@ module sed_def
     
     !Transport Variables
     real(ikind) :: Awatan,Awidg
+    real(ikind) :: CSeffb,CSblp,CSslp !CSHORE variables
     integer :: icapac
     character(len=10) :: acapac(6)
     data acapac / 'LUND-CIRP',& !1

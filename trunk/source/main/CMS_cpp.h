@@ -6,7 +6,8 @@
 #define MERGED_CODE
 
 /* Turn ON/OFF Windows */
-#define WIN_OS
+/*#define WIN_OS */
+#undef WIN_OS
 
 /* Turn ON/OFF Unit Testing */
 #undef UNIT_TEST
@@ -15,7 +16,8 @@
 #undef PROFILE
 
 /* Include XMDF Input and Output */
-#define XMDF_IO 
+/* #define XMDF_IO  */
+#undef XMDF_IO 
 
 /* Turn ON/OFF Diagnostic Mode */
 #undef DIAG_MODE

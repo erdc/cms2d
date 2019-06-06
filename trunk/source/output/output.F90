@@ -26,6 +26,7 @@
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
     write_sup = .false.          !Super ASCII files
+    write_sup = .true.          !Super ASCII files
     write_ascii_input = .false.  !ASCII input files
     write_tecplot = .false.      !Tecplot files 
     
