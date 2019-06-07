@@ -1484,7 +1484,7 @@ loopj:  do j=1,nlay
       if (iSingleHot) then
         aname = trim(hotdirpath)//'/'//hotname
         write(msg,'(A,F13.4,A)') 'Writing Single Hotstart File at:    ',timehrs,' hrs'
-    call diag_print_message(' ',msg)
+        call diag_print_message(' ',msg)
         call write_hotstart_sup(hotdirpath,aname)  !Super File *.sup and individual ASCII Dataset *.dat files
       endif
       if (iAutoHot)   then
@@ -1515,6 +1515,7 @@ loopj:  do j=1,nlay
     subroutine hotstart_file_init
 ! Initializes the ASCII hotstart files
 ! written by Mitchell Brown, USACE-CHL - 03/16/18
+! update 06/07/19 - If not hot start, you will not even get into this routine.  
 !***********************************************************************
     use out_lib,  only: write_xy_file
     use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_recur, coldstart,icfile

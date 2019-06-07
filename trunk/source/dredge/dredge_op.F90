@@ -58,7 +58,7 @@
       DredgeTS_Vars(k,4) = dredge_operations(k)%total_dredged_vol      
       DredgeTS_Vars(k,5) = dredge_operations(k)%total_placed_vol 
      
-      call WriteDredgeTS(k)
+      if (write_dredge_diag) call WriteDredgeTS(k)
      
       if(hardbottom) call dredge_hardbottom()
      

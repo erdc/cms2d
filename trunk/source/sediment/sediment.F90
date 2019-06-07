@@ -460,9 +460,11 @@
       backspace(77)
       read(77,*) cardname, cdum !SOULSBY | WU-WANG
       if(cdum(1:2)=='SO')then
-        sedclass(:)%iws = 1
-      elseif(cdum(1:2)=='WU')then
         sedclass(:)%iws = 2
+      elseif(cdum(1:2)=='WU')then
+        sedclass(:)%iws = 3
+      elseif(cdum(1:2)=='MA')then
+        sedclass(:)%iws = 1
       endif   
       
     case('SEDIMENT_FALL_VELOCITY') !Only for single-size sediment transport
@@ -1150,15 +1152,18 @@ d1: do ii=1,10
         case('FALL_VELOCITY_FORMULA')
           backspace(77)  
           read(77,*,iostat=ierr) cardname, cdum
-          if(cdum(1:2)=='SO')then
+          select case (cdum(1:2))
+          case ('SO')
             sedclass(nsed)%iws = 2
-          elseif(cdum(1:2)=='WU')then
+          case ('WU')  
             sedclass(nsed)%iws = 3
-          else
+          case ('MA')
+            sedclass(nsed)%iws = 1  
+          case default    
             call diag_print_warning('Invalid Sediment Fall Velocity Formula',&
               '  Using SOULSBY')
             sedclass(nsed)%iws = 2
-          endif   
+          end select
           
         case('SHIELDS_PARAMETER','SHIELDS','CRITICAL_SHIELDS','CRITICAL_SHIELDS_PARAMETER')
           backspace(77)  

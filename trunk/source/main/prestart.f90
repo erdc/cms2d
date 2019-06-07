@@ -31,9 +31,7 @@
     use diag_def
     use diag_lib
     use const_def
-#ifdef DREDGE    
     use dredge_def
-#endif
 #ifdef DEV_MODE
     use q3d_def
     use veg_def
@@ -84,9 +82,9 @@
     call q3d_default    !Quasi-3D 
     call veg_default    !Vegetation
 #endif
-#ifdef DREDGE
+
     call dredge_default !dredge module
-#endif
+
 #ifdef PROFILE
     call watch_default  !Watches
 #endif
@@ -120,9 +118,7 @@
       call q3d_cards(cardname,foundcard);    if(foundcard) cycle
       call veg_cards(cardname,foundcard);    if(foundcard) cycle
 #endif
-#ifdef DREDGE
       call dredge_cards(cardname,foundcard); if(foundcard) cycle
-#endif      
       call der_cards(cardname,foundcard);    if(foundcard) cycle
       call stat_cards(cardname,foundcard)
       if(.not.foundcard)then
@@ -136,12 +132,12 @@
 
     if(coldstart .and. hot_out)then
       if(hot_timehr) then
-      inquire(file=hotfile,exist=foundfile)
-      if(foundfile)then
-        open(100,file=hotfile)
-        close(100,status='delete')
-      endif
-    endif  
+        inquire(file=hotfile,exist=foundfile)
+        if(foundfile)then
+          open(100,file=hotfile)
+          close(100,status='delete')
+        endif
+      endif  
       if(hot_recur) then
         inquire(file=autohotfile,exist=foundfile)
         if(foundfile)then
@@ -184,7 +180,7 @@
     call interp_init                 !Linear Interpolation
     call der_init                    !Derivatives
     call fric_init                   !Bottom and wall friction
-    if(write_sup) call hotstart_file_init  !Initialize ASCII HotStart files
+    if(write_sup .and. (hot_out .or. hot_recur)) call hotstart_file_init  !Initialize ASCII HotStart files - modified to check if hot-start files are to be written.
     call met_init                    !Meteorologic
     if(sedtrans) call sed_init       !Sediment transport
     if(saltrans) call sal_init       !Salinity    
@@ -197,9 +193,7 @@
     if(q3d) call q3d_init            !Quasi-3D
     if(veg) call veg_init            !Vegetation
 #endif    
-#ifdef DREDGE
     if(dredging) call dredge_init    !Dredge operations
-#endif
 #ifdef PROFILE
     call watch_init
 #endif
@@ -225,9 +219,7 @@
 
     call wave_print                                   !moved out of DEV_MODE conditional call - Mitch 06/23/2017
 
-#ifdef DREDGE
     if(dredging) call dredge_print !dredge module   
-#endif
     call rol_print         !Surface roller    
     call hot_print         !Hot start
 #ifdef PROFILE

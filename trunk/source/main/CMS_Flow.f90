@@ -14,7 +14,7 @@
     use cms_def, only: cmswave
     use comvarbl
     use wave_flowgrid_def, only: constant_waves
-
+    use dredge_def
 #ifdef DEV_MODE
     use fric_def, only: mbedfric
     use flow_exp_mod
@@ -22,9 +22,6 @@
     use geo_def, only: bathydata,zb
 #endif    
 
-#ifdef DREDGE
-    use dredge_def
-#endif    
     implicit none
     
     call prestart    
@@ -60,13 +57,10 @@
        if(sedtrans) call sed_imp !Sediment transport, implicit solution
        if(saltrans) call sal_imp !Salinity transport, implicit solution
        if(heattrans) call heat_imp  !Heat transfer, implicit solution
-
-#ifdef DREDGE       
        if(dredging)then
          call dredge_eval
          if(sedtrans) call sed_concdepthchange !Correct concentrations for depth changes
        endif
-#endif
 #ifdef DEV_MODE       
        if(bathydata%ison)then
          call geo_bathy_update(zb,-1)

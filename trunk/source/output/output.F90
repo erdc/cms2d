@@ -1544,9 +1544,7 @@
     use size_def
     use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,           &
         wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
-#ifdef DREDGE
     use dredge_def
-#endif
 #ifdef DEV_MODE
     use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,        &
       udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
@@ -1653,8 +1651,6 @@ implicit none
 !      call writescalh5(outlist(1)%afile,apath,'limX',limx,'',timehrs,1) !Slope limiters
 !      call writescalh5(outlist(1)%afile,apath,'limY',limy,'',timehrs,1) !Slope limiters
 
-
-#ifdef DREDGE   
       if(.not. outlist(5)%write_dat) then
         if(dredging) then
           val=-zb
@@ -1663,8 +1659,6 @@ implicit none
           call writescalh5(outlist(5)%afile,apath,'Morphology_Change',val,'m',timehrs,1)  
         endif
       endif
-#endif
-
     endif
     
     !CURRENT VELOCITY GROUP

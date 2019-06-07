@@ -23,6 +23,7 @@
     dredging = .false.      
     ndredge_operations = 0
     dredge_interval = 5.0  !minutes
+    write_dredge_diag = .false.
     
     return
     endsubroutine dredge_default
@@ -30,12 +31,18 @@
 !**************************************************************
     subroutine dredge_cards(cardname,foundcard)
 !   written by Chris Reed
+!   minor modifications by Mitchell Brown 6/5/2019
+!   - Added #ifdef statement, because dredging only works with XMDF files at present
+!   - Added OUTPUT_DREDGE_DIAGNOSTICS card to only write extra information if desired.
 !**************************************************************    
+#include "CMS_cpp.h"
     use dredge_def
+    use diag_lib, only: diag_print_error
     implicit none
 
     character cardname*37
 	logical :: foundcard
+    integer :: ierr
         
     foundcard = .true.
     selectcase(cardname)    
@@ -44,10 +51,17 @@
       read(77,*)cardname,dredge_interval
 
     case('DREDGE_OPERATION_BEGIN')
+#ifdef WIN_OS        
       ndredge_operations = ndredge_operations + 1 
       dredging = .true.
       call dredge_operation_increment()         
       call dredge_op_block()
+#else
+      call diag_print_error('Dredge Operation not presently possible with ASCII-only input')
+#endif
+      
+    case('OUTPUT_DREDGE_DIAGNOSTICS')
+      call card_boolean(77,write_dredge_diag,ierr)        
     
     case default
       foundcard = .false.
@@ -87,6 +101,9 @@
           
       case('PLACEMENT_BEGIN')
         call placement_block()        
+        
+      case('OUTPUT_DREDGE_DIAGNOSTICS')
+        call card_boolean(77,write_dredge_diag,ierr)        
         
       case('DREDGE_OPERATION_END')
           return
@@ -138,7 +155,7 @@
         backspace(77)          
         read(77,*)cardname,METHOD 
         selectcase(trim(METHOD))
-        case('CELL')
+        case('CELL', 'SPECIFIED CELL')               !meb added 'SPECIFIED CELL' 6/5/2019 to be consistent between interface and CMS input
           dredge_operations(ndredge_operations)%Dredge_Approach = 2
         case('SHALLOW')
           dredge_operations(ndredge_operations)%Dredge_Approach = 1          
@@ -270,16 +287,19 @@
     character*200 file,path
 	logical :: foundcard
     
-    open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
-    
-    write(2056,*)'IN placement block num areas = ',num_place_areas
+    if (write_dredge_diag) then 
+      open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+      write(2056,*)'IN placement block num areas = ',num_place_areas
+    endif
     
     num_place_areas = num_place_areas + 1
     dredge_operations(ndredge_operations)%NumPlacementAreas = num_place_areas
     call placement_area_increment()
     
-     write(2056,*)'and updated to num areas = ',num_place_areas   
-     write(2056,*)'num ar set to: ', dredge_operations(ndredge_operations)%NumPlacementAreas
+    if (write_dredge_diag) then
+      write(2056,*)'and updated to num areas = ',num_place_areas   
+      write(2056,*)'num ar set to: ', dredge_operations(ndredge_operations)%NumPlacementAreas
+    endif  
      
     do kk=1,20
       foundcard = .true.  
@@ -301,7 +321,7 @@
         case('UNIFORM')
           dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=1
         
-        case('CELL')
+        case('CELL','SPECIFIED CELL')                !meb added 'SPECIFIED CELL' 6/5/2019 to be consistent between interface and CMS input
           dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=2      
           
         case default
@@ -337,7 +357,7 @@
       endselect
     enddo
     
-    close(2056)
+    if (write_dredge_diag) close(2056)
     
     return
     endsubroutine placement_block   
@@ -360,15 +380,18 @@
     
     !First time opening this file
     dredge_diag_file='dredge_module_diagnostics.txt'
+    
     INQUIRE(FILE=dredge_diag_file,EXIST=FOUND)
     IF (FOUND) THEN
       OPEN(2056,FILE=dredge_diag_file)
       CLOSE(2056,STATUS='DELETE')
     ENDIF
-    open(unit=2056,file=dredge_diag_file,status='NEW')
 
-    write(2056,*)
-    write(2056,*) 'Number of Dredge Operations= ',ndredge_operations
+    if (write_dredge_diag) then
+      open(unit=2056,file=dredge_diag_file,status='NEW')
+      write(2056,*)
+      write(2056,*) 'Number of Dredge Operations= ',ndredge_operations
+    endif  
           
     if(ndredge_operations > 1) then  !then adding new operation to array already allocated            
       allocate(dredge_operations_TMP(ndredge_operations-1))
@@ -423,7 +446,7 @@
     !write(*,*)"DP0",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(1)           
     num_place_areas = 0
            
-    close(2056)
+    if (write_dredge_diag) close(2056)
     
     return
     endsubroutine dredge_operation_increment    
@@ -573,10 +596,10 @@
         write(iunit(i),134)          '    Dredge rate (m^3/sec):     ',dredge_operations(j)%Rate
          
         if(dredge_operations(j)%dredge_approach == 2) then
-          write(iunit(i),222)        '    Dredge Start method:       ','CELL'
+          write(iunit(i),222)        '    Dredge Start method:       ','SPECIFIED CELL'          !Previously this was 'CELL'.  I changed to make terminology consistent between interface and CMS input.
           write(iunit(i),445)        '    Starting cell number:      ',dredge_operations(j)%dredge_start_cell
         elseif(dredge_operations(j)%dredge_approach == 1) then
-          write(iunit(i),222)        '    Dredge Start method:       ','UNIFORM'
+          write(iunit(i),222)        '    Dredge Start method:       ','SHALLOW'                 !Previously this was 'UNIFORM', but that is not a Dredge Option, it is a Placement Option.
         endif
             
         if(dredge_operations(j)%Trigger_Approach == 1) then
@@ -612,7 +635,7 @@
           if(dredge_operations(j)%Placement_Approach(k) == 1) then
             write(iunit(i),222)      '        Placement method:      ','UNIFORM'
           elseif(dredge_operations(j)%Placement_Approach(k) == 2) then
-            write(iunit(i),222)      '        Placement method:      ','CELL'
+            write(iunit(i),222)      '        Placement method:      ','SPECIFIED CELL'
             write(iunit(i),445)      '        Starting cell:         ',dredge_operations(j)%Placement_start_cell(k) 
           endif        
           if(dredge_operations(j)%Placement_Depth(k) > -999.0) &
@@ -655,7 +678,7 @@
     integer, allocatable :: cells(:)
     real(ikind) value_1,value_2
     real(ikind), allocatable :: TMPARRAY(:),cell_dist(:)
-    character*32  :: datapath,datafile
+    character*200 :: datapath,datafile
     character*7   :: STipt 
     character*50  :: filedetails,dredge_diag_file
     character*300 :: line  
@@ -683,10 +706,12 @@
     !open(unit=2056,file=dredge_diag_file,status='NEW')
 
     do k=1,ndredge_operations
-      write(2056,*) ' '        
-      write(2056,*)'k = ',k,'  in dredge init'
-      write(2056,*)'name= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaFile))
-      write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaPath))
+      if (write_dredge_diag) then  
+        write(2056,*) ' '        
+        write(2056,*)'k = ',k,'  in dredge init'
+        write(2056,*)'name= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaFile))
+        write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgeSourceAreaPath))
+      endif
       
       !holdover from original code - it is allocated in card reader section and needs to be deallocated before being properly allocated in this section
       if (allocated(dredge_operations(k)%Placement_limit)) deallocate(dredge_operations(k)%Placement_limit)  
@@ -707,11 +732,13 @@
       case('h5')
 #ifdef XMDF_IO
       call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error)  
-      write(2056,*)'Internal dredge data file number = ',error
+      if (write_dredge_diag) write(2056,*)'Internal dredge data file number = ',error
+      
       call XF_OPEN_GROUP(DFILE_ID,trim(dataPATH),DCELL_ID,error)
-      write(2056,*)'Internal dredge data path number = ',error      
+      if (write_dredge_diag) write(2056,*)'Internal dredge data path number = ',error      
+      
       call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
-      write(2056,*)'Internal dredge data read error  = ',error      
+      if (write_dredge_diag) write(2056,*)'Internal dredge data read error  = ',error      
 #endif
       case('txt')
         call readscalTxt(datafile,TMPARRAY,error)
@@ -719,7 +746,9 @@
       
       sumcells = 0
       do i = 1,ncellsfull
-        if(TMPARRAY(i) > 1.0e-20) sumcells = sumcells + 1
+        if(TMPARRAY(i) > 1.0e-20) then
+          sumcells = sumcells + 1
+        endif
       enddo
       dredge_operations(k)%NumDredgeAreaCells = sumcells
       allocate (dredge_operations(k)%DredgeAreaCells(sumcells),dredge_operations(k)%Dredge_depth(sumcells))
@@ -728,7 +757,7 @@
       do i = 1,ncellsfull
         if(TMPARRAY(i) > 1.0e-20) then
           kk=kk+1
-          write(2056,*)k,i,kk,idmap(i)
+          if (write_dredge_diag) write(2056,*)k,i,kk,idmap(i)
           dredge_operations(k)%DredgeAreaCells(kk) = idmap(i) 
           dredge_operations(k)%dredge_depth(kk) = TMPARRAY(i)
         endif
@@ -741,10 +770,12 @@
       SumMax = 0
       allocate(dredge_operations(k)%NumPlacementAreaCells(dredge_operations(k)%NumPlacementAreas))     
       DO j=1,dredge_operations(k)%NumPlacementAreas
-        write(2056,*) ' '        
-        write(2056,*)'j = ',j,'  in dredge init (placement areas)'
-        write(2056,*)'name= ',adjustL(trim(dredge_operations(k)%DredgePlaceAreaFile(j)))
-        write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgePlaceAreaPath(j)))         
+        if (write_dredge_diag) then
+          write(2056,*) ' '        
+          write(2056,*)'j = ',j,'  in dredge init (placement areas)'
+          write(2056,*)'name= ',adjustL(trim(dredge_operations(k)%DredgePlaceAreaFile(j)))
+          write(2056,*)'path= ',adjustL(trim(dredge_operations(k)%DredgePlaceAreaPath(j)))
+        endif  
          
         datafile = dredge_operations(k)%DredgePlaceAreaFile(j)        
         inquire(file=datafile,exist=found)
@@ -756,11 +787,13 @@
 
 #ifdef XMDF_IO
         call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error) 
-        write(2056,*)'Internal placement data file number = ',error        
+        if (write_dredge_diag) write(2056,*)'Internal placement data file number = ',error        
+        
         call XF_OPEN_GROUP(DFILE_ID,trim(dataPATH),DCELL_ID,error)
-        write(2056,*)'Internal placement data path number = ',error         
+        if (write_dredge_diag) write(2056,*)'Internal placement data path number = ',error         
+        
         call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
-        write(2056,*)'Internal placement data read error  = ',error          
+        if (write_dredge_diag) write(2056,*)'Internal placement data read error  = ',error          
 #endif
         
         sumcells = 0
@@ -768,12 +801,12 @@
           if(TMPARRAY(i) > 1.0e-20) sumcells = sumcells + 1
         enddo
         dredge_operations(k)%NumPlacementAreaCells(j) = sumcells
-        write(2056,*)'PA # of cells: ',k,j,dredge_operations(k)%NumPlacementAreaCells(j)
+        if (write_dredge_diag) write(2056,*)'PA # of cells: ',k,j,dredge_operations(k)%NumPlacementAreaCells(j)
         SumMax = max(SumMax,sumcells)
 #ifdef XMDF_IO
         call XF_CLOSE_FILE(DFILE_ID,error)  
 #endif
-        write(2056,*)'sumMax = ',sumMax
+        if (write_dredge_diag) write(2056,*)'sumMax = ',sumMax
       ENDDO
       allocate(dredge_operations(k)%PlacementAreaCells(dredge_operations(k)%NumPlacementAreas,SumMax)) 
       allocate(dredge_operations(k)%Placement_Limit(dredge_operations(k)%NumPlacementAreas,SumMax))        
@@ -790,16 +823,16 @@
         do i = 1,ncellsfull
           if(TMPARRAY(i) > 1.0e-20) then
             kk=kk+1
-            write(2056,*)j,i,kk,idmap(i)
+            if (write_dredge_diag) write(2056,*)j,i,kk,idmap(i)
             dredge_operations(k)%PlacementAreaCells(j,kk) = idmap(i)  
           endif
         enddo 
         !calculate footprint area for placement area
         dredge_operations(k)%Placement_Area(j)=0.
-        write(2056,*)'k,j= ',k,j
-        write(2056,*)'PA # of cells: ',dredge_operations(k)%NumPlacementAreaCells(j)
+        if (write_dredge_diag) write(2056,*)'k,j= ',k,j
+        if (write_dredge_diag) write(2056,*)'PA # of cells: ',dredge_operations(k)%NumPlacementAreaCells(j)
         do i=1,dredge_operations(k)%NumPlacementAreaCells(j)
-          write(2056,*)'j,i = ',j,i
+          if (write_dredge_diag) write(2056,*)'j,i = ',j,i
           ii=dredge_operations(k)%PlacementAreaCells(j,i)
           dredge_operations(k)%Placement_Area(j)=dredge_operations(k)%Placement_Area(j)+dx(ii)*dy(ii)
         enddo
@@ -820,13 +853,13 @@
             else
               dredge_operations(k)%placement_limit(j,i)=value_1
             endif
-            write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
+            if (write_dredge_diag) write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
           enddo
         else
           do i=1,dredge_operations(k)%NumPlacementAreaCells(j)
             ii=dredge_operations(k)%PlacementAreaCells(j,i)    
             dredge_operations(k)%placement_limit(j,i)=-zb(ii) - dredge_operations(k)%placement_thickness(j)
-            write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
+            if (write_dredge_diag) write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
           enddo            
         endif
       enddo
@@ -842,7 +875,7 @@
     
       !processing for dredge approach 2  (sort cells from closest to farthest from start cell)
       if(dredge_operations(k)%dredge_approach == 2) then  !sort cells by proximity to start cell
-        write(2056,*)"srt cell ",k, dredge_operations(k)%dredge_start_cell
+        if (write_dredge_diag) write(2056,*)"srt cell ",k, dredge_operations(k)%dredge_start_cell
         dredge_operations(k)%dredge_start_cell = idmap(dredge_operations(k)%dredge_start_cell)
         ii=dredge_operations(k)%dredge_start_cell 
         ncnt=dredge_operations(k)%NumDredgeAreaCells
@@ -888,25 +921,29 @@
       !open time series output files for dredge tracking
       write(STipt,"(i7)") k
       N = index(STipt," ",back=.true.)       
-      filedetails = 'DredgeDetailsOpNum_'//trim(STipt(N+1:7))//'.csv'
-      write(*,*)'Writing data into file: ',trim(filedetails)
-      DredgeUnit(k) = 850+k
-      open(unit=DredgeUnit(k),file=filedetails)
-      !line = 'time, DVol_Tem_Tot, DVol_Planned, DVol_Dredged, Vol_Placed, Vol_Offgrd, Vol_Offgrd_Tot, Vol_dredged_Tot, Vol_placed_Tot, Dredge_vol_all'
-      line = 'Time, Dredged Vol., Placed Vol., Excess Vol., Tot. Dredge Vol., Total Placed Vol., Total Excess Vol., Dredge Vol. Remaining, Vol. in Source Area'
-      line=adjustL(line)
-      if(dredge_operations(k)%NumPlacementAreas > 1) then            
-        !write(*,*) 'in op multi line ',k
-        mm=dredge_operations(k)%NumPlacementAreas
-        allocate(linePA(mm))
-        do m=1,mm
-          write(ext1,"(i1)")m
-          linePA(m) = ",VolPA_"//ext1//",TotVolPA_"//ext1   
-        enddo
-        write(DredgeUnit(k),999) trim(line), (linePA(m),m=1,mm)  !MEB 04/24/2017 Switched from using the FORMAT backslash character to concatenate for issues with GNU compiler.
-      else            
-        write(DredgeUnit(k),"(A)")trim(line)
-      endif
+
+      if (write_dredge_diag) then
+        filedetails = 'DredgeDetailsOpNum_'//trim(STipt(N+1:7))//'.csv'
+        write(*,*)'Writing data into file: ',trim(filedetails)
+        DredgeUnit(k) = 850+k
+        open(unit=DredgeUnit(k),file=filedetails)
+      
+        !line = 'time, DVol_Tem_Tot, DVol_Planned, DVol_Dredged, Vol_Placed, Vol_Offgrd, Vol_Offgrd_Tot, Vol_dredged_Tot, Vol_placed_Tot, Dredge_vol_all'
+        line = 'Time, Dredged Vol., Placed Vol., Excess Vol., Tot. Dredge Vol., Total Placed Vol., Total Excess Vol., Dredge Vol. Remaining, Vol. in Source Area'
+        line=adjustL(line)
+        if(dredge_operations(k)%NumPlacementAreas > 1) then            
+          !write(*,*) 'in op multi line ',k
+          mm=dredge_operations(k)%NumPlacementAreas
+          allocate(linePA(mm))
+          do m=1,mm
+            write(ext1,"(i1)")m
+            linePA(m) = ",VolPA_"//ext1//",TotVolPA_"//ext1   
+          enddo
+          write(DredgeUnit(k),999) trim(line), (linePA(m),m=1,mm)  !MEB 04/24/2017 Switched from using the FORMAT backslash character to concatenate for issues with GNU compiler.
+        else            
+          write(DredgeUnit(k),"(A)")trim(line)
+        endif
+      endif  
     enddo  !end of dredge operations
 999 FORMAT (A,1000(',',a19))
     
@@ -932,7 +969,7 @@
     allocate(bed_change(summax))
     if(.not. singlesize) allocate(dredge_mat_gradation(nsed))
     
-    close(2056)
+    if (write_dredge_diag) close(2056)
     
     return
     endsubroutine dredge_init

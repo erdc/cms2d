@@ -27,10 +27,7 @@
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
     use size_def,   only: ncellsD
-    
-#ifdef DREDGE    
     use dredge_def, only: dredging
-#endif
 
     implicit none
     integer k,j,ID,i,jlay,iper
@@ -40,8 +37,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 8              !Revision number
-    rdate    = '05/01/2019'
+    revision = 9              !Revision number
+    rdate    = '06/07/2019'
 
 #ifdef DEV_MODE
     release  = .false.
@@ -106,8 +103,7 @@
 	endif
 #endif
 
-!#ifdef DREDGE
-!    !special output for drege-multiple grains size CHETN'
+!    !special output for dredge-multiple grains size CHETN'
 !    if (dredging) then
 !      allocate(dper(ncellsD))
 !      iper = 50
@@ -138,7 +134,6 @@
 !        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)          
 !      enddo
 !    endif !dredging
-!#endif
     
     endprogram CMS2D
     

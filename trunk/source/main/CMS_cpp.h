@@ -23,9 +23,6 @@
 /* Turn ON/OFF Developmental Code */
 #undef DEV_MODE
 
-/* Turn ON/OFF Dredging Feature */
-#define DREDGE
-
 /* Turn ON/OFF Projection Conversion */
 #define PROJ_CONV
 
@@ -35,5 +32,4 @@
 #else
 #undef    XMDF_IO
 #undef    PROJ_CONV 
-#undef    DREDGE
 #endif

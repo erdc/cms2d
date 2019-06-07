@@ -30,10 +30,7 @@
 	use comvarbl,   only: tmax,ramp,timehrs,rampdur,ctime,stimet,ntime,dtime
     use met_def,    only: windconst,tauwindx,tauwindy,tauwx,tauwy,presconst,windvar,presvar,windsta,pressta
     use cms_def,    only: cmswave
-
-#ifdef DREDGE    
     use dredge_def, only: dredging,dredge_time_lapse,dredge_interval
-#endif
 #ifdef PROFILE
     use watch_lib
 #endif
@@ -380,7 +377,6 @@
 !  write(*,*) 'Before write_output'
         call write_output             !This is a second "write_output" during the same iteration.  MEB- 041916
 
-#ifdef DREDGE
         if(dredging) then
           dredge_time_lapse = dredge_time_lapse + dt
           if(dredge_time_lapse .ge. dredge_interval) then
@@ -388,7 +384,6 @@
             dredge_time_lapse = 0
           endif
         endif
-#endif
        
         !time = time + dt/3600.d0
         !timesec = timesec + dt

@@ -7,7 +7,7 @@ module dredge_def
     implicit none
     save
     
-    logical :: dredging    
+    logical :: dredging, write_dredge_diag
     integer :: ndredge_operations,num_place_areas  
     integer, allocatable  :: DredgeUnit(:)
     integer :: num_trigger_TS
