@@ -59,7 +59,7 @@
     icapac = 1             !Transport capacity formula    
     Awatan = 0.5           !Watanabe coefficient
 
-    !--- CSHORE Defaults ------------------------------
+    !--- CSHORE Defaults ------------------------------ added 6/7/2019 bdj
     CSeffb = 0.03          !CSHORE coefficient
     CSblp  = 0.002         !CSHORE coefficient
     CSslp  = 0.3           !CSHORE coefficient        
@@ -282,16 +282,16 @@
       backspace(77)
       read(77,*) cardname, Awatan  
 
-    case('CSHORE_EFFB')
+    case('CSHORE_EFFB')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
 
-    case('CSHORE_BLP')
+    case('CSHORE_BLP')   !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
       write(*,*)'reading CSblp = ',CSblp
 
-    case('CSHORE_SLP')
+    case('CSHORE_SLP')   !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSslp
       
@@ -2772,7 +2772,7 @@ d1: do ii=1,30
     implicit none
     integer :: i
     real(ikind) :: fac
-    real(ikind) :: CSsg,Hrms,sigT,CSPb,qb,qbx,qby,qsx,qsy !bdj
+    real(ikind) :: CSsg,Hrms,sigT,CSPb,qb,qbx,qby,qsx,qsy !bdj    !removed CSSlp and CSBlp because they are initialized or user-specified 6/7/2019 bdj
 !$OMP PARALLEL DO PRIVATE(i,fac)              
     do i=1,ncells
       !--- Total-load sediment concentrations 
@@ -2806,8 +2806,8 @@ d1: do ii=1,30
 
 ! bdj some heavy-handed cshore mods
 if (icapac.eq.6) then
-   !CSslp = 0.5
-   !CSblp = 0.001
+   !CSslp = 0.5            !commented 6/7/2019 bdj
+   !CSblp = 0.001          !commented 6/7/2019 bdj 
    CSsg = rhosed/1000.
 !$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
    do i=1,ncells
@@ -2833,7 +2833,9 @@ if (icapac.eq.6) then
       !Total = sus + bedload
       qtx(i) = qsx + qbx
       qty(i) = qsy + qby
-      write(1234,*)i,qbx,qsx,qtx(i) !bdj
+      
+!      write(1234,*)i,qbx,qsx,qtx(i) !bdj          6/7/2019 bdj left in a write statement
+      
       ! if(i.ge.1514.and.i.le.1524) then 
       !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
       !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)

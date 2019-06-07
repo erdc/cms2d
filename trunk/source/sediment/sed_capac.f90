@@ -383,7 +383,7 @@ subroutine sedcapac_cshore
   real(ikind) :: fcf,fwf,fcwf,BDpart,Ustc,Ustw,Hrms,sigT,phi,alfa,ur,gamma,um
   real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac
   real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSwf,CSsg,CSVs
-  !real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs
+  !real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs      !CSeffb now defined in sed_def and initialized in sed_default - bdj 6/7/19
 
   !write(*,*)'bdj in sedcapac_cshore , noptset = ',noptset
   iripple = 1               

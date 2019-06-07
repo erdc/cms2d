@@ -19,16 +19,13 @@
 ! Sets the output module defaults
 ! written by Alex Sanchez
 !***************************************************************************        
+#include "CMS_cpp.h"
     use out_def
     use comvarbl, only: casename,flowpath!,input_ver
     implicit none
             
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
-    write_sup = .false.          !Super ASCII files
-    write_sup = .true.          !Super ASCII files
-    write_ascii_input = .false.  !ASCII input files
-    write_tecplot = .false.      !Tecplot files 
     
     !Geometry
     write_areap     = .false.    !Turns on or off the current velocity magnitude = uv
@@ -99,12 +96,18 @@
     
     !Compression
     ixmdfcomp = 0                !0-No compression, 1-Compression    
-    
-    !ASCII Input
+
+    !Input/Output
     write_ascii_input = .false.  !Turns on or off writing the ASCII input files
-    
-    !XMDF Output
-    write_xmdf_output = .true.   !Turns on or off writing XMDF output files
+    write_tecplot = .false.      !Tecplot files 
+
+#ifdef WIN_OS
+    write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
+    write_sup = .false.          !  and turns off Super ASCII files
+#else    
+    write_xmdf_output = .false.  !By default, turns off writing XMDF output files on Linux
+    write_sup = .true.           !  and turns on Super ASCII files
+#endif
     
     !Simulation label
     simlabel = 'Simulation'
