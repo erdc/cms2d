@@ -102,7 +102,7 @@
 
 #ifdef WIN_OS
     write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
-    write_sup = .false.           !  and turns off Super ASCII files
+    write_sup = .true.           !  and turns off Super ASCII files
 #else    
     write_xmdf_output = .false.  !By default, turns off writing XMDF output files on Linux
     write_sup = .true.           !  and turns on Super ASCII files
