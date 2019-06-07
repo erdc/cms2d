@@ -59,7 +59,12 @@
     
     !--- Transport Formula ------------------------------
     icapac = 1             !Transport capacity formula    
-    Awatan = 0.5           !Watanabe coefficient        
+    Awatan = 0.5           !Watanabe coefficient
+
+    !--- CSHORE Defaults ------------------------------ added 6/7/2019 bdj
+    CSeffb = 0.03          !CSHORE coefficient
+    CSblp  = 0.002         !CSHORE coefficient
+    CSslp  = 0.3           !CSHORE coefficient        
     
     !--- Horizontal Mixing -------------------------
     schmidt = 1.0          !Schmidt number ***************************************    
@@ -289,6 +294,19 @@
     case('A_COEFFICIENT_WATANABE')
       backspace(77)
       read(77,*) cardname, Awatan  
+
+    case('CSHORE_EFFB')  !added 6/7/2019 bdj
+      backspace(77)
+      read(77,*) cardname, CSeffb
+
+    case('CSHORE_BLP')   !added 6/7/2019 bdj
+      backspace(77)
+      read(77,*) cardname, CSblp
+      write(*,*)'reading CSblp = ',CSblp
+
+    case('CSHORE_SLP')   !added 6/7/2019 bdj
+      backspace(77)
+      read(77,*) cardname, CSslp
       
     case('MORPH_ACCEL_FACTOR')
       backspace(77)
@@ -2826,7 +2844,7 @@ d1: do ii=1,30
     implicit none
     integer :: i
     real(ikind) :: fac
-    real(ikind) :: CSSlp,CSBlp,CSsg,Hrms,sigT,CSPb,qb,qbx,qby,qsx,qsy !bdj
+    real(ikind) :: CSsg,Hrms,sigT,CSPb,qb,qbx,qby,qsx,qsy !bdj    !removed CSSlp and CSBlp because they are initialized or user-specified 6/7/2019 bdj
 !$OMP PARALLEL DO PRIVATE(i,fac)              
     do i=1,ncells
       !--- Total-load sediment concentrations 
@@ -2860,8 +2878,8 @@ d1: do ii=1,30
 
 ! bdj some heavy-handed cshore mods
 if (icapac.eq.6) then
-   CSSlp = 0.5
-   CSBlp = 0.001
+   !CSslp = 0.5            !commented 6/7/2019 bdj
+   !CSblp = 0.001          !commented 6/7/2019 bdj 
    CSsg = rhosed/1000.
 !$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
    do i=1,ncells
@@ -2872,22 +2890,24 @@ if (icapac.eq.6) then
       rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
       !--- Total-load sediment transport vectors ---
       !Suspended advective transport
-      qsx=1.*(u(i)-(CSSlp*us(i)))*h(i)*Ct(i)
-      qsy=1.*(v(i)-(CSSlp*vs(i)))*h(i)*Ct(i) 	    
+      qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
+      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i) 	    
 
       !Bedload transport
       Hrms = Whgt(i)/sqrt(2.)  
       sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
       call prob_bedload(sigT,Wper(i),CSsg,diam(1),CSPb)
       !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
-      qb = rhosed*(CSPb*CSBlp*sigT**3.)/(9.81*(CSsg-1.))
+      qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
       qbx = 1.*qb*wunitx(i)
       qby = 1.*qb*wunity(i)
       
       !Total = sus + bedload
       qtx(i) = qsx + qbx
       qty(i) = qsy + qby
-
+      
+!      write(1234,*)i,qbx,qsx,qtx(i) !bdj          6/7/2019 bdj left in a write statement
+      
       ! if(i.ge.1514.and.i.le.1524) then 
       !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
       !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)

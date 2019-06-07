@@ -11,6 +11,9 @@ Makefile
 cmake_install.cmake
 cms
 trunk/test/*
+mfiles/*
+lstf/*
+brad_notes.*
 
 *.suo
 
