@@ -240,7 +240,7 @@ contains
       if(present(msg6)) write(iunit(i),111) trim(msg6)
       if(present(msg7)) write(iunit(i),111) trim(msg7)
       if(present(msg8)) write(iunit(i),111) trim(msg8)
-      write(iunit(i),*)
+      !write(iunit(i),*)
     enddo
     if(.not.dgopen) close(dgunit)
     

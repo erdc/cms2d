@@ -22,7 +22,7 @@
 #endif
     use cms_def
     use diag_def
-    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch
+    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -37,9 +37,17 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 9              !Revision number
-    rdate    = '06/07/2019'
-
+    revision = 10              !Revision number
+    rdate    = '06/11/2019'
+    
+#ifdef _WIN32
+    machine='Windows'
+#elif defined (__linux)
+    machine='Linux'
+#else
+    machine='Unknown'
+#endif
+    
 #ifdef DEV_MODE
     release  = .false.
 #else
@@ -647,7 +655,7 @@
 !************************************************************************    
     subroutine print_header
 !************************************************************************        
-    use comvarbl, only: version,revision,release,rdate
+    use comvarbl, only: version,revision,release,rdate,machine
     use diag_def
     
     implicit none
@@ -657,7 +665,7 @@
 7011  format('              U.S. Army Corps of Engineers                 ')
 7012  format('            Coastal Inlets Research Program                ')
 7013  format('                Coastal Modeling System                    ')
-7014  format('           CMS2D, Version ',F5.2,'.',I2.2,1X,A)
+7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,A)
 7114  format('          This version is for testing purposes only!       ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
@@ -682,10 +690,10 @@
       write(iunit(i),7012)
       write(iunit(i),7013)
       if(.not.release)then                            !BETA
-        write(iunit(i),7014) version,revision,'BETA'
+        write(iunit(i),7014) version,revision,'BETA for ',trim(machine)
         write(iunit(i),7114)
       else                                               !RELEASE
-        write(iunit(i),7014) version,revision,'RELEASE'
+        write(iunit(i),7014) version,revision,'RELEASE for ',trim(machine)
       endif
       write(iunit(i),7016) rdate !Last revision date
       write(iunit(i),7017)

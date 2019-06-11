@@ -2405,14 +2405,14 @@ d1: do i=1,ntf
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************************    
     use bnd_def
-    use geo_def, only: azimuth_fl,mapid
+    use geo_def,   only: azimuth_fl,mapid
     use struct_def
-    use geo_def, only: aHorizCoordSystem,aHorizDatum,aHorizUnits
-    use diag_def, only: dgunit, dgfile
-    use time_lib, only: julian2calendar
+    use geo_def,   only: aHorizCoordSystem,aHorizDatum,aHorizUnits
+    use diag_def,  only: dgunit, dgfile
+    use time_lib,  only: julian2calendar
     use const_def, only: rad2deg,deg2rad
-    use out_def, only: write_ascii_input,outprefix
-    use prec_def, only: ikind
+    use out_def,   only: write_ascii_input,outprefix
+    use prec_def,  only: ikind
     use met_def,   only: wndspeed,wnddirection
     
     implicit none
@@ -2900,7 +2900,7 @@ d1: do i=1,ntf
     
     !All boundary information has been read in, write the appropriate information out at this time.
     if(write_ascii_input)then
-#ifdef WIN_OS
+#ifdef _WIN32
       call write_datasets_to_ascii()   !added 02/21/18 meb        !Only possible on Windows
 #endif      
       call write_boundary_to_ascii()   !added 02/15/18 meb
@@ -2921,7 +2921,7 @@ d1: do i=1,ntf
     use met_def
     use met_lib,   only: wind_heightcorr
     use prec_def,  only: ikind
-#ifdef WIN_OS
+#ifdef _WIN32
     use IFPORT
 #endif
     use diag_lib,  only: diag_print_error
@@ -2947,7 +2947,7 @@ d1: do i=1,ntf
     
     !Save all these files to a subdirectory named "ASCII_Input"
     indirpath='ASCII_Input'
-#ifdef WIN_OS    
+#ifdef _WIN32    
     inquire(directory=trim(indirpath), exist=found)
     if(.not.found) then
       created=MakeDirQQ(trim(indirpath))
@@ -2983,7 +2983,7 @@ d1: do i=1,ntf
     return
     end subroutine write_wind_to_ascii    
     
-#ifdef WIN_OS
+#ifdef _WIN32
 !only possible on Windows with XMDF
 !****************************************************
     subroutine write_datasets_to_ascii()
@@ -3060,7 +3060,7 @@ d1: do i=1,ntf
     use prec_def, only: ikind
     use geo_def,  only: mapid
     use diag_lib, only: diag_print_error
-#ifdef WIN_OS
+#ifdef _WIN32
     use IFPORT
 #endif
     
@@ -3072,7 +3072,7 @@ d1: do i=1,ntf
     
     !Save all these files to a subdirectory named "ASCII_Input"
     indirpath='ASCII_Input'
-#ifdef WIN_OS    
+#ifdef _WIN32    
     inquire(directory=trim(indirpath), exist=found)
     if(.not.found) then
       created=MakeDirQQ(trim(indirpath))

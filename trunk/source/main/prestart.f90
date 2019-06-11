@@ -122,10 +122,8 @@
       call der_cards(cardname,foundcard);    if(foundcard) cycle
       call stat_cards(cardname,foundcard)
       if(.not.foundcard)then
-        write(*,*) '- Card ',trim(cardname),' not found'
-        open(dgunit,file=dgfile,access='append') 
-        write(dgunit,*) '- Card ',trim(cardname),' not found'
-        close(dgunit)
+        msg='- Card '//trim(cardname)//' not found'
+        call diag_print_warning(msg)
       endif
     enddo
     close(77)

@@ -6,8 +6,7 @@
 #define MERGED_CODE
 
 /* Turn ON/OFF Windows */
-/*#define WIN_OS */
-#undef WIN_OS
+/*#define WIN_ */           /* Testing use of _WIN32 instead of this user-specified variable */
 
 /* Turn ON/OFF Unit Testing */
 #undef UNIT_TEST
@@ -17,7 +16,6 @@
 
 /* Include XMDF Input and Output */
 /* #define XMDF_IO  */
-#undef XMDF_IO 
 
 /* Turn ON/OFF Diagnostic Mode */
 #undef DIAG_MODE
@@ -29,7 +27,7 @@
 #define PROJ_CONV
 
 /* Checks */
-#ifdef  WIN_OS
+#ifdef  _WIN32
 #define   XMDF_IO 
 #else
 #undef    XMDF_IO
