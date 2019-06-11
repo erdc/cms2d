@@ -5,9 +5,6 @@
 /* Turn ON/OFF MergedCode flag */
 #define MERGED_CODE
 
-/* Turn ON/OFF Windows */
-/*#define WIN_ */           /* Testing use of _WIN32 instead of this user-specified variable */
-
 /* Turn ON/OFF Unit Testing */
 #undef UNIT_TEST
 

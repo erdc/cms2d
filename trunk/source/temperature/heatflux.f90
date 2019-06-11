@@ -54,15 +54,14 @@
        return
     end subroutine heatfluxsrc
 
+#ifdef XMDF_IO    
 !================================================================= 
     subroutine read_heat_solar_xmdf
 !================================================================= 
 #include "CMS_cpp.h"    
     use heat_def
     use comvarbl,    only: mpfile
-#ifdef XMDF_IO    
     use in_xmdf_lib, only: read_dataseth5
-#endif      
     implicit none
     integer :: ierr,i
     real(ikind),pointer:: vtemp(:)
@@ -92,6 +91,7 @@
 
     return
     end subroutine read_heat_solar_xmdf
+#endif      
 
 !================================================================= 
     subroutine read_heat_solar       
