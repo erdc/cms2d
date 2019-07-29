@@ -1426,7 +1426,11 @@ d1: do ii=1,30
               enddo
               bedlay(jlay)%perdiam(i)%file = file
               bedlay(jlay)%perdiam(i)%path = path
-              bedlay(jlay)%perdiam(i)%inp = .true.
+              if (path == 'Datasets/') then                 !This should handle SMS writing out empty Dxx_DATASET cards.
+                bedlay(jlay)%perdiam(i)%inp = .false.
+              else
+                bedlay(jlay)%perdiam(i)%inp = .true.  
+              endif  
             endif
           else            
             foundcard = .false.

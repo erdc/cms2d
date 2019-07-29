@@ -54,18 +54,22 @@
        return
     end subroutine heatfluxsrc
 
-#ifdef XMDF_IO    
 !================================================================= 
     subroutine read_heat_solar_xmdf
 !================================================================= 
 #include "CMS_cpp.h"    
     use heat_def
     use comvarbl,    only: mpfile
+#ifdef XMDF_IO    
     use in_xmdf_lib, only: read_dataseth5
+#else
+    use diag_lib, only: diag_print_error
+#endif
     implicit none
     integer :: ierr,i
     real(ikind),pointer:: vtemp(:)
       
+#ifdef XMDF_IO
     do i=1,5
       select case (i)
       case (1)
@@ -86,12 +90,14 @@
         dathtflux=vtemp
       end select
     enddo
+#else
+    call diag_print_error('Temperature not available without XMDF at present time')
+#endif      
     
     deallocate(vtemp)
 
     return
     end subroutine read_heat_solar_xmdf
-#endif      
 
 !================================================================= 
     subroutine read_heat_solar       

@@ -637,7 +637,7 @@
                 if(ierr/=0) exit
               enddo
               close(91)
-              return !File read succesfully
+              return !File read successfully
             endif
           endif  
         endif     
@@ -1674,7 +1674,7 @@
     real(ikind) :: facintep,val !,wavestrnorm
  
     if(ctime>tswave2 .and. noptset==3)then
-      call diag_print_message(' ','*** CMS-Flow run succesful ***')
+      call diag_print_message(' ','*** CMS-Flow run successful ***')
 	        
       nsteer=nsteer+1
       tswave1=tswave2
@@ -1705,7 +1705,7 @@
       call cms_wave_inline                         !call cms_wave !(noptset,nsteer)  !modified 10/15/2018
       
       close(dgunit) !Close after CMS-Wave run
-      call diag_print_message(' ','*** CMS-Wave run succesful ***')
+      call diag_print_message(' ','*** CMS-Wave run successful ***')
         
       call getwave
       

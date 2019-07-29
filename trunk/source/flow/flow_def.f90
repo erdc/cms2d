@@ -92,11 +92,11 @@ module flow_def
   real(ikind), allocatable :: vis(:),viskfl(:,:),visk(:,:)
   real(ikind), allocatable :: diswall(:)
   data aturb /'CONSTANT',&      !0
-	            'FALCONER',&      !1
-	            'PARABOLIC',&     !2
+	          'FALCONER',&      !1
+	          'PARABOLIC',&     !2
               'SUBGRID-WU',&    !3
-	            'MIXING-LENGTH',& !4
-	            'SUBGRID'/        !5	
+	          'MIXING-LENGTH',& !4
+	          'SUBGRID'/        !5	
 	
 	!Coriolis
   integer :: icoriolisplane !1=f-plane,2=beta-plane

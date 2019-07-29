@@ -337,3 +337,16 @@
     
     return
     endsubroutine delete_file
+    
+!************************************************************
+    character(len=20) function Int2Str(k)
+!   "Convert an integer to string."
+!************************************************************
+    implicit none
+    integer, intent(in) :: k
+    
+    write (Int2Str, *) k
+    Int2Str = adjustl(Int2Str)
+    
+    end function Int2Str
+    

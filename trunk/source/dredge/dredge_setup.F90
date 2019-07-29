@@ -47,8 +47,9 @@
     foundcard = .true.
     selectcase(cardname)    
     case('DREDGE_UPDATE_INTERVAL')         
-      backspace(77)
-      read(77,*)cardname,dredge_interval
+      !backspace(77)
+      !read(77,*)cardname,dredge_interval
+      call card_scalar(77,'min','min',dredge_interval,ierr)   !Default read-in units if not specified - minutes, convert to units - minutes
 
     case('DREDGE_OPERATION_BEGIN')
 #ifdef _WIN32        

@@ -155,6 +155,9 @@
     presmax = 20.0*grav !m*(m/s^2)
     velmax = 10.0       !m/s
     
+    !Advanced card default file name
+    advfile = 'advanced.cmcards'
+    
     return        
     endsubroutine flow_default
         
@@ -194,6 +197,14 @@
       call fileparts(mpfile,apath,aname,aext)  
       if(len_trim(apath)==0)then
 		mpfile = trim(flowpath) // mpfile
+      endif
+      
+    case('ADVANCED_FILE')
+      backspace(77)
+      read(77,*) cardname, advfile
+      call fileparts(advfile,apath,aname,aext)
+      if(len_trim(apath)==0)then
+        advfile = trim(flowpath) // advfile
       endif
 
     case('2D_MODE')

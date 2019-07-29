@@ -1002,23 +1002,23 @@
       if (outlist(i)%use_default .eqv. .false.) cycle     !Changed == to .eqv. for compatibility
       select case (i)
       case (1)
-          outlist(i)%afile  = outprefix(1:nn) // '_wse.h5'      !Water surface elevation
+          outlist(i)%afile  = outprefix(1:nn) // '_wse.h5'       !Water surface elevation
       case (2)
-          outlist(i)%afile  = outprefix(1:nn) // '_vel.h5'      !Current velocity
+          outlist(i)%afile  = outprefix(1:nn) // '_vel.h5'       !Current velocity
       case (3)
-          outlist(i)%afile  = outprefix(1:nn) // '_visc.h5'     !Eddy viscosity    
+          outlist(i)%afile  = outprefix(1:nn) // '_visc.h5'      !Eddy viscosity    
       case (4)
-          outlist(i)%afile  = outprefix(1:nn) // '_sed.h5'      !Sediment
+          outlist(i)%afile  = outprefix(1:nn) // '_sed.h5'       !Sediment
       case (5)
-          outlist(i)%afile  = outprefix(1:nn) // '_morph.h5'    !Morphology - Depth, Morphology Change
+          outlist(i)%afile  = outprefix(1:nn) // '_morph.h5'     !Morphology - Depth, Morphology Change
       case (6)
-          outlist(i)%afile  = outprefix(1:nn) // '_salt.h5'     !Salinity - Concentrations
+          outlist(i)%afile  = outprefix(1:nn) // '_salt.h5'      !Salinity - Concentrations
       case (7)
-          outlist(i)%afile  = outprefix(1:nn) // '_wave.h5'     !Wave 
+          outlist(i)%afile  = outprefix(1:nn) // '_wave.h5'      !Wave 
       case (8)
-          outlist(i)%afile  = outprefix(1:nn) // '_met.h5'      !Meteological 
+          outlist(i)%afile  = outprefix(1:nn) // '_met.h5'       !Meteorological 
       case (9)
-          outlist(i)%afile  = outprefix(1:nn) // '_trans.h5'    !Transport 
+          outlist(i)%afile  = outprefix(1:nn) // '_trans.h5'     !Transport 
       case (10)
           outlist(i)%afile  = outprefix(1:nn) // '_bedcomp.h5'   !Bed Composition
       case (11)
@@ -1027,8 +1027,10 @@
           outlist(i)%afile  = outprefix(1:nn) // '_wave.h5'      !Wave details
       case (13)
           outlist(i)%afile  = outprefix(1:nn) // '_fric.h5'      !Bed Friction/Roughness
-      case default
+      case (14)
           outlist(i)%afile  = outprefix(1:nn) // '_temp.h5'      !Temperature
+      case default
+          outlist(i)%afile  = outprefix(1:nn) // '_undefined.h5' !Undefined new file
       end select
     enddo
     
@@ -1361,9 +1363,9 @@
     do i=1,2
       write(iunit(i),*)
 	  write(iunit(i),888)       'Global Output'
-      write(iunit(i),787)         '  Simulation Label:            ',trim(simlabel)
+      write(iunit(i),787)           '  Simulation Label:            ',trim(simlabel)
       if(.not.write_xmdf_output) then
-        write(iunit(i),787)       '  Output Path:                  ASCII_Solutions/'
+        write(iunit(i),787)         '  Output Path:                 ASCII_Solutions/'
       else
         if(len_trim(outpath)>0)then
 	      write(iunit(i),787)       '  Output Path:                 ',trim(outpath)
@@ -1423,7 +1425,7 @@
 	  endif
       if(obs_cell)then
         !write(iunit(i),*)  
-        write(iunit(i),888) 'Observation Cells:              ON' 
+        write(iunit(i),888)   'Observation Cells:           ON' 
         if(obs(1)%active)then    
           write(iunit(i),485) '  Time series increment:     ',obs(1)%time_inc,' sec'
         endif
@@ -1439,7 +1441,7 @@
       endif
       if(save_point)then
         write(iunit(i),*)
-        write(iunit(i),888) 'Save Points:                    ON'   
+        write(iunit(i),888)   'Save Points:                 ON'   
         do k=1,ngroups
           if(.not.savept(k)%active) cycle
           write(iunit(i),11)   '  Group:                        ',trim(savept(k)%group)

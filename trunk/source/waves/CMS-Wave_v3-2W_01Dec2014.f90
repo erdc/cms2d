@@ -6224,7 +6224,7 @@ contains
    30 dep11=dep21
       dep12=dep22
    10 continue
-! -- end of repeatition for j
+! -- end of repetition for j
 
       return
       end
@@ -6243,13 +6243,13 @@ contains
       eps=1.0e-05
       icon=0
 !
-      an=atan2(v,u)
+      an=atan2(v,u+0.0001)
       cqan=cos(q-an)
       ww=sqrt(u**2+v**2)
 !
 ! ** first guess
-          x=om*sqrt(d/g)
-          y=x*x/(1.-exp(-x**2.5))**.4
+      x=om*sqrt(d/g)
+      y=x*x/(1.-exp(-x**2.5))**.4
       k=y/d
       cusv=cos(q)*u+sin(q)*v
       if(ww.lt..01) go to 42

@@ -5851,7 +5851,7 @@
    30 dep11=dep21
       dep12=dep22
    10 continue
-! -- end of repeatition for j
+! -- end of repetition for j
 
       return
       end
@@ -5870,7 +5870,7 @@
       eps=1.0e-05
       icon=0
 !
-      an=atan2(v,u)
+      an=atan2(v,u+0.0001)
       cqan=cos(q-an)
       ww=sqrt(u**2+v**2)
 !

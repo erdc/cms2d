@@ -400,7 +400,7 @@ subroutine sedcapac_cshore
      do ks=1,nsed
         CSDb = wavediss(i)
         CSefff = 2.*CSeffb
-        if(i.lt.10) write(*,*) 'CSeffb,CSblp,CSclp = ',CSeffb,CSblp,CSslp
+        !if(i.lt.10) write(*,*) 'CSeffb,CSblp,CSclp = ',CSeffb,CSblp,CSslp
         !CSeffb = .005
         CSsg = rhosed/1000.
         CSwf = wsfall(ks)

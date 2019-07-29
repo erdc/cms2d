@@ -752,6 +752,7 @@
     use prec_def
     
     implicit none
+    
     !Input/Output
     integer,intent(in) :: j  !Bed layer id
     !Internal variables
@@ -762,6 +763,13 @@
     real(ikind) :: dtemp(ncellsD)
     character(len=200) :: file,path
     character(len=10) :: aext
+    
+    interface
+      function Int2Str (k)
+        integer,intent(in) :: k
+        character(len=20) :: Int2Str
+      end function
+    end interface    
     
     !Read percentile diameter datasets
     !and determine number of input datasets
@@ -829,6 +837,7 @@
 !        pbk(i,ks,1) = max(pbk(i,ks,1),1.0e-10) !To avoid divide by zero  !HLI 01/13/2017
       enddo
       sumpbk=sum(max(pbk(i,:,j),1.0e-20))								  !HLI 01/13/2017
+      msg2 = ' for cellID '// Int2Str(i)
       if(sumpbk<0.8)then
         call diag_print_warning('Sum of fractions is less than 0.8',msg2)
       endif
