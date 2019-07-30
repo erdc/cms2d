@@ -22,7 +22,8 @@
     use out_def
     use comvarbl, only: casename,flowpath!,input_ver
     implicit none
-            
+    
+#include "CMS_cpp.h"
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
     
@@ -102,7 +103,7 @@
 
 #ifdef WIN_OS
     write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
-    write_sup = .true.           !  and turns off Super ASCII files
+    write_sup = .false.           !  and turns off Super ASCII files
 #else    
     write_xmdf_output = .false.  !By default, turns off writing XMDF output files on Linux
     write_sup = .true.           !  and turns on Super ASCII files
