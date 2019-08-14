@@ -1462,7 +1462,7 @@ loopj:  do j=1,nlay
     use diag_lib
     use prec_def
     use out_def, only: write_sup
-#ifdef WIN_OS    
+#ifdef _WIN32    
     use IFPORT
 #endif
     
@@ -1522,7 +1522,7 @@ loopj:  do j=1,nlay
     use comvarbl, only: casename
     use diag_def, only: debug_mode
     use diag_lib, only: diag_print_error
-#ifdef WIN_OS
+#ifdef _WIN32
     use ifport,   only: makedirqq
 #endif
     
@@ -1542,7 +1542,7 @@ loopj:  do j=1,nlay
     autohotfile = trim(AutoHotName)//'.sup'
     hotfile     = trim(HotName)//'.sup'
     tfile       = trim(hotdirpath)//'/InitialCondition.sup'
-#ifdef WIN_OS    
+#ifdef _WIN32    
     inquire(directory=trim(hotdirpath), exist=found)
     if(.not.found) then
       created=MakeDirQQ(trim(hotdirpath))

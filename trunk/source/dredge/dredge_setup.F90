@@ -51,7 +51,7 @@
       read(77,*)cardname,dredge_interval
 
     case('DREDGE_OPERATION_BEGIN')
-#ifdef WIN_OS        
+#ifdef _WIN32        
       ndredge_operations = ndredge_operations + 1 
       dredging = .true.
       call dredge_operation_increment()         

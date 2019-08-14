@@ -101,7 +101,7 @@
     write_ascii_input = .false.  !Turns on or off writing the ASCII input files
     write_tecplot = .false.      !Tecplot files 
 
-#ifdef WIN_OS
+#ifdef _WIN32
     write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
     write_sup = .false.          !  and turns off Super ASCII files
 #else    
@@ -1295,7 +1295,7 @@
     if(write_sup)then
       !Save all these solution files to a subdirectory named "ASCII_Solutions"
       outdirpath='ASCII_Solutions'
-#ifdef WIN_OS      
+#ifdef _WIN32      
       inquire(directory=trim(outdirpath), exist=found)
       if(.not.found) then
         created=MakeDirQQ(trim(outdirpath))

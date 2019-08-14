@@ -165,7 +165,7 @@ contains
 ! Last modified April 8, 2011
 !***********************************************************************
     use diag_lib, only: diag_print_error
-#ifdef WIN_OS
+#ifdef _WIN32
     use IFPORT
 #endif    
     
@@ -614,7 +614,7 @@ contains
     use interp_lib, only: interp_scal_cell2node
     use prec_def
     use diag_lib, only: diag_print_error
-#ifdef WIN_OS    
+#ifdef _WIN32    
     use IFPORT
 #endif
     implicit none
@@ -643,7 +643,7 @@ contains
     if (apath==' ') then
       thefile=trim(pname)//"_"//trim(dname)//'.txt'  !Don't create a directory and put into the current directory path
     else
-#ifdef WIN_OS        
+#ifdef _WIN32        
       inquire(directory=trim(apath), exist=found)
       if (.not.found) then 
         created=MakeDirQQ(trim(apath))
@@ -684,7 +684,7 @@ contains
     use diag_lib, only: diag_print_error
     use interp_lib, only: interp_vec_cell2node
     use prec_def
-#ifdef WIN_OS
+#ifdef _WIN32
     use IFPORT
 #endif
     implicit none
@@ -713,7 +713,7 @@ contains
     if (apath==' ') then
       thefile=trim(pname)//"_"//trim(dname)//'.txt'  !Don't create a directory and put into the current directory path
     else
-#ifdef WIN_OS        
+#ifdef _WIN32        
       inquire(directory=trim(apath), exist=found)
       if (.not.found) then 
         created=MakeDirQQ(trim(apath))

@@ -7,7 +7,6 @@
 
 /* Turn ON/OFF Windows */
 /*#define WIN_OS */
-#undef WIN_OS
 
 /* Turn ON/OFF Unit Testing */
 #undef UNIT_TEST
@@ -29,7 +28,7 @@
 #define PROJ_CONV
 
 /* Checks */
-#ifdef  WIN_OS
+#ifdef  _WIN32
 #define   XMDF_IO 
 #else
 #undef    XMDF_IO
