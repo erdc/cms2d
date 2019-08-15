@@ -6,15 +6,14 @@ get better predictions in the near-shore
 CMS is developed by the USACE - Coastal and Hydraulics Laboratory
 
 
-To build CMS On linux you must have CMAKE softward above 3.4
-1) In file `"source/main/CMS_cpp.h"`, change `#define WIN_OS` to `#undef WIN_OS`
+To build CMS On linux you must have CMAKE software above 3.4
+1) `cd trunk/source`
 
-2) `cd trunk/source`
+2) `cmake .`
 
-3) `cmake .`
+3) `make`
 
-4) `make`
-This will leave you with a cms executable in your local directory 
+This will leave you with an executable named 'cms' in your local working directory 
 
 To clean all of the intermediate files and old executable, type 'make clean' from the 
 "trunk/source" directory.
