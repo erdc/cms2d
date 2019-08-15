@@ -1,4 +1,3 @@
-
               U.S. Army Corps of Engineers
             Coastal Inlets Research Program
                 Coastal Modeling System
@@ -71,23 +70,16 @@
              Fortran | Language - Fixed Form Line Length => 132 Columns (/extend_source:132)
      
      
- CMake Compiling (BETA)
+ CMake Compiling (mainly for Linux)
+   To build CMS On linux you must have CMAKE software above 3.4
+   
    Instructions:
-     1. Make sure the preprocessor file: CMS_cpp.h has the variable WIN_OS set to undefined. 
-        This will turn off the XMDF libraries and horizontal projections which are not supported in CMake. 
-     2. Go the the parent directory containing the "source" subdirectory. 
-        The folder should contain a CMakeLists.txt file.
-     3. Type cmake . at the prompt
-     4. Type make clean
-     5. Type make
-     6. The exectuable will be in the build directory. Rename the executable as appropriate.
-     7. Clean the *.mod files in the source directory by typing rm ./source/*.mod
+     1. Go to the directory containing the "source" subdirectory (generally "trunk/source"). 
+     2. Type cmake . at the prompt
+     3. Type make clean
+     4. Type make
+     5. If no errors, an exectuable named 'cms' will be in the working directory. Rename the executable as needed.
 
-   Notes:
-     1. The following features are NOT supported with CMake:
-        a. XMDF Input and Output
-        b. Horizontal projection conversions
-       
 
    
      
