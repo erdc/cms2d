@@ -1129,8 +1129,11 @@ d1: do ii=1,4
     character(len=10) :: aext
     logical :: foundfile
 
-11  format(6x,i4,16x,i4,23x,F6.0,32x,F6.0,44x,F6.0,58x,F6.0)
-    if(windformat==0)then !OceanWeather, Inc.
+!11  format(6x,i4,16x,i4,23x,F6.0,32x,F6.0,44x,F6.0,58x,F6.0)   !This is so wrong - how did this ever work?
+11 format(5x,i4, 6x,i4, 3x,F6.4, 3x,F6.4, 6x,F8.4, 6x,F8.4)
+!         iLat   iLong     DX       DY     SWLat    SWLon 
+
+   if(windformat==0)then !OceanWeather, Inc.
       open(wunit,file=windfile)
       read(wunit,*) !skip header
       read(wunit,11,iostat=ierr) nwindi, nwindj, wloninc, wlatinc, swlat, wlonmin

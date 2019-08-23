@@ -772,7 +772,8 @@ contains
     use prec_def
     implicit none
     integer,     intent(in) :: ncalc
-    real(ikind), intent(inout) :: xpts(*),ypts(*)
+!    real(ikind), intent(inout) :: xpts(*),ypts(*)
+    real(ikind), intent(inout) :: xpts(ncalc),ypts(ncalc)
     type(projection) :: projfrom,projto
       
     if(projfrom%iHorizDatum/=projto%iHorizDatum)then
@@ -867,8 +868,10 @@ contains
     implicit none
     !Input/Output
     integer,     intent(in) :: ncalc
-    real(ikind), intent(inout) :: xpts(*),ypts(*)
+    !real(ikind), intent(inout) :: xpts(*),ypts(*)
+    real(ikind), intent(inout) :: xpts(ncalc),ypts(ncalc)
     type(projection) :: projfrom,projto    
+    
     !Internal variables
     integer :: grid_zone(2)
     integer :: ICODE(3),I,WGS_84_DATUM
