@@ -23,7 +23,8 @@
     use out_def
     use comvarbl, only: casename,flowpath!,input_ver
     implicit none
-            
+    
+#include "CMS_cpp.h"
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
     
@@ -532,6 +533,7 @@
         call card_boolean(77,write_geocells,ierr)
         
       case('OUTPUT_GLOBAL_XMDF','GLOBAL_XMDF','GLOBAL_XMDF_OUTPUT')
+        call card_boolean(77,write_xmdf_output,ierr)  
         write_sup = .false.
         write_xmdf_output = .true.
         
@@ -795,7 +797,6 @@
     endselect
     
     return
-    
     contains        
     
     !-----------------------------------------------------------------------------

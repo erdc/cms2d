@@ -38,7 +38,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 9              !Revision number
-    rdate    = '06/07/2019'
+    rdate    = '08/23/2019'
 
 #ifdef DEV_MODE
     release  = .false.
