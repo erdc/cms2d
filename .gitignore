@@ -26,3 +26,4 @@ trunk/Intel_vs2013/x64/Debug/
 *genmod.f90
 *.pdb
 *.htm
+/trunk/Intel_vs2013/x64/Debug/BuildLog.htm
