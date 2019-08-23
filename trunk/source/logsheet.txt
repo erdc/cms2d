@@ -1,4 +1,5 @@
-== Version 5.1.8 (05/29/2019)
+== Version 5.1.8 (08/23/2019)
+* Bug fix: Issue reading .win/.pre files for Oceanweather wind format.
 * Bug fix: NEW - Divide by zero fix in Wave models (WCCG routine)
 * Bug fix: Needed to check that a boundary array was already allocated before an allocation in rare cases.
 * Bug fix: Implemented a fix for a rare 'divide by zero' error.
