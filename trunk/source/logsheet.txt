@@ -1,7 +1,10 @@
-== Version 5.1.9 (06/07/2019)==
+== Version 5.1.9 (08/23/2019)==
 * Change: Updated C2SHORE implementation with user-specified parameters.
 * Change: Modifications needed for Dredge Module and interface.  
 * Change: Removed compile-time option for the Dredge Module.  
+* Change: Eliminated need to change compile-time options depending on Linux or Windows machines.
+* Bug fix: Heatflux Windows vs Linux options and output.  
+* Bug fix: Corrected issue with `atan2` operation in inline/standalone wave code.
 * Info: A few other minor modifications.
 
 == Version 5.1.8 (03/12/2019)==
