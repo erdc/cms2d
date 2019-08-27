@@ -1130,7 +1130,7 @@ d1: do ii=1,4
     logical :: foundfile
 
 !11  format(6x,i4,16x,i4,23x,F6.0,32x,F6.0,44x,F6.0,58x,F6.0)   !This is so wrong - how did this ever work?
-11 format(5x,i4, 6x,i4, 3x,F6.4, 3x,F6.4, 6x,F8.4, 6x,F8.4)
+11 format(5x,i4, 6x,i4, 3x,F6.4, 3x,F6.4, 6x,F8.0, 6x,F8.0)
 !         iLat   iLong     DX       DY     SWLat    SWLon 
 
    if(windformat==0)then !OceanWeather, Inc.
@@ -1179,17 +1179,24 @@ d1: do ii=1,4
         windlocfile = trim(flowpath) // windlocfile
       endif       
       inquire(file=windlocfile,exist=foundfile)
-      if(.not.foundfile)then
-        call diag_print_error('Could not find wind location/coordinate file: ',windlocfile)
-      endif
-      !xy file in local (global) coordinates
-      open(cunit,file=windlocfile,status='old')
-	  do i=1,nwindi   !Lat
-	    do j=1,nwindj !Lon
-          read(cunit,*) xwind(i,j),ywind(i,j)  
+      if(.not.foundfile)then  !Compute grid
+        do i=1,nwindi   !Lat
+          do j=1,nwindj !Lon
+            xwind(i,j) = wlonmin + wloninc*(j-1) 
+            ywind(i,j) = wlatmax - wlatinc*(i-1)
+          enddo !j loop
+        enddo !k loop 
+        !call diag_print_error('Could not find wind location/coordinate file: ',windlocfile)
+      else
+        !xy file in local (global) coordinates
+        open(cunit,file=windlocfile,status='old')
+	    do i=1,nwindi   !Lat
+	      do j=1,nwindj !Lon
+            read(cunit,*) xwind(i,j),ywind(i,j)  
+          enddo
         enddo
-      enddo
-      close(cunit)   
+        close(cunit)   
+      endif  
     else !Compute grid
       do i=1,nwindi   !Lat
         do j=1,nwindj !Lon
@@ -1290,7 +1297,7 @@ d1: do ii=1,4
       close(93,status='delete')
     endif 
     
-    call diag_print_message('',' Calculating wind-to-flow interpolation coefficients','')  
+    call diag_print_message('',' Calculating wind-to-flow interpolation coefficients')  
     
     !open(55,file='wind.xyz') 
     !do i=1,nwindi
@@ -1322,7 +1329,7 @@ d1: do ii=1,4
     endif
     !close(55)
     
-    call diag_print_message('',' Saving wind-to-flow interpolation coefficients','')  
+    call diag_print_message(' Saving wind-to-flow interpolation coefficients','')  
 
     open(93,file=wndfl_intpcoef_file,form='unformatted')
 	write(93) iwndflver

@@ -373,7 +373,6 @@ contains
     if (sec .lt. 0.01 .and. sec .gt. 0) sec = 0.0d0  !Don't show numbers like 0.002 seconds  MEB 01/17/2019
     
     iyrs=0
-    idays=366
     if(idays>=365)then
       iyrs = int(idays/365)
       idays = mod(idays,365)

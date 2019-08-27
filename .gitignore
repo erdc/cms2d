@@ -29,3 +29,4 @@ trunk/Intel_vs2013/x64/Debug/
 *.exe.intermediate.manifest
 /trunk/Intel_vs2013/Debug/CMS2D_V5p1.exe
 /trunk/Intel_vs2013/x64/Debug/BuildLog.htm
+*.exe
