@@ -1,3 +1,8 @@
+== Version 5.1.10 (8/29/2019)== 
+* Change: Modified screen and diagnostic file output by aligning at T40. Mainly for Implicit runs.
+* Change: Added years to reoccuring report of elapsed time.  Only outputs when Days > 365.
+* Change: Updated instructions for CMake linux utility regarding include file changes.
+
 == Version 5.1.9 (08/27/2019)==
 * Bug fix: Heatflux Windows vs Linux options and output.  
 * Bug fix: Corrected issue with `atan2` operation in inline/standalone wave code.
