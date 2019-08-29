@@ -69,10 +69,20 @@ contains
 ! written by Alex Sanchez, USACE-CHL        
 !**********************************************************
     use watch_def
-    use diag_lib
+    use diag_def, only: dgunit,dgfile
+
     implicit none
+    integer :: iunit(2),i
     
-    call diag_print_message(' Watches                         ON')
+222 format(' ',A,T40,A)    
+    
+    iunit = (/6, dgunit/)
+    open(dgunit,file=dgfile,access='append') 
+    
+    do i=1,2	    
+      write(iunit(i),*) ''   
+      write(iunit(i),222) ' Watches:','ON'
+    enddo
     
     return
     endsubroutine watch_print    

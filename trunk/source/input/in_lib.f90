@@ -59,7 +59,7 @@ contains
       call diag_print_error('Problem reading data in XYS file: ',afile)  
     endif
     close(454)
-    !write(*,*) afile,' read succesfully'
+    !write(*,*) afile,' read successfully'
     
     return
     endsubroutine read_xys
@@ -267,7 +267,7 @@ contains
       endif
     enddo    
     close(454)
-    !write(*,*) trim(afile),' read succesfully'
+    !write(*,*) trim(afile),' read successfully'
     
     return
     endsubroutine read_tsd

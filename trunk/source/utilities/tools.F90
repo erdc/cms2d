@@ -337,3 +337,58 @@
     
     return
     endsubroutine delete_file
+    
+!************************************************************
+    character(len=20) function Int2Str(k)
+!   "Convert an integer to string."
+!************************************************************
+    implicit none
+    integer, intent(in) :: k
+    
+    write (Int2Str, *) k
+    Int2Str = adjustl(Int2Str)
+    
+    end function Int2Str
+    
+
+    
+    module tool_def
+      implicit none
+  
+      contains
+!************************************************************
+      function vstrlz(flt,gfmt) result(gbuf)
+! This function will take a float variable and a format declaration, then convert it to a string. 
+! The string will add a leading 0, +0, or -0 if necessary.  Also, it will remove a leading space from the PE format
+      character(len=:), allocatable          :: gbuf
+      real, intent(in)                       :: flt
+      character(len=*), optional, intent(in) :: gfmt
+      character(len=40)                      :: gtmp
+      integer                                :: istat
+
+      gtmp = ''
+      if(present(gfmt) ) then   ! specified format
+        write(gtmp, gfmt, iostat=istat ) flt  
+      else                      ! generic format
+        write(gtmp, '(g0)', iostat=istat) flt  
+      endif
+      
+      if( istat /= 0 ) then
+        gbuf='****'
+        return
+      endif
+      
+      if    (gtmp(1:1) == '.' ) then
+        gbuf = '0'//trim(gtmp)
+      elseif(gtmp(1:2) == '-.' ) then
+        gbuf = '-0.'//trim(gtmp(3:))
+      elseif(gtmp(1:2) == '+.' ) then ! S format adds a +
+        gbuf = '+0.'//trim(gtmp(3:))
+      else
+        gbuf = trim(adjustl(gtmp))
+      endif
+      
+      return
+      end function vstrlz
+!************************************************************
+    end module tool_def      

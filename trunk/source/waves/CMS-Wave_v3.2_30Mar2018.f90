@@ -5851,7 +5851,7 @@
    30 dep11=dep21
       dep12=dep22
    10 continue
-! -- end of repeatition for j
+! -- end of repetition for j
 
       return
       end

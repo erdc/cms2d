@@ -848,87 +848,85 @@ d1: do ii=1,4
     character(len=10) :: aext
     logical :: ok 
 
-11  format(' ',A,A)    
-111 format(' ',A,1x,A)   
-118 format(' ',A,I8)    
-193 format(' ',A,F9.3,A)
-102 format(' ',A,F10.2,A)    
-183 format(' ',A,F8.3)
-293 format(' ',A,2(F12.3),A)
-888 format(' ',A)
+111 format(' ',A,T40,A)    
+118 format(' ',A,T40,I0)    
+262 format(' ',A,T40,I4)
+193 format(' ',A,T40,F0.3,A)
+102 format(' ',A,T40,F0.2,A)    
+293 format(' ',A,T40,F0.3,2xF0.3,A)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
     do i=1,2    
       write(iunit(i),*)    
       if(windconst .or. windvar .or. windsta)then
-        write(iunit(i),888)    'Wind Forcing:                   ON'
+        write(iunit(i),111)     'Wind Forcing:','ON'
       else
-        write(iunit(i),888)    'Wind Forcing:                   OFF'  
+        write(iunit(i),111)     'Wind Forcing:','OFF'  
       endif    
     
       !Wind
       if(windconst)then !Wind Curve
         call fileext(windfile,aext)
         if(aext(1:1)==' ')then
-          write(iunit(i),111)   '  Met Station Name:            ',trim(windfile)
+          write(iunit(i),111)   '  Met Station Name:',trim(windfile)
           if(len_trim(windpath)>0)then
-            write(iunit(i),111) '  Met Station Path:            ',trim(windpath)
+            write(iunit(i),111) '  Met Station Path:',trim(windpath)
           endif
         else 
           call fileext(windfile,aext)
           if(aext(1:3)=='xys')then  
-            write(iunit(i),111)   '  Wind Speed:                  ',trim(windfile)  
-            write(iunit(i),111)   '  Wind Direction:              ',trim(windpath)
+            write(iunit(i),111) '  Wind Speed:',trim(windfile)  
+            write(iunit(i),111) '  Wind Direction:',trim(windpath)
           else
-            write(iunit(i),111)   '  Wind Curve:                  ',trim(windpath)
+            write(iunit(i),111) '  Wind Curve:',trim(windpath)
           endif
         endif
-        write(iunit(i),118)     '    Length of Wind Data:       ',nwtimes     	 
+        write(iunit(i),118)     '    Length of Wind Data:',nwtimes     	 
       elseif(windvar)then !Wind Fields
         call fileparts(windfile,apath,aname,aext)
-        afile = trim(aname) // trim(aext)
-  	    write(iunit(i),111)     '  Wind Field:                  ',trim(afile)
-        write(iunit(i),888)        '    Horizontal Projection'
-        write(iunit(i),11)      '      Coordinate System:        ',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
+        afile = trim(aname) // '.' // trim(aext)
+  	    write(iunit(i),111)     '  Wind Field:',trim(afile)
+        write(iunit(i),111)     '    Horizontal Projection'
+        write(iunit(i),111)     '      Coordinate System:',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
         if(projwnd%iHorizCoordSystem/=22)then
-          write(iunit(i),11)    '      Datum:                    ',trim(aHorizDatum(projwnd%iHorizDatum))
+          write(iunit(i),111)   '      Datum:',trim(aHorizDatum(projwnd%iHorizDatum))
           if(projwnd%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '       Zone:                     ',projwnd%iHorizZone
+            write(iunit(i),262) '      Zone:',projwnd%iHorizZone
           endif
         endif      
-	    write(iunit(i),11)      '      Units:                    ',trim(aHorizUnits(projwnd%iHorizUnits))
+	    write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
       endif     
     
       !Wind Parameters
       if(windconst .or. windvar)then
-        write(iunit(i),193)     '  Anemometer Height:         ',wndht,' m'   
-        write(iunit(i),183)     '  Drag Coefficient Factor:   ',wkappa/0.4
+        write(iunit(i),193)     '  Anemometer Height:',wndht,' m'   
+        write(iunit(i),193)     '  Drag Coefficient Factor:',wkappa/0.4
         if(iwndlagr==1)then
-          write(iunit(i),888) '  Reference frame:              LAGRANGIAN'    
+          write(iunit(i),111)   '  Reference frame:','LAGRANGIAN'    
         else
-          write(iunit(i),888) '  Reference frame:              EULERIAN'
+          write(iunit(i),111)   '  Reference frame:','EULERIAN'
         endif
       endif
       
       !Meteorological Stations
       if(windsta)then
         if(iwndlagr==1)then
-          write(iunit(i),888) '  Reference frame:              LAGRANGIAN'    
+          write(iunit(i),111)   '  Reference frame:','LAGRANGIAN'    
         else
-          write(iunit(i),888) '  Reference frame:              EULERIAN'
+          write(iunit(i),111)   '  Reference frame:','EULERIAN'
         endif   
-        write(iunit(i),118)      '  Number of Met Stations:    ',nMetSta
+        write(iunit(i),118)     '  Number of Met Stations:',nMetSta
         do ista=1,nMetSta  
-          write(iunit(i),11)    '  Met Station:                  ',trim(metsta(ista)%name)          
-          write(iunit(i),193)   '    Anemometer Height:       ',metsta(ista)%wndht,' m'   
-          write(iunit(i),183)   '    Wind Scaling Factor:     ',metsta(ista)%wndfac
-          write(iunit(i),293)   '    Coordinates:             ',metsta(ista)%xsta,metsta(ista)%ysta,' m'
-          write(iunit(i),183)   '    Power Parameter:         ',metsta(ista)%pow
-          write(iunit(i),118)   '    Time Series Length:      ',metsta(ista)%ntimes
+          write(iunit(i),111)   '  Met Station:',trim(metsta(ista)%name)          
+          write(iunit(i),193)   '    Anemometer Height:',metsta(ista)%wndht,' m'   
+          write(iunit(i),193)   '    Wind Scaling Factor:',metsta(ista)%wndfac
+          write(iunit(i),293)   '    Coordinates:',metsta(ista)%xsta,metsta(ista)%ysta,' m'
+          write(iunit(i),193)   '    Power Parameter:',metsta(ista)%pow
+          write(iunit(i),118)   '    Time Series Length:',metsta(ista)%ntimes
           if(len_trim(metsta(ista)%file)>0)then
-            write(iunit(i),11)    '    File:                       ',trim(metsta(ista)%file)
-            write(iunit(i),11)    '    Path:                       ',trim(metsta(ista)%path)
+            write(iunit(i),111) '    File:',trim(metsta(ista)%file)
+            write(iunit(i),111) '    Path:',trim(metsta(ista)%path)
           endif
         enddo
       endif
@@ -940,36 +938,36 @@ d1: do ii=1,4
           call diag_print_error('Could not find pressure file: ',presfile)
         endif
         write(iunit(i),*)
-        write(iunit(i),888)  'Atm Pressure Forcing:           ON'
+        write(iunit(i),111)     'Atmospheric Pressure Forcing:','ON'
         call fileparts(presfile,apath,aname,aext)
-        afile = trim(aname) // trim(aext)
-  	    write(iunit(i),111)    '  Pressure Field:              ',trim(afile)
-        write(iunit(i),102)    '  Ambient Atm Pressure:        ',ambatmpres,' Pa'
-        write(iunit(i),888)        '    Horizontal Projection'
-        write(iunit(i),11)      '      Coordinate System:        ',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
+        afile = trim(aname) // '.' // trim(aext)
+  	    write(iunit(i),111)     '  Pressure Field:',trim(afile)
+        write(iunit(i),102)     '  Ambient Atm Pressure:',ambatmpres,' Pa'
+        write(iunit(i),111)     '    Horizontal Projection'
+        write(iunit(i),111)     '      Coordinate System:',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
         if(projwnd%iHorizCoordSystem/=22)then
-          write(iunit(i),11)    '      Datum:                    ',trim(aHorizDatum(projwnd%iHorizDatum))
+          write(iunit(i),111)   '      Datum:',trim(aHorizDatum(projwnd%iHorizDatum))
           if(projwnd%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '       Zone:                     ',projwnd%iHorizZone
+            write(iunit(i),262) '      Zone:',projwnd%iHorizZone
           endif
         endif      
-	    write(iunit(i),11)      '      Units:                    ',trim(aHorizUnits(projwnd%iHorizUnits))
+	    write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
       elseif(presconst)then
         write(iunit(i),*)
-        write(iunit(i),888)  'Atm Pressure Forcing:           ON'
-        write(iunit(i),111)    '  Pressure Curve:              ',trim(presfile)
-        write(iunit(i),102)    '  Ambient Atm Pressure:        ',ambatmpres,' Pa'
+        write(iunit(i),111)     'Atmospheric Pressure Forcing:','ON'
+        write(iunit(i),111)     '  Pressure Curve:',trim(presfile)
+        write(iunit(i),102)     '  Ambient Atm Pressure:',ambatmpres,' Pa'
       endif
       
       !Precipitation and Evaporation
       if(rain_evap)then
         write(iunit(i),*)
-        write(iunit(i),888)  'Precipitation/Evaporation:      ON'  
+        write(iunit(i),111)     'Precipitation/Evaporation:','ON'  
         if(len_trim(rf_filename)>0)then
-          write(iunit(i),111)    '  File:                      ',trim(rf_filename)
+          write(iunit(i),111)   '  File:',trim(rf_filename)
         else            
-          write(iunit(i),102)    '  Precipitation:          ',rain,' m/hr'
-          write(iunit(i),102)    '  Evaporation:            ',evap,' m/hr'
+          write(iunit(i),102)   '  Precipitation:',rain,' m/hr'
+          write(iunit(i),102)   '  Evaporation:',evap,' m/hr'
         endif
       endif
     enddo
@@ -1119,7 +1117,8 @@ d1: do ii=1,4
     use geo_lib, only: proj_horiz_conv
     use comvarbl, only: flowpath
     use const_def, only: deg2rad
-    use diag_lib
+    use diag_lib, only: diag_print_error, diag_print_message
+    use diag_def, only: msg, msg2
     use prec_def
     implicit none
     integer :: i,j,k,nw,ierr
@@ -1130,9 +1129,9 @@ d1: do ii=1,4
     logical :: foundfile
 
 !11  format(6x,i4,16x,i4,23x,F6.0,32x,F6.0,44x,F6.0,58x,F6.0)   !This is so wrong - how did this ever work?
-11 format(5x,i4, 6x,i4, 3x,F6.4, 3x,F6.4, 6x,F8.4, 6x,F8.4)
+11 format(5x,i4, 6x,i4, 3x,F6.4, 3x,F6.4, 6x,F8.0, 6x,F8.0)
 !         iLat   iLong     DX       DY     SWLat    SWLon 
-   
+
    if(windformat==0)then !OceanWeather, Inc.
       open(wunit,file=windfile)
       read(wunit,*) !skip header
@@ -1179,17 +1178,27 @@ d1: do ii=1,4
         windlocfile = trim(flowpath) // windlocfile
       endif       
       inquire(file=windlocfile,exist=foundfile)
-      if(.not.foundfile)then
-        call diag_print_error('Could not find wind location/coordinate file: ',windlocfile)
-      endif
-      !xy file in local (global) coordinates
-      open(cunit,file=windlocfile,status='old')
-	  do i=1,nwindi   !Lat
-	    do j=1,nwindj !Lon
-          read(cunit,*) xwind(i,j),ywind(i,j)  
+      if(.not.foundfile)then  !Compute grid
+        msg='WARNING: Could not find wind location/coordinate file: '//trim(windlocfile)
+        msg2='Computing Lat/Long from .win file.'
+        call diag_print_message('',msg,msg2)
+        do i=1,nwindi   !Lat
+          do j=1,nwindj !Lon
+            xwind(i,j) = wlonmin + wloninc*(j-1) 
+            ywind(i,j) = wlatmax - wlatinc*(i-1)
+          enddo !j loop
+        enddo !k loop 
+        
+      else
+        !xy file in local (global) coordinates
+        open(cunit,file=windlocfile,status='old')
+	    do i=1,nwindi   !Lat
+	      do j=1,nwindj !Lon
+            read(cunit,*) xwind(i,j),ywind(i,j)  
+          enddo
         enddo
-      enddo
-      close(cunit)   
+        close(cunit)   
+      endif  
     else !Compute grid
       do i=1,nwindi   !Lat
         do j=1,nwindj !Lon
@@ -1272,7 +1281,7 @@ d1: do ii=1,4
           if(ierr==0)then
             if(nchk==ncells .and. nDchk==ncellsD .and. &
 	          nichk==nwindi .and. njchk==nwindj)then
-              call diag_print_message('',' Reading wind-to-flow interpolation coefficients','')  
+              call diag_print_message('','Reading wind-to-flow interpolation coefficients','')  
               do i=1,ncellsD
                 read(93,iostat=ierr) (ijntpwnd(j,i),j=1,2)
                 if(ierr/=0) exit
@@ -1290,7 +1299,7 @@ d1: do ii=1,4
       close(93,status='delete')
     endif 
     
-    call diag_print_message('',' Calculating wind-to-flow interpolation coefficients','')  
+    call diag_print_message('','Calculating wind-to-flow interpolation coefficients')  
     
     !open(55,file='wind.xyz') 
     !do i=1,nwindi
@@ -1322,7 +1331,7 @@ d1: do ii=1,4
     endif
     !close(55)
     
-    call diag_print_message('',' Saving wind-to-flow interpolation coefficients','')  
+    call diag_print_message('Saving wind-to-flow interpolation coefficients','')  
 
     open(93,file=wndfl_intpcoef_file,form='unformatted')
 	write(93) iwndflver

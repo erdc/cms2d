@@ -41,7 +41,7 @@
 #endif
     implicit none
     
-    integer :: k,ierr
+    integer :: k,ierr,icount
     character(len=37) :: cardname,aext
     character(len=200) :: aname,apath,astring
     logical :: foundcard,foundfile
@@ -89,46 +89,55 @@
     call watch_default  !Watches
 #endif
 
-!--- Read Card File -------------------------------------------------   
-    call fileparts(ctlfile,apath,aname,aext) 
-    astring = trim(aname) // '.' // trim(aext)
-    write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
-    open(77,file=ctlfile,status='unknown')
-    do k=1,1000
-      read(77,*,iostat=ierr) cardname
-      if(ierr/=0) exit
-      if(cardname(1:14)=='END_PARAMETERS') exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      call ignr_cards(cardname,foundcard);          if(foundcard) cycle
-      call geo_cards(cardname,foundcard,.true.);    if(foundcard) cycle
-      call flow_cards(cardname,foundcard,.true.);   if(foundcard) cycle
-      call bnd_cards(cardname,foundcard);           if(foundcard) cycle
-      call struct_cards(cardname,foundcard);        if(foundcard) cycle
-      call fric_cards(cardname,foundcard);          if(foundcard) cycle
-      call hot_cards(cardname,foundcard);           if(foundcard) cycle
-      call sed_cards(cardname,foundcard);           if(foundcard) cycle
-      call sal_cards(cardname,foundcard);           if(foundcard) cycle
-	  call heat_cards(cardname,foundcard);          if(foundcard) cycle
-      call met_cards(cardname,foundcard);           if(foundcard) cycle
-      call rol_cards(cardname,foundcard);           if(foundcard) cycle
-      call out_cards(cardname,foundcard);           if(foundcard) cycle
-      call diag_cards(cardname,foundcard);          if(foundcard) cycle
-      call wave_cards(cardname,foundcard);          if(foundcard) cycle
-#ifdef DEV_MODE
-      call q3d_cards(cardname,foundcard);    if(foundcard) cycle
-      call veg_cards(cardname,foundcard);    if(foundcard) cycle
-#endif
-      call dredge_cards(cardname,foundcard); if(foundcard) cycle
-      call der_cards(cardname,foundcard);    if(foundcard) cycle
-      call stat_cards(cardname,foundcard)
-      if(.not.foundcard)then
-        write(*,*) '- Card ',trim(cardname),' not found'
-        open(dgunit,file=dgfile,access='append') 
-        write(dgunit,*) '- Card ',trim(cardname),' not found'
-        close(dgunit)
+!--- Read Input and Advanced Card Files -----------------------------   
+    do icount=1,2
+      if (icount == 1) then                              !First time through process from Input '*.cmcards' file
+        call fileparts(ctlfile,apath,aname,aext) 
+        astring = trim(aname) // '.' // trim(aext)
+        write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
+        open(77,file=ctlfile,status='unknown')
+      else                                               !Second time through process from Advanced 'advanced.cmcards' file.  Note: this will overwrite previously read cards if they exist in the file.  
+        inquire(file=advfile,exist=foundfile)
+        if(.not.foundfile) exit  !no advanced cards to use
+        call fileparts(advfile,apath,aname,aext) 
+        astring = trim(aname) // '.' // trim(aext)
+        write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
+        open(77,file=advfile,status='unknown')
       endif
-    enddo
-    close(77)
+      do k=1,1000
+        read(77,*,iostat=ierr) cardname
+        if(ierr/=0) exit
+        if(cardname(1:14)=='END_PARAMETERS') exit
+        if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
+        call ignr_cards(cardname,foundcard);          if(foundcard) cycle
+        call geo_cards(cardname,foundcard,.true.);    if(foundcard) cycle
+        call flow_cards(cardname,foundcard,.true.);   if(foundcard) cycle
+        call bnd_cards(cardname,foundcard);           if(foundcard) cycle
+        call struct_cards(cardname,foundcard);        if(foundcard) cycle
+        call fric_cards(cardname,foundcard);          if(foundcard) cycle
+        call hot_cards(cardname,foundcard);           if(foundcard) cycle
+        call sed_cards(cardname,foundcard);           if(foundcard) cycle
+        call sal_cards(cardname,foundcard);           if(foundcard) cycle
+        call heat_cards(cardname,foundcard);          if(foundcard) cycle
+        call met_cards(cardname,foundcard);           if(foundcard) cycle
+        call rol_cards(cardname,foundcard);           if(foundcard) cycle
+        call out_cards(cardname,foundcard);           if(foundcard) cycle
+        call diag_cards(cardname,foundcard);          if(foundcard) cycle
+        call wave_cards(cardname,foundcard);          if(foundcard) cycle
+#ifdef DEV_MODE
+        call q3d_cards(cardname,foundcard);    if(foundcard) cycle
+        call veg_cards(cardname,foundcard);    if(foundcard) cycle
+#endif
+        call dredge_cards(cardname,foundcard); if(foundcard) cycle
+        call der_cards(cardname,foundcard);    if(foundcard) cycle
+        call stat_cards(cardname,foundcard)
+        if(.not.foundcard)then
+          msg='- Card '//trim(cardname)//' not found'
+          call diag_print_warning(msg)
+        endif
+      enddo
+      close(77)
+    enddo  
 
     if(coldstart .and. hot_out)then
       if(hot_timehr) then

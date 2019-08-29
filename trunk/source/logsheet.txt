@@ -1,10 +1,17 @@
-== Version 5.1.9 (08/23/2019)==
+== Version 5.1.10 (8/29/2019)== 
+* Change: Modified screen and diagnostic file output by aligning at T40. Mainly for Implicit runs.
+* Change: Added years to reoccuring report of elapsed time.  Only outputs when Days > 365.
+* Change: Updated instructions for CMake linux utility regarding include file changes.
+
+== Version 5.1.9 (08/27/2019)==
+* Bug fix: Heatflux Windows vs Linux options and output.  
+* Bug fix: Corrected issue with `atan2` operation in inline/standalone wave code.
+* Bug fix: Issue with reading in OWI formatted .win and .pre files.
+* Change: Removed the requirement for the .xy file to be used with OWI wind format - still allowed if present.
 * Change: Updated C2SHORE implementation with user-specified parameters.
 * Change: Modifications needed for Dredge Module and interface.  
 * Change: Removed compile-time option for the Dredge Module.  
 * Change: Eliminated need to change compile-time options depending on Linux or Windows machines.
-* Bug fix: Heatflux Windows vs Linux options and output.  
-* Bug fix: Corrected issue with `atan2` operation in inline/standalone wave code.
 * Info: A few other minor modifications.
 
 == Version 5.1.8 (03/12/2019)==

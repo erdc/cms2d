@@ -79,8 +79,3 @@
      3. Type make clean
      4. Type make
      5. If no errors, an exectuable named 'cms' will be in the working directory. Rename the executable as needed.
-
-
-   
-     
-     

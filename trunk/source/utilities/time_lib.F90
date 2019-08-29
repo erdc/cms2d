@@ -344,7 +344,10 @@ contains
 ! Converts an elapsed time in seconds to nicely formated string using
 ! days, hours, minutes, and seconds
 !
+! Years designated as 365 days
+!
 ! Author: Alex Sanchez, USACE-CHL    
+! Editor: Mitchell Brown, USACE-CHL
 !**************************************************************************
     use diag_lib
     implicit none
@@ -352,9 +355,11 @@ contains
     real(8), intent(in) :: timesec
     character(len=*), intent(inout) :: str
     !Internal
-    integer :: idays,ihrs,imin,isec,imilsec,ierr
+    integer :: idays,ihrs,imin,isec,imilsec,ierr,iyrs
     real(8) :: sec
 
+950 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
+975 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min')    
 850 format(I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
 875 format(I0,' days, ',I0,' hrs, ',I0,' min')    
 750 format(I0,' hrs, ',I0,' min, ',F7.3,' s')
@@ -367,21 +372,32 @@ contains
     sec = dble(isec) + dble(imilsec)*0.001d0
     if (sec .lt. 0.01 .and. sec .gt. 0) sec = 0.0d0  !Don't show numbers like 0.002 seconds  MEB 01/17/2019
     
-    if(idays>=1)then
+    iyrs=0
+    if(idays>=365)then
+      iyrs = int(idays/365)
+      idays = mod(idays,365)
+    endif
+    if(iyrs>=1)then
+      if(sec .eq. 0.0d0) then
+        write(str,975,iostat=ierr) iyrs, idays, ihrs, imin   !Don't write out 0.000 s   MEB 01/17/2019    
+      else
+        write(str,950,iostat=ierr) iyrs, idays, ihrs, imin, sec
+      endif
+    elseif(idays>=1)then
       if (sec .eq. 0.0d0) then
-        write(str,875,iostat=ierr) idays,ihrs,imin   !Don't write out 0.000 s   MEB 01/17/2019    
+        write(str,875,iostat=ierr) idays,ihrs,imin           !Don't write out 0.000 s   MEB 01/17/2019    
       else
         write(str,850,iostat=ierr) idays,ihrs,imin,sec
       endif
     elseif(ihrs>=1)then
       if (sec .eq. 0.0d0) then 
-        write(str,775,iostat=ierr) ihrs,imin         !Don't write out 0.000 s   MEB 01/17/2019
+        write(str,775,iostat=ierr) ihrs,imin                 !Don't write out 0.000 s   MEB 01/17/2019
       else
         write(str,750,iostat=ierr) ihrs,imin,sec
       endif
     elseif(imin>=1)then
       if (sec .eq. 0.0d0) then 
-        write(str,675,iostat=ierr) imin              !Don't write out 0.000 s   MEB 01/17/2019
+        write(str,675,iostat=ierr) imin                      !Don't write out 0.000 s   MEB 01/17/2019
       else
         write(str,650,iostat=ierr) imin,sec
       endif

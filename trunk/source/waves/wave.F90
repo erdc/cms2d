@@ -260,15 +260,18 @@
     implicit none
     integer :: i,iunit(2)
     
+888 format(' ',A,T40,A)
+222 format(' ',A,T40,F0.2,A)
+    
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append')     
     do i=1,2
       if(constant_waves)then
         write(iunit(i),*)		
-	    write(iunit(i),'(A)')        ' Constant Waves:'  
-        write(iunit(i),'(A,F8.2,A)') '   Significant wave height:   ',waveheight,' m'
-        write(iunit(i),'(A,F8.2,A)') '   Peak wave period:          ',waveperiod,' s'
-        write(iunit(i),'(A,F8.2,A)') '   Mean wave direction:       ',wavedir,' deg'
+	    write(iunit(i),888) 'Constant Waves:'  
+        write(iunit(i),222) '  Significant wave height:',waveheight,' m'
+        write(iunit(i),222) '  Peak wave period:',waveperiod,' s'
+        write(iunit(i),222) '  Mean wave direction:',wavedir,' deg'
       endif
     enddo
     close(dgunit)

@@ -467,7 +467,7 @@ contains
       ierr = -3
       return
     endif
-    ierr = 0 !Finished succesfully
+    ierr = 0 !Finished successfully
     
     return
     endsubroutine read_wind_owi
@@ -518,7 +518,7 @@ contains
       return
     endif
     atmpres2 = atmpres2*100.0 !Convert from mbar to Pascal (N/m^2)      
-    ierr = 0 !Finished succesfully
+    ierr = 0 !Finished successfully
     
     return
     endsubroutine read_pres_owi

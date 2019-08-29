@@ -64,12 +64,12 @@
     use in_xmdf_lib, only: read_dataseth5
 #else
     use diag_lib, only: diag_print_error
-#endif      
+#endif
     implicit none
     integer :: ierr,i
     real(ikind),pointer:: vtemp(:)
       
-#ifdef XMDF_IO    
+#ifdef XMDF_IO
     do i=1,5
       select case (i)
       case (1)

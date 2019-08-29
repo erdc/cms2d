@@ -48,9 +48,7 @@ module cms_def
       integer :: ndim
     endtype dset_type
     type(dset_type), allocatable :: dsetList(:)
-    
-    
-endmodule cms_def
+end module cms_def
 
 !===================================================================
 module const_def
@@ -84,8 +82,10 @@ module comvarbl
     !Code version - Moved assignment to CMS2D_Main.f90
     real      :: Version   !CMS version
     integer   :: Revision  !Revision number
-    logical   :: release   
+    logical   :: release
     character(len=10) :: rdate
+    character(len=10) :: machine     !06/11/2019 MEB - added to denote type of machine compiled on
+    
     real      :: input_ver !CMS-Flow Input Version. Read from cmcards file    !renamed from 'ver', 6/28/2016
    
     !Used for testing only
@@ -94,7 +94,8 @@ module comvarbl
     !File names
     character(len=200) :: flowpath             !Path of CMS-Flow files
     character(len=200) :: ctlfile              !Control File
-    character(len=200) :: mpfile               !Model parameters file        
+    character(len=200) :: mpfile               !Model parameters file     
+    character(len=200) :: advfile              !Advanced card file - added MEB 07/29/2019
 
     !Timing
     !Note: Use double precision for time variables

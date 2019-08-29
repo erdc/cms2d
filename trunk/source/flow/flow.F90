@@ -155,6 +155,9 @@
     presmax = 20.0*grav !m*(m/s^2)
     velmax = 10.0       !m/s
     
+    !Advanced card default file name
+    advfile = 'advanced.cmcards'
+    
     return        
     endsubroutine flow_default
         
@@ -194,6 +197,14 @@
       call fileparts(mpfile,apath,aname,aext)  
       if(len_trim(apath)==0)then
 		mpfile = trim(flowpath) // mpfile
+      endif
+      
+    case('ADVANCED_FILE')
+      backspace(77)
+      read(77,*) cardname, advfile
+      call fileparts(advfile,apath,aname,aext)
+      if(len_trim(apath)==0)then
+        advfile = trim(flowpath) // advfile
       endif
 
     case('2D_MODE')
@@ -1019,169 +1030,162 @@
     use diag_def
     use comvarbl
     use solv_def, only: asolv
-    use rol_def, only: rolflux
-    use cms_def, only: noptset
+    use rol_def,  only: rolflux
+    use cms_def,  only: noptset
+    use tool_def, only: vstrlz
     implicit none
     integer :: i,iunit(2)
 
-111 format(' ',A)
-222 format(' ',A,A)    
-342 format(' ',A,F5.2,A)
-353 format(' ',A,F6.3,A)
-163 format(' ',A,F8.3,A)
-133 format(' ',A,F13.3,A)
-345 format(' ',A,F8.5)
-787 format(' ',A,1x,A)
-788 format(' ',A,1x,A,A)
-799 format(' ',A,1pe9.2)
-845 format(' ',A,F7.3,A)    
+111  format(' ',A)
+222  format(' ',A,T40,A)    
+342  format(' ',A,T40,F0.2,A)
+353  format(' ',A,T40,F0.3,A)
+354  format(' ',A,T40,A,A)    !Added for vstrlz function results
+345  format(' ',A,T40,F0.5)
+787  format(' ',A,T40,1x,A)
+788  format(' ',A,T40,1x,A,A)
+800  format(' ',A,T40,1pe10.3,A)    
+801  format(' ',A,T40,I0)
+5431 format(' ','    Simulation Start Time: 'T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
     
+!Note: There is no float format for a leading zero if value is <1.  
+!  I am using the function 'vstrlz' to convert to a string for some of those cases.
+     
     iunit = (/6, dgunit/)
-    
     open(dgunit,file=dgfile,access='append') 
     
     do i=1,2	
       write(iunit(i),*)		
-	  write(iunit(i),111)            'Hydrodynamics'  
-	  !write(iunit(i),*)		
-      write(iunit(i),111)            '  Water Properties:'
-      write(iunit(i),'(A,F8.2,A)')   '     Temperature:             ',watertemp,' deg C'
+	  write(iunit(i),111)       'Hydrodynamics'  
+      write(iunit(i),111)       '  Water Properties:'
+      write(iunit(i),342)       '    Temperature:',watertemp,' deg C'
       if(idensit>0 .or. iviscos==2)then
-        write(iunit(i),'(A,F8.2,A)') '     Salinity:                ',watersalt,' ppt'
-        write(iunit(i),111)        '      Note: Used for constant viscosity and density if not specified'
+        write(iunit(i),342)     '    Salinity:',watersalt,' ppt'
       endif
-      write(iunit(i),'(A,F9.2,A)')   '     Density:                  ',rhow,' kg/m^3'
-      write(iunit(i),'(A,1pe11.3,A)')'     Kinematic Viscosity:      ',viscos,' m^2/s'
-	  write(iunit(i),111)            '  Timing'
-5431  format('    Simulation Start Time:      ',I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
-	  write(iunit(i),5431)  iyr,imo,iday,ihr,imin,isec
-	  write(iunit(i),'(A,F9.3,A)')   '     Hydrodynamic time step:    ',dtime,' sec'
-      if(nfsch==0)then    !Implicit Only
-        write(iunit(i),*)            '        Note: Same time step for sediment, morphology change and salinity'
-      endif
-	  write(iunit(i),'(A,F11.3,A)')  '     Simulation Duration:      ',tmax,' hours'
-      write(iunit(i),'(A,F10.3,A)')  '     Ramp Duration:            ',rampdur,' hours'    
+      write(iunit(i),342)       '    Density:',rhow,' kg/m^3'
+      write(iunit(i),354)       '    Kinematic Viscosity: ',vstrlz(viscos,'(1pe10.3)'),' m^2/s'
+	  write(iunit(i),111)       '  Timing'
+	  write(iunit(i),5431)      iyr,imo,iday,ihr,imin,isec
+	  write(iunit(i),354)       '    Hydrodynamic time step: ',vstrlz(dtime,'(f0.3)'),' sec'
+	  write(iunit(i),354)       '    Simulation Duration: ',vstrlz(tmax,'(f0.3)'),' hours'
+      write(iunit(i),354)       '    Ramp Duration: ',vstrlz(rampdur,'(f0.3)'),' hours'    
 
       !write(iunit(i),*)	
-	  write(iunit(i),111)	         '  Wetting and Drying'
+	  write(iunit(i),111)	    '  Wetting and Drying'
 #ifdef DEV_MODE
-      write(iunit(i),'(A,1pe11.3,A)')'     Minimum Depth:           ',hmin,' m'
+      write(iunit(i),354)       '    Minimum Depth: ',vstrlz(hmin,'(1pe10.3)'),' m'
 #endif
-	  write(iunit(i),163)            '    Drying Depth:            ',hdry,' m'	
+	  write(iunit(i),354)       '    Drying Depth: ',vstrlz(hdry,'(f0.3)'),' m'	
       if(ponding)then
-	    write(iunit(i),111)          '    Water Ponding:              ON'
+	    write(iunit(i),222)     '    Water Ponding: ','ON'
       else
-	    write(iunit(i),111)          '    Water Ponding:              OFF'
+	    write(iunit(i),222)     '    Water Ponding: ','OFF'
       endif
       if(narrowchannels)then
-	    write(iunit(i),111)          '    Narrow Channels:            ON'
-        write(iunit(i),163)          '    One-cell Drying Depth: ',hdry1,' m'	
-        write(iunit(i),163)          '    Two-cell Drying Depth: ',hdry2,' m'	
+	    write(iunit(i),222)     '    Narrow Channels: ','ON'
+        write(iunit(i),354)     '    One-cell Drying Depth: ',vstrlz(hdry1,'(f0.3)'),' m'	
+        write(iunit(i),354)     '    Two-cell Drying Depth: ',vstrlz(hdry2,'(f0.3)'),' m'	
       else
-	    write(iunit(i),111)          '    Narrow Channels:            OFF'
+	    write(iunit(i),222)     '    Narrow Channels:','OFF'
       endif  
       
       if(noptset>=3)then
-	    !write(iunit(i),*)      
 	    if(waveflux)then
-	      write(iunit(i),111)        '  Wave Mass Flux:               ON'
+	      write(iunit(i),222)   '  Wave Mass Flux:','ON'
 	      if(rolflux)then
-	        write(iunit(i),111)      '    Roller Mass Flux:           ON'
+	        write(iunit(i),222) '  Roller Mass Flux:','ON'
 	      else
-	        write(iunit(i),111)      '    Roller Mass Flux:           OFF'  
+	        write(iunit(i),222) '  Roller Mass Flux:','OFF'  
 	      endif
 	    else
-	      write(iunit(i),111)        '  Wave Mass Flux:               OFF'
+	      write(iunit(i),222)   '  Wave Mass Flux:','OFF'
 	    endif
       endif
     
-	  !write(iunit(i),*)   
       if(icoriolisplane==1)then
-	    write(iunit(i),222)             '  Coriolis Approximation:       F-PLANE'  
-        write(iunit(i),'(A,F8.3,A)')    '     Average Latitude:         ',avg_lat,' deg'
-	    write(iunit(i),'(A,1pe11.3,A)') '     Constant Value:           ',fcoriolis,' 1/s'
+	    write(iunit(i),222) '  Coriolis Approximation:','F-PLANE'  
+        write(iunit(i),354) '    Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
+	    write(iunit(i),354) '    Constant Value:',vstrlz(fcoriolis,'(1pe10.3)'),' 1/s'
 	  else
-	    write(iunit(i),222)             '  Coriolis Approximation:       BETA-PLANE'
-        write(iunit(i),'(A,F8.3,A)')    '     Average Latitude:         ',avg_lat,' deg'
-	    write(iunit(i),'(A,1pe12.3,A)') '     Central Value:            ',fcoriolis,' 1/s'
+	    write(iunit(i),222) '  Coriolis Approximation:','BETA-PLANE'
+        write(iunit(i),354) '    Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
+	    write(iunit(i),354) '    Central Value:',vstrlz(fcoriolis,'(1pe10.3)'),' 1/s'
 	  endif
     
-	  !write(iunit(i),*)
-	  write(iunit(i),222)           '  Turbulence Model:             ',trim(aturb(mturbul))
-	  write(iunit(i),111)           '    Coefficients'
-      write(iunit(i),'(A,1pe10.3)') '     Constant:                  ',cviscon
+	  write(iunit(i),222)   '  Turbulence Model:',trim(aturb(mturbul))
+	  write(iunit(i),111)   '    Coefficients'
+      write(iunit(i),354)   '    Constant:',vstrlz(cviscon,'(1pe10.3)')
       if(mturbul>=2)then
-        write(iunit(i),'(A,F6.3)')  '     Current Bottom Shear:      ',cvisbot
+        write(iunit(i),354) '    Current Bottom Shear:',vstrlz(cvisbot,'(f0.3)')
       endif  
       if(mturbul>=3)then
-        write(iunit(i),'(A,F6.3)')  '     Current Horizontal Shear:  ',cvishor  
+        write(iunit(i),354) '    Current Horizontal Shear: ',vstrlz(cvishor,'(f0.3)')
       endif  
       if(noptset>=3)then
-        write(iunit(i),'(A,F6.3)')  '     Wave Bottom Shear:         ',cviswav
-        write(iunit(i),'(A,F6.3)')  '     Wave Breaking:             ',cviswavbrk		                          
+        write(iunit(i),354) '    Wave Bottom Shear:',vstrlz(cviswav,'(f0.3)')
+        write(iunit(i),354) '    Wave Breaking:',vstrlz(cviswavbrk,'(f0.3)')
 	  endif	
 	
-	  !write(iunit(i),*)
-      write(iunit(i),111)          '   Numerical Methods'
+      write(iunit(i),111)   '  Numerical Methods'
       if(nfsch==0)then !Implicit
-	    write(iunit(i),111)        '   Solution Scheme:            IMPLICIT'
+	    write(iunit(i),222) '    Solution Scheme:','IMPLICIT'
 	    if(dtime<1.0)then !Check time step
           write(iunit(i),*)     
-          write(iunit(i),*)        'WARNING: Extremely small time step for implicit scheme'
+          write(iunit(i),111) '      WARNING: Extremely small time step for implicit scheme'
         endif
 #ifdef DEV_MODE
         if(pred_corr)then
-          write(iunit(i),111)      '    Predictor-Corrector Scheme: ON'
+          write(iunit(i),222) '    Predictor-Corrector Scheme:','ON'
         else
-          write(iunit(i),111)      '    Predictor-Corrector Scheme: OFF'    
+          write(iunit(i),222) '    Predictor-Corrector Scheme:','OFF'
         endif
 #endif
         if(ntsch==1)then
-	      write(iunit(i),111)      '    Temporal Scheme:            TWO-LEVEL'
+	      write(iunit(i),222) '    Temporal Scheme:','TWO-LEVEL'
 	    else
-	      write(iunit(i),111)      '    Temporal Scheme:            THREE-LEVEL'
-          write(iunit(i),'(A,F6.3)')'     Implicit Weighting Factor: ',wtsch  
+	      write(iunit(i),222) '    Temporal Scheme:','THREE-LEVEL'
+          write(iunit(i),354) '    Implicit Weighting Factor:',vstrlz(wtsch,'(f0.3)')
 	    endif
-        write(iunit(i),222)        '    Advection Scheme:           ',trim(advsc(ndsch))
-        write(iunit(i),222)        '    Matrix Solver:              ',trim(asolv(nsolv))
+        write(iunit(i),222)   '    Advection Scheme:',trim(advsc(ndsch))
+        write(iunit(i),222)   '    Matrix Solver:',trim(asolv(nsolv))
         if(nsolv==2 .or. nsolv==5)then
-          write(iunit(i),'(A,F9.3)') '     SOR Constant:           ',relaxsor	
+          write(iunit(i),354) '    SOR Constant:',vstrlz(relaxsor,'(f0.3)')
         endif   
-        write(iunit(i),'(A,I3)')   '     Maximum Solver Iterations:  ',maxit
-        write(iunit(i),'(A,I3)')   '     Pressure Iterations:        ',nswp(1)
-        write(iunit(i),'(A,I3)')   '     Velocity Iterations:        ',nswp(2)   
-        write(iunit(i),'(A,F6.3)') '     Pressure Relaxation:        ',relax(8)
-        write(iunit(i),'(A,F6.3)') '     Velocity Relaxation:        ',relax(2)
-        write(iunit(i),799)        '    Pressure Max Residual:      ',rmommaxp
-        write(iunit(i),799)        '    Pressure Target Residual:   ',rmomtargetp
-        write(iunit(i),799)        '    Pressure Min Residual:      ',rmomminp
-        write(iunit(i),799)        '    Velocity Max Residual:      ',rmommaxuv
-        write(iunit(i),799)        '    Velocity Target Residual:   ',rmomtargetuv
-        write(iunit(i),799)        '    Velocity Min Residual:      ',rmomminuv
-        write(iunit(i),845)        '    Water Level Max:            ',presmax*gravinv, ' m'
-        write(iunit(i),845)        '    Velocity Max:               ',velmax,' m/s'
+        write(iunit(i),801)   '    Maximum Solver Iterations:',maxit
+        write(iunit(i),801)   '    Pressure Iterations:',nswp(1)
+        write(iunit(i),801)   '    Velocity Iterations:',nswp(2)   
+        write(iunit(i),354)   '    Pressure Relaxation:',vstrlz(relax(8),'(f0.3)')
+        write(iunit(i),354)   '    Velocity Relaxation:',vstrlz(relax(2),'(f0.3)')
+        write(iunit(i),354)   '    Pressure Max Residual:',vstrlz(rmommaxp,'(1pe10.3)')
+        write(iunit(i),354)   '    Pressure Target Residual:',vstrlz(rmomtargetp,'(1pe10.3)')
+        write(iunit(i),354)   '    Pressure Min Residual:',vstrlz(rmomminp,'(1pe10.3)')
+        write(iunit(i),354)   '    Velocity Max Residual:',vstrlz(rmommaxuv,'(1pe10.3)')
+        write(iunit(i),354)   '    Velocity Target Residual:',vstrlz(rmomtargetuv,'(1pe10.3)')
+        write(iunit(i),354)   '    Velocity Min Residual:',vstrlz(rmomminuv,'(1pe10.3)')
+        write(iunit(i),354)   '    Water Level Max:',vstrlz(presmax*gravinv,'(f0.3)'), ' m'
+        write(iunit(i),354)   '    Velocity Max:',vstrlz(velmax,'(f0.3)'),' m/s'
         if(skewcor)then
-          write(iunit(i),111)      '    Skewness Correction:        ON'
+          write(iunit(i),222) '    Skewness Correction:','ON'
         else
-          write(iunit(i),111)      '    Skewness Correction:        OFF'
+          write(iunit(i),222) '    Skewness Correction:','OFF'
         endif
-	    write(iunit(i),222)        '    Slope Limiter:              ',trim(alim(nlim))
-        write(iunit(i),222)        '    Spatial Derivative Scheme:  ',trim(ader(nder))
+	    write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
+        write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
 	  elseif(nfsch==1)then    !Explicit
-	    write(iunit(i),111)        '   Solution Scheme:             EXPLICIT'
-	    write(iunit(i),'(A,I3)')   '     Order Accuracy:            ',norder
-	    write(iunit(i),222)        '    Riemann Solver:             ',trim(ariem(nriem))
-        write(iunit(i),222)        '    Spatial Derivative Scheme:  ',trim(ader(nder))
-        write(iunit(i),222)        '    Slope Limiter:              ',trim(alim(nlim))
-      else !if(nfsch==1)then    !Semi-implicit  
-        write(iunit(i),111)        '   Solution Scheme:             SEMI_IMPLICIT'
-	    write(iunit(i),'(A,I3)')   '     Order Accuracy:            ',norder  
-        write(iunit(i),222)        '    Riemann Solver:             ',trim(ariem(nriem))
-        write(iunit(i),222)        '    Spatial Derivative Scheme:  ',trim(ader(nder))
-        write(iunit(i),222)        '    Slope Limiter:              ',trim(alim(nlim))
+	    write(iunit(i),222)   '  Solution Scheme:','EXPLICIT'
+	    write(iunit(i),801)   '    Order Accuracy:',norder
+	    write(iunit(i),222)   '    Riemann Solver:',trim(ariem(nriem))
+        write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
+        write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
+      else !if(nfsch==1)then  !Semi-implicit  
+        write(iunit(i),222)   '  Solution Scheme:','SEMI_IMPLICIT'
+	    write(iunit(i),801)   '    Order Accuracy:',norder  
+        write(iunit(i),222)   '    Riemann Solver:',trim(ariem(nriem))
+        write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
+        write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
       endif   
-      write(iunit(i),'(A,I3)')     '     Maximum Number of Threads:  ',nthrmax
-      write(iunit(i),'(A,I3)')     '     Number of Threads used:     ',nthr     
+      write(iunit(i),801)     '    Maximum Number of Threads:',nthrmax
+      write(iunit(i),801)     '    Number of Threads used:',nthr     
     enddo
                 
     close(dgunit)		    

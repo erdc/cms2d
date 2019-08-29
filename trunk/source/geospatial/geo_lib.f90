@@ -869,6 +869,7 @@ contains
     integer,     intent(in) :: ncalc
     real(ikind), intent(inout) :: xpts(ncalc),ypts(ncalc)
     type(projection) :: projfrom,projto    
+    
     !Internal variables
     integer :: grid_zone(2)
     integer :: ICODE(3),I,WGS_84_DATUM

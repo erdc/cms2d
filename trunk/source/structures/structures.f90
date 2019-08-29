@@ -1243,70 +1243,44 @@
     implicit none
     integer :: i,icv,iunit(2),ierr
  
-111 format(' ',A)
-241 format(' ',A,I8)
-352 format(' ',A,F8.3,A)
+111 format(' ',A,T40,A)
+241 format(' ',A,T40,I0)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
     do i=1,2
-      !write(iunit(i),*)  
+      write(iunit(i),*)  
       if(numtidegate+numweir+numculvert>0)then
-        write(iunit(i),111) '  Structures:                   ON'
+        write(iunit(i),111) '  Structures:','ON'
       else
-        write(iunit(i),111) '  Structures:                   OFF'  
+        write(iunit(i),111) '  Structures:','OFF'  
         cycle
       endif
       !---- Tidal Gate --------------------
       if(numtidegate>0)then
-        write(iunit(i),241) '    Number of Tidal Gates: ',numtidegate
+        write(iunit(i),241) '    Number of Tidal Gates:',numtidegate
       endif
 
       !---- Weir --------------------
       if(numweir>0)then
-        write(iunit(i),241) '    Number of Weirs: ',numweir
+        write(iunit(i),241) '    Number of Weirs:',numweir
       endif
 
 656 format(I5,I5,2x,2F7.3,1x,1F7.2,1x,2F6.2,4F5.2,F6.3,2x,F6.3,2x,2F7.2)
       !---- Culvert --------------------
       if(numculvert>0)then
-        write(iunit(i),241)       '    Number of Culverts:     ',numculvert
-        write(iunit(i),111)       '                                                 Loss Coefficients                     Outflow' 
-        write(iunit(i),111)       '                                     Elevation    Exit      Entry     Friction         Angles ' 
-        write(iunit(i),111)       '    ID, Type, Width, Height, Length, Bay, Sea,  Bay, Sea, Bay, Sea, Darcy, Mannings, Bay,    Sea' 
+        write(iunit(i),241) '    Number of Culverts:',numculvert
+        write(iunit(i),111) '                                                 Loss Coefficients                     Outflow' 
+        write(iunit(i),111) '                                     Elevation    Exit      Entry     Friction         Angles ' 
+        write(iunit(i),111) '    ID, Type, Width, Height, Length, Bay, Sea,  Bay, Sea, Bay, Sea, Darcy, Mannings, Bay,    Sea' 
         do icv=1,numculvert
-          write(iunit(i),656,iostat=ierr)     icv,iculverttype(icv),&
-             culvertwidth(icv),culvertheight(icv),culvertlength(icv),&
-                                  culvertelevbay(icv),culvertelevsea(icv),&
-                                 cvheadlossbayexit(icv),cvheadlossbayentr(icv),&
-                                 cvheadlossseaexit(icv),cvheadlossseaentr(icv),&
-                                 culvertfrict(icv),culvertmann(icv),&
-                                 angleculvertbay(icv)*rad2deg,angleculvertsea(icv)*rad2deg
-          !write(iunit(i),241)     '    Culvert ID:             ',icv  
-          !if(iculverttype(icv)==1)then
-          !  write(iunit(i),111) '       Type:                     CIRCULAR'
-          !  write(iunit(i),352) '       Radius:                ',culvertrad(icv),' m'
-          !elseif(iculverttype(icv)==2)then
-          !  write(iunit(i),111) '       Culvert Type:             BOX'  
-          !endif
-          !write(iunit(i),352)   '       Width:                 ',culvertwidth(icv),' m'
-          !write(iunit(i),352)   '       Height:                ',culvertheight(icv),' m'
-          !write(iunit(i),352)   '       Length:                ',culvertlength(icv),' m'
-          !write(iunit(i),352)   '       Bay Elevation:         ',culvertelevbay(icv),' m'
-          !write(iunit(i),352)   '       Sea Elevation:         ',culvertelevsea(icv),' m'
-          !write(iunit(i),352)   '       Bay Entry Head Loss Coefficient: ',cvheadlossbayentr(icv)
-          !write(iunit(i),352)   '       Bay Exit Head Loss Coefficient:  ',cvheadlossbayexit(icv)
-          !write(iunit(i),352)   '       Sea Entry Head Loss Coefficient: ',cvheadlossseaentr(icv)
-          !write(iunit(i),352)   '       Sea Exit Head Loss Coefficient:  ',cvheadlossseaexit(icv)
-          !write(iunit(i),352)   '       Darcy Friction Factor:  ',culvertfrict(icv),' '
-          !write(iunit(i),352)   '       Mannings N Coefficient: ',culvertmann(icv),' '
-          !write(iunit(i),352)   '       Bay Outflow Angle:      ',angleculvertbay(icv)*rad2deg,' deg'
-          !write(iunit(i),352)   '       Sea Outflow Angle:      ',angleculvertsea(icv)*rad2deg,' deg'
-          !if(iculvertflap(icv)==1)then
-          !  write(iunit(i),111) '       Flap Gate:               ON'  
-          !else
-          !  write(iunit(i),111) '       Flap Gate:               OFF'  
-          !endif
+          write(iunit(i),656,iostat=ierr) icv,iculverttype(icv),      &
+             culvertwidth(icv),culvertheight(icv),culvertlength(icv), &
+             culvertelevbay(icv),culvertelevsea(icv),                 &
+             cvheadlossbayexit(icv),cvheadlossbayentr(icv),           &
+             cvheadlossseaexit(icv),cvheadlossseaentr(icv),           &
+             culvertfrict(icv),culvertmann(icv),                      &
+             angleculvertbay(icv)*rad2deg,angleculvertsea(icv)*rad2deg
         enddo
       endif
     enddo

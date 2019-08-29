@@ -25,5 +25,8 @@ trunk/Intel_vs2013/x64/Debug/
 /trunk/Intel_vs2013/x64/Release/BuildLog.htm
 *genmod.f90
 *.pdb
-*.htm
+/trunk/Intel_vs2013/Debug/BuildLog.htm
+*.exe.intermediate.manifest
+/trunk/Intel_vs2013/Debug/CMS2D_V5p1.exe
 /trunk/Intel_vs2013/x64/Debug/BuildLog.htm
+*.exe

@@ -275,38 +275,38 @@
     
     iunit=(/6,dgunit/)
         
-111 format(' ',A,A)    
-778 format(' ',A,F8.5)
+111 format(' ',A,T40,A)    
+778 format(' ',A,T40,F0.5)
     
     open(dgunit,file=dgfile,access='append') 
     write(*,*)
     
     do i=1,2
       write(iunit(i),*)
-      write(iunit(i),111)   'Quasi-3D Mode:                  ON  (BETA)'
+      write(iunit(i),111)   'Quasi-3D Mode:','ON (BETA)'
       if(q3d_to_flow)then
-        write(iunit(i),111) '  Q3D to 2DH Interaction:       ON'
+        write(iunit(i),111) '  Q3D to 2DH Interaction:','ON'
       else
-        write(iunit(i),111) '  Q3D to 2DH Interaction:       OFF'
+        write(iunit(i),111) '  Q3D to 2DH Interaction:','OFF'
       endif
       if(wavcurint)then
-        write(iunit(i),111) '  Wave-current Interaction:     ON'
-        write(iunit(i),778) '    Factor:                    ',facwci
+        write(iunit(i),111) '  Wave-current Interaction:','ON'
+        write(iunit(i),778) '    Factor:',facwci
       else
-        write(iunit(i),111) '  Wave-current Interaction:     OFF'
+        write(iunit(i),111) '  Wave-current Interaction:','OFF'
       endif
 	  write(iunit(i),111)   '  Profiles:'
-	  write(iunit(i),111)   '    Streamwise:                 ',astreampro(istreampro)
-	  write(iunit(i),111)   '    Transverse:                 ',atranspro(itranspro)
-	  write(iunit(i),111)   '    Surf zone:                  ',asurfpro(isurfpro)	
+	  write(iunit(i),111)   '    Streamwise:',astreampro(istreampro)
+	  write(iunit(i),111)   '    Transverse:',atranspro(itranspro)
+	  write(iunit(i),111)   '    Surf zone:',asurfpro(isurfpro)	
       write(iunit(i),111)   '  Vertical Viscosity: '
-      write(iunit(i),778)   '    Base Value:                ',visvcon
-      write(iunit(i),778)   '    Surface Stress Factor:     ',verteff
-      write(iunit(i),778)   '    Shear Coefficient:         ',cvisvv
-      write(iunit(i),778)   '    Celerity Coefficient:      ',cvisvhc
+      write(iunit(i),778)   '    Base Value:',visvcon
+      write(iunit(i),778)   '    Surface Stress Factor:',verteff
+      write(iunit(i),778)   '    Shear Coefficient:',cvisvv
+      write(iunit(i),778)   '    Celerity Coefficient:',cvisvhc
       if(isurfpro==2)then
-        write(iunit(i),778) '    Slope Base Value:          ',visvslp0
-        write(iunit(i),778) '    Slope Coefficient:         ',cvisvslpmu
+        write(iunit(i),778) '    Slope Base Value:',visvslp0
+        write(iunit(i),778) '    Slope Coefficient:',cvisvslpmu
       endif
 	enddo
 	
