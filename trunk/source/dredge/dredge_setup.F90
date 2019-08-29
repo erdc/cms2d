@@ -558,34 +558,25 @@
     integer i,j,k,m, iunit(2)
     real(ikind) :: sum
 
-111 format(' ',A)
-222 format(' ',A,1x,A)    
-!342 format(' ',A,F5.2,A)
-!353 format(' ',A,F6.3,A)
-!163 format(' ',A,F8.3,A)
-133 format(' ',A,F10.2)
-134 format(' ',A,F12.4)
-135 format(' ',A,I0,2(1x,F10.2))
-345 format(' ',A,F8.5)
-445 format(' ',A,1x,I0)    
-787 format(' ',A,1x,A)
-!788 format(' ',A,1x,A,A)
-!799 format(' ',A,1pe9.2)
-!845 format(' ',A,F7.3,A)    
-
+222 format(' ',A,T40,A)    
+133 format(' ',A,T40,F0.2)
+134 format(' ',A,T40,F0.4)
+135 format(' ',A,T40,I0,2(2x,F0.2))
+345 format(' ',A,T40,F0.5)
+445 format(' ',A,T40,I0)    
 
     iunit = (/6,dgunit/)
     open(dgunit,file=dgfile,access='append')   !Moved dredge setup output the CMS-type diagnostic output file.  MEB 03/18/2019
     
     do i=1,2
       write(iunit(i),*) 
-	  write(iunit(i),111)            'Dredge Module Setup'  
-      write(iunit(i),445)            '  Number of dredge ops       ',ndredge_operations
+	  write(iunit(i),222)       'Dredge Module Setup'  
+      write(iunit(i),445)       '  Number of dredge ops:',ndredge_operations
       do j=1,ndredge_operations
-        write(iunit(i),787)          '  Operation name:              ',trim(dredge_operations(j)%name)
-        write(iunit(i),787)          '    Source area file:          ',trim(dredge_operations(j)%DredgeSourceAreaFile)
-        write(iunit(i),787)          '    Source area path:          ',trim(dredge_operations(j)%DredgeSourceAreaPath) 
-        write(iunit(i),445)          '    Number source area cells:  ',dredge_operations(j)%NumDredgeAreaCells
+        write(iunit(i),222)     '  Operation name:',trim(dredge_operations(j)%name)
+        write(iunit(i),222)     '    Source area file:',trim(dredge_operations(j)%DredgeSourceAreaFile)
+        write(iunit(i),222)     '    Source area path:',trim(dredge_operations(j)%DredgeSourceAreaPath) 
+        write(iunit(i),445)     '    Number source area cells:',dredge_operations(j)%NumDredgeAreaCells
       
         sum=0.0
         do k=1,dredge_operations(j)%NumDredgeAreaCells
@@ -593,58 +584,58 @@
         enddo
         sum=sum/dredge_operations(j)%NumDredgeAreaCells
 
-        write(iunit(i),345)          '    Average dredge depth:      ',sum
-        write(iunit(i),134)          '    Dredge rate (m^3/sec):     ',dredge_operations(j)%Rate
+        write(iunit(i),345)     '    Average dredge depth:',sum
+        write(iunit(i),134)     '    Dredge rate (m^3/sec):',dredge_operations(j)%Rate
          
         if(dredge_operations(j)%dredge_approach == 2) then
-          write(iunit(i),222)        '    Dredge Start method:       ','SPECIFIED CELL'          !Previously this was 'CELL'.  I changed to make terminology consistent between interface and CMS input.
-          write(iunit(i),445)        '    Starting cell number:      ',dredge_operations(j)%dredge_start_cell
+          write(iunit(i),222)   '    Dredge Start method:','SPECIFIED CELL'          !Previously this was 'CELL'.  I changed to make terminology consistent between interface and CMS input.
+          write(iunit(i),445)   '    Starting cell number:',dredge_operations(j)%dredge_start_cell
         elseif(dredge_operations(j)%dredge_approach == 1) then
-          write(iunit(i),222)        '    Dredge Start method:       ','SHALLOW'                 !Previously this was 'UNIFORM', but that is not a Dredge Option, it is a Placement Option.
+          write(iunit(i),222)   '    Dredge Start method:','SHALLOW'                 !Previously this was 'UNIFORM', but that is not a Dredge Option, it is a Placement Option.
         endif
             
         if(dredge_operations(j)%Trigger_Approach == 1) then
-          write(iunit(i),222)        '    Trigger method:            ','DEPTH'
-          write(iunit(i),345)        '    Trigger depth (m):         ',dredge_operations(j)%Trigger_Depth
+          write(iunit(i),222)   '    Trigger method:','DEPTH'
+          write(iunit(i),345)   '    Trigger depth (m):',dredge_operations(j)%Trigger_Depth
         elseif(dredge_operations(j)%Trigger_Approach == 2) then
-          write(iunit(i),222)        '    Trigger method:            ','VOLUME'
-          write(iunit(i),345)        '    Trigger volume (m^3):      ',dredge_operations(j)%Trigger_Vol
+          write(iunit(i),222)   '    Trigger method:','VOLUME'
+          write(iunit(i),345)   '    Trigger volume (m^3):',dredge_operations(j)%Trigger_Vol
         elseif(dredge_operations(j)%Trigger_Approach == 2) then
-          write(iunit(i),222)        '    Trigger method:            ','PERCENT'
-          write(iunit(i),345)        '    Trigger percent (%):       ',dredge_operations(j)%Trigger_percentage  
+          write(iunit(i),222)   '    Trigger method:','PERCENT'
+          write(iunit(i),345)   '    Trigger percent (%):',dredge_operations(j)%Trigger_percentage  
         elseif(dredge_operations(j)%Trigger_Approach == 4) then
-          write(iunit(i),222)        '    Trigger method:            ','TIME PERIODS'
-          write(iunit(i),445)        '    Num. trigger time periods: ',dredge_operations(j)%num_trigger_intervals
+          write(iunit(i),222)   '    Trigger method:','TIME PERIODS'
+          write(iunit(i),445)   '    Num. trigger time periods:',dredge_operations(j)%num_trigger_intervals
           do m=1,dredge_operations(j)%num_trigger_intervals
-            write(iunit(i),135)      '      Times (hrs):             ',m,dredge_operations(j)%Trigger_Start(m),dredge_operations(j)%Trigger_Finish(m)
+            write(iunit(i),135) '      Times (hrs):',m,dredge_operations(j)%Trigger_Start(m),dredge_operations(j)%Trigger_Finish(m)
           enddo
         endif
          
         if(dredge_operations(j)%PAMETHOD == 1) then    
-          write(iunit(i),222)        '    Distribution method        ','SEQUENTIAL'
+          write(iunit(i),222)   '    Distribution method:','SEQUENTIAL'
         elseif(dredge_operations(j)%PAMETHOD == 2) then           
-          write(iunit(i),222)        '    Distribution method        ','PERCENT'
+          write(iunit(i),222)   '    Distribution method:','PERCENT'
         endif
             
-        write(iunit(i),445)          '    Number of placement areas: ',dredge_operations(j)%NumPlacementAreas 
+        write(iunit(i),445)     '    Number of placement areas:',dredge_operations(j)%NumPlacementAreas 
         do k=1,dredge_operations(j)%NumPlacementAreas
-          write(iunit(i),445)        '      Placement Area (PA)',k
-          write(iunit(i),787)        '        Placement area file:   ',trim(dredge_operations(j)%DredgePlaceAreaFile(k))
-          write(iunit(i),787)        '        Placement area path:   ',trim(dredge_operations(j)%DredgePlaceAreaPath(k))
-          write(iunit(i),445)        '        Number PA cells:       ',dredge_operations(j)%NumPlacementAreaCells(k)
+          write(iunit(i),445)   '      Placement Area (PA)',k
+          write(iunit(i),222)   '        Placement area file:',trim(dredge_operations(j)%DredgePlaceAreaFile(k))
+          write(iunit(i),222)   '        Placement area path:',trim(dredge_operations(j)%DredgePlaceAreaPath(k))
+          write(iunit(i),445)   '        Number PA cells:',dredge_operations(j)%NumPlacementAreaCells(k)
           
           if(dredge_operations(j)%Placement_Approach(k) == 1) then
-            write(iunit(i),222)      '        Placement method:      ','UNIFORM'
+            write(iunit(i),222) '        Placement method:','UNIFORM'
           elseif(dredge_operations(j)%Placement_Approach(k) == 2) then
-            write(iunit(i),222)      '        Placement method:      ','SPECIFIED CELL'
-            write(iunit(i),445)      '        Starting cell:         ',dredge_operations(j)%Placement_start_cell(k) 
+            write(iunit(i),222) '        Placement method:','SPECIFIED CELL'
+            write(iunit(i),445) '        Starting cell:',dredge_operations(j)%Placement_start_cell(k) 
           endif        
           if(dredge_operations(j)%Placement_Depth(k) > -999.0) &
-            write(iunit(i),133)      '        Depth Limit (m):       ',dredge_operations(j)%Placement_Depth(k)
+            write(iunit(i),133) '        Depth Limit (m):',dredge_operations(j)%Placement_Depth(k)
           if(dredge_operations(j)%Placement_thickness(k) > -999.0) & 
-            write(iunit(i),133)      '        Thickness Limit (m):   ',dredge_operations(j)%Placement_thickness(k)
+            write(iunit(i),133) '        Thickness Limit (m):',dredge_operations(j)%Placement_thickness(k)
           if(dredge_operations(j)%PAMETHOD == 2) & 
-            write(iunit(i),133)      '        Distribution % (%)     ',dredge_operations(j)%DredgePlacementAllocation(k)
+            write(iunit(i),133) '        Distribution %:',dredge_operations(j)%DredgePlacementAllocation(k)
         enddo         
       enddo
     enddo  

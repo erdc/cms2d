@@ -2414,6 +2414,7 @@ d1: do i=1,ntf
     use out_def,   only: write_ascii_input,outprefix
     use prec_def,  only: ikind
     use met_def,   only: wndspeed,wnddirection
+    use tool_def,  only: vstrlz
     
     implicit none
     integer :: iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar,ibnd
@@ -2425,15 +2426,15 @@ d1: do i=1,ntf
     character(len=200) :: apath,aname,astring,bidoutfile
     character(len=10) :: aext
 
-141 format(' ',A,A)
-241 format(' ',A,I2)
-261 format(' ',A,I6)
-342 format(' ',A,F5.2,A)
-352 format(' ',A,F7.3)
-353 format(' ',A,F7.3,A)
-163 format(' ',A,F8.3,A)
-374 format(' ',A,E10.3)
-784 format(' ',A,2(1x,E9.2))
+141 format(' ',A,T40,A)
+241 format(' ',A,T40,I0)
+261 format(' ',A,T40,I0)
+262 format(' ',A,T40,I4.4)
+341 format(' ',A,T40,A,A)     !Added for vstrlz function results
+342 format(' ',A,T40,F0.2,A)
+353 format(' ',A,T40,F0.3,A)
+374 format(' ',A,T40,E10.3)
+784 format(' ',A,T40,2(1x,E9.2))
 450 format('      ID  Name   Speed     Amplitude  Phase   Nodal Factor  Eq. Arg.')
 451 format('                [deg/hr]      [m]     [deg]       [-]        [deg]')   
 440 format('      ID    Speed     Amplitude  Phase')
@@ -2441,9 +2442,9 @@ d1: do i=1,ntf
 452 format(' ',6x,I2,2x,A6,F9.5,2x,F7.3,2x,F8.2,3x,F7.3,4x,F8.2)
 442 format(' ',6x,I2,2x,F9.5,2x,F7.3,2x,F8.2)
 453 format(' ',6x,I2,2x,A6,F9.5,1x,3(F6.3),1x,3(F6.1),1x,F6.3,2x,F6.2)
-541 format('      Summary of Water Level Constitients:')
-531 format('      Summary of U-Velocity Constitients:')
-532 format('      Summary of V-Velocity Constitients:')
+541 format('      Summary of Water Level Constituents:')
+531 format('      Summary of U-Velocity Constituents:')
+532 format('      Summary of V-Velocity Constituents:')
 542 format('                             Amplitude            Phase         Nodal     Eq.')
 543 format('                  Speed         [m]               [deg]         Factor   Arg.')
 533 format('                  Speed        [m/s]              [deg]         Factor   Arg.')
@@ -2453,22 +2454,22 @@ d1: do i=1,ntf
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
     do i=1,2
-      !write(iunit(i),*)  
-      write(iunit(i),'(A)') '  Boundaries'
+      write(iunit(i),*)  
+      write(iunit(i),141)     '  Boundaries'
       if(veldamp>1.0e-6)then
         write(iunit(i),374)   '    Open WSE Boundary Velocity Damping: ',veldamp
       endif
       !--- River/Flux BC (Type 1=Q) -------------------------------      
       do iriv=1,nQstr
-        write(iunit(i),241) '    Flux Boundary:              ',iriv
-        write(iunit(i),141) '      Cellstring File:          ',trim(Q_str(iriv)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(Q_str(iriv)%bidpath)
-        write(iunit(i),241) '      Boundary Cells:           ',Q_str(iriv)%ncells
+        write(iunit(i),241)   '    Flux Boundary:',iriv
+        write(iunit(i),141)   '      Cellstring File:',trim(Q_str(iriv)%bidfile)        
+        write(iunit(i),141)   '      Cellstring Path:',trim(Q_str(iriv)%bidpath)
+        write(iunit(i),241)   '      Boundary Cells:',Q_str(iriv)%ncells
         if(Q_str(iriv)%ifluxmode==2)then
-          write(iunit(i),'(A)') '      Flux Time Series:           '
-          write(iunit(i),141)   '        Data File:              ',trim(Q_str(iriv)%fluxfile)
-          write(iunit(i),141)   '        Data Path:              ',trim(Q_str(iriv)%fluxpath)
-          write(iunit(i),261)   '        Number of Points:       ',Q_str(iriv)%ntimes
+          write(iunit(i),141) '      Flux Time Series:'
+          write(iunit(i),141) '        Data File:',trim(Q_str(iriv)%fluxfile)
+          write(iunit(i),141) '        Data Path:',trim(Q_str(iriv)%fluxpath)
+          write(iunit(i),261) '        Number of Points:',Q_str(iriv)%ntimes
         elseif(Q_str(iriv)%ifluxmode==1)then
           !Unit Conversion, ifluxunits = 0-m^3/s/cell, 1-m^3/s/boundary, 2-ft^3/s/boundary, default = 0      
           if(Q_str(iriv)%ifluxunits==0)then
@@ -2478,19 +2479,19 @@ d1: do i=1,ntf
           else
             val = 1.0  !m^3/s/boundary 
           endif  
-          write(iunit(i),374) '      Flux Value:               ',Q_str(iriv)%qfluxconst/val
+          write(iunit(i),374) '      Flux Value:',Q_str(iriv)%qfluxconst/val
         elseif(Q_str(iriv)%ifluxmode==3)then
-          write(iunit(i),'(A)') '      Stage-Flux Curve:           '
-          write(iunit(i),141)   '        Data File:              ',trim(Q_str(iriv)%fluxfile)
-          write(iunit(i),141)   '        Data Path:              ',trim(Q_str(iriv)%fluxpath)
-          write(iunit(i),261)   '        Number of Points:       ',Q_str(iriv)%ntimes
+          write(iunit(i),141) '      Stage-Flux Curve:'
+          write(iunit(i),141) '        Data File:',trim(Q_str(iriv)%fluxfile)
+          write(iunit(i),141) '        Data Path:',trim(Q_str(iriv)%fluxpath)
+          write(iunit(i),261) '        Number of Points:',Q_str(iriv)%ntimes
         endif
         if(Q_str(iriv)%ifluxunits==0)then
-          write(iunit(i),'(A)') '      Flux Input Units:          m^3/s/cell'
+          write(iunit(i),141) '      Flux Input Units:','m^3/s/cell'
         elseif(Q_str(iriv)%ifluxunits==1)then
-          write(iunit(i),'(A)') '      Flux Input Units:          m^3/s/boundary'  
+          write(iunit(i),141) '      Flux Input Units:','m^3/s/boundary'  
         else
-          write(iunit(i),'(A)') '      Flux Input Units:          ft^3/s/boundary'  
+          write(iunit(i),141) '      Flux Input Units:','ft^3/s/boundary'  
         endif
         ang = 90.0 - Q_str(iriv)%angle - azimuth_fl
         if(ang<0.0)then
@@ -2498,29 +2499,29 @@ d1: do i=1,ntf
         elseif(ang>360.0)then
           ang = ang - 360.0
         endif
-        write(iunit(i),163) '      Direction:                ',ang,' deg'
-        write(iunit(i),163) '      Conveyance Coefficient:   ',Q_str(iriv)%cmvel
+        write(iunit(i),353)   '      Direction:',ang,' deg'
+        write(iunit(i),353)   '      Conveyance Coefficient:',Q_str(iriv)%cmvel
       enddo !i-str
     
       !--- Tidal/Harmonic BC (Type 2=TH) ------------------------------------------------
       do iwse=1,nTHstr
         if(TH_str(iwse)%istidal)then
           if(len_trim(TH_str(iwse)%station)>0)then
-            write(iunit(i),241)     '      Tidal Station Boundary:   ',iwse  
-            write(iunit(i),'(A,A)') '      Station Name:             ',trim(TH_str(iwse)%station)
+            write(iunit(i),241) '    Tidal Station Boundary:',iwse  
+            write(iunit(i),141) '      Station Name:',trim(TH_str(iwse)%station)
           else
-            write(iunit(i),241) '    Tidal Boundary:            ',iwse
+            write(iunit(i),241) '    Tidal Boundary:',iwse
           endif
         else
-          write(iunit(i),241) '    Harmonic Boundary:         ',iwse  
+          write(iunit(i),241)   '    Harmonic Boundary:',iwse  
         endif
-        write(iunit(i),141) '      Cellstring File:          ',trim(TH_str(iwse)%bidfile)    
-        write(iunit(i),141) '      Cellstring Path:          ',trim(TH_str(iwse)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:         ',TH_str(iwse)%ncells
+        write(iunit(i),141)     '      Cellstring File:',trim(TH_str(iwse)%bidfile)    
+        write(iunit(i),141)     '      Cellstring Path:',trim(TH_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',TH_str(iwse)%ncells
         if (TH_str(iwse)%ioffsetmode.eq.1) then
-          write(iunit(i),353) '      Water Level/Sea Level Change Offset:     ',TH_str(iwse)%wseoffset,' m'
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',vstrlz(TH_str(iwse)%wseoffset,'(f0.3)'),' m'
         elseif (TH_str(iwse)%ioffsetmode.eq.2)then
-          write(iunit(i),141) '      Water Level/Sea Level Change Curve File: ',trim(TH_str(iwse)%offsetfile)    
+          write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(TH_str(iwse)%offsetfile)    
         endif
         
         if(abs(TH_str(iwse)%dwsex)>1.0e-9 .or. abs(TH_str(iwse)%dwsey)>1.0e-9)then
@@ -2530,7 +2531,7 @@ d1: do i=1,ntf
           valy=-TH_str(iwse)%dwsex*sinang+TH_str(iwse)%dwsey*cosang
           if(abs(valx)<1.0e-10) valx=0.0
           if(abs(valy)<1.0e-10) valy=0.0  
-          write(iunit(i),784) '      Water Level Gradients:  ',TH_str(iwse)%dwsex,TH_str(iwse)%dwsey
+          write(iunit(i),784)   '      Water Level Gradients:',TH_str(iwse)%dwsex,TH_str(iwse)%dwsey
         endif 
         if(TH_str(iwse)%angle>-900)then
           ang = 90.0 - TH_str(iwse)%angle*rad2deg - azimuth_fl
@@ -2539,10 +2540,10 @@ d1: do i=1,ntf
           elseif(ang>360.0)then
             ang = ang - 360.0
           endif
-          write(iunit(i),353) '      Incident Direction:       ',ang,' deg'
+          write(iunit(i),353)   '      Incident Direction:',ang,' deg'
         endif               
         if(TH_str(iwse)%istidal)then
-          write(iunit(i),261)   '      Number of Constituents:   ',TH_str(iwse)%ntc
+          write(iunit(i),261)   '      Number of Constituents:',TH_str(iwse)%ntc
           write(iunit(i),450)
           write(iunit(i),451)
           do k=1,TH_str(iwse)%ntc
@@ -2551,7 +2552,7 @@ d1: do i=1,ntf
                TH_str(iwse)%f(k),TH_str(iwse)%vu(k)*rad2deg
           enddo
         else
-          write(iunit(i),261)   '      Number of Harmonics:   ',TH_str(iwse)%ntc
+          write(iunit(i),261)   '      Number of Harmonics:',TH_str(iwse)%ntc
           write(iunit(i),440)
           write(iunit(i),441)
           do k=1,TH_str(iwse)%ntc
@@ -2566,35 +2567,35 @@ d1: do i=1,ntf
           valy=-TH_str(iwse)%dwsex*sinang+TH_str(iwse)%dwsey*cosang
           if(abs(valx)<1.0e-10) valx=0.0
           if(abs(valy)<1.0e-10) valy=0.0
-          write(iunit(i),784) '      Water Level Gradients:   ',valx,valy
+          write(iunit(i),784)   '      Water Level Gradients:',valx,valy
         endif
         if(TH_str(iwse)%wseadjust)then
-          write(iunit(i),141)      '      WSE Forcing Correction:   ON'
+          write(iunit(i),141)   '      WSE Forcing Correction:','ON'
         else
-          write(iunit(i),141)      '      WSE Forcing Correction:   OFF'
+          write(iunit(i),141)   '      WSE Forcing Correction:','OFF'
         endif
       enddo !i-str   
 
       !--- Single Water Level BC (Type 3=H) -------------------------------------------
       do iwse=1,nHstr
-        write(iunit(i),241) '    Single Water Level Boundary: ',iwse
-        write(iunit(i),141) '      Cellstring File:          ',trim(H_str(iwse)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(H_str(iwse)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:           ',H_str(iwse)%ncells
+        write(iunit(i),241)     '    Single Water Level Boundary:',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(H_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(H_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',H_str(iwse)%ncells
         if(len_trim(H_str(iwse)%wsefile)>0)then
-          write(iunit(i),141)   '      Water Level Data File:    ',trim(H_str(iwse)%wsefile)
+          write(iunit(i),141)   '      Water Level Data File:',trim(H_str(iwse)%wsefile)
           if(len_trim(H_str(iwse)%wsepath)>0)then
-            write(iunit(i),141) '      Water Level Data Path:    ',trim(H_str(iwse)%wsepath)
+            write(iunit(i),141) '      Water Level Data Path:',trim(H_str(iwse)%wsepath)
           endif
-          write(iunit(i),261) '      Water Level Data Points: ',H_str(iwse)%ntimes  
-          write(iunit(i),261) '      Temporal Interp Order:',H_str(iwse)%nti
+          write(iunit(i),261)   '      Water Level Data Points:',H_str(iwse)%ntimes  
+          write(iunit(i),261)   '      Temporal Interp Order:',H_str(iwse)%nti
         else !Constant
-          write(iunit(i),353) '      Water Level Value:      ',H_str(iwse)%wseconst,' m'  
+          write(iunit(i),353)   '      Water Level Value:',H_str(iwse)%wseconst,' m'  
         endif  
         if (H_str(iwse)%ioffsetmode.eq.1) then
-          write(iunit(i),353) '      Water Level/Sea Level Change Offset:     ',H_str(iwse)%wseoffset,' m'
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',vstrlz(H_str(iwse)%wseoffset,'(f0.3)'),' m'
         elseif (H_str(iwse)%ioffsetmode.eq.2)then
-          write(iunit(i),141) '      Water Level/Sea Level Change Curve File: ',trim(H_str(iwse)%offsetfile)    
+          write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(H_str(iwse)%offsetfile)    
         endif
         if(abs(H_str(iwse)%dwsex)>1.0e-9 .or. abs(H_str(iwse)%dwsey)>1.0e-9)then
           !Rotate gradients to the global coordinate system
@@ -2603,176 +2604,176 @@ d1: do i=1,ntf
           valy=-H_str(iwse)%dwsex*sinang+H_str(iwse)%dwsey*cosang
           if(abs(valx)<1.0e-10) valx=0.0
           if(abs(valy)<1.0e-10) valy=0.0
-          write(iunit(i),784) '      Water Level Gradients:   ',valx,valy
+          write(iunit(i),784)   '      Water Level Gradients:',valx,valy
         endif
         if(H_str(iwse)%wseadjust)then
-          write(iunit(i),141)      '      WSE Forcing Correction:   ON'
+          write(iunit(i),141)   '      WSE Forcing Correction:','ON'
         else
-          write(iunit(i),141)      '      WSE Forcing Correction:   OFF'
+          write(iunit(i),141)   '      WSE Forcing Correction:','OFF'
         endif
       enddo !iwse
 
       !--- Multiple Water Level BC (Type 4=MH) -----------------------------------------------
       do iwse=1,nMHstr
-        write(iunit(i),241)   '    Multiple Water Level Boundary: ',iwse
-        write(iunit(i),141)   '      Cellstring File:          ',trim(MH_str(iwse)%bidfile)        
-        write(iunit(i),141)   '      Cellstring Path:          ',trim(MH_str(iwse)%bidpath)
-        write(iunit(i),261)   '      Boundary Cells:           ',MH_str(iwse)%ncells
-        write(iunit(i),'(A)') '      WSE Data:'
-        write(iunit(i),141)   '        File:                   ',trim(MH_str(iwse)%wsefile)
+        write(iunit(i),241)     '    Multiple Water Level Boundary: ',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(MH_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(MH_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',MH_str(iwse)%ncells
+        write(iunit(i),141)     '      WSE Data:'
+        write(iunit(i),141)     '        File:',trim(MH_str(iwse)%wsefile)
         if(len_trim(MH_str(iwse)%wsepath)>0)then
-          write(iunit(i),141) '        Path:                   ',trim(MH_str(iwse)%wsepath)
+          write(iunit(i),141)   '        Path:',trim(MH_str(iwse)%wsepath)
         endif
-        write(iunit(i),261)   '        Data Points:            ',MH_str(iwse)%ntimes
-        write(iunit(i),'(A)') '        Temporal Smothing:'
-        write(iunit(i),261)   '          Iterations:          ',MH_str(iwse)%nsi
-        write(iunit(i),261)   '          Width:               ',MH_str(iwse)%nsw
-        write(iunit(i),'(A)') '        Spatial Smothing:'
-        write(iunit(i),261)   '          Iterations:          ',MH_str(iwse)%nssi
-        write(iunit(i),261)   '          Width:               ',MH_str(iwse)%nssw
+        write(iunit(i),261)     '        Data Points:',MH_str(iwse)%ntimes
+        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nsi
+        write(iunit(i),261)     '          Width:',MH_str(iwse)%nsw
+        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nssi
+        write(iunit(i),261)     '          Width:',MH_str(iwse)%nssw
       enddo !i-str
 	
       !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------------------
       do iwse=1,nMHVstr
-        write(iunit(i),241)   '    Multiple Water Level and Velocity Boundary: ',iwse
-        write(iunit(i),141)   '      Cellstring File:          ',trim(MHV_str(iwse)%bidfile)        
-        write(iunit(i),141)   '      Cellstring Path:          ',trim(MHV_str(iwse)%bidpath)
-        write(iunit(i),261)   '      Boundary Cells:           ',MHV_str(iwse)%ncells
-        write(iunit(i),'(A)') '      WSE Data:'
-        write(iunit(i),141)   '        File:                   ',trim(MHV_str(iwse)%wsefile)
+        write(iunit(i),241)     '    Multiple Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(MHV_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(MHV_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',MHV_str(iwse)%ncells
+        write(iunit(i),141)     '      WSE Data:'
+        write(iunit(i),141)     '        File:',trim(MHV_str(iwse)%wsefile)
         if(len_trim(MHV_str(iwse)%wsepath)>0)then
-          write(iunit(i),141) '        Path:                   ',trim(MHV_str(iwse)%wsepath)
+          write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%wsepath)
         endif
-        write(iunit(i),261)   '        Time Steps:           ',MHV_str(iwse)%ntimeswse
-        write(iunit(i),'(A)') '        Temporal Smothing:'
-        write(iunit(i),261)   '          Iterations:       ',MHV_str(iwse)%nsiwse
-        write(iunit(i),261)   '          Width:            ',MHV_str(iwse)%nswwse
-        write(iunit(i),'(A)') '        Spatial Smothing:'
-        write(iunit(i),261)   '          Iterations:       ',MHV_str(iwse)%nssiwse
-        write(iunit(i),261)   '          Width:            ',MHV_str(iwse)%nsswwse
-        write(iunit(i),'(A)') '      Velocity Data:'
-        write(iunit(i),141)   '        File:                   ',trim(MHV_str(iwse)%velfile)
+        write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimeswse
+        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsiwse
+        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswwse
+        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssiwse
+        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswwse
+        write(iunit(i),141)     '      Velocity Data:'
+        write(iunit(i),141)     '        File:',trim(MHV_str(iwse)%velfile)
         if(len_trim(MHV_str(iwse)%velpath)>0)then
-          write(iunit(i),141) '        Path:                   ',trim(MHV_str(iwse)%velpath)
+          write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%velpath)
         endif
-        write(iunit(i),261)   '        Time Steps:           ',MHV_str(iwse)%ntimesvel
-        write(iunit(i),'(A)') '        Temporal Smothing:'
-        write(iunit(i),261)   '          Iterations:       ',MHV_str(iwse)%nsivel
-        write(iunit(i),261)   '          Width:            ',MHV_str(iwse)%nswvel
-        write(iunit(i),'(A)') '        Spatial Smothing:'
-        write(iunit(i),261)   '          Iterations:       ',MHV_str(iwse)%nssivel
-        write(iunit(i),261)   '          Width:            ',MHV_str(iwse)%nsswvel
+        write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimesvel
+        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsivel
+        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswvel
+        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssivel
+        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswvel
       enddo !i-str
 
       !--- Cross-shore BC (Type 6=CS) -------------------------------------------------
       do icsh=1,nCSstr    
-        write(iunit(i),241) '    Cross-shore Boundary:       ',icsh
-        write(iunit(i),141) '      Cellstring File:          ',trim(CS_str(icsh)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(CS_str(icsh)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:           ',CS_str(iwse)%ncells
+        write(iunit(i),241)     '    Cross-shore Boundary:',icsh
+        write(iunit(i),141)     '      Cellstring File:',trim(CS_str(icsh)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(CS_str(icsh)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',CS_str(iwse)%ncells
       enddo !icsh
     
       !--- Nested Water Level BC (Type 7=NH) ---------------------------------------------
       do iwse=1,nNHstr
-        write(iunit(i),241) '    Nested Water Level Boundary: ',iwse
-        write(iunit(i),141) '      Cellstring File:          ',trim(NH_str(iwse)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(NH_str(iwse)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:           ',NH_str(iwse)%ncells
+        write(iunit(i),241)     '    Nested Water Level Boundary: ',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(NH_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(NH_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',NH_str(iwse)%ncells
         idpar=NH_str(iwse)%idpar
-        write(iunit(i),241)   '      Parent Simulation:       ',idpar
-        write(iunit(i),141)   '        Control File:           ',trim(ParSim(idpar)%ctlfilepar)
-        write(iunit(i),141)   '        Grid File:              ',trim(ParSim(idpar)%grdfilepar)
-        write(iunit(i),'(A)') '        WSE Input: '
-        write(iunit(i),141)   '          File:                 ',trim(ParSim(idpar)%wsefilepar)
+        write(iunit(i),241)     '      Parent Simulation:',idpar
+        write(iunit(i),141)     '        Control File:',trim(ParSim(idpar)%ctlfilepar)
+        write(iunit(i),141)     '        Grid File:',trim(ParSim(idpar)%grdfilepar)
+        write(iunit(i),141)     '        WSE Input:'
+        write(iunit(i),141)     '          File:',trim(ParSim(idpar)%wsefilepar)
         if(len_trim(ParSim(idpar)%wsepathpar)>0)then
-          write(iunit(i),141) '          Path:                 ',trim(ParSim(idpar)%wsepathpar)   
+          write(iunit(i),141)   '          Path:',trim(ParSim(idpar)%wsepathpar)   
         endif
         if(NH_str(iwse)%wseout)then
-          write(iunit(i),'(A)') '        WSE Output:             ON'  
+          write(iunit(i),141)   '        WSE Output:','ON'  
           call fileparts(NH_str(iwse)%wsefile,apath,aname,aext) 
           astring = trim(aname) // '.' // trim(aext)
-          write(iunit(i),141)   '          File:                 ',trim(astring)
+          write(iunit(i),141)   '          File:',trim(astring)
           if(len_trim(apath)>0)then
-            write(iunit(i),141) '          Path:                 ',trim(apath)
+            write(iunit(i),141) '          Path:',trim(apath)
           endif
         else
-          write(iunit(i),'(A)') '        WSE Output:             OFF'  
+          write(iunit(i),141)   '        WSE Output:','OFF'  
         endif        
         call julian2calendar(ParSim(idpar)%tjuldaypar,iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar)
 	    write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
-        write(iunit(i),'(A)')        '        Horizontal Projection'
-        write(iunit(i),'(A,A)')      '          Coordinate System:    ',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
+        write(iunit(i),141)     '        Horizontal Projection'
+        write(iunit(i),141)     '          Coordinate System:',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
         if(ParSim(idpar)%projpar%iHorizCoordSystem/=22)then
-          write(iunit(i),'(A,A)')    '          Datum:                ',trim(aHorizDatum(ParSim(idpar)%projpar%iHorizDatum))
+          write(iunit(i),141)   '          Datum:',trim(aHorizDatum(ParSim(idpar)%projpar%iHorizDatum))
           if(ParSim(idpar)%projpar%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '          Zone:                 ',ParSim(idpar)%projpar%iHorizZone
+            write(iunit(i),262) '          Zone:',ParSim(idpar)%projpar%iHorizZone
           endif
         endif      
-	    write(iunit(i),'(A,A)')      '          Units:                ',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
+	    write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
       enddo !iwse-str
     
       !--- Nested Water Level and Velocity BC (Type 8=NHV) -----------------------------------
       do iwse=1,nNHVstr
-        write(iunit(i),241) '    Nested Water Level and Velocity Boundary: ',iwse
-        write(iunit(i),141) '      Cellstring File:          ',trim(NHV_str(iwse)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(NHV_str(iwse)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:           ',NHV_str(iwse)%ncells
+        write(iunit(i),241)     '    Nested Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(NHV_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(NHV_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',NHV_str(iwse)%ncells
         idpar = NHV_str(iwse)%idpar
-        write(iunit(i),241)   '      Parent Simulation:       ',idpar
-        write(iunit(i),141)   '        Control File:           ',trim(ParSim(idpar)%ctlfilepar)
-        write(iunit(i),141)   '        Grid File:              ',trim(ParSim(idpar)%grdfilepar)
-        write(iunit(i),'(A)') '        WSE Iput: '
-        write(iunit(i),141)   '          File:                 ',trim(ParSim(idpar)%wsefilepar)
+        write(iunit(i),241)     '      Parent Simulation:       ',idpar
+        write(iunit(i),141)     '        Control File:',trim(ParSim(idpar)%ctlfilepar)
+        write(iunit(i),141)     '        Grid File:',trim(ParSim(idpar)%grdfilepar)
+        write(iunit(i),141)     '        WSE Iput:'
+        write(iunit(i),141)     '          File:',trim(ParSim(idpar)%wsefilepar)
         if(len_trim(ParSim(idpar)%wsepathpar)>0)then
-          write(iunit(i),141) '          Path:                 ',trim(ParSim(idpar)%wsepathpar)
+          write(iunit(i),141)   '          Path:',trim(ParSim(idpar)%wsepathpar)
         endif
-        write(iunit(i),'(A)') '        Vel Input: '
-        write(iunit(i),141)   '          File:                 ',trim(ParSim(idpar)%velfilepar)
+        write(iunit(i),141)     '        Vel Input: '
+        write(iunit(i),141)     '          File:',trim(ParSim(idpar)%velfilepar)
         if(len_trim(ParSim(idpar)%velpathpar)>0)then
-          write(iunit(i),141) '          Path:                 ',trim(ParSim(idpar)%velpathpar)   
+          write(iunit(i),141)   '          Path:',trim(ParSim(idpar)%velpathpar)   
         endif
         if(NHV_str(iwse)%wseout)then
-          write(iunit(i),'(A)') '        WSE Output:             ON'  
+          write(iunit(i),141)   '        WSE Output:','ON'  
           call fileparts(NHV_str(iwse)%wsefile,apath,aname,aext) 
           astring = trim(aname) // '.' // trim(aext)
-          write(iunit(i),141)   '          File:                 ',trim(astring)
+          write(iunit(i),141)   '          File:',trim(astring)
           if(len_trim(apath)>0)then
-            write(iunit(i),141) '          Path:                 ',trim(apath)
+            write(iunit(i),141) '          Path:',trim(apath)
           endif
         else
-          write(iunit(i),'(A)') '        WSE Output:             OFF'
+          write(iunit(i),141)   '        WSE Output:','OFF'
         endif
         if(NHV_str(iwse)%velout)then
-          write(iunit(i),'(A)') '        Velocity Output:        ON'
+          write(iunit(i),141)   '        Velocity Output:','ON'
           call fileparts(NHV_str(iwse)%velfile,apath,aname,aext)           
           astring = trim(aname) // '.' // trim(aext)
-          write(iunit(i),141)   '          File:                 ',trim(astring)
+          write(iunit(i),141)   '          File:',trim(astring)
           if(len_trim(apath)>0)then
-            write(iunit(i),141) '          Path:                 ',trim(apath)
+            write(iunit(i),141) '          Path:',trim(apath)
           endif
         else
-          write(iunit(i),'(A)') '        Velocity Output:        OFF'  
+          write(iunit(i),141)   '        Velocity Output:','OFF'  
         endif
         call julian2calendar(ParSim(idpar)%tjuldaypar,iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar)
 	    write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
-        write(iunit(i),'(A)')      '        Horizontal Projection'
-        write(iunit(i),'(A,A)')    '          Coordinate System:    ',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
+        write(iunit(i),141)     '        Horizontal Projection'
+        write(iunit(i),141)     '          Coordinate System:',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
         if(ParSim(idpar)%projpar%iHorizCoordSystem/=22)then
-          write(iunit(i),'(A,A)')    '          Datum:                ',trim(aHorizDatum(ParSim(idpar)%projpar%iHorizDatum))
+          write(iunit(i),141)   '          Datum:',trim(aHorizDatum(ParSim(idpar)%projpar%iHorizDatum))
           if(ParSim(idpar)%projpar%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '          Zone:                 ',ParSim(idpar)%projpar%iHorizZone
+            write(iunit(i),262) '          Zone:',ParSim(idpar)%projpar%iHorizZone
           endif
         endif      
-	    write(iunit(i),'(A,A)')      '          Units:                ',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
+	    write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
       enddo !iwse-str
     
       !--- Tidal Database WSE BC (Type 9=NTH) -----------------------------------
       do iwse=1,nNTHstr
-        write(iunit(i),241) '    Tidal Database Water Level Boundary: ',iwse
-        write(iunit(i),141) '      Cellstring File:          ',trim(NTH_str(iwse)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(NTH_str(iwse)%bidpath)        
-        write(iunit(i),261) '      Boundary Cells:           ',NTH_str(iwse)%ncells
-        write(iunit(i),241) '      Number of Constituents:   ',NTH_str(iwse)%ntc
+        write(iunit(i),241)     '    Tidal Database Water Level Boundary:',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(NTH_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(NTH_str(iwse)%bidpath)        
+        write(iunit(i),261)     '      Boundary Cells:',NTH_str(iwse)%ncells
+        write(iunit(i),241)     '      Number of Constituents:',NTH_str(iwse)%ntc
         ntc = NTH_str(iwse)%ntc
         write(iunit(i),541)
         write(iunit(i),542)
@@ -2791,33 +2792,33 @@ d1: do i=1,ntf
                 ampmin,ampmax,ampavg,phasemin,phasemax,phaseavg,NTH_str(iwse)%f(k),NTH_str(iwse)%vu(k)*rad2deg
         enddo
         if(NTH_str(iwse)%wseadjust)then
-          write(iunit(i),141)      '      WSE Forcing Correction:   ON'
+          write(iunit(i),141)   '      WSE Forcing Correction:','ON'
         else
-          write(iunit(i),141)      '      WSE Forcing Correction:   OFF'
+          write(iunit(i),141)   '      WSE Forcing Correction:','OFF'
         endif
         if(NTH_str(iwse)%wseout)then
-          write(iunit(i),'(A)')    '        WSE Output:             ON'  
+          write(iunit(i),141)   '      WSE Output:','ON'  
         else
-          write(iunit(i),'(A)')    '        WSE Output:             OFF'  
+          write(iunit(i),141)   '      WSE Output:','OFF'  
         endif
-        write(iunit(i),'(A)')      '      Tidal Database Horizontal Projection'
-        write(iunit(i),'(A,A)')    '        Coordinate System:      ',trim(aHorizCoordSystem(NTH_str(iwse)%projtdb%iHorizCoordSystem))     
+        write(iunit(i),141)     '      Tidal Database Horizontal Projection'
+        write(iunit(i),141)     '        Coordinate System:',trim(aHorizCoordSystem(NTH_str(iwse)%projtdb%iHorizCoordSystem))     
         if(NTH_str(iwse)%projtdb%iHorizCoordSystem/=22)then
-          write(iunit(i),'(A,A)')  '        Datum:                  ',trim(aHorizDatum(NTH_str(iwse)%projtdb%iHorizDatum))
+          write(iunit(i),141)   '        Datum:',trim(aHorizDatum(NTH_str(iwse)%projtdb%iHorizDatum))
           if(NTH_str(iwse)%projtdb%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '        Zone:                   ',NTH_str(iwse)%projtdb%iHorizZone
+            write(iunit(i),262) '        Zone:',NTH_str(iwse)%projtdb%iHorizZone
           endif
         endif      
-	    write(iunit(i),'(A,A)')    '        Units:                  ',trim(aHorizUnits(NTH_str(iwse)%projtdb%iHorizUnits))
+	    write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTH_str(iwse)%projtdb%iHorizUnits))
       enddo !iwse-str
     
       !--- Tidal Database WSE and Velocity BC (Type 10=NTHV) --------------------------------
       do iwse=1,nNTHVstr
-        write(iunit(i),241) '    Tidal Database Water Level and Velocity Boundary: ',iwse
-        write(iunit(i),141) '      Cellstring File:          ',trim(NTHV_str(iwse)%bidfile)        
-        write(iunit(i),141) '      Cellstring Path:          ',trim(NTHV_str(iwse)%bidpath)
-        write(iunit(i),261) '      Boundary Cells:           ',NTHV_str(iwse)%ncells
-        write(iunit(i),241) '      Number of Constituents:   ',NTHV_str(iwse)%ntc
+        write(iunit(i),241)     '    Tidal Database Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),141)     '      Cellstring File:',trim(NTHV_str(iwse)%bidfile)        
+        write(iunit(i),141)     '      Cellstring Path:',trim(NTHV_str(iwse)%bidpath)
+        write(iunit(i),261)     '      Boundary Cells:',NTHV_str(iwse)%ncells
+        write(iunit(i),241)     '      Number of Constituents:',NTHV_str(iwse)%ntc
         ntc = NTHV_str(iwse)%ntc
         write(iunit(i),541)
         write(iunit(i),542)
@@ -2870,29 +2871,29 @@ d1: do i=1,ntf
                 NTHV_str(iwse)%f(k),NTHV_str(iwse)%vu(k)*rad2deg
         enddo
         if(NTHV_str(iwse)%wseadjust)then
-          write(iunit(i),141)      '      WSE Forcing Correction:   ON'
+          write(iunit(i),141)   '      WSE Forcing Correction:','ON'
         else
-          write(iunit(i),141)      '      WSE Forcing Correction:   OFF'
+          write(iunit(i),141)   '      WSE Forcing Correction:','OFF'
         endif
         if(NTHV_str(iwse)%wseout)then
-          write(iunit(i),'(A)')      '        WSE Output:               ON'  
+          write(iunit(i),141)   '      WSE Output:','ON'  
         else
-          write(iunit(i),'(A)')      '        WSE Output:               OFF'  
+          write(iunit(i),141)   '      WSE Output:','OFF'  
         endif
         if(NTHV_str(iwse)%velout)then
-          write(iunit(i),'(A)')      '        Velocity Output:          ON'
+          write(iunit(i),141)   '      Velocity Output:','ON'
         else
-          write(iunit(i),'(A)')      '        Velocity Output:          OFF'  
+          write(iunit(i),141)   '      Velocity Output:','OFF'  
         endif
-        write(iunit(i),'(A)')        '      Tidal Database Horizontal Projection'
-        write(iunit(i),'(A,A)')      '        Coordinate System:      ',trim(aHorizCoordSystem(NTHV_str(iwse)%projtdb%iHorizCoordSystem))     
+        write(iunit(i),141)     '      Tidal Database Horizontal Projection'
+        write(iunit(i),141)     '        Coordinate System:',trim(aHorizCoordSystem(NTHV_str(iwse)%projtdb%iHorizCoordSystem))     
         if(NTHV_str(iwse)%projtdb%iHorizCoordSystem/=22)then
-          write(iunit(i),'(A,A)')    '        Datum:                  ',trim(aHorizDatum(NTHV_str(iwse)%projtdb%iHorizDatum))
+          write(iunit(i),141)   '        Datum:',trim(aHorizDatum(NTHV_str(iwse)%projtdb%iHorizDatum))
           if(NTHV_str(iwse)%projtdb%iHorizZone/=0)then
-            write(iunit(i),'(A,I4)') '        Zone:                   ',NTHV_str(iwse)%projtdb%iHorizZone
+            write(iunit(i),262) '        Zone:',NTHV_str(iwse)%projtdb%iHorizZone
           endif
         endif      
-	    write(iunit(i),'(A,A)')      '        Units:                  ',trim(aHorizUnits(NTHV_str(iwse)%projtdb%iHorizUnits))
+	    write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTHV_str(iwse)%projtdb%iHorizUnits))
       enddo !iwse-str
     enddo
     

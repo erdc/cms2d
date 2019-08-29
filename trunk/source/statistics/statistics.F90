@@ -422,10 +422,10 @@
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
     do i=1,2
-      if(flowstats) call stat_print_group(iunit(i),'Flow',tflowstat) !Flow
-      if(sedstats)  call stat_print_group(iunit(i),'Sediment',tsedstat) !Sediment
-      if(salstats)  call stat_print_group(iunit(i),'Salinity',tsalstat) !Salinity
-      if(wavestats)  call stat_print_group(iunit(i),'Waves',twavstat) !Waves
+      if(flowstats) call stat_print_group(iunit(i),'Flow'    ,tflowstat)    
+      if(sedstats)  call stat_print_group(iunit(i),'Sediment',tsedstat) 
+      if(salstats)  call stat_print_group(iunit(i),'Salinity',tsalstat) 
+      if(wavestats) call stat_print_group(iunit(i),'Waves'   ,twavstat)    
     enddo    
     close(dgunit)
     
@@ -436,17 +436,18 @@
 !---------------------------------------------------------------------
       use prec_def
       implicit none
-      integer :: iuniti,ierr
-      real(ikind) :: tgroupstat(3)
+      integer          :: iuniti,ierr
+      real(ikind)      :: tgroupstat(3)
       character(len=*) :: groupname
     
-451 format(A,F10.2,A)      
+451   format(' ',A,T40,F0.2,A)
+888   format(' ',A,T40,A)
       write(iuniti,*)	
-	  write(iuniti,'(A,A,A)')  ' ',trim(groupname),' Statistics:                ON'
-	  write(iuniti,451,iostat=ierr)    '   Starting at:                ',tgroupstat(1)/3600.0,' hrs'
-	  write(iuniti,451,iostat=ierr)    '   Ending at:                  ',tgroupstat(2)/3600.0,' hrs'
-      write(iuniti,451,iostat=ierr)    '   Duration:                   ',(tgroupstat(2)-tgroupstat(1))/3600.0,' hrs'
-      write(iuniti,451,iostat=ierr)    '   Update Interval:            ',tgroupstat(3)/3600.0,' hrs'
+	  write(iuniti,888) trim(groupname)//' Statistics:','ON'
+	  write(iuniti,451) '  Starting at:',tgroupstat(1)/3600.0,' hrs'
+	  write(iuniti,451) '  Ending at:',tgroupstat(2)/3600.0,' hrs'
+      write(iuniti,451) '  Duration:',(tgroupstat(2)-tgroupstat(1))/3600.0,' hrs'
+      write(iuniti,451) '  Update Interval:',tgroupstat(3)/3600.0,' hrs'
     
       return
       endsubroutine stat_print_group 

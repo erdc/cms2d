@@ -280,10 +280,9 @@ d1: do k=1,10
     implicit none
     integer :: i,iunit(2)
 
-787 format(' ',A,1x,A)
-153 format(' ',A,1x,F13.3)
-236 format(' ',A,1x,I3)
-888 format(' ',A)
+787 format(' ',A,T40,A)
+153 format(' ',A,T40,F0.3)
+236 format(' ',A,T40,I0)
     
     iunit = (/6,dgunit/)
     
@@ -291,18 +290,18 @@ d1: do k=1,10
     do i=1,2
       write(iunit(i),*)
       if(.not.heattrans)then
-        write(iunit(i),888)   'Temperature Transfer:           OFF'   
+        write(iunit(i),787)   'Temperature Transfer:','OFF'   
       else
-        write(iunit(i),888)   'Temperature Transfer:           ON'    
+        write(iunit(i),787)   'Temperature Transfer:','ON'    
         if(icheat==1)then
-          write(iunit(i),153) '  Initial Water Temperature    ',heatic
+          write(iunit(i),153) '  Initial Water Temperature:',heatic
         elseif(icheat==2)then
-          write(iunit(i),787) '  Initial Condition File:      ',trim(heatfile)
-          write(iunit(i),787) '  Initial Condition Dataset:   ',trim(heatpath)
+          write(iunit(i),787) '  Initial Condition File:',trim(heatfile)
+          write(iunit(i),787) '  Initial Condition Dataset:',trim(heatpath)
         else
-          write(iunit(i),787) '  Initial Condition Scatter:   ',trim(heatobsfile) 
+          write(iunit(i),787) '  Initial Condition Scatter:',trim(heatobsfile) 
         endif
-        write(iunit(i),236)   '  Temperature Max Iterations:  ',itermaxheat
+        write(iunit(i),236)   '  Temperature Max Iterations:',itermaxheat
       endif
     enddo
     close(dgunit)

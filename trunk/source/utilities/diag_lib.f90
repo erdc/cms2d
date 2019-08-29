@@ -186,8 +186,8 @@ contains
     logical :: dgopen
     
     iunit = (/6, dgunit/)  !Note: 6 is the screen
-111 format(A)
-222 format(A,A)    
+111 format(1x,A)
+222 format(1x,A,A)    
     inquire(file=dgfile,opened=dgopen)
     if(.not.dgopen) open(dgunit,file=dgfile,access='append') 
     do i=1,2
@@ -226,8 +226,8 @@ contains
     
     iunit = (/6, dgunit/) !Note: 6 is the screen
 
-111 format(A)
-222 format(A,A)
+111 format(1x,A)
+222 format(1x,A,A)
     inquire(file=dgfile,opened=dgopen)
     if(.not.dgopen) open(dgunit,file=dgfile,access='append') 
     do i=1,2
@@ -262,7 +262,7 @@ contains
     logical :: dgopen
     
     iunit = (/6, dgunit/)
-111 format(A) 
+111 format(1x,A) 
     inquire(file=dgfile,opened=dgopen)
     if(.not.dgopen) open(dgunit,file=dgfile,access='append') 
     do i=1,2

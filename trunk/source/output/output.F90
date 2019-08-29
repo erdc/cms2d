@@ -1352,121 +1352,116 @@
     character(len=200) :: apath,aname,astring
     character(len=10) :: aext
 
-787 format(' ',A,1x,A)    
-485 format(' ',A,F8.2,A)
-888 format(' ',A)    
-11  format(' ',A,A)
-234 format(' ',4x,A12,A40,'''',A,'''')
+787 format(' ',A,T40,A)    
+485 format(' ',A,T40,F0.2,A)
+262 format(' ',A,T40,I0)
 
     iunit = (/6,dgunit/)
     open(dgunit,file=dgfile,access='append')
     do i=1,2
       write(iunit(i),*)
-	  write(iunit(i),888)       'Global Output'
-      write(iunit(i),787)           '  Simulation Label:            ',trim(simlabel)
+	  write(iunit(i),787)       'Global Output'
+      write(iunit(i),787)       '  Simulation Label:',trim(simlabel)
       if(.not.write_xmdf_output) then
-        write(iunit(i),787)         '  Output Path:                 ASCII_Solutions/'
+        write(iunit(i),787)     '  Output Path:','ASCII_Solutions/'
       else
         if(len_trim(outpath)>0)then
-	      write(iunit(i),787)       '  Output Path:                 ',trim(outpath)
+	      write(iunit(i),787)   '  Output Path:',trim(outpath)
         endif
         call fileparts(outlist(1)%afile,apath,aname,aext)
         astring=trim(aname) // '.' // aext 	         
-        write(iunit(i),787)         '  Water Level File:            ',trim(astring)
+        write(iunit(i),787)     '  Water Level File:',trim(astring)
         call fileparts(outlist(2)%afile,apath,aname,aext)
         astring=trim(aname) // '.' // aext 	 
-        write(iunit(i),787)         '  Current Velocity File:       ',trim(astring)
+        write(iunit(i),787)     '  Current Velocity File:',trim(astring)
         if(outlist(3)%write_dat)then
           call fileparts(outlist(3)%afile,apath,aname,aext)
           astring=trim(aname) // '.' // aext 	
-          write(iunit(i),787)       '  Eddy Viscosity File:         ',trim(astring)
+          write(iunit(i),787)   '  Eddy Viscosity File:',trim(astring)
         endif
         if(sedtrans .or. saltrans)then
           call fileparts(outlist(9)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext
-          write(iunit(i),787)       '  Transport File:              ',trim(astring)
+          write(iunit(i),787)   '  Transport File:',trim(astring)
         endif   
         if(heattrans)then
           call fileparts(outlist(14)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext
-          write(iunit(i),787)       '  Temperature File:            ',trim(astring)
+          write(iunit(i),787)   '  Temperature File:',trim(astring)
         endif   
         if(sedtrans)then
           call fileparts(outlist(5)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext 	
-          write(iunit(i),787)       '  Morphology Change File:      ',trim(astring)
+          write(iunit(i),787)   '  Morphology Change File:',trim(astring)
         endif
         if(outlist(7)%write_dat)then
           call fileparts(outlist(7)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext 
-          write(iunit(i),787)       '  Wave File:                   ',trim(astring)
+          write(iunit(i),787)   '  Wave File:',trim(astring)
         endif
         if(outlist(8)%write_dat)then
           call fileparts(outlist(8)%afile,apath,aname,aext)
   	      astring=trim(aname) // '.' // aext 
-          write(iunit(i),787)       '  Meteorological File:         ',trim(astring)
+          write(iunit(i),787)   '  Meteorological File:',trim(astring)
         endif
         if(outlist(10)%write_dat)then
           call fileparts(outlist(10)%afile,apath,aname,aext)
   	      astring=trim(aname) // '.' // aext
-          write(iunit(i),787)       '  Bed Composition File:        ',trim(astring)
+          write(iunit(i),787)   '  Bed Composition File:',trim(astring)
         endif  
         if(outlist(13)%write_dat)then
           call fileparts(outlist(13)%afile,apath,aname,aext)
 	      astring=trim(aname) // '.' // aext
-          write(iunit(i),787)       '  Bed Friction/Roughness File: ',trim(astring)
+          write(iunit(i),787)   '  Bed Friction/Roughness File:',trim(astring)
         endif
         if(write_tecplot)then
-          write(iunit(i),787)       '  Tecplot Snapshot File:       ',trim(datfile)
+          write(iunit(i),787)   '  Tecplot Snapshot File:',trim(datfile)
         endif
         if(debug_mode)then
-          write(iunit(i),787)       '  Diagnostic File:             ',trim(dgoutfile)
+          write(iunit(i),787)   '  Diagnostic File:',trim(dgoutfile)
         endif      
 	  endif
       if(obs_cell)then
         !write(iunit(i),*)  
-        write(iunit(i),888)   'Observation Cells:           ON' 
+        write(iunit(i),787)     'Observation Cells:','ON' 
         if(obs(1)%active)then    
-          write(iunit(i),485) '  Time series increment:     ',obs(1)%time_inc,' sec'
+          write(iunit(i),485)   '  Time series increment:',obs(1)%time_inc,' sec'
         endif
         if(obs(2)%active)then    
-          write(iunit(i),485) '  Flow rate increment:       ',obs(2)%time_inc,' sec'
+          write(iunit(i),485)   '  Flow rate increment:',obs(2)%time_inc,' sec'
         endif
         if(obs(3)%active)then    
-          write(iunit(i),485) '  Transport increment:       ',obs(3)%time_inc,' sec'
+          write(iunit(i),485)   '  Transport increment:',obs(3)%time_inc,' sec'
         endif
         if(obs(4)%active)then
-          write(iunit(i),485) '  Bed increment:             ',obs(4)%time_inc,' sec'
+          write(iunit(i),485)   '  Bed increment:',obs(4)%time_inc,' sec'
         endif
       endif
+
+234   format(' ',4x,A12,A40,'''',A,'''')
+543   format(2x,I6,5x,A20,I6,6x,F12.3,8x,F12.3)
+      
       if(save_point)then
         write(iunit(i),*)
-        write(iunit(i),888)   'Save Points:                 ON'   
+        write(iunit(i),787)     'Save Points:','ON'   
         do k=1,ngroups
           if(.not.savept(k)%active) cycle
-          write(iunit(i),11)   '  Group:                        ',trim(savept(k)%group)
-          write(iunit(i),'(A,I2)')   '   Number of variables:          ',savept(k)%nvar
-          write(iunit(i),888)      '    Variable,   File,                                   Units'
+          write(iunit(i),787)   '  Group:',trim(savept(k)%group)
+          write(iunit(i),262)   '   Number of variables:',savept(k)%nvar
+          write(iunit(i),787)   '    Variable,   File,                                   Units'
           do j=1,savept(k)%nvar
             call fileparts(savept(k)%files(j),apath,aname,aext)
   	        astring=trim(aname) // '.' // aext
             write(iunit(i),234,iostat=ierr) adjustl(savept(k)%names(j)),adjustl(astring),adjustl(trim(savept(k)%ounit(j)))
-            !write(iunit(i),'(A,A)') '    Variable:                   ',trim(savept(k)%names(j))  !Name of each variable in group
-            !write(iunit(i),'(A,A)') '      File:                     ',trim(astring)  !File names for each variable 
-            !write(iunit(i),'(A,A)') '      Units:                    ',trim(savept(k)%ounit(j)) !Output units for each variable, ie. "m/sec"
           enddo
-          write(iunit(i),'(A,I4)')   '   Number of Points:            ',savept(k)%ncells
-          write(iunit(i),888) '  Point ID, Point Name,          Cell ID,   X-Coordinate (m),  Y-Coordinate (m)'
-543 format(2x,I6,5x,A20,I6,F12.3,7x,F12.3)
+          write(iunit(i),262)   '   Number of Points:',savept(k)%ncells
+          write(iunit(i),787)   '  Point ID, Point Name,         Cell ID,   X-Coordinate (m),  Y-Coordinate (m)'
           do j=1,savept(k)%ncells
             ii = savept(k)%cell(j)
             if(allocated(mapid))then  
               ii = mapid(ii)
             endif
             write(iunit(i),543,iostat=ierr) j,adjustl(savept(k)%id(j)),ii,savept(k)%x(j),savept(k)%y(j)
-            !write(iunit(i),'(A,A)')  '  Point ID:                    ',trim(savept(k)%id(j))
-            !write(iunit(i),'(A,I7)') '    Cell:                     ',savept(k)%cell(j)
-            !write(iunit(i),'(A,2F12.3,A)') '    Coordinates:              ',savept(k)%x(j),savept(k)%y(j),' m'
           enddo
         enddo
       endif

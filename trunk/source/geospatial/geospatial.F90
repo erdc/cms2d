@@ -243,15 +243,17 @@
     use diag_def, only: dgunit,dgfile
     use out_def, only: write_ascii_input
     use geo_def    
+    use tool_def, only: vstrlz
     implicit none
     integer :: i,iunit(2)
     real    :: val
     character(len=200) :: apath,aname,astring
     character(len=10) :: aext
 
-133 format(' ',A,F13.3,A)    
-163 format(' ',A,F8.3,A)
-787 format(' ',A,1x,A)
+133 format(' ',A,T40,F0.3,A)
+144 format(' ',A,T40,A,A)
+222 format(' ',A,T40,I0)
+787 format(' ',A,T40,A)
 888 format(' ',A)
     
     iunit = (/6, dgunit/)
@@ -261,35 +263,37 @@
     val = 360.0 - azimuth_fl
     do i=1,2    
       write(iunit(i),*)
-	  write(iunit(i),888)           'Grid '	 	
+	  write(iunit(i),888)    'Grid '	 	
+      
 	  call fileparts(grdfile,apath,aname,aext)
 	  astring=trim(aname) // '.' // aext
-	  write(iunit(i),787)             '  Grid File:                   ',trim(astring)
+	  write(iunit(i),787)    '  Grid File:',trim(astring)
+      
       if(igridtype<=1)then
-        if(grdpath(1:1)/=' ') write(iunit(i),787)           '  Depth Dataset:               ',trim(grdpath)  
-        write(iunit(i),163)           '  Orientation:                 ',val,' deg'    !Writes out the same value that was written in the .cmcards file - MEB 01/13/2017
-	    write(iunit(i),133)           '  x-Origin:                    ',xorigin,' m'
-	    write(iunit(i),133)           '  y-Origin:                    ',yorigin,' m'
+        if(grdpath(1:1)/=' ') write(iunit(i),787)  '  Depth Dataset:',trim(grdpath)  
+        write(iunit(i),144)  '  Orientation:',vstrlz(val,'(f0.3)'),' deg'    !Writes out the same value that was written in the .cmcards file - MEB 01/13/2017
+	    write(iunit(i),144)  '  x-Origin:',vstrlz(xorigin,'(f0.3)'),' m'
+	    write(iunit(i),144)  '  y-Origin:',vstrlz(yorigin,'(f0.3)'),' m'
       endif
-	  write(iunit(i),'(A,F6.2,A)')    '   Average Latitude:            ',avg_lat,' deg'
-      write(iunit(i),'(A,I0)')        '   Total cells:                 ',ncellsD
-      write(iunit(i),'(A,I0)')        '   Active cells:                ',ncells
+	  write(iunit(i),144)    '  Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
+      write(iunit(i),222)    '  Total cells:',ncellsD
+      write(iunit(i),222)    '  Active cells:',ncells
       if(igridtype==1)then
-	    write(iunit(i),'(A,A3)')      '   Telescoping:                  ON'
-        write(iunit(i),'(A,I0)')      '   Regular cells:              ',ncellsimple
-        write(iunit(i),'(A,I0)')      '   Joint cells:                ',ncelljoint
+	    write(iunit(i),787)  '  Telescoping:','ON'
+        write(iunit(i),222)  '  Regular cells:',ncellsimple
+        write(iunit(i),222)  '  Joint cells:',ncelljoint
       else
-	    write(iunit(i),'(A,A3)')      '   Telescoping:                  OFF'
+	    write(iunit(i),787)  '  Telescoping:','OFF'
       endif 
 !	write(*,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
 !	write(dgunit,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
-      write(iunit(i),888)           '  Horizontal Projection'
-      write(iunit(i),'(A,A)')         '     Coordinate System:          ',trim(aHorizCoordSystem(projfl%iHorizCoordSystem))     
+      write(iunit(i),888)    '  Horizontal Projection'
+      write(iunit(i),787)    '    Coordinate System:',trim(aHorizCoordSystem(projfl%iHorizCoordSystem))     
       if(projfl%iHorizCoordSystem/=22)then
-        write(iunit(i),'(A,A)')       '     Datum:                      ',trim(aHorizDatum(projfl%iHorizDatum))
-        write(iunit(i),'(A,I4)')      '     Zone:                       ',projfl%iHorizZone
+        write(iunit(i),787)  '    Datum:',trim(aHorizDatum(projfl%iHorizDatum))
+        write(iunit(i),222)  '    Zone:',projfl%iHorizZone
       endif      
-	  write(iunit(i),'(A,A)')         '     Units:                      ',trim(aHorizUnits(projfl%iHorizUnits))
+	  write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
     enddo
 
     close(dgunit)

@@ -733,9 +733,10 @@
     integer :: ita(8),i,iunit(2)
     character(len=200) :: datetimestr
 
-645 format('*************************')
-684 format('  START OF SIMULATION ')
-740 format(2x,I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)
+645 format(' *************************')
+684 format('    START OF SIMULATION   ')
+            
+740 format(I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)
 750 format(2x,A)
     
     timebegin = time_cpu() !sec
@@ -784,8 +785,8 @@
     real*8 :: time_dur,speed
     character(len=200) :: clocktimestr,cputimestr,datetimestr
 
-970 format('*********************************')
-971 format('  END OF SIMULATION ')
+970 format(' *********************************')
+971 format('         END OF SIMULATION        ')
 740 format(2x,I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)    
 840 format('  - Clock time: ',I0,' min, ',F7.4,' s')
 841 format('  - Clock time: ',I0,' hrs, ',I0,' min, ',F7.4,' s')     
@@ -803,6 +804,7 @@
     
     !Wall clock time
     call date_and_time(values=ita)
+    
     time_dur = time_jul(ita) - timestart !sec
     call time_sec2str(time_dur,clocktimestr)
 
@@ -826,7 +828,7 @@
       if(cmsflow)then
         write(iunit(i),940) speed        
       endif
-      write(iunit(i),730) trim(cputimestr)
+      write(iunit(i),730) trim(cputimestr) 
       write(iunit(i),970)
     enddo
     close(dgunit)
@@ -852,77 +854,79 @@
     
     implicit none
     integer :: iunit(2),i
-    character :: aname*200,apath*200,aext*10,astring*200
+    character :: aname*200,apath*200,aext*10,astring*200,adate*8,atime*10,azone*5
 
-342 format(' ',A,F5.2,A)    
-887 format(' ',A,1x,A)
-764 format(' ',A,F8.3,A)
-888 format(' ',A)    
+342 format(' ',A,T40,F0.2,A)    
+887 format(' ',A,T40,A)
+764 format(' ',A,T40,F0.3,A)  
     
+    call DATE_AND_TIME (date=adate,time=atime,zone=azone)
+    astring=adate(5:6)//'/'//adate(7:8)//'/'//adate(1:4)
+    astring=trim(astring)//' '//atime(1:2)//':'//atime(3:4)//' '//azone
+
     open(dgunit,file=dgfile,access='append') 
     iunit = (/6,dgunit/)
+
     do i=1,2
+      write(iunit(i),887) 'Actual Start Date/Time: ',trim(astring)
       if(noptset>=2)then   
-        write(iunit(i),*)      
-        write(iunit(i),887)  'CMS-Flow Path:                 ',trim(flowpath)
+        if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
 	    astring=trim(aname) // '.' // aext
-        write(iunit(i),887)  'CMS-Flow Card File:            ',trim(astring)
-        write(iunit(i),342)  'Input Version:                 ',input_ver     
+        write(iunit(i),887)    'CMS-Flow Card File:',trim(astring)
+        write(iunit(i),342)    'Input Version:',input_ver     
       endif
       if(noptset==1 .or. noptset==3)then
-        write(iunit(i),*)
-        write(iunit(i),887)  'CMS-Wave Path:                 ',trim(wavepath)
+        write(iunit(i),887)    'CMS-Wave Path:',trim(wavepath)
         call fileparts(WavSimFile,apath,aname,aext)
 	    astring=trim(aname) // '.' // aext
-        write(iunit(i),887)  'CMS-Wave Sim File:             ',trim(astring)   
+        write(iunit(i),887)    'CMS-Wave Sim File:',trim(astring)   
       endif  
       if(noptset==3)then  
-        write(iunit(i),*)
-        write(iunit(i),888)    'Steering Mode:                  ON'
-        write(iunit(i),764)      'Steering Interval:           ',dtsteer/3600.0,' hrs'
-        write(iunit(i),888)    'Wave-to-Flow Coupling:'
-        write(iunit(i),888)    '  Temporal Interpolation:       LINEAR'
+        write(iunit(i),887)    'Steering Mode:','ON'
+        write(iunit(i),764)    'Steering Interval:',dtsteer/3600.0,' hrs'
+        write(iunit(i),887)    'Wave-to-Flow Coupling:'
+        write(iunit(i),887)    '  Temporal Interpolation:','LINEAR'
         !write(iunit(i),764)      '  Extrapolation Distance:   ',xtrpdistwav,' m'         
         write(iunit(i),*)
-        write(iunit(i),888)    'Wave-to-Flow Coupling:'
-        write(iunit(i),888)    '  Temporal Extrapolation: '
-        write(iunit(i),888)    '    Water Level: '
+        write(iunit(i),887)    'Wave-to-Flow Coupling:'
+        write(iunit(i),887)    '  Temporal Extrapolation: '
+        write(iunit(i),887)    '    Water Level: '
         selectcase(noptwse)
         case(0)
-          write(iunit(i),888)  '      wse(wave_time,wave_grid) = 0.0'     
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = 0.0'     
         case(1)
-          write(iunit(i),888)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid)'    
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid)'    
         case(2)
-          write(iunit(i),888)  '      wse(wave_time,wave_grid) = tide(wave_time,flow_grid)'
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = tide(wave_time,flow_grid)'
         case(3)
-          write(iunit(i),888)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid) '
-          write(iunit(i),888)  '             + tide(wave_time) - tide(flow_time)'
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid) '
+          write(iunit(i),887)  '             + tide(wave_time) - tide(flow_time)'
         endselect 
-        write(iunit(i),888)    '    Current Velocities:'
+        write(iunit(i),887)    '    Current Velocities:'
         selectcase(noptvel)
         case(0)
-          write(iunit(i),888)  '      vel(wave_time,wave_grid) = 0.0'     
+          write(iunit(i),887)  '      vel(wave_time,wave_grid) = 0.0'     
         case(1)
-          write(iunit(i),888)  '      vel(wave_time,wave_grid) = vel(flow_time,flow_grid)'
+          write(iunit(i),887)  '      vel(wave_time,wave_grid) = vel(flow_time,flow_grid)'
         endselect
-        write(iunit(i),888)    '    Bed Elevation: '
+        write(iunit(i),887)    '    Bed Elevation: '
         selectcase(noptzb)
         case(0)
-          write(iunit(i),888)  '      zb(wave_grid) = zb(wave_grid)'    
+          write(iunit(i),887)  '      zb(wave_grid) = zb(wave_grid)'    
         case(1)
-          write(iunit(i),888)  '      zb(wave_time,wave_grid) = zb(flow_time,flow_grid)'     
+          write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(flow_time,flow_grid)'     
         case(2)
-          write(iunit(i),888)  '      zb(wave_time,wave_grid) = zb(start_time,wave_grid) '    
-          write(iunit(i),888)  '           + zb(flow_time,flow_grid) - zb(start_time,flow_grid)'    
+          write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(start_time,wave_grid) '    
+          write(iunit(i),887)  '           + zb(flow_time,flow_grid) - zb(start_time,flow_grid)'    
         endselect
-        !write(iunit(i),764)  '  Extrapolation Distance:   ',xtrpdistfl,' m'        
+        !write(iunit(i),764)    '  Extrapolation Distance:   ',xtrpdistfl,' m'        
       elseif(noptset==4)then    
-        write(iunit(i),887)  'Wave Height Dataset:           ',trim(wavpath)
-        write(iunit(i),887)  'Wave Period Dataset:           ',trim(perpath)      
-        write(iunit(i),887)  'Wave Direction Dataset:        ',trim(dirpath)      
-        write(iunit(i),887)  'Wave Dissipation Dataset:      ',trim(disspath)      
-        write(iunit(i),887)  'Radiation Stress Dataset:      ',trim(radpath)
+        write(iunit(i),887)    'Wave Height Dataset:',trim(wavpath)
+        write(iunit(i),887)    'Wave Period Dataset:',trim(perpath)      
+        write(iunit(i),887)    'Wave Direction Dataset:',trim(dirpath)      
+        write(iunit(i),887)    'Wave Dissipation Dataset:',trim(disspath)      
+        write(iunit(i),887)    'Radiation Stress Dataset:',trim(radpath)
       endif      
    !   call fileparts(mpfile,apath,aname,aext)
 	  !astring=trim(aname) // '.' // aext

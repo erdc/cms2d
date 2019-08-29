@@ -83,13 +83,15 @@
     
     iunit = (/6, dgunit/)
     
+888 format(' ',A,T40,A)
+    
     open(dgunit,file=dgfile,access='append')     
     do i=1,2
 	  write(iunit(i),*)     
       if(veg)then
-        write(iunit(i),'(A)') ' Vegetation Flow Drag:           ON'
+        write(iunit(i),888) ' Vegetation Flow Drag:','ON'
       else    
-        write(iunit(i),'(A)') ' Vegetation Flow Drag:           OFF'
+        write(iunit(i),888) ' Vegetation Flow Drag:','OFF'
       endif  
     enddo       
     close(dgunit)

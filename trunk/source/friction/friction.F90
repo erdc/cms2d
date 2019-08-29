@@ -471,87 +471,84 @@
     character(len=200) :: apath,aname,astring
     character(len=10) :: aext
     
-342 format(' ',A,F5.2,A)
-353 format(' ',A,F6.3,A)
-345 format(' ',A,F8.5)
-787 format(' ',A,1x,A)	   
-133 format(' ',A,F13.3,A)
-163 format(' ',A,F6.3,A)    
-888 format(' ',A)
+342 format(' ',A,T40,F0.2,A)
+353 format(' ',A,T40,F0.3,A)
+345 format(' ',A,T40,F0.5)
+787 format(' ',A,T40,A)	   
     
     call fileparts(fricfile,apath,aname,aext)
 	astring=trim(aname) // '.' // aext
     iunit = (/6, dgunit/)
     do i=1,2
       if(i==2) open(dgunit,file=dgfile,access='append')   
-	  !write(iunit(i),*)
-	  write(iunit(i),888)          '  Bottom and Wall Friction'
+	  write(iunit(i),*)
+	  write(iunit(i),787)       '  Bottom and Wall Friction'
 	  selectcase(mbedfric)
         case(0)
-          write(iunit(i),888)       '    Dynamic bottom friction:    ON'
+          write(iunit(i),787)   '    Dynamic bottom friction:','ON'
           if(mripplewave==1)then
-            write(iunit(i),888)     '    Wave-ripple method:         VAN_RIJN'
+            write(iunit(i),787) '    Wave-ripple method:','VAN_RIJN'
           elseif(mripplewave==2)then
-            write(iunit(i),888)     '    Wave-ripple method:         SOULSBY_WHITEHOUSE'
+            write(iunit(i),787) '    Wave-ripple method:','SOULSBY_WHITEHOUSE'
           endif
           if(mripplecurrent==1)then
-            write(iunit(i),888)     '    Current-ripple method:      SOULSBY'
+            write(iunit(i),787) '    Current-ripple method:','SOULSBY'
           elseif(mripplecurrent==2)then
-            write(iunit(i),888)     '    Current-ripple method:      SOULSBY_WHITEHOUSE'
+            write(iunit(i),787) '    Current-ripple method:','SOULSBY_WHITEHOUSE'
           endif
-          write(iunit(i),888)       '    Roughness scaling factors: '
-          write(iunit(i),345)         '      Ripple:                  ',roughscaleripple
-          write(iunit(i),345)         '      Dune:                    ',roughscaledune
-          write(iunit(i),345)         '      Grain:                   ',roughscalegrain
-          write(iunit(i),345)         '      Transport:               ',roughscaletrans
+          write(iunit(i),787)   '    Roughness scaling factors: '
+          write(iunit(i),345)   '      Ripple:',roughscaleripple
+          write(iunit(i),345)   '      Dune:',roughscaledune
+          write(iunit(i),345)   '      Grain:',roughscalegrain
+          write(iunit(i),345)   '      Transport:',roughscaletrans
 	    case(1)
 	      if(constbotfric)then
-	        write(iunit(i),353)       '    Constant Friction Coeff    ',cbotfric,' '      
+	        write(iunit(i),353) '    Constant Friction Coeff:',cbotfric,' '      
 	      else
-	        write(iunit(i),787)       '    Friction Coeff File:       ',trim(astring)
-	        write(iunit(i),787)       '    Friction Coeff Path:       ',trim(fricpath)
+	        write(iunit(i),787) '    Friction Coeff File:',trim(astring)
+	        write(iunit(i),787) '    Friction Coeff Path:',trim(fricpath)
 	      endif  
 	    case(2)
 	      if(constbotfric)then
-	        write(iunit(i),353)       '    Constant Mannings N:       ',cbotfric,' '      
+	        write(iunit(i),353) '    Constant Mannings N:',cbotfric,' '      
 	      else
-	        write(iunit(i),787)       '    Mannings N File:           ',trim(astring)
-	        write(iunit(i),787)       '    Mannings N Path:           ',trim(fricpath)
+	        write(iunit(i),787) '    Mannings N File:',trim(astring)
+	        write(iunit(i),787) '    Mannings N Path:',trim(fricpath)
 	      endif  
 	    case(3)  
 	      if(constbotfric)then
-	        write(iunit(i),353)       '    Constant Roughness Height: ',cbotfric*1000,' mm'	      
+	        write(iunit(i),353) '    Constant Roughness Height:',cbotfric*1000,' mm'	      
 	      else
-	        write(iunit(i),787)       '    Roughness Height File:     ',trim(astring)
-	        write(iunit(i),787)       '    Roughness Height Path:     ',trim(fricpath)
+	        write(iunit(i),787) '    Roughness Height File:',trim(astring)
+	        write(iunit(i),787) '    Roughness Height Path:',trim(fricpath)
 	      endif
 	    case(4)  
 	      if(constbotfric)then
-	        write(iunit(i),353)       '    Constant Linear Friction Coeff: ',cbotfric,' '	      
+	        write(iunit(i),353) '    Constant Linear Friction Coeff: ',cbotfric,' '	      
 	      else
 	        write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'	      
 	        stop
 	      endif    
 	  endselect	
 	  if(wallfric)then
-	    write(iunit(i),888)         '    Wall Friction:              ON'
-        write(iunit(i),'(A,F6.3)')    '     Wall Friction Factor:       ',wallfac              
+	    write(iunit(i),787)     '    Wall Friction:','ON'
+        write(iunit(i),353)     '    Wall Friction Factor:',wallfac              
 	  else
-	    write(iunit(i),888)         '    Wall Friction:              OFF'
+	    write(iunit(i),787)     '    Wall Friction:','OFF'
 	  endif    
 	  if(fricbedslope)then
-	    write(iunit(i),888)         '    Bed-slope Friction Factor:  ON'
+	    write(iunit(i),787)     '    Bed-slope Friction Factor:','ON'
 	  else
-	    write(iunit(i),888)         '    Bed-slope Friction Factor:  OFF'
+	    write(iunit(i),787)     '    Bed-slope Friction Factor:','OFF'
       endif    
       if(noptset>=3)then
-  	    write(iunit(i),'(A,A)')       '     Wave-Current Mean Bottom Shear Stress Model: ',awavcur(mwavcurint)
+  	    write(iunit(i),787)     '    Wave-Current Mean Bottom Shear Stress Model:',awavcur(mwavcurint)
         if(mwavcurint==1)then
-          write(iunit(i),'(A,F6.3)')  '       Wave Bottom Friction Coefficient:        ',cfricwav              
+          write(iunit(i),353)   '    Wave Bottom Friction Coefficient:',cfricwav              
         endif
       endif 
       if(bbl_stream)then
-        write(iunit(i),888)         '    Bottom boundary layer streaming: ON'
+        write(iunit(i),787)     '    Bottom boundary layer streaming:','ON'
       endif
     enddo    
     close(dgunit)		    

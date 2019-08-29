@@ -264,10 +264,9 @@ d1: do k=1,10
     implicit none
     integer :: i,iunit(2)
 
-787 format(' ',A,1x,A)
-153 format(' ',A,1x,F13.3)
-236 format(' ',A,1x,I3)
-888 format(' ',A)
+787 format(' ',A,T40,A)
+153 format(' ',A,T40,F0.3)
+236 format(' ',A,T40,I0)
     
     iunit = (/6,dgunit/)
     
@@ -275,18 +274,18 @@ d1: do k=1,10
     do i=1,2
       write(iunit(i),*)
       if(.not.saltrans)then
-        write(iunit(i),888) 'Salinity Transport:             OFF'   
+        write(iunit(i),787)   'Salinity Transport:','OFF'   
       else
-        write(iunit(i),888) 'Salinity Transport:             ON'    
+        write(iunit(i),787)   'Salinity Transport:','ON'    
         if(icsal==1)then
-          write(iunit(i),153) '  Initial Salinity:     ',salic
+          write(iunit(i),153) '  Initial Salinity:',salic
         elseif(icsal==2)then
-          write(iunit(i),787) '  Initial Condition File:      ',trim(salfile)
-          write(iunit(i),787) '  Initial Condition Dataset:   ',trim(salpath)
+          write(iunit(i),787) '  Initial Condition File:',trim(salfile)
+          write(iunit(i),787) '  Initial Condition Dataset:',trim(salpath)
         else
-          write(iunit(i),787) '  Initial Condition Scatter:   ',trim(salobsfile) 
+          write(iunit(i),787) '  Initial Condition Scatter:',trim(salobsfile) 
         endif
-        write(iunit(i),236)   '  Salinity Max Iterations:     ',itermaxsal
+        write(iunit(i),236)   '  Salinity Max Iterations:',itermaxsal
       endif
     enddo
     close(dgunit)

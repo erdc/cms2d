@@ -65,7 +65,7 @@
     do i=1,2        
       if(debug_mode)then
         write(iunit(i),*)
-	    write(iunit(i),'(A)')         'Debug Mode:                     ON'
+	    write(iunit(i),'(A,T40,A)') 'Debug Mode:','ON'
       endif
     enddo
     close(dgunit)

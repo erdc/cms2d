@@ -48,9 +48,7 @@ module cms_def
       integer :: ndim
     endtype dset_type
     type(dset_type), allocatable :: dsetList(:)
-    
-    
-endmodule cms_def
+end module cms_def
 
 !===================================================================
 module const_def

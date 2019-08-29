@@ -1876,10 +1876,8 @@ loopj:  do j=1,nlay
     implicit none
     integer :: i,iunit(2)
     
-645 format(' ',A,F10.2,A)
-745 format(' ',A,F6.2,A)
-888 format(' ',A)
-222 format(' ',A,A)
+645 format(' ',A,T40,F0.2,A)
+222 format(' ',A,T40,A)
     
     iunit = (/6, dgunit/)
     
@@ -1887,21 +1885,21 @@ loopj:  do j=1,nlay
     do i=1,2	
 	  write(iunit(i),*)
 	  if(coldstart)then
-        write(iunit(i),888) 'Start Mode:                     COLD'
+        write(iunit(i),222)   'Start Mode:','COLD'
 	  else
-        write(iunit(i),888) 'Start Mode:                     HOT'
-        write(iunit(i),222) '  Initial Conditions File:      ',trim(icfile)
+        write(iunit(i),222)   'Start Mode:','HOT'
+        write(iunit(i),222)   '  Initial Conditions File:',trim(icfile)
 	  endif
   	  if(hot_out)then
 	    if(hot_timehr)then 
-          write(iunit(i),888) 'Single Hot Start Output: '
-	      write(iunit(i),222) '  File:                         ',trim(hotfile)
-	      write(iunit(i),645)   '  Time:                      ',hottime,' hrs'
+          write(iunit(i),222) 'Single Hot Start Output: '
+	      write(iunit(i),222) '  File:',trim(hotfile)
+	      write(iunit(i),645) '  Time:',hottime,' hrs'
 	    endif
 	    if(hot_recur)then
-          write(iunit(i),888) 'Recurring Hot Start Output: '
-	      write(iunit(i),222) '  File:                         ',trim(autohotfile)
-	      write(iunit(i),745) '  Recurring Interval:           ',hotdt,' hrs'
+          write(iunit(i),222) 'Recurring Hot Start Output: '
+	      write(iunit(i),222) '  File:',trim(autohotfile)
+	      write(iunit(i),645) '  Recurring Interval:',hotdt,' hrs'
 	    endif
 	  endif
 	enddo

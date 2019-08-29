@@ -2310,22 +2310,14 @@ d1: do ii=1,30
       pbkmean = pbkmean*100.0/real(ncells,kind=ikind)
     endif
 
-111 format(' ',A)
-222 format(' ',A,A)     
-233 format(' ',A,I2)
-255 format(' ',A,I3)       
-354 format(' ',A,I8)
-445 format(' ',A,F8.2,A)
-466 format(' ',A,F8.3,A)
-453 format(' ',A,I2,A,I2)
-665 format(' ',A,F6.2,A)
-667 format(' ',A,F8.2,A)
-664 format(' ',A,F8.3,A)
-955 format(' ',A,F10.4,A)    
+111 format(' ',A,T40,A)
+233 format(' ',A,T40,I0)
+445 format(' ',A,T40,F0.2,A)
+466 format(' ',A,T40,F0.3,A)
+453 format(' ',A,T40,I2,A,I2)
+955 format(' ',A,T40,F0.4,A)    
 723 format(' ',3x,I3,1x,4(3x,F10.4),2x,F10.3)  
-745 format(' ',A,F8.3,A5)    
 774 format(' ',5x,3(F8.3,F8.3,1x))
-784 format(' ',A,A)
 246 format(' ',3x,I5,3(2x,F8.3),4x,3(3x,F8.2))
 945 format('    D',I02,' Dataset',A,A)
     
@@ -2335,58 +2327,58 @@ d1: do ii=1,30
     do i=1,2
 	  write(iunit(i),*)     
       if(.not.sedtrans)then
-        write(iunit(i),111) 'Sediment Transport:             OFF'
+        write(iunit(i),111)     'Sediment Transport:','OFF'
         if(i==1) cycle
         exit
       endif  
     
-      write(iunit(i),111) 'Sediment Transport:             ON'
-      write(iunit(i),222) '  Transport Model:              ',trim(asedmodel(isedmodel))
+      write(iunit(i),111)       'Sediment Transport:','ON'
+      write(iunit(i),111)       '  Transport Model:',trim(asedmodel(isedmodel))
       if(isedmodel==1)then
-        write(iunit(i),445) '  Max Total-load Conc. Capacity: ',Cteqmax,' kg/m^3'
+        write(iunit(i),445)     '  Max Total-load Conc. Capacity:',Cteqmax,' kg/m^3'
       endif
-      write(iunit(i),222) '  Transport Capacity Formula:   ',trim(acapac(icapac))
-      write(iunit(i),445) '  Timing'
-      write(iunit(i),445) '    Transport Time Step:       ',dtime,' sec'
-      write(iunit(i),445) '    Morphologic Time Step:     ',dtime,' sec'   
-      write(iunit(i),445) '    Morphology Starting Time:  ',tStartMorph,  ' hrs'
+      write(iunit(i),111)       '  Transport Capacity Formula:',trim(acapac(icapac))
+      write(iunit(i),445)       '  Timing'
+      write(iunit(i),445)       '    Transport Time Step:',dtime,' sec'
+      write(iunit(i),445)       '    Morphologic Time Step:',dtime,' sec'   
+      write(iunit(i),445)       '    Morphology Starting Time:',tStartMorph,  ' hrs'
       if(nsed>1)then
-        write(iunit(i),445)'    Composition Starting Time: ',tStartBedComp,' hrs'
+        write(iunit(i),445)     '    Composition Starting Time:',tStartBedComp,' hrs'
       endif  
       
-      write(iunit(i),445) '  Sediment Properties'
-      write(iunit(i),445) '    Density:                   ',rhosed,' kg/m^3'      
-      write(iunit(i),665) '    Porosity:                 ',poros ,' ' 
+      write(iunit(i),445)       '  Sediment Properties'
+      write(iunit(i),445)       '    Density:',rhosed,' kg/m^3'      
+      write(iunit(i),445)       '    Porosity:',poros
     
       if(singlesize)then !Single-size
-        write(iunit(i),745)   '    Charactestic Diameter:    ',diam(1)*1000.0,'mm'
-        write(iunit(i),955)   '    Fall Velocity:          ',wsfall(1),' m/s'
-        write(iunit(i),955)   '    Corey Shape Factor:     ',coreyshape(1)
+        write(iunit(i),466)     '    Charactestic Diameter:',diam(1)*1000.0,'mm'
+        write(iunit(i),955)     '    Fall Velocity:',wsfall(1),' m/s'
+        write(iunit(i),955)     '    Corey Shape Factor:',coreyshape(1)
         if(icapac==1 .or. icapac==3)then
-          write(iunit(i),955)   '    Shields Parameter:      ',thetacr(1)
-          write(iunit(i),955)   '    Critical Shear Stress:  ',taucr(1),' Pa'
+          write(iunit(i),955)   '    Shields Parameter:',thetacr(1)
+          write(iunit(i),955)   '    Critical Shear Stress:',taucr(1),' Pa'
         endif        
         if(calcd50)then
-          write(iunit(i),111) '    Grain Size Determined from D50 Dataset'
+          write(iunit(i),111)   '    Grain Size Determined from D50 Dataset'
         elseif(transd50)then
-          write(iunit(i),111) '    Transport Grain Size Specified'
+          write(iunit(i),111)   '    Transport Grain Size Specified'
         elseif(constd50)then
-          write(iunit(i),111) '    Constant Grain Size Specified'       
+          write(iunit(i),111)   '    Constant Grain Size Specified'       
           if(variableD50)then
-            write(iunit(i),111) '    WARNING: D50 Dataset will be Ignored'
+            write(iunit(i),111) '      WARNING: D50 Dataset will be Ignored'
           endif   
         endif
       else   !Multiple-sizes
         !Sediment size classess
         if(icapac==1 .or. icapac==3)then
-          write(iunit(i),111)  '    Size   Characteristic    Fall        Shields    Critical   Corey Shape'
-          write(iunit(i),111)  '    Class   Diameter,mm   Velocity,m/s  Parameter   Stress,Pa     Factor'
+          write(iunit(i),111)   '    Size   Characteristic    Fall        Shields    Critical   Corey Shape'
+          write(iunit(i),111)   '    Class   Diameter,mm   Velocity,m/s  Parameter   Stress,Pa     Factor'
           do ks=1,nsed
             write(iunit(i),723)  ks,diam(ks)*1000.0,wsfall(ks),thetacr(ks),taucr(ks),coreyshape(ks)
           enddo
         else
-          write(iunit(i),111)  '    Size   Characteristic    Fall      Corey Shape'
-          write(iunit(i),111)  '    Class   Diameter,mm   Velocity,m/s   Factor'
+          write(iunit(i),111)   '    Size   Characteristic    Fall      Corey Shape'
+          write(iunit(i),111)   '    Class   Diameter,mm   Velocity,m/s   Factor'
           do ks=1,nsed
             write(iunit(i),723)  ks,diam(ks)*1000.0,wsfall(ks),coreyshape(ks)
           enddo  
@@ -2394,133 +2386,127 @@ d1: do ii=1,30
       endif       
 
       !Total load adaptation length
-      write(iunit(i),222)     '  Total-load Adaptation Coefficient'
-      write(iunit(i),222)     '    Method:                     ',trim(atotm(iadapttot))
+      write(iunit(i),111)       '  Total-load Adaptation Coefficient'
+      write(iunit(i),111)       '    Method:',trim(atotm(iadapttot))
       selectcase(iadapttot)
       case(1)
-        write(iunit(i),665)   '    Adaptation length:         ',Ltot, ' m'
+        write(iunit(i),445)     '    Adaptation length:',Ltot, ' m'
       case(2)
-        write(iunit(i),665)   '    Adaptation time:           ',Ttot,' sec'
+        write(iunit(i),445)     '    Adaptation time:',Ttot,' sec'
       case(3)
-        write(iunit(i),222)   '    Adaptation length file:     ',trim(aLtotfile)
-        write(iunit(i),222)   '    Adaptation length path:     ',trim(aLtotpath)
+        write(iunit(i),111)     '    Adaptation length file:',trim(aLtotfile)
+        write(iunit(i),111)     '    Adaptation length path:',trim(aLtotpath)
       case(4)
-        write(iunit(i),665)   '    Erosion length:            ',Lerotot,' m'
-        write(iunit(i),665)   '    Deposition length:         ',Ldeptot,' m'      
+        write(iunit(i),445)     '    Erosion length:',Lerotot,' m'
+        write(iunit(i),445)     '    Deposition length:',Ldeptot,' m'      
       case(5,6)
-        write(iunit(i),222)   '  Bed-load Adaptation Coefficient'
-        write(iunit(i),222)   '    Method:                     ',trim(abedm(iadaptbed))
+        write(iunit(i),111)     '  Bed-load Adaptation Coefficient'
+        write(iunit(i),111)     '    Method:',trim(abedm(iadaptbed))
         selectcase(iadaptbed)
         case(1)
-          write(iunit(i),665) '    Adaptation length:         ',Lbed, ' m'
+          write(iunit(i),445)   '    Adaptation length:',Lbed, ' m'
         case(2)
-          write(iunit(i),665) '    Adaptation time:           ',Tbed,' sec'  
+          write(iunit(i),445)   '    Adaptation time:',Tbed,' sec'  
         case(5)
-          write(iunit(i),665) '    Depth dependant factor:    ',fbed
+          write(iunit(i),445)   '    Depth dependant factor:',fbed
         endselect !iadaptbed 
-        write(iunit(i),222)   '  Suspended-load Adaptation Coefficient '
-        write(iunit(i),222)   '    Method:                     ',trim(asusm(iadaptsus))
+        write(iunit(i),111)     '  Suspended-load Adaptation Coefficient '
+        write(iunit(i),111)     '    Method:',trim(asusm(iadaptsus))
         selectcase(iadaptsus)
         case(1)
-          write(iunit(i),665) '    Adaptation length:         ',Lsus, ' m'
+          write(iunit(i),445)   '    Adaptation length:',Lsus, ' m'
         case(2)
-          write(iunit(i),665) '    Adaptation time:           ',Tsus,' sec'         
+          write(iunit(i),445)   '    Adaptation time:',Tsus,' sec'         
         case(3)
-          write(iunit(i),665) '    Adaptation coefficient:    ',alphasus
+          write(iunit(i),445)   '    Adaptation coefficient:',alphasus
         endselect !iadaptsus
       endselect !iadapttot      
     
       !Hardbottom
       if(hardbottom)then
-        write(iunit(i),111)   '  Hardbottom:                   ON'
-        write(iunit(i),222)   '    Hardbottom file:           ',trim(hbfile)
+        write(iunit(i),111)     '  Hardbottom:','ON'
+        write(iunit(i),111)     '    Hardbottom file:',trim(hbfile)
         if(len_trim(hbpath)>0)then
-          write(iunit(i),222) '    Hardbottom path:           ',trim(hbpath)
+          write(iunit(i),111)   '    Hardbottom path:',trim(hbpath)
         endif
       else
-        write(iunit(i),111)   '  Hardbottom:                   OFF' 
+        write(iunit(i),111)     '  Hardbottom:','OFF' 
       endif  
     
       !Avalanching
       if(do_aval)then
-        write(iunit(i),111)   '  Avalanching:                  ON'
-        write(iunit(i),665)   '    Repose angle:               ',atan(a_repose)/deg2rad,' deg'
-        write(iunit(i),665)   '    Relaxation coefficient:     ',relax_aval
-        write(iunit(i),255)   '    Maximum iterations:         ',nmaxaval  
+        write(iunit(i),111)     '  Avalanching:','ON'
+        write(iunit(i),445)     '    Repose angle:',atan(a_repose)/deg2rad,' deg'
+        write(iunit(i),445)     '    Relaxation coefficient:',relax_aval
+        write(iunit(i),233)     '    Maximum iterations:',nmaxaval  
       else
-        write(iunit(i),111)   '  Avalanching:                  OFF'  
+        write(iunit(i),111)     '  Avalanching:','OFF'  
       endif          
     
-      write(iunit(i),111)     '  Scaling factors '    
-      write(iunit(i),665)     '    Suspended Load:           ',scalesus
-      write(iunit(i),665)     '    Bed Load:                 ',scalebed
-      write(iunit(i),665)     '    Morphologic:              ',scalemorph_orig    
+      write(iunit(i),111)       '  Scaling factors '    
+      write(iunit(i),445)       '    Suspended Load:',scalesus
+      write(iunit(i),445)       '    Bed Load:',scalebed
+      write(iunit(i),445)       '    Morphologic:',scalemorph_orig    
       if (scalemorph_rampdur .gt. 0.0) then
-        write(iunit(i),667)     '      Ramp duration (hrs):    ',scalemorph_rampdur
+        write(iunit(i),445)     '      Ramp duration (hrs):',scalemorph_rampdur
       endif
      
-      write(iunit(i),111)     '  Bed slope effects'   
-      write(iunit(i),665)     '    Diffusion coefficient:    ',dcoeff
-      write(iunit(i),222)     '    Transport Correction:       ',trim(abedslope(ibedslope))
+      write(iunit(i),111)       '  Bed slope effects'   
+      write(iunit(i),445)       '    Diffusion coefficient:',dcoeff
+      write(iunit(i),111)       '    Transport Correction:',trim(abedslope(ibedslope))
       if(ibedslope==2)then !Bailard (1981)
-        write(iunit(i),665)   '    Bed-load coefficient:     ',betaslope  
-        write(iunit(i),665)   '    Susp-load coefficient:    ',effslope
+        write(iunit(i),445)     '    Bed-load coefficient:',betaslope  
+        write(iunit(i),445)     '    Susp-load coefficient:',effslope
       endif
     
       if(variableD50 .or. .not.singlesize)then
-        write(iunit(i),111)   '  Hiding and Exposure'   
-        write(iunit(i),222)   '    Formulation                 ',trim(ahidexpform(ihidexpform))
+        write(iunit(i),111)     '  Hiding and Exposure'   
+        write(iunit(i),111)     '    Formulation:',trim(ahidexpform(ihidexpform))
         if(ihidexpform==2 .or. ihidexpform==3)Then
-          write(iunit(i),665) '    Coefficient:              ',mhe
+          write(iunit(i),445)   '    Coefficient:',mhe
         endif
       endif
       
       if(isedmodel<=2)then       
         if(sedconstmix)then
-          write(iunit(i),665) '  Constant Mixing Coefficient:',cmixsed
+          write(iunit(i),445)   '  Constant Mixing Coefficient:',cmixsed
         else
-          write(iunit(i),667,iostat=ierr) '  Schmidt Number:             ',schmidt
+          write(iunit(i),445)   '  Schmidt Number:',schmidt
         endif 
       endif    
      
-      write(iunit(i),665)     '  Inflow Loading Factor:      ',facQtotin    
+      write(iunit(i),445)       '  Inflow Loading Factor:',facQtotin    
       if(isedmodel<=2)then
         selectcase(ibt)
         case(0)
-          write(iunit(i),665) '  Constant Total Load Correction Factor: ',betatot
+          write(iunit(i),445)   '  Constant Total Load Correction Factor: ',betatot
         case(1)
-          !write(iunit(i),111) '  Total Load Correction Factor calculated based on: '
-          !write(iunit(i),111) '    EXPONENTIAL concentration profile'
-          write(iunit(i),111) '  Concentration profile:        EXPONENTIAL'
-          write(iunit(i),111) '   Note: Used for Total Load Correction Factor'
+          write(iunit(i),111)   '  Concentration profile:','EXPONENTIAL    (Used for Total Load Correction Factor)'
         case default
-          !write(iunit(i),111) '  Total Load Correction Factor calculated based on: '
-          !write(iunit(i),111) '    ROUSE concentration profile  '
-          write(iunit(i),111) '  Concentration profile:        ROUSE'
-          write(iunit(i),111) '   Note: Used for Total Load Correction Factor'
+          write(iunit(i),111)   '  Concentration profile:','ROUSE    (Used for Total Load Correction Factor)'
         endselect 
       endif    
     
       !Bed Composition and layering
       if(singlesize)then
         if(variableD50)then
-          write(iunit(i),111)  '  Variable D50:                 ON'  
-          write(iunit(i),784)  '    D50 Dataset File:           ',trim(bedlay(1)%perdiam(ipd(50))%file)
-          write(iunit(i),784)  '    D50 Dataset Path:           ',trim(bedlay(1)%perdiam(ipd(50))%path)
+          write(iunit(i),111)   '  Variable D50:','ON'  
+          write(iunit(i),111)   '    D50 Dataset File:',trim(bedlay(1)%perdiam(ipd(50))%file)
+          write(iunit(i),111)   '    D50 Dataset Path:',trim(bedlay(1)%perdiam(ipd(50))%path)
         else
-          write(iunit(i),111)  '  Variable D50:                 OFF'
+          write(iunit(i),111)   '  Variable D50:','OFF'
         endif  
       else
-        write(iunit(i),665)   '  Mixing Layer'    
+        write(iunit(i),445)     '  Mixing Layer'    
         if(mixlayconst)then          
-          write(iunit(i),665) '    Formulation:                CONSTANT'
-          write(iunit(i),665) '    Thickness:                 ',dmconst !Constant mixing layer thickness [m]
+          write(iunit(i),445)   '    Formulation:','CONSTANT'
+          write(iunit(i),445)   '    Thickness:',dmconst !Constant mixing layer thickness [m]
         else
-          write(iunit(i),665) '    Formulation:                AUTOMATIC'  
+          write(iunit(i),445)   '    Formulation:','AUTOMATIC'  
         endif
-        write(iunit(i),665)   '  Minimum Layer Thickness:    ',dbmin   !Minimum layer thickness [m]
-        write(iunit(i),665)   '  Maximum Layer Thickness:    ',dbmax   !Maximum layer thickness for new layers. Existing layers are not affected [m]    
-        write(iunit(i),233)   '  Number of Bed Layers:         ',nlay
+        write(iunit(i),445)     '  Minimum Layer Thickness:',dbmin   !Minimum layer thickness [m]
+        write(iunit(i),445)     '  Maximum Layer Thickness:',dbmax   !Maximum layer thickness for new layers. Existing layers are not affected [m]    
+        write(iunit(i),233)     '  Number of Bed Layers:',nlay
         do j=1,nlay
           if(bedlay(j)%ipbkinp==0) cycle
           do jj=j+1,nlay
@@ -2531,20 +2517,22 @@ d1: do ii=1,30
           else
             write(iunit(i),453) '   Bed Layers: ',j,' - ',jj-1
           endif
-          write(iunit(i),784)   '    Layer Thickness Method:     ',trim(adbinp(bedlay(j)%idbinp))
+          write(iunit(i),111)   '    Layer Thickness Method:',trim(adbinp(bedlay(j)%idbinp))
           selectcase(bedlay(j)%idbinp)
           case(0,1,2)
-            write(iunit(i),665,iostat=ierr) '    Layer Thickness:          ',bedlay(j)%dbconst,' m'
+            write(iunit(i),445) '    Layer Thickness:',bedlay(j)%dbconst,' m'
           case(3)
-            write(iunit(i),784) '    Layer Thickness Dataset File:   ',trim(bedlay(j)%dbfile)
-            write(iunit(i),784) '    Layer Thickness Dataset Path:   ',trim(bedlay(j)%dbpath)
+            write(iunit(i),111) '    Layer Thickness Dataset File:',trim(bedlay(j)%dbfile)
+            write(iunit(i),111) '    ----------------------- Path:',trim(bedlay(j)%dbpath)
           endselect
-          write(iunit(i),784)   '    Composition Method:         ',trim(apbkinp(bedlay(j)%ipbkinp))
+          write(iunit(i),111)   '    Composition Method:',trim(apbkinp(bedlay(j)%ipbkinp))
           selectcase(bedlay(j)%ipbkinp)
           case(1) !D50_SIGMA
-            write(iunit(i),784) '    D50 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),784) '    D50 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(50))%path)
-            if (bedlay(j)%geostddev .ge. 0.0) write(iunit(i),664) '    Geometric standard deviation:',bedlay(j)%geostddev,' mm'    
+            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
+            if (bedlay(j)%geostddev .ge. 0.0) then
+              write(iunit(i),466) '    Geometric standard deviation:',bedlay(j)%geostddev,' mm'    
+            endif
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
@@ -2553,12 +2541,12 @@ d1: do ii=1,30
                  diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
           case(2) !D16_D50_D84
-            write(iunit(i),784) '    D16 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(16))%file)
-            write(iunit(i),784) '    D16 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(16))%path)            
-            write(iunit(i),784) '    D50 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),784) '    D50 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(50))%path)
-            write(iunit(i),784) '    D84 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(84))%file)
-            write(iunit(i),784) '    D84 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(84))%path)
+            write(iunit(i),111) '    D16 Dataset File:',trim(bedlay(j)%perdiam(ipd(16))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(16))%path)            
+            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
+            write(iunit(i),111) '    D84 Dataset File:',trim(bedlay(j)%perdiam(ipd(84))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(84))%path)
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
@@ -2567,12 +2555,12 @@ d1: do ii=1,30
                  diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
           case(3) !D35_D50_D90
-            write(iunit(i),784) '    D35 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(35))%file)
-            write(iunit(i),784) '    D35 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(35))%path)
-            write(iunit(i),784) '    D50 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),784) '    D50 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(50))%path)
-            write(iunit(i),784) '    D90 Dataset File:           ',trim(bedlay(j)%perdiam(ipd(90))%file)
-            write(iunit(i),784) '    D90 Dataset Path:           ',trim(bedlay(j)%perdiam(ipd(90))%path)
+            write(iunit(i),111) '    D35 Dataset File:',trim(bedlay(j)%perdiam(ipd(35))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(35))%path)
+            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
+            write(iunit(i),111) '    D90 Dataset File:',trim(bedlay(j)%perdiam(ipd(90))%file)
+            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(90))%path)
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
@@ -2589,8 +2577,8 @@ d1: do ii=1,30
           case(6) !PRECENTILES
             do ii=1,nperdiam
               if(bedlay(j)%perdiam(ii)%inp)then 
-                write(iunit(i),945) iper(ii),' File:            ',trim(bedlay(j)%perdiam(ii)%file)
-                write(iunit(i),945) iper(ii),' Path:            ',trim(bedlay(j)%perdiam(ii)%path)
+                write(iunit(i),945) iper(ii),' File:',trim(bedlay(j)%perdiam(ii)%file)
+                write(iunit(i),945) iper(ii),' Path:',trim(bedlay(j)%perdiam(ii)%path)
               endif
             enddo   
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
@@ -2605,39 +2593,39 @@ d1: do ii=1,30
       endif
       
       if(sedbalance)then
-        write(iunit(i),111)   '  Global Sediment Balance Log:  ON'
+        write(iunit(i),111)     '  Global Sediment Balance Log:','ON'
       else
-        write(iunit(i),111)   '  Global Sediment Balance Log:  OFF'  
+        write(iunit(i),111)     '  Global Sediment Balance Log:','OFF'  
       endif
       
 #ifdef DEV_MODE
       if(erosdry%calc)then
-        write(iunit(i),111)   '  Erosion of dry cells:         ON'
-        write(iunit(i),665)   '    Erosion transfer:         ',erosdry%fac
+        write(iunit(i),111)     '  Erosion of dry cells:','ON'
+        write(iunit(i),445)     '    Erosion transfer:',erosdry%fac
       else
-        write(iunit(i),111)   '  Erosion of dry cells:         OFF'
+        write(iunit(i),111)     '  Erosion of dry cells:','OFF'
       endif
 #endif
     
-      write(iunit(i),111)    '  Numerical Methods'
-      write(iunit(i),222)    '    Matrix Solver:              ',trim(asolv(nsolv))
+      write(iunit(i),111)       '  Numerical Methods'
+      write(iunit(i),111)       '    Matrix Solver:',trim(asolv(nsolv))
       if(ntsch==1)then
-	    write(iunit(i),111)  '    Temporal Scheme:            TWO-LEVEL'
+	    write(iunit(i),111)     '    Temporal Scheme:','TWO-LEVEL'
 	  else
-	    write(iunit(i),111)  '    Temporal Scheme:            THREE-LEVEL'
-        write(iunit(i),665)  '    Implicit Weighting Factor:  ',wtsch  
+	    write(iunit(i),111)     '    Temporal Scheme:','THREE-LEVEL'
+        write(iunit(i),445)     '    Implicit Weighting Factor:',wtsch  
 	  endif
-      write(iunit(i),222)    '    Advection Scheme:           ',trim(advsc(ndsch))
-      write(iunit(i),222)    '    Spatial Derivative Scheme:  ',trim(ader(nder))
-      write(iunit(i),255)    '    Maximum transport iterations:',maxitersed    
+      write(iunit(i),111)       '    Advection Scheme:',trim(advsc(ndsch))
+      write(iunit(i),111)       '    Spatial Derivative Scheme:',trim(ader(nder))
+      write(iunit(i),233)       '    Maximum transport iterations:',maxitersed    
       if(.not.singlesize)then      
-        write(iunit(i),255)  '    Maximum bed iterations:    ',itermaxzb   
+        write(iunit(i),233)     '    Maximum bed iterations:',itermaxzb   
       endif    
     enddo
     close(dgunit)
     
     return
-    endsubroutine sed_print
+    end subroutine sed_print
     
 !***********************************************************************
     subroutine hardbottom_read
