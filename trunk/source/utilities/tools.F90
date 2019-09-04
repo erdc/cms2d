@@ -360,7 +360,7 @@
       function vstrlz(flt,gfmt) result(gbuf)
 ! This function will take a float variable and a format declaration, then convert it to a string. 
 ! The string will add a leading 0, +0, or -0 if necessary.  Also, it will remove a leading space from the PE format
-      character(len=:), allocatable          :: gbuf
+      character, allocatable                 :: gbuf(:)
       real, intent(in)                       :: flt
       character(len=*), optional, intent(in) :: gfmt
       character(len=40)                      :: gtmp
