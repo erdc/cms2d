@@ -213,6 +213,63 @@
     
     return
     end subroutine card_dataset
+    
+!*****************************************************************************
+    subroutine addUnknownCard2List (iFile)
+! Adds unknown cards to a list for viewing later.
+!
+! written by Mitchell Brown, USACE-CHL - 09/04/2019
+!*****************************************************************************
+    use cms_def, only: cardList,nCards
+    implicit none
+    integer,intent(in) :: iFile
+    
+    integer :: i,ilen
+    logical :: exists = .false.
+    character(len=200),allocatable :: oldCards(:), oldVals(:)
+    character(len=200) :: aCard,aValue
+    
+    backspace(iFile)
+    read(iFile,'(A200)') aValue
+    ilen=index(aValue,' ')
+    aCard=aValue(1:ilen)
+    do i=1,ilen
+      aValue(i:i)=' '
+    enddo
+    aValue = adjustl(aValue)
+    
+    !increase total number of cards in list by 1 and move old information to new array
+    if(nCards==0)then
+      allocate(cardList(1))
+      nCards=1
+    else
+      !check to see if card is already in list
+      do i=1,nCards
+        if(cardList(i)%cardname == trim(aCard)) exists = .true.
+        if(exists) return
+      enddo
+      
+      !Move old information to temp array
+      allocate(oldCards(ncards),oldVals(ncards))
+      do i=1,nCards
+        oldCards(i) = trim(cardList(i)%cardname)
+        oldVals(i)  = trim(cardList(i)%value)
+      enddo
+      !Increase allocation by 1
+      deallocate(cardList) ; allocate(cardList(nCards+1))
+      !Move information back from temp array
+      do i=1,nCards
+        cardList(i)%cardname = trim(oldCards(i))
+        cardList(i)%value    = trim(oldVals(i))
+      enddo
+      nCards=nCards+1
+    endif
+    cardList(nCards)%cardname = trim(aCard)   !Add new card
+    cardList(nCards)%value    = trim(aValue)  !Add new value
+    if (allocated(oldCards)) deallocate(oldCards,oldVals)
+    
+    return
+    end subroutine addUnknownCard2List
 
 !*****************************************************************************
     subroutine addXMDFDataset2List (datafile,datapath,ndim)

@@ -41,6 +41,16 @@ module cms_def
     character(len=200) :: wavsimfile,wavepath,wavename  !Alex
     character(len=200) :: radpath,wavpath,perpath,dirpath,disspath
     
+    !For keeping a list of unknown cards and values
+    character(len=200) :: aValue
+    integer :: nCards = 0
+    type card_type
+      character(len=200) :: cardname
+      character(len=400) :: value      !Rest of the line after the cardname
+    endtype card_type
+    type(card_type), allocatable :: cardList(:)
+    
+    !For keeping list of datasets, their paths, and their dimensions together
     integer :: ndsets
     type dset_type !Node string driver
       character(len=200) :: filename

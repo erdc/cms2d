@@ -4,32 +4,11 @@
 * Author: Alex Sanchez
 * Date: 11/07/13
 
-== Hot Start Temporary File Not Deleted ==
-* Description: XMDF library causing error en closing temporary file temp.h5. Code added so that it does not crash the model but the temporary file is not deleted. 
-* Status: Unresolved
-* Workaround: Manually delete the temp.h5 file
-* Author: Alex Sanchez
-* Date: 11/08/13
-
 == Hot Start and Multiple-sized Sediment Transport ==
 * Description: When hot starting a simulation with multiple-sized sediment transport, the model develops instabilities which would otherwise not occur without the hot start.
 * Status: Unresolved
 * Author: Alex Sanchez
 * Date: 11/18/13
-
-== Norten Anti-virus Software Stopping CMS ==
-* Description: The Northen anit-virus software is stopping the CMS executable.
-* Status: Unresolved
-* Workaround: None
-* Author: Adele Militello
-* Date: 11/16/13
-
-== Volume Flux Units Conversion ==
-* Description: Volume flux units are used for boundary conditions. Currently the model only supports a few units and the conversions are not done using the library.
-* Importance: Minor
-* Status: Unresolved
-* Author: Alex Sanchez
-* Date: 12/11/13
 
 == Hot Start/Initial Condition ASCII Input for Salinity and Sediment Transport ==
 * Description: The Hot start option with ASCII input only supports the wse and current velocities. It does not not support salinity and Sediemnt Transport yet.
@@ -57,7 +36,3 @@
 * Importance: Low
 * Status: Unresolved
 * Date: 3/26/14
-
-
-
-

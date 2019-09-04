@@ -19,14 +19,15 @@
     !use unitconv_lib
     use diag_lib, only: diag_print_error, diag_print_warning
     use prec_def, only: ikind
-
+    use cms_def,  only: aValue
     implicit none    
-    integer :: i,k,kk,ierr
-    character(len=37) :: cardname
-	logical :: foundcard,foundfile
-    character(len=20)  :: qunits
+
     real(ikind), parameter :: undef = -999.0
     integer, parameter     :: iundef = -999
+    integer            :: i,k,kk,ierr
+	logical            :: foundcard,foundfile
+    character(len=20)  :: qunits
+    character(len=37)  :: cardname
     
     !Boundary String
     character(len=200) :: bidfile,bidpath    !Boundary ID file and path
@@ -382,7 +383,6 @@
       case default
         foundcard = .false.
         call diag_print_warning('Unrecognized Card: '//trim(cardname))
-        
       endselect
     enddo
     

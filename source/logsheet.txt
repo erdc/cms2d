@@ -1,4 +1,8 @@
-== Version 5.1.10 (8/29/2019)== 
+== Version 5.1.11 (09/04/2019)==
+* Change: Moved all repository folders up one level, removing "Trunk" folder which was not needed.
+* Change: If any Unknown Cards are read from the parameter file, CMS gives the user a chance to stop and fix.
+
+== Version 5.1.10 (08/29/2019)== 
 * Change: Modified screen and diagnostic file output by aligning at T40. Mainly for Implicit runs.
 * Change: Added years to reoccuring report of elapsed time.  Only outputs when Days > 365.
 * Change: Updated instructions for CMake linux utility regarding include file changes.

@@ -74,7 +74,7 @@
    To build CMS On linux you must have CMAKE software above 3.4
    
    Instructions:
-     1. Go to the directory containing the "source" subdirectory (generally "trunk/source"). 
+     1. Go to the directory containing the "source" subdirectory (generally "source"). 
      2. Type cmake . at the prompt
      3. Type make clean
      4. Type make

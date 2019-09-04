@@ -41,7 +41,8 @@
 #endif
     implicit none
     
-    integer :: k,ierr,icount
+    integer :: k,ierr,icount,ilen,i
+    character :: aLetter
     character(len=37) :: cardname,aext
     character(len=200) :: aname,apath,astring
     logical :: foundcard,foundfile
@@ -132,12 +133,24 @@
         call der_cards(cardname,foundcard);    if(foundcard) cycle
         call stat_cards(cardname,foundcard)
         if(.not.foundcard)then
-          msg='- Card '//trim(cardname)//' not found'
-          call diag_print_warning(msg)
+          call addUnknownCard2List(77)
         endif
       enddo
       close(77)
     enddo  
+    
+    if(nCards > 0) then
+      call diag_print_warning('Unknown cards found:')
+      do i=1,nCards
+        call diag_print_message('  '//trim(cardList(i)%cardname))
+      enddo
+      write(*,*) 'Continue? (Y,n)'
+      read(*,*) aLetter
+      if (aLetter == 'n' .or. aLetter == 'N') then
+        call diag_print_message('Correct issue(s) and restart')
+        stop
+      endif
+    endif
 
     if(coldstart .and. hot_out)then
       if(hot_timehr) then

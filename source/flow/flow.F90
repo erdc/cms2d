@@ -169,13 +169,14 @@
     use diag_def
     use geo_def
     use comvarbl
-    use rol_def, only: rolflux
+    use diag_lib
     use flow_def
+    use rol_def,  only: rolflux
     use flow_lib, only: water_viscosity_kinematic
     use solv_def, only: asolv
     use time_lib, only: julday,calendar2julian,julianday2calendarmonthday
-    use diag_lib
     use heat_def, only: heatic
+    use cms_def,  only: aValue
     use EXP_Global_def, only: outinterval
     implicit none
     
