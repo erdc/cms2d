@@ -1,6 +1,6 @@
       subroutine ST_wet_dry_check()
-	use EXP_Global_def
-	USE EXP_transport_def 
+    use EXP_Global_def
+    USE EXP_transport_def 
       USE EXP_bndcond_def
       use sed_def
       use flow_def
@@ -16,8 +16,8 @@
       do i=1,ncells
         ncn = cell2cell(1,i)
         nce = cell2cell(2,i)
-        ncs = cell2cell(3,i)	
-        ncw = cell2cell(4,i)	
+        ncs = cell2cell(3,i)    
+        ncw = cell2cell(4,i)    
         if(qsx(i).gt.0) then
           if(iwet(NCE) .eq. 0) qsx(i) = 0
         else
@@ -27,7 +27,7 @@
           if(iwet(NCN) .eq. 0) qsy(i) = 0
         else
           if(iwet(NCS) .eq. 0) qsy(i) = 0
-        endif	
+        endif    
       enddo        
 !$omp end parallel do
 

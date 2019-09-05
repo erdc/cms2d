@@ -1,6 +1,6 @@
     subroutine update_momentum_tel_reg()
       use EXP_Global_def
-      USE EXP_bndcond_def	
+      USE EXP_bndcond_def    
       use EXP_Structures_def
       use flow_def 
       use geo_def

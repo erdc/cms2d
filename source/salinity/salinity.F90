@@ -62,9 +62,9 @@
     
     integer :: i,ierr
     character(len=32) :: cardname,cdum
-	character*120, allocatable :: TEMPPATH(:)
+    character*120, allocatable :: TEMPPATH(:)
     real :: rdum
-	logical :: foundcard
+    logical :: foundcard
     
     foundcard = .true.
     selectcase(cardname)

@@ -88,7 +88,7 @@
 !$omp& private(DEP_lc,uvel,vvel,U0_lc,term,QTOT_lc)            &
 !$omp& private(vnu_lc,h_lc,period_lc,db_lc,phi_lc,single_D50)  &
 !$omp& private(bdpart,crcw,xWSFALL,ustc,ustw,xtaucr,taucwtb)   &
-!$omp& private(taucwmtb,epscw,fcf,fwf,qbs_lc,Qss_lc)					  
+!$omp& private(taucwmtb,epscw,fcf,fwf,qbs_lc,Qss_lc)                      
        DO I=1,NCELLS
          qsx(i) = 0                                                     !cr 8/25/08
          qsy(i) = 0                                                     !cr 8/25/08
@@ -122,7 +122,7 @@
            term = xWSFALL/(BDPART)
            IF(TSED_ELAPSE*xWSFALL/(BDPART*Dep_lc).GE.1.0)    term =0.99*Dep_lc/tsed_elapse
            ADSS(i)%depo = ADSS(i)%conc*TERM
-           ADSS(i)%eros = CRCW*xWSFALL	
+           ADSS(i)%eros = CRCW*xWSFALL    
            ADSS(i)%diffC = vis(i)/0.7 !5.93*dep_lc*USTC
          endif !if wet                                                  !cr 8/25/08
        ENDDO  

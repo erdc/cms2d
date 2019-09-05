@@ -22,7 +22,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase (cardname)	      
+    selectcase (cardname)          
       case('INCLUDE_VEGETATION') !Alex
         backspace(77)
         read(77,*) cardname, cdum
@@ -87,7 +87,7 @@
     
     open(dgunit,file=dgfile,access='append')     
     do i=1,2
-	  write(iunit(i),*)     
+      write(iunit(i),*)     
       if(veg)then
         write(iunit(i),888) ' Vegetation Flow Drag:','ON'
       else    

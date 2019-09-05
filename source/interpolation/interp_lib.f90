@@ -182,10 +182,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
-	use prec_def
-	implicit none
+    use prec_def
+    implicit none
     !Input/Output
-	real(ikind),intent(in) :: xt(3),yt(3),xi,yi
+    real(ikind),intent(in) :: xt(3),yt(3),xi,yi
     real(ikind),intent(out) :: w(3)
     !Internal Variables
     real(ikind) :: d,xn(3),yn(3),xin,yin,xmin,ymin,xrange,yrange,sumw
@@ -195,34 +195,34 @@ contains
     ymin = minval(yt)
     xrange = maxval(xt)-xmin
     yrange = maxval(yt)-ymin
-	xn = (xt-xmin)/xrange
+    xn = (xt-xmin)/xrange
     yn = (yt-ymin)/yrange
     xin = (xi-xmin)/xrange
     yin = (yi-ymin)/yrange
     
     !Calculate coefficients using Cramer's Rule
     d = xn(1)*(yn(2)-yn(3)) + xn(2)*(yn(3)-yn(1)) + xn(3)*(yn(1)-yn(2))
-	w(1) = (xin*(yn(2)-yn(3)) + yin*(xn(3)-xn(2)) + xn(2)*yn(3) - xn(3)*yn(2))/d
-	w(2) = (xin*(yn(3)-yn(1)) + yin*(xn(1)-xn(3)) + xn(3)*yn(1) - xn(1)*yn(3))/d
-	w(3) = (xin*(yn(1)-yn(2)) + yin*(xn(2)-xn(1)) + xn(1)*yn(2) - xn(2)*yn(1))/d
+    w(1) = (xin*(yn(2)-yn(3)) + yin*(xn(3)-xn(2)) + xn(2)*yn(3) - xn(3)*yn(2))/d
+    w(2) = (xin*(yn(3)-yn(1)) + yin*(xn(1)-xn(3)) + xn(3)*yn(1) - xn(1)*yn(3))/d
+    w(3) = (xin*(yn(1)-yn(2)) + yin*(xn(2)-xn(1)) + xn(1)*yn(2) - xn(2)*yn(1))/d
     
     sumw = sum(w)
     w = w/sum(w)
-	if(abs(sumw-1.0)>1.0e-5)then
-	  write(*,*) 'ERROR: Problem calculating interpolation coefficients'
-	  write(*,*) 'w = ',w
-	  write(*,*) 'sum = w(1:3) = ',sumw
-	  write(*,*) 'xt(1:3) = ',xt
-	  write(*,*) 'yt(1:3) = ',yt
-	  write(*,*) 'xi = ',xi
-	  write(*,*) 'yi = ',yi
-	  write(*,*) 'd = ',d	  
+    if(abs(sumw-1.0)>1.0e-5)then
+      write(*,*) 'ERROR: Problem calculating interpolation coefficients'
+      write(*,*) 'w = ',w
+      write(*,*) 'sum = w(1:3) = ',sumw
+      write(*,*) 'xt(1:3) = ',xt
+      write(*,*) 'yt(1:3) = ',yt
+      write(*,*) 'xi = ',xi
+      write(*,*) 'yi = ',yi
+      write(*,*) 'd = ',d      
       write(*,*) '  Press any key to continue.'
-	  read(*,*)
-	  stop
+      read(*,*)
+      stop
     endif
 
-	return
+    return
     endsubroutine interp_coef_tri
     
 !**************************************************************************** 
@@ -237,10 +237,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
-	use prec_def
-	implicit none
+    use prec_def
+    implicit none
     !Input/Output
-	real(ikind),intent(in) :: xq(4),yq(4),xi,yi
+    real(ikind),intent(in) :: xq(4),yq(4),xi,yi
     real(ikind),intent(out) :: w(4)
     !Internal Variables
     integer :: j
@@ -251,7 +251,7 @@ contains
     ymin = minval(yq)
     xrange = maxval(xq)-xmin
     yrange = maxval(yq)-ymin
-	xn = (xq-xmin)/xrange
+    xn = (xq-xmin)/xrange
     yn = (yq-ymin)/yrange
     xin = (xi-xmin)/xrange
     yin = (yi-ymin)/yrange
@@ -266,20 +266,20 @@ contains
     enddo
     w=w/wsum !Normalize
     wsum=sum(w)
-	if(abs(wsum-1.0)>1.0e-4)then
-	  write(*,*) 'ERROR: Problem calculating quadrilateral interpolation coefficients'
-	  write(*,*) 'w(1:4) = ',w
-	  write(*,*) 'wsum = ',wsum
-	  write(*,*) 'xq(1:4) = ',xq
-	  write(*,*) 'yq(1:4) = ',yq
-	  write(*,*) 'xi = ',xi
-	  write(*,*) 'yi = ',yi
+    if(abs(wsum-1.0)>1.0e-4)then
+      write(*,*) 'ERROR: Problem calculating quadrilateral interpolation coefficients'
+      write(*,*) 'w(1:4) = ',w
+      write(*,*) 'wsum = ',wsum
+      write(*,*) 'xq(1:4) = ',xq
+      write(*,*) 'yq(1:4) = ',yq
+      write(*,*) 'xi = ',xi
+      write(*,*) 'yi = ',yi
       write(*,*) '  Press any key to continue.'
-	  read(*,*)
-	  stop
-    endif	
+      read(*,*)
+      stop
+    endif    
 
-	return
+    return
     endsubroutine interp_coef_quad
     
 !**************************************************************************** 
@@ -288,11 +288,11 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
-	use prec_def
-	implicit none
+    use prec_def
+    implicit none
     !Input/Output
     integer,    intent(in) :: ns,np
-	real(ikind),intent(in) :: xi,yi,xp(ns),yp(ns)
+    real(ikind),intent(in) :: xi,yi,xp(ns),yp(ns)
     real(ikind),intent(out) :: w(ns)
     !Internal Variables
     integer :: j
@@ -304,7 +304,7 @@ contains
     ymin = minval(yp(1:np))
     xrange = maxval(xp(1:np))-xmin
     yrange = maxval(yp(1:np))-ymin
-	xn(1:np) = (xp(1:np)-xmin)/xrange
+    xn(1:np) = (xp(1:np)-xmin)/xrange
     yn(1:np) = (yp(1:np)-ymin)/yrange
     xin = (xi-xmin)/xrange
     yin = (yi-ymin)/yrange
@@ -346,17 +346,17 @@ contains
     w(1:np) = w(1:np)/wsum !Normalize
     wsum = sum(w(1:np))
     
-	if(abs(wsum-1.0)>1.0e-4)then
-	  write(*,*) 'ERROR: Problem calculating polygon interpolation coefficients'
-	  write(*,*) 'w(1:np) = ',w
-	  write(*,*) 'wsum = ',wsum
-	  write(*,*) 'xp(1:np) = ',xp(1:np)
-	  write(*,*) 'yp(1:np) = ',yp(1:np)
-	  write(*,*) 'xi = ',xi
-	  write(*,*) 'yi = ',yi
+    if(abs(wsum-1.0)>1.0e-4)then
+      write(*,*) 'ERROR: Problem calculating polygon interpolation coefficients'
+      write(*,*) 'w(1:np) = ',w
+      write(*,*) 'wsum = ',wsum
+      write(*,*) 'xp(1:np) = ',xp(1:np)
+      write(*,*) 'yp(1:np) = ',yp(1:np)
+      write(*,*) 'xi = ',xi
+      write(*,*) 'yi = ',yi
       write(*,*) '  Press any key to continue.'
-	  read(*,*)
-	  stop
+      read(*,*)
+      stop
     endif
     
     return
@@ -368,19 +368,19 @@ contains
    
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 !  Begin cell-to-face interpolations
-!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<	
+!<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<    
 
-!**********************************************************************	
-	subroutine interp_coef_tel2cart(nc,nD,mf,x0tel,y0tel,azthtel,&
-                   xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &	        
-	               ni,nj,x0cart,y0cart,azthcart,xi,yj,&
+!**********************************************************************    
+    subroutine interp_coef_tel2cart(nc,nD,mf,x0tel,y0tel,azthtel,&
+                   xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &            
+                   ni,nj,x0cart,y0cart,azthcart,xi,yj,&
                    xtrapdist,nbnd,bndstr,intp,cntp)
 ! Calculates the interpolation coefficients and index from 
 ! a telescoping Cartesian grid (parent grid) to 
 ! a nonuniform Cartesian grid (child grid)
 ! All the points of the nonuniform Cartesian grid are used.
 ! written by Alex Sanchez, USACE-CHL
-!**********************************************************************	
+!**********************************************************************    
     use bnd_def, only: bnd_type
     use const_def, only: deg2rad,small,pi
     use geo_lib, only: intriangle
@@ -434,7 +434,7 @@ contains
         yijtel(i,j) = -(x_global-x0tel)*sintel + (y_global-y0tel)*costel     
       enddo
     enddo
-    	
+        
     !Determin regular cartesian cells
     do i=1,nD    
       iscart(i) = .false.   
@@ -477,7 +477,7 @@ di: do i=1,ni
 dj:   do j=1,nj
         ij = j + (i-1)*nj
         if(mod(ij,50000)==0)then
-	      write(*,'(A,F6.2)') '  Percent complete: ',float(ij)*100/float(ni*nj)
+          write(*,'(A,F6.2)') '  Percent complete: ',float(ij)*100/float(ni*nj)
         endif
         
         !if(i==79 .and. j==85)then
@@ -548,34 +548,34 @@ dj:   do j=1,nj
           distx = abs(xtel(ii)-xijtel(i,j))
           disty = abs(ytel(ii)-yijtel(i,j))            
           if(2.0*distx<=dxtel(ii)+1.0e-5 .and. 2.0*disty<=dytel(ii)+1.0e-5)then               
-	        xp = xijtel(i,j)
-	        yp = yijtel(i,j)
-	        xtri(1) = xtel(ii)
-	        ytri(1) = ytel(ii)
-	        !Find nearest inclosing triangle
-	        do k=1,ncf(ii)	          
-	          nck = c2cf(k,ii)
-	          if(k<ncf(ii))then
-	            nck2 = c2cf(k+1,ii)
-	          else
-	            nck2 = c2cf(1,ii)
-	          endif  
-	          if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
-	          xtri(2) = xtel(nck)
-	          ytri(2) = ytel(nck)	          
-	          xtri(3) = xtel(nck2)
-	          ytri(3) = ytel(nck2)    	
-	          if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
-	            call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
-	            intp(0,i,j) = 3
-	            intp(1,i,j) = ii
-	            intp(2,i,j) = nck
-	            intp(3,i,j) = nck2
-	            cntp(1:3,i,j) = wcoef(1:3)
-	            cycle dj
-	          endif
-	        enddo !k
-	      endif           
+            xp = xijtel(i,j)
+            yp = yijtel(i,j)
+            xtri(1) = xtel(ii)
+            ytri(1) = ytel(ii)
+            !Find nearest inclosing triangle
+            do k=1,ncf(ii)              
+              nck = c2cf(k,ii)
+              if(k<ncf(ii))then
+                nck2 = c2cf(k+1,ii)
+              else
+                nck2 = c2cf(1,ii)
+              endif  
+              if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
+              xtri(2) = xtel(nck)
+              ytri(2) = ytel(nck)              
+              xtri(3) = xtel(nck2)
+              ytri(3) = ytel(nck2)        
+              if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
+                call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
+                intp(0,i,j) = 3
+                intp(1,i,j) = ii
+                intp(2,i,j) = nck
+                intp(3,i,j) = nck2
+                cntp(1:3,i,j) = wcoef(1:3)
+                cycle dj
+              endif
+            enddo !k
+          endif           
         enddo !ii
         
         !Nearest cells
@@ -652,7 +652,7 @@ dj:   do j=1,nj
                    
 !***********************************************************************
     subroutine interp_scal_tel2cart(nD,vartel,iwettel, &
-	               ni,nj,intp,cntp,varcart,valdry,iextrap)
+                   ni,nj,intp,cntp,varcart,valdry,iextrap)
 ! Interpolate from a Telescoping grid to a Nonuniform Cartesian Grid
 !
 ! iextrap = Specifies the boundary treatment
@@ -663,8 +663,8 @@ dj:   do j=1,nj
 !
 ! Authors: Mingliang, Z., Alex Sanchez, Weiming, Wu
 !***********************************************************************
-	use prec_def
-	implicit none	
+    use prec_def
+    implicit none    
     !Telescoping Cartesian Grid (Parent)
     integer,    intent(in) :: nD          !# of active cells plus dummy cells
     real(ikind),intent(in) :: vartel(nD)
@@ -716,7 +716,7 @@ dj:   do j=1,nj
           endif   
         !else !if(intp(0,i,j)<=-1 .or. iextrap==1)then !Leave unchanged
         endif
-	  enddo
+      enddo
     enddo
 !$OMP END PARALLEL DO   
 
@@ -725,7 +725,7 @@ dj:   do j=1,nj
                    
 !***********************************************************************
     subroutine interp_vec_tel2cart(nD,vecxtel,vecytel,iwettel, &
-	               ni,nj,intp,cntp,vecxcart,vecycart,valdry,iextrap)
+                   ni,nj,intp,cntp,vecxcart,vecycart,valdry,iextrap)
 ! Interpolate from a Telescoping grid to a Nonuniform Cartesian Grid
 !
 ! Input:
@@ -743,8 +743,8 @@ dj:   do j=1,nj
 !
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************
-	use prec_def
-	implicit none	
+    use prec_def
+    implicit none    
     !Telescoping Cartesian Grid (Parent)
     integer,    intent(in) :: nD          !# of active cells plus dummy cells
     real(ikind),intent(in) :: vecxtel(nD),vecytel(nD)
@@ -804,7 +804,7 @@ dj:   do j=1,nj
           endif   
         !else iextrap==1  - Leave unchanged
         endif
-	  enddo
+      enddo
     enddo
 !$OMP END PARALLEL DO   
 
@@ -860,11 +860,11 @@ dj:   do j=1,nj
     
     !Initialize variables
     intp=0
-	cntp=0.0	
-	        
+    cntp=0.0    
+            
 d1: do ii=1,nc
-	  if(mod(ii,10000)==0)then
-	    write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nc)
+      if(mod(ii,10000)==0)then
+        write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nc)
       endif
       
       !if(mapid(ii)==9040)then
@@ -880,11 +880,11 @@ d1: do ii=1,nc
           if(dist<toldist)then !Points fall on one another
             intp(1,ii)=i
             intp(2,ii)=j
-		    cntp(1,ii)=1.0
-		    cntp(2:4,ii)=0.0
+            cntp(1,ii)=1.0
+            cntp(2:4,ii)=0.0
             cycle d1
-	      endif                  	          
- 	    enddo
+          endif                                
+         enddo
       enddo  
       
       !Bilinear interpolation   
@@ -904,36 +904,36 @@ d1: do ii=1,nc
             cntp(2,ii)=fx*cfy
             cntp(3,ii)=fx*fy
             cntp(4,ii)=cfx*fy
-			cycle d1
-	      endif                  	          
- 	    enddo
-	  enddo
+            cycle d1
+          endif                                
+         enddo
+      enddo
       
       do i=1,ni
         do j=1,nj
           distx=abs(xflwav(ii)-xi(i))
           disty=abs(yflwav(ii)-yj(j))
           dist=sqrt(distx**2+disty**2+small) 
-	      if(2.0*distx<=dxwav(i).and.2.0*disty<=dywav(j))then !Flow point is inside wave cell 	
-	        intp(1,ii)=i
+          if(2.0*distx<=dxwav(i).and.2.0*disty<=dywav(j))then !Flow point is inside wave cell     
+            intp(1,ii)=i
             intp(2,ii)=j  
             cntp(1,ii)=1.0
-		    cntp(2:4,ii)=0.0
-		    cycle d1
-	      endif  	      	  
-	    enddo
+            cntp(2:4,ii)=0.0
+            cycle d1
+          endif                  
+        enddo
       enddo
       
-	  !Extrapolation
-	  distmin = 1.0e25
+      !Extrapolation
+      distmin = 1.0e25
       do i=1,ni,ni-1
         do j=1,nj
           dist=sqrt((xflwav(ii)-xi(i))**2+(yflwav(ii)-yj(j))**2+small)   
           if(dist<distmin)then  
-		    distmin=dist
-		    intp(1,ii)=-i !Negative value indicates extrapolation
+            distmin=dist
+            intp(1,ii)=-i !Negative value indicates extrapolation
             intp(2,ii)=-j !Negative value indicates extrapolation
-	      endif
+          endif
         enddo !j
       enddo !i
       do i=1,ni
@@ -941,13 +941,13 @@ d1: do ii=1,nc
           dist=sqrt((xflwav(ii)-xi(i))**2+(yflwav(ii)-yj(j))**2+small)   
           if(dist<distmin)then  
             distmin=dist
-		    intp(1,ii)=-i !Negative value indicates extrapolation
+            intp(1,ii)=-i !Negative value indicates extrapolation
             intp(2,ii)=-j !Negative value indicates extrapolation
-	      endif
+          endif
         enddo !j
       enddo !i    
       cntp(1,ii)=xtrapfunc(distmin,xtrapdist)
-  	  cntp(2:4,ii)=0.0
+        cntp(2:4,ii)=0.0
     enddo d1
     write(*,'(A,F6.2)') '  Percent complete: ',100.0
     
@@ -1187,11 +1187,11 @@ d1: do ii=1,nc
     
     !Initialize variables
     intp = 0
-	cntp = 0.0	
-	        
+    cntp = 0.0    
+            
 d1: do ii=1,nintp
-	  if(mod(ii,2000)==0)then
-	    write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nintp)
+      if(mod(ii,2000)==0)then
+        write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nintp)
       endif
       
       !Search or overlapping points
@@ -1203,11 +1203,11 @@ d1: do ii=1,nintp
           if(dist<toldist)then !Points fall on one another
             intp(1,ii) = i
             intp(2,ii) = j
-		    cntp(1,ii) = 1.0
-		    cntp(2:4,ii) = 0.0
+            cntp(1,ii) = 1.0
+            cntp(2:4,ii) = 0.0
             cycle d1
-	      endif
- 	    enddo
+          endif
+         enddo
       enddo   
       
       !Bilinear interpolation   
@@ -1227,9 +1227,9 @@ d1: do ii=1,nintp
             cntp(2,ii) = fx*cfy
             cntp(3,ii) = fx*fy
             cntp(4,ii) = cfx*fy
-			cycle d1
-	      endif
- 	    enddo
+            cycle d1
+          endif
+         enddo
       enddo
       
       !Falls inside a cell
@@ -1238,26 +1238,26 @@ d1: do ii=1,nintp
           distx = abs(xptscart(ii)-xi(i))
           disty = abs(yptscart(ii)-yj(j))
           dist = sqrt(distx**2+disty**2+small) 
-	      if(2.0*distx<=dxwav(i).and.2.0*disty<=dywav(j))then !Flow point is inside wave cell 	
-	        intp(1,ii) = i
+          if(2.0*distx<=dxwav(i).and.2.0*disty<=dywav(j))then !Flow point is inside wave cell     
+            intp(1,ii) = i
             intp(2,ii) = j  
             cntp(1,ii) = 1.0
-		    cntp(2:4,ii) = 0.0
-		    cycle d1
-	      endif
-	    enddo
+            cntp(2:4,ii) = 0.0
+            cycle d1
+          endif
+        enddo
       enddo
       
-	  !Extrapolation
-	  distmin = 1.0e25
+      !Extrapolation
+      distmin = 1.0e25
       do i=1,ni,ni-1
         do j=1,nj
           dist=sqrt((xptscart(ii)-xi(i))**2+(yptscart(ii)-yj(j))**2+small)   
           if(dist<distmin)then  
-		    distmin = dist
-		    intp(1,ii) = -i !Negative value indicates extrapolation
+            distmin = dist
+            intp(1,ii) = -i !Negative value indicates extrapolation
             intp(2,ii) = -j !Negative value indicates extrapolation
-	      endif
+          endif
         enddo !j
       enddo !i
       do i=1,ni
@@ -1265,24 +1265,24 @@ d1: do ii=1,nintp
           dist = sqrt((xptscart(ii)-xi(i))**2+(yptscart(ii)-yj(j))**2+small)   
           if(dist<distmin)then  
             distmin = dist
-		    intp(1,ii) = -i !Negative value indicates extrapolation
+            intp(1,ii) = -i !Negative value indicates extrapolation
             intp(2,ii) = -j !Negative value indicates extrapolation
-	      endif
+          endif
         enddo !j
       enddo !i    
       cntp(1,ii) = xtrapfunc(distmin,xtrapdist)
-  	  cntp(2:4,ii) = 0.0
+        cntp(2:4,ii) = 0.0
     enddo d1 !ii  
     
     return
     endsubroutine interp_coef_cart2pts                   
     
-!**********************************************************************	
-	subroutine interp_coef_tel2tel(nc,nD,mf,x0tel,y0tel,azthtel, &
-	              xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &	        
-	              nc2,nD2,x0tel2,y0tel2,azthtel2, &
-	              xtel2,ytel2,xtrapdist,&
-	              nintrpcells,iintpcells,intp,cntp)
+!**********************************************************************    
+    subroutine interp_coef_tel2tel(nc,nD,mf,x0tel,y0tel,azthtel, &
+                  xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &            
+                  nc2,nD2,x0tel2,y0tel2,azthtel2, &
+                  xtel2,ytel2,xtrapdist,&
+                  nintrpcells,iintpcells,intp,cntp)
 ! Calculates the interpolation coefficients from a telescoping Cartesian
 ! grid to another telescoping Cartesian grid
 ! written by Alex Sanchez, USACE-CHL      
@@ -1437,34 +1437,34 @@ d1: do j=1,nintrpcells
         disty = abs(ytel(ii)-yijtel(i))
         if(2.0*distx<=dxtel(ii)+1.0e-5 .and. 2.0*disty<=dytel(ii)+1.0e-5)then
           xp = xijtel(i)
-	      yp = yijtel(i)
-	      xtri(1) = xtel(ii)
-	      ytri(1) = ytel(ii)
-	      !Find nearest inclosing triangle
-	      do k=1,ncf(ii)	          
-	        nck = c2cf(k,ii)
-	        if(k<ncf(ii))then
-	          nck2 = c2cf(k+1,ii)
-	        else
-	          nck2 = c2cf(1,ii)
-	        endif  
-	        if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
-	        xtri(2) = xtel(nck)
-	        ytri(2) = ytel(nck)	          
-	        xtri(3) = xtel(nck2)
-	        ytri(3) = ytel(nck2)    	
-	        if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
-	          call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
-	          intp(0,j) = 3
-	          intp(1,j) = ii
-	          intp(2,j) = nck
-	          intp(3,j) = nck2
-	          cntp(1:3,j) = wcoef(1:3)
+          yp = yijtel(i)
+          xtri(1) = xtel(ii)
+          ytri(1) = ytel(ii)
+          !Find nearest inclosing triangle
+          do k=1,ncf(ii)              
+            nck = c2cf(k,ii)
+            if(k<ncf(ii))then
+              nck2 = c2cf(k+1,ii)
+            else
+              nck2 = c2cf(1,ii)
+            endif  
+            if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
+            xtri(2) = xtel(nck)
+            ytri(2) = ytel(nck)              
+            xtri(3) = xtel(nck2)
+            ytri(3) = ytel(nck2)        
+            if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
+              call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
+              intp(0,j) = 3
+              intp(1,j) = ii
+              intp(2,j) = nck
+              intp(3,j) = nck2
+              cntp(1:3,j) = wcoef(1:3)
               cntp(4,j) = 0.0
-	          cycle d1 !k
-	        endif
-	      enddo !k
-	    endif
+              cycle d1 !k
+            endif
+          enddo !k
+        endif
       enddo !ii
             
       !Boundaries, find nearest cell
@@ -1486,10 +1486,10 @@ d1: do j=1,nintrpcells
     return
     endsubroutine interp_coef_tel2tel
                   
-!**********************************************************************	
-	subroutine interp_coef_tel2pts(nc,nD,mf,x0tel,y0tel,azthtel, &
-	              xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &	        
-	              npts,xpts,ypts,xtrapdist,intp,cntp)
+!**********************************************************************    
+    subroutine interp_coef_tel2pts(nc,nD,mf,x0tel,y0tel,azthtel, &
+                  xtel,ytel,dxtel,dytel,c2cf,idf,ncf, &            
+                  npts,xpts,ypts,xtrapdist,intp,cntp)
 ! Calculates the interpolation coefficients from a telescoping Cartesian
 ! grid to another telescoping Cartesian grid
 ! written by Alex Sanchez, USACE-CHL      
@@ -1633,35 +1633,35 @@ d1: do i=1,npts
         disty = abs(ytel(ii)-yijtel(i))            
         if(2.0*distx<=dxtel(ii)+1.0e-5 .and. 2.0*disty<=dytel(ii)+1.0e-5)then
           xp = xijtel(i)
-	      yp = yijtel(i)
-	      xtri(1) = xtel(ii)
-	      ytri(1) = ytel(ii)
-	      !Find nearest inclosing triangle
-	      do k=1,ncf(ii)
-	        nck = c2cf(k,ii)
-	        if(k<ncf(ii))then
-	          nck2 = c2cf(k+1,ii)
-	        else
-	          nck2 = c2cf(1,ii)
-	        endif  
-	        if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
-	        xtri(2) = xtel(nck)
-	        ytri(2) = ytel(nck)	          
-	        xtri(3) = xtel(nck2)
-	        ytri(3) = ytel(nck2)    	
-	        if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
-	          call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
-	          intp(0,i) = 3
-	          intp(1,i) = ii
-	          intp(2,i) = nck
-	          intp(3,i) = nck2
-	          cntp(1:3,i) = wcoef(1:3)
+          yp = yijtel(i)
+          xtri(1) = xtel(ii)
+          ytri(1) = ytel(ii)
+          !Find nearest inclosing triangle
+          do k=1,ncf(ii)
+            nck = c2cf(k,ii)
+            if(k<ncf(ii))then
+              nck2 = c2cf(k+1,ii)
+            else
+              nck2 = c2cf(1,ii)
+            endif  
+            if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
+            xtri(2) = xtel(nck)
+            ytri(2) = ytel(nck)              
+            xtri(3) = xtel(nck2)
+            ytri(3) = ytel(nck2)        
+            if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
+              call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
+              intp(0,i) = 3
+              intp(1,i) = ii
+              intp(2,i) = nck
+              intp(3,i) = nck2
+              cntp(1:3,i) = wcoef(1:3)
               cntp(4,i) = 0.0
-	          cycle d1
-	        endif
-	      enddo !k
-	      exit !ii
-	    endif           
+              cycle d1
+            endif
+          enddo !k
+          exit !ii
+        endif           
       enddo !ii
             
       !Boundaries, find nearest cell
@@ -1683,10 +1683,10 @@ d1: do i=1,npts
     return
     endsubroutine interp_coef_tel2pts
 
-!*******************************************************************************	
-	subroutine interp_coef_tri2tel(ne,nn,xn,yn,e2n, &
-	   nD,x0tel,y0tel,azthtel,xtel,ytel, &
-	   xtrapdist,nintrpcells,iintpcells,intp,cntp)
+!*******************************************************************************    
+    subroutine interp_coef_tri2tel(ne,nn,xn,yn,e2n, &
+       nD,x0tel,y0tel,azthtel,xtel,ytel, &
+       xtrapdist,nintrpcells,iintpcells,intp,cntp)
 ! Calculates the interpolation coefficients from an unstructured 
 ! node-based triangular mesh (such as ADCIRC) to a telescoping Cartesian mesh
 ! written by Alex Sanchez, USACE-CHL
@@ -1739,9 +1739,9 @@ d1: do j=1,nintrpcells !Cells
         xtri(1:3) = xn(e2n(1:3,k)) !Global coordinates
         ytri(1:3) = yn(e2n(1:3,k)) !Global coordinates
         if(intriangle(xp,yp,xtri,ytri,ae(k)))then !wave point inside flow triangle
-	      call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
-	      intp(0,j) = 3
-	      intp(1:3,j) = e2n(1:3,k)
+          call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
+          intp(0,j) = 3
+          intp(1:3,j) = e2n(1:3,k)
           cntp(1:3,j) = wcoef(1:3)
           cntp(4,j) = 0.0
           cycle d1
@@ -1765,9 +1765,9 @@ d1: do j=1,nintrpcells !Cells
     return
     endsubroutine interp_coef_tri2tel
     
-!**********************************************************************	
-	subroutine interp_coef_tri2pts(ne,nn,xn,yn,e2n, &	        
-	            npts,xpts,ypts,xtrapdist,intp,cntp)
+!**********************************************************************    
+    subroutine interp_coef_tri2pts(ne,nn,xn,yn,e2n, &            
+                npts,xpts,ypts,xtrapdist,intp,cntp)
 ! Calculates the interpolation coefficients from an unstructured 
 ! node-based triangular mesh (such as ADCIRC) to scattered points
 ! written by Alex Sanchez, USACE-CHL
@@ -1806,9 +1806,9 @@ d1: do i=1,npts !Points
         xtri(1:3) = xn(e2n(1:3,j)) !Global coordinates
         ytri(1:3) = yn(e2n(1:3,j)) !Global coordinates
         if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
-	      call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
-	      intp(0,i) = 3
-	      intp(1:3,i) = e2n(1:3,j)
+          call interp_coef_tri(xp,yp,xtri,ytri,wcoef) !Calc interp coefficients
+          intp(0,i) = 3
+          intp(1:3,i) = e2n(1:3,j)
           cntp(1:3,i) = wcoef(1:3)
           cycle d1
         endif
@@ -1832,8 +1832,8 @@ d1: do i=1,npts !Points
     endsubroutine interp_coef_tri2pts
 
 !!**********************************************************************
-!	subroutine interp_coef_hybridnode2pts(ne,nn,xn,yn,c2n,ncf, &
-!	            npts,xpts,ypts,xtrapdist,intp,cntp)
+!    subroutine interp_coef_hybridnode2pts(ne,nn,xn,yn,c2n,ncf, &
+!                npts,xpts,ypts,xtrapdist,intp,cntp)
 !! Calculates the interpolation coefficients from an unstructured 
 !! node-based hybrid (triangles and quadrilaterals) mesh to a 
 !! scattered points
@@ -1890,9 +1890,9 @@ d1: do i=1,npts !Points
 !          xtri(1:3) = xn(c2n(1:3,j)) !Global coordinates
 !          ytri(1:3) = yn(c2n(1:3,j)) !Global coordinates
 !          if(intriangle(xp,yp,xtri,ytri,ac(j)))then !wave point inside flow triangle
-!	        call interp_coef_tri(xp,yp,xtri,ytri,wtri) !Calc interp coefficients
-!	        intp(0,i)=3
-!  	        intp(1:3,i)=c2n(1:3,j)
+!            call interp_coef_tri(xp,yp,xtri,ytri,wtri) !Calc interp coefficients
+!            intp(0,i)=3
+!              intp(1:3,i)=c2n(1:3,j)
 !            cntp(1:3,i)=wtri(1:3)
 !            exit
 !          endif
@@ -1900,9 +1900,9 @@ d1: do i=1,npts !Points
 !          xquad(1:4) = xn(c2n(1:4,j)) !Global coordinates
 !          yquad(1:4) = yn(c2n(1:4,j)) !Global coordinates
 !          if(inquad(xp,yp,xquad,yquad,ac(j)))then !wave point inside flow triangle
-!	        !call interp_coef_quad(xp,yp,xquad,yquad,wquad) !Calc interp coefficients
-!	        intp(0,i)=4
-!  	        intp(1:4,i)=c2n(1:4,j)
+!            !call interp_coef_quad(xp,yp,xquad,yquad,wquad) !Calc interp coefficients
+!            intp(0,i)=4
+!              intp(1:4,i)=c2n(1:4,j)
 !            cntp(1:4,i)=wquad(1:4)
 !            exit
 !          endif  
@@ -1928,9 +1928,9 @@ d1: do i=1,npts !Points
 !    return
 !    endsubroutine interp_coef_hybridnode2pts
 
-!!**********************************************************************	
-!	subroutine interp_coef_poly2pts(nc,nD,mf,nn,xn,yn,c2n,ncf, &	        
-!	            npts,xpts,ypts,xtrapdist,intp,cntp)
+!!**********************************************************************    
+!    subroutine interp_coef_poly2pts(nc,nD,mf,nn,xn,yn,c2n,ncf, &            
+!                npts,xpts,ypts,xtrapdist,intp,cntp)
 !! Calculates the interpolation coefficients from an unstructured 
 !! hybrid (triangles and quadrilaterals) mesh to a scattered points
 !! written by Alex Sanchez, USACE-CHL
@@ -1986,9 +1986,9 @@ d1: do i=1,npts !Points
 !          ypoly(k) = yn(c2n(k,j)) !Global coordinates 
 !        enddo
 !        if(inpoly(xp,yp,mf,ncf(j),xpoly,ypoly))then !wave point inside flow triangle
-!	       call interp_coef_poly(xp,yp,mf,ncf(i),xpoly,ypoly,wpoly) !Calc interp coefficients
-!	       intp(0,i)=ncf(j)
-!  	       intp(1:ncf(j),i)=c2n(1:ncf(j),j)
+!           call interp_coef_poly(xp,yp,mf,ncf(i),xpoly,ypoly,wpoly) !Calc interp coefficients
+!           intp(0,i)=ncf(j)
+!             intp(1:ncf(j),i)=c2n(1:ncf(j),j)
 !          cntp(1:ncf(j),i)=wpoly(1:ncf(j))          
 !          exit
 !        endif
@@ -2013,9 +2013,9 @@ d1: do i=1,npts !Points
 !    return
 !    endsubroutine interp_coef_poly2pts
                 
-!**********************************************************************	
-	subroutine interp_coef_poly2cart(nc,nD,mf,xc,yc,ncf,c2cf, &
-	nn,mc,nnc,n2c,ni,nj,x0cart,y0cart,azthcart,xi,yj,xtrapdist,intp,cntp)
+!**********************************************************************    
+    subroutine interp_coef_poly2cart(nc,nD,mf,xc,yc,ncf,c2cf, &
+    nn,mc,nnc,n2c,ni,nj,x0cart,y0cart,azthcart,xi,yj,xtrapdist,intp,cntp)
 ! Calculates the interpolation coefficients from an unstructured 
 ! polygonal mesh to a scattered points
 ! written by Alex Sanchez, USACE-CHL
@@ -2090,7 +2090,7 @@ d2:   do j=1,nj
         !!endif  
         ij = j + (i-1)*nj  
         if(mod(ij,5000)==0)then
-	      write(*,'(F7.2,6I10)') float(ij)*100/float(ni*nj),&
+          write(*,'(F7.2,6I10)') float(ij)*100/float(ni*nj),&
            nintpequal,nintptri,nintppoly,nextrap
         endif  
         xp = x0cart + xi(i)*coscart - yj(j)*sincart !Global coordinates
@@ -2114,25 +2114,25 @@ d2:   do j=1,nj
           ytri(1)=yc(ii)
           do k=1,ncf(ii)
             nck=c2cf(k,ii)
-	        if(k<ncf(ii))then
-	          nck2=c2cf(k+1,ii)
-	        else
-	          nck2=c2cf(1,ii)
+            if(k<ncf(ii))then
+              nck2=c2cf(k+1,ii)
+            else
+              nck2=c2cf(1,ii)
             endif
             if(nck>nc .or. nck2>nc) cycle !Do not interpolate using land cells
             xtri(2)=xc(nck); xtri(3)=xc(nck2)
-	        ytri(2)=yc(nck); ytri(3)=yc(nck2)  
+            ytri(2)=yc(nck); ytri(3)=yc(nck2)  
             if(intriangle(xp,yp,xtri,ytri))then !wave point inside flow triangle
-	          call interp_coef_tri(xp,yp,xtri,ytri,wtri) !Calc interp coefficients
-	          intp(0,i,j)=3
-	          intp(1,i,j)=ii
-	          intp(2,i,j)=nck
-	          intp(3,i,j)=nck2
-	          cntp(1:3,i,j)=wtri(1:3)
+              call interp_coef_tri(xp,yp,xtri,ytri,wtri) !Calc interp coefficients
+              intp(0,i,j)=3
+              intp(1,i,j)=ii
+              intp(2,i,j)=nck
+              intp(3,i,j)=nck2
+              cntp(1:3,i,j)=wtri(1:3)
               nintptri = nintptri + 1
               idintp(i,j) = 2
-	          cycle d2
-	        endif !intriangle
+              cycle d2
+            endif !intriangle
           enddo !k
         enddo
         
@@ -2155,8 +2155,8 @@ d2:   do j=1,nj
             !!if(jj==178)then
             !!  continue  
             !!endif   
-	        call interp_coef_poly(xp,yp,mc,npoly,xpoly,ypoly,wpoly) !Calc interp coefficients
-	        intp(0,i,j)=npoly !# of points
+            call interp_coef_poly(xp,yp,mc,npoly,xpoly,ypoly,wpoly) !Calc interp coefficients
+            intp(0,i,j)=npoly !# of points
             intp(1:npoly,i,j)=idpoly(1:npoly) !point IDs
             cntp(1:npoly,i,j)=wpoly(1:npoly)
             nintppoly = nintppoly + 1
@@ -2199,9 +2199,9 @@ d2:   do j=1,nj
     endsubroutine interp_coef_poly2cart           
                 
 !*************************************************************   
-    subroutine interp_coef_curv2tel(ni,nj,xcurv,ycurv, &	        
+    subroutine interp_coef_curv2tel(ni,nj,xcurv,ycurv, &            
        nD,x0tel,y0tel,azthtel,xtel,ytel,&
-	   nintrpcells,iintpcells,ijntp,cntp)
+       nintrpcells,iintpcells,ijntp,cntp)
 ! Interpolation coefficients and index from a curvilinear grid 
 ! to a telescoping grid.
 ! written by Chris Reed, URS; Alex Sanchez, USACE-CHL    
@@ -2953,8 +2953,8 @@ d2:   do j=1,nj
 !  Begin cell-to-node interpolations
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
                  
-!***************************************************************************	
-	subroutine interp_coef_cell2node_invarea(nn,nnc,nmnc,n2c,nc,nD,area,wc2n)
+!***************************************************************************    
+    subroutine interp_coef_cell2node_invarea(nn,nnc,nmnc,n2c,nc,nD,area,wc2n)
 ! Interpolation coefficients for a scalar from cell centroids to nodes
 ! written by Alex Sanchez, USACE-CHL
 !***************************************************************************
@@ -2989,8 +2989,8 @@ d2:   do j=1,nj
     return
     endsubroutine interp_coef_cell2node_invarea
 
-!*************************************************************************************	
-	subroutine interp_coef_cell2node_invdist(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,pow,wc2n)
+!*************************************************************************************    
+    subroutine interp_coef_cell2node_invdist(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,pow,wc2n)
 ! Inverse distance interpolation coefficients of a scalar from cell centroids to nodes
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************************
@@ -3027,8 +3027,8 @@ d2:   do j=1,nj
     return
     endsubroutine interp_coef_cell2node_invdist
 
-!*********************************************************************************	
-	subroutine interp_coef_cell2node_lstsqrs(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,wc2n)
+!*********************************************************************************    
+    subroutine interp_coef_cell2node_lstsqrs(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,wc2n)
 ! Least squares interpolation coefficients a scalar from cell centroids to nodes
 !
 ! Reference:

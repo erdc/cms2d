@@ -302,7 +302,7 @@
          BDpart = EPSCW/WS*(1.0-EXP(-WS*DEP/EPSCW))
          QSS=UC*CRCW*BDpart
       ELSE
-	     QSS = 0.0
+         QSS = 0.0
       ENDIF
 
       RETURN
@@ -326,7 +326,7 @@
          QBS=AC*SQRT(TAUCTB/RHOW)*TAUCWTB*EXP(-BC*TAUCR/TAUCWMTB)
          QBS=QBS/(RHOS-RHOW)/GRAV
       ELSE
-	   QBS = 0.0
+       QBS = 0.0
       ENDIF
 
       RETURN

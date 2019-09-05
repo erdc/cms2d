@@ -53,12 +53,12 @@
     character(len=100) :: cdum
     character(len=200) :: astr
     
-    selectcase(cardname)	            
+    selectcase(cardname)                
       case('CMS-WAVE_SIM_FILE','CMS_WAVE_SIM_FILE',&
            'CMSWAVE_SIM_FILE','WAVE_SIM_FILE')
         backspace(77)
         read(77,*) cardname,astr
-        call fileparts(astr,Wavepath,wavename,aext) 	      
+        call fileparts(astr,Wavepath,wavename,aext)           
         WavSimFile = trim(wavename) // '.sim'     
         cmswave = .true.   
         noptset = 3
@@ -195,24 +195,24 @@
     use size_def
     use geo_def, only: xOrigin,yOrigin,azimuth_fl
     use wave_flowgrid_def, only: wavfl_intpcoef_file
-	use flow_wavegrid_def, only: flwav_intpcoef_file,depwave,depwave0,hwave
-	use wave_wavegrid_def, only: nwavei,nwavej,nwaveij,&
+    use flow_wavegrid_def, only: flwav_intpcoef_file,depwave,depwave0,hwave
+    use wave_wavegrid_def, only: nwavei,nwavej,nwaveij,&
        dxwav,dywav,xwave,ywave,azimuth_wav,xwav0,ywav0
     use global !CMS-Wave module
-	use sed_def, only: sedtrans
+    use sed_def, only: sedtrans
     use comvarbl, only: flowpath
-	use cms_def, only: wavepath,noptzb,nbrksm,ndissm,nradsm,npersm
+    use cms_def, only: wavepath,noptzb,nbrksm,ndissm,nradsm,npersm
     use const_def, only: deg2rad
     use geo_def, only: bathydata
-	use prec_def
-	implicit none
-	integer :: i,j,ni,nj
-	integer :: isteer,iidate,imod,iprp,island,imd,iprpp
-	integer :: nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
-	real*4 :: depin,etain,uin,vin,x0,y0,azimuth,sinaz,cosaz
-	real*4 :: PAI2,PAI,HPAI,RAD,akap,dvarxx,dvaryy,depmin0
+    use prec_def
+    implicit none
+    integer :: i,j,ni,nj
+    integer :: isteer,iidate,imod,iprp,island,imd,iprpp
+    integer :: nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
+    real*4 :: depin,etain,uin,vin,x0,y0,azimuth,sinaz,cosaz
+    real*4 :: PAI2,PAI,HPAI,RAD,akap,dvarxx,dvaryy,depmin0
     common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
-	common/wavegrid/ni,nj
+    common/wavegrid/ni,nj
     common /dxxdyy/dvarxx(ipmx),dvaryy(ipmx) 
     common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
@@ -275,7 +275,7 @@
     do i=2,nwavei
       xwave(i)=xwave(i-1)+(dxwav(i-1)+dxwav(i))/2.0
     enddo        
-   	ywave(1)=0.5*dywav(1)
+       ywave(1)=0.5*dywav(1)
     do j=2,nwavej
       ywave(j)=ywave(j-1)+(dywav(j-1)+dywav(j))/2.0    
     enddo
@@ -507,13 +507,13 @@
     
     if(ncellsimple>0)then
       call interp_coef_tel2cart(ncells,ncellsD,nmaxfaces,&
-	    xOrigin,yOrigin,azimuth_fl,x,y,dx,dy,cell2cell,idirface,ncface, &	        
-	    nwavei,nwavej,xwav0,ywav0,azimuth_wav,xwave,ywave,&
-	    xtrpdistfl,nbndstr,bnd_str,iiflcell,coefintp_flwav)
+        xOrigin,yOrigin,azimuth_fl,x,y,dx,dy,cell2cell,idirface,ncface, &            
+        nwavei,nwavej,xwav0,ywav0,azimuth_wav,xwave,ywave,&
+        xtrpdistfl,nbndstr,bnd_str,iiflcell,coefintp_flwav)
     elseif(ncellpoly>0)then
       call interp_coef_poly2cart(ncells,ncellsD,nmaxfaces,x,y,&
         ncface,cell2cell,nnodes,nmaxcells,nncell,node2cell, &
-	    nwavei,nwavej,xwav0,ywav0,azimuth_wav,xwave,ywave,&
+        nwavei,nwavej,xwav0,ywav0,azimuth_wav,xwave,ywave,&
         xtrpdistfl,iiflcell,coefintp_flwav)
     endif
     
@@ -1026,7 +1026,7 @@
 !    do j=nwavej,1,-1
 !      write (216,*) (uwave(i,j),vwave(i,j),i=1,nwavei) 
 !    enddo
-!    close(216)	
+!    close(216)    
 !
 !    open (unit=221,file= SurgeFile, status='replace')       
 !    write(221,*) nwavei,nwavej,0
@@ -1057,7 +1057,7 @@
 !      write(254,*) (wetwave(i,j),i=1,nwavei)
 !    enddo
 !    close(254)
-	  	   
+             
     return
     endsubroutine setwave
 
@@ -1203,7 +1203,7 @@
           wcos(iwave,jwave)=cos(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wsin(iwave,jwave)=sin(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
-          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]		  
+          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]          
         enddo
       enddo  
 !$OMP END PARALLEL DO
@@ -1415,7 +1415,7 @@
       do i=1,nwavei
         i1=min(i+1,nwavei)
         i2=max(i-1,1)
-	    do j=1,nwavej
+        do j=1,nwavej
           j1=min(j+1,nwavej)
           j2=max(j-1,1)
           val2(i,j)=(2.0_ikind*val(i,j)+val(i1,j)+val(i2,j)+val(i,j1)+val(i,j2))/6.0_ikind
@@ -1424,7 +1424,7 @@
 !$OMP END DO
 !$OMP DO PRIVATE(i,j) COLLAPSE(2) 
       do i=1,nwavei
-	    do j=1,nwavej
+        do j=1,nwavej
           val(i,j) = val2(i,j)
         enddo
       enddo
@@ -1439,7 +1439,7 @@
       do i=1,nwavei
         i1=min(i+1,nwavei)
         i2=max(i-1,1)
-	    do j=1,nwavej
+        do j=1,nwavej
           j1=min(j+1,nwavej)
           j2=max(j-1,1)
           if(hwave(i,j)>hdry)then
@@ -1471,7 +1471,7 @@
 !$OMP END DO
 !$OMP DO PRIVATE(i,j) COLLAPSE(2) 
       do i=1,nwavei
-	    do j=1,nwavej
+        do j=1,nwavej
           val(i,j) = val2(i,j)
         enddo
       enddo
@@ -1509,7 +1509,7 @@
       do i=1,nwavei
         i1=min(i+1,nwavei)
         i2=max(i-1,1)
-	    do j=1,nwavej
+        do j=1,nwavej
           j1=min(j+1,nwavej)
           j2=max(j-1,1)    
           vecx2(i,j)=(2.0_ikind*vecx(i,j)+vecx(i1,j)+vecx(i2,j)+vecx(i,j1)+vecx(i,j2))/6.0_ikind
@@ -1519,7 +1519,7 @@
 !$OMP END DO
 !$OMP DO PRIVATE(i,j) COLLAPSE(2) 
       do i=1,nwavei
-	    do j=1,nwavej
+        do j=1,nwavej
           vecx(i,j) = vecx2(i,j)
           vecy(i,j) = vecy2(i,j)
         enddo
@@ -1529,7 +1529,7 @@
 !      do i=2,nwavei-1
 !        i1=i+1
 !        i2=i-1
-!	    do j=2,nwavej-1
+!        do j=2,nwavej-1
 !          j1=j+1
 !          j2=j-1   
 !          vecx2(i,j)=(2.0_ikind*vecx(i,j)+vecx(i1,j)+vecx(i2,j)+vecx(i,j1)+vecx(i,j2))/6.0_ikind
@@ -1539,7 +1539,7 @@
 !!$OMP END DO
 !!$OMP DO PRIVATE(i,j) COLLAPSE(2) 
 !      do i=2,nwavei-1
-!	    do j=2,nwavej-1
+!        do j=2,nwavej-1
 !          vecx(i,j) = vecx2(i,j)
 !          vecy(i,j) = vecy2(i,j)
 !        enddo
@@ -1675,7 +1675,7 @@
  
     if(ctime>tswave2 .and. noptset==3)then
       call diag_print_message(' ','*** CMS-Flow run successful ***')
-	        
+            
       nsteer=nsteer+1
       tswave1=tswave2
 !!        tide1=tide2
@@ -1699,7 +1699,7 @@
       call tidevalue(tswave2,tide2)
       call setwave
       
-      call diag_print_message('*** Starting CMS-Wave run ***',' ')	  
+      call diag_print_message('*** Starting CMS-Wave run ***',' ')      
       open(dgunit,file=dgfile,access='append') !Open before CMS-Wave run
       
       call cms_wave_inline                         !call cms_wave !(noptset,nsteer)  !modified 10/15/2018
@@ -1733,8 +1733,8 @@
         call readvecsteph5(grdfile,wavpath,nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif       
 !$OMP PARALLEL DO PRIVATE(i)
-  	    do i=1,ncellsD
-  	      Wunitx2(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
+          do i=1,ncellsD
+            Wunitx2(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and change units [N/m/s]
           if(wavediss2(i)>wavedisstol)then

@@ -124,7 +124,7 @@
 !          PSI=3.23319D0+2.70983D0*XI+0.14110D0*XI**2
 !        ELSE
 !          PSI=51.59618D0+56.02861D0*XI+19.85308D0*XI**2 &
-!     		  +2.43875D0*XI**3
+!               +2.43875D0*XI**3
 !        ENDIF
 !        RKTW=EXP(PSI)*AW
 !      ELSE
@@ -805,7 +805,7 @@
          BDpart = EPSCW/WS*(1.d0-EXP(-WS*DEP/EPSCW))
          QSS=UC*CRCW*BDpart
       else
-	   QSS = 0.d0
+       QSS = 0.d0
       end if
 
       RETURN
@@ -840,7 +840,7 @@
          QBS=A*SQRT(TAUCTB/RHOW)*TAUCWTB*EXP(-B*TAUCR/TAUCWMTB)
          QBS=QBS/(RHOS-RHOW)/GRAV
       else
-	   QBS = 0.d0
+       QBS = 0.d0
       end if
 
       RETURN
@@ -1204,7 +1204,7 @@
       VALUES(I) = EL(I)
     ENDDO
       
-	if (NTIMES.LT.0) THEN     !IF NTIMES IS NEGATIVE, FORCE ALL CELLS TO USE THE AVERAGE ELEVATION 
+    if (NTIMES.LT.0) THEN     !IF NTIMES IS NEGATIVE, FORCE ALL CELLS TO USE THE AVERAGE ELEVATION 
       DO I=1,NCELLS
         SUM=SUM+VALUES(I)
       ENDDO

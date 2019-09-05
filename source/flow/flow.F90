@@ -44,7 +44,7 @@
     viscos = 1.1812e-6 !Kinematic water viscosity [m^2/s] (approx for 15ºC and 35 ppt)    
     
     !Wetting and drying
-	hmin = 0.05	       !Minimum water depth [m]
+    hmin = 0.05           !Minimum water depth [m]
     hdry = 0.05        !Wetting and drying criteria [m]
     hdry1 = 5.0*hdry   !Wetting and drying criteria for one-cell-wide channels [m]
     hdry2 = 2.0*hdry   !Wetting and drying criteria for two-cell-wide channels [m]
@@ -52,8 +52,8 @@
     narrowchannels = .false. !Allows narrow channels in wetting and drying. Default off for stability   
     
     !Coriolis
-	icoriolisplane = 1 !1=f-plane,2=beta-plane
-	fcoriolis = 0.0
+    icoriolisplane = 1 !1=f-plane,2=beta-plane
+    fcoriolis = 0.0
 
     !Solution scheme
     nfsch = 0 !0-implicit, 1-explicit
@@ -73,15 +73,15 @@
     
     !Turblence model
     crossdiff = .false.
-	mturbul = 5
+    mturbul = 5
     cvismax = 20.0
-	cviscon = 1.0e-6 !constant (base value)
-	cvisbot = 0.0667 !bottom current shear
-	if(mturbul==5) cvisbot = 0.0667 !bottom current shear
-	cvishor = 0.4    !horizontal current, OLD
-	if(mturbul==5) cvishor = 0.2    !horizontal curren, NEW 
-	if(mturbul==4) cvishor = 0.2    !horizontal current 
-	cviswav = 0.5    !gamma in Larson and Kraus (1991) eddy viscosity for waves, OLD
+    cviscon = 1.0e-6 !constant (base value)
+        cvisbot = 0.0667 !bottom current shear
+    if(mturbul==5) cvisbot = 0.0667 !bottom current shear
+    cvishor = 0.4    !horizontal current, OLD
+    if(mturbul==5) cvishor = 0.2    !horizontal curren, NEW 
+    if(mturbul==4) cvishor = 0.2    !horizontal current 
+    cviswav = 0.5    !gamma in Larson and Kraus (1991) eddy viscosity for waves, OLD
     if(mturbul==5) cviswav = 0.5    !gamma in Larson and Kraus (1991) eddy viscosity for waves, NEW
     cviswavbrk = 2.5 !viscosity due to wave radiation stresses *IMPORTANT*
     if(mturbul==5) cviswavbrk = 0.1 !Viscosity due to wave breaking dissipation *IMPORTANT*
@@ -103,7 +103,7 @@
     pred_corr = .false. !Predictor-corrector
     
     !Advection scheme
-    ndsch = 4 !Exponential	  
+    ndsch = 4 !Exponential      
     !ndsch = 3  ! in Chris' code
     
     !Screen Output variable
@@ -118,11 +118,11 @@
     !Implicit Scheme Relaxation coefficients for pp, u , v , zs , te, ed, s , p ,den,vis
     relax = 0.6            !Wu
     relax(1) = 1.0       !pp     !This has to be 1.0   !Wu
-	relax(2) = 0.8       !u
-	relax(3) = relax(2)  !v
-	relax(4) = 0.8       !c
-	relax(5) = 0.8       !s
-	relax(8) = 1.0       !p
+    relax(2) = 0.8       !u
+    relax(3) = relax(2)  !v
+    relax(4) = 0.8       !c
+    relax(5) = 0.8       !s
+    relax(8) = 1.0       !p
     relaxsor = 1.8
     facpp = 0.2
     
@@ -194,10 +194,10 @@
     selectcase(cardname)
     case('PARAMS_FILE')
       backspace(77)
-	  read(77,*) cardname, mpfile
+      read(77,*) cardname, mpfile
       call fileparts(mpfile,apath,aname,aext)  
       if(len_trim(apath)==0)then
-		mpfile = trim(flowpath) // mpfile
+        mpfile = trim(flowpath) // mpfile
       endif
       
     case('ADVANCED_FILE')
@@ -209,7 +209,7 @@
       endif
 
     case('2D_MODE')
-	 !DO NOTHING
+     !DO NOTHING
      
     case('GRAVITY','GRAVITATIONAL_CONSTANT') 
       backspace(77)
@@ -218,7 +218,7 @@
     case('WATER_DENSITY')
       call card_scalar(77,'kg/m^3','kg/m^3',rhow,ierr)
       idensit = 0 !User specified
-		  
+          
     case('WATER_TEMPERATURE')
       call card_scalar(77,'C','C',watertemp,ierr)
       heatic = watertemp
@@ -233,8 +233,8 @@
       call card_scalar(77,'m','m',hmin,ierr)
       
     case('DRYING_DEPTH')
-      call card_scalar(77,'m','m',hdry,ierr)	
-	
+      call card_scalar(77,'m','m',hdry,ierr)    
+    
     case('DRYING_DEPTH_ONE_CELL','ONE_CELL_DRYING_DEPTH')
       call card_scalar(77,'m','m',hdry1,ierr)
       
@@ -246,10 +246,10 @@
         
     case('ONE_CELL_WIDE_CHANNELS','ONE-CELL-WIDE_CHANNELS','NARROW_CHANNELS')
       call card_boolean(77,narrowchannels,ierr)
-		  
+          
     !=== Coriolis =========================
-	case('CORIOLIS_APPROXIMATION','CORIOLIS_PLANE')
-	  backspace(77)
+    case('CORIOLIS_APPROXIMATION','CORIOLIS_PLANE')
+      backspace(77)
       read(77,*) cardname, cdum
       call lowercase(cdum)
       if(cdum(1:1)=='b')then
@@ -262,7 +262,7 @@
     case('HYDRO_TIMESTEP')
       call card_scalar(77,'sec','sec',dtime,ierr)
       deltime = dble(dtime)
-	  dtimebeg = dtime
+      dtimebeg = dtime
       dtime1 = dtime
       if(dtime<1.0e-6 .and. doPrint)then
         write(msg2,*) dtime
@@ -270,7 +270,7 @@
       endif  
       
     case('VARIABLE_TIMESTEP','ADAPTATIVE_TIMESTEP')  
-	  call card_boolean(77,dtvar,ierr)  
+      call card_boolean(77,dtvar,ierr)  
       
     case('STARTING_DATE_TIME')
       call card_datetime(77,iyr,imo,iday,ihr,imin,isec) !YYYY-MM-DD HH:MM:SS UTC
@@ -302,14 +302,14 @@
       tjulhr0 = tjulday0*24.0
       tjulhryr = julday(iyr,1,1)*24.0 !start of year, hours
       dtj = tjulhr0-tjulhryr
-		  
+          
     case('DURATION_RUN','SIMULATION_DURATION')
       call card_scalar(77,'hrs','hrs',tmax,ierr)
       stimet = tmax*3600.0 !seconds
-		  
+          
     case('DURATION_RAMP','RAMP_DURATION')
       call card_scalar(77,'days','hrs',rampdur,ierr)
-		  
+          
     case('SPIN_UP_ITERATIONS','SPINUP_ITERATIONS')  
       backspace(77)
       read(77,*) cardname,nspinup !iterations                
@@ -361,7 +361,7 @@
           '  Check CMS-Flow Card File','  Using Subgrid model')
         mturbul = 5
       endselect
-		 
+         
     case('EDDY_VISCOSITY_CONSTANT')
       backspace(77)
       read(77,*) cardname, cviscon  
@@ -377,7 +377,7 @@
         
     case('EDDY_VISCOSITY_WAVE')
       backspace(77)
-      read(77,*) cardname, cviswav		             		                
+      read(77,*) cardname, cviswav                                             
           
     case('EDDY_VISCOSITY_BREAKING','VISCOSITY_COEF_WAVE_BREAKING')
       backspace(77)
@@ -644,15 +644,15 @@
       ntsch=2
     else
       ntsch=1  
-    endif								
+    endif                                
 
     !Print elapsed/projected time output
     if(nfsch==0)then
-      nprt=20				   !Print elapsed output for Implicit scheme every XX timesteps
+      nprt=20                   !Print elapsed output for Implicit scheme every XX timesteps
     elseif(nfsch==1)then
-      nprt=4000				   !Print elapsed output for Explicit scheme every XX timesteps
+      nprt=4000                   !Print elapsed output for Explicit scheme every XX timesteps
     elseif(nfsch==2)then
-      nprt=4000  			   !Print elapsed output for Semi-implicit scheme every XX timesteps
+      nprt=4000                 !Print elapsed output for Semi-implicit scheme every XX timesteps
     endif  
     
     call flow_alloc
@@ -682,7 +682,7 @@
       u2 = u1; v2 = v1; p2 = p1; h2 = h1
       ctsch  = 1.0 + 0.5*wtsch
       ctsch1 = 1.0 + wtsch
-	  ctsch2 = 0.5*wtsch
+      ctsch2 = 0.5*wtsch
     endif 
 
     !Latitudes  
@@ -836,16 +836,16 @@
     allocate(p(ncellsD),p1(ncellsD),pk(nmaxfaces,ncellsD))
     allocate(dpx(ncellsD),dpy(ncellsD))
     allocate(eta(ncellsD),uv(ncellsD))
-	allocate(h(ncellsD),h1(ncellsD)) 
+    allocate(h(ncellsD),h1(ncellsD)) 
     allocate(hk(nmaxfaces,ncellsD))
-    allocate(u(ncellsD),u1(ncellsD),dux(ncellsD),duy(ncellsD))	
+    allocate(u(ncellsD),u1(ncellsD),dux(ncellsD),duy(ncellsD))    
     allocate(v(ncellsD),v1(ncellsD),dvx(ncellsD),dvy(ncellsD))         
-	flux=0.0; flux1=0.0
+    flux=0.0; flux1=0.0
     p=0.0; p1=0.0; pk=0.0; dpx=0.0; dpy=0.0
     eta=0.0; uv=0.0
-	h=0.0; h1=0.0; hk=0.0
-	u=0.0; u1=0.0; dux=0.0; duy=0.0
-	v=0.0; v1=0.0; dvx=0.0; dvy=0.0		
+    h=0.0; h1=0.0; hk=0.0
+    u=0.0; u1=0.0; dux=0.0; duy=0.0
+    v=0.0; v1=0.0; dvx=0.0; dvy=0.0        
     
     allocate(su(ncellsD),sv(ncellsD),sp(ncellsD)) 
     su=0.0; sv=0.0; sp=0.0
@@ -867,17 +867,17 @@
     !uk=0.0; vk=0.0
     !-------------------------------------------------------------------
          
-	!Implicit solver
-	if(nfsch==0)then
+    !Implicit solver
+    if(nfsch==0)then
       !Coefficient matrix
-	  allocate(acoef(nmaxfaces,ncellsD),ap(ncells))
+      allocate(acoef(nmaxfaces,ncellsD),ap(ncells))
       acoef=0.0; ap=0.0
       allocate(spu(ncellsD),spv(ncellsD)) 
       spu=0.0; spv=0.0
       allocate(ssu0(ncellsD),ssv0(ncellsD),sspp0(ncellsD)) 
       ssu0=0.0; ssv0=0.0; sspp0=0.0
       allocate(spuv0(ncellsD),sppp0(ncellsD))
-	  spuv0=0.0; sppp0=0.0
+      spuv0=0.0; sppp0=0.0
       
       !Pressure correction and momentum interpolation
       allocate(pp(ncellsD),dppx(ncellsD),dppy(ncellsD))
@@ -895,18 +895,18 @@
       allocate(rsp(ncellsD),rsu(ncellsD),rsv(ncellsD))             
       rsp=0.0; rsu=0.0; rsv=0.0
 
-	  if(ntsch==2)then
-	    allocate(u2(ncellsD),v2(ncellsD),p2(ncellsD),h2(ncellsD))
-	    u2=0.0; v2=0.0; p2=0.0; h2=h
+      if(ntsch==2)then
+        allocate(u2(ncellsD),v2(ncellsD),p2(ncellsD),h2(ncellsD))
+        u2=0.0; v2=0.0; p2=0.0; h2=h
         !allocate(iwet2(ncellsD))
         !iwet2=1
-	  endif
+      endif
     elseif(nfsch==1)then !Explicit solver
       !allocate(pk(nmaxfaces,ncellsD))
       !pk=0.0
       !allocate(uk(nmaxfaces,ncellsD),vk(nmaxfaces,ncellsD))      
       !uk=0.0;  vk=0.0      
-	  allocate(Huk(nmaxfaces,ncellsD),Hvk(nmaxfaces,ncellsD)) !Total Fluxes for u and v equations       
+      allocate(Huk(nmaxfaces,ncellsD),Hvk(nmaxfaces,ncellsD)) !Total Fluxes for u and v equations       
       Huk=0.0; Hvk=0.0
       allocate(detax(ncellsD),detay(ncellsD))
         detax=0.0; detay=0.0
@@ -935,10 +935,10 @@
       spu=0.0; spv=0.0
       allocate(fluxstar(nmaxfaces,ncellsD))
       fluxstar=0.0
-	endif 
+    endif 
          
-	!Eddy viscosity
-	allocate(vis(ncellsD),viskfl(nmaxfaces,ncellsD),visk(nmaxfaces,ncellsD))
+    !Eddy viscosity
+    allocate(vis(ncellsD),viskfl(nmaxfaces,ncellsD),visk(nmaxfaces,ncellsD))
     vis=0.0; visk=0.0; viskfl=0.0
     if(mturbul==4)then !Mixing-length model
       allocate(diswall(ncellsD))
@@ -971,7 +971,7 @@
     
     deallocate(iwet,iwet1)
     deallocate(icorner)
-	deallocate(eta,uv,flux,flux1)	
+    deallocate(eta,uv,flux,flux1)    
     deallocate(h,h1,hk)
     if(allocated(dhx)) deallocate(dhx,dhy)
     if(allocated(ppk)) deallocate(ppk)
@@ -980,9 +980,9 @@
     deallocate(v,v1,dvx,dvy)  
     
     !Implicit solver
-	if(nfsch==0)then
+    if(nfsch==0)then
       !Coefficient matrix
-	  deallocate(acoef,ap)
+      deallocate(acoef,ap)
       deallocate(su,sv,sp,spu,spv)
       deallocate(ssu0,ssv0,sspp0) 
       deallocate(spuv0,sppp0)
@@ -998,18 +998,18 @@
       deallocate(rsp,rsu,rsv)
 
       !Second-order scheme
-	  if(ntsch==2)then
-	    deallocate(u2,v2,p2,h2)
+      if(ntsch==2)then
+        deallocate(u2,v2,p2,h2)
         if(allocated(iwet2)) deallocate(iwet2)
-	  endif
+      endif
     else !Explicit solver
       if(allocated(uk)) deallocate(uk)
       if(allocated(vk)) deallocate(vk)
-	  deallocate(Huk,Hvk) !Total Fluxes for u and v equations
+      deallocate(Huk,Hvk) !Total Fluxes for u and v equations
     endif 
     
     !Eddy viscosity
-	deallocate(vis,viskfl,visk)
+    deallocate(vis,viskfl,visk)
     if(mturbul==4)then !Mixing-length model
       deallocate(diswall)
     endif 
@@ -1055,9 +1055,9 @@
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
     
-    do i=1,2	
-      write(iunit(i),*)		
-	  write(iunit(i),111)       'Hydrodynamics'  
+    do i=1,2    
+      write(iunit(i),*)        
+      write(iunit(i),111)       'Hydrodynamics'  
       write(iunit(i),111)       '  Water Properties:'
       write(iunit(i),342)       '    Temperature:',watertemp,' deg C'
       if(idensit>0 .or. iviscos==2)then
@@ -1065,56 +1065,56 @@
       endif
       write(iunit(i),342)       '    Density:',rhow,' kg/m^3'
       write(iunit(i),354)       '    Kinematic Viscosity: ',trim(vstrlz(viscos,'(1pe10.3)')),' m^2/s'
-	  write(iunit(i),111)       '  Timing'
-	  write(iunit(i),5431)      iyr,imo,iday,ihr,imin,isec
-	  write(iunit(i),354)       '    Hydrodynamic time step: ',trim(vstrlz(dtime,'(f0.3)')),' sec'
-	  write(iunit(i),354)       '    Simulation Duration: ',trim(vstrlz(tmax,'(f0.3)')),' hours'
+      write(iunit(i),111)       '  Timing'
+      write(iunit(i),5431)      iyr,imo,iday,ihr,imin,isec
+      write(iunit(i),354)       '    Hydrodynamic time step: ',trim(vstrlz(dtime,'(f0.3)')),' sec'
+      write(iunit(i),354)       '    Simulation Duration: ',trim(vstrlz(tmax,'(f0.3)')),' hours'
       write(iunit(i),354)       '    Ramp Duration: ',trim(vstrlz(rampdur,'(f0.3)')),' hours'    
 
-      !write(iunit(i),*)	
-	  write(iunit(i),111)	    '  Wetting and Drying'
+      !write(iunit(i),*)    
+      write(iunit(i),111)        '  Wetting and Drying'
 #ifdef DEV_MODE
       write(iunit(i),354)       '    Minimum Depth: ',trim(vstrlz(hmin,'(1pe10.3)')),' m'
 #endif
-	  write(iunit(i),354)       '    Drying Depth: ',trim(vstrlz(hdry,'(f0.3)')),' m'	
+      write(iunit(i),354)       '    Drying Depth: ',trim(vstrlz(hdry,'(f0.3)')),' m'    
       if(ponding)then
-	    write(iunit(i),222)     '    Water Ponding: ','ON'
+        write(iunit(i),222)     '    Water Ponding: ','ON'
       else
-	    write(iunit(i),222)     '    Water Ponding: ','OFF'
+        write(iunit(i),222)     '    Water Ponding: ','OFF'
       endif
       if(narrowchannels)then
-	    write(iunit(i),222)     '    Narrow Channels: ','ON'
-        write(iunit(i),354)     '    One-cell Drying Depth: ',trim(vstrlz(hdry1,'(f0.3)')),' m'	
-        write(iunit(i),354)     '    Two-cell Drying Depth: ',trim(vstrlz(hdry2,'(f0.3)')),' m'	
+        write(iunit(i),222)     '    Narrow Channels: ','ON'
+        write(iunit(i),354)     '    One-cell Drying Depth: ',trim(vstrlz(hdry1,'(f0.3)')),' m'    
+        write(iunit(i),354)     '    Two-cell Drying Depth: ',trim(vstrlz(hdry2,'(f0.3)')),' m'    
       else
-	    write(iunit(i),222)     '    Narrow Channels:','OFF'
+        write(iunit(i),222)     '    Narrow Channels:','OFF'
       endif  
       
       if(noptset>=3)then
-	    if(waveflux)then
-	      write(iunit(i),222)   '  Wave Mass Flux:','ON'
-	      if(rolflux)then
-	        write(iunit(i),222) '  Roller Mass Flux:','ON'
-	      else
-	        write(iunit(i),222) '  Roller Mass Flux:','OFF'  
-	      endif
-	    else
-	      write(iunit(i),222)   '  Wave Mass Flux:','OFF'
-	    endif
+        if(waveflux)then
+          write(iunit(i),222)   '  Wave Mass Flux:','ON'
+          if(rolflux)then
+            write(iunit(i),222) '  Roller Mass Flux:','ON'
+          else
+            write(iunit(i),222) '  Roller Mass Flux:','OFF'  
+          endif
+        else
+          write(iunit(i),222)   '  Wave Mass Flux:','OFF'
+        endif
       endif
     
       if(icoriolisplane==1)then
-	    write(iunit(i),222) '  Coriolis Approximation:','F-PLANE'  
+        write(iunit(i),222) '  Coriolis Approximation:','F-PLANE'  
         write(iunit(i),354) '    Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
-	    write(iunit(i),354) '    Constant Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
-	  else
-	    write(iunit(i),222) '  Coriolis Approximation:','BETA-PLANE'
+        write(iunit(i),354) '    Constant Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
+      else
+        write(iunit(i),222) '  Coriolis Approximation:','BETA-PLANE'
         write(iunit(i),354) '    Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
-	    write(iunit(i),354) '    Central Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
-	  endif
+        write(iunit(i),354) '    Central Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
+      endif
     
-	  write(iunit(i),222)   '  Turbulence Model:',trim(aturb(mturbul))
-	  write(iunit(i),111)   '    Coefficients'
+      write(iunit(i),222)   '  Turbulence Model:',trim(aturb(mturbul))
+      write(iunit(i),111)   '    Coefficients'
       write(iunit(i),354)   '    Constant:',trim(vstrlz(cviscon,'(1pe10.3)'))
       if(mturbul>=2)then
         write(iunit(i),354) '    Current Bottom Shear:',trim(vstrlz(cvisbot,'(f0.3)'))
@@ -1125,12 +1125,12 @@
       if(noptset>=3)then
         write(iunit(i),354) '    Wave Bottom Shear:',trim(vstrlz(cviswav,'(f0.3)'))
         write(iunit(i),354) '    Wave Breaking:',trim(vstrlz(cviswavbrk,'(f0.3)'))
-	  endif	
-	
+      endif    
+    
       write(iunit(i),111)   '  Numerical Methods'
       if(nfsch==0)then !Implicit
-	    write(iunit(i),222) '    Solution Scheme:','IMPLICIT'
-	    if(dtime<1.0)then !Check time step
+        write(iunit(i),222) '    Solution Scheme:','IMPLICIT'
+        if(dtime<1.0)then !Check time step
           write(iunit(i),*)     
           write(iunit(i),111) '      WARNING: Extremely small time step for implicit scheme'
         endif
@@ -1142,11 +1142,11 @@
         endif
 #endif
         if(ntsch==1)then
-	      write(iunit(i),222) '    Temporal Scheme:','TWO-LEVEL'
-	    else
-	      write(iunit(i),222) '    Temporal Scheme:','THREE-LEVEL'
+          write(iunit(i),222) '    Temporal Scheme:','TWO-LEVEL'
+        else
+          write(iunit(i),222) '    Temporal Scheme:','THREE-LEVEL'
           write(iunit(i),354) '    Implicit Weighting Factor:',trim(vstrlz(wtsch,'(f0.3)'))
-	    endif
+        endif
         write(iunit(i),222)   '    Advection Scheme:',trim(advsc(ndsch))
         write(iunit(i),222)   '    Matrix Solver:',trim(asolv(nsolv))
         if(nsolv==2 .or. nsolv==5)then
@@ -1170,17 +1170,17 @@
         else
           write(iunit(i),222) '    Skewness Correction:','OFF'
         endif
-	    write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
+        write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
         write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
-	  elseif(nfsch==1)then    !Explicit
-	    write(iunit(i),222)   '  Solution Scheme:','EXPLICIT'
-	    write(iunit(i),801)   '    Order Accuracy:',norder
-	    write(iunit(i),222)   '    Riemann Solver:',trim(ariem(nriem))
+      elseif(nfsch==1)then    !Explicit
+        write(iunit(i),222)   '  Solution Scheme:','EXPLICIT'
+        write(iunit(i),801)   '    Order Accuracy:',norder
+        write(iunit(i),222)   '    Riemann Solver:',trim(ariem(nriem))
         write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
         write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
       else !if(nfsch==1)then  !Semi-implicit  
         write(iunit(i),222)   '  Solution Scheme:','SEMI_IMPLICIT'
-	    write(iunit(i),801)   '    Order Accuracy:',norder  
+        write(iunit(i),801)   '    Order Accuracy:',norder  
         write(iunit(i),222)   '    Riemann Solver:',trim(ariem(nriem))
         write(iunit(i),222)   '    Spatial Derivative Scheme:',trim(ader(nder))
         write(iunit(i),222)   '    Slope Limiter:',trim(alim(nlim))
@@ -1189,7 +1189,7 @@
       write(iunit(i),801)     '    Number of Threads used:',nthr     
     enddo
                 
-    close(dgunit)		    
+    close(dgunit)            
     
     return
     endsubroutine flow_print
@@ -1249,9 +1249,9 @@
    ! !cell average water depth. Then the neighboring cells are checked
    ! !for greater water levels 
    ! do i=1,ncells
-	  !do j=1,nxyface(i)
-	  !  k = kxyface(j,i)
-	  !  nck = cell2cell(k,i)
+      !do j=1,nxyface(i)
+      !  k = kxyface(j,i)
+      !  nck = cell2cell(k,i)
    !     if(nck>ncells) cycle
    !     if((h(i)>hdry   .and. h(nck)<hdry .and. &
    !         p(i)>p(nck) .and. (p(i)*gravinv-zb(nck))>hdry))then   !Right dry but lower than left

@@ -823,7 +823,7 @@
 !****************************************************    
     use size_def, only: ncells
     use sed_def
- 	use prec_def
+     use prec_def
     use dredge_def, only: bed_change,dredge_mat_gradation
     implicit none
 
@@ -934,7 +934,7 @@
 !****************************************************    
     use size_def, only: ncells
     use sed_def
- 	use prec_def
+     use prec_def
     use dredge_def, only: bed_change,dredge_mat_gradation      
     implicit none
 

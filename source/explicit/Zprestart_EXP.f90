@@ -1,9 +1,9 @@
       Subroutine prestart_EXP
-	  use EXP_Global_def
+      use EXP_Global_def
       USE EXP_bndcond_def
-      USE EXP_transport_def       	  
-	  use flow_def
-	  use cms_def
+      USE EXP_transport_def             
+      use flow_def
+      use cms_def
       use bnd_def
       use const_def, only: pi,deg2Rad
       use wave_flowgrid_def
@@ -88,7 +88,7 @@
 
         dtsed = max(dtsed,dt)
         dtmorph = max(dtmorph,dt)
-	
+    
         !Chris is using the elapsed times but I would prefer
         !to use time steps which are multiples of each other
         !Round dtsed to lowest multiple of dt   

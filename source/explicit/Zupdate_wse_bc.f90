@@ -1,9 +1,9 @@
       subroutine update_wse_bc()
-	  use EXP_Global_def
-	  USE EXP_transport_def 
-	  USE EXP_bndcond_def   
-	  use flow_def
-	  use comvarbl, only: timehrs,ramp,dtj
+      use EXP_Global_def
+      USE EXP_transport_def 
+      USE EXP_bndcond_def   
+      use flow_def
+      use comvarbl, only: timehrs,ramp,dtj
       use bnd_def
       use sed_def
       use geo_def, only: zb
@@ -39,7 +39,7 @@
           val1 = H_str(i)%wsecurv(inc)
           val2 = H_str(i)%wsecurv(inc+1) 
           tval1 = H_str(i)%times(inc)
-          tval2 = H_str(i)%times(inc+1)	
+          tval2 = H_str(i)%times(inc+1)    
           fac = (timeHRS-tval1) / (tval2-tval1)                         !compute the weighting factor for the WSE forcing
           elev = val1 + fac*(val2-val1)                                 !compute the weighted value of WSE
           elev = ramp*(elev + helev)                                    !apply the ramp to the elevation plus added WSE from a different signal 
@@ -95,11 +95,11 @@
             inc = inc+1
             MH_str(i)%inc = inc
           enddo
-          tval1 = MH_str(i)%times(inc)	
+          tval1 = MH_str(i)%times(inc)    
           tval2 = MH_str(i)%times(inc+1)
           fac = (timeHRS-tval1) / (tval2-tval1)                         !compute the weighting factor for the WSE forcing
           do j=1,MH_str(i)%NCells   !for each cell in string
-            val1 = MH_str(i)%wsedata(j,inc)	
+            val1 = MH_str(i)%wsedata(j,inc)    
             val2 = MH_str(i)%wsedata(j,inc+1)
             elev = val1 + fac*(val2-val1)                               !compute the weighted value of WSE
             elev = ramp*(elev + helev)                                  !apply the ramp to the elevation plus added WSE from a different signal 
@@ -120,11 +120,11 @@
             inc = inc+1
             MHV_str(i)%incwse = inc
           enddo
-          tval1 = MHV_str(i)%timeswse(inc)	
+          tval1 = MHV_str(i)%timeswse(inc)    
           tval2 = MHV_str(i)%timeswse(inc+1)
           fac = (timeHRS-tval1) / (tval2-tval1)                         !compute the weighting factor for the WSE forcing
           do j=1,MHV_str(i)%NCells   !for each cell in string
-            val1 = MHV_str(i)%wsedata(j,inc)	
+            val1 = MHV_str(i)%wsedata(j,inc)    
             val2 = MHV_str(i)%wsedata(j,inc+1)
             elev = val1 + fac*(val2-val1)                               !compute the weighted value of WSE
             elev = ramp*(elev + helev)                                  !apply the ramp to the elevation plus added WSE from a different signal 
@@ -141,7 +141,7 @@
       if(WABC .or. windvar .or. windconst) then   !update etas to include wabc
         if(nHstr .gt. 0) then
           do i = 1,nHstr  !for each cell string
-            do j=1,H_str(i)%NCells	!for each cell in string
+            do j=1,H_str(i)%NCells    !for each cell in string
               eta(H_str(i)%Cells(j))  = eta(H_str(i)%Cells(j))  + SWABC(i)%eta(j)
               etan(H_str(i)%Cells(j)) = etan(H_str(i)%Cells(j)) + SWABC(i)%eta(j)
             enddo
@@ -158,7 +158,7 @@
 
         if(nMHstr .gt. 0) then
           do i = 1,nMHstr  !for each cell string                              !NDRIVER - changed 3/27/2009
-            do j=1,MH_str(i)%NCells	!for each cell in string
+            do j=1,MH_str(i)%NCells    !for each cell in string
               eta(MH_str(i)%Cells(j)) = eta(MH_str(i)%Cells(j))  + MWABC(i)%eta(j)
               etan(MH_str(i)%Cells(j))= etan(MH_str(i)%Cells(j)) + MWABC(i)%eta(j)
             enddo

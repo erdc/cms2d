@@ -1,6 +1,6 @@
     subroutine update_salt_conc()
       use EXP_Global_def
-      USE EXP_transport_def 	
+      USE EXP_transport_def     
       USE EXP_bndcond_def
       use flow_def
       use comvarbl
@@ -35,8 +35,8 @@
 !$OMP DO PRIVATE (NCW,NCS,DIFFT,DXT,DYT,AREA)
       do i=1,ncells
         ncs = cell2cell(3,i)
-        ncw = cell2cell(4,i)	
-        if(active(i,1)) then	
+        ncw = cell2cell(4,i)    
+        if(active(i,1)) then    
           diffT = min(salt(i)%diffC,salt(ncw)%diffC) !/2.
           dxT = (dx(i)+dx(ncw))/2.
           area = dy(i)*(eta(i)-zb(i)+eta(ncw)-zb(ncw))/2.

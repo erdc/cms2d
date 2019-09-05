@@ -111,21 +111,21 @@
 #endif
       selectcase(ndsch) !coefficients, sources, and sinks
       case(0); call coeffsourcesink_uv(zerocoef)
-      case(2); call coeffsourcesink_uv(hybridcoef)			  !Chris' code has 1
-      case(3); call coeffsourcesink_uv(powerlawcoef)		  !Chris' code has 2
-      case(4); call coeffsourcesink_uv(exponentialcoef)		  !Chris' code has 3
+      case(2); call coeffsourcesink_uv(hybridcoef)              !Chris' code has 1
+      case(3); call coeffsourcesink_uv(powerlawcoef)          !Chris' code has 2
+      case(4); call coeffsourcesink_uv(exponentialcoef)          !Chris' code has 3
       case default; call coeffsourcesink_uv(upwindcoef)
       endselect
       !Deferred anti-diffusion corrections
       if(ncellsimple<ncells)then !Not a simple Cartesian grid
         selectcase(ndsch) 
         case(0); !Do nothing. No deferred correction for this case    
-        case(5); call defcorhlpagradvec(u,v,dux,duy,dvx,dvy,su,sv)				    !Chris' code has 4
+        case(5); call defcorhlpagradvec(u,v,dux,duy,dvx,dvy,su,sv)                    !Chris' code has 4
         !case(5); call defcorhlpagradvecnew(u,v,dux,duy,dvx,dvy,su,sv)
-        case(6); call defcorgammagradvec(gammadefcor,u,v,dux,duy,dvx,dvy,su,sv)	    !Chris' code has 5
-        case(7); call defcorgammagradvec(cubistadefcor,u,v,dux,duy,dvx,dvy,su,sv)  	!Chris' code has 6
+        case(6); call defcorgammagradvec(gammadefcor,u,v,dux,duy,dvx,dvy,su,sv)        !Chris' code has 5
+        case(7); call defcorgammagradvec(cubistadefcor,u,v,dux,duy,dvx,dvy,su,sv)      !Chris' code has 6
         case(8); call defcorgammagradvec(alvsmartdefcor,u,v,dux,duy,dvx,dvy,su,sv)  !Chris' code has 7 
-        case(9); call defcorgammagradvec(hoabdefcor,u,v,dux,duy,dvx,dvy,su,sv)		!Chris' code has 8
+        case(9); call defcorgammagradvec(hoabdefcor,u,v,dux,duy,dvx,dvy,su,sv)        !Chris' code has 8
         case default; call defcorparagradvec(dux,duy,dvx,dvy,su,sv) !Only deferred skewness corrections
         endselect
       else !Simple Cartesian grid
@@ -611,10 +611,10 @@
       apuareap(i)=apu*areap(i) !Pressure-correction and momentum interpolation
       sumu(i)=asum*apu        !Pressure-correction equation  
       Hu(i)=iwet(i)*(u(i)+apuareap(i)*dpx(i)*h(i))
-  	  Hv(i)=iwet(i)*(v(i)+apuareap(i)*dpy(i)*h(i))
+        Hv(i)=iwet(i)*(v(i)+apuareap(i)*dpy(i)*h(i))
       !!Hu(i)=iwet(i)*(h(i)*u(i)+apuareap(i)*dpx(i)*h(i)*h(i))
-  	  !!Hv(i)=iwet(i)*(h(i)*v(i)+apuareap(i)*dpy(i)*h(i)*h(i))
-	enddo
+        !!Hv(i)=iwet(i)*(h(i)*v(i)+apuareap(i)*dpy(i)*h(i)*h(i))
+    enddo
 !$OMP END DO
     
 !--- Coefficient Matrix -----------------------
@@ -971,7 +971,7 @@
       k=W_str%faces(j)
       nck=cell2cell(k,i)
       p(nck)=p(i)
-      !p(nck)=p(i)+2.0*(rx(k,i)*dpx(i)+ry(k,i)*dpy(i)) !Linear extrapolation	!Chris' code had this
+      !p(nck)=p(i)+2.0*(rx(k,i)*dpx(i)+ry(k,i)*dpy(i)) !Linear extrapolation    !Chris' code had this
       !p(nck)=2.0*p(i)-p(cell2cell(llec2llec(k,i),i))  !linear extrapolation
       !h(nck)=max(hmin,p(nck)*gravinv-zb(nck))
     enddo
@@ -983,7 +983,7 @@
         k=Q_STR(iriv)%faces(j)
         nck=cell2cell(k,i)
         p(nck)=p(i)
-        !p(nck)=p(i)+2.0*(rx(k,i)*dpx(i)+ry(k,i)*dpy(i)) !Linear extrapolation	!Chris' code had this
+        !p(nck)=p(i)+2.0*(rx(k,i)*dpx(i)+ry(k,i)*dpy(i)) !Linear extrapolation    !Chris' code had this
         !p(nck)=2.0*p(i)-p(cell2cell(llec2llec(k,i),i))  !linear extrapolation
         h(nck)=max(hmin,p(nck)*gravinv-zb(nck))
       enddo
@@ -1049,7 +1049,7 @@
             write(msg3,*) '  Neighbor: ',mapid(nck)
             write(msg4,*) '  acoef(k,i)=',acoef(k,i)  
             call diag_print_error('Invalid coefficient between wet and dry cells after pvfc',&
-              msg2,msg3,msg4)			
+              msg2,msg3,msg4)            
           endif
           !if(nck<=ncells .and. abs(acoef(k,i)-1.0)>1.0e-15)then
           !  write(msg2,*) '  Cell: ',mapid(i)
@@ -1804,8 +1804,8 @@ di:   do i=1,ncells
     ww(2)=1.0-psi
     ww(3)=psi/2.0
 !$OMP PARALLEL    
-!$OMP DO PRIVATE(i,cbuwc,val)  	
-	do i=1,ncells
+!$OMP DO PRIVATE(i,cbuwc,val)      
+    do i=1,ncells
       !hpred(i)=h(i)-dtime*(h(i)*dux(i)+u(i)*dhx(i)+h(i)*dvy(i)+v(i)*dhy(i))
       hpred(i)=h(i)-iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i)) !Water depth prediction
       !hpred(i)=1.0/ww(1)*(h(i)*ww(2)+h1(i)*ww(3) &
@@ -1926,19 +1926,19 @@ di:   do i=1,ncells
 
     !Deferred Corrections
     selectcase(ndsch) !Anti-diffusion corrections
-    case(5)													  !Chris 4
+    case(5)                                                      !Chris 4
       call defcorhlpagrad(u,dux,duy,su)
       call defcorhlpagrad(v,dvx,dvy,sv)
-    case(6)													  !Chris 5
+    case(6)                                                      !Chris 5
       call defcorgammagrad(gammadefcor,u,dux,duy,su)
       call defcorgammagrad(gammadefcor,v,dvx,dvy,sv)
-    case(7)													  !Chris 6
+    case(7)                                                      !Chris 6
       call defcorgammagrad(cubistadefcor,u,dux,duy,su)
       call defcorgammagrad(cubistadefcor,v,dvx,dvy,sv)
-    case(8)													  !Chris 7
+    case(8)                                                      !Chris 7
       call defcorgammagrad(alvsmartdefcor,u,dux,duy,su)
       call defcorgammagrad(alvsmartdefcor,v,dvx,dvy,sv)  
-    case(9)													  !Chris 8
+    case(9)                                                      !Chris 8
       call defcorgammagrad(hoabdefcor,u,dux,duy,su)
       call defcorgammagrad(hoabdefcor,v,dvx,dvy,sv)
     endselect  
@@ -1955,7 +1955,7 @@ di:   do i=1,ncells
            spv(i)=sp(i) 
            do k=1,ncface(i)
              nck=cell2cell(k,i)
-	         if(iwet(nck)==0)then    !side is dry			
+             if(iwet(nck)==0)then    !side is dry            
                !vparl=sqrt(u(i)*u(i)+v(i)*v(i))    
                z0wall=z0(i)*wallfac
                if(idirface(k,i)==1.or.idirface(k,i)==3)then   !north/south face
@@ -2015,8 +2015,8 @@ di:   do i=1,ncells
 !    enddo      
 !!$OMP END PARALLEL DO
 !
-!!$OMP PARALLELDO PRIVATE(i,j,k,nck,uni,unk)  	
-!	do i=1,ncells      
+!!$OMP PARALLELDO PRIVATE(i,j,k,nck,uni,unk)      
+!    do i=1,ncells      
 !      do j=1,nxyface(i)
 !         k=kxyface(j,i)
 !         nck=cell2cell(k,i)
@@ -2384,8 +2384,8 @@ di:   do i=1,ncells
     use met_def, only: rain,evap
     use prec_def
     use size_def, only: ncellsD
-    use met_def, only: rain_time,rf_unit		 !06/28/2016
-    use sal_def, only: saltrans,sal,sal1		 !06/28/2016
+    use met_def, only: rain_time,rf_unit         !06/28/2016
+    use sal_def, only: saltrans,sal,sal1         !06/28/2016
     implicit none
     integer :: i
     real(ikind) :: dpre,dpre_evap,hold

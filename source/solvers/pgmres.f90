@@ -14,7 +14,7 @@
     integer, parameter :: kmax=3       
     real(ikind) :: vv(ncells,kmax+1),rhs(ncellsD),hh(kmax+1,kmax),c(kmax),s(kmax)
     real(ikind) :: eps1,t,rs1(kmax+1),term,eps11,gam,ro,adak,adbk
-	    
+        
     im=kmax
     eps1=0.001
 !$OMP PARALLEL DO PRIVATE(ii)
@@ -53,8 +53,8 @@
       
       !---Initialize first term of RHS of Hessenberg system
       rs1(1)=ro
-!	   rs1(2:kmax+1)=0.0
-!	   hh(2:kmax+1,1:kmax+1)=0.0
+!       rs1(2:kmax+1)=0.0
+!       hh(2:kmax+1,1:kmax+1)=0.0
 
       i=0
  4    i=i+1
@@ -140,7 +140,7 @@
 !          vv(1,j)=vv(1,j)+t*vv(1,j)
 !       enddo
 
-	enddo
+    enddo
 
     return
     endsubroutine pgmres

@@ -1,5 +1,5 @@
       subroutine update_wetdry()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def       
       use sed_def
@@ -38,6 +38,6 @@
           IF(QYN(I) .LT. 0.D0) QYN(I) = 0.D0
         ENDIF
       ENDDO
-!$OMP end parallel do	
+!$OMP end parallel do    
 
       end subroutine

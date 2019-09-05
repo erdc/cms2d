@@ -62,34 +62,34 @@ contains
 !used in wave breaking formulation of Alsina and Baldock (2007)
 !********************************************************************  
     use const_def, only: pi
-    use prec_def	
-	implicit none
-	integer :: k
-	real :: dk,E,S,fac,x,eps,y
-	real, parameter :: tol=0.0001
+    use prec_def    
+    implicit none
+    integer :: k
+    real :: dk,E,S,fac,x,eps,y
+    real, parameter :: tol=0.0001
     
-	fac = 2.0*x/sqrt(pi)
-	eps = tol/fac
-	if(x>3.0)then
-		y = 1.0
-		return	
-	endif
-	E = 1.0
-	S = 1.0
-	do k=1,40
-		dk = real(k)
-		E = -((2.0*dk-1.0)*x**2)/((2.0*dk+1.0)*k)*E
-		if(abs(E)<=eps)then
-			exit
-		endif
-		S = S + E
-	enddo
-	y = fac*S
-	if(y>1.0) y = 1.0
+    fac = 2.0*x/sqrt(pi)
+    eps = tol/fac
+    if(x>3.0)then
+        y = 1.0
+        return    
+    endif
+    E = 1.0
+    S = 1.0
+    do k=1,40
+        dk = real(k)
+        E = -((2.0*dk-1.0)*x**2)/((2.0*dk+1.0)*k)*E
+        if(abs(E)<=eps)then
+            exit
+        endif
+        S = S + E
+    enddo
+    y = fac*S
+    if(y>1.0) y = 1.0
     
-	return
-	endfunction erf
-	
+    return
+    endfunction erf
+    
 !***************************************************    
     function ei(x) result(y)
 ! Computes the exponential integral Ei(x)
@@ -226,7 +226,7 @@ contains
     endsubroutine e1z    
     
 !***************************************************************  
-	subroutine sortup(n,x,ind)
+    subroutine sortup(n,x,ind)
 ! Sort vector in ascending order
 !***************************************************************  
     use prec_def

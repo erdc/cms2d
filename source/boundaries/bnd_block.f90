@@ -25,7 +25,7 @@
     real(ikind), parameter :: undef = -999.0
     integer, parameter     :: iundef = -999
     integer            :: i,k,kk,ierr
-	logical            :: foundcard,foundfile
+    logical            :: foundcard,foundfile
     character(len=20)  :: qunits
     character(len=37)  :: cardname
     
@@ -301,7 +301,7 @@
         read(77,*) cardname,bndname
         
       case('CELLSTRING')
-	    call card_bid(flowpath,bidfile,bidpath,idnum)
+        call card_bid(flowpath,bidfile,bidpath,idnum)
         istrtype = 1
           
       case('NODESTRING')  

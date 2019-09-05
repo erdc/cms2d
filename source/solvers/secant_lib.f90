@@ -41,7 +41,7 @@ contains
     integer,intent(out) :: iter
     !Internal
     integer :: i
-	real(ikind) :: err
+    real(ikind) :: err
     
     interface
       function fvar(c,x)
@@ -52,9 +52,9 @@ contains
       endfunction
     endinterface
 
-	f(1) = var - fvar(c,x(1))
-	f(2) = var - fvar(c,x(2))
-	do i=1,iter		
+    f(1) = var - fvar(c,x(1))
+    f(2) = var - fvar(c,x(2))
+    do i=1,iter        
       x(3) = x(2) - f(2)*(x(1) - x(2))/(f(1) - f(2))  !Secant formula
       err = abs(x(2)-x(3)) !Change
       if(err<eps) exit
@@ -64,12 +64,12 @@ contains
       f(2) = var - fvar(c,x(2))
       if(abs(f(2))<tol) exit !Error
     enddo
-	
+    
     iter = i
     eps = err
     tol = f(2)
     
-	return
+    return
     endsubroutine secant
 
 endmodule secant_lib    

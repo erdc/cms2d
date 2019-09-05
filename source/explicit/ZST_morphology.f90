@@ -3,7 +3,7 @@
       USE EXP_bndcond_def     
       USE EXP_transport_def    
       use EXP_Structures_def
-	use size_def
+    use size_def
       use geo_def
       use flow_def
       use comvarbl
@@ -35,7 +35,7 @@
       do i=1,ncells
         bed(i) = 0.0d0
         if((etan(i)-zb(i)).le.0.1d0*drydep) etan(i) = 0.1*drydep +zb(i)
-      enddo	
+      enddo    
 !$OMP END PARALLEL DO      
 
 ! set dummy cell depths to interior cell depths

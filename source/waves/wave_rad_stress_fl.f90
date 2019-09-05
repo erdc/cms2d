@@ -24,7 +24,7 @@
       !Radiation stresses        
       Sxx(i)=E*(cn*(1.0+wunitx(i)*wunitx(i))-0.5)
       Syy(i)=E*(cn*(1.0+wunity(i)*wunity(i))-0.5)
-	  Sxy(i)=E*cn*wunity(i)*wunity(i)
+      Sxy(i)=E*cn*wunity(i)*wunity(i)
     enddo
     
     do i=1,ncells

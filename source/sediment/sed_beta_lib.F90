@@ -74,18 +74,18 @@ contains
     
     !Positions from 1 to nzap| nphip
     fi = (zap-logzap)/dzap+1.0
-	  fj = (phip-phip0)/dphip+1.0
+      fj = (phip-phip0)/dphip+1.0
     !Indices
-	  i = max(min(int(fi),nzap-1),1)
-	  j = max(min(int(fj),nphip-1),1)
-	  !Normalized positions within each cell
-	  fi = fi-floor(fi)
-	  fj = fj-floor(fj)
-	  !Bilinear interpolation
-	  betas=(betas_table(i,j)*(1.0-fi) + betas_table(i+1,j)*fi)*(1.0-fj) + &
-		    	(betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
+      i = max(min(int(fi),nzap-1),1)
+      j = max(min(int(fj),nphip-1),1)
+      !Normalized positions within each cell
+      fi = fi-floor(fi)
+      fj = fj-floor(fj)
+      !Bilinear interpolation
+      betas=(betas_table(i,j)*(1.0-fi) + betas_table(i+1,j)*fi)*(1.0-fj) + &
+                (betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
     
-    return			
+    return            
     endfunction bslogexp_table
     
 !*********************************************************
@@ -104,18 +104,18 @@ contains
     
     !Positions from 1 to nzap|nr
     fi = (zap-logzap)/dzap+1.0
-	  fj = (r-r0)/dr+1.0	
+      fj = (r-r0)/dr+1.0    
     !Indices
-	  i = max(min(int(fi),nzap-1),1)
-	  j = max(min(int(fj),nr-1),1)
-	  !Normalized positions within each cell
-	  fi = fi-floor(fi)
-	  fj = fj-floor(fj)
-	  !Bilinear interpolation
-	  betas=(betas_table(i,j)*(1.0-fi) + betas_table(i+1,j)*fi)*(1.0-fj) + &
-		    	(betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
-			
-    return			
+      i = max(min(int(fi),nzap-1),1)
+      j = max(min(int(fj),nr-1),1)
+      !Normalized positions within each cell
+      fi = fi-floor(fi)
+      fj = fj-floor(fj)
+      !Bilinear interpolation
+      betas=(betas_table(i,j)*(1.0-fi) + betas_table(i+1,j)*fi)*(1.0-fj) + &
+                (betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
+            
+    return            
     endfunction bslogrouse_table    
     
 !**********************************************

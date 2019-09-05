@@ -420,7 +420,7 @@
     integer :: i,ks,k,nck,ih,idrym
     real(ikind) :: ddk,a0,awsvolp,fkip,rskface,dzblim
     real(ikind) :: Ctkstarhard 
-    real(8)     :: TempVar			 !HLI 01/13/2017
+    real(8)     :: TempVar             !HLI 01/13/2017
     logical :: isnankind
 
     interface
@@ -464,12 +464,12 @@
     !  !CtstarP(i,ks) = Ctkstar(i,ks)/max(pbk(i,ks,1),1.0e-6)
     !enddo !ih    
     
-!$OMP PARALLEL DO PRIVATE(i,k,idrym,nck,ddk,awsvolp,fkip,rskface,Ctkstarhard,dzblim,Tempvar)	 !MEB 01/13/2017
+!$OMP PARALLEL DO PRIVATE(i,k,idrym,nck,ddk,awsvolp,fkip,rskface,Ctkstarhard,dzblim,Tempvar)     !MEB 01/13/2017
     do i=1,ncells
       
       !--- Limit capacity to avoid excessive erosion or eroding past the hard bottom ---
       dzblim = min(zb(i)-hardzb(i),dzbmax)
-      TempVar = alphat(i)*wsfall(ks) + 1.0e-20										 !MEB 01/13/2017
+      TempVar = alphat(i)*wsfall(ks) + 1.0e-20                                         !MEB 01/13/2017
       !print*, TempVar, dtime 
       Ctkstarhard = Ctk(i,ks) + rhosed*solid*pbk(i,ks,1)*dzblim /(TempVar*max(scalemorph,1.0)*dtime) + Sb(i,ks)/TempVar   !changed scalemorph to computed val - meb 03/11/2019
       
@@ -513,7 +513,7 @@
       if(iwet(i)==1)then
         do k=1,ncface(i)
           nck=cell2cell(k,i)
-     	  if(iwet(nck)==0)then    !Side is dry                 
+           if(iwet(nck)==0)then    !Side is dry                 
             Ctk(nck,ks)=Ctk(i,ks)
             acoef(k,i)=0.0
           endif

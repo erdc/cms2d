@@ -30,7 +30,7 @@ module fric_def
     real(ikind):: cfricwav      !Wave friction coefficient for quadratic formula     
     logical:: constbotfric
     real(ikind):: cbotfric      !Constant bottom friction value, either n, cb, or z0
-	character(len=32) :: awavcur(7)  !Wave-current bed shear stress
+    character(len=32) :: awavcur(7)  !Wave-current bed shear stress
     data awavcur/'QUAD',&   !1, Quadratic
                  'DATA2',&  !2, Soulsby (1995)
                  'DATA13',& !3, Soulsby (1995)

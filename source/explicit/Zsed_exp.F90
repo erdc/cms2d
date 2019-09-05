@@ -160,18 +160,18 @@
           do j=1,NQstr  
           if(QstringEXP(j)%vface) then
             IDO = Q_str(j)%NCells
-            do ii=1,IDO	!calculate GVV
+            do ii=1,IDO    !calculate GVV
               i=Q_str(j)%cells(ii)
               if(ADSS(i)%qy.gt.0) then
                 ncs = cell2cell(3,i)
                 Gvv(i) = ADSS(i)%qy* Ctk(ncs,ks)*dx(i)
               else
                 Gvv(i) = ADSS(i)%qy* Ctk(i,ks)*dx(i)
-              endif	
+              endif    
             enddo
           else
             IDO = Q_str(j)%NCells
-            do ii=1,IDO	!calculate FUU
+            do ii=1,IDO    !calculate FUU
               i=Q_str(j)%cells(ii)
               if(ADSS(i)%qx.gt.0) then
                 ncw = cell2cell(4,i)
@@ -203,8 +203,8 @@
 !$OMP DO PRIVATE (NCW,NCS,DIFFT,DXT,DYT,AREA)
       do i=1,ncells
         ncs = cell2cell(3,i)
-        ncw = cell2cell(4,i)	
-        if(active(i,1)) then	
+        ncw = cell2cell(4,i)    
+        if(active(i,1)) then    
           diffT = ((vis(i)+vis(ncw))/2.)/schmidt  !add rsk(i,ks)
           dxT = (dx(i)+dx(ncw))/2.
           area = dy(i)*(eta(i)-zb(i)+eta(ncw)-zb(ncw))/2.
@@ -335,19 +335,19 @@
     endif
  
     !==== Update bed elevation ====================
- 	do i=1,ncells 	    
- 	  if(abs(dzb(i))>0.5*h(i))then 	
- 	    open(dgunit,file=dgfile,access='append')        
- 	    write(dgunit,*)
- 	    write(dgunit,*) 'WARNING: Large bed change'
- 	    close(dgunit) 
- 	    write(*,*)
- 	    write(*,*) 'WARNING: Large bed change'
- 	    call print_sedvar(i,1)
+     do i=1,ncells         
+       if(abs(dzb(i))>0.5*h(i))then     
+         open(dgunit,file=dgfile,access='append')        
+         write(dgunit,*)
+         write(dgunit,*) 'WARNING: Large bed change'
+         close(dgunit) 
+         write(*,*)
+         write(*,*) 'WARNING: Large bed change'
+         call print_sedvar(i,1)
       endif
       !zb(i)=zb1(i)+dzb(i)   !*****************
       zb(i)=zb(i)+dzb(i)*tsed_elapse/dtime   !*****************      
- 	enddo  
+     enddo  
       
     !=== Avalanching =============
     if(do_aval) call avalanche
@@ -415,8 +415,8 @@
             ii=H_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
          if(isedinflowbc==1)then
@@ -483,8 +483,8 @@
             ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
          if(isedinflowbc==1)then
@@ -552,8 +552,8 @@
             ii=MH_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
          if(isedinflowbc==1)then
@@ -621,8 +621,8 @@
            ii=MHV_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
          if(isedinflowbc==1)then
@@ -690,7 +690,7 @@
           if(QstringEXP(i)%vface) then 
               
            if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j) 
               ncs = cell2cell(3,Q_str(i)%Cells(j))
               CtstarP(ncs,:) = facQtotin*CtstarP(ii,:)            
@@ -698,7 +698,7 @@
               Ctk(ncs,:)=CtstarP(ncs,:) 
             enddo
            else  !north face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cell2cell(3,Q_str(i)%Cells(j))
               CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
@@ -710,7 +710,7 @@
           else
               
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
               ncw = cell2cell(4,Q_str(i)%Cells(j))
               CtstarP(ncw,:) = facQtotin*CtstarP(ii,:)           
@@ -718,7 +718,7 @@
               Ctk(ncw,:)=CtstarP(ncw,:)            
             enddo
           else  !east face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)   
               ncw = cell2cell(4,Q_str(i)%Cells(j))             
                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)              
@@ -873,8 +873,8 @@
             ii=H_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -892,8 +892,8 @@
              ii=TH_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -910,8 +910,8 @@
             ii=MH_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -928,8 +928,8 @@
              ii=MHV_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   

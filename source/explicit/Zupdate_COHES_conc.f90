@@ -1,5 +1,5 @@
       subroutine update_COHES_conc
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def      
       use bnd_def
@@ -7,7 +7,7 @@
       use flow_def
       use comvarbl      
       use size_def
-      use geo_def, only: dx,dy,zb,cell2cell	
+      use geo_def, only: dx,dy,zb,cell2cell    
 
       implicit none
       !local vars
@@ -33,15 +33,15 @@
         do j = 1,nQstr  !for each cell string
           if(QstringEXP(j)%vface) then  !N or S face
             if(Q_str(j)%cells(1).gt.ncells) then !north face and need to update
-              do i=1,Q_str(j)%NCells	
+              do i=1,Q_str(j)%NCells    
                 ii=Q_str(j)%cells(i)
                 COHES(ii)%qy = COHES(ii)%qy/tsed_elapse
               enddo
             endif
           else  !E or W face
-            if(Q_str(j)%cells(1).gt.ncells)	then !east face and need to update
+            if(Q_str(j)%cells(1).gt.ncells)    then !east face and need to update
               do i=1,Q_str(j)%NCells
-                ii=Q_str(j)%cells(i)	 
+                ii=Q_str(j)%cells(i)     
                 COHES(ii)%qx = COHES(ii)%qx/tsed_elapse
               enddo
             endif
@@ -73,8 +73,8 @@
 !$OMP DO PRIVATE (NCW,NCS,DIFFT,DXT,DYT,AREA)
       do i=1,ncells
         ncs = cell2cell(3,i)
-        ncw = cell2cell(4,i)	
-        if(active(i,1)) then	
+        ncw = cell2cell(4,i)    
+        if(active(i,1)) then    
           diffT = (COHES(i)%diffC+COHES(ncw)%diffC)/2.
           dxT = (dx(i)+dx(ncw))/2.
           area = dy(i)*(eta(i)-zb(i)+eta(ncw)-zb(ncw))/2.
@@ -122,7 +122,7 @@
 !$OMP DO PRIVATE (NCN,NCE,NCS,NCW)
       do i=1,ncells
         if(.not. active(i,3)) then
-          COHES(i)%conc = CHparms%wse_bc	
+          COHES(i)%conc = CHparms%wse_bc    
         endif
       enddo
 !$OMP END DO      

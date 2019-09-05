@@ -49,7 +49,7 @@ C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       CONTAINS
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)lamd1.for	1.2	01/28/02"  
+C     SccsID = "@(#)lamd1.for    1.2    01/28/02"  
 *********************************************************************
 C
       SUBROUTINE LAMD1 (FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,E,CM,EO,
@@ -101,7 +101,7 @@ C
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-C     SccsID = "@(#)lamr1.for	1.2	01/28/02"  
+C     SccsID = "@(#)lamr1.for    1.2    01/28/02"  
       SUBROUTINE LAMR1(NORTH,EAST,LAT,LON,CM,EO,NB,SINFO,RB,K,
      &                  ER,ESQ,CONV,KP)
 *** LAMBERT CONFORMAL CONIC PROJECTION, 2 STD PARALLELS
@@ -161,7 +161,7 @@ C
       END SUBROUTINE LAMR1
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)lconst.for	1.2	01/28/02"  
+C     SccsID = "@(#)lconst.for    1.2    01/28/02"  
 *********************************************************************
       SUBROUTINE LCONST(ER,RF,FIS,FIN,FIB,ESQ,E,SINFO,RB,K,KO,NO,
      &            G,NB)
@@ -217,7 +217,7 @@ C
       END SUBROUTINE LCONST
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)oconst.for	1.2	01/28/02"  
+C     SccsID = "@(#)oconst.for    1.2    01/28/02"  
 *********************************************************************
 *
 *     OBLICQUE CONSTANTS
@@ -276,7 +276,7 @@ C     SccsID = "@(#)oconst.for	1.2	01/28/02"
       END SUBROUTINE OCONST
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)skewd.for	1.2	01/28/02"  
+C     SccsID = "@(#)skewd.for    1.2    01/28/02"  
 *********************************************************************
 *
 *
@@ -305,7 +305,7 @@ C
       END SUBROUTINE SKEWD
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)skewr.for	1.2	01/28/02"  
+C     SccsID = "@(#)skewr.for    1.2    01/28/02"  
       SUBROUTINE SKEWR(NORTH,EAST,LAT,LON,B,C,D,SGO,CGO,SGC,
      &                 CGC,LONO,FE,FN,F0,F2,F4,F6,ESQ,CONV,KP,
      &                 GAMC,XI)
@@ -351,7 +351,7 @@ C
       END SUBROUTINE SKEWR
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)tconpc.for	1.2	01/28/02"  
+C     SccsID = "@(#)tconpc.for    1.2    01/28/02"  
       SUBROUTINE TCONPC(SF,OR,EPS,R,SO,V0,V2,V4,V6,ER,ESQ)
 
 ***          TRANSVERSE MERCATOR PROJECTION               ***
@@ -408,7 +408,7 @@ C     SccsID = "@(#)tconpc.for	1.2	01/28/02"
       END SUBROUTINE TCONPC
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)tconst.for	1.2	01/28/02"  
+C     SccsID = "@(#)tconst.for    1.2    01/28/02"  
 *********************************************************************
       SUBROUTINE TCONST (ER,RF,SF,OR,ESQ,EPS,R,A,B,C,U,V,W,SO,
      &                   CM,FE,FN)
@@ -448,7 +448,7 @@ C
       END SUBROUTINE TCONST
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)tmgeod.for	1.2	01/28/02"  
+C     SccsID = "@(#)tmgeod.for    1.2    01/28/02"  
       SUBROUTINE TMGEOD(N,E,LAT,LON,EPS,CM,FE,SF,SO,R,V0,V2,
      &                  V4,V6,FN,ER,ESQ,CONV,KP)
 
@@ -532,7 +532,7 @@ C*** POINT SCALE FACTOR
       END SUBROUTINE TMGEOD
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)tmgrid.for	1.2	01/28/02"  
+C     SccsID = "@(#)tmgrid.for    1.2    01/28/02"  
       SUBROUTINE TMGRID(FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,EPS,CM,
      &                  FE,FN,SF,SO,R,A,B,C,U,V,W)
 
@@ -606,7 +606,7 @@ C
       END SUBROUTINE TMGRID
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)drpcgp.for	1.2	01/28/02"  
+C     SccsID = "@(#)drpcgp.for    1.2    01/28/02"  
       SUBROUTINE DRPCGP_v2(north,east,ICODE,lat,lon)
 !      SUBROUTINE DRPCGP_v2(north,east,ICODE,FILFLAG,FILPRT,lat,lon)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
@@ -747,7 +747,7 @@ C     SccsID = "@(#)drpcgp.for	1.2	01/28/02"
       END SUBROUTINE DRPCGP_v2
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)drgppc.for	1.2	01/28/02"  
+C     SccsID = "@(#)drgppc.for    1.2    01/28/02"  
       SUBROUTINE DRGPPC_v2(rlon,rlat,ICODE,EWFLAG,north,east)
 c      SUBROUTINE DRGPPC_v2(rlon,rlat,ICODE,FILFLAG,EWFLAG,north,east)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
@@ -904,7 +904,7 @@ c      SUBROUTINE DRGPPC_v2(rlon,rlat,ICODE,FILFLAG,EWFLAG,north,east)
       END SUBROUTINE DRGPPC_v2
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-C     SccsID = "@(#)tblspc.for	1.2	01/28/02"  
+C     SccsID = "@(#)tblspc.for    1.2    01/28/02"  
       SUBROUTINE TBLSPC(IZC,AP,SPCC,UTMC,ZN)
 
 *** CREATE THE STATE PLANE COORDINATE TABLES

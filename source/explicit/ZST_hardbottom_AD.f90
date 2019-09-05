@@ -1,6 +1,6 @@
-	subroutine ST_hardbottom_AD
+    subroutine ST_hardbottom_AD
 
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def 
       use flow_def
@@ -14,7 +14,7 @@
       real tdepth 
 
       !check for hardbottom conditions and set qs's and eros to zero if hardbottom is encountered
-	  if(hardbottom) then
+      if(hardbottom) then
         do i=1,nhard
           id = idhard(i)
           tdepth = -zb(id)- bed(id)*scalemorph*POROS  
@@ -24,6 +24,6 @@
             ADSS(id)%eros = 0
           endif
         enddo
-      endif	
-	
-	end subroutine
+      endif    
+    
+    end subroutine

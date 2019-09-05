@@ -1,5 +1,5 @@
       subroutine ST_hardbottom_COHES()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def    
       use sed_def, only: poros,hardbed,scalemorph,nhard,idhard
@@ -20,6 +20,6 @@
             COHES(id)%eros = 0
           endif
         enddo
-      endif	
+      endif    
       
       end subroutine

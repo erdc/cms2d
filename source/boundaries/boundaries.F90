@@ -91,10 +91,10 @@
     implicit none    
     integer :: ierr  !Wu
     character(len=37) :: cardname
-	logical :: foundcard    
+    logical :: foundcard    
     
-	foundcard = .true.
-	selectcase (cardname)
+    foundcard = .true.
+    selectcase (cardname)
     case('BOUNDARY_VELOCITY_DAMPING','VELOCITY_DAMPING')
       backspace(77)  
       read(77,*) cardname,veldamp
@@ -105,7 +105,7 @@
     
     case('QDRIVER_CELLSTRING')        !Flux BC
       !Note: when using this card, the id and data files are assumed to be same
-	  !To allow them to be different a block structure input format must be used
+      !To allow them to be different a block structure input format must be used
       call flux_alloc
       call card_bid(flowpath,Q_str(nQstr)%bidfile,Q_str(nQstr)%bidpath,Q_str(nQstr)%idnum)
       !Note: when this card is used, it is assumed that the id file is the same as the data file
@@ -113,15 +113,15 @@
       Q_str(nQstr)%fluxpath = Q_str(nQstr)%bidpath
       Q_str(nQstr)%istrtype = 1
       
-	case('TIDAL_CELLSTRING')          !Tidal BC
-	  if(.not.tide_read) call tidal_alloc
+    case('TIDAL_CELLSTRING')          !Tidal BC
+      if(.not.tide_read) call tidal_alloc
       call card_bid(flowpath,TH_str(nTHstr)%bidfile,TH_str(nTHstr)%bidpath,TH_str(nTHstr)%idnum)
       Tread = .true.
       if(tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
       !TH_str(nTHstr)%istidal = .true. !Default already true and this may overide user-input, Alex: 08-22-14
       TH_str(nTHstr)%istrtype = 1
-	 
-	case('TIDAL_CONSTITUENTS_BEGIN')     
+     
+    case('TIDAL_CONSTITUENTS_BEGIN')     
       tide_read = .true.   
       call read_tidal_const
       if(Tread)then !Both read in, prepare for next string
@@ -135,7 +135,7 @@
       !if(tide_read)then
       !  call diag_print_warning('Cannot specify both tidal and harmonic boundary condition')
       !endif
-	  if(.not.tide_read) call tidal_alloc
+      if(.not.tide_read) call tidal_alloc
       call card_bid(flowpath,TH_str(nTHstr)%bidfile,TH_str(nTHstr)%bidpath,TH_str(nTHstr)%idnum)
       Tread = .true.          
       if(tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
@@ -152,7 +152,7 @@
       
     case('TIDAL_CORRECTIONS')
       call card_boolean(77,TH_str(nTHstr)%istidal,ierr)
-	  
+      
     case('HDRIVER_CELLSTRING')        !Single Water Level BC        
       call singlewse_alloc
       call card_bid(flowpath,H_str(nHstr)%bidfile,H_str(nHstr)%bidpath,H_str(nHstr)%idnum)
@@ -187,7 +187,7 @@
     case default
       foundcard = .false.
         
-	endselect
+    endselect
 
     return
     endsubroutine bnd_cards
@@ -1730,13 +1730,13 @@ d1: do i=1,ntf
       !Water level adjustment
       if(TH_str(iwse)%ncells<3) TH_str(iwse)%wseadjust = .false.
       
-	  !Initialize variables
-	  allocate(TH_str(iwse)%wsebnd0(TH_str(iwse)%ncells)) !Initial water levels at boundary (not necessary the same as forcing)
+      !Initialize variables
+      allocate(TH_str(iwse)%wsebnd0(TH_str(iwse)%ncells)) !Initial water levels at boundary (not necessary the same as forcing)
       allocate(TH_str(iwse)%wsebnd(TH_str(iwse)%ncells)) !Water levels at boundary (not necessary the same as forcing)
       allocate(TH_str(iwse)%wsevar(TH_str(iwse)%ncells))         
       TH_str(iwse)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
       TH_str(iwse)%wsebnd(:)  = 0.0
-	  TH_str(iwse)%wsevar(:)  = 0.0
+      TH_str(iwse)%wsevar(:)  = 0.0
       if(TH_str(iwse)%wseadjust)then
         allocate(TH_str(iwse)%wseadj(TH_str(iwse)%ncells))  !Adjusted water levels with wind and wave setup     
         TH_str(iwse)%wseadj(:)  = 0.0      
@@ -1803,15 +1803,15 @@ d1: do i=1,ntf
         endif
       endif
       
-	  !Initialize variables
-	  allocate(H_str(iwse)%wsebnd0(H_str(iwse)%ncells))
+      !Initialize variables
+      allocate(H_str(iwse)%wsebnd0(H_str(iwse)%ncells))
       allocate(H_str(iwse)%wsebnd(H_str(iwse)%ncells))
       allocate(H_str(iwse)%wsevar(H_str(iwse)%ncells))      
-	  H_str(iwse)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
+      H_str(iwse)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
       H_str(iwse)%wsebnd(:)  = 0.0
       H_str(iwse)%wsevar(:)  = 0.0
       if(H_str(iwse)%wseadjust)then
-        allocate(H_str(iwse)%wseadj(H_str(iwse)%ncells))	  
+        allocate(H_str(iwse)%wseadj(H_str(iwse)%ncells))      
         H_str(iwse)%wseadj(:)  = 0.0
       endif  
       
@@ -1857,7 +1857,7 @@ d1: do i=1,ntf
         deallocate(valtemp)
       endif
       
-	  !Temporal smoothing by moving average
+      !Temporal smoothing by moving average
       if(MH_str(iwse)%nsi>0 .and. MH_str(iwse)%nsw>0)then
         do j=1,MH_str(iwse)%ncells
           call moving_average(MH_str(iwse)%nsi,MH_str(iwse)%nsw,&
@@ -1866,12 +1866,12 @@ d1: do i=1,ntf
       endif
       
       !Initialize variables
-	  allocate(MH_str(iwse)%wsebnd(MH_str(iwse)%ncells))
+      allocate(MH_str(iwse)%wsebnd(MH_str(iwse)%ncells))
       allocate(MH_str(iwse)%wsebnd0(MH_str(iwse)%ncells))
-	  MH_str(iwse)%wsebnd(:)  = 0.0
+      MH_str(iwse)%wsebnd(:)  = 0.0
       MH_str(iwse)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
     enddo !i-str
-	
+    
 !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------------------
     do iwse=1,nMHVstr
       !Read cell/node string  
@@ -1914,7 +1914,7 @@ d1: do i=1,ntf
         deallocate(valtemp)
       endif
       
-	  !Temporal smoothing by moving average
+      !Temporal smoothing by moving average
       if(MHV_str(iwse)%nsiwse>0 .and. MHV_str(iwse)%nswwse>0)then
         do j=1,MHV_str(iwse)%ncells
           call moving_average(MHV_str(iwse)%nsiwse,MHV_str(iwse)%nswwse,&
@@ -1931,13 +1931,13 @@ d1: do i=1,ntf
       endif
       
       !Initialize variables
-	  allocate(MHV_str(iwse)%wsebnd(MHV_str(iwse)%ncells))
-	  allocate(MHV_str(iwse)%wsebnd0(MHV_str(iwse)%ncells))
-	  allocate(MHV_str(iwse)%ubnd(MHV_str(iwse)%ncells))
-	  allocate(MHV_str(iwse)%ubnd0(MHV_str(iwse)%ncells))
-	  allocate(MHV_str(iwse)%vbnd(MHV_str(iwse)%ncells))
-	  allocate(MHV_str(iwse)%vbnd0(MHV_str(iwse)%ncells))
-	  MHV_str(iwse)%wsebnd(:)  = 0.0
+      allocate(MHV_str(iwse)%wsebnd(MHV_str(iwse)%ncells))
+      allocate(MHV_str(iwse)%wsebnd0(MHV_str(iwse)%ncells))
+      allocate(MHV_str(iwse)%ubnd(MHV_str(iwse)%ncells))
+      allocate(MHV_str(iwse)%ubnd0(MHV_str(iwse)%ncells))
+      allocate(MHV_str(iwse)%vbnd(MHV_str(iwse)%ncells))
+      allocate(MHV_str(iwse)%vbnd0(MHV_str(iwse)%ncells))
+      MHV_str(iwse)%wsebnd(:)  = 0.0
       MHV_str(iwse)%wsebnd0(:) = 0.0
       MHV_str(iwse)%ubnd(:)    = 0.0
       MHV_str(iwse)%ubnd0(:)   = 0.0
@@ -2060,7 +2060,7 @@ d1: do i=1,ntf
       call read_bndstr(NH_str(iwse)%bidfile,NH_str(iwse)%bidpath,&
         NH_str(iwse)%istrtype,NH_str(iwse)%idnum,&
         NH_str(iwse)%ncells,NH_str(iwse)%cells,NH_str(iwse)%faces)  
-	    
+        
       !Initialize variables
       allocate(NH_str(iwse)%xbnd(NH_str(iwse)%ncells))
       allocate(NH_str(iwse)%ybnd(NH_str(iwse)%ncells))
@@ -2093,12 +2093,12 @@ d1: do i=1,ntf
           ParSim(idpar)%nptspar,ParSim(idpar)%nmaxfacespar,&
           ParSim(idpar)%xOriginpar,ParSim(idpar)%yOriginpar,ParSim(idpar)%orientpar, &
           ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%dxpar,ParSim(idpar)%dypar,&
-          ParSim(idpar)%c2cpar,ParSim(idpar)%idfpar,ParSim(idpar)%ncfpar, &	        
+          ParSim(idpar)%c2cpar,ParSim(idpar)%idfpar,ParSim(idpar)%ncfpar, &            
           NH_str(iwse)%ncells,NH_str(iwse)%xbnd,NH_str(iwse)%ybnd,&
           xtrapdist,NH_str(iwse)%intp,NH_str(iwse)%cntp)     
       else
         call interp_coef_tri2pts(ParSim(idpar)%nelemsfullpar,ParSim(idpar)%nptspar,&
-          ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%elem2node, &	        
+          ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%elem2node, &            
           NH_str(iwse)%ncells,NH_str(iwse)%xbnd,NH_str(iwse)%ybnd,&
           xtrapdist,NH_str(iwse)%intp,NH_str(iwse)%cntp)  
       endif
@@ -2157,12 +2157,12 @@ d1: do i=1,ntf
           ParSim(idpar)%nptspar,ParSim(idpar)%nmaxfacespar,&
           ParSim(idpar)%xOriginpar,ParSim(idpar)%yOriginpar,ParSim(idpar)%orientpar, &
           ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%dxpar,ParSim(idpar)%dypar,&
-          ParSim(idpar)%c2cpar,ParSim(idpar)%idfpar,ParSim(idpar)%ncfpar, &	        
+          ParSim(idpar)%c2cpar,ParSim(idpar)%idfpar,ParSim(idpar)%ncfpar, &            
           NHV_str(iwse)%ncells,NHV_str(iwse)%xbnd,NHV_str(iwse)%ybnd,&
           xtrapdist,NHV_str(iwse)%intp,NHV_str(iwse)%cntp)     
       else
         call interp_coef_tri2pts(ParSim(idpar)%nelemsfullpar,ParSim(idpar)%nptspar,&
-          ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%elem2node, &	        
+          ParSim(idpar)%xpar,ParSim(idpar)%ypar,ParSim(idpar)%elem2node, &            
           NHV_str(iwse)%ncells,NHV_str(iwse)%xbnd,NHV_str(iwse)%ybnd,&
           xtrapdist,NHV_str(iwse)%intp,NHV_str(iwse)%cntp)  
       endif
@@ -2219,11 +2219,11 @@ d1: do i=1,ntf
       NTHV_str(iwse)%wseadj(:) = 0.0
       allocate(NTHV_str(iwse)%ubnd(NTHV_str(iwse)%ncells))
       allocate(NTHV_str(iwse)%ubnd0(NTHV_str(iwse)%ncells))
-	  NTHV_str(iwse)%ubnd(:)  = 0.0
+      NTHV_str(iwse)%ubnd(:)  = 0.0
       NTHV_str(iwse)%ubnd0(:) = 0.0
       allocate(NTHV_str(iwse)%vbnd(NTHV_str(iwse)%ncells))
       allocate(NTHV_str(iwse)%vbnd0(NTHV_str(iwse)%ncells))
-	  NTHV_str(iwse)%vbnd(:)  = 0.0
+      NTHV_str(iwse)%vbnd(:)  = 0.0
       NTHV_str(iwse)%vbnd0(:) = 0.0      
       
       !Initialize constituent variables
@@ -2632,7 +2632,7 @@ d1: do i=1,ntf
         write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nssi
         write(iunit(i),261)     '          Width:',MH_str(iwse)%nssw
       enddo !i-str
-	
+    
       !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------------------
       do iwse=1,nMHVstr
         write(iunit(i),241)     '    Multiple Water Level and Velocity Boundary: ',iwse
@@ -2700,7 +2700,7 @@ d1: do i=1,ntf
           write(iunit(i),141)   '        WSE Output:','OFF'  
         endif        
         call julian2calendar(ParSim(idpar)%tjuldaypar,iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar)
-	    write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
+        write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
         write(iunit(i),141)     '        Horizontal Projection'
         write(iunit(i),141)     '          Coordinate System:',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
         if(ParSim(idpar)%projpar%iHorizCoordSystem/=22)then
@@ -2709,7 +2709,7 @@ d1: do i=1,ntf
             write(iunit(i),262) '          Zone:',ParSim(idpar)%projpar%iHorizZone
           endif
         endif      
-	    write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
+        write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
       enddo !iwse-str
     
       !--- Nested Water Level and Velocity BC (Type 8=NHV) -----------------------------------
@@ -2755,7 +2755,7 @@ d1: do i=1,ntf
           write(iunit(i),141)   '        Velocity Output:','OFF'  
         endif
         call julian2calendar(ParSim(idpar)%tjuldaypar,iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar)
-	    write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
+        write(iunit(i),431)  iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar 
         write(iunit(i),141)     '        Horizontal Projection'
         write(iunit(i),141)     '          Coordinate System:',trim(aHorizCoordSystem(ParSim(idpar)%projpar%iHorizCoordSystem))     
         if(ParSim(idpar)%projpar%iHorizCoordSystem/=22)then
@@ -2764,7 +2764,7 @@ d1: do i=1,ntf
             write(iunit(i),262) '          Zone:',ParSim(idpar)%projpar%iHorizZone
           endif
         endif      
-	    write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
+        write(iunit(i),141)     '          Units:',trim(aHorizUnits(ParSim(idpar)%projpar%iHorizUnits))
       enddo !iwse-str
     
       !--- Tidal Database WSE BC (Type 9=NTH) -----------------------------------
@@ -2809,7 +2809,7 @@ d1: do i=1,ntf
             write(iunit(i),262) '        Zone:',NTH_str(iwse)%projtdb%iHorizZone
           endif
         endif      
-	    write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTH_str(iwse)%projtdb%iHorizUnits))
+        write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTH_str(iwse)%projtdb%iHorizUnits))
       enddo !iwse-str
     
       !--- Tidal Database WSE and Velocity BC (Type 10=NTHV) --------------------------------
@@ -2893,7 +2893,7 @@ d1: do i=1,ntf
             write(iunit(i),262) '        Zone:',NTHV_str(iwse)%projtdb%iHorizZone
           endif
         endif      
-	    write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTHV_str(iwse)%projtdb%iHorizUnits))
+        write(iunit(i),141)     '        Units:',trim(aHorizUnits(NTHV_str(iwse)%projtdb%iHorizUnits))
       enddo !iwse-str
     enddo
     
@@ -3262,7 +3262,7 @@ d1: do i=1,ntf
           spv(i)=sp(i) 
           do k=1,ncface(i)
             nck=cell2cell(k,i)
-	        if(iwet(nck)==0)then    !side is dry
+            if(iwet(nck)==0)then    !side is dry
               z0wall=z0(i)*wallfac
               if(abs(fny(k,i))>0.999)then   !north/south face
                 upar=u(i) !+ry(k,i)*duy(i) !Wall parallel velocity                         
@@ -4273,7 +4273,7 @@ d1: do i=1,ntf
         NHV_str(iwse)%ntivel,NHV_str(iwse)%timevelhrs,NHV_str(iwse)%udata,NHV_str(iwse)%vdata,&
         NHV_str(iwse)%ubnd,NHV_str(iwse)%vbnd,NHV_str(iwse)%velout,NHV_str(iwse)%velfile)  
       NHV_str(iwse)%ubnd = (1.0-ramp)*NHV_STR(iwse)%ubnd0 + ramp*NHV_str(iwse)%ubnd
-      NHV_str(iwse)%vbnd = (1.0-ramp)*NHV_STR(iwse)%vbnd0 + ramp*NHV_str(iwse)%vbnd	          
+      NHV_str(iwse)%vbnd = (1.0-ramp)*NHV_STR(iwse)%vbnd0 + ramp*NHV_str(iwse)%vbnd              
     enddo
     
 !--- Nested Tidal Database Water Level BC (Type 9-NTH) --------------------------------    

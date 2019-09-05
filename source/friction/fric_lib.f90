@@ -129,7 +129,7 @@ contains
     gammawall = gammawall0
     rks = y0*30.0 !Wall Nikradse roughness
     do iterwall=1,10   
-	  ustarwall = sqrt(abs(gammawall*upar)) !Wall shear velocity, m/s
+      ustarwall = sqrt(abs(gammawall*upar)) !Wall shear velocity, m/s
       yplus = ustarwall*yp/vk
       if(yplus>11.63)then
         ksplus = ustarwall*rks/vk
@@ -1613,7 +1613,7 @@ contains
     real(ikind) :: riphgtweq,riplenweq
 
     real(ikind) :: rdum
-    rdum=dstar	   !This can probably be removed
+    rdum=dstar       !This can probably be removed
     rdum=thetacr   !This can probably be removed
     s1gravd50 = (s-1.0)*g*d50 !Internal variable
     
@@ -2214,7 +2214,7 @@ contains
     real(ikind) :: fw,z0s  !phi,A,d50,wa,wk,re,fe
     
     !z0s = z0
-    rdum=z0				   !This can probably be removed
+    rdum=z0                   !This can probably be removed
     z0s = 0.15/1000.0/12.0 !=0.2/1000/12 ******** HARD CODED FOR NOW *********************
     
     !Wave friction factor

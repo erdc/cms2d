@@ -548,15 +548,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       read(text,*,end=330,err=330) ni,nj,dmesh,dindex
 330   continue
 !
-	if (ni.gt.ipmx .or. nj.gt.jpmx) then
-	  print*,'****************************************************'
-	  print*,'This version of CMS-Wave is statically dimensioned'
-	  print*,'and has a limit of NI = 2500, NJ = 2500'
-	  print*,'in the near future a dynamically dimensioned version'
-	  print*,'will become available. '
-	  print*,'****************************************************'
-	  stop
-	endif
+    if (ni.gt.ipmx .or. nj.gt.jpmx) then
+      print*,'****************************************************'
+      print*,'This version of CMS-Wave is statically dimensioned'
+      print*,'and has a limit of NI = 2500, NJ = 2500'
+      print*,'in the near future a dynamically dimensioned version'
+      print*,'will become available. '
+      print*,'****************************************************'
+      stop
+    endif
 !
 !  read/write initial depths dep(i, j):
       depmax=0.
@@ -962,7 +962,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         else
           iarkr=1
         end if
-	endif
+    endif
 !
       inquire(file=MudFile,exist=getfile7)
         if(getfile7.and.imud.le.0) then
@@ -1019,7 +1019,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
         !  read in nesting output points
         nest=0
-	    read (11,*,end=109) nest
+        read (11,*,end=109) nest
         do nn = 1, nest
           read (11, *) inest(nn), jnest(nn)
         enddo
@@ -1028,7 +1028,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(nest.ne.0) open (13, file = NestFile, status = 'unknown')
 !     azimuth read from .sim file in Subroutine STWfiles
 
-109	continue
+109    continue
 !
       if(noptset.eq.3) then
         irs = 1
@@ -2107,7 +2107,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       write(*,9999) iii
  9999 format ('Column ', i0)
       write(*,9020) h13(iii,j1)
- 9020	format('Average wave height = ',f10.4)
+ 9020    format('Average wave height = ',f10.4)
       end do
 !
       go to 90
@@ -2928,7 +2928,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       ni1=ni-1
       nj1=nj-1
-	do j=1,nj
+    do j=1,nj
         do i=1,ni
           if(d1(i,j).le.0.) then
             ijb(i,j)=0
@@ -2937,7 +2937,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       enddo
 !
 !
-	do j=2,nj1
+    do j=2,nj1
         do i=2,ni
           j1=j+1
           ib=i-1
@@ -3017,7 +3017,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
               rk(krmx)=reflty(i,j)
               if(rk(krmx).gt.1.) rk(krmx)=ark
             end if
-	    end if
+        end if
         enddo
       enddo
 5000  continue
@@ -3136,7 +3136,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 !
       big=0.
-	ibig=nf
+    ibig=nf
       do nn=1,nf
         sum=0.
         do mm=imd,md
@@ -3161,7 +3161,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(9,*) 'Peak Index=',ibig,fp,fcn(ibig)
       endif        
 !
-	  if(fp.eq.0.) fp=fcn(ibig)
+      if(fp.eq.0.) fp=fcn(ibig)
 !
       if(ws.gt.10.) iwvbk=2
       if(iwind.ge.1) iwvbk=2
@@ -3254,7 +3254,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !       write(*,*)
 !       write(*,*) (fsp(nn),nn=ib,ie)
         write(*,*) 'New Peak Index=',ibig-ib0,fcn(ibig)
-	  if(ibnd.ge.1) fp=fcn(ibig)
+      if(ibnd.ge.1) fp=fcn(ibig)
         sum=0.
         do mm=imd,md
           do nn=ib,ie
@@ -3373,7 +3373,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !       write(*,*)
 !       write(*,*) (fsp(nn),nn=1,nf)
         write(*,*) 'New Peak Index=',ibig,fcn(ibig)
-	  if(ibnd.ge.1) fp=fcn(ibig)
+      if(ibnd.ge.1) fp=fcn(ibig)
       end if
 !
       if(ws.ge..1) then
@@ -3410,7 +3410,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
 !
         write(*,*) 'New Peak Index=',ibig,fcn(ibig)
-	  if(ibnd.ge.1) fp=fcn(ibig)
+      if(ibnd.ge.1) fp=fcn(ibig)
       end if
 !
 ! -- Convert STWAVE spectrum (density) to total energy
@@ -3877,9 +3877,9 @@ contains
                TS_HOURS,0, DID,ERROR)
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-    	  ELSE
-    	    WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-    	    STOP
+          ELSE
+            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            STOP
         ENDIF
 ! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ERROR) for proper vector direction
         CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
@@ -3897,9 +3897,9 @@ contains
                  TS_HOURS,0, DID,ERROR)
           IF (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-    	    ELSE
-   	      WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-     	      STOP
+            ELSE
+             WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+               STOP
           ENDIF
 ! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ERROR) for proper vector direction
           CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
@@ -3917,8 +3917,8 @@ contains
                TS_HOURS,0, DID,ERROR)
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+          ELSE
+            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
           STOP
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
@@ -3936,8 +3936,8 @@ contains
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
         ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	  STOP
+            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            STOP
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3953,9 +3953,9 @@ contains
                TS_HOURS,0, DID,ERROR)
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	  STOP
+          ELSE
+            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            STOP
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3972,9 +3972,9 @@ contains
                TS_HOURS,0, DID,ERROR)
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	  STOP
+          ELSE
+            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            STOP
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3992,9 +3992,9 @@ contains
                  TS_HOURS,0, DID,ERROR)
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	  ELSE
+            ELSE
             WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	    STOP
+              STOP
           ENDIF
           CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
         ENDIF
@@ -4013,9 +4013,9 @@ contains
                    TS_HOURS,0, DID,ERROR)
             if (error.gt.0) THEN
               WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	    ELSE
+              ELSE
               WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	      STOP
+                STOP
             ENDIF
             CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
           ENDIF
@@ -4031,9 +4031,9 @@ contains
                  TS_HOURS,0, DID,ERROR)
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
-      	  ELSE
+            ELSE
             WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	    STOP
+              STOP
           ENDIF
           CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
         ENDIF
@@ -4049,8 +4049,8 @@ contains
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
           ELSE
-      	    WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	    STOP
+              WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+              STOP
           ENDIF
 ! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ERROR) for proper vector direction
           CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_FACE_J,ERROR)
@@ -4623,11 +4623,11 @@ contains
           slx=(dep(iii,jj)+dep(iii,jj+1)-dep(iii+1,jj)-dep(iii+1,jj+1))/dvarx(iii)/2.0
           sly=(dep(iii,jj)+dep(iii+1,jj)-dep(iii,jj+1)-dep(iii+1,jj+1))/dvary(jj)/2.0
           slj=slx*cos(dmn(iii,jj))+sly*sin(dmn(iii,jj))      
-	      call wave_Hmax(d1(iii,jj),slj,wkpeak,Hmax)
-!!	      Hmax=0.64*d1(iii,jj)
-	      Hrms=Hsi/1.414213562
-!!	      if(Hrms.ge.1.01*Hmax .and. ibr(iii-1,jj).eq.1)then
-	      if(Hrms.ge.1.01*Hmax)then !Official
+          call wave_Hmax(d1(iii,jj),slj,wkpeak,Hmax)
+!!          Hmax=0.64*d1(iii,jj)
+          Hrms=Hsi/1.414213562
+!!          if(Hrms.ge.1.01*Hmax .and. ibr(iii-1,jj).eq.1)then
+          if(Hrms.ge.1.01*Hmax)then !Official
             cc=(Hmax/Hrms)**2
             do l=imd,md
               do k=1,nf
@@ -4944,13 +4944,13 @@ contains
       if(h13add.gt..5) h13ave=h13ave/h13add
       if(iplane.le.1) then
         write(*,9020) h13ave
-9020	format('Average wave height = ',2f10.4)
+9020    format('Average wave height = ',2f10.4)
         if(mod(iii,10).eq.0)then !Alex
           write(9,9020) h13ave
         endif
       else
         write(*,9021) h13ave
-9021	format('Seaward wave height = ',2f10.4)
+9021    format('Seaward wave height = ',2f10.4)
         if(mod(iii,10).eq.0)then !Alex
           write(9,9021) h13ave
         endif
@@ -5362,7 +5362,7 @@ contains
 !     end if
 
 !     open(unit=129,file='depp.dat',status='unknown')
-!	do 229 j=jmax,1,-1
+!    do 229 j=jmax,1,-1
 !     write(129,126) (dep(i,j),i=1,imax)
 !229  continue
 !     close(unit=129)
@@ -5497,7 +5497,7 @@ contains
  223  continue
 
 !     open(unit=22,file='ijbv.dat',status='unknown')
-!	do 222 j=jgmx,1,-1
+!    do 222 j=jgmx,1,-1
 !     write(22,26) (ijb(i,j),i=igmx,1,-1)
 !26   format((200i1))
 !222  continue
@@ -5507,14 +5507,14 @@ contains
       dep(imax,j)=dep(igmx,j)
       end do
 !     open(unit=122,file='depv.dat',status='unknown')
-!	do 225 j=jmax,1,-1
+!    do 225 j=jmax,1,-1
 !     write(122,126) (dep(i,j),i=imax,1,-1)
 !126  format((200f5.1))
 !225  continue
 !     close(unit=122)
 !
 !     open(unit=222,file='d1v.dat',status='unknown')
-!	do 227 j=jgmx,1,-1
+!    do 227 j=jgmx,1,-1
 !     write(222,226) (d1(i,j),i=igmx,1,-1)
 !226  format((200f5.1))
 !227  continue
@@ -5683,7 +5683,7 @@ contains
       end do
 !
  1000 DEALLOCATE (KRC,JR,RKK,angl,hsgg,h13a,h13b)
-      RETURN	 
+      RETURN     
       END
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -6955,48 +6955,48 @@ contains
 !      IF(IBK.EQ.1) GOTO 10
 !      IF(JBV.GE.6) GOTO 10
 !
-!	slj=slf(jm)
+!    slj=slf(jm)
 !      if(slj.ge.0.04) go to 10
-!	gama=0.73
+!    gama=0.73
 !!     alfabj=1.0/1.414
 !      alfabj=0.707
 !!
 !      H13=HSB(JJ)
 !!     hrms=h13/sqrt(2.0)
-!	hrms=h13/1.414
-!	dep=depm(jm)
-!	wnk=pai2/wlmn(jm)
-!	sig=sigm(jm)
-!	
-!	hmax=gama*dep 
+!    hrms=h13/1.414
+!    dep=depm(jm)
+!    wnk=pai2/wlmn(jm)
+!    sig=sigm(jm)
+!    
+!    hmax=gama*dep 
 !
-!	if(wnk.lt.0.0) goto 10
+!    if(wnk.lt.0.0) goto 10
 !
-!	if(hmax.gt.0.0.and.hrms.gt.0.0) then
-!	B=hrms/hmax
-!	else
-!	B=0.0
-!	endif
-!	if(B.le.0.5) then
-!	Q0=0.0
-!	elseif(B.lt.1.0) then
-!	Q0=(2.0*B-1.0)**2
-!	endif
-!	if(B.le.0.2) then
-!	Qb=0.0
-!	elseif(B.lt.1.0) then
-!	B2=B*B
-!	EQ0=exp((Q0-1.0)/B2)
-!	Qb=Q0-B2*(Q0-EQ0)/(B2-EQ0)
-!	else
-!	Qb=1.0
-!	endif
+!    if(hmax.gt.0.0.and.hrms.gt.0.0) then
+!    B=hrms/hmax
+!    else
+!    B=0.0
+!    endif
+!    if(B.le.0.5) then
+!    Q0=0.0
+!    elseif(B.lt.1.0) then
+!    Q0=(2.0*B-1.0)**2
+!    endif
+!    if(B.le.0.2) then
+!    Qb=0.0
+!    elseif(B.lt.1.0) then
+!    B2=B*B
+!    EQ0=exp((Q0-1.0)/B2)
+!    Qb=Q0-B2*(Q0-EQ0)/(B2-EQ0)
+!    else
+!    Qb=1.0
+!    endif
 !
 !!     Dab=0.25*alfabj*Qb*(sig/pai2)*hmax**2
-!	Dab=0.04*alfabj*Qb*sig*hmax**2
+!    Dab=0.04*alfabj*Qb*sig*hmax**2
 !!     cab=Dab/(sig*(1.0/8.0)*hrms**2)
-!	cab=8.0*dab/sig/hrms**2*om
-!	goto 20
+!    cab=8.0*dab/sig/hrms**2*om
+!    goto 20
 ! 
 !   10 CAB=0.0
 !
@@ -7063,16 +7063,16 @@ contains
     if(um.lt.0.0) then
       qstar=sqrt(um**2+vm**2)/g**2/TP**3
       ed=qstar*slj**.25*WL0
-	  if(ed.lt.0.0005) then
-	    ced=1.0
-	  elseif(ed.lt.0.0024) then
-	    ced=1.13-260.0*ed
-	  else
-	    ced=0.506
-	  endif
-	else
-	  ced=1.0
-	endif   
+      if(ed.lt.0.0005) then
+        ced=1.0
+      elseif(ed.lt.0.0024) then
+        ced=1.13-260.0*ed
+      else
+        ced=0.506
+      endif
+    else
+      ced=1.0
+    endif   
     
 !   SL43=SLJ**(4.0/3.0)
     SL43=SLJ**1.333333
@@ -7166,33 +7166,33 @@ contains
 !!    slj=slf(jm)
     
     wnk=pai2/wlmn(jm)
-	if(wnk.lt.0.0) return
+    if(wnk.lt.0.0) return
     
     g=9.806
     gama=0.6          
-	beta=0.4      
+    beta=0.4      
     H13=HSB(JJ)
 !    hrms=h13/sqrt(2.0)
-	hrms=h13/1.414213562
-	dep=depm(jm)	
-	sig=sigm(jm)
+    hrms=h13/1.414213562
+    dep=depm(jm)    
+    sig=sigm(jm)
 
     !Check Incident breaking, Alex
 !    if(Hrms.le.gama*dep .and. ibr(max(ii-1,1),jj).eq.0) return !Alex, only for regular waves
 
-	tkh=wnk/tanh(wnk*dep)
-	ab=1.0+(tkh*hrms/gama)**2
+    tkh=wnk/tanh(wnk*dep)
+    ab=1.0+(tkh*hrms/gama)**2
 !     dab1=1.0-1.0/ab**(5.0/2.0)
-	dab1=1.0-1.0/ab**2.5
-	dab2=(tkh/gama)**2
-	dab3=sqrt(g*tkh)
+    dab1=1.0-1.0/ab**2.5
+    dab2=(tkh/gama)**2
+    dab3=sqrt(g*tkh)
 !     dab3=sqrt(g*tkh)*g*wnk
 ! --- is it g*wnk missing in the equation?
 !     dab=3.0*beta*wnk*dab3*dab2*dab1*hrms**5/(32.0*sqrt(pai))
-	dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
+    dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
 !     cab=dab/(sig*(1.0/8.0)*hrms**2)
-!!	cab=8.0*dab/sig/hrms**2 !Alex, commented
-	cab=8.0*dab/g/hrms**2 !Alex, replaces above expression, removed sig and added gravity
+!!    cab=8.0*dab/sig/hrms**2 !Alex, commented
+    cab=8.0*dab/g/hrms**2 !Alex, replaces above expression, removed sig and added gravity
     
     diss(ii,jj)=-Dab   !Alex, note there is no gravity here
     if(dab.gt.1.e-6) ibr(ii,jj)=1      !Alex
@@ -8927,25 +8927,25 @@ contains
           IF (CARD(1:4).EQ.'OPTS') THEN
              OptsFile   = FileName
           ELSEIF (CARD(1:3).EQ.'DEP') THEN
-			DepFile    = FileName
+            DepFile    = FileName
           ELSEIF (CARD(1:4).EQ.'CURR') THEN
             CurrFile   = FileName
           ELSEIF (CARD(1:4).EQ.'SPEC') THEN
-			EngInFile  = FileName
+            EngInFile  = FileName
           ELSEIF (CARD(1:4).EQ.'WAVE') THEN
-			WaveFile   = FileName
+            WaveFile   = FileName
           ELSEIF (CARD(1:4).EQ.'OBSE') THEN
-			EngOutFile = FileName
+            EngOutFile = FileName
           ELSEIF (CARD(1:5).EQ.'SELHT') THEN
-			ObsFile = FileName
+            ObsFile = FileName
           ELSEIF (CARD(1:4).EQ.'NEST') THEN                              
-			NestFile   = FileName
+            NestFile   = FileName
           ELSEIF (CARD(1:5).EQ.'BREAK') THEN
-			BreakFile = FileName
+            BreakFile = FileName
           ELSEIF (CARD(1:4).EQ.'RADS') THEN
-			RadsFile = FileName
+            RadsFile = FileName
           ELSEIF (CARD(1:5).EQ.'STRUC') THEN
-			StrucFile = FileName
+            StrucFile = FileName
           ELSEIF (CARD(1:3).EQ.'SUR'.OR.CARD(1:3).EQ.'ETA') THEN
             SurgeFile = FileName
           ELSEIF (CARD(1:3).EQ.'MUD') THEN
@@ -9304,7 +9304,7 @@ contains
       do j=1,jgmx
         exx(1,j)=(-3.*ex(1,j)+4.*ex(2,j)-ex(3,j))/dx2
         exx(igmx,j)=(3.*ex(igmx,j)-4.*ex(ni1,j)+ex(igmx-2,j))/dx2ni
-	  end do
+      end do
 
 !     Y-derivatives on y-boundaries:
       dy2=dvary(1)+dvary(2)
@@ -9331,7 +9331,7 @@ contains
 !!         diss(i,j)=exx(i,j)+eyy(i,j) !Alex, IMPORTANT
          !!diss(i,j)=(exx(i,j-1)+eyy(i,j-1)+exx(i,j)+eyy(i,j)+exx(i,j+1)+eyy(i,j+1))/3.
           if(diss(i,j).gt.0.) diss(i,j)=0.
-	    end do
+        end do
       end do
 
       do i=1,igmx
@@ -9541,7 +9541,7 @@ contains
           dy2=dvary(j)+(dvary(j-1)+dvary(j+1))/2.
           sxyy(i,j)=(sxy(i,j+1)-sxy(i,j-1))/dy2
           syyy(i,j)=(syy(i,j+1)-syy(i,j-1))/dy2
-	    end do
+        end do
       end do
 !
       do i=1,igmx
@@ -9653,7 +9653,7 @@ contains
 
       REAL TIME_BEGIN,TIME_END,RTIME
       INTEGER HH,MM
-	REAL SS
+    REAL SS
 
       RTIME=TIME_END-TIME_BEGIN
       HH=RTIME/3600.
@@ -9725,10 +9725,10 @@ contains
            IP=0
            S=0.
            IF(I.NE.IA(1,I)) THEN
-		   IO=1
-		   ELSE
+           IO=1
+           ELSE
              IP=1
-		   ENDIF
+           ENDIF
 !
            DO J=2,5
               IF(ABS(AA(J,I)).GE.1.0E-4) THEN
@@ -9738,7 +9738,7 @@ contains
                     S=S+AA(J,I)*X(IA(J,I))
                   ENDIF
                 ENDIF
-		      ENDIF
+              ENDIF
            ENDDO
 !           IF(IP.EQ.0) GOTO 50
            PX=X(I)
@@ -9757,8 +9757,8 @@ contains
              PPX=(XX-PX)/PX
              PPX=ABS(PPX)
              IF(XMAX.LT.PPX) XMAX=PPX
-		   ENDIF
-	    ENDIF
+           ENDIF
+        ENDIF
      ENDDO
 !$omp end do
 !$omp end parallel

@@ -26,21 +26,21 @@
           do j = 1,nQstr  !for each cell string
             if(QstringEXP(j)%vface) then  !N or S face
               if(Q_str(j)%cells(1).gt.ncells) then !north face and need to update
-                do i=1,Q_str(j)%NCells	
+                do i=1,Q_str(j)%NCells    
                   ii=Q_str(j)%cells(i)
                   salt(ii)%qy = salt(ii)%qy + qy(ii)*dt
                 enddo
               endif
             else  !E or W face
-              if(Q_str(j)%cells(1).gt.ncells)	then !east face and need to update
+              if(Q_str(j)%cells(1).gt.ncells)    then !east face and need to update
                 do i=1,Q_str(j)%NCells
-                  ii=Q_str(j)%cells(i)	 
+                  ii=Q_str(j)%cells(i)     
                   salt(ii)%qx = salt(ii)%qx + qx(ii)*dt
                 enddo
               endif
             endif
           enddo ! end of NQdriver        
-        endif  !end if(Q_single) 	
+        endif  !end if(Q_single)     
         
         
 !!******************************************************
@@ -53,8 +53,8 @@
           
           do i=1,ncellsD
             salt(i)%diffC = 0.0
-            if(iwet(i) .eq. 1) salt(i)%diffC = vis(i)	
-          enddo	
+            if(iwet(i) .eq. 1) salt(i)%diffC = vis(i)    
+          enddo    
       
           !this needs to be done before conc fluc bc since time-ave flows used
           !to calculate fluxes
@@ -71,7 +71,7 @@
             do j = 1,nQstr  !for each cell string
               if(QstringEXP(j)%vface) then  !N or S face
                 if(Q_str(j)%cells(1).gt.ncells) then !north face and need to update
-                  do i=1,Q_str(j)%NCells	
+                  do i=1,Q_str(j)%NCells    
                     ii=Q_str(j)%cells(i)
                     salt(ii)%qy = salt(ii)%qy/tsalt_elapse
                   enddo
@@ -79,7 +79,7 @@
               else  !E or W face
                 if(Q_str(j)%cells(1).gt.ncells) then !east face and need to update
                   do i=1,Q_str(j)%NCells
-                    ii=Q_str(j)%cells(i)	 
+                    ii=Q_str(j)%cells(i)     
                     salt(ii)%qx = salt(ii)%qx/tsalt_elapse
                   enddo
                 endif
@@ -88,7 +88,7 @@
           endif  !end if(Q_single)
       
           call update_salinity_bc()
-	
+    
           call update_salt_conc()
           
           tsalt_elapse = 0.0

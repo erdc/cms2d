@@ -99,7 +99,7 @@
 !    logical :: foundfile
 !    
 !    backspace(inunit)
-!	read(inunit,*,iostat=ierr) cardname, filename
+!    read(inunit,*,iostat=ierr) cardname, filename
 !    
 !    if(ierr/=0)then
 !      filename = trim(defaultpath) // trim(defaultfile)

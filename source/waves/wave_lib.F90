@@ -7,7 +7,7 @@ module wave_lib
     
 contains
 
-!******************************************************************	   
+!******************************************************************       
     function waveorb_linear(d,H,T,L) result(uw)
 ! Bottom wave orbital velocity based on linear wave theory
 !
@@ -21,7 +21,7 @@ contains
 !   uw = Bottom wave orbital velocity [L/T]
 !
 ! Author: Alex Sanchez, USACE-CHL
-!******************************************************************	   
+!******************************************************************       
     use const_def, only: pi,twopi
     use prec_def
     implicit none
@@ -199,8 +199,8 @@ contains
     wk = wavenumber(wa,wd,h,u,v,tol)
     wlen = twopi/wk
 
-	return
-	endfunction wavelength
+    return
+    endfunction wavelength
 
 !**************************************************
     subroutine wave_Hmax(d,s,wk,Hmax)
@@ -224,13 +224,13 @@ contains
     y=0.76*wk*d+0.29  !Grasmeijer 
     !y=0.5*wk*d+0.64   !Sanchez
     !y=0.7*wk*d+0.4    !new, visser
-	!y=0.7*wk*d+0.5    !new, LSTF
+    !y=0.7*wk*d+0.5    !new, LSTF
     !y=0.76*wk*d+0.35  !new, LIP11D 1B
-	y=max(0.64,y)     !Important. Needed for Duck 1990 test case. (Alex 10/09/2014)
-	
+    y=max(0.64,y)     !Important. Needed for Duck 1990 test case. (Alex 10/09/2014)
+    
     !!Ostendorf and Madsen (1979)
-	!if(s>0.0)then
-	!  y2=0.8+5.0*s
+    !if(s>0.0)then
+    !  y2=0.8+5.0*s
     !  y=min(y,min(y2,1.3)) 
     !endif
     
@@ -247,90 +247,90 @@ contains
     endsubroutine wave_Hmax
 
 !*********************************************************************
-	  subroutine wavebreak_bj78(Hmax,Hrms,fp,Qb,Db,ib,cab)
+      subroutine wavebreak_bj78(Hmax,Hrms,fp,Qb,Db,ib,cab)
 ! Calculates the wave breaking dissipation due to breaking waves
 ! according to the modified BJ, Baldock (1998)
 ! written by Alex Sanchez, USACE-CHL
 !*********************************************************************
-!	use flow_def, only: grav
-	  implicit none
-	  integer,intent(out) :: ib
-	  real,intent(in) :: Hmax,Hrms,fp
-	  real,intent(out):: Qb,Db,cab		
-	  real, parameter :: alfabj=1.0
-	
-	  if(Hrms<1.e-4)then !Needed to avoid divid by zero
-	    ib=0; Db=0.0; cab=0.0
-	    return
-	  endif
-	
-	  !Fraction of breaking waves
-	  if(Hrms>=Hmax)then
-	    Qb=1.0
-	  else
-	  !!val=(Hrms/Hmax)**2
+!    use flow_def, only: grav
+      implicit none
+      integer,intent(out) :: ib
+      real,intent(in) :: Hmax,Hrms,fp
+      real,intent(out):: Qb,Db,cab        
+      real, parameter :: alfabj=1.0
+    
+      if(Hrms<1.e-4)then !Needed to avoid divid by zero
+        ib=0; Db=0.0; cab=0.0
+        return
+      endif
+    
+      !Fraction of breaking waves
+      if(Hrms>=Hmax)then
+        Qb=1.0
+      else
+      !!val=(Hrms/Hmax)**2
       !!Qb=exp((0.9698*val-1.0)/(0.6574*val)) !Norm of residuals = 0.1384
-	  !!Qb=exp((0.9698*val-1.0)/(0.6574*val))/0.9551  !Norm of residuals = 0.2343
+      !!Qb=exp((0.9698*val-1.0)/(0.6574*val))/0.9551  !Norm of residuals = 0.2343
       Qb=15.7053*exp(-2.754/(Hrms/Hmax)**1.342) !Norm of residuals = 0.0618
-	  endif
-	
-	  !Dissipation rate, note rho not included and negative, 2.4525=0.25*9.81
-	  Db=-2.4525*alfabj*fp*Qb*Hmax*Hmax !Note sign
-	
-	  !Dissipation coefficient, 0.8154943935=8.0/9.81
-	  cab=-0.8154943935*Db/Hrms/Hrms
-	
-	  !Breaking Index
-	  if(Qb>0.02)then !Good LSTF
+      endif
+    
+      !Dissipation rate, note rho not included and negative, 2.4525=0.25*9.81
+      Db=-2.4525*alfabj*fp*Qb*Hmax*Hmax !Note sign
+    
+      !Dissipation coefficient, 0.8154943935=8.0/9.81
+      cab=-0.8154943935*Db/Hrms/Hrms
+    
+      !Breaking Index
+      if(Qb>0.02)then !Good LSTF
       !if(Qb>0.0001)then !Good LIP11D
-	    ib=1	  
-	  else
-	    ib=0; Qb = 0.0; Db=0.0; cab=0.0
-	  endif  
-	
-	  return
+        ib=1      
+      else
+        ib=0; Qb = 0.0; Db=0.0; cab=0.0
+      endif  
+    
+      return
     endsubroutine wavebreak_bj78
     
 !**********************************************************************    
-	  subroutine wavebreak_jb07(d,Hmax,Hrms,fp,Qb,Db,ib,cab) 
+      subroutine wavebreak_jb07(d,Hmax,Hrms,fp,Qb,Db,ib,cab) 
 !Calculates the wave breaking dissipation due to breaking waves
 !according to Alsina and Baldock (2007) and Janssen and Battjes (2007)
 !**********************************************************************
     use math_lib, only: erf
-	  implicit none
-	  integer,intent(out) :: ib	
-	  real,intent(in) :: d,Hmax,Hrms,fp
-	  real,intent(out) :: Qb,Db,cab
-	  real, parameter :: B = 1.0
-	  real :: R
-	
-	  if(Hrms<1.e-4)then !Needed to avoid divid by zero
-	    ib=0; Db=0.0; cab=0.0
-	    return
-	  endif
-	
-	  !Fraction of breaking waves
-	  R=Hmax/Hrms
-	  Qb=1.0+0.752252778*(R**3+1.5*R)*exp(-R**2)-erf(R) !0.752252778=4/3/sqrt(pi)  !Bug fix (Alex 02/24/2015)
-	  Qb=max(min(Qb,1.0),0.0)
-	
-	!Wave breaking dissipation, 2.601269071=3.0/16.0*sqrt(pi)*9.81, note density not included
-	  Db=-2.601269071*B*fp/max(d,1.0e-4)*Qb*Hrms**3 !Note sign
-	
-	  !Dissipation coefficient, 0.8154943935=8.0/9.81
+      implicit none
+      integer,intent(out) :: ib    
+      real,intent(in) :: d,Hmax,Hrms,fp
+      real,intent(out) :: Qb,Db,cab
+      real, parameter :: B = 1.0
+      real :: R
+    
+      if(Hrms<1.e-4)then !Needed to avoid divid by zero
+        ib=0; Db=0.0; cab=0.0
+        return
+      endif
+    
+      !Fraction of breaking waves
+      R=Hmax/Hrms
+      Qb=1.0+0.752252778*(R**3+1.5*R)*exp(-R**2)-erf(R) !0.752252778=4/3/sqrt(pi)  !Bug fix (Alex 02/24/2015)
+      Qb=max(min(Qb,1.0),0.0)
+    
+    !Wave breaking dissipation, 2.601269071=3.0/16.0*sqrt(pi)*9.81, note density not included
+      Db=-2.601269071*B*fp/max(d,1.0e-4)*Qb*Hrms**3 !Note sign
+    
+      !Dissipation coefficient, 0.8154943935=8.0/9.81
     cab=-0.8154943935*Db/Hrms/Hrms
     
     !Breaking Index
-	  !if(Qb>0.05)then
+      !if(Qb>0.05)then
     if(Qb>0.02)then !Good LSTF
-!	if(cab>0.1)then
-	  ib=1
-	  else
-	    ib=0; Qb = 0.0; Db=0.0; cab=0.0
-	  endif
-	
-	  return
-	  endsubroutine wavebreak_jb07
+!    if(cab>0.1)then
+      ib=1
+      else
+        ib=0; Qb = 0.0; Db=0.0; cab=0.0
+      endif
+    
+      return
+      endsubroutine wavebreak_jb07
     
 !***********************************************************    
     function wavenumber(wa,wd,h,u,v,tolinp) result(wk)

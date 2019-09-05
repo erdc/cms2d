@@ -239,32 +239,32 @@ real :: rate_avalanche = 0.01
 TYPE SALT_type
   REAL diffC
   double precision vol,qx,qy
-END TYPE SALT_type	
-TYPE (SALT_type), ALLOCATABLE :: SALT(:)	
-	
+END TYPE SALT_type    
+TYPE (SALT_type), ALLOCATABLE :: SALT(:)    
+    
 LOGICAL :: saltsimD = .true.              
 
-	
+    
 !suspended sediment concentration variables
 TYPE ADSS_type
   REAL conc,concn,eros,depo,vol,diffC,qx,qy
-END TYPE ADSS_type	
-TYPE (ADSS_type), ALLOCATABLE :: ADSS(:)	
+END TYPE ADSS_type    
+TYPE (ADSS_type), ALLOCATABLE :: ADSS(:)    
 double precision voln
 
 TYPE COHES_type
   REAL conc,concn,eros,depo,diffC,ws,T_fluff,C_fluff,tbmax
   real Tcrit_E,Tcrit_D
   double precision vol,qx,qy
-END TYPE COHES_type	
-TYPE (COHES_type), ALLOCATABLE :: COHES(:)	!mapping arra
-	
+END TYPE COHES_type    
+TYPE (COHES_type), ALLOCATABLE :: COHES(:)    !mapping arra
+    
 TYPE CHParms_type
   REAL E,Tcrit_E,Tcrit_D,ws_max,c_max,c_peak,wse_bc,Dfac
   logical :: Tcrit_variable = .false.
   integer numDEPTHS
   real, allocatable :: Depth(:),Tcrit_Ev(:),Tcrit_Dv(:)
-END TYPE CHParms_type	
+END TYPE CHParms_type    
 TYPE (CHParms_type), SAVE :: CHparms
 
 logical :: cohesive=.FALSE.,cohesive_read=.FALSE.,cohes_flow_bc=.false.

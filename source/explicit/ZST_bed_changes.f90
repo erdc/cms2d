@@ -1,5 +1,5 @@
       subroutine ST_bed_changes_3()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def      
       use sed_def
@@ -19,20 +19,20 @@
       do i=1,ncells
         ncn = cell2cell(1,i)
         nce = cell2cell(2,i)
-        ncs = cell2cell(3,i)	
-        ncw = cell2cell(4,i)	
+        ncs = cell2cell(3,i)    
+        ncw = cell2cell(4,i)    
         if(active(i,3)) THEN
         
         if(qsx(i).gt.0) then
           if(nce.le.ncells) then
-            SLP = 2*(-zb(nce)+zb(i))/ (dx(nce)+dx(i))	
+            SLP = 2*(-zb(nce)+zb(i))/ (dx(nce)+dx(i))    
             SLOPET = 1 + SLP*SLPFAC          
             qsx(i) = qsx(i)*SLOPET 
           endif
         else
           if(ncw.le.ncells) then
             SLP = 2*(-zb(ncw)+zb(i))/(dx(ncw)+dx(i))
-            SLOPET = 1 + SLP*SLPFAC  	
+            SLOPET = 1 + SLP*SLPFAC      
            qsx(i) = qsx(i) *SLOPET 
           endif
         endif
@@ -64,8 +64,8 @@
       do i=1,ncells
         ncn = cell2cell(1,i)
         nce = cell2cell(2,i)
-        ncs = cell2cell(3,i)	
-        ncw = cell2cell(4,i)	
+        ncs = cell2cell(3,i)    
+        ncw = cell2cell(4,i)    
         if(active(i,3)) THEN  ! not a wse cell
         
         if(qsx(i).gt.0) then
@@ -109,7 +109,7 @@
             bed(i) =  bed(i) - vol/dx(i)          
           endif
         else
-          if(ncw.le.ncells.and.nce.le.ncells) then 	!interior cell  
+          if(ncw.le.ncells.and.nce.le.ncells) then     !interior cell  
             vol = qsx(i)*tsed_elapse
             bed(i) =  bed(i) + vol/dx(i)
             bed(ncw) =  bed(ncw) - vol/dx(ncw)  
@@ -150,12 +150,12 @@
           if(QstringEXP(i)%vface) then 
               
            if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j)
               if(qy(ii) .gt. 0.0)  bed(ii) = 0.0
             enddo
            else  !north face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cell2cell(3,Q_str(i)%Cells(j))
               if(qy(ii) .lt. 0.0) bed(ncs) = 0.0
@@ -165,12 +165,12 @@
           else
               
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
               if(qx(ii) .gt. 0) bed(ii) = 0.0            
             enddo
           else  !east face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)   
               ncw = cell2cell(4,Q_str(i)%Cells(j))             
               if(qx(ii) .lt. 0) bed(ncw) = 0.0 

@@ -60,7 +60,7 @@
           !if(cell2cell(4id_cell) .eq. H_Str(i)%cells(jj))  active(id_cell,1)=.false. 
         enddo
       enddo
-    Endif !(H_single)	
+    Endif !(H_single)    
 
     if(nTHstr .gt. 0) then
       i=1
@@ -82,8 +82,8 @@
         !jj=min(j+1,TH_str(i)%ncells)
         !if(cell2cell(4,id_cell) .eq. TH_Str(I)%Cells(jj)) active(id_cell,1)=.false.
       enddo
-    Endif !(H_tides)	
-		
+    Endif !(H_tides)    
+        
     if(nMHstr .gt. 0) then
       !set activity based on wse bc cells
       do i=1,nMHstr
@@ -106,7 +106,7 @@
         enddo
       enddo
     Endif !(H_multi)
-	
+    
     if(nMHVstr .gt. 0) then
       !set activity based on wse bc cells
       do i=1,nMHVstr

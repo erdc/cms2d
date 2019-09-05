@@ -205,12 +205,12 @@
     foundcard = .true.
     selectcase(cardname)    
       case('SIMULATION_LABEL')
-		backspace(77)
-		read(77,*) cardname, simlabel	
+        backspace(77)
+        read(77,*) cardname, simlabel    
     
       case('OUTPUT_PATH')
         backspace(77)
-		read(77,*) cardname, outpath
+        read(77,*) cardname, outpath
         
       !=== Time Series ====================  
       case('TIME_SERIES_1')
@@ -312,7 +312,7 @@
            'FRICTION_OUT_TIMES_LIST','FRIC_OUT_TIMES_LIST')
         backspace(77)
         read(77,*) cardname, outlist(13)%ilist
-		 		       
+                        
       !=== Observation Points =========================
       !Time series, u, v, and eta
       case('TIME_SERIES_INCREMENT') !Old
@@ -343,8 +343,8 @@
         i=2        
         obs(i)%active = .true.
         obs(i)%group = 'Flow_Rate'
-	    obs(i)%nvar = 2 !u*h,v*h
-	    allocate(obs(i)%names(obs(i)%nvar))
+        obs(i)%nvar = 2 !u*h,v*h
+        allocate(obs(i)%names(obs(i)%nvar))
         obs(i)%names(1)='Qx'
         obs(i)%names(2)='Qy'  
         call read_obs_cells(i)  
@@ -848,19 +848,19 @@
           selectcase(cardname)
           case('NAME','LABEL')
             backspace(77)
-	        read(77,*) cardname,ptname 
+            read(77,*) cardname,ptname 
             
           case('CELL')
             backspace(77)
-	        read(77,*) cardname,cell 
+            read(77,*) cardname,cell 
             
           case('COORDINATES')
             backspace(77)
-	        read(77,*) cardname,xsave,ysave 
+            read(77,*) cardname,xsave,ysave 
             
           case('GROUPS')
             backspace(77)
-	        read(77,*) cardname,groupstr
+            read(77,*) cardname,groupstr
             read(groupstr,*,iostat=ierr) (group(i),i=1,ngroups)
             
           case('SAVE_POINT_END','SAVEPOINT_END','END')
@@ -1224,8 +1224,8 @@
         enddo
         call fileparts(outlist(i)%afile,apath,aname,aext)
         if(len_trim(apath)==0)then
-		  outlist(i)%afile = flowpath(1:npath) // outlist(i)%afile
-		endif        
+          outlist(i)%afile = flowpath(1:npath) // outlist(i)%afile
+        endif        
       endif
     enddo    
     
@@ -1360,58 +1360,58 @@
     open(dgunit,file=dgfile,access='append')
     do i=1,2
       write(iunit(i),*)
-	  write(iunit(i),787)       'Global Output'
+      write(iunit(i),787)       'Global Output'
       write(iunit(i),787)       '  Simulation Label:',trim(simlabel)
       if(.not.write_xmdf_output) then
         write(iunit(i),787)     '  Output Path:','ASCII_Solutions/'
       else
         if(len_trim(outpath)>0)then
-	      write(iunit(i),787)   '  Output Path:',trim(outpath)
+          write(iunit(i),787)   '  Output Path:',trim(outpath)
         endif
         call fileparts(outlist(1)%afile,apath,aname,aext)
-        astring=trim(aname) // '.' // aext 	         
+        astring=trim(aname) // '.' // aext              
         write(iunit(i),787)     '  Water Level File:',trim(astring)
         call fileparts(outlist(2)%afile,apath,aname,aext)
-        astring=trim(aname) // '.' // aext 	 
+        astring=trim(aname) // '.' // aext      
         write(iunit(i),787)     '  Current Velocity File:',trim(astring)
         if(outlist(3)%write_dat)then
           call fileparts(outlist(3)%afile,apath,aname,aext)
-          astring=trim(aname) // '.' // aext 	
+          astring=trim(aname) // '.' // aext     
           write(iunit(i),787)   '  Eddy Viscosity File:',trim(astring)
         endif
         if(sedtrans .or. saltrans)then
           call fileparts(outlist(9)%afile,apath,aname,aext)
-	      astring=trim(aname) // '.' // aext
+          astring=trim(aname) // '.' // aext
           write(iunit(i),787)   '  Transport File:',trim(astring)
         endif   
         if(heattrans)then
           call fileparts(outlist(14)%afile,apath,aname,aext)
-	      astring=trim(aname) // '.' // aext
+          astring=trim(aname) // '.' // aext
           write(iunit(i),787)   '  Temperature File:',trim(astring)
         endif   
         if(sedtrans)then
           call fileparts(outlist(5)%afile,apath,aname,aext)
-	      astring=trim(aname) // '.' // aext 	
+          astring=trim(aname) // '.' // aext     
           write(iunit(i),787)   '  Morphology Change File:',trim(astring)
         endif
         if(outlist(7)%write_dat)then
           call fileparts(outlist(7)%afile,apath,aname,aext)
-	      astring=trim(aname) // '.' // aext 
+          astring=trim(aname) // '.' // aext 
           write(iunit(i),787)   '  Wave File:',trim(astring)
         endif
         if(outlist(8)%write_dat)then
           call fileparts(outlist(8)%afile,apath,aname,aext)
-  	      astring=trim(aname) // '.' // aext 
+            astring=trim(aname) // '.' // aext 
           write(iunit(i),787)   '  Meteorological File:',trim(astring)
         endif
         if(outlist(10)%write_dat)then
           call fileparts(outlist(10)%afile,apath,aname,aext)
-  	      astring=trim(aname) // '.' // aext
+            astring=trim(aname) // '.' // aext
           write(iunit(i),787)   '  Bed Composition File:',trim(astring)
         endif  
         if(outlist(13)%write_dat)then
           call fileparts(outlist(13)%afile,apath,aname,aext)
-	      astring=trim(aname) // '.' // aext
+          astring=trim(aname) // '.' // aext
           write(iunit(i),787)   '  Bed Friction/Roughness File:',trim(astring)
         endif
         if(write_tecplot)then
@@ -1420,7 +1420,7 @@
         if(debug_mode)then
           write(iunit(i),787)   '  Diagnostic File:',trim(dgoutfile)
         endif      
-	  endif
+      endif
       if(obs_cell)then
         !write(iunit(i),*)  
         write(iunit(i),787)     'Observation Cells:','ON' 
@@ -1451,7 +1451,7 @@
           write(iunit(i),787)   '    Variable,   File,                                   Units'
           do j=1,savept(k)%nvar
             call fileparts(savept(k)%files(j),apath,aname,aext)
-  	        astring=trim(aname) // '.' // aext
+              astring=trim(aname) // '.' // aext
             write(iunit(i),234,iostat=ierr) adjustl(savept(k)%names(j)),adjustl(astring),adjustl(trim(savept(k)%ounit(j)))
           enddo
           write(iunit(i),262)   '   Number of Points:',savept(k)%ncells
@@ -1947,8 +1947,8 @@ implicit none
       if(windvar .or. windsta)then
         call print_output_header(header)
         if(windformat/=7)then
-	      call writevech5(outlist(8)%afile,apath,'Wind_Velocity',uwind,vwind,'m/s',timehrs,1) 
-	      do i=1,ncells
+          call writevech5(outlist(8)%afile,apath,'Wind_Velocity',uwind,vwind,'m/s',timehrs,1) 
+          do i=1,ncells
             val(i) = sqrt(uwind(i)*uwind(i) + vwind(i)*vwind(i))
           enddo
           if(write_wndmag)then
@@ -1968,8 +1968,8 @@ implicit none
       elseif(windconst)then
         call print_output_header(header)
         vecx = wndx; vecy = wndy               
-	    call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1)          
-	    val = sqrt(wndx*wndx + wndy*wndy)  !scalar to vector 
+        call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1)          
+        val = sqrt(wndx*wndx + wndy*wndy)  !scalar to vector 
         call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1)        
       endif
       if(write_atmpres)then
@@ -2371,7 +2371,7 @@ implicit none
     if(check_time_list(8))then 
       if(windvar .or. windsta)then
         call print_output_header(header)
-        if(windformat/=7)then	      
+        if(windformat/=7)then          
           call write_vec_dat_file(aname,'Wind_Velocity','wind',uwind,vwind) !SUPER ASCII File
         endif
         if(write_wndstress)then
@@ -2386,8 +2386,8 @@ implicit none
       elseif(windconst)then
         call print_output_header(header)
         vecx = wndx; vecy = wndy               
-	    !call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1)          
-	    val = sqrt(wndx*wndx + wndy*wndy)  !scalar to vector 
+        !call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1)          
+        val = sqrt(wndx*wndx + wndy*wndy)  !scalar to vector 
         !call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1)        
       endif
       if(write_atmpres)then
@@ -2504,7 +2504,7 @@ implicit none
     if(abs(timehrs-listtime)<toltime)then !write time     
       timehrs = listtime
       ctime = listtime*3600.0
-	  check_time_list = .true.
+      check_time_list = .true.
     endif    
    
     return
@@ -2541,8 +2541,8 @@ implicit none
         write(msg2,703) trim(str)
         call diag_print_message(' ',msg,msg2)
       endif
-	  header = .true.
-	endif
+      header = .true.
+    endif
     
     return
     endsubroutine print_output_header
@@ -2897,67 +2897,67 @@ implicit none
     integer :: i,j,k,nn,npath
     logical :: ok
     
-	nn = len_trim(casename)
-	npath = len_trim(flowpath) 
-	do i=1,4 !groups
-	  if(obs(i)%active)then
+    nn = len_trim(casename)
+    npath = len_trim(flowpath) 
+    do i=1,4 !groups
+      if(obs(i)%active)then
         obs(i)%time_inc = max(obs(i)%time_inc,dtimebeg) !Minimum interval is the initial timestep
-	    allocate(obs(i)%units(obs(i)%nvar))
-	    allocate(obs(i)%files(obs(i)%nvar))        
-	    do j=1,obs(i)%nvar !variables	      
-	      obs(i)%units(j)=50+i*j
-	      obs(i)%files(j)=casename(1:nn)//"_"//trim(obs(i)%names(j))//".txt"	
-	      obs(i)%files(j)=flowpath(1:npath)//obs(i)%files(j) !Bug fix, 1/18/11
-	    enddo
-	  else
-	    obs(i)%time_inc=-1.0
-	  endif
-	enddo
-	  
+        allocate(obs(i)%units(obs(i)%nvar))
+        allocate(obs(i)%files(obs(i)%nvar))        
+        do j=1,obs(i)%nvar !variables          
+          obs(i)%units(j)=50+i*j
+          obs(i)%files(j)=casename(1:nn)//"_"//trim(obs(i)%names(j))//".txt"    
+          obs(i)%files(j)=flowpath(1:npath)//obs(i)%files(j) !Bug fix, 1/18/11
+        enddo
+      else
+        obs(i)%time_inc=-1.0
+      endif
+    enddo
+      
 753 format('% time(hrs)',255I10) !Observation File Header Format
-	  
-	if(coldstart)then  !create data set (new XMDF file created already) 
-	  do i=1,4 !groups
-	    if(obs(i)%active)then  
-	      do j=1,obs(i)%nvar !variables
-	        if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
-	        if(i==3 .and. j==4 .and. .not.saltrans) cycle
+      
+    if(coldstart)then  !create data set (new XMDF file created already) 
+      do i=1,4 !groups
+        if(obs(i)%active)then  
+          do j=1,obs(i)%nvar !variables
+            if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
+            if(i==3 .and. j==4 .and. .not.saltrans) cycle
 #ifdef DEV_MODE            
-	        if(i==1 .and. j==4 .and. .not.q3d) cycle
+            if(i==1 .and. j==4 .and. .not.q3d) cycle
             if(i==3 .and. j==5 .and. .not.q3d) cycle
 #endif
-	        open(obs(i)%units(j),file=obs(i)%files(j))
-	        write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
-	        close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
-	      enddo
-	    endif
-	  enddo
-	else  !if hotstart - see if data set is created, an if not create it	
-	  do i=1,4 !groups
-	    if(obs(i)%active)then  
-	      do j=1,obs(i)%nvar !variables
-	        if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
-	        if(i==3 .and. j==4 .and. .not.saltrans) cycle
+            open(obs(i)%units(j),file=obs(i)%files(j))
+            write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
+            close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
+          enddo
+        endif
+      enddo
+    else  !if hotstart - see if data set is created, an if not create it    
+      do i=1,4 !groups
+        if(obs(i)%active)then  
+          do j=1,obs(i)%nvar !variables
+            if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
+            if(i==3 .and. j==4 .and. .not.saltrans) cycle
 #ifdef DEV_MODE           
-	        if(i==1 .and. j==4 .and. .not.q3d) cycle
+            if(i==1 .and. j==4 .and. .not.q3d) cycle
 #endif            
-	        inquire(file=obs(i)%files(j),exist=ok) 
-	        if(ok)then
-	          open(obs(i)%units(j),file=obs(i)%files(j),access='append')
-	        else  
-	          open(obs(i)%units(j),file=obs(i)%files(j))
-	        endif
-	        write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
-	        close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
-	      enddo
-	    endif
-	  enddo
+            inquire(file=obs(i)%files(j),exist=ok) 
+            if(ok)then
+              open(obs(i)%units(j),file=obs(i)%files(j),access='append')
+            else  
+              open(obs(i)%units(j),file=obs(i)%files(j))
+            endif
+            write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
+            close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
+          enddo
+        endif
+      enddo
     endif
     
     !Map cell id's to new grid
     do i=1,4 !groups
       if(obs(i)%active)then  
-	    do k=1,obs(i)%ncells
+        do k=1,obs(i)%ncells
           obs(i)%cells(k)=idmap(obs(i)%cells(k))
         enddo
       endif
@@ -2999,43 +2999,43 @@ implicit none
     
     !Time series
     
-    if(obs(1)%active .and. mod(timesecs,obs(1)%time_inc)<0.5)then	  
-	  call write_obs_var(1,1,u)
-	  call write_obs_var(1,2,v)
-	  call write_obs_var(1,3,eta)
-	  if(q3d) call write_obs_velpro !Write vertical velocity profiles
-	endif
-	
-	!Flow
-	if(obs(2)%active .and. mod(timesecs,obs(2)%time_inc)<0.5)then	  
-	  qx = u*h
-	  qy = v*h
-	  call write_obs_var(2,1,qx)
-	  call write_obs_var(2,2,qy)
-	endif
-	
-	!Transport
-	if(obs(3)%active .and. mod(timesecs,obs(3)%time_inc)<0.5)then	   
-	  if(sedtrans)then
-	    Csus = iwet*Ct*rs !Suspended sediment concentration
-	    call write_obs_var(3,1,Csus)
-	    call write_obs_var(3,2,qtx)
-	    call write_obs_var(3,3,qty)
+    if(obs(1)%active .and. mod(timesecs,obs(1)%time_inc)<0.5)then      
+      call write_obs_var(1,1,u)
+      call write_obs_var(1,2,v)
+      call write_obs_var(1,3,eta)
+      if(q3d) call write_obs_velpro !Write vertical velocity profiles
+    endif
+    
+    !Flow
+    if(obs(2)%active .and. mod(timesecs,obs(2)%time_inc)<0.5)then      
+      qx = u*h
+      qy = v*h
+      call write_obs_var(2,1,qx)
+      call write_obs_var(2,2,qy)
+    endif
+    
+    !Transport
+    if(obs(3)%active .and. mod(timesecs,obs(3)%time_inc)<0.5)then       
+      if(sedtrans)then
+        Csus = iwet*Ct*rs !Suspended sediment concentration
+        call write_obs_var(3,1,Csus)
+        call write_obs_var(3,2,qtx)
+        call write_obs_var(3,3,qty)
         !if(q3d) call write_obs_sedpro !Write vertical velocity profiles
-	  endif
-	  if(saltrans) call write_obs_var(3,4,sal)
-	endif
-	
-	!Bed Composition
-	if(obs(4)%active .and. mod(timesecs,obs(4)%time_inc)<0.5)then	  
-	  do ks=1,nsed
-	    call write_obs_var(4,1,pbk(:,ks,1))
-	  enddo	  
-	endif
-	
-	return
-	endsubroutine write_obs_cell
-		
+      endif
+      if(saltrans) call write_obs_var(3,4,sal)
+    endif
+    
+    !Bed Composition
+    if(obs(4)%active .and. mod(timesecs,obs(4)%time_inc)<0.5)then      
+      do ks=1,nsed
+        call write_obs_var(4,1,pbk(:,ks,1))
+      enddo      
+    endif
+    
+    return
+    endsubroutine write_obs_cell
+        
 !********************************************************************************   
     subroutine write_obs_var(i,j,var)
 ! Writes an observation cell variable to its corresponding file

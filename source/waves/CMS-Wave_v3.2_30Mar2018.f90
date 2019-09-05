@@ -907,7 +907,7 @@
       if(nest.ne.0) open (13, file = NestFile, status = 'unknown')
 !     azimuth read from .sim file in Subroutine STWfiles
 
-109	  continue
+109      continue
 !
       if(ixmdf.lt.0) ixmdf = 0
       if(ixmdf.eq.0) then
@@ -4576,10 +4576,10 @@
       if(h13add.gt..5) h13ave=h13ave/h13add
       if(iplane.le.1) then
         write(*,9020) h13ave
-9020	format('Average wave height = ',2f10.4)
+9020    format('Average wave height = ',2f10.4)
       else
         write(*,9021) h13ave
-9021	format('Seaward wave height = ',2f10.4)
+9021    format('Seaward wave height = ',2f10.4)
       end if
 
       i3=iii+1
@@ -4987,7 +4987,7 @@
 !     end if
 
 !     open(unit=129,file='depp.dat',status='unknown')
-!	do 229 j=jmax,1,-1
+!    do 229 j=jmax,1,-1
 !     write(129,126) (dep(i,j),i=1,imax)
 !229  continue
 !     close(unit=129)
@@ -5119,7 +5119,7 @@
  223  continue
 
 !     open(unit=22,file='ijbv.dat',status='unknown')
-!	do 222 j=jgmx,1,-1
+!    do 222 j=jgmx,1,-1
 !     write(22,26) (ijb(i,j),i=igmx,1,-1)
 !26   format((200i1))
 !222  continue
@@ -5129,14 +5129,14 @@
       dep(imax,j)=dep(igmx,j)
       end do
 !     open(unit=122,file='depv.dat',status='unknown')
-!	do 225 j=jmax,1,-1
+!    do 225 j=jmax,1,-1
 !     write(122,126) (dep(i,j),i=imax,1,-1)
 !126  format((200f5.1))
 !225  continue
 !     close(unit=122)
 !
 !     open(unit=222,file='d1v.dat',status='unknown')
-!	do 227 j=jgmx,1,-1
+!    do 227 j=jgmx,1,-1
 !     write(222,226) (d1(i,j),i=igmx,1,-1)
 !226  format((200f5.1))
 !227  continue
@@ -5317,7 +5317,7 @@
       end do
 !
  1000 DEALLOCATE (KRC,JR,RKK,angl,hsgg,h13a,h13b)
-      RETURN	 
+      RETURN     
       END
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -6688,7 +6688,7 @@
 !
         if (x.gt.3.0) then
         erf = 1.0
-        return	
+        return    
         endif
       E=1.0
       S=1.0

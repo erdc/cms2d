@@ -13,21 +13,21 @@
 !   Explicit Solver integrated with Implicit Code
 !   and modified for using Telescoping Grid
 !----------------------------------------------------------------------------------------------------
-	!PROGRAM CMS_Flow
+    !PROGRAM CMS_Flow
 #include "CMS_cpp.h"
-	use EXP_Global_def
+    use EXP_Global_def
     USE EXP_transport_def, only: adss,tsed_elapse
     use NupdateMod, only: nupdateint,nupdatecnt,nupdate         
     use sed_def,    only: sedtrans
-	use flow_def,   only: h,eta,u,v,uv,mturbul
-	use size_def,   only: ncells
+    use flow_def,   only: h,eta,u,v,uv,mturbul
+    use size_def,   only: ncells
     use exp_telescoping
-	use geo_def,    only: zb
+    use geo_def,    only: zb
     use diag_def,   only: dgunit,dgfile
     use out_def,    only: save_point,obs_cell
     use sal_def,    only: saltrans
     use time_lib,   only: ramp_func
-	use comvarbl,   only: tmax,ramp,timehrs,rampdur,ctime,stimet,ntime,dtime
+    use comvarbl,   only: tmax,ramp,timehrs,rampdur,ctime,stimet,ntime,dtime
     use met_def,    only: windconst,tauwindx,tauwindy,tauwx,tauwy,presconst,windvar,presvar,windsta,pressta
     use cms_def,    only: cmswave
     use dredge_def, only: dredging,dredge_time_lapse,dredge_interval
@@ -39,7 +39,7 @@
     integer :: i,id,mm,ll,ii
     integer :: nmax,imod,imod6,itime
     integer :: id1,id2,j
-    real    :: totL,DepthT		
+    real    :: totL,DepthT        
     !real    :: outinterval
     
 !!  This section used for OpenMP - added 11/26/2008
@@ -53,7 +53,7 @@
 !!$    numthreads = omp_get_num_threads()                                !NLH 08/07
 !!$omp end parallel                                                      !NLH 08/07
 
-!================================================================================================	
+!================================================================================================    
 ! SET PROJECT PROPERTIES:  NDH 08/08
 !     FORTRAN properties, preprocessor, Preprocess Source file: change from NO to YES
 !     keep OpenMP Conditional Compilation = YES

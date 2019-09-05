@@ -15,7 +15,7 @@
 
     do i=1,ncells
       ntt2=0
-      nterm2=0	
+      nterm2=0    
       do k=1,ncface(i)
         if(cell2cell(k,i).lt.i)then
           nterm1=ncells
@@ -23,7 +23,7 @@
             if(cell2cell(kk,i).lt.i .and. cell2cell(kk,i).lt.nterm1 &
                  .and. cell2cell(kk,i).gt.nterm2)then
               nterm1=cell2cell(kk,i) 
-   	          ntt1=kk                    
+                 ntt1=kk                    
             endif
           enddo
           nterm=nterm+1
@@ -34,7 +34,7 @@
         endif
       enddo
       nlow(i)=ntt2
-		
+        
 !--------
       nterm=nterm+1
       ja(nterm)=i
@@ -60,7 +60,7 @@
       enddo
       nup(i)=ntt3
       ia(i+1)=nterm+1
-	enddo
+    enddo
     no_zero=nterm
 
     call diagonal_pointer_cr !iua
@@ -100,7 +100,7 @@
     !Internal Variables
     integer :: i,k,nterm1
 
-    !----Form A matrix using a sparse compressed row	  
+    !----Form A matrix using a sparse compressed row      
     nterm1=0 
     do i=1,ncells
       do k=1,nlow(i)
@@ -123,7 +123,7 @@
 
 !*********************************************************************** 
     subroutine coef2csr(acoef,ap)
-! Form A matrix using a sparse compressed row	  
+! Form A matrix using a sparse compressed row      
 !*********************************************************************** 
     use size_def
     use solv_def
@@ -134,7 +134,7 @@
     !Internal Variables
     integer :: i,k,kk
 
-    !----Form A matrix using a sparse compressed row	  
+    !----Form A matrix using a sparse compressed row      
 !$OMP PARALLEL DO PRIVATE(i,k,kk)  
     do i=1,ncells
       do k=1,nlow(i)
@@ -165,7 +165,7 @@
     !Internal Variables
     integer :: i,k,nterm1
 
-    !----Form A matrix using a sparse compressed row	  
+    !----Form A matrix using a sparse compressed row      
     nterm1=0 
     do i=1,ncells
       do k=1,nlow(i)
@@ -235,10 +235,10 @@
 
 !*****************************************************************************
     subroutine lusol(n, y, x)
-! This routine solves the system (LU) x = y, 	   
+! This routine solves the system (LU) x = y,        
 !*****************************************************************************
     use solv_def
-    use size_def	   
+    use size_def       
     use prec_def
     implicit none
     integer n,i,k         

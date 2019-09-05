@@ -1,5 +1,5 @@
 !****************************************************************************************
-	program CMS2D
+    program CMS2D
 ! Coastal Modeling System (CMS)
 !
 ! CMS License in 'Coastal Modeling System Terms and Conditions.txt'
@@ -68,8 +68,8 @@
     
     call print_header     !screen and debug file header  
     
-	if(noptset==1) then   !CMS-Wave only, use Stand alone code unless INLINE card present   MEB  10/15/2018
-	  call sim_start_print  !start timer here
+    if(noptset==1) then   !CMS-Wave only, use Stand alone code unless INLINE card present   MEB  10/15/2018
+      call sim_start_print  !start timer here
 
       !Might check to see if dtsteer already set
       dtsteer=3.0
@@ -88,28 +88,28 @@
 
       call sim_end_print
       
-	else !if(noptset==2 .or. noptset==3) then
+    else !if(noptset==2 .or. noptset==3) then
       !if(n2Dor3D==2) then
     !STACK:  OPEN & READ FLOW CARD FILE TO SEE IF IT EXPLICIT OR IMPLICIT
-	  !nfsch = 0, implicit     !STACK:
-	  !nfsch = 1, explicit     !STACK:	    
-	  !nfsch = 0  !STACK:  implicit is defualt, nfsch updated from card file in SOLUTION_SCHEME_OPTION
-	  call SOLUTION_SCHEME_OPTION()       !STACK:
-	  if(nfsch.lt.0.or.nfsch.gt.1) then
+      !nfsch = 0, implicit     !STACK:
+      !nfsch = 1, explicit     !STACK:        
+      !nfsch = 0  !STACK:  implicit is defualt, nfsch updated from card file in SOLUTION_SCHEME_OPTION
+      call SOLUTION_SCHEME_OPTION()       !STACK:
+      if(nfsch.lt.0.or.nfsch.gt.1) then
         write(*,*)'error in determnining flow mode (EXP or IMP)'  !STACK:
-	    write(*,*)'solution scheme option nfsch = ',nfsch  !STACK:
+        write(*,*)'solution scheme option nfsch = ',nfsch  !STACK:
       endif
 
       IF(nfsch.eq.1) then   !CALL EXPLICIT
         call CMS_FLOW_EXP_GRIDTYPE   
       ELSE                  !CALL IMPLICIT
         call CMS_Flow
-	  ENDIF
+      ENDIF
          !call CMS_Flow_Shock
       !else
          !call CMS3D_Flow
       !endif
-	endif
+    endif
 #endif
 
 !    !special output for dredge-multiple grains size CHETN'
@@ -438,19 +438,19 @@
           flowpath = apath
           casename = aname
           inquire(file=astr,exist=ok)
-	      if(.not.ok)then
+          if(.not.ok)then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
             write(*,*) 'Press any key to continue.'
-	        read(*,*)
-	        stop
-	      endif	
+            read(*,*)
+            stop
+          endif    
           cmsflow = .true.
           !Search for Steering Cards
           open(77,file=astr)
           do k=1,1000
-	        read(77,*,iostat=ierr) cardname	
+            read(77,*,iostat=ierr) cardname    
             if(ierr/=0) exit
-	        call steering_cards(cardname)
+            call steering_cards(cardname)
           enddo
           close(77)
 
@@ -459,12 +459,12 @@
           Wavepath=apath
           wavename=aname
           inquire(file=astr,exist=ok)
-  	      if(.not.ok) then
+            if(.not.ok) then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
             write(*,*) 'Press any key to continue.'
-	        read(*,*)
-	        stop
-	      endif	
+            read(*,*)
+            stop
+          endif    
           cmswave = .true.          
           noptset = 3 
 
@@ -475,9 +475,9 @@
           if(.not.ok) then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
             write(*,*) 'Press any key to continue.'
-	        read(*,*)
-	        stop
-	      endif	
+            read(*,*)
+            stop
+          endif    
           cmsflow = .true.
           coldstart = .true.  
           write_sup = .true.
@@ -500,18 +500,18 @@
       if(astr(1:1)/='0' .and. astr(1:4)/='none')then
         call fileparts(astr,apath,aname,aext)          
         inquire(file=astr,exist=ok)
-  	    if(.not.ok) then
+          if(.not.ok) then
           write(*,*) 'ERROR: ',trim(astr),' does not exist'
           write(*,*) 'Press any key to continue.'
-	      read(*,*)
-	      stop
-	    endif
-	    WavSimFile = trim(aname) // '.sim'
+          read(*,*)
+          stop
+        endif
+        WavSimFile = trim(aname) // '.sim'
         Wavepath=apath
         wavename=aname
         cmswave = .true.          
-        noptset = 3   	    
-	  endif
+        noptset = 3           
+      endif
 !CMS was called with no arguments but user entered Wave parameter filename, also ask for Flow info
     elseif(.not.cmsflow .and. cmswave .and. narg==0)then
       write(*,*) ' '
@@ -521,25 +521,25 @@
       read(*,*) astr         
       if(astr(1:1)/='0' .and. astr(1:4)/='none')then
         inquire(file=astr,exist=ok)
-	    if(.not.ok) then
+        if(.not.ok) then
           write(*,*) 'ERROR: ',trim(astr),' does not exist'
           write(*,*) 'Press any key to continue.'
-    	  read(*,*)
-  	      stop
-  	    endif
-  	    ctlfile = trim(aname) // '.cmcards'
+          read(*,*)
+            stop
+          endif
+          ctlfile = trim(aname) // '.cmcards'
         flowpath = apath
         casename = aname  
         cmsflow = .true.
         !Search for Steering Cards
         open(77,file=astr)
         do k=1,1000
-   	      read(77,*,iostat=ierr) cardname
+             read(77,*,iostat=ierr) cardname
           if(ierr/=0) exit
-          call steering_cards(cardname)	          
+          call steering_cards(cardname)              
         enddo
-        close(77) 	    
-	  endif
+        close(77)         
+      endif
     endif
 
     if(cmswave .and. .not.cmsflow .and. narg<=1)then
@@ -652,7 +652,7 @@
     
     return
     endsubroutine get_com_arg
-		
+        
 !************************************************************************    
     subroutine print_header
 !************************************************************************        
@@ -765,7 +765,7 @@
 
     return
     endsubroutine sim_start_print
-		
+        
 !************************************************************************
     subroutine sim_end_print
 ! Calculates and prints the elapsed cpu time
@@ -873,14 +873,14 @@
       if(noptset>=2)then   
         if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext
+        astring=trim(aname) // '.' // aext
         write(iunit(i),887)    'CMS-Flow Card File:',trim(astring)
         write(iunit(i),342)    'Input Version:',input_ver     
       endif
       if(noptset==1 .or. noptset==3)then
         write(iunit(i),887)    'CMS-Wave Path:',trim(wavepath)
         call fileparts(WavSimFile,apath,aname,aext)
-	    astring=trim(aname) // '.' // aext
+        astring=trim(aname) // '.' // aext
         write(iunit(i),887)    'CMS-Wave Sim File:',trim(astring)   
       endif  
       if(noptset==3)then  
@@ -930,8 +930,8 @@
         write(iunit(i),887)    'Radiation Stress Dataset:',trim(radpath)
       endif      
    !   call fileparts(mpfile,apath,aname,aext)
-	  !astring=trim(aname) // '.' // aext
-	  !write(iunit(i),787)             'Parameters File:             ',trim(astring)
+      !astring=trim(aname) // '.' // aext
+      !write(iunit(i),787)             'Parameters File:             ',trim(astring)
     enddo
     close(dgunit)
     

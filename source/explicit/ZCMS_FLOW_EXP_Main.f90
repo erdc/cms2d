@@ -2,7 +2,7 @@
 
       !Program selects routines based on gridtype       
   
-	use geo_def, only: igridtype
+    use geo_def, only: igridtype
       implicit none
       
 !      write(*,*)'igridtype = ',igridtype

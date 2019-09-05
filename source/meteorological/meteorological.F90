@@ -52,16 +52,16 @@
     !Parameters
     densitair = 1.2       !Air density [kg/m^3]
     rhorat = 0.00120      !Air density / water density [-]
-	wkappa = 0.4          !Wind drag coefficient
-	wndht = 10.0          !Anemometer height [m]
-	ambatmpres = 101325.0 !Ambient atmospheric pressure [Pa] (Average Sea Level Pressure)
-	iwndlagr = 0          !Lagrangian wind speed correction
+    wkappa = 0.4          !Wind drag coefficient
+    wndht = 10.0          !Anemometer height [m]
+    ambatmpres = 101325.0 !Ambient atmospheric pressure [Pa] (Average Sea Level Pressure)
+    iwndlagr = 0          !Lagrangian wind speed correction
     wndfac = 1.0          !Scaling factor used to convert from different time averages (e.g. 0.81 from 1 min to 30 min)
-	
+    
     !Projection
     call proj_default(projwnd)
     
-	!Stations
+    !Stations
     windsta = .false.  !Wind from weather stations    
     pressta = .false.  !Pressure from weather stations (not operational)
     nMetSta = 0
@@ -131,7 +131,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)	        
+    selectcase(cardname)            
       case('WIND_OUT_TIMES_LIST')
         backspace(77)
         read(77,*) cardname, outlist(8)%ilist   
@@ -173,21 +173,21 @@
       
       case('WIND_SPEED_CURVE')
         backspace(77)
-	    read(77,*) cardname,windfile
+        read(77,*) cardname,windfile
         call fileext(windfile,aext)
         if(aext(1:2)=='h5')then
           backspace(77)
-	      read(77,*) cardname,windfile,windpath 
+          read(77,*) cardname,windfile,windpath 
         endif
         windconst = .true.
           
       case('WIND_DIRECTION_CURVE')
         backspace(77)
-	    read(77,*) cardname,windpath
+        read(77,*) cardname,windpath
         call fileext(windpath,aext)
         if(aext(1:2)=='h5')then
           backspace(77)
-	      read(77,*) cardname,windfile,windpath
+          read(77,*) cardname,windfile,windpath
         endif
         windconst = .true.
         
@@ -344,8 +344,8 @@ d1: do ii=1,15
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('WIND_FILE')  
           call card_dataset(77,mpfile,flowpath,windfile,windpath,1)
           if(len_trim(windfile)==0)then
@@ -391,13 +391,13 @@ d1: do ii=1,15
         
         case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
           call proj_horiz_block(77,projwnd)
-	          
-	    case('WIND_CURVE_END','END')
+              
+        case('WIND_CURVE_END','END')
           exit d1
           
-	    case default
+        case default
           foundcard = .false.
-	  endselect
+      endselect
     enddo d1
 
     if(len_trim(windpath)==0)then
@@ -427,30 +427,30 @@ d1: do ii=1,4
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
-	    case('WIND_FILE')
-	      backspace(77)
-	      read(77,*) cardname,windfile
-	      windvar = .true.
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
+        case('WIND_FILE')
+          backspace(77)
+          read(77,*) cardname,windfile
+          windvar = .true.
           call filepath(windfile,windpath)
-	      
-	    case('PRESSURE_FILE','PRES_FILE','PRESS_FILE')
-	      backspace(77)
-	      read(77,*) cardname,presfile
-	      presvar = .true.
+          
+        case('PRESSURE_FILE','PRES_FILE','PRESS_FILE')
+          backspace(77)
+          read(77,*) cardname,presfile
+          presvar = .true.
           call filepath(presfile,prespath)
         
         case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
           call proj_horiz_block(77,projwnd)
           projblock = .true.
-	          
-	    case('OCEANWEATHER_END','END')
+              
+        case('OCEANWEATHER_END','END')
           exit d1
           
-	    case default
+        case default
           foundcard = .false.
-	  endselect
+      endselect
     enddo d1
 
     if(.not.projblock)then !Set to geographic, degrees
@@ -484,17 +484,17 @@ d1: do ii=1,4
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('WIND_PRESSURE_SINGLE_END','WIND_PRESSURE_END','END')
           exit d1
           
-	    case('FILE','WIND_PRESSURE_FILE')
-	      backspace(77)
-	      read(77,*) cardname,windfile	           
-	    
-	    case('GRID_PARAM','GRID_PARAMETERS')
-	      backspace(77)
+        case('FILE','WIND_PRESSURE_FILE')
+          backspace(77)
+          read(77,*) cardname,windfile               
+        
+        case('GRID_PARAM','GRID_PARAMETERS')
+          backspace(77)
           read(77,*) cardname,nwindi,nwindj,wlatmax,wlonmin,wlatinc,wloninc
         
         case('TIME_INCREMENT')
@@ -529,9 +529,9 @@ d1: do ii=1,4
         case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
           call proj_horiz_block(77,projwnd)  
   
-	    case default
+        case default
           foundcard = .false.
-	  endselect
+      endselect
     enddo d1
 
     return
@@ -882,11 +882,11 @@ d1: do ii=1,4
             write(iunit(i),111) '  Wind Curve:',trim(windpath)
           endif
         endif
-        write(iunit(i),118)     '    Length of Wind Data:',nwtimes     	 
+        write(iunit(i),118)     '    Length of Wind Data:',nwtimes          
       elseif(windvar)then !Wind Fields
         call fileparts(windfile,apath,aname,aext)
         afile = trim(aname) // '.' // trim(aext)
-  	    write(iunit(i),111)     '  Wind Field:',trim(afile)
+          write(iunit(i),111)     '  Wind Field:',trim(afile)
         write(iunit(i),111)     '    Horizontal Projection'
         write(iunit(i),111)     '      Coordinate System:',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
         if(projwnd%iHorizCoordSystem/=22)then
@@ -895,7 +895,7 @@ d1: do ii=1,4
             write(iunit(i),262) '      Zone:',projwnd%iHorizZone
           endif
         endif      
-	    write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
+        write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
       endif     
     
       !Wind Parameters
@@ -941,7 +941,7 @@ d1: do ii=1,4
         write(iunit(i),111)     'Atmospheric Pressure Forcing:','ON'
         call fileparts(presfile,apath,aname,aext)
         afile = trim(aname) // '.' // trim(aext)
-  	    write(iunit(i),111)     '  Pressure Field:',trim(afile)
+          write(iunit(i),111)     '  Pressure Field:',trim(afile)
         write(iunit(i),102)     '  Ambient Atm Pressure:',ambatmpres,' Pa'
         write(iunit(i),111)     '    Horizontal Projection'
         write(iunit(i),111)     '      Coordinate System:',trim(aHorizCoordSystem(projwnd%iHorizCoordSystem))     
@@ -951,7 +951,7 @@ d1: do ii=1,4
             write(iunit(i),262) '      Zone:',projwnd%iHorizZone
           endif
         endif      
-	    write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
+        write(iunit(i),111)     '      Units:',trim(aHorizUnits(projwnd%iHorizUnits))
       elseif(presconst)then
         write(iunit(i),*)
         write(iunit(i),111)     'Atmospheric Pressure Forcing:','ON'
@@ -1192,8 +1192,8 @@ d1: do ii=1,4
       else
         !xy file in local (global) coordinates
         open(cunit,file=windlocfile,status='old')
-	    do i=1,nwindi   !Lat
-	      do j=1,nwindj !Lon
+        do i=1,nwindi   !Lat
+          do j=1,nwindj !Lon
             read(cunit,*) xwind(i,j),ywind(i,j)  
           enddo
         enddo
@@ -1271,16 +1271,16 @@ d1: do ii=1,4
     logical :: found
     
     inquire(file=wndfl_intpcoef_file,exist=found)
-	if(found)then
-!	  open(93,file='Intpcoef_wndfl.bin',form='unformatted')
-	  open(93,file=wndfl_intpcoef_file,form='unformatted')
-	  read(93,iostat=ierr) iver
-	  if(ierr==0)then
+    if(found)then
+!      open(93,file='Intpcoef_wndfl.bin',form='unformatted')
+      open(93,file=wndfl_intpcoef_file,form='unformatted')
+      read(93,iostat=ierr) iver
+      if(ierr==0)then
         if(iver==iwndflver)then
-	      read(93,iostat=ierr) nchk,nDchk,nichk,njchk
+          read(93,iostat=ierr) nchk,nDchk,nichk,njchk
           if(ierr==0)then
             if(nchk==ncells .and. nDchk==ncellsD .and. &
-	          nichk==nwindi .and. njchk==nwindj)then
+              nichk==nwindi .and. njchk==nwindj)then
               call diag_print_message('','Reading wind-to-flow interpolation coefficients','')  
               do i=1,ncellsD
                 read(93,iostat=ierr) (ijntpwnd(j,i),j=1,2)
@@ -1316,17 +1316,17 @@ d1: do ii=1,4
       !enddo  
       !allocate(iintpcells(ncells))
       !iintpcells(1:ncells) = (/1:ncells/)
-      !call interp_coef__curv2tel(nwindi,nwindj,xwind,ywind, &	        
+      !call interp_coef__curv2tel(nwindi,nwindj,xwind,ywind, &            
       !     ncellsD,xOrigin,yOrigin,azimuth_fl,x,y,    &
-	     !  ncells,iintpcells,ijntpwnd,cntpwnd)
+         !  ncells,iintpcells,ijntpwnd,cntpwnd)
       !deallocate(iintpcells)  
-      call interp_coef_curv2pts(nwindi,nwindj,xwind,ywind, &	        
+      call interp_coef_curv2pts(nwindi,nwindj,xwind,ywind, &            
            ncellsD,ncellsD,xc,yc,ijntpwnd,cntpwnd)
     else      
       !do i=1,ncells
       !  write(55,*) x(i),y(i),1.0
       !enddo
-      call interp_coef_curv2pts(nwindi,nwindj,xwind,ywind, &	        
+      call interp_coef_curv2pts(nwindi,nwindj,xwind,ywind, &            
            ncellsD,ncellsD,x,y,ijntpwnd,cntpwnd)  
     endif
     !close(55)
@@ -1334,8 +1334,8 @@ d1: do ii=1,4
     call diag_print_message('Saving wind-to-flow interpolation coefficients','')  
 
     open(93,file=wndfl_intpcoef_file,form='unformatted')
-	write(93) iwndflver
-	write(93) ncells,ncellsD,nwindi,nwindj 
+    write(93) iwndflver
+    write(93) ncells,ncellsD,nwindi,nwindj 
     do i=1,ncellsD
       write(93) (ijntpwnd(j,i),j=1,2)
       write(93) ((cntpwnd(j,k,i),j=1,2),k=1,2)
@@ -1343,8 +1343,8 @@ d1: do ii=1,4
     close(93)
     
  !   open(93,file='intpcoef_windpres2fl.dat',form='unformatted')
-	!write(93,*) iwndflver
-	!write(93,*) ncells,ncellsD,nwindi,nwindj 
+    !write(93,*) iwndflver
+    !write(93,*) ncells,ncellsD,nwindi,nwindj 
  !   do i=1,ncellsD
  !     write(93,*) (ijntpwnd(j,i),j=1,2)
  !     write(93,*) ((cntpwnd(j,k,i),j=1,2),k=1,2)
@@ -1660,64 +1660,64 @@ d1: do ii=1,4
 d1: do ii=1,20
       foundcard = .true.
       read(77,*,err=171) cardname
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('NAME','STATION_NAME')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%name
+          read(77,*) cardname,metsta(nMetSta)%name
           
-	    case('MET_FILE','METEOROLOGICAL_FILE','FILE','WIND_DATASET','WIND_DATA')
-	      backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file
+        case('MET_FILE','METEOROLOGICAL_FILE','FILE','WIND_DATASET','WIND_DATA')
+          backspace(77)
+          read(77,*) cardname,metsta(nMetSta)%file
           windsta = .true.
           
         case('WIND_PATH','PATH')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%path
+          read(77,*) cardname,metsta(nMetSta)%path
           windsta = .true.
           
         case('WIND_INPUT_CURVE','WIND_CURVE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path
+          read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path
           windsta = .true.
           
         case('WIND_SPEED_CURVE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file
+          read(77,*) cardname,metsta(nMetSta)%file
           call fileext(metsta(nMetSta)%file,aext)
           if(aext(1:2)=='h5')then
             backspace(77)
-	        read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path  
+            read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path  
           endif
           windsta = .true.
           
         case('WIND_DIRECTION_CURVE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed curve - 10/03/2017        
+          read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed curve - 10/03/2017        
           call fileext(metsta(nMetSta)%file,aext)
           if(aext(1:2)=='h5')then
             backspace(77)
-	        read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path  
+            read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path  
           endif
           windsta = .true.
           
         case('PRESSURE_INPUT_CURVE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed and wind_direction curves - 10/03/2017
+          read(77,*) cardname,metsta(nMetSta)%file        !modified to treat the same as wind_speed and wind_direction curves - 10/03/2017
           call fileext(metsta(nMetSta)%file,aext)
           if(aext(1:2)=='h5')then
             backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path
+          read(77,*) cardname,metsta(nMetSta)%file,metsta(nMetSta)%path
           endif
           pressta = .true.
           
         case('COORDINATES')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%xsta,metsta(nMetSta)%ysta  
+          read(77,*) cardname,metsta(nMetSta)%xsta,metsta(nMetSta)%ysta  
           
         case('LATITUDE_LONGITUDE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%ylat,metsta(nMetSta)%xlon
+          read(77,*) cardname,metsta(nMetSta)%ylat,metsta(nMetSta)%xlon
           if(metsta(nMetSta)%xlon<180.0)then !For the Continential U.S.
             metsta(nMetSta)%xlon = -metsta(nMetSta)%xlon    
           endif          
@@ -1726,13 +1726,13 @@ d1: do ii=1,20
       
         case('LATITUDE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%ylat
+          read(77,*) cardname,metsta(nMetSta)%ylat
           projwnd%iHorizCoordSystem = 0 !Geographic
           projwnd%iHorizUnits = 4       !Degrees
       
         case('LONGITUDE')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%xlon
+          read(77,*) cardname,metsta(nMetSta)%xlon
           if(metsta(nMetSta)%xlon<180.0)then !For the Continential U.S.
             metsta(nMetSta)%xlon = -metsta(nMetSta)%xlon    
           endif          
@@ -1741,7 +1741,7 @@ d1: do ii=1,20
       
         case('WIND_FACTOR','WIND_VELOCITY_FACTOR')
           backspace(77)
-	      read(77,*) cardname,metsta(nMetSta)%wndfac          
+          read(77,*) cardname,metsta(nMetSta)%wndfac          
         
         case('ANEMOMETER_HEIGHT')
           call card_scalar(77,'m','m',metsta(nMetSta)%wndht,ierr)
@@ -1763,15 +1763,15 @@ d1: do ii=1,20
           read(77,*) cardname,metsta(nMetSta)%pow
           metsta(nMetSta)%pow=min(max(metsta(nMetSta)%pow,1.0),5.0) !Limit values
           
-	    case('MET_STATION_END','METEOROLOGICAL_STATION_END','MET_STA_END','END')
+        case('MET_STATION_END','METEOROLOGICAL_STATION_END','MET_STA_END','END')
           exit d1
         
         case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
           call proj_horiz_block(77,projwnd)
           
-	    case default
+        case default
           foundcard = .false.
-	  endselect
+      endselect
     enddo d1
 171 continue    
     

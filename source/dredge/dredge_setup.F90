@@ -41,7 +41,7 @@
     implicit none
 
     character cardname*37
-	logical :: foundcard
+    logical :: foundcard
     integer :: ierr
         
     foundcard = .true.
@@ -84,7 +84,7 @@
 
     integer :: kk,ierr
     character cardname*37,operation_name*32
-	logical :: foundcard
+    logical :: foundcard
 
     do kk=1,20
       foundcard = .true.  
@@ -133,7 +133,7 @@
     integer :: kk,ierr,m
     real(ikind) :: scalar,fac,con
     character*200 File,Path
-	logical :: foundcard
+    logical :: foundcard
     !Internal
     character :: cardname*37,aline*200,fromunits*10,tounits*10,defunits*10    
 
@@ -286,7 +286,7 @@
     real(ikind) :: scalar
     character*32 cardname
     character*200 file,path
-	logical :: foundcard
+    logical :: foundcard
     
     if (write_dredge_diag) then 
       open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
@@ -570,7 +570,7 @@
     
     do i=1,2
       write(iunit(i),*) 
-	  write(iunit(i),222)       'Dredge Module Setup'  
+      write(iunit(i),222)       'Dredge Module Setup'  
       write(iunit(i),445)       '  Number of dredge ops:',ndredge_operations
       do j=1,ndredge_operations
         write(iunit(i),222)     '  Operation name:',trim(dredge_operations(j)%name)

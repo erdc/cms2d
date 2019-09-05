@@ -1,11 +1,11 @@
 
       subroutine update_cohes_flow_bc()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       use bnd_def
       USE EXP_transport_def 
       use flow_def
-	use comvarbl, only: timehrs      
+    use comvarbl, only: timehrs      
       use sed_def, only: rhosed 
       use geo_def, only: dx,dy,cell2cell
           
@@ -38,18 +38,18 @@
       do j = 1,nQstr  !for each cell string
         if(QstringEXP(j)%vface) then
           IDO = Q_str(j)%NCells
-          do ii=1,IDO	!calculate GVV
-            i=Q_str(j)%cells(ii)	
+          do ii=1,IDO    !calculate GVV
+            i=Q_str(j)%cells(ii)    
             if(COHES(i)%qy.gt.0) then
               ncs = cell2cell(3,i)
               Gvv(i) = COHES(i)%qy*COHES(ncs)%Conc*dx(i)
             else
               Gvv(i) = COHES(i)%qy*COHES(i)%Conc*dx(i)
-            endif	
+            endif    
           enddo
         else
           IDO = Q_str(j)%NCells
-          do ii=1,IDO	!calculate FUU
+          do ii=1,IDO    !calculate FUU
             i=Q_str(j)%cells(ii)
             if(COHES(i)%qx.gt.0) then
               ncw = cell2cell(4,i)

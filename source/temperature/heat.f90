@@ -63,9 +63,9 @@
     
     integer :: i,ierr
     character(len=32) :: cardname,cdum
-	character*120, allocatable :: TEMPPATH(:)
+    character*120, allocatable :: TEMPPATH(:)
     real :: rdum
-	logical :: foundcard
+    logical :: foundcard
     
     foundcard = .true.
     selectcase(cardname)
@@ -152,7 +152,7 @@
     integer :: K,ierr
     integer :: ii,ntimes
     character(len=32) :: cardname
-	logical :: foundcard
+    logical :: foundcard
     
 !    call heatstr_resize
     
@@ -161,8 +161,8 @@ d1: do k=1,10
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)  
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)  
       case('HEAT_CURVE', 'TEMPERATURE_CURVE')
         call card_dataset(77,mpfile,flowpath,heat_str(nheatstr)%heatfile,heat_str(nheatstr)%heatpath,1)
         
@@ -185,7 +185,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-	  endselect
+      endselect
     enddo d1
       
     return
@@ -204,15 +204,15 @@ d1: do k=1,10
 !    !Internal Variables
 !    integer :: k,ierr
 !    character(len=32) :: cardname
-!	logical :: foundcard
+!    logical :: foundcard
 !    
 !    foundcard = .true.
 !d1: do k=1,10
 !      foundcard = .true.
 !      read(77,*,iostat=ierr) cardname
 !      if(ierr/=0) exit
-!	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-!	  selectcase(cardname)  
+!      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+!      selectcase(cardname)  
 !      case('HEAT_CURVE')
 !        call card_dataset(77,mpfile,flowpath,heatfile,heatpath)
 !        iheattype = 2
@@ -228,7 +228,7 @@ d1: do k=1,10
 !      case default
 !        foundcard = .false.
 !        
-!	  endselect
+!      endselect
 !    enddo d1
 !      
 !    return

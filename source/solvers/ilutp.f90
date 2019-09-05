@@ -159,7 +159,7 @@
     len = len+1 
     w(len) = fact
     jw(len)  = jrow
-	goto 150
+    goto 150
 
 160    continue
 
@@ -238,7 +238,7 @@
     alu(ii) = 1.0d0/ w(ii) 
 
     !-- update pointer to beginning of next row of U.
-	jlu(ii+1) = ju0
+    jlu(ii+1) = ju0
     !--end main loop
 500  continue
 

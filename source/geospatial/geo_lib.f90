@@ -170,11 +170,11 @@ contains
 !********************************************************    
     use prec_def
     implicit none
-	real(ikind),intent(in) :: xi,yi,xt(3),yt(3)
+    real(ikind),intent(in) :: xi,yi,xt(3),yt(3)
     real(ikind),intent(in),optional :: at
-	real(ikind) :: x2(3),y2(3),abc,pab,pbc,pac
-	real(ikind) :: suma,err
-	logical :: in
+    real(ikind) :: x2(3),y2(3),abc,pab,pbc,pac
+    real(ikind) :: suma,err
+    logical :: in
     
     !Area of ABC triangle
     if(present(at))then
@@ -229,8 +229,8 @@ contains
     real(ikind) :: xn(3),yn(3),at
     
     !Subtract min to reduce precision error
-	xn = xt-minval(xt)
-	yn = yt-minval(yt)    
+    xn = xt-minval(xt)
+    yn = yt-minval(yt)    
                
     at = 0.5*abs(xn(1)*(yn(2)-yn(3)) &
            +xn(2)*(yn(3)-yn(1)) &
@@ -257,7 +257,7 @@ contains
 !****************************************************    
     use prec_def
     implicit none
-	!Input
+    !Input
     real(ikind),intent(in) :: xi,yi         !Point 
     real(ikind),intent(in) :: xq(4),yq(4) !Quadrilateral
     real(ikind),intent(in),optional :: aq   !Area of the quad  
@@ -266,7 +266,7 @@ contains
     !Internal
     real(ikind) :: aquad
     real(ikind) :: xt(3),yt(3) !Temporary triangle coordinates
-	real(ikind) :: at(4)       !Triangle areas
+    real(ikind) :: at(4)       !Triangle areas
     
     !Area of triangle PAB
     xt = (/xi,xq(1),xq(2)/)
@@ -313,8 +313,8 @@ contains
     real(ikind) :: xn(4),yn(4),aq
     
     !Subtract min to reduce precision error
-	xn = xq - minval(xq)
-	yn = yq - minval(yq)
+    xn = xq - minval(xq)
+    yn = yq - minval(yq)
     
     aq = xn(1)*(yn(2)-yn(4)) &
        + xn(2)*(yn(3)-yn(1)) &

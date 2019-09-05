@@ -55,13 +55,13 @@
           Fuv(id) = 0
           Gvu(id) = 0
         enddo 
-	  ELSE
+      ELSE
         Fuu=0
         Gvv=0
         Fuv=0
         Gvu=0
       ENDIF !end diffusion
-	
+    
 !$omp parallel 
       !calculate advective terms
       if(ADVECT) then
@@ -115,14 +115,14 @@
             Fuv(FG_A_cells(i,1)) = FluxEXP*U(FG_A_cells(i,3))
           else
             Fuv(FG_A_cells(i,1)) = FluxEXP*U(FG_A_cells(i,1))
-          endif	
+          endif    
           FluxEXP = (QX(FG_A_cells(i,2))+QX(FG_A_cells(i,3)))/2.
           if(FluxEXP.gt.0) then
             Gvu(FG_A_cells(i,2)) = FluxEXP*V(FG_A_cells(i,4))
           else
             Gvu(FG_A_cells(i,2)) = FluxEXP*V(FG_A_cells(i,1))
-          endif	
-        enddo	
+          endif    
+        enddo    
 !$OMP END single      
       endif !ADVECT
 !$OMP END PARALLEL

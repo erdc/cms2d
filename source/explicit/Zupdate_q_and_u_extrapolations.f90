@@ -1,7 +1,7 @@
       subroutine update_q_and_u_extrapolations()
       use EXP_Global_def 
       USE EXP_transport_def
-      USE EXP_bndcond_def	      
+      USE EXP_bndcond_def          
       use flow_def
       use comvarbl, only: timehrs
       use bnd_def

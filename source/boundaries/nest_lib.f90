@@ -56,41 +56,41 @@ contains
     open(88,file=ctlfilepar,status='unknown')
     telpargrd = .false.
     do k=1,1000
-	  read(88,*,iostat=ierr) cardname
+      read(88,*,iostat=ierr) cardname
       if(ierr/=0) exit
       selectcase(cardname)
         case('SIMULATION_LABEL')
-	      backspace(88)
-		  read(88,*) cardname, simlabelpar
+          backspace(88)
+          read(88,*) cardname, simlabelpar
         
         case('GRID_CELL_TYPES')
-		  backspace(88)
+          backspace(88)
           read(88,*) cardname, typespathpar
         
         case('GRID_FILE')
-	      backspace(88)
-    	  read(88,*) cardname, grdfilepar
-  		  call fileparts(grdfilepar,apath,aname,aext)
-		  if(len_trim(apath)==0)then
-		    grdfilepar = trim(flowpathpar) // grdfilepar
-		  endif
+          backspace(88)
+          read(88,*) cardname, grdfilepar
+            call fileparts(grdfilepar,apath,aname,aext)
+          if(len_trim(apath)==0)then
+            grdfilepar = trim(flowpathpar) // grdfilepar
+          endif
         
         case('TELESCOPING','TELESCOPING_FILE')
           backspace(88)
           read(88,*) cardname, grdfilepar
-		  telpargrd = .true.
-		  call fileparts(grdfilepar,apath,aname,aext)
-		  if(len_trim(apath)==0)then
-		    grdfilepar = trim(flowpathpar) // grdfilepar
-	      endif
+          telpargrd = .true.
+          call fileparts(grdfilepar,apath,aname,aext)
+          if(len_trim(apath)==0)then
+            grdfilepar = trim(flowpathpar) // grdfilepar
+          endif
         
         case('GRID_ANGLE','GRID_ORIENTATION')
           call card_scalar(88,'deg','deg',orientpar,ierr)
-	      orientpar = 360.0 - orientpar  !Alex
-	  	
+          orientpar = 360.0 - orientpar  !Alex
+          
         case('GRID_ORIGIN_X')
           call card_scalar(88,'m','m',xoriginpar,ierr)
-		 
+         
         case('GRID_ORIGIN_Y')
           call card_scalar(88,'m','m',yoriginpar,ierr)
         
@@ -119,26 +119,26 @@ contains
           call calendar2julian(iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar,tjuldaypar)
         
         case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
-		  call proj_horiz_block(88,projpar)
+          call proj_horiz_block(88,projpar)
         
         case('VERTICAL_PROJECTION_BEGIN','VERT_PROJ_BEGIN')
-		  call proj_vert_block(88,projpar)
+          call proj_vert_block(88,projpar)
           
         case('GLOBAL_WATER_LEVEL_OUTPUT')
           backspace(88)
           read(88,*) cardname, wsefilepar !,wsepathpar  !Path written by SMS is incorrect
           call fileparts(wsefilepar,apath,aname,aext)
           if(len_trim(apath)==0)then
-		    wsefilepar = trim(flowpathpar) // wsefilepar
-	      endif
+            wsefilepar = trim(flowpathpar) // wsefilepar
+          endif
         
         case('WSE_OUT_FILE')
           backspace(88)
           read(88,*) cardname, wsefilepar  
           call fileparts(wsefilepar,apath,aname,aext)
           if(len_trim(apath)==0)then
-		    wsefilepar = trim(flowpathpar) // wsefilepar
-	      endif        
+            wsefilepar = trim(flowpathpar) // wsefilepar
+          endif        
           
         case('GLOBAL_VELOCITY_OUTPUT')
           if(present(velfilepar))then
@@ -146,7 +146,7 @@ contains
             read(88,*) cardname, velfilepar !,velpathpar  !Path written by SMS is incorrect
             call fileparts(velfilepar,apath,aname,aext)
             if(len_trim(apath)==0)then
-		      velfilepar = trim(flowpathpar) // velfilepar
+              velfilepar = trim(flowpathpar) // velfilepar
             endif
           endif
           
@@ -156,11 +156,11 @@ contains
             read(88,*) cardname, velfilepar     
             call fileparts(velfilepar,apath,aname,aext)
             if(len_trim(apath)==0)then
-		      velfilepar = trim(flowpathpar) // velfilepar
-	        endif
+              velfilepar = trim(flowpathpar) // velfilepar
+            endif
           endif
           
-	  endselect
+      endselect
     enddo
 741 close(88)
     
@@ -248,8 +248,8 @@ contains
     read(44,*) val,val,val,ncellsfullpar !Do not read grid angle or coordinates since they may be incorrect 
     allocate(xpar(ncellsfullpar),ypar(ncellsfullpar),dxpar(ncellsfullpar),dypar(ncellsfullpar))
     allocate(c2cpar(ncellsfullpar,6),idfpar(ncellsfullpar,6),ncfpar(ncellsfullpar),activepar(ncellsfullpar))
-	do i=1,ncellsfullpar
-	  read(44,*) id,xpar(i),ypar(i),dxpar(i),dypar(i),(loctemp(k),k=1,8),ztemp
+    do i=1,ncellsfullpar
+      read(44,*) id,xpar(i),ypar(i),dxpar(i),dypar(i),(loctemp(k),k=1,8),ztemp
       ncfpar(i) = 0
       do k=1,8
         if(loctemp(k)/=0)then
@@ -269,14 +269,14 @@ contains
       else
         activepar(i)=0  
       endif
-	enddo	
+    enddo    
     close(44)
     
     ncellspar = sum(activepar)
-	
-	return
+    
+    return
     endsubroutine read_parent_grid_tel
-	
+    
 #ifdef XMDF_IO
 !****************************************************************************************    
     subroutine read_parent_grid_xmdf(grdfilepar,typespathpar,ncellspar,ncellsfullpar,&
@@ -307,7 +307,7 @@ contains
     character(len=200) :: proppathpar,rootpathpar
     
     !Read XMDF grid file
-	call XF_OPEN_FILE(grdfilepar,READONLY,FID,ierr)	
+    call XF_OPEN_FILE(grdfilepar,READONLY,FID,ierr)    
     iloc=index(typespathpar,'/',BACK=.TRUE.)
     proppathpar = typespathpar(1:iloc)                  
     call XF_OPEN_GROUP(FID,trim(proppathpar),TID,ierr)
@@ -320,7 +320,7 @@ contains
     call XF_GET_PROPERTY_NUMBER(RID,'CoordsI',maxcolpar,ierr)
     call XF_GET_PROPERTY_NUMBER(RID,'CoordsJ',maxrowpar,ierr)
     allocate(dxxpar(maxcolpar),dyypar(maxrowpar))
-	call XF_READ_PROPERTY_FLOAT(RID,'CoordsI',maxcolpar,dxxpar(1),ierr)
+    call XF_READ_PROPERTY_FLOAT(RID,'CoordsI',maxcolpar,dxxpar(1),ierr)
     call XF_READ_PROPERTY_FLOAT(RID,'CoordsJ',maxrowpar,dyypar(1),ierr)    
     call XF_CLOSE_GROUP(RID,ierr)
     call XF_CLOSE_FILE(FID,ierr)
@@ -554,8 +554,8 @@ contains
     intp(:,:) = 0; cntp(:,:) = 0.0
     call interp_coef_tel2pts(ncellspar,ncellsfullpar,nmaxfacespar,&
             xOriginpar,yOriginpar,orientpar, &
-	        xpar,ypar,dxpar,dypar,c2cpar,idfpar,ncfpar, &	        
-	        nbnd,xbnd,ybnd,xtrapdist,intp,cntp)
+            xpar,ypar,dxpar,dypar,c2cpar,idfpar,ncfpar, &            
+            nbnd,xbnd,ybnd,xtrapdist,intp,cntp)
     
     !if(debug_mode)then
     !  open(57,file='IntpCoefNestCMS.txt')  
@@ -628,8 +628,8 @@ contains
     mntp = 3
     allocate(intp(0:mntp,nbnd),cntp(mntp,nbnd))
     intp = 0; cntp = 0.0  
-    call interp_coef_tri2pts(nelemsfullpar,nnodesfullpar,xpar,ypar,elem2node, &	        
-	         nbnd,xbnd,ybnd,xtrapdist,intp,cntp)
+    call interp_coef_tri2pts(nelemsfullpar,nnodesfullpar,xpar,ypar,elem2node, &            
+             nbnd,xbnd,ybnd,xtrapdist,intp,cntp)
     
     inquire(file=wsefilepar,exist=foundfile)  
     if(.not.foundfile)then

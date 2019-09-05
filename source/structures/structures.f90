@@ -27,10 +27,10 @@
     integer :: itg,idtg,maxtidegate,maxtidegateopt  !Wu
     integer :: iwr,idwr,maxweir,icv,irm,idrm,maxrubmound    !Wu
     character(len=37) :: cardname
-	logical :: foundcard    
+    logical :: foundcard    
     
-	foundcard = .true.
-	selectcase (cardname)        
+    foundcard = .true.
+    selectcase (cardname)        
       !=== Tidal Gates ====================================            
       case('TIDE_GATE')         !Wu
         backspace(77)
@@ -205,7 +205,7 @@
       case default
         foundcard = .false.
         
-	endselect
+    endselect
 
     return
     endsubroutine struct_cards
@@ -470,10 +470,10 @@
     character(len=37),allocatable :: strings(:)
     
     do i=1,20
-	  read(77,*,iostat=ierr) cardname	  
+      read(77,*,iostat=ierr) cardname      
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('NUMBER_CULVERTS')
           backspace(77)
           read(77,*) cardname,numculvert
@@ -2403,7 +2403,7 @@
         if(nsed>1) dzbk(i,:)=0.0
       enddo
     enddo
- 	 	
+          
     !Weir
     do iwr=1,numweir   !Wu, Sept, 2011  
       do im=nweir(iwr-1)+1,nweir(iwr)

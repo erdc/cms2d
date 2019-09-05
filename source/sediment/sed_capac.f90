@@ -37,15 +37,15 @@ subroutine sedcapac_lundcirp
 
   iripple = 1               
   if(noptset>=3)then  !Waves
-     gamma = 0.78	  
-     !	  rolfac = 2.0/rhow/sqrt(grav)
-     do i=1,ncells	 
+     gamma = 0.78      
+     !      rolfac = 2.0/rhow/sqrt(grav)
+     do i=1,ncells     
         if(iwet(i)==0)then
            CtstarP(i,:)=0.0
            rsk(i,:)=1.0
            cycle 
         endif
-        phi = abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle              	
+        phi = abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle                  
         call shearlund(iripple,h(i),uv(i),Worb(i),Wper(i),phi,rhosed,rhow,D50(i),&
              tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)              
         if(wavesedtrans)then
@@ -316,7 +316,7 @@ subroutine sedcapac_watanabe
         !!        tauw = 0.5*rhow*fw*Worb(i)*Worb(i)
         !!        taumax = sqrt((bsxy(i)+tauw*cos(phi))**2+(tauw*sin(phi))**2) !Soulsby 1997          
         call shearwatanabecw(rhow,d50(i),bsxy(i),phi,Worb(i),Wper(i),taumax)
-        do ks=1,nsed         	      
+        do ks=1,nsed                   
            call sedtrans_wavcur_watanabe(uv(i),taumax,taucr(ks),varsigma(i,ks),Qts)
            !!          Qts = Awidg*max(0.0,taumax-varsigma(i,ks)*taucr(ks))*uv(i)
            Qts = rhosed*Qts
@@ -325,7 +325,7 @@ subroutine sedcapac_watanabe
            call sedtrans_wavcur_vanrijn(grav,h(i),uv(i),Worb(i),Wper(i),&
                 specgrav,diam(ks),diam(ks),dstar(ks),varsigma(i,ks),Qbs,Qss)
            Qts = Qbs + Qss       !Total Load Capacity   
-           rsk(i,ks) = Qss/max(Qts,small) !Fraction of suspended sediment 	 
+           rsk(i,ks) = Qss/max(Qts,small) !Fraction of suspended sediment      
            CtstarP(i,ks) = (scalebed*(1.0-rsk(i,ks))+scalesus*rsk(i,ks))*CtstarP(i,ks)
            CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
            !if(isnankind(rsk(i,ks)))then
@@ -351,7 +351,7 @@ subroutine sedcapac_watanabe
            call sedtrans_cur_vanrijn(grav,h(i),uv(i),&
                 specgrav,diam(ks),diam(ks),dstar(ks),varsigma(i,ks),Qbs,Qss)
            Qts = Qbs + Qss       !Total Load Capacity      
-           rsk(i,ks) = Qss/max(Qts,small) !Fraction of suspended sediment 	   
+           rsk(i,ks) = Qss/max(Qts,small) !Fraction of suspended sediment        
            CtstarP(i,ks) = (scalebed*(1.0-rsk(i,ks))+scalesus*rsk(i,ks))*CtstarP(i,ks)
            CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
         enddo
@@ -387,10 +387,10 @@ subroutine sedcapac_cshore
 
   !write(*,*)'bdj in sedcapac_cshore , noptset = ',noptset
   iripple = 1               
-  gamma = 0.78	  
+  gamma = 0.78      
   !Parallel statements added 6/20/2018 - meb  
   !$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  
-  do i=1,ncells	 
+  do i=1,ncells     
      if(iwet(i)==0)then
         CtstarP(i,:)=0.0
         rsk(i,:)=1.0

@@ -101,9 +101,9 @@
         backspace(77)
         read(77,*) cardname, hotfile   
         call fileparts(hotfile,apath,aname,aext)
-    	if(len_trim(apath)==0)then
-	      hotfile = trim(flowpath) // hotfile
-	    endif       
+        if(len_trim(apath)==0)then
+          hotfile = trim(flowpath) // hotfile
+        endif       
         
       case('HOT_START_TIME')
         call card_scalar(77,'hrs','hrs',hottime,ierr)
@@ -112,9 +112,9 @@
 
       case('AUTO_HOT_START_INTERVAL','HOT_START_INTERVAL','HOT_START_OUTPUT_INTERVAL')
         !backspace(77)
-        !read(77,*) cardname, hotdt  	
+        !read(77,*) cardname, hotdt      
         call card_scalar(77,'hrs','hrs',hotdt,ierr)
-        hot_recur = .true.	  
+        hot_recur = .true.      
         hot_out = .true.   
         
       case default
@@ -1342,7 +1342,7 @@ loopj:  do j=1,nlay
       case(5); call HidExpHayashi       !Hayashi et al. 1980
       endselect
       
-  	  !Transport Capacity
+        !Transport Capacity
       selectcase(icapac)  
       case(1); call sedcapac_lundcirp !Lund-CIRP          
       case(2); call sedcapac_vanrijn  !Van Rijn           
@@ -1882,28 +1882,28 @@ loopj:  do j=1,nlay
     iunit = (/6, dgunit/)
     
     open(dgunit,file=dgfile,access='append') 
-    do i=1,2	
-	  write(iunit(i),*)
-	  if(coldstart)then
+    do i=1,2    
+      write(iunit(i),*)
+      if(coldstart)then
         write(iunit(i),222)   'Start Mode:','COLD'
-	  else
+      else
         write(iunit(i),222)   'Start Mode:','HOT'
         write(iunit(i),222)   '  Initial Conditions File:',trim(icfile)
-	  endif
-  	  if(hot_out)then
-	    if(hot_timehr)then 
+      endif
+        if(hot_out)then
+        if(hot_timehr)then 
           write(iunit(i),222) 'Single Hot Start Output: '
-	      write(iunit(i),222) '  File:',trim(hotfile)
-	      write(iunit(i),645) '  Time:',hottime,' hrs'
-	    endif
-	    if(hot_recur)then
+          write(iunit(i),222) '  File:',trim(hotfile)
+          write(iunit(i),645) '  Time:',hottime,' hrs'
+        endif
+        if(hot_recur)then
           write(iunit(i),222) 'Recurring Hot Start Output: '
-	      write(iunit(i),222) '  File:',trim(autohotfile)
-	      write(iunit(i),645) '  Recurring Interval:',hotdt,' hrs'
-	    endif
-	  endif
-	enddo
-	close(dgunit)
+          write(iunit(i),222) '  File:',trim(autohotfile)
+          write(iunit(i),645) '  Recurring Interval:',hotdt,' hrs'
+        endif
+      endif
+    enddo
+    close(dgunit)
 
     return
     endsubroutine hot_print

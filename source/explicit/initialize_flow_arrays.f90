@@ -1,10 +1,10 @@
   subroutine initialize_flow_arrays
 #include "CMS_cpp.h"    
-	use EXP_Global_def
+    use EXP_Global_def
     USE EXP_transport_def 
     USE EXP_bndcond_def
     use size_def    
-	use flow_def, only: eta,iwet
+    use flow_def, only: eta,iwet
     use met_def, only: tauwindx,tauwindy,pressatm
     use wave_flowgrid_def, only: wavestrx,wavestry
     use geo_def, only: zb,cell2cell 
@@ -65,7 +65,7 @@
       ADVECTY(I) = 0.0
       iWET(I) = 1
       RHOPrim(I) = 1.0          !CR - 01/21/2009
-    ENDDO	
+    ENDDO    
       
     eta = 0.0  !9.47
     etan = eta
@@ -96,10 +96,10 @@
       eta(i) = eta(jj)
       etan(i) = etan(jj)
       zb(i) = zb(jj)       
-    enddo	
+    enddo    
         
     !MAKE LIST OF DUMMY CELLS THAT NEED FUV AND GVU CALCULATED
-    !FOR ADVECTIVE TERMS	
+    !FOR ADVECTIVE TERMS    
     num_FG_A_cells = 0
     if(ADVECT) then  !see if list FG cells is required
       do i=1,ncells
@@ -143,7 +143,7 @@
           endif 
         endif
       enddo  
-    endif 	
+    endif     
 
     !MAKE LIST OF REGULAR CELLS THAT NEED FUV AND GVU SET TO ZERO - REQUIRED FOR
     !SYMMETRY AND TO PREVENT MOMENTUM DIFFUSION ACCROSS BOUNDARIES
@@ -176,7 +176,7 @@
           num_FG_M_cells = num_FG_M_cells + 1
           FG_M_cells(num_Fg_M_cells) = i
         endif
-      enddo	
+      enddo    
     endif
      
     !These arrays are from the IMPLICIT code, and may or may not be dimensioned,

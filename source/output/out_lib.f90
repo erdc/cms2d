@@ -175,7 +175,7 @@ contains
     character(len=200) :: filesup,filexy
     
 101 format('SUPER')
-102 format('SCAT2D	"',A,'"')       
+102 format('SCAT2D    "',A,'"')       
 
     filesup = trim(aname) // '_sol.sup'    
     filexy = trim(aname) // '.xy'
@@ -555,7 +555,7 @@ contains
         filesup = trim(aname) // '.sup'  
       else
         filesup = trim(aname) // '_sol.sup'  
-	  endif
+      endif
       !Search for filename and only add the filename the first time
       open(46,file=filesup,status='old')
       foundfile=.false.
@@ -886,7 +886,7 @@ contains
       
       END SELECT
       
- 	RETURN
+     RETURN
     END SUBROUTINE
 #endif
 
@@ -950,7 +950,7 @@ contains
     if(sedtrans) write (ictec,*) (ct(i),i=1,ncellsD)
     if(saltrans) write (ictec,*) (sal(i),i=1,ncellsD)
     if(heattrans) write (ictec,*) (heat(i),i=1,ncellsD)
-  	if(noptset==3) then
+      if(noptset==3) then
       write (ictec,*) (wavestrx(i),i=1,ncellsD)
       write (ictec,*) (wavestry(i),i=1,ncellsD)
       write (ictec,*) (Whgt(i),i=1,ncellsD)
@@ -1019,7 +1019,7 @@ contains
     if(sedtrans) write (ictec,*) (ct(i),i=1,ncellsD)
     if(saltrans) write (ictec,*) (sal(i),i=1,ncellsD)
     if(heattrans) write (ictec,*) (heat(i),i=1,ncellsD)
-	if(noptset==3) then
+    if(noptset==3) then
       write (ictec,*) (wavestrx(i),i=1,ncellsD)
       write (ictec,*) (wavestry(i),i=1,ncellsD)
       write (ictec,*) (Whgt(i),i=1,ncellsD)

@@ -1,8 +1,8 @@
      subroutine update_advection_tel_reg()
      use EXP_Global_def
-     USE EXP_bndcond_def	
+     USE EXP_bndcond_def    
      use EXP_Structures_def
-	 use flow_def 
+     use flow_def 
      use geo_def
      use sed_def
      use const_def, only: pi,deg2rad    

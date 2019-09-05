@@ -45,7 +45,7 @@ contains
     real(ikind) :: acoefik,rdum
     
     
-    rdum=dk								  !This is stupid.  We should remove the inbound arguments.
+    rdum=dk                                  !This is stupid.  We should remove the inbound arguments.
     rdum=fk
     acoefik=0.0
     
@@ -435,7 +435,7 @@ contains
       s=0.0
     else
       s=2*s1*s2/(s1+s2)
-	endif
+    endif
     
     endfunction vanleerslope      
       
@@ -470,7 +470,7 @@ contains
     endfunction dbleminmodslope     
     
 !*************************************************************
-	subroutine hll(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
+    subroutine hll(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
 ! Harten, Lax, and van Leer (1983) approximate Riemann solver
 !
 ! References:
@@ -488,14 +488,14 @@ contains
     implicit none
 
     !Input
-	real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
+    real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
 
     !Output
     real(ikind),intent(out) :: F(3)
 
     !Internal
-	real(ikind) :: FL(3),FR(3),PL(3),PR(3),hlplushr
-	real(ikind) :: sl,sr,hs,cr,cl,qpl,qpr,upl,upr !,hgl,hgr,cs,us,amax
+    real(ikind) :: FL(3),FR(3),PL(3),PR(3),hlplushr
+    real(ikind) :: sl,sr,hs,cr,cl,qpl,qpr,upl,upr !,hgl,hgr,cs,us,amax
 
     upl=ul*cn+vl*sn;  upr=ur*cn+vr*sn
     !hl=max(hl,hmin);  hr=max(hr,hmin)
@@ -566,11 +566,11 @@ contains
       F=(/qpr, qpr*ur, qpr*vr/)
     endif    
 
-	return
-	endsubroutine hll
-	
+    return
+    endsubroutine hll
+    
 !********************************************************
-	subroutine hllc(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
+    subroutine hllc(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
 ! Harten, Lax, and van Leer approximate Riemann solver 
 ! with restored Contact wave (Toro et al. 1994) 
 !
@@ -582,23 +582,23 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************
   use flow_def, only: hmin,grav
-	implicit none
+    implicit none
   !Input
-	real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
+    real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
   !Output
   real(ikind),intent(out) :: F(3)
   !Internal Variables    
-	real(ikind) :: FL(3),FR(3),PL(3),PR(3),PSR(3),PSL(3)
-	real(ikind) :: sl,sr,ss,ups             !,amax,as,lambdal,lambdar,hs
-	real(ikind) :: cr,cl,upl,upr,qpl,qpr,cs !ql,qr,hgl,hgr,hlplushr
+    real(ikind) :: FL(3),FR(3),PL(3),PR(3),PSR(3),PSL(3)
+    real(ikind) :: sl,sr,ss,ups             !,amax,as,lambdal,lambdar,hs
+    real(ikind) :: cr,cl,upl,upr,qpl,qpr,cs !ql,qr,hgl,hgr,hlplushr
 
     !hl=max(hl,hmin);  hr=max(hr,hmin)
-	upl=ul*cn+vl*sn;  upr=ur*cn+vr*sn
+    upl=ul*cn+vl*sn;  upr=ur*cn+vr*sn
     cl=sqrt(grav*hl); cr=sqrt(grav*hr)
     qpl=upl*hl;       qpr=upr*hr
     
-	!hs =0.5*(hl+hr)-0.25*(upr-upl)*(hl+hr)/(cl+cr)
-	!ups=0.5*(ul+ur)-0.25*(hr-hl)*(cl+cr)/(hl+hr)
+    !hs =0.5*(hl+hr)-0.25*(upr-upl)*(hl+hr)/(cl+cr)
+    !ups=0.5*(ul+ur)-0.25*(hr-hl)*(cl+cr)/(hl+hr)
 
     !hlplushr=hl+hr
     !hs=0.5*hlplushr-0.25*(upr-upl)*hlplushr/(cl+cr) !Positive depth
@@ -623,7 +623,7 @@ contains
     !  F=(/0.0, 0.0, 0.0/)
     !  return
     !endif
-	
+    
     cs=0.5*(cl+cr)+0.25*(upl-upr)
     ups=0.5*(upl+upr)+(cl-cr)
     
@@ -642,39 +642,39 @@ contains
     endif
     
     ss=ups
-	if(sl>=0.0)then
-	  !hgl=0.5*grav*hl*hl
+    if(sl>=0.0)then
+      !hgl=0.5*grav*hl*hl
       !F=(/qpl, qpl*ul+hgl*cn, qpl*vl+hgl*sn/)
       F=(/qpl, qpl*ul, qpl*vl/)
-	elseif(sl<0.0 .and. ss>=0.0)then
-	  !hgl=0.5*grav*hl*hl; hgr=0.5*grav*hr*hr
+    elseif(sl<0.0 .and. ss>=0.0)then
+      !hgl=0.5*grav*hl*hl; hgr=0.5*grav*hr*hr
       !FL=(/qpl, qpl*ul+hgl*cn, qpl*vl+hgl*sn/)
       !FR=(/qpr, qpr*ur+hgr*cn, qpr*vr+hgr*sn/)
       FL=(/qpl, qpl*ul, qpl*vl/)
       !FR=(/qpr, qpr*ur, qpr*vr/)
       PL=(/el, qpl*cn, qpl*sn/)          
-	  PSL=(/el*(sl-upl)/(sl-ss), hl*(sl-upl)/(sl-ss)*ss*cn, hl*(sl-upl)/(sl-ss)*ss*sn /)
-	  F=FL+sl*(PSL-PL)
-	elseif(sr>=0.0 .and. ss<=0.0)then
-	  !hgl=0.5*grav*hl*hl; hgr=0.5*grav*hr*hr
+      PSL=(/el*(sl-upl)/(sl-ss), hl*(sl-upl)/(sl-ss)*ss*cn, hl*(sl-upl)/(sl-ss)*ss*sn /)
+      F=FL+sl*(PSL-PL)
+    elseif(sr>=0.0 .and. ss<=0.0)then
+      !hgl=0.5*grav*hl*hl; hgr=0.5*grav*hr*hr
       !FL=(/qpl, qpl*ul+hgl*cn, qpl*vl+hgl*sn/)
       !FR=(/qpr, qpr*ur+hgr*cn, qpr*vr+hgr*sn/)
       !FL=(/qpl, qpl*ul, qpl*vl/)
       FR=(/qpr, qpr*ur, qpr*vr/)
-	  PR=(/er, qpr*cn, qpr*sn/)
-	  PSR=(/er*(sr-upr)/(sl-ss), hr*(sr-upr)/(sr-ss)*ss*cn, hr*(sl-upr)/(sr-ss)*ss*sn /)	  	  
-	  F=FR+sr*(PSR-PR)
-	else
-	  !hgr=0.5*grav*hr*hr
+      PR=(/er, qpr*cn, qpr*sn/)
+      PSR=(/er*(sr-upr)/(sl-ss), hr*(sr-upr)/(sr-ss)*ss*cn, hr*(sl-upr)/(sr-ss)*ss*sn /)            
+      F=FR+sr*(PSR-PR)
+    else
+      !hgr=0.5*grav*hr*hr
       !F=(/qpr, qpr*ur+hgr*cn, qpr*vr+hgr*sn/)
       F=(/qpr, qpr*ur, qpr*vr/)
-	endif
+    endif
 
-	return
-	endsubroutine hllc
-	
+    return
+    endsubroutine hllc
+    
 !****************************************************
-	subroutine roe(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
+    subroutine roe(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
 ! Roe (1981) approximate Riemann solver
 !
 ! References:
@@ -685,59 +685,59 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !****************************************************
   use flow_def, only: hmin,grav
-	implicit none
+    implicit none
   !Input
-	real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
+    real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
   !Output
   real(ikind),intent(out) :: F(3)
   !Internal
-	real(ikind) :: duml,dumr,cl,cr,hhat,uhat,vhat
-	real(ikind) :: chat,uperp,de,du,dv,dupar,duperp,uperpl,uperpr
-	real(ikind) :: al1,al3,ar1,ar3,da1,da3,a1,a3
-	real(ikind) :: dW(3),R(3,3),A(3,3),FL(3),FR(3),B(3,3)
+    real(ikind) :: duml,dumr,cl,cr,hhat,uhat,vhat
+    real(ikind) :: chat,uperp,de,du,dv,dupar,duperp,uperpl,uperpr
+    real(ikind) :: al1,al3,ar1,ar3,da1,da3,a1,a3
+    real(ikind) :: dW(3),R(3,3),A(3,3),FL(3),FR(3),B(3,3)
 
     !hl=max(hl,hmin);    hr=max(hr,hmin)
-	duml=sqrt(hl);      dumr=sqrt(hr)
-	cl=sqrt(grav*hl); 	cr=sqrt(grav*hr)
-	uperpl=ul*cn+vl*sn; uperpr=ur*cn+vr*sn
-	hhat=duml*dumr	
-	uhat=(duml*ul+dumr*ur)/(duml+dumr)
-	vhat=(duml*vl+dumr*vr)/(duml+dumr)
-	chat=sqrt(0.5*grav*(hl+hr))
-	uperp=uhat*cn+vhat*sn
-	de=er-el; du=ur-ul; dv=vr-vl
-	dupar=-du*sn+dv*cn
-	duperp=du*cn+dv*sn
-	dW(1)=0.5*(de-hhat*duperp/chat)
-	dW(2)=hhat*dupar
-	dW(3)=0.5*(de+hhat*duperp/chat)	
-	
-	R(1,1)=1.0;          R(1,2)=0.0;    R(1,3)=1.0
-	R(2,1)=uhat-chat*cn; R(2,2)=-sn;    R(2,3)=uhat+chat*cn
+    duml=sqrt(hl);      dumr=sqrt(hr)
+    cl=sqrt(grav*hl);     cr=sqrt(grav*hr)
+    uperpl=ul*cn+vl*sn; uperpr=ur*cn+vr*sn
+    hhat=duml*dumr    
+    uhat=(duml*ul+dumr*ur)/(duml+dumr)
+    vhat=(duml*vl+dumr*vr)/(duml+dumr)
+    chat=sqrt(0.5*grav*(hl+hr))
+    uperp=uhat*cn+vhat*sn
+    de=er-el; du=ur-ul; dv=vr-vl
+    dupar=-du*sn+dv*cn
+    duperp=du*cn+dv*sn
+    dW(1)=0.5*(de-hhat*duperp/chat)
+    dW(2)=hhat*dupar
+    dW(3)=0.5*(de+hhat*duperp/chat)    
+    
+    R(1,1)=1.0;          R(1,2)=0.0;    R(1,3)=1.0
+    R(2,1)=uhat-chat*cn; R(2,2)=-sn;    R(2,3)=uhat+chat*cn
     R(3,1)=vhat-chat*sn; R(3,2)=cn;     R(3,3)=vhat+chat*sn
-	
-	A=0.0
-	A(1,1)=abs(uperp-chat); A(2,2)=abs(uperp); A(3,3)=abs(uperp+chat)
+    
+    A=0.0
+    A(1,1)=abs(uperp-chat); A(2,2)=abs(uperp); A(3,3)=abs(uperp+chat)
 
-	!Critical flow fix	
-	al1=uperpl-cl; al3=uperpl+cl
-	ar1=uperpr-cr; ar3=uperpr+cr
-	da1=max(0.0,2*(ar1-al1))
-	da3=max(0.0,2*(ar3-al3))
-	if(A(1,1)<da1) a1=0.5*(A(1,1)*A(1,1)/da1+da1)
-	if(A(3,3)<da3) a3=0.5*(A(3,3)*A(3,3)/da3+da3)
+    !Critical flow fix    
+    al1=uperpl-cl; al3=uperpl+cl
+    ar1=uperpr-cr; ar3=uperpr+cr
+    da1=max(0.0,2*(ar1-al1))
+    da3=max(0.0,2*(ar3-al3))
+    if(A(1,1)<da1) a1=0.5*(A(1,1)*A(1,1)/da1+da1)
+    if(A(3,3)<da3) a3=0.5*(A(3,3)*A(3,3)/da3+da3)
 
-	!Compute interface flux
-	FL(1)=uperpl*hl
-	FL(2)=ul*uperpl*hl
-	FL(3)=vl*uperpl*hl
-	FR(1)=uperpr*hr
-	FR(2)=ur*uperpr*hr
-	FR(3)=vr*uperpr*hr
-	B=matmul(R,A)
-	F=0.5*(FL + FR - matmul(B,dW))
+    !Compute interface flux
+    FL(1)=uperpl*hl
+    FL(2)=ul*uperpl*hl
+    FL(3)=vl*uperpl*hl
+    FR(1)=uperpr*hr
+    FR(2)=ur*uperpr*hr
+    FR(3)=vr*uperpr*hr
+    B=matmul(R,A)
+    F=0.5*(FL + FR - matmul(B,dW))
 
-	return
-	endsubroutine roe    
+    return
+    endsubroutine roe    
 
 endmodule comp_lib

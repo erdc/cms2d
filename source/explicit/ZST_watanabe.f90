@@ -1,5 +1,5 @@
       subroutine ST_watanabe()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def      
       use sed_def, only: rhosed,d50 
@@ -31,7 +31,7 @@
         NCE=cell2cell(2,i)
         tdepth = -zb(i) + etan(i)
         uvel = cdx(i) !((qxn(i)+qxn(NCE))/2.)/tdepth
-        vvel = cdy(i) !((qyn(i)+qyn(NCN))/2.)/tdepth	
+        vvel = cdy(i) !((qyn(i)+qyn(NCN))/2.)/tdepth    
         Uc2 = uvel**2+vvel**2
         if(waves) then
           fcEXP = 0.24/(log10(12*tdepth/(xks)))**2

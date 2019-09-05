@@ -183,7 +183,7 @@
               vis(i)=cviscon+vissum/(cidrym+small)  
               vis(nck)=vis(i)                
             endif
-	      enddo		
+          enddo        
         endif
       enddo
 !$OMP END DO
@@ -196,7 +196,7 @@
             if(iwet(nck)==0 .or. nck>ncells)then
               vis(nck)=vis(i)                
             endif
-		  enddo		
+          enddo        
         endif
       enddo
 !$OMP END DO

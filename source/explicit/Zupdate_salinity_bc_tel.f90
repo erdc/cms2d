@@ -1,12 +1,12 @@
       subroutine update_salinity_bc_tel()
-	  use EXP_Global_def 
+      use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def 
       use bnd_def
       use sal_def
       use sed_def
       use flow_def
-	  use comvarbl, only: timehrs
+      use comvarbl, only: timehrs
       use geo_Def, only: dx,dy,cell2cell
 
       implicit none

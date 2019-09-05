@@ -1303,13 +1303,13 @@ C                                                                       PJ1A  1
       IMPLICIT REAL*8 (A-Z)                                             PJ1A  1
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    PJ1A  1
       INTEGER*4 SWITCH,IND,ZONE,INFILE,ANG                              PJ1A  1
-	integer*4 zzone
+      integer*4 zzone
       DIMENSION BUFFL(15),DATA(1),GEOG(1),PROJ(1)                       PJ1A  1
       COMMON /ERRMZ0/ IERROR                                            PJ1A  1
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     PJ1A  1
 c     COMMON /WORKZ0/ BUFF(15),ANG(4)                                   PJ1A  1
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK1AZ0/ ANG(4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK1AZ0/ ANG(4)
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         PJ1A  2
       real*4 rangs
       equivalence (rangs,ang(4))
@@ -1357,14 +1357,14 @@ C ....                                                             .....PJ1A  2
 C                                                                       PJ1A  6
 C LIST RESULTS OF PARAMETER INITIALIZATION.                             PJ1A  6
       IF (IPPARM.EQ.0) then
-	PRINT 12341
-	PRINT 12342,zone
-	PRINT 12343,buffl(1)
-	PRINT 12344,buffl(2)
-	PRINT 12345,buffl(3)
-	PRINT 12346,ang(1),ang(2),ang(3),rangs
-	PRINT 12347,buffl(7)
-	PRINT 12348,buffl(8)
+      PRINT 12341
+      PRINT 12342,zone
+      PRINT 12343,buffl(1)
+      PRINT 12344,buffl(2)
+      PRINT 12345,buffl(3)
+      PRINT 12346,ang(1),ang(2),ang(3),rangs
+      PRINT 12347,buffl(7)
+      PRINT 12348,buffl(8)
 12341 format(' INITIALIZATION PARAMETERS (U T M PROJECTION)')
 12342 format(' ZONE = ',I3)
 12343 format(' SEMI-MAJOR AXIS OF ELLIPSOID = ',F12.2,' METERS')
@@ -1384,7 +1384,7 @@ C ....                                                             .....PJ1A  8
 C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      PJ1A  8
 C ....                                                             .....PJ1A  8
       ENTRY IS1AZ0 (ZZONE,DATA)                                         PJ1A  8
-	zone = zzone
+      zone = zzone
       IERROR = 0                                                        PJ1A  8
       IF (SWITCH.NE.0.AND.SWITCH.EQ.ZONE.AND.DATA(14).EQ.BUFF(1))RETURN PJ1A  8
       ZONE = IABS(ZONE)                                                 PJ1A  8
@@ -1429,14 +1429,14 @@ C                                                                       0000897
       SUBROUTINE PJ01Z0                                                 0000898
 C                                                                       0000899
       IMPLICIT REAL*8 (A-Z)                                             0000900
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0000901
       INTEGER*4 SWITCH,IND,ZONE,INFILE,ANG                              0000902
       COMMON /ERRMZ0/ IERROR                                            0000903
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0000904
 c     COMMON /WORKZ0/ BUFF(15),BUFFL(15),ANG(4)                         0000905
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK01Z0/ BUFFL(15),ANG(4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK01Z0/ BUFFL(15),ANG(4)
       DIMENSION DATA(1),GEOG(1),PROJ(1)                                 0000906
       DATA HALFPI /1.5707963267948966D0/                                0000907
       DATA ZERO /0.0D0/                                                 0000908
@@ -1502,7 +1502,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0000967
 C ......................................................................0000968
 C                                                                       0000969
       ENTRY IS01Z0 (ZZONE,DATA)                                         0000970
-	zone = zzone
+      zone = zzone
 C                                                                       0000971
       IERROR = 0                                                        0000972
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0000973
@@ -1551,7 +1551,7 @@ C                                                                       0001014
       SUBROUTINE PJ02Z0                                                 0001015
 C                       CODE NUMBERS MODIFIED 6-10-82 BY J.F.WAANANEN   0001016
       IMPLICIT REAL*8(A-H,O-Z)                                          0001017
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 SWITCH,ZONE                                             0001018
       COMMON /ERRMZ0/ IERROR                                            0001019
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0001020
@@ -3249,7 +3249,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0002711
 C ......................................................................0002712
 C                                                                       0002713
       ENTRY IS02Z0 (ZZONE,DATA)                                         0002714
-	zone = zzone
+      zone = zzone
 C                                                                       0002715
       IERROR = 0                                                        0002716
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0002717
@@ -3425,7 +3425,7 @@ C                                                                       0002885
       SUBROUTINE PJ03Z0                                                 0002886
 C                                                                       0002887
       IMPLICIT REAL*8 (A-Z)                                             0002888
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0002889
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0002890
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0002891
@@ -3433,8 +3433,8 @@ C **** PARAMETERS **** A,E,ES,LAT1,LAT2,LON0,LAT0,X0,Y0,NS,C,RH0 *******0002892
       COMMON /ERRMZ0/ IERROR                                            0002893
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0002894
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,4)                                0002895
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK03Z0/ ANGS(4,4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK03Z0/ ANGS(4,4)
       real*4 rangs1,rangs2,rangs3,rangs4
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -3540,7 +3540,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0002988
 C ......................................................................0002989
 C                                                                       0002990
       ENTRY IS03Z0 (ZZONE,DATA)                                         0002991
-	zone = zzone
+      zone = zzone
 C                                                                       0002992
       IERROR = 0                                                        0002993
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0002994
@@ -3615,7 +3615,7 @@ C                                                                       0003061
       SUBROUTINE PJ04Z0                                                 0003062
 C                                                                       0003063
       IMPLICIT REAL*8 (A-Z)                                             0003064
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003065
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0003066
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003067
@@ -3623,8 +3623,8 @@ C **** PARAMETERS **** A,E,ES,LAT1,LAT2,LON0,LAT0,X0,Y0,NS,F,RH0 *******0003068
       COMMON /ERRMZ0/ IERROR                                            0003069
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003070
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,4)                                0003071
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK04Z0/ ANGS(4,4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK04Z0/ ANGS(4,4)
       real*4 rangs1,rangs2,rangs3,rangs4
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -3729,7 +3729,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003163
 C ......................................................................0003164
 C                                                                       0003165
       ENTRY IS04Z0 (ZZONE,DATA)                                         0003166
-	zone = zzone
+      zone = zzone
 C                                                                       0003167
       IERROR = 0                                                        0003168
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0003169
@@ -3811,7 +3811,7 @@ C                                                                       0003243
       SUBROUTINE PJ05Z0                                                 0003244
 C                                                                       0003245
       IMPLICIT REAL*8 (A-Z)                                             0003246
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003247
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0003248
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003249
@@ -3819,8 +3819,8 @@ C **** PARAMETERS **** A,E,ES,LON0,X0,Y0,NS,F,RH0,LAT1,M1 **************0003250
       COMMON /ERRMZ0/ IERROR                                            0003251
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003252
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0003253
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK05Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK05Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -3893,7 +3893,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003312
 C ......................................................................0003313
 C                                                                       0003314
       ENTRY IS05Z0 (ZZONE,DATA)                                         0003315
-	zone = zzone
+      zone = zzone
 C                                                                       0003316
       IERROR = 0                                                        0003317
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0003318
@@ -3960,7 +3960,7 @@ C                                                                       0003377
       SUBROUTINE PJ06Z0                                                 0003378
 C                                                                       0003379
       IMPLICIT REAL*8 (A-Z)                                             0003380
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003381
       INTEGER*4 SWITCH,IND,I,ZONE,ANGS,INFILE                           0003382
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003383
@@ -3968,8 +3968,8 @@ C **** PARAMETERS **** A,E,ES,LON0,LATC,X0,Y0,E3,MCS,TCS,FAC,IND *******0003384
       COMMON /ERRMZ0/ IERROR                                            0003385
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003386
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0003387
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK06Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK06Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4054,7 +4054,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003462
 C ......................................................................0003463
 C                                                                       0003464
       ENTRY IS06Z0 (ZZONE,DATA)                                         0003465
-	zone = zzone
+      zone = zzone
 C                                                                       0003466
       IERROR = 0                                                        0003467
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0003468
@@ -4128,7 +4128,7 @@ C                                                                       0003534
       SUBROUTINE PJ07Z0                                                 0003535
 C                                                                       0003536
       IMPLICIT REAL*8 (A-Z)                                             0003537
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003538
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0003539
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003540
@@ -4136,8 +4136,8 @@ C **** PARAMETERS **** A,E,ES,LON0,LAT0,X0,Y0,E0,E1,E2,ML0 *************0003541
       COMMON /ERRMZ0/ IERROR                                            0003542
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003543
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0003544
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK07Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK07Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4218,7 +4218,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003615
 C ......................................................................0003616
 C                                                                       0003617
       ENTRY IS07Z0 (ZZONE,DATA)                                         0003618
-	zone = zzone
+      zone = zzone
 C                                                                       0003619
       IERROR = 0                                                        0003620
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0003621
@@ -4292,7 +4292,7 @@ C                                                                       0003687
       SUBROUTINE PJ08Z0                                                 0003688
 C                                                                       0003689
       IMPLICIT REAL*8 (A-Z)                                             0003690
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003691
       INTEGER*4 SWITCH,IND,I,ZONE,ANGS,ANG1,ANG2,INFILE                 0003692
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003693
@@ -4300,8 +4300,8 @@ C ** PARAMETERS ** A,E,ES,LAT1,LAT2,LON0,LAT0,X0,Y0,E0,E1,E2,NS,GL,RH0 *0003694
       COMMON /ERRMZ0/ IERROR                                            0003695
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003696
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,4)                                0003697
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK08Z0/ ANGS(4,4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK08Z0/ ANGS(4,4)
       real*4 rangs1,rangs2,rangs3,rangs4
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4434,7 +4434,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003813
 C ......................................................................0003814
 C                                                                       0003815
       ENTRY IS08Z0 (ZZONE,DATA)                                         0003816
-	zone = zzone
+      zone = zzone
 C                                                                       0003817
       IERROR = 0                                                        0003818
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0003819
@@ -4500,7 +4500,7 @@ C                                                                       0003877
       SUBROUTINE PJ09Z0                                                 0003878
 C                                                                       0003879
       IMPLICIT REAL*8 (A-Z)                                             0003880
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0003881
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE,IND,NIT                       0003882
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0003883
@@ -4508,8 +4508,8 @@ C **** PARAMETERS **** A,E,ES,KS0,LON0,LAT0,X0,Y0,E0,E1,E2,ESP,ML0,IND *0003884
       COMMON /ERRMZ0/ IERROR                                            0003885
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0003886
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0003887
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK09Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK09Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4599,7 +4599,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0003966
 C ......................................................................0003967
 C                                                                       0003968
       ENTRY IS09Z0 (ZZONE,DATA)                                         0003969
-	zone = zzone
+      zone = zzone
 C                                                                       0003970
       IERROR = 0                                                        0003971
 C$$$$$$$$$$$$$$$$$$$$$ ADDITIONS BY JFWAANANEN 5/1/81 $$$$$$$$$$$       0003971
@@ -4735,7 +4735,7 @@ C                                                                       0004097
       SUBROUTINE PJ10Z0                                                 0004098
 C                                                                       0004099
       IMPLICIT REAL*8 (A-Z)                                             0004100
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004101
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004102
       COMMON /SPHRZ0/ AZZ                                               0004103
@@ -4743,8 +4743,8 @@ C **** PARAMETERS **** A,LON0,LAT0,X0,Y0,SINPH0,COSPH0 *****************0004104
       COMMON /ERRMZ0/ IERROR                                            0004105
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004106
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004107
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK10Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK10Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4801,7 +4801,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004154
 C ......................................................................0004155
 C                                                                       0004156
       ENTRY IS10Z0 (ZZONE,DATA)                                         0004157
-	zone = zzone
+      zone = zzone
 C                                                                       0004158
       IERROR = 0                                                        0004159
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004160
@@ -4886,7 +4886,7 @@ C                                                                       0004237
       SUBROUTINE PJ11Z0                                                 0004238
 C                                                                       0004239
       IMPLICIT REAL*8 (A-Z)                                             0004240
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004241
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004242
       COMMON /SPHRZ0/ AZZ                                               0004243
@@ -4894,8 +4894,8 @@ C **** PARAMETERS **** A,LON0,LAT0,X0,Y0,SINPH0,COSPH0 *****************0004244
       COMMON /ERRMZ0/ IERROR                                            0004245
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004246
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004247
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK11Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK11Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -4952,7 +4952,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004294
 C ......................................................................0004295
 C                                                                       0004296
       ENTRY IS11Z0 (ZZONE,DATA)                                         0004297
-	zone = zzone
+      zone = zzone
 C                                                                       0004298
       IERROR = 0                                                        0004299
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004300
@@ -5045,7 +5045,7 @@ C                                                                       0004385
       SUBROUTINE PJ12Z0                                                 0004386
 C                                                                       0004387
       IMPLICIT REAL*8 (A-Z)                                             0004388
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004389
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004390
       COMMON /SPHRZ0/ AZZ                                               0004391
@@ -5053,8 +5053,8 @@ C **** PARAMETERS **** A,LON0,LAT0,X0,Y0,SINPH0,COSPH0 *****************0004392
       COMMON /ERRMZ0/ IERROR                                            0004393
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004394
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004395
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK12Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK12Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -5111,7 +5111,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004442
 C ......................................................................0004443
 C                                                                       0004444
       ENTRY IS12Z0 (ZZONE,DATA)                                         0004445
-	zone = zzone
+      zone = zzone
 C                                                                       0004446
       IERROR = 0                                                        0004447
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004448
@@ -5206,7 +5206,7 @@ C                                                                       0004535
       SUBROUTINE PJ13Z0                                                 0004536
 C                                                                       0004537
       IMPLICIT REAL*8 (A-Z)                                             0004538
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004539
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004540
       COMMON /SPHRZ0/ AZZ                                               0004541
@@ -5214,8 +5214,8 @@ C **** PARAMETERS **** A,LON0,LAT0,X0,Y0,SINPH0,COSPH0 *****************0004542
       COMMON /ERRMZ0/ IERROR                                            0004543
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004544
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004545
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK13Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK13Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -5272,7 +5272,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004592
 C ......................................................................0004593
 C                                                                       0004594
       ENTRY IS13Z0 (ZZONE,DATA)                                         0004595
-	zone = zzone
+      zone = zzone
 C                                                                       0004596
       IERROR = 0                                                        0004597
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004598
@@ -5356,7 +5356,7 @@ C                                                                       0004674
       SUBROUTINE PJ14Z0                                                 0004675
 C                                                                       0004676
       IMPLICIT REAL*8 (A-Z)                                             0004677
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004678
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004679
       COMMON /SPHRZ0/ AZZ                                               0004680
@@ -5364,8 +5364,8 @@ C **** PARAMETERS **** A,LON0,LAT0,X0,Y0,SINPH0,COSPH0 *****************0004681
       COMMON /ERRMZ0/ IERROR                                            0004682
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004683
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004684
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK14Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK14Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -5422,7 +5422,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004731
 C ......................................................................0004732
 C                                                                       0004733
       ENTRY IS14Z0 (ZZONE,DATA)                                         0004734
-	zone = zzone
+      zone = zzone
 C                                                                       0004735
       IERROR = 0                                                        0004736
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004737
@@ -5512,7 +5512,7 @@ C                                                                       0004819
       SUBROUTINE PJ15Z0                                                 0004820
 C                                                                       0004821
       IMPLICIT REAL*8 (A-Z)                                             0004822
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004823
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004824
       COMMON /SPHRZ0/ AZZ                                               0004825
@@ -5520,8 +5520,8 @@ C **** PARAMETERS **** A,P,LON0,LAT0,X0,Y0,SINPH0,COSPH0 ***************0004826
       COMMON /ERRMZ0/ IERROR                                            0004827
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004828
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0004829
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK15Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK15Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -5581,7 +5581,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0004879
 C ......................................................................0004880
 C                                                                       0004881
       ENTRY IS15Z0 (ZZONE,DATA)                                         0004882
-	zone = zzone
+      zone = zzone
 C                                                                       0004883
       IERROR = 0                                                        0004884
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0004885
@@ -5676,7 +5676,7 @@ C                                                                       0004972
       SUBROUTINE PJ16Z0                                                 0004973
 C                                                                       0004974
       IMPLICIT REAL*8 (A-Z)                                             0004975
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0004976
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0004977
       COMMON /SPHRZ0/ AZZ                                               0004978
@@ -5684,8 +5684,8 @@ C **** PARAMETERS **** A,LON0,X0,Y0 ************************************0004979
       COMMON /ERRMZ0/ IERROR                                            0004980
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0004981
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4)                                  0004982
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK16Z0/ ANGS(4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK16Z0/ ANGS(4)
       real*4 rangs
       equivalence (rangs,angs(4))
       DIMENSION DATA(1),GEOG(1),PROJ(1)                                 0004983
@@ -5735,7 +5735,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0005024
 C ......................................................................0005025
 C                                                                       0005026
       ENTRY IS16Z0 (ZZONE,DATA)                                         0005027
-	zone = zzone
+      zone = zzone
 C                                                                       0005028
       IERROR = 0                                                        0005029
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0005030
@@ -5801,7 +5801,7 @@ C                                                                       0005088
       SUBROUTINE PJ17Z0                                                 0005089
 C                                                                       0005090
       IMPLICIT REAL*8 (A-Z)                                             0005091
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0005092
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0005093
       COMMON /SPHRZ0/ AZZ                                               0005094
@@ -5809,8 +5809,8 @@ C **** PARAMETERS **** A,LON0,X0,Y0,LAT1 *******************************0005095
       COMMON /ERRMZ0/ IERROR                                            0005096
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0005097
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4,2)                                0005098
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK17Z0/ ANGS(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK17Z0/ ANGS(4,2)
       real*4 rangs1,rangs2
       equivalence (rangs1,angs(4,1))
       equivalence (rangs2,angs(4,2))
@@ -5863,7 +5863,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0005139
 C ......................................................................0005140
 C                                                                       0005141
       ENTRY IS17Z0 (ZZONE,DATA)                                         0005142
-	zone = zzone
+      zone = zzone
 C                                                                       0005143
       IERROR = 0                                                        0005144
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0005145
@@ -5925,7 +5925,7 @@ C                                                                       0005199
       SUBROUTINE PJ18Z0                                                 0005200
 C                                                                       0005201
       IMPLICIT REAL*8 (A-Z)                                             0005202
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0005203
       INTEGER*4 SWITCH,I,ZONE,ANGS,INFILE                               0005204
       COMMON /SPHRZ0/ AZZ                                               0005205
@@ -5933,8 +5933,8 @@ C **** PARAMETERS **** A,LON0,X0,Y0 ************************************0005206
       COMMON /ERRMZ0/ IERROR                                            0005207
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0005208
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4)                                  0005209
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK18Z0/ ANGS(4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK18Z0/ ANGS(4)
       real*4 rangs
       equivalence (rangs,angs(4))
       DIMENSION DATA(1),GEOG(1),PROJ(1)                                 0005210
@@ -5983,7 +5983,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0005250
 C ......................................................................0005251
 C                                                                       0005252
       ENTRY IS18Z0 (ZZONE,DATA)                                         0005253
-	zone = zzone
+      zone = zzone
 C                                                                       0005254
       IERROR = 0                                                        0005255
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0005256
@@ -6039,7 +6039,7 @@ C                                                                       0005304
       SUBROUTINE PJ19Z0                                                 0005305
 C                                                                       0005306
       IMPLICIT REAL*8 (A-Z)                                             0005307
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0005308
       INTEGER*4 SWITCH,I,ZONE,ANGS,NIT,INFILE                           0005309
       COMMON /SPHRZ0/ AZZ                                               0005310
@@ -6047,8 +6047,8 @@ C **** PARAMETERS **** A,LON0,X0,Y0 ************************************0005311
       COMMON /ERRMZ0/ IERROR                                            0005312
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0005313
 c     COMMON /WORKZ0/ BUFF(15),ANGS(4)                                  0005314
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK19Z0/ ANGS(4)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK19Z0/ ANGS(4)
       real*4 rangs
       equivalence (rangs,angs(4))
       DIMENSION DATA(1),GEOG(1),PROJ(1)                                 0005315
@@ -6099,7 +6099,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0005357
 C ......................................................................0005358
 C                                                                       0005359
       ENTRY IS19Z0 (ZZONE,DATA)                                         0005360
-	zone = zzone
+      zone = zzone
 C                                                                       0005361
       IERROR = 0                                                        0005362
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0005363
@@ -6253,7 +6253,7 @@ C                                                                       0005509
       SUBROUTINE PJ20Z0                                                 0005510
 C                                                                       0005511
       IMPLICIT REAL*8 (A-Z)                                             0005512
-	integer*4 zzone
+      integer*4 zzone
       INTEGER*4 IERROR,IPEMSG,IPPARM                                    0005513
       INTEGER*4 SWITCH,I,ZONE,ANGS1,ANGS2,MODE,INFILE                   0005514
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z                         0005515
@@ -6262,8 +6262,8 @@ C ********************** X0,Y0,GAMMA,LON0,AL,BL,EL *********************0005517
       COMMON /ERRMZ0/ IERROR                                            0005518
       COMMON /PRINZ0/ IPEMSG,IPPARM                                     0005519
 c     COMMON /WORKZ0/ BUFF(15),ANGS1(4,5),ANGS2(4,3)                    0005520
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK20Z0/ ANGS1(4,5),ANGS2(4,3)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK20Z0/ ANGS1(4,5),ANGS2(4,3)
       real*4 rangs1,rangs2,rangs3,rangs11,rangs12,rangs13,
      . rangs14,rangs15
       equivalence (rangs1,angs2(4,1))
@@ -6426,7 +6426,7 @@ C      .  INITIALIZATION OF PROJECTION PARAMETERS (ENTRY INPUT)  .      0005656
 C ......................................................................0005657
 C                                                                       0005658
       ENTRY IS20Z0 (ZZONE,DATA)                                         0005659
-	zone = zzone
+      zone = zzone
 C                                                                       0005660
       IERROR = 0                                                        0005661
       IF (SWITCH.NE.0 .AND. SWITCH.EQ.ZONE) RETURN                      0005662
@@ -6523,15 +6523,15 @@ C
       REAL RANGS1,RANGS2
       INTEGER*4 IERROR,IPEMSG,IPPARM,ANGS2
       INTEGER*4 SWITCH,I,ZONE,INFILE,N,L
-	integer *4 zzone
+      integer *4 zzone
       COMMON/PJ21/LON0,A,B,A2,A4,C1,C3,Q,T,U,W,XJ,P21,SA,CA,ES,S,START
       COMMON /ELLPZ0/ AZ,EZ,ESZ,E0Z,E1Z,E2Z,E3Z
 C ********************** X0,Y0,GAMMA,LON0,AL,BL,EL *********************
       COMMON /ERRMZ0/ IERROR
       COMMON /PRINZ0/ IPEMSG,IPPARM 
 c      COMMON /WORKZ0/ BUFF(15),ANGS2(4,2)
-	COMMON /WORKZ0/ BUFF(15)
-	COMMON /WK21Z0/ ANGS2(4,2)
+      COMMON /WORKZ0/ BUFF(15)
+      COMMON /WK21Z0/ ANGS2(4,2)
       DIMENSION DATA(1),GEOG(1),PROJ(1)
       EQUIVALENCE (RANGS1,ANGS2(4,1))
       EQUIVALENCE (RANGS2,ANGS2(4,2))
@@ -7004,15 +7004,15 @@ C     IF ISPH LE 0 THEN RESET DEFAULT                                   SPHD  6
       ESZ = ES                                                          SPHD  7
       IF (ES.EQ.0.0D0) AZZ=A                                            SPHD  7
       IF (IPPARM.NE.0) GO TO 20                                         SPHD  7
-	PRINT 12342,isph
-	PRINT 12343,az
-	PRINT 12344,ez
-	PRINT 12345,esz
-	PRINT 12346,e0z
-	PRINT 12347,e1z
-	PRINT 12348,e2z
-	PRINT 12349,e3z
-	PRINT 12350,azz
+      PRINT 12342,isph
+      PRINT 12343,az
+      PRINT 12344,ez
+      PRINT 12345,esz
+      PRINT 12346,e0z
+      PRINT 12347,e1z
+      PRINT 12348,e2z
+      PRINT 12349,e3z
+      PRINT 12350,azz
 12342 format(' SPHEROID DEFAULT SET TO NUMBER ',i2)
 12343 format(' SEMI-MAJOR AXIS  = ',D24.15)
 12344 format(' ECCENTRICITY     = ',d24.15)

@@ -12,9 +12,9 @@
     use met_def
     use solv_def
     use comvarbl
-	use cms_def
+    use cms_def
     use flow_wavegrid_def
-	use wave_flowgrid_def
+    use wave_flowgrid_def
     !use wavestress3D     !For 3D
     use bnd_def
     use sed_def
@@ -50,13 +50,13 @@
     !Get CMS Version number for setting defaults
     open(77,file=ctlfile,status='unknown')
     do k=1,1000
-	  read(77,*,iostat=ierr) cardname
+      read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:11)=='CMS_VERSION')then !Get CMS Version
-	    backspace(77)
-	    read(77,*) cardname, input_ver      !MEB changed 'ver' to 'input_ver' 6/26/2016
-	    exit
-	  endif
+      if(cardname(1:11)=='CMS_VERSION')then !Get CMS Version
+        backspace(77)
+        read(77,*) cardname, input_ver      !MEB changed 'ver' to 'input_ver' 6/26/2016
+        exit
+      endif
     enddo
     close(77)
         
@@ -257,7 +257,7 @@
       
       ctime = timeout*3600.0  !Added 02/13/2019 meb  !Must know ctime for waves to update 
       
-      !call hot_init        !Initializes any missing variables such as Ctk, pbk  	    	  
+      !call hot_init        !Initializes any missing variables such as Ctk, pbk                
     endif
     
 !--- Waves ---------------------------    
@@ -265,7 +265,7 @@
     
 !--- Initialize Hot Start -----------------------------------------
     if(.not.coldstart)then !Hot Start    
-      call hot_init        !Initializes any missing variables such as Ctk, pbk  	    	  
+      call hot_init        !Initializes any missing variables such as Ctk, pbk                
     endif
     
 !--- Wetting and drying and Secondary Variables --------------
@@ -428,26 +428,26 @@
     selectcase(cardname)
       case('CMS_VERSION')
       case('CMS-WAVE_SIM_FILE','CMS_WAVE_SIM_FILE','CMSWAVE_SIM_FILE','WAVE_SIM_FILE')
-	  case('STEERING_INTERVAL','CMS-STEERING_INTERVAL')
+      case('STEERING_INTERVAL','CMS-STEERING_INTERVAL')
       case('WAVE_WATER_LEVEL','FLOW-TO-WAVE_WATER_LEVEL','FLOW_TO_WAVE_WATER_LEVEL',&
         'FLOW-TO-WAVE_WATER_ELEVATION','FLOW_TO_WAVE_WATER_ELEVATION')
       case('WAVE_CURRENT_VELOCITY','FLOW-TO-WAVE_CURRENT_VELOCITY','FLOW_TO_WAVE_CURRENT_VELOCITY') 
       case('WAVE_BED_ELEVATION','FLOW-TO-WAVE_BED_ELEVATION','FLOW_TO_WAVE_BED_ELEVATION',&
           'WAVE_WATER_DEPTH','FLOW-TO-WAVE_WATER_DEPTH','FLOW_TO_WAVE_WATER_DEPTH','FLOW_TO_WAVE_DEPTH')
-	  case('WAVE_EXTRAPOLATION_DISTANCE','WAVE_TO_FLOW_EXTRAPOLATION_DISTANCE','WAVE-TO-FLOW_EXTRAPOLATION_DISTANCE')
-	  case('FLOW_EXTRAPOLATION_DISTANCE','FLOW_TO_WAVE_EXTRAPOLATION_DISTANCE','FLOW-TO-WAVE_EXTRAPOLATION_DISTANCE')
-	  case('WAVE_RSTRESS_DATASET')
-	  case('WAVE_HEIGHT_DATASET')
-	  case('WAVE_PERIOD_DATASET')
-	  case('WAVE_DIRECTION_DATASET')
+      case('WAVE_EXTRAPOLATION_DISTANCE','WAVE_TO_FLOW_EXTRAPOLATION_DISTANCE','WAVE-TO-FLOW_EXTRAPOLATION_DISTANCE')
+      case('FLOW_EXTRAPOLATION_DISTANCE','FLOW_TO_WAVE_EXTRAPOLATION_DISTANCE','FLOW-TO-WAVE_EXTRAPOLATION_DISTANCE')
+      case('WAVE_RSTRESS_DATASET')
+      case('WAVE_HEIGHT_DATASET')
+      case('WAVE_PERIOD_DATASET')
+      case('WAVE_DIRECTION_DATASET')
       case('WAVE_DISS_DATASET')
       case('WAVE_BREAKING_SMOOTHING_ITERATIONS','WAVE_BREAKING_SMOOTHING_ITER','WAVE_BREAKING_SMOOTH_ITER')
       case('WAVE_DISSIPATION_SMOOTHING_ITERATIONS','WAVE_DISSIPATION_SMOOTHING_ITER','WAVE_DISSIPATION_SMOOTH_ITER')
       case('WAVE_STRESSES_SMOOTHING_ITERATIONS','WAVE_STRESS_SMOOTHING_ITERATIONS','WAVE_STRESSES_SMOOTHING_ITER','WAVE_STRESSES_SMOOTH_ITER','WAVE_STRESS_SMOOTH_ITER')
       case('WAVE_PERIOD_SMOOTHING_ITERATIONS','WAVE_PERIOD_SMOOTHING_ITER','WAVE_PERIOD_SMOOTH_ITER')
       case('TEMPORAL_WAVE_INTERPOLATION')
-	  case default
-	    foundcard = .false.
+      case default
+        foundcard = .false.
     endselect
 
     return    

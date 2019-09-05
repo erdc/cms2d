@@ -1,5 +1,5 @@
       subroutine update_wetdry_tel()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def       
       use sed_def
@@ -36,7 +36,7 @@
         ENDIF
     ! endif
       enddo
-!$OMP end do	       
+!$OMP end do           
  
 !$omp do private(depth1,depth2,id1,id2)
       do i=1,numyfaces
@@ -54,7 +54,7 @@
         ENDIF
   !    endif
       enddo
-!$OMP end  do	
+!$OMP end  do    
 
 !$OMP end parallel 
 
@@ -83,14 +83,14 @@
 !          IF(QYN(I) .LT. 0.D0) QYN(I) = 0.D0
 !        ENDIF
 !      ENDDO
-!!$OMP end parallel do	
+!!$OMP end parallel do    
 
       end subroutine
     
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
       subroutine update_wetdry_tel_pre()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def       
       use sed_def
@@ -124,7 +124,7 @@
         ENDIF
     ! endif
       enddo
-!$OMP end do	    
+!$OMP end do        
 
     yface_wet = .true.
  
@@ -141,7 +141,7 @@
         ENDIF
   !    endif
       enddo
-!$OMP end  do	
+!$OMP end  do    
 
 !$OMP end parallel 
 
@@ -170,6 +170,6 @@
 !          IF(QYN(I) .LT. 0.D0) QYN(I) = 0.D0
 !        ENDIF
 !      ENDDO
-!!$OMP end parallel do	
+!!$OMP end parallel do    
 
       end subroutine 

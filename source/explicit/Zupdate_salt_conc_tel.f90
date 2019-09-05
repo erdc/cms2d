@@ -1,6 +1,6 @@
     subroutine update_salt_conc_tel()
       use EXP_Global_def
-      USE EXP_transport_def 	
+      USE EXP_transport_def     
       USE EXP_bndcond_def
       use flow_def
       use comvarbl
@@ -38,7 +38,7 @@
       
 !$OMP DO PRIVATE (Np,Nm,DIFFT,DXT,DYT,AREA)
       do i=1,numxfaces
-        if( .not. xface_wall(i)) then	
+        if( .not. xface_wall(i)) then    
           np = xface_cells(2,i)
           nm = xface_cells(1,i)          
           diffT = 0.0 !min(salt(np)%diffC,salt(nm)%diffC) !/2.
@@ -52,7 +52,7 @@
         
 !$OMP DO PRIVATE (Np,Nm,DIFFT,DXT,DYT,AREA)
       do i=1,numyfaces
-        if( .not. yface_wall(i)) then	
+        if( .not. yface_wall(i)) then    
           np = yface_cells(2,i)
           nm = yface_cells(1,i)          
           diffT = 0.0 !min(salt(np)%diffC,salt(nm)%diffC) !/2.

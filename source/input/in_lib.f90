@@ -313,11 +313,11 @@ contains
     open(iunit,file=afile)
     ierr = 0
     do while(ierr==0)
-	  read(iunit,*,iostat=ierr) cardname
+      read(iunit,*,iostat=ierr) cardname
       if(ierr==-1) exit !End of File
       selectcase(cardname)           
       case('DATASET')
-	    founddataset = .true.
+        founddataset = .true.
       
       case('BEGSCL')  
         call read_scal(iunit,nscal,scaldat)
@@ -326,7 +326,7 @@ contains
         call read_vec(iunit,nvec,vecdat)
         
       case('OBJTYPE')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,objtype
         
       endselect    
@@ -364,11 +364,11 @@ contains
     open(iunit,file=afile)
     ierr = 0
     do while(ierr==0)
-	  read(iunit,*,iostat=ierr) cardname
+      read(iunit,*,iostat=ierr) cardname
       if(ierr==-1) exit !End of File
       selectcase(cardname)           
       case('DATASET')
-	    founddataset = .true.
+        founddataset = .true.
       
       case('BEGSCL')  
         call read_scalvec(iunit,1,ndat,dat)
@@ -377,7 +377,7 @@ contains
         call read_scalvec(iunit,2,ndat,dat)
         
       case('OBJTYPE')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,objtype
         
       endselect    
@@ -459,22 +459,22 @@ contains
     !Read information from file
     ierr = 0
     do while(ierr==0)
-	  read(iunit,*,iostat=ierr) cardname      
+      read(iunit,*,iostat=ierr) cardname      
       selectcase(cardname)        
       case('OBJTYPE')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%id
         
       case('ND')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%nd
         
       case('NC')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%nc
       
       case('NAME')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%name  
         
       case('RT_JULIAN')
@@ -483,7 +483,7 @@ contains
         dat(ndat)%usereftime = .true.
         
       case('TIMEUNITS')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%time_units    
       
       case('TS')  
@@ -619,22 +619,22 @@ contains
     !Read information from file
     ierr = 0
     do while(ierr==0)
-	  read(iunit,*,iostat=ierr) cardname      
+      read(iunit,*,iostat=ierr) cardname      
       selectcase(cardname)        
       case('OBJTYPE')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%id
         
       case('ND')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%nd
         
       case('NC')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%nc
       
       case('NAME')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%name  
         
       case('RT_JULIAN')
@@ -643,7 +643,7 @@ contains
         scaldat(nscal)%usereftime = .true.
         
       case('TIMEUNITS')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%time_units    
       
       case('TS')  
@@ -777,22 +777,22 @@ contains
     !Read information from file
     ierr = 0
     do while(ierr==0)
-	  read(iunit,*,iostat=ierr) cardname      
+      read(iunit,*,iostat=ierr) cardname      
       selectcase(cardname)        
       case('OBJTYPE')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%id
         
       case('ND')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%nd
         
       case('NC')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%nc
       
       case('NAME')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%name  
         
       case('RT_JULIAN')
@@ -801,11 +801,11 @@ contains
         vecdat(nvec)%usereftime = .true.
         
       case('TIMEUNITS')
-	    backspace(iunit)
+        backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%time_units    
       
       case('TS')
-	    !Increase time by one
+        !Increase time by one
         vecdat(nvec)%nt = vecdat(nvec)%nt + 1 
         
         !Read new time step

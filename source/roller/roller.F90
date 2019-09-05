@@ -54,7 +54,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase (cardname)	  
+    selectcase (cardname)      
     case('CALC_ROLLER','SURFACE_ROLLER','ROLLER')
       call card_boolean(77,roller,ierr)  
         
@@ -161,32 +161,32 @@
     open(dgunit,file=dgfile,access='append')
     iunit = (/6, dgunit/)
     do i=1,2
-  	  write(iunit(i),*)  	
-	  if(roller)then
- 	    write(iunit(i),888)      'Roller Model:','ON'
-	    if(rolflux)then
-	      write(iunit(i),888)    '  Mass Flux:','ON'
-	    else
-	      write(iunit(i),888)    '  Mass Flux:','OFF'
-	    endif
-	    write(iunit(i),222)      '  Dissipation Coefficient:',br
-	    write(iunit(i),222)      '  Wave Breaking Efficiency:',ceff
-        write(iunit(i),222)      '  Courant Number:',rol_courant
-	    if(irolscheme==1)then
-	      write(iunit(i),888)    '  Transport Scheme:','UPWIND1'
-	    elseif(irolscheme==2)then	    
-	      write(iunit(i),888)    '  Transport Scheme:','LAX'
-	    else
-	      write(iunit(i),888)    '  Transport Scheme:','UPWIND2'
+        write(iunit(i),*)      
+      if(roller)then
+         write(iunit(i),888)      'Roller Model:','ON'
+        if(rolflux)then
+          write(iunit(i),888)    '  Mass Flux:','ON'
+        else
+          write(iunit(i),888)    '  Mass Flux:','OFF'
         endif
-	  else
-	    write(iunit(i),888)      'Roller Model:','OFF'
-  	  endif    
-	enddo
-	close(dgunit)
-	
-	return
-	endsubroutine rol_print	    
+        write(iunit(i),222)      '  Dissipation Coefficient:',br
+        write(iunit(i),222)      '  Wave Breaking Efficiency:',ceff
+        write(iunit(i),222)      '  Courant Number:',rol_courant
+        if(irolscheme==1)then
+          write(iunit(i),888)    '  Transport Scheme:','UPWIND1'
+        elseif(irolscheme==2)then        
+          write(iunit(i),888)    '  Transport Scheme:','LAX'
+        else
+          write(iunit(i),888)    '  Transport Scheme:','UPWIND2'
+        endif
+      else
+        write(iunit(i),888)      'Roller Model:','OFF'
+        endif    
+    enddo
+    close(dgunit)
+    
+    return
+    endsubroutine rol_print        
 
 !****************************************************************
     subroutine rol_solve
@@ -246,12 +246,12 @@
     enddo    
 !$OMP END PARALLEL DO
 
-    !Time step	
+    !Time step    
     dtrol = 1.e20
     do i=1,nwavei-1
       do j=1,nwavej   
         val=min(delx(i),dely(j))/max(c(i,j),0.1)
-	    dtrol=min(dtrol,val)
+        dtrol=min(dtrol,val)
       enddo
     enddo
     dtrol = rol_courant*dtrol
@@ -371,11 +371,11 @@
       if(mod(k,50)==0)then
         write(msg,661) k,rn
         call diag_print_message(msg)
-	    if(rn>rn1)then
+        if(rn>rn1)then
           call diag_print_warning('Roller Model Divergent',&
                                   '  Roller Stresses Ignored',&
                                   '*** Roller Finished ****')
-	      return
+          return
         endif
         rn1=rn      
       endif       
@@ -388,18 +388,18 @@
       do i=1,nwavei
         !Stresses due to roller  
         Sxx(i,j) = Sr(i,j)*wcos(i,j)*wcos(i,j)
-	    Sxy(i,j) = Sr(i,j)*wcos(i,j)*wsin(i,j)
-	    Syy(i,j) = Sr(i,j)*wsin(i,j)*wsin(i,j)
+        Sxy(i,j) = Sr(i,j)*wcos(i,j)*wsin(i,j)
+        Syy(i,j) = Sr(i,j)*wsin(i,j)*wsin(i,j)
         !Total dissipation with roller dissipation
-	    wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ******************
+        wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ******************
       enddo
     enddo
 !$OMP END PARALLEL DO
     
-    !Compute gradients of stresses and update wave radiation stress gradients	       
+    !Compute gradients of stresses and update wave radiation stress gradients           
     do i=1,nwavei
       i1=min(i+1,nwavei); i2=max(i-1,1)
-	  do j=1,nwavej
+      do j=1,nwavej
         j1=min(j+1,nwavej); j2=max(j-1,1)
 !        if(.true.)then !Central difference
           rxrs(i,j)=-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j) 
@@ -427,7 +427,7 @@
         fac=0.5-0.5*cos(pi*min(max(hwave(i,j)-hminlim,0.0),hminlim)/hminlim);
         rxrs(i,j)=rxrs(i,j)*fac !*irxy(i,j)
         ryrs(i,j)=ryrs(i,j)*fac !*irxy(i,j)
-	  enddo
+      enddo
     enddo
     
     !Boundaries
@@ -438,11 +438,11 @@
     
 !    do i=1,nwavei
 !     i1=min(i+1,nwavei); i2=max(i,1)
-!	  do j=1,nwavej
+!      do j=1,nwavej
 !        j1=min(j+1,nwavej); j2=max(j-1,1)
 !        rxrs(i,j)=-(Sxx(i1,j)-Sxx(i2,j))/delx(i)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j) 
 !        ryrs(i,j)=-(Syy(i,j1)-Syy(i,j2))/d2y(j)-(Sxy(i1,j)-Sxy(i2,j))/delx(i)
-!	  enddo
+!      enddo
 !    enddo    
     
     densitinv = 1.0/rhow
@@ -461,7 +461,7 @@
     
     !do i=1,nwavei    !Wu, 8/5/2011
     !   do j=1,nwavej
-    !	   ratioz=0.0
+    !       ratioz=0.0
     !   do klay=1,numlaywavegrid
     !      ratiozroller(klay)=1.0-tanh((2.0*sigmawave(klay)*hwave(i,j)   &
     !                                   /(wheight(i,j)+0.00001))**4)+0.00000000001
@@ -566,10 +566,10 @@
                TS_HOURS,0,DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-      	else
-      	  write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-      	  write(*,*) 'Press any key to continue.'
-      	  read(*,*)
+          else
+            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+            write(*,*) 'Press any key to continue.'
+            read(*,*)
           stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
@@ -585,10 +585,10 @@
                TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-      	else
-      	  write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-      	  write(*,*) 'Press any key to continue.'
-      	  read(*,*)
+          else
+            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+            write(*,*) 'Press any key to continue.'
+            read(*,*)
           stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
@@ -604,8 +604,8 @@
                TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-      	else
-      	  write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          else
+            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
           stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
@@ -621,11 +621,11 @@
                TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-    	else
-    	  write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-    	  write(*,*) 'Press any key to continue.'
-    	  read(*,*)
-    	  stop
+        else
+          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          write(*,*) 'Press any key to continue.'
+          read(*,*)
+          stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
 ! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ierr) for proper vector direction

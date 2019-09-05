@@ -30,8 +30,8 @@
     if(noptset>=3)then  !Waves + Current
        do i=1,ncells
           uc=uv(i)
-          !wcangle=abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle              	
-          wcangle=wang(i)-atan2(v(i),u(i))     !Current-wave angle              	
+          !wcangle=abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle                  
+          wcangle=wang(i)-atan2(v(i),u(i))     !Current-wave angle                  
           if(wcangle.lt.0.0) wcangle=wcangle+twopi
           !uw = Worb(i)/1.41421356      !sqtwo  
           uw = Worbrep(i) 
@@ -51,9 +51,9 @@
           !riplenc=0.245*(d50(i)*1000.0)**0.35   !Raudikivi ripples
           !riphegc=0.074*riplenc/(d50(i)*1000.0)**0.253
 
-            !============current-related grain shear stress==================    	
+            !============current-related grain shear stress==================        
           cman_p = d50(i)**0.1666667/20.0   ! Grain Manning n
-          fcgr=2.0*(min(cman_p/coefman(i),1.0))**1.5*cfrict(i)	!skin friction coefficient by current 
+          fcgr=2.0*(min(cman_p/coefman(i),1.0))**1.5*cfrict(i)    !skin friction coefficient by current 
           fwgr=0.237*(aw/coefksg)**(-0.52)   !Soulsby's method for skin friction coefficient by waves         
 
             ! For Bed load

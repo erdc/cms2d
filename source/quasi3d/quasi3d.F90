@@ -77,7 +77,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)	      
+    selectcase(cardname)          
     case('QUASI3D_MODE','Q3D_MODE')
       call card_boolean(77,q3d,ierr)
       
@@ -100,7 +100,7 @@
       
     !--- Velocity for Wave Model ------------------------------------
     case('WAVE_EFFECTIVE_VELOCITY')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cdum 
       do i=0,3
         if(cdum==avelwav(i))then
@@ -112,7 +112,7 @@
       
     !--- Profiles -----------------------
     case('STREAMWISE_PROFILE')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cdum 
       do i=0,2
         if(cdum==astreampro(i))then
@@ -122,7 +122,7 @@
       enddo
         
     case('TRANSVERSE_PROFILE')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cdum 
       do i=0,1
         if(cdum==atranspro(i))then
@@ -132,7 +132,7 @@
       enddo
       
     case('SURFZONE_PROFILE')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cdum 
       do i=0,2
         if(cdum==asurfpro(i))then
@@ -143,22 +143,22 @@
     
     !--- Vertical Eddy Viscosity -----------------------------------------------  
     case('EDDY_VISCOSITY_VERTICAL_SLOPE','EDDY_VISCOSITY_VERTICAL_SLOPE_BASE')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, visvslp0
       visvslp0 = max(visvslp0,1.0e-6)
       
     case('EDDY_VISCOSITY_VERTICAL_SLOPE_COEF','EDDY_VISCOSITY_VERTICAL_SLOPE_COEFF')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cvisvslpmu
       cvisvslpmu = max(cvisvslpmu,0.0)
     
     case('EDDY_VISCOSITY_VERTICAL_SHEAR')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cvisvv
       cvisvv = max(cvisvv,0.0)
         
     case('EDDY_VISCOSITY_VERTICAL_CELERITY')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, cvisvhc
       cvisvhc = max(cvisvhc,0.0)
       
@@ -168,7 +168,7 @@
       visvcon = max(visvcon,1.0e-6) 
       
     case('EDDY_VISCOSITY_VERTICAL_EFFICIENCY','EDDY_VISCOSITY_VERTICAL_EFF')
-	  backspace(77)
+      backspace(77)
       read(77,*) cardname, verteff    
       
     !--- Output ----------------------------------------------------
@@ -295,10 +295,10 @@
       else
         write(iunit(i),111) '  Wave-current Interaction:','OFF'
       endif
-	  write(iunit(i),111)   '  Profiles:'
-	  write(iunit(i),111)   '    Streamwise:',astreampro(istreampro)
-	  write(iunit(i),111)   '    Transverse:',atranspro(itranspro)
-	  write(iunit(i),111)   '    Surf zone:',asurfpro(isurfpro)	
+      write(iunit(i),111)   '  Profiles:'
+      write(iunit(i),111)   '    Streamwise:',astreampro(istreampro)
+      write(iunit(i),111)   '    Transverse:',atranspro(itranspro)
+      write(iunit(i),111)   '    Surf zone:',asurfpro(isurfpro)    
       write(iunit(i),111)   '  Vertical Viscosity: '
       write(iunit(i),778)   '    Base Value:',visvcon
       write(iunit(i),778)   '    Surface Stress Factor:',verteff
@@ -308,8 +308,8 @@
         write(iunit(i),778) '    Slope Base Value:',visvslp0
         write(iunit(i),778) '    Slope Coefficient:',cvisvslpmu
       endif
-	enddo
-	
+    enddo
+    
     close(dgunit)
     
     return

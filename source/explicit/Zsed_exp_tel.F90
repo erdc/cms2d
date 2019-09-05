@@ -393,19 +393,19 @@
     endif
  
     !==== Update bed elevation ====================
- 	do i=1,ncells 	    
- 	  if(abs(dzb(i))>0.5*h(i))then 	
- 	    open(dgunit,file=dgfile,access='append')        
- 	    write(dgunit,*)
- 	    write(dgunit,*) 'WARNING: Large bed change'
- 	    close(dgunit) 
- 	    write(*,*)
- 	    write(*,*) 'WARNING: Large bed change'
- 	    call print_sedvar(i,1)
+     do i=1,ncells         
+       if(abs(dzb(i))>0.5*h(i))then     
+         open(dgunit,file=dgfile,access='append')        
+         write(dgunit,*)
+         write(dgunit,*) 'WARNING: Large bed change'
+         close(dgunit) 
+         write(*,*)
+         write(*,*) 'WARNING: Large bed change'
+         call print_sedvar(i,1)
       endif
       !zb(i)=zb1(i)+dzb(i)   !*****************
       zb(i)=zb(i)+dzb(i)*tsed_elapse/dtime   !*****************      
- 	enddo  
+     enddo  
       
     !=== Avalanching =============
     if(do_aval) call avalanche
@@ -474,8 +474,8 @@
             ii=H_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
             
@@ -608,8 +608,8 @@
             ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
          if(isedinflowbc==1)then
@@ -717,8 +717,8 @@
             ii=MH_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
          if(isedinflowbc==1)then
@@ -826,8 +826,8 @@
            ii=MHV_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
          if(isedinflowbc==1)then
@@ -935,7 +935,7 @@
           if(QstringEXP(i)%vface) then 
               
            if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j) 
               ncs = cellmap(5,ii)
               CtstarP(ncs,:) = facQtotin*CtstarP(ii,:)            
@@ -943,7 +943,7 @@
               Ctk(ncs,:)=CtstarP(ncs,:) 
             enddo
            else  !north face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cellmap(5,ii)
               CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
@@ -955,7 +955,7 @@
           else
               
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
               ncw = cellmap(7,ii)
               CtstarP(ncw,:) = facQtotin*CtstarP(ii,:)           
@@ -963,7 +963,7 @@
               Ctk(ncw,:)=CtstarP(ncw,:)            
             enddo
           else  !east face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)   
               ncw = cellmap(7,ii)          
                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)              
@@ -1119,8 +1119,8 @@
             ii=H_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -1138,8 +1138,8 @@
           ii=TH_str(iwse)%Cells(j)  !added Mitch Brown - 10/20/2016 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -1156,8 +1156,8 @@
             ii=MH_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
@@ -1174,8 +1174,8 @@
             ii=MHV_str(i)%Cells(j) 
             ncn = cellmap(1,ii)
             nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)	
-            ncw = cellmap(7,ii)	            
+            ncs = cellmap(5,ii)    
+            ncw = cellmap(7,ii)                
             quT = u(ii)*h(ii)
             qvT = v(ii)*h(ii)
             if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   

@@ -97,7 +97,7 @@ module geo_def
     real(ikind),allocatable:: rnx(:,:),rny(:,:) !Normal distance vector from O to f [m]
     real(ikind),allocatable:: rpx(:,:),rpy(:,:) !Parallel distance vector from P to O [m]
     real(ikind),allocatable:: rx(:,:), ry(:,:)  !Short distance vector from P to f  [m]
-    real(ikind),allocatable:: dpara(:,:),dnorm(:,:)		 !From Chris' code 10/26/2015
+    real(ikind),allocatable:: dpara(:,:),dnorm(:,:)         !From Chris' code 10/26/2015
     
     !Bathymetry
     real(ikind), allocatable :: zb0(:)          !Initial bed elevations at cell centers (negative is downwards)

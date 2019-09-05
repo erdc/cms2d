@@ -64,13 +64,13 @@
     
     !Grid parameters    
     igridtype = 0    !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
-	avg_lat = 0.0
-	azimuth_fl = 0.0
-	xorigin = 0.0
-	yorigin = 0.0
-	nflowgrd = 0
-	latpath = ''
-	lonpath = ''
+    avg_lat = 0.0
+    azimuth_fl = 0.0
+    xorigin = 0.0
+    yorigin = 0.0
+    nflowgrd = 0
+    latpath = ''
+    lonpath = ''
     
     !Projection defaults
     call proj_default(projfl)
@@ -164,14 +164,14 @@
     foundcard = .true.
     selectcase(cardname)        
       case('GRID_MODIFICATION_NUMBER')
-	    backspace(77)
-	    read(77,*) cardname, nflowgrd
-	  
-	  case('GRID_FILE')
-	    backspace(77)
-		read(77,*) cardname, grdfile	
-		call fileparts(grdfile,apath,aname,aext)  
-		if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
+        backspace(77)
+        read(77,*) cardname, nflowgrd
+      
+      case('GRID_FILE')
+        backspace(77)
+        read(77,*) cardname, grdfile    
+        call fileparts(grdfile,apath,aname,aext)  
+        if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
         call lowercase(aext)
         if(aext(1:3)=='2dm') igridtype = 2  !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
         if(aext(1:3)=='tel') igridtype = 1
@@ -179,45 +179,45 @@
       case('TELESCOPING','TELESCOPING_FILE')
         backspace(77)
         read(77,*) cardname, telfile
-		call fileparts(telfile,apath,aname,aext)  
-		if(len_trim(apath)==0) telfile = trim(flowpath) // telfile
-		  
+        call fileparts(telfile,apath,aname,aext)  
+        if(len_trim(apath)==0) telfile = trim(flowpath) // telfile
+          
       case('BATHYMETRY_DATASET')
-		backspace(77)   
-		read(77,*) cardname, cdum, grdpath
+        backspace(77)   
+        read(77,*) cardname, cdum, grdpath
         
       case('BATHYMETRY_UPDATE_DATASET','BATHYMETRY_DATASETS')
-		backspace(77)   
-		read(77,*) cardname, bathydata%file, bathydata%path
+        backspace(77)   
+        read(77,*) cardname, bathydata%file, bathydata%path
         bathydata%ison = .true.
-		  
+          
       case('GRID_CELL_TYPES')
-		backspace(77)
+        backspace(77)
         read(77,*) cardname, typespath
           
       case('GRID_ANGLE')
         call card_scalar(77,'deg','deg',azimuth_fl,ierr)
-		azimuth_fl = 360.0 - azimuth_fl  !Alex
-		  	
+        azimuth_fl = 360.0 - azimuth_fl  !Alex
+              
       case('GRID_ORIGIN_X')
         call card_scalar(77,'m','m',xorigin,ierr)
-		  
+          
       case('GRID_ORIGIN_Y')
         call card_scalar(77,'m','m',yorigin,ierr)
-		  
+          
       case('CELL_LATITUDES')
         call card_dataset(77,mpfile,flowpath,latfile,latpath,0)  !0 for Lats and Lons - 05/21/2018
-		
+        
       case('CELL_LONGITUDES')
         call card_dataset(77,mpfile,flowpath,lonfile,lonpath,0)  !0 for Lats and Lons - 05/21/2018 
-		  
+          
       case('AVERAGE_LATITUDE','LATITUDE_AVERAGE')
-        call card_scalar(77,'deg','deg',avg_lat,ierr)	 
-		
+        call card_scalar(77,'deg','deg',avg_lat,ierr)     
+        
       case('AVERAGE_LONGITUDE')
-		backspace(77)
-!!		read(77,*) cardname, avg_lon
-		read(77,*) cardname  
+        backspace(77)
+!!        read(77,*) cardname, avg_lon
+        read(77,*) cardname  
       
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
         call proj_horiz_block(77,projfl)
@@ -263,37 +263,37 @@
     val = 360.0 - azimuth_fl
     do i=1,2    
       write(iunit(i),*)
-	  write(iunit(i),888)    'Grid '	 	
+      write(iunit(i),888)    'Grid '         
       
-	  call fileparts(grdfile,apath,aname,aext)
-	  astring=trim(aname) // '.' // aext
-	  write(iunit(i),787)    '  Grid File:',trim(astring)
+      call fileparts(grdfile,apath,aname,aext)
+      astring=trim(aname) // '.' // aext
+      write(iunit(i),787)    '  Grid File:',trim(astring)
       
       if(igridtype<=1)then
         if(grdpath(1:1)/=' ') write(iunit(i),787)  '  Depth Dataset:',trim(grdpath)  
         write(iunit(i),144)  '  Orientation:',trim(vstrlz(val,'(f0.3)')),' deg'    !Writes out the same value that was written in the .cmcards file - MEB 01/13/2017
-	    write(iunit(i),144)  '  x-Origin:',trim(vstrlz(xorigin,'(f0.3)')),' m'
-	    write(iunit(i),144)  '  y-Origin:',trim(vstrlz(yorigin,'(f0.3)')),' m'
+        write(iunit(i),144)  '  x-Origin:',trim(vstrlz(xorigin,'(f0.3)')),' m'
+        write(iunit(i),144)  '  y-Origin:',trim(vstrlz(yorigin,'(f0.3)')),' m'
       endif
-	  write(iunit(i),144)    '  Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
+      write(iunit(i),144)    '  Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
       write(iunit(i),222)    '  Total cells:',ncellsD
       write(iunit(i),222)    '  Active cells:',ncells
       if(igridtype==1)then
-	    write(iunit(i),787)  '  Telescoping:','ON'
+        write(iunit(i),787)  '  Telescoping:','ON'
         write(iunit(i),222)  '  Regular cells:',ncellsimple
         write(iunit(i),222)  '  Joint cells:',ncelljoint
       else
-	    write(iunit(i),787)  '  Telescoping:','OFF'
+        write(iunit(i),787)  '  Telescoping:','OFF'
       endif 
-!	write(*,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
-!	write(dgunit,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
+!    write(*,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
+!    write(dgunit,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
       write(iunit(i),888)    '  Horizontal Projection'
       write(iunit(i),787)    '    Coordinate System:',trim(aHorizCoordSystem(projfl%iHorizCoordSystem))     
       if(projfl%iHorizCoordSystem/=22)then
         write(iunit(i),787)  '    Datum:',trim(aHorizDatum(projfl%iHorizDatum))
         write(iunit(i),222)  '    Zone:',projfl%iHorizZone
       endif      
-	  write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
+      write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
     enddo
 
     close(dgunit)
@@ -402,14 +402,14 @@
 !            ncellsD = ncellsD+1
 !            inorth = i + j*maxcol
 !            if(cell_type(inorth)==0)then
-!           	  ncellsD = ncellsD + 1
+!                 ncellsD = ncellsD + 1
 !            endif
 !          endif
 !          if(j==maxrow)then
 !            ncellsD = ncellsD + 1
 !            isouth = i + (j-2)*maxcol
 !            if(cell_type(isouth)==0)then
-!	        ncellsD = ncellsD + 1
+!            ncellsD = ncellsD + 1
 !            endif
 !          endif
 !          if(i==1)then
@@ -1936,7 +1936,7 @@ loopj: do j=1,numnode  !number of faces
     enddo
     do i=1,ncells
       do k=1,ncface(i)
-		if(indictface(k,i)==1)then
+        if(indictface(k,i)==1)then
           call diag_print_error('Problem calculating no-repeat cell connetivity')
         endif
       enddo
@@ -2430,8 +2430,8 @@ d1: do k=1,10
       foundcard = .true.
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)  
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)  
       case('COORDINATE_DATUM','HORIZONTAL_DATUM','DATUM')
         backspace(kunit)
         read(kunit,*) cardname, aline
@@ -2501,7 +2501,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-	  endselect
+      endselect
     enddo d1
 
     if(proj%iHorizCoordSystem==2 .and. proj%iHorizZone==0)then
@@ -2535,8 +2535,8 @@ d1: do k=1,10
       foundcard = .true.
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)  
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)  
       case('DATUM','VERTICAL_DATUM')
         backspace(kunit)
         read(kunit,*) cardname, aline
@@ -2583,7 +2583,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-	  endselect
+      endselect
     enddo d1
     
     return
@@ -2861,7 +2861,7 @@ d1: do k=1,10
     endif
     open(kunit,file=grdfile,status='unknown')
     do k=1,10000000
-	  read(kunit,*,iostat=ierr) cardname
+      read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       foundcard = .true.
       selectcase(cardname)
@@ -2881,11 +2881,11 @@ d1: do k=1,10
         
       case('GRID_ANGLE')
         call card_scalar(kunit,'deg','deg',azimuth_fl,ierr)
-		azimuth_fl = 360.0 - azimuth_fl  !Alex
-		  	
+        azimuth_fl = 360.0 - azimuth_fl  !Alex
+              
       case('GRID_ORIGIN_X')
         call card_scalar(kunit,'m','m',xorigin,ierr)
-		  
+          
       case('GRID_ORIGIN_Y')
         call card_scalar(kunit,'m','m',yorigin,ierr)
           
@@ -2997,7 +2997,7 @@ d1: do k=1,10
     ndmaxfaces = 2 !Maximum # of faces in each direction
     
     !Allocation
-	allocate(idmap(ncellsfull),mapid(ncellsfull))	  
+    allocate(idmap(ncellsfull),mapid(ncellsfull))      
  
 !---- Sum active cells --------------------------------------------
     !get ncells - count active cells which are "1" in cell_type
@@ -3025,14 +3025,14 @@ d1: do k=1,10
             ncellsD = ncellsD+1
             inorth = i + j*maxcol
             if(cell_type(inorth)==0)then
-           	  ncellsD = ncellsD + 1
+                 ncellsD = ncellsD + 1
             endif
           endif
           if(j==maxrow)then
             ncellsD = ncellsD + 1
             isouth = i + (j-2)*maxcol
             if(cell_type(isouth)==0)then
-	        ncellsD = ncellsD + 1
+            ncellsD = ncellsD + 1
             endif
           endif
           if(i==1)then

@@ -19,7 +19,7 @@
 !$OMP END PARALLEL DO 
 
     !--main loop
-	do ii=1,n
+    do ii=1,n
         js = ju0     
 
         ! generating row number ii of L and U.

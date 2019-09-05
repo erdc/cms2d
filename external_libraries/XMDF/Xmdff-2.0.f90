@@ -446,7 +446,7 @@ INTEGER, INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfpinitialize_f()
-	  !MS$ATTRIBUTES C,reference::xfpinitialize_f
+      !MS$ATTRIBUTES C,reference::xfpinitialize_f
 
     END FUNCTION xfpinitialize_f
   END INTERFACE
@@ -467,7 +467,7 @@ INTEGER, INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfpclose_f()
-	  !MS$ATTRIBUTES C,reference::xfpclose_f
+      !MS$ATTRIBUTES C,reference::xfpclose_f
 
     END FUNCTION xfpclose_f
   END INTERFACE
@@ -482,10 +482,10 @@ END SUBROUTINE
 SUBROUTINE XF_CREATE_FILE (a_Filename, a_Overwrite, Id, error)
 
   CHARACTER(LEN=*), INTENT(IN) :: a_Filename
-	LOGICAL*2, INTENT(IN)        :: a_Overwrite
-	INTEGER, INTENT(OUT)         :: Id
-	INTEGER, INTENT(OUT)         :: error
-	INTEGER                         namelen ! Length of the name
+    LOGICAL*2, INTENT(IN)        :: a_Overwrite
+    INTEGER, INTENT(OUT)         :: Id
+    INTEGER, INTENT(OUT)         :: error
+    INTEGER                         namelen ! Length of the name
 
 
 !            INTEGER, EXTERNAL :: _xfcreatefile_f
@@ -493,12 +493,12 @@ SUBROUTINE XF_CREATE_FILE (a_Filename, a_Overwrite, Id, error)
 !
   INTERFACE
     INTEGER FUNCTION xfcreatefile_f(a_Filename, namelen, Id, a_Overwrite)
-	  !MS$ATTRIBUTES C,reference::xfcreatefile_f
-	  !DEC$ATTRIBUTES reference :: a_Filename
+      !MS$ATTRIBUTES C,reference::xfcreatefile_f
+      !DEC$ATTRIBUTES reference :: a_Filename
     CHARACTER(LEN=*), INTENT(IN) :: a_Filename
-	  INTEGER, INTENT(OUT)         :: Id
-	  LOGICAL*2, INTENT(IN)        :: a_Overwrite
-	  INTEGER, INTENT(IN)          :: namelen
+      INTEGER, INTENT(OUT)         :: Id
+      LOGICAL*2, INTENT(IN)        :: a_Overwrite
+      INTEGER, INTENT(IN)          :: namelen
 
     END FUNCTION xfcreatefile_f
   END INTERFACE
@@ -514,22 +514,22 @@ END SUBROUTINE
 SUBROUTINE XF_OPEN_FILE (a_Filename, a_ReadOnly, Id, error)
 
   CHARACTER(LEN=*), INTENT(IN) :: a_Filename
-	LOGICAL*2, INTENT(IN)        :: a_ReadOnly
-	INTEGER, INTENT(OUT)         :: Id
-	INTEGER, INTENT(OUT)         :: error
-	INTEGER                         namelen ! Length of the name
+    LOGICAL*2, INTENT(IN)        :: a_ReadOnly
+    INTEGER, INTENT(OUT)         :: Id
+    INTEGER, INTENT(OUT)         :: error
+    INTEGER                         namelen ! Length of the name
 
 !            INTEGER, EXTERNAL :: _xfopenfile_f
 !  MS FORTRAN needs explicit interface for C functions called here.
 !
   INTERFACE
     INTEGER FUNCTION xfopenfile_f(a_Filename, namelen, Id, a_ReadOnly)
-	  !MS$ATTRIBUTES C,reference::xfopenfile_f
-	  !DEC$ATTRIBUTES reference :: a_Filename
+      !MS$ATTRIBUTES C,reference::xfopenfile_f
+      !DEC$ATTRIBUTES reference :: a_Filename
     CHARACTER(LEN=*), INTENT(IN) :: a_Filename
-	  INTEGER, INTENT(OUT)         :: Id
-	  LOGICAL*2, INTENT(IN)          :: a_ReadOnly
-	  INTEGER, INTENT(IN)          :: namelen
+      INTEGER, INTENT(OUT)         :: Id
+      LOGICAL*2, INTENT(IN)          :: a_ReadOnly
+      INTEGER, INTENT(IN)          :: namelen
 
     END FUNCTION xfopenfile_f
   END INTERFACE
@@ -546,17 +546,17 @@ END SUBROUTINE
 
 SUBROUTINE XF_CLOSE_FILE (a_Id, error)
 
-	INTEGER, INTENT(IN)  :: a_Id
-	INTEGER, INTENT(OUT)         :: error
+    INTEGER, INTENT(IN)  :: a_Id
+    INTEGER, INTENT(OUT)         :: error
 
 !            INTEGER, EXTERNAL :: _xfclosefile_f
 !  MS FORTRAN needs explicit interface for C functions called here.
 !
   INTERFACE
     INTEGER FUNCTION xfclosefile_f(a_Id)
-	  !MS$ATTRIBUTES C,reference::xfclosefile_f
-	  !DEC$ATTRIBUTES reference :: a_Id
-	  INTEGER, INTENT(IN)       :: a_Id
+      !MS$ATTRIBUTES C,reference::xfclosefile_f
+      !DEC$ATTRIBUTES reference :: a_Id
+      INTEGER, INTENT(IN)       :: a_Id
 
     END FUNCTION xfclosefile_f
   END INTERFACE
@@ -582,8 +582,8 @@ INTEGER, INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetlibraryversion_f(a_Version)
-	  !MS$ATTRIBUTES C,reference::xfgetlibraryversion_f
-	  REAL*4, INTENT(OUT)         :: a_Version
+      !MS$ATTRIBUTES C,reference::xfgetlibraryversion_f
+      REAL*4, INTENT(OUT)         :: a_Version
 
     END FUNCTION xfgetlibraryversion_f
   END INTERFACE
@@ -611,9 +611,9 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetlibraryversionfile_f(a_File, a_Version)
-	  !MS$ATTRIBUTES C,reference::xfgetlibraryversionfile_f
-	  INTEGER, INTENT(IN)        :: a_File
-	  REAL*4, INTENT(OUT)          :: a_Version
+      !MS$ATTRIBUTES C,reference::xfgetlibraryversionfile_f
+      INTEGER, INTENT(IN)        :: a_File
+      REAL*4, INTENT(OUT)          :: a_Version
 
     END FUNCTION xfgetlibraryversionfile_f
   END INTERFACE
@@ -638,7 +638,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreatecoordinategroup_f(a_ParentId, a_ChildId)
-	  !MS$ATTRIBUTES C,reference::xfcreatecoordinategroup_f
+      !MS$ATTRIBUTES C,reference::xfcreatecoordinategroup_f
     INTEGER, INTENT(IN)  :: a_ParentId
     INTEGER, INTENT(OUT) :: a_ChildId
 
@@ -664,7 +664,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfopencoordinategroup_f(a_ParentId, a_ChildId)
-	  !MS$ATTRIBUTES C,reference::xfopencoordinategroup_f
+      !MS$ATTRIBUTES C,reference::xfopencoordinategroup_f
     INTEGER, INTENT(IN)  :: a_ParentId
     INTEGER, INTENT(OUT) :: a_ChildId
 
@@ -689,7 +689,7 @@ INTEGER, INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreatepropertygroup_f(a_ParentId, Id)
-	  !MS$ATTRIBUTES C,reference::xfcreatepropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreatepropertygroup_f
     INTEGER, INTENT(IN)  :: a_ParentId
     INTEGER, INTENT(OUT) :: Id
 
@@ -717,12 +717,12 @@ INTEGER          error
   INTERFACE
     INTEGER FUNCTION xfwritepropertystring_f(a_Id, a_Name, tmplen, &
                                              Number, a_Attributes, strlen)
-	!MS$ATTRIBUTES C,reference::xfwritepropertystring_f
-	!DEC$ATTRIBUTES reference :: a_Name
-	!DEC$ATTRIBUTES reference :: a_Attributes
+    !MS$ATTRIBUTES C,reference::xfwritepropertystring_f
+    !DEC$ATTRIBUTES reference :: a_Name
+    !DEC$ATTRIBUTES reference :: a_Attributes
     INTEGER, INTENT(IN)          :: a_Id
     CHARACTER(LEN=*), INTENT(IN) :: a_Name, a_Attributes
-	INTEGER, INTENT(IN)          :: strlen, Number, tmplen
+    INTEGER, INTENT(IN)          :: strlen, Number, tmplen
 
     END FUNCTION xfwritepropertystring_f
   END INTERFACE
@@ -756,8 +756,8 @@ INTEGER                                       namelen
 !
   INTERFACE
     INTEGER FUNCTION xfwritepropertyint_f(a_Id, a_Name, namelen, a_Number, & 
-						                              a_Properties, a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwritepropertyint_f
+                                                      a_Properties, a_Compression)
+      !MS$ATTRIBUTES C,reference::xfwritepropertyint_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,               INTENT(IN)  :: a_Id
     CHARACTER(LEN=*),      INTENT(IN)  :: a_Name
@@ -771,7 +771,7 @@ INTEGER                                       namelen
 
   namelen = LEN_TRIM(a_Name)
   error = xfwritepropertyint_f(a_Id, a_Name, namelen, a_Number, &
-						                   a_Properties, a_Compression)
+                                           a_Properties, a_Compression)
 
 return
 
@@ -800,7 +800,7 @@ INTEGER                                namelen
   INTERFACE
     INTEGER FUNCTION xfwritepropertyunsignedint_f(a_Id, a_Name, namelen, a_Number, &
                                                   a_Properties, a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwritepropertyunsignedint_f
+      !MS$ATTRIBUTES C,reference::xfwritepropertyunsignedint_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,               INTENT(IN)  :: a_Id
     CHARACTER(LEN=*),      INTENT(IN)  :: a_Name
@@ -839,7 +839,7 @@ INTEGER, INTENT(OUT)                :: error
   INTERFACE
     INTEGER FUNCTION xfwritepropertydouble_f(a_Id, a_Name, namelen, a_Number, a_Properties, & 
                                              a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwritepropertydouble_f
+      !MS$ATTRIBUTES C,reference::xfwritepropertydouble_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,              INTENT(IN)  :: a_Id
     CHARACTER(LEN=*),     INTENT(IN)  :: a_Name
@@ -883,7 +883,7 @@ INTEGER                         namelen
   INTERFACE
     INTEGER FUNCTION xfwritepropertyfloat_f(a_Id, a_Name, namelen, a_Number, a_Properties, & 
                                             a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwritepropertyfloat_f
+      !MS$ATTRIBUTES C,reference::xfwritepropertyfloat_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_Id
     CHARACTER(LEN=*), INTENT(IN)  :: a_Name
@@ -919,7 +919,7 @@ INTEGER        namelen
 !
   INTERFACE
     INTEGER FUNCTION xfdoespropertywithnameexist_f(a_Id, a_Name, namelen, a_Exists)
-	  !MS$ATTRIBUTES C,reference::xfdoespropertywithnameexist_f
+      !MS$ATTRIBUTES C,reference::xfdoespropertywithnameexist_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER           a_Id
     CHARACTER         a_Name
@@ -953,7 +953,7 @@ INTEGER,          INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetpropertynumber_f(a_Id, a_Name, namelen, a_Number)
-	  !MS$ATTRIBUTES C,reference::xfgetpropertynumber_f
+      !MS$ATTRIBUTES C,reference::xfgetpropertynumber_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(OUT) :: a_Number
@@ -988,7 +988,7 @@ INTEGER,          INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadpropertyint_f(a_Id, a_Name, namelen, a_Number, a_Properties)
-	  !MS$ATTRIBUTES C,reference::xfreadpropertyint_f
+      !MS$ATTRIBUTES C,reference::xfreadpropertyint_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_Id, a_Number
     INTEGER,          INTENT(OUT) :: a_Properties
@@ -1024,7 +1024,7 @@ INTEGER          error
   INTERFACE
     INTEGER FUNCTION xfgetpropertystringlength_f(a_Id, a_Name, namelen, a_Number, &
                                                  a_MaxLength)
-	  !MS$ATTRIBUTES C,reference::xfgetpropertystringlength_f
+      !MS$ATTRIBUTES C,reference::xfgetpropertystringlength_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER           a_Id
     CHARACTER         a_Name
@@ -1061,7 +1061,7 @@ INTEGER                          namelen
 !
   INTERFACE
     INTEGER FUNCTION xfgetpropertytype_f(a_GroupId, a_Name, namelen, a_Type)
-	  !MS$ATTRIBUTES C,reference::xfgetpropertytype_f
+      !MS$ATTRIBUTES C,reference::xfgetpropertytype_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_GroupId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Name
@@ -1097,7 +1097,7 @@ INTEGER          error
   INTERFACE
     INTEGER FUNCTION xfreadpropertystring_f(a_Id, a_Name, namelen, a_Number, &
                                          a_MaxLength, a_Attributes, attrlen)
-	  !MS$ATTRIBUTES C,reference::xfreadpropertystring_f
+      !MS$ATTRIBUTES C,reference::xfreadpropertystring_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER           a_Id
     CHARACTER(LEN=*)  a_Name, a_Attributes
@@ -1139,7 +1139,7 @@ INTEGER                         namelen
   INTERFACE
     INTEGER FUNCTION xfreadpropertyfloat_f(a_Id, a_Name, namelen, a_Number, &
                                            a_Properties)
-	  !MS$ATTRIBUTES C,reference::xfreadpropertyfloat_f
+      !MS$ATTRIBUTES C,reference::xfreadpropertyfloat_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_Id
     CHARACTER(LEN=*), INTENT(IN)  :: a_Name
@@ -1178,7 +1178,7 @@ INTEGER                         namelen
   INTERFACE
     INTEGER FUNCTION xfreadpropertydouble_f(a_Id, a_Name, namelen, a_Number, &
                                            a_Properties)
-	  !MS$ATTRIBUTES C,reference::xfreadpropertydouble_f
+      !MS$ATTRIBUTES C,reference::xfreadpropertydouble_f
     !DEC$ATTRIBUTES reference :: a_Name
     INTEGER,          INTENT(IN)  :: a_Id
     CHARACTER(LEN=*), INTENT(IN)  :: a_Name
@@ -1211,7 +1211,7 @@ INTEGER                          pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfcreategenericgroup_f(a_FileId, a_Path, pathlen, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfcreategenericgroup_f
+      !MS$ATTRIBUTES C,reference::xfcreategenericgroup_f
     !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)  :: a_FileId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Path
@@ -1243,7 +1243,7 @@ INTEGER                           pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfcreategroupformesh_f(a_FileId, a_Path, pathlen, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfcreategroupformesh_f
+      !MS$ATTRIBUTES C,reference::xfcreategroupformesh_f
     !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)  :: a_FileId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Path
@@ -1275,7 +1275,7 @@ INTEGER                         pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfcreategroupforgrid_f(a_FileId, a_Path, pathlen, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfcreategroupforgrid_f
+      !MS$ATTRIBUTES C,reference::xfcreategroupforgrid_f
     !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)  :: a_FileId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Path
@@ -1307,7 +1307,7 @@ INTEGER                         pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfcreategroupforxsec_f(a_FileId, a_Path, pathlen, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfcreategroupforxsec_f
+      !MS$ATTRIBUTES C,reference::xfcreategroupforxsec_f
     !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)  :: a_FileId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Path
@@ -1340,12 +1340,12 @@ INTEGER    pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfopengroup_f(a_ParentId, a_Path, pathlen, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfopengroup_f
-	  !DEC$ATTRIBUTES reference :: a_Path
+      !MS$ATTRIBUTES C,reference::xfopengroup_f
+      !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)  :: a_ParentId
-	CHARACTER(LEN=*), INTENT(IN)  :: a_Path
-	INTEGER,          INTENT(OUT) :: a_GroupId
-	INTEGER,          INTENT(IN)  :: pathlen
+    CHARACTER(LEN=*), INTENT(IN)  :: a_Path
+    INTEGER,          INTENT(OUT) :: a_GroupId
+    INTEGER,          INTENT(IN)  :: pathlen
 
     END FUNCTION xfopengroup_f
   END INTERFACE
@@ -1369,7 +1369,7 @@ INTEGER        error
 !
   INTERFACE
     INTEGER FUNCTION xfclosegroup_f(a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfclosegroup_f
+      !MS$ATTRIBUTES C,reference::xfclosegroup_f
     INTEGER,          INTENT(OUT) :: a_GroupId
 
     END FUNCTION xfclosegroup_f
@@ -1394,7 +1394,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathssizeformeshes_f(a_FileId, a_Number, a_Maxsize)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathssizeformeshes_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathssizeformeshes_f
     INTEGER,          INTENT(IN)  :: a_FileId
     INTEGER,          INTENT(IN)  :: a_Number
     INTEGER,          INTENT(OUT) :: a_Maxsize
@@ -1424,7 +1424,7 @@ INTEGER                            pathlen
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathsformeshes_f(a_FileId, a_Num, a_Maxsize, a_Paths, &
                                             pathlen)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathsformeshes_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathsformeshes_f
     !DEC$ATTRIBUTES reference :: a_Paths
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Num
@@ -1455,7 +1455,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathssizeforgrids_f(a_FileId, a_Number, a_Maxsize)
-	!MS$ATTRIBUTES C,reference::xfgetgrouppathssizeforgrids_f
+    !MS$ATTRIBUTES C,reference::xfgetgrouppathssizeforgrids_f
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Number
     INTEGER,          INTENT(OUT)     :: a_Maxsize
@@ -1485,7 +1485,7 @@ INTEGER                         :: pathlen
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathsforgrids_f(a_FileId, a_Num, a_Maxsize, a_Paths, &
                                                pathlen)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathsforgrids_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathsforgrids_f
     !DEC$ATTRIBUTES reference :: a_Paths
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Num
@@ -1517,7 +1517,7 @@ INTEGER, INTENT(OUT)            :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathssizeforxsecs_f(a_FileId, a_Num, a_Maxsize)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathssizeforxsecs_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathssizeforxsecs_f
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Num
     INTEGER,          INTENT(IN)      :: a_Maxsize
@@ -1548,7 +1548,7 @@ INTEGER                         :: pathlen
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathsforxsecs_f(a_FileId, a_Num, a_Maxsize, a_Paths, &
                                                pathlen)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathsforxsecs_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathsforxsecs_f
     !DEC$ATTRIBUTES reference :: a_Paths
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Num
@@ -1581,7 +1581,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetpathsizeforgeompaths_f(a_FileId, a_Number, a_Maxsize)
-	  !MS$ATTRIBUTES C,reference::xfgetpathsizeforgeompaths_f
+      !MS$ATTRIBUTES C,reference::xfgetpathsizeforgeompaths_f
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Number
     INTEGER,          INTENT(OUT)     :: a_Maxsize
@@ -1612,7 +1612,7 @@ INTEGER                            pathlen
   INTERFACE
     INTEGER FUNCTION xfgetgrouppathsforgeompaths_f(a_FileId, a_Num, a_Maxsize, a_Paths, &
                                                    pathlen)
-	  !MS$ATTRIBUTES C,reference::xfgetgrouppathsforgeompaths_f
+      !MS$ATTRIBUTES C,reference::xfgetgrouppathsforgeompaths_f
     !DEC$ATTRIBUTES reference :: a_Paths
     INTEGER,          INTENT(IN)      :: a_FileId
     INTEGER,          INTENT(IN)      :: a_Num
@@ -1642,7 +1642,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumberofelements_f (a_Id, a_nElems)
-	  !MS$ATTRIBUTES C,reference::xfsetnumberofelements_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberofelements_f
     INTEGER,          INTENT(IN)      :: a_Id
     INTEGER,          INTENT(IN)      :: a_nElems
 
@@ -1667,7 +1667,7 @@ SUBROUTINE XF_OPEN_PROPERTY_GROUP (a_ParentId, a_GroupId, error)
 !
   INTERFACE
     INTEGER FUNCTION xfopenpropertygroup_f (a_ParentId, a_GroupId)
-	  !MS$ATTRIBUTES C,reference::xfopenpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfopenpropertygroup_f
     INTEGER,          INTENT(IN)      :: a_ParentId
     INTEGER,          INTENT(OUT)     :: a_GroupId
 
@@ -1695,7 +1695,7 @@ INTEGER, INTENT(OUT)   :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgroupabsolutepathsize_f (a_GroupId, a_PathLength)
-	  !MS$ATTRIBUTES C,reference::xfgetgroupabsolutepathsize_f
+      !MS$ATTRIBUTES C,reference::xfgetgroupabsolutepathsize_f
     INTEGER,          INTENT(IN)      :: a_GroupId
     INTEGER,          INTENT(OUT)     :: a_PathLength
 
@@ -1725,7 +1725,7 @@ INTEGER                       :: pathlen
 !
   INTERFACE
     INTEGER FUNCTION xfgetgroupabsolutepath_f(a_GroupId, a_PathLength, a_Path, pathlen)
-	  !MS$ATTRIBUTES C,reference::xfgetgroupabsolutepath_f
+      !MS$ATTRIBUTES C,reference::xfgetgroupabsolutepath_f
     !DEC$ATTRIBUTES reference :: a_Path
     INTEGER,          INTENT(IN)      :: a_GroupId
     INTEGER,          INTENT(IN)      :: a_PathLength
@@ -1755,7 +1755,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetallelemssametype_f(a_Id, a_Type)
-	  !MS$ATTRIBUTES C,reference::xfsetallelemssametype_f
+      !MS$ATTRIBUTES C,reference::xfsetallelemssametype_f
     INTEGER,          INTENT(IN)      :: a_Id
     INTEGER,          INTENT(IN)      :: a_Type
 
@@ -1781,7 +1781,7 @@ INTEGER,                INTENT(OUT) :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwriteelemtypes_f(a_Id, a_nElems, a_Type, a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwriteelemtypes_f
+      !MS$ATTRIBUTES C,reference::xfwriteelemtypes_f
     INTEGER,                 INTENT(IN)      :: a_Id
     INTEGER,                 INTENT(IN)      :: a_nElems, a_Compression
     INTEGER,  DIMENSION(*),  INTENT(IN)      :: a_Type
@@ -1809,7 +1809,7 @@ INTEGER,                INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwriteelemnodeids_f(a_Id, a_nElems, a_nMaxNodes, a_Ids, a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwriteelemnodeids_f
+      !MS$ATTRIBUTES C,reference::xfwriteelemnodeids_f
     INTEGER,              INTENT(IN)      :: a_Id
     INTEGER,              INTENT(IN)      :: a_nElems, a_nMaxNodes, a_Compression
     INTEGER, DIMENSION(*),INTENT(IN)      :: a_Ids
@@ -1836,7 +1836,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumberofnodes_f(a_Id, a_nNodes)
-	  !MS$ATTRIBUTES C,reference::xfsetnumberofnodes_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberofnodes_f
     INTEGER,          INTENT(IN)      :: a_Id
     INTEGER,          INTENT(IN)      :: a_nNodes
 
@@ -1864,7 +1864,7 @@ INTEGER, INTENT(OUT)                :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwritexnodelocations_f(a_Id, a_nNodes, a_Locs, a_Compression)
-	  !MS$ATTRIBUTES C,reference::xfwritexnodelocations_f
+      !MS$ATTRIBUTES C,reference::xfwritexnodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes, a_Compression
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -1893,7 +1893,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwriteynodelocations_f(a_Id, a_nNodes, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfwriteynodelocations_f
+      !MS$ATTRIBUTES C,reference::xfwriteynodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -1922,7 +1922,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwriteznodelocations_f(a_Id, a_nNodes, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfwriteznodelocations_f
+      !MS$ATTRIBUTES C,reference::xfwriteznodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -1949,7 +1949,7 @@ INTEGER, INTENT(OUT)       :: a_nElems, error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumberofelements_f(a_Id, a_nElems)
-	  !MS$ATTRIBUTES C,reference::xfgetnumberofelements_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberofelements_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_nElems
 
@@ -1976,7 +1976,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfareallelemssametype_f(a_Id, a_Same)
-	  !MS$ATTRIBUTES C,reference::xfareallelemssametype_f
+      !MS$ATTRIBUTES C,reference::xfareallelemssametype_f
     INTEGER,       INTENT(IN)    :: a_Id
     LOGICAL*2,       INTENT(OUT)   :: a_Same
 
@@ -2003,7 +2003,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadelemtypessinglevalue_f(a_Id, a_Type)
-	  !MS$ATTRIBUTES C,reference::xfreadelemtypessinglevalue_f
+      !MS$ATTRIBUTES C,reference::xfreadelemtypessinglevalue_f
     INTEGER,       INTENT(IN)    :: a_Id
     INTEGER,       INTENT(OUT)   :: a_Type
 
@@ -2032,7 +2032,7 @@ INTEGER,                INTENT(OUT)   :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadelemtypes_f(a_Id, a_nElems, a_Type)
-	  !MS$ATTRIBUTES C,reference::xfreadelemtypes_f
+      !MS$ATTRIBUTES C,reference::xfreadelemtypes_f
     INTEGER,               INTENT(IN)    :: a_Id
     INTEGER,               INTENT(IN)    :: a_nElems
     INTEGER, DIMENSION(*), INTENT(OUT)   :: a_Type
@@ -2060,7 +2060,7 @@ INTEGER, INTENT(OUT)       :: a_nMaxNodes, error
 !
   INTERFACE
     INTEGER FUNCTION xfgetmaxnodesinelem_f(a_Id, a_nMaxNodes)
-	  !MS$ATTRIBUTES C,reference::xfgetmaxnodesinelem_f
+      !MS$ATTRIBUTES C,reference::xfgetmaxnodesinelem_f
     INTEGER,       INTENT(IN)    :: a_Id
     INTEGER,       INTENT(OUT)   :: a_nMaxNodes
 
@@ -2088,7 +2088,7 @@ INTEGER, INTENT(OUT)       :: a_Ids(a_nMaxNodes,*), error
 !
   INTERFACE
     INTEGER FUNCTION xfreadelemnodeids_f(a_Id, a_nElems, a_nMaxNodes, a_Ids)
-	  !MS$ATTRIBUTES C,reference::xfreadelemnodeids_f
+      !MS$ATTRIBUTES C,reference::xfreadelemnodeids_f
     INTEGER,       INTENT(IN)    :: a_Id
     INTEGER,       INTENT(IN)    :: a_nElems, a_nMaxNodes
     INTEGER,       INTENT(OUT)   :: a_Ids(a_nMaxNodes, *)
@@ -2115,7 +2115,7 @@ INTEGER, INTENT(OUT)       :: a_nNodes, error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumberofnodes_f(a_Id, a_nNodes)
-	  !MS$ATTRIBUTES C,reference::xfgetnumberofnodes_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberofnodes_f
     INTEGER,       INTENT(IN)    :: a_Id
     INTEGER,       INTENT(OUT)   :: a_nNodes
 
@@ -2143,7 +2143,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadxnodelocations_f(a_Id, a_nNodes, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadxnodelocations_f
+      !MS$ATTRIBUTES C,reference::xfreadxnodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -2173,7 +2173,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadynodelocations_f(a_Id, a_nNodes, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadynodelocations_f
+      !MS$ATTRIBUTES C,reference::xfreadynodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -2203,7 +2203,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfreadznodelocations_f(a_Id, a_nNodes, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadznodelocations_f
+      !MS$ATTRIBUTES C,reference::xfreadznodelocations_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nNodes
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Locs
@@ -2232,7 +2232,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreatemeshpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreatemeshpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreatemeshpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2260,7 +2260,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetmeshpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetmeshpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetmeshpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2288,7 +2288,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreatemeshnodepropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreatemeshnodepropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreatemeshnodepropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2316,7 +2316,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetmeshnodepropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetmeshnodepropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetmeshnodepropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2344,7 +2344,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreatemeshelempropgrp_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreatemeshelempropgrp_f
+      !MS$ATTRIBUTES C,reference::xfcreatemeshelempropgrp_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2372,7 +2372,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetmeshelementpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetmeshelementpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetmeshelementpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -2400,7 +2400,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetgridtype_f(a_Id, a_GridType)
-	  !MS$ATTRIBUTES C,reference::xfsetgridtype_f
+      !MS$ATTRIBUTES C,reference::xfsetgridtype_f
     INTEGER,              INTENT(IN)   :: a_Id
     INTEGER,              INTENT(IN)   :: a_GridType
 
@@ -2427,7 +2427,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumberofdimensions_f(a_Id, a_NumDimensions)
-	  !MS$ATTRIBUTES C,reference::xfsetnumberofdimensions_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberofdimensions_f
     INTEGER,              INTENT(IN)   :: a_Id
     INTEGER,              INTENT(IN)   :: a_NumDimensions
 
@@ -2454,7 +2454,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetextrusiontype_f(a_Id, a_ExtrudeType)
-	  !MS$ATTRIBUTES C,reference::xfsetextrusiontype_f
+      !MS$ATTRIBUTES C,reference::xfsetextrusiontype_f
     INTEGER,              INTENT(IN)   :: a_Id
     INTEGER,              INTENT(IN)   :: a_ExtrudeType
 
@@ -2482,7 +2482,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetorigin_f(a_Id, a_x, a_y, a_z)
-	  !MS$ATTRIBUTES C,reference::xfsetorigin_f
+      !MS$ATTRIBUTES C,reference::xfsetorigin_f
     INTEGER, INTENT(IN)    :: a_Id
     REAL*8,  INTENT(IN)    :: a_x
     REAL*8,  INTENT(IN)    :: a_y
@@ -2511,7 +2511,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetorientation_f(a_Id, a_Orientation)
-	  !MS$ATTRIBUTES C,reference::xfsetorientation_f
+      !MS$ATTRIBUTES C,reference::xfsetorientation_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_Orientation
 
@@ -2539,7 +2539,7 @@ INTEGER, INTENT(OUT)  :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetbearing_f(a_Id, a_Bearing)
-	  !MS$ATTRIBUTES C,reference::xfsetbearing_f
+      !MS$ATTRIBUTES C,reference::xfsetbearing_f
     INTEGER,  INTENT(IN)    :: a_Id
     REAL*8,   INTENT(IN)    :: a_Bearing
 
@@ -2567,7 +2567,7 @@ INTEGER, INTENT(OUT)  :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetdip_f(a_Id, a_Dip)
-	  !MS$ATTRIBUTES C,reference::xfsetdip_f
+      !MS$ATTRIBUTES C,reference::xfsetdip_f
     INTEGER, INTENT(IN)    :: a_Id
     REAL*8,  INTENT(IN)    :: a_Dip
 
@@ -2595,7 +2595,7 @@ INTEGER, INTENT(OUT)   :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetroll_f(a_Id, a_Roll)
-	  !MS$ATTRIBUTES C,reference::xfsetroll_f
+      !MS$ATTRIBUTES C,reference::xfsetroll_f
     INTEGER,  INTENT(IN)    :: a_Id
     REAL*8,   INTENT(IN)    :: a_Roll
 
@@ -2623,7 +2623,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetcomputationalorigin_f(a_Id, a_Origin)
-	  !MS$ATTRIBUTES C,reference::xfsetcomputationalorigin_f
+      !MS$ATTRIBUTES C,reference::xfsetcomputationalorigin_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_Origin
 
@@ -2650,7 +2650,7 @@ INTEGER                        error
 !
   INTERFACE
     INTEGER FUNCTION xfsetudirection_f(a_Id, a_Direction)
-	  !MS$ATTRIBUTES C,reference::xfsetudirection_f
+      !MS$ATTRIBUTES C,reference::xfsetudirection_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_Direction
 
@@ -2677,7 +2677,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumbercellsini_f(a_Id, a_NumI)
-	  !MS$ATTRIBUTES C,reference::xfsetnumbercellsini_f
+      !MS$ATTRIBUTES C,reference::xfsetnumbercellsini_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumI
 
@@ -2705,7 +2705,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumbercellsinj_f(a_Id, a_NumJ)
-	  !MS$ATTRIBUTES C,reference::xfsetnumbercellsinj_f
+      !MS$ATTRIBUTES C,reference::xfsetnumbercellsinj_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumJ
 
@@ -2732,7 +2732,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetnumbercellsink_f(a_Id, a_NumK)
-	  !MS$ATTRIBUTES C,reference::xfsetnumbercellsink_f
+      !MS$ATTRIBUTES C,reference::xfsetnumbercellsink_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumK
 
@@ -2761,7 +2761,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetgridcoordsi_f(a_Id, a_NumVals, a_iValues)
-	  !MS$ATTRIBUTES C,reference::xfsetgridcoordsi_f
+      !MS$ATTRIBUTES C,reference::xfsetgridcoordsi_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(IN)    :: a_iValues
@@ -2789,7 +2789,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetgridcoordsj_f(a_Id, a_NumVals, a_jValues)
-	  !MS$ATTRIBUTES C,reference::xfsetgridcoordsj_f
+      !MS$ATTRIBUTES C,reference::xfsetgridcoordsj_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(IN)    :: a_jValues
@@ -2817,7 +2817,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetgridcoordsk_f(a_Id, a_NumVals, a_kValues)
-	  !MS$ATTRIBUTES C,reference::xfsetgridcoordsk_f
+      !MS$ATTRIBUTES C,reference::xfsetgridcoordsk_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(IN)    :: a_kValues
@@ -2846,7 +2846,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfwriteextrudelayerdata_f(a_Id, a_NumLayers, a_NumVals, a_Values)
-	  !MS$ATTRIBUTES C,reference::xfwriteextrudelayerdata_f
+      !MS$ATTRIBUTES C,reference::xfwriteextrudelayerdata_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumLayers
     INTEGER,              INTENT(IN)    :: a_NumVals
@@ -2874,7 +2874,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridtype_f(a_Id, a_GridType)
-	  !MS$ATTRIBUTES C,reference::xfgetgridtype_f
+      !MS$ATTRIBUTES C,reference::xfgetgridtype_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_GridType
 
@@ -2900,7 +2900,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetextrusiontype_f(a_Id, a_ExtrudeType)
-	  !MS$ATTRIBUTES C,reference::xfgetextrusiontype_f
+      !MS$ATTRIBUTES C,reference::xfgetextrusiontype_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_ExtrudeType
 
@@ -2926,7 +2926,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumberofdimensions_f(a_Id, a_NumDimensions)
-	  !MS$ATTRIBUTES C,reference::xfgetnumberofdimensions_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberofdimensions_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_NumDimensions
 
@@ -2953,7 +2953,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xforigindefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xforigindefined_f
+      !MS$ATTRIBUTES C,reference::xforigindefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -2981,7 +2981,7 @@ INTEGER, INTENT(OUT)  :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetorigin_f(a_Id, a_x, a_y, a_z)
-	  !MS$ATTRIBUTES C,reference::xfgetorigin_f
+      !MS$ATTRIBUTES C,reference::xfgetorigin_f
     INTEGER, INTENT(IN)    :: a_Id
     REAL*8,  INTENT(OUT)   :: a_x, a_y, a_z
 
@@ -3009,7 +3009,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetorientation_f(a_Id, a_Orientation)
-	  !MS$ATTRIBUTES C,reference::xfgetorientation_f
+      !MS$ATTRIBUTES C,reference::xfgetorientation_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_Orientation
 
@@ -3036,7 +3036,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfbearingdefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xfbearingdefined_f
+      !MS$ATTRIBUTES C,reference::xfbearingdefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -3063,7 +3063,7 @@ INTEGER, INTENT(OUT)   :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetbearing_f(a_Id, a_bearing)
-	  !MS$ATTRIBUTES C,reference::xfgetbearing_f
+      !MS$ATTRIBUTES C,reference::xfgetbearing_f
     INTEGER,              INTENT(IN)    :: a_Id
     REAL*8,               INTENT(OUT)   :: a_bearing
 
@@ -3089,7 +3089,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfdipdefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xfdipdefined_f
+      !MS$ATTRIBUTES C,reference::xfdipdefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -3116,7 +3116,7 @@ INTEGER, INTENT(OUT)  :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetdip_f(a_Id, a_dip)
-	  !MS$ATTRIBUTES C,reference::xfgetdip_f
+      !MS$ATTRIBUTES C,reference::xfgetdip_f
     INTEGER,  INTENT(IN)    :: a_Id
     REAL*8,   INTENT(OUT)   :: a_dip
 
@@ -3143,7 +3143,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfrolldefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xfrolldefined_f
+      !MS$ATTRIBUTES C,reference::xfrolldefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -3169,7 +3169,7 @@ INTEGER, INTENT(OUT)  :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetroll_f(a_Id, a_Roll)
-	  !MS$ATTRIBUTES C,reference::xfgetroll_f
+      !MS$ATTRIBUTES C,reference::xfgetroll_f
     INTEGER, INTENT(IN)    :: a_Id
     REAL*8,  INTENT(OUT)   :: a_Roll
 
@@ -3195,7 +3195,7 @@ INTEGER                       error
 !
   INTERFACE
     INTEGER FUNCTION xfcomputationalorigindefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xfcomputationalorigindefined_f
+      !MS$ATTRIBUTES C,reference::xfcomputationalorigindefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -3220,7 +3220,7 @@ INTEGER                       error
 !
   INTERFACE
     INTEGER FUNCTION xfgetcomputationalorigin_f(a_Id, a_Origin)
-	  !MS$ATTRIBUTES C,reference::xfgetcomputationalorigin_f
+      !MS$ATTRIBUTES C,reference::xfgetcomputationalorigin_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_Origin
 
@@ -3246,7 +3246,7 @@ INTEGER                       error
 !
   INTERFACE
     INTEGER FUNCTION xfgetudirectiondefined_f(a_Id, a_bDefined)
-	  !MS$ATTRIBUTES C,reference::xfgetudirectiondefined_f
+      !MS$ATTRIBUTES C,reference::xfgetudirectiondefined_f
     INTEGER,              INTENT(IN)    :: a_Id
     LOGICAL*2,              INTENT(OUT)   :: a_bDefined
 
@@ -3271,7 +3271,7 @@ INTEGER                       error
 !
   INTERFACE
     INTEGER FUNCTION xfgetudirection_f(a_Id, a_Direction)
-	  !MS$ATTRIBUTES C,reference::xfgetudirection_f
+      !MS$ATTRIBUTES C,reference::xfgetudirection_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_Direction
 
@@ -3298,7 +3298,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumbercellsini_f(a_Id, a_NumI)
-	  !MS$ATTRIBUTES C,reference::xfgetnumbercellsini_f
+      !MS$ATTRIBUTES C,reference::xfgetnumbercellsini_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_NumI
 
@@ -3325,7 +3325,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumbercellsinj_f(a_Id, a_NumJ)
-	  !MS$ATTRIBUTES C,reference::xfgetnumbercellsinj_f
+      !MS$ATTRIBUTES C,reference::xfgetnumbercellsinj_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_NumJ
 
@@ -3352,7 +3352,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumbercellsink_f(a_Id, a_NumK)
-	  !MS$ATTRIBUTES C,reference::xfgetnumbercellsink_f
+      !MS$ATTRIBUTES C,reference::xfgetnumbercellsink_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_NumK
 
@@ -3380,7 +3380,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridcoordsi_f(a_Id, a_NumVals, a_iValues)
-	  !MS$ATTRIBUTES C,reference::xfgetgridcoordsi_f
+      !MS$ATTRIBUTES C,reference::xfgetgridcoordsi_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_iValues
@@ -3409,7 +3409,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridcoordsj_f(a_Id, a_NumVals, a_jValues)
-	  !MS$ATTRIBUTES C,reference::xfgetgridcoordsj_f
+      !MS$ATTRIBUTES C,reference::xfgetgridcoordsj_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_jValues
@@ -3438,7 +3438,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridcoordsk_f(a_Id, a_NumVals, a_kValues)
-	  !MS$ATTRIBUTES C,reference::xfgetgridcoordsk_f
+      !MS$ATTRIBUTES C,reference::xfgetgridcoordsk_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_kValues
@@ -3465,7 +3465,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetextrudenumlayers_f(a_Id, a_NumLayers)
-	  !MS$ATTRIBUTES C,reference::xfgetextrudenumlayers_f
+      !MS$ATTRIBUTES C,reference::xfgetextrudenumlayers_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_NumLayers
 
@@ -3493,7 +3493,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetextrudevalues_f(a_Id, a_NumVals, a_Values)
-	  !MS$ATTRIBUTES C,reference::xfgetextrudevalues_f
+      !MS$ATTRIBUTES C,reference::xfgetextrudevalues_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_NumVals
     REAL*8, DIMENSION(*), INTENT(OUT)   :: a_Values
@@ -3521,7 +3521,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreategridpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreategridpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreategridpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3548,7 +3548,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetgridpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetgridpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3575,7 +3575,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreategridcellpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreategridcellpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreategridcellpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3602,7 +3602,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridcellpropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetgridcellpropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetgridcellpropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3628,7 +3628,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfcreategridnodepropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfcreategridnodepropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfcreategridnodepropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3655,7 +3655,7 @@ INTEGER, INTENT(OUT)        :: error
 !
   INTERFACE
     INTEGER FUNCTION xfgetgridnodepropertygroup_f(a_Id, a_PropId)
-	  !MS$ATTRIBUTES C,reference::xfgetgridnodepropertygroup_f
+      !MS$ATTRIBUTES C,reference::xfgetgridnodepropertygroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: a_PropId
 
@@ -3691,7 +3691,7 @@ SUBROUTINE XF_CREATE_GEOMETRIC_PATH_GROUP(a_ParentId, a_Path, a_Guid,        &
     INTEGER FUNCTION xfcreategeometricpathgroup_f(a_ParentId, a_Path, pathlen, &
                                                   a_Guid, guidlen, a_Compression, &
                                                   a_PathGroup, a_NullVal)
-	  !MS$ATTRIBUTES C,reference::xfcreategeometricpathgroup_f
+      !MS$ATTRIBUTES C,reference::xfcreategeometricpathgroup_f
     !DEC$ATTRIBUTES reference :: a_Path
     !DEC$ATTRIBUTES reference :: a_Guid
     INTEGER,              INTENT(IN)    :: a_ParentId, a_Compression
@@ -3734,10 +3734,10 @@ SUBROUTINE XF_WRITE_PARTICLE_TIMESTEP(a_Id, a_nDim, a_Time, a_nPaths, a_Locs, &
 !
   INTERFACE
     INTEGER FUNCTION xfwriteparticletimestep_f(a_Id, a_nDim, a_Time, a_nPaths, a_Locs)
-	  !MS$ATTRIBUTES C,reference::xfwriteparticletimestep_f
+      !MS$ATTRIBUTES C,reference::xfwriteparticletimestep_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: a_nDim, a_nPaths
-	REAL*8,               INTENT(IN)    :: a_Time
+    REAL*8,               INTENT(IN)    :: a_Time
     REAL*8, DIMENSION(*), INTENT(IN)    :: a_Locs
 
 
@@ -3764,7 +3764,7 @@ SUBROUTINE XF_GET_PATH_NULL_VAL(GroupId, NullVal, error)
 !
   INTERFACE
     INTEGER FUNCTION xfgetpathnullval_f(GroupId, NullVal)
-	  !MS$ATTRIBUTES C,reference::xfgetpathnullval_f
+      !MS$ATTRIBUTES C,reference::xfgetpathnullval_f
     INTEGER,              INTENT(IN)    :: GroupId
     REAL*8,               INTENT(OUT)   :: NullVal
 
@@ -3793,7 +3793,7 @@ SUBROUTINE XF_GET_NUMBER_OF_PATHS(GroupId, NumPaths, error)
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumberofpaths_f(GroupId, NumPaths)
-	  !MS$ATTRIBUTES C,reference::xfgetnumberofpaths_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberofpaths_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(OUT)   :: NumPaths
 
@@ -3822,7 +3822,7 @@ SUBROUTINE XF_GET_NUMBER_OF_TIMES(GroupId, NumTimes, error)
 !
   INTERFACE
     INTEGER FUNCTION xfgetnumberoftimes_f(GroupId, NumTimes)
-	  !MS$ATTRIBUTES C,reference::xfgetnumberoftimes_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberoftimes_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(OUT)   :: NumTimes
 
@@ -3851,7 +3851,7 @@ SUBROUTINE XF_GET_PATH_DIMENSIONALITY(GroupId, NumDims, error)
 !
   INTERFACE
     INTEGER FUNCTION xfgetpathdimensionality_f(GroupId, NumDims)
-	  !MS$ATTRIBUTES C,reference::xfgetpathdimensionality_f
+      !MS$ATTRIBUTES C,reference::xfgetpathdimensionality_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(OUT)   :: NumDims
 
@@ -3882,7 +3882,7 @@ SUBROUTINE XF_GET_PATH_TIMES_ARRAY(GroupId, NumTimes, Times, error)
 !
   INTERFACE
     INTEGER FUNCTION xfgetpathtimesarray_f(GroupId, NumTimes, Times)
-	  !MS$ATTRIBUTES C,reference::xfgetpathtimesarray_f
+      !MS$ATTRIBUTES C,reference::xfgetpathtimesarray_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(IN)    :: NumTimes
     REAL*8, DIMENSION(*), INTENT(INOUT) :: Times
@@ -3915,7 +3915,7 @@ SUBROUTINE XF_READ_PATH_LOCATIONS_AT_TIME(GroupId, TimeIndex, FirstPathIndex, &
   INTERFACE
     INTEGER FUNCTION xfreadpathlocationsattime_f(GroupId, TimeIndex, FirstPathIndex, &
                                                  NumIndicies, Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadpathlocationsattime_f
+      !MS$ATTRIBUTES C,reference::xfreadpathlocationsattime_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(IN)    :: TimeIndex, FirstPathIndex, NumIndicies
     REAL*8, DIMENSION(*), INTENT(INOUT) :: Locs
@@ -3949,7 +3949,7 @@ SUBROUTINE XF_READ_PATH_LOCS_FOR_PART(GroupId, PathIndex,        &
     INTEGER FUNCTION xfreadpathlocsforparticle_f(GroupId, PathIndex, &
                                                       FirstTimeIndex, &
                                                       NumTimes, Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadpathlocsforparticle_f
+      !MS$ATTRIBUTES C,reference::xfreadpathlocsforparticle_f
     INTEGER,              INTENT(IN)    :: GroupId
     INTEGER,              INTENT(IN)    :: PathIndex, FirstTimeIndex, NumTimes
     REAL*8, DIMENSION(*), INTENT(INOUT) :: Locs
@@ -3987,7 +3987,7 @@ SUBROUTINE XF_READ_PATH_LOCS_FOR_PARTS(GroupId, NumPaths,  &
   INTERFACE
     INTEGER FUNCTION xfreadpathlocsforparticles_f(GroupId, NumPaths, PathIndices, &
                                                        FirstTimeIndex, NumTimes, Locs)
-	  !MS$ATTRIBUTES C,reference::xfreadpathlocsforparticles_f
+      !MS$ATTRIBUTES C,reference::xfreadpathlocsforparticles_f
     INTEGER,               INTENT(IN)    :: GroupId
     INTEGER,               INTENT(IN)    :: NumPaths, FirstTimeIndex, NumTimes
     INTEGER, DIMENSION(*), INTENT(IN)    :: PathIndices
@@ -4032,7 +4032,7 @@ INTEGER                         :: filelen, multilen, pathlen, spatlen
                                               a_SpatialDataObjectGuid, spatlen, &
                                               a_OverwriteOptions, a_FileId, a_GroupId)
 
-	  !MS$ATTRIBUTES C,reference::xfsetuptowritedatasets_f
+      !MS$ATTRIBUTES C,reference::xfsetuptowritedatasets_f
     !DEC$ATTRIBUTES reference :: a_Filename
     !DEC$ATTRIBUTES reference :: a_MultiDatasetsGroupPath
     !DEC$ATTRIBUTES reference :: a_PathInMultiDatasetsGroup
@@ -4083,7 +4083,7 @@ INTEGER                          pathlen, guidlen
   INTERFACE
     INTEGER FUNCTION xfcreatemultidatasetsgroup_f(a_Id, a_Path, pathlen, a_Guid, &
                                                   guidlen, a_MultiId)
-	  !MS$ATTRIBUTES C,reference::xfcreatemultidatasetsgroup_f
+      !MS$ATTRIBUTES C,reference::xfcreatemultidatasetsgroup_f
     !DEC$ATTRIBUTES reference :: a_Path
     !DEC$ATTRIBUTES reference :: a_Guid
     INTEGER,              INTENT(IN)    :: a_Id
@@ -4123,7 +4123,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetgrppathssizeformltdsets_f(a_Id, Num, Maxsize)
 
-	  !MS$ATTRIBUTES C,reference::xfgetgrppathssizeformltdsets_f
+      !MS$ATTRIBUTES C,reference::xfgetgrppathssizeformltdsets_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(IN)    :: Num, Maxsize
     
@@ -4161,7 +4161,7 @@ INTEGER                          pathlen
     INTEGER FUNCTION xfgetallgrppathsformltdsets_f(a_Id, a_Num, a_Maxsize, &
                                                           a_Paths, pathlen)
 
-	  !MS$ATTRIBUTES C,reference::xfgetallgrppathsformltdsets_f
+      !MS$ATTRIBUTES C,reference::xfgetallgrppathsformltdsets_f
     !DEC$ATTRIBUTES reference :: a_Paths
     INTEGER,              INTENT(IN)    ::  a_Id
     INTEGER,              INTENT(IN)    ::  a_Num, a_Maxsize
@@ -4199,7 +4199,7 @@ INTEGER                       a_guidlen
   INTERFACE
     INTEGER FUNCTION xfgetdatasetssdoguid_f(a_MultiDatasetsGroup, a_GUID, a_guidlen)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetssdoguid_f
+      !MS$ATTRIBUTES C,reference::xfgetdatasetssdoguid_f
     !DEC$ATTRIBUTES reference :: a_GUID
     INTEGER,              INTENT(IN)    :: a_MultiDatasetsGroup
     CHARACTER(LEN=*)                    :: a_GUID
@@ -4234,7 +4234,7 @@ INTEGER, INTENT(OUT)        :: error
   INTERFACE
     INTEGER FUNCTION xfopenmultidatasetsgroup_f(a_Id, DatasetsGroupId)
 
-	  !MS$ATTRIBUTES C,reference::xfopenmultidatasetsgroup_f
+      !MS$ATTRIBUTES C,reference::xfopenmultidatasetsgroup_f
     INTEGER,              INTENT(IN)    :: a_Id
     INTEGER,              INTENT(OUT)   :: DatasetsGroupId
     
@@ -4265,17 +4265,17 @@ INTEGER                         namelen1, namelen2, namelen3
 
   INTERFACE
     INTEGER FUNCTION xfcreatescalardataset_f(a_DatasetsGroupId, a_Path, namelen1, a_Units,&
-	                                         namelen2, a_TimeUnits, namelen3, a_Compression,&
-											 a_DatasetId)
-	  !MS$ATTRIBUTES C,reference::xfcreatescalardataset_f
-	  !DEC$ATTRIBUTES reference :: a_Path
-	  !DEC$ATTRIBUTES reference :: a_Units
-	  !DEC$ATTRIBUTES reference :: a_TimeUnits
-	  INTEGER, INTENT(IN)          :: a_DatasetsGroupId
+                                             namelen2, a_TimeUnits, namelen3, a_Compression,&
+                                             a_DatasetId)
+      !MS$ATTRIBUTES C,reference::xfcreatescalardataset_f
+      !DEC$ATTRIBUTES reference :: a_Path
+      !DEC$ATTRIBUTES reference :: a_Units
+      !DEC$ATTRIBUTES reference :: a_TimeUnits
+      INTEGER, INTENT(IN)          :: a_DatasetsGroupId
      CHARACTER(LEN=*), INTENT(IN) :: a_Path, a_Units, a_TimeUnits
-	  INTEGER, INTENT(IN)          :: a_Compression
-	  INTEGER, INTENT(OUT)         :: a_DatasetId
-	  INTEGER, INTENT(IN)          :: namelen1, namelen2, namelen3 
+      INTEGER, INTENT(IN)          :: a_Compression
+      INTEGER, INTENT(OUT)         :: a_DatasetId
+      INTEGER, INTENT(IN)          :: namelen1, namelen2, namelen3 
 
     END FUNCTION xfcreatescalardataset_f
   END INTERFACE
@@ -4285,8 +4285,8 @@ INTEGER                         namelen1, namelen2, namelen3
   namelen3 = LEN_TRIM(a_TimeUnits)
 
   error = xfcreatescalardataset_f(a_DatasetsGroupId, a_Path, namelen1, a_Units,&
-	                              namelen2, a_TimeUnits, namelen3, a_Compression,&
-								  a_DatasetId)
+                                  namelen2, a_TimeUnits, namelen3, a_Compression,&
+                                  a_DatasetId)
   return
 
 END SUBROUTINE
@@ -4309,17 +4309,17 @@ INTEGER                      namelen1, namelen2, namelen3
 
   INTERFACE
     INTEGER FUNCTION xfcreatevectordataset_f(a_DatasetsGroupId, a_Path, namelen1, a_Units,&
-	                                         namelen2, a_TimeUnits, namelen3, a_Compression,&
-											 a_DatasetId)
-	  !MS$ATTRIBUTES C,reference::xfcreatevectordataset_f
-	  !DEC$ATTRIBUTES reference :: a_Path
-	  !DEC$ATTRIBUTES reference :: a_Units
-	  !DEC$ATTRIBUTES reference :: a_TimeUnits
-	  INTEGER, INTENT(IN)          :: a_DatasetsGroupId
+                                             namelen2, a_TimeUnits, namelen3, a_Compression,&
+                                             a_DatasetId)
+      !MS$ATTRIBUTES C,reference::xfcreatevectordataset_f
+      !DEC$ATTRIBUTES reference :: a_Path
+      !DEC$ATTRIBUTES reference :: a_Units
+      !DEC$ATTRIBUTES reference :: a_TimeUnits
+      INTEGER, INTENT(IN)          :: a_DatasetsGroupId
      CHARACTER(LEN=*), INTENT(IN) :: a_Path, a_Units, a_TimeUnits
-	  INTEGER, INTENT(IN)          :: a_Compression
-	  INTEGER, INTENT(OUT)         :: a_DatasetId
-	  INTEGER, INTENT(IN)          :: namelen1, namelen2, namelen3 
+      INTEGER, INTENT(IN)          :: a_Compression
+      INTEGER, INTENT(OUT)         :: a_DatasetId
+      INTEGER, INTENT(IN)          :: namelen1, namelen2, namelen3 
 
     END FUNCTION xfcreatevectordataset_f
   END INTERFACE
@@ -4329,8 +4329,8 @@ INTEGER                      namelen1, namelen2, namelen3
   namelen3 = LEN_TRIM(a_TimeUnits)
 
   error = xfcreatevectordataset_f(a_DatasetsGroupId, a_Path, namelen1, a_Units,&
-	                              namelen2, a_TimeUnits, namelen3, a_Compression,&
-								                a_DatasetId)
+                                  namelen2, a_TimeUnits, namelen3, a_Compression,&
+                                                a_DatasetId)
 return
 
 
@@ -4361,15 +4361,15 @@ SUBROUTINE XF_CREATE_SCALAR_DSET_EXTNDBL(a_DatasetsGroupId, a_Path, &
                                                       a_Units, unitlen, a_TimeUnits, &
                                                       timelen, a_FillVal, a_Compression, & 
                                                       a_DatasetId)
-	  !MS$ATTRIBUTES C,reference::xfcreatescalardsetextndbl_f
-	  !DEC$ATTRIBUTES reference :: a_Path
-	  !DEC$ATTRIBUTES reference :: a_Units
-	  !DEC$ATTRIBUTES reference :: a_TimeUnits
-	  INTEGER, INTENT(IN)           :: a_DatasetsGroupId
+      !MS$ATTRIBUTES C,reference::xfcreatescalardsetextndbl_f
+      !DEC$ATTRIBUTES reference :: a_Path
+      !DEC$ATTRIBUTES reference :: a_Units
+      !DEC$ATTRIBUTES reference :: a_TimeUnits
+      INTEGER, INTENT(IN)           :: a_DatasetsGroupId
     CHARACTER(LEN=*), INTENT(IN)  :: a_Path, a_Units, a_TimeUnits
-	  INTEGER, INTENT(IN)           :: a_Compression
-	  INTEGER, INTENT(OUT)          :: a_DatasetId
-	  INTEGER, INTENT(IN)           :: pathlen, unitlen, timelen
+      INTEGER, INTENT(IN)           :: a_Compression
+      INTEGER, INTENT(OUT)          :: a_DatasetId
+      INTEGER, INTENT(IN)           :: pathlen, unitlen, timelen
     REAL*4,    INTENT(IN)           :: a_FillVal
 
     END FUNCTION xfcreatescalardsetextndbl_f
@@ -4401,8 +4401,8 @@ SUBROUTINE XF_EXTEND_SCALAR_DATASET (a_Id, a_NewSize, error)
 
   INTERFACE
     INTEGER FUNCTION xfextendscalardataset_f(a_Id, a_NewSize)
-	  !MS$ATTRIBUTES C,reference::xfextendscalardataset_f
-	  INTEGER, INTENT(IN)           :: a_Id, a_NewSize
+      !MS$ATTRIBUTES C,reference::xfextendscalardataset_f
+      INTEGER, INTENT(IN)           :: a_Id, a_NewSize
 
     END FUNCTION xfextendscalardataset_f
   END INTERFACE
@@ -4429,11 +4429,11 @@ INTEGER,              INTENT(OUT)  :: error
 
   INTERFACE
     INTEGER FUNCTION xfwritescalartimestep_f(a_Id, a_Time, a_NumValues, a_Values)
-	  !MS$ATTRIBUTES C,reference::xfwritescalartimestep_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfwritescalartimestep_f
+      INTEGER,               INTENT(IN)  :: a_Id
       REAL*8,                INTENT(IN)  :: a_Time
       INTEGER,               INTENT(IN)  :: a_NumValues
-	  REAL*4,    DIMENSION(*), INTENT(IN)  :: a_Values
+      REAL*4,    DIMENSION(*), INTENT(IN)  :: a_Values
 
     END FUNCTION xfwritescalartimestep_f
   END INTERFACE
@@ -4462,8 +4462,8 @@ INTEGER,              INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfsetdatasettimestepminmax_f(a_Id, a_TimeId, &
                                                   a_Minvalue, a_Maxvalue)
-	  !MS$ATTRIBUTES C,reference::xfsetdatasettimestepminmax_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfsetdatasettimestepminmax_f
+      INTEGER,               INTENT(IN)  :: a_Id
       INTEGER,               INTENT(IN)  :: a_TimeId
       REAL*4,               INTENT(IN)   :: a_Minvalue, a_Maxvalue
 
@@ -4495,10 +4495,10 @@ INTEGER,                  INTENT(OUT)   ::  error
   INTERFACE
     INTEGER FUNCTION xfwritescalartimestepminmax_f(a_Id, a_Time, a_NumValues, &
                                                    a_Values, a_Minimum, a_Maximum)
-	  !MS$ATTRIBUTES C,reference::xfwritescalartimestepminmax_f
-	  INTEGER,               INTENT(IN)   :: a_Id, a_NumValues
+      !MS$ATTRIBUTES C,reference::xfwritescalartimestepminmax_f
+      INTEGER,               INTENT(IN)   :: a_Id, a_NumValues
       REAL*8,                INTENT(IN)   :: a_Time
-	  REAL*4,    DIMENSION(*), INTENT(IN)   :: a_Values
+      REAL*4,    DIMENSION(*), INTENT(IN)   :: a_Values
       REAL*4,                  INTENT(IN)   :: a_Minimum, a_Maximum
 
 
@@ -4532,8 +4532,8 @@ INTEGER,              INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfinitializescalartimestep_f(a_Id, a_Time, a_NumValues, &
                        a_Minimum, a_Maximum, a_timestepId)
-	  !MS$ATTRIBUTES C,reference::xfinitializescalartimestep_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfinitializescalartimestep_f
+      INTEGER,               INTENT(IN)  :: a_Id
       REAL*8,                INTENT(IN)  :: a_Time
       INTEGER,               INTENT(IN)  :: a_NumValues
       REAL*4,               INTENT(IN)   :: a_Minimum, a_Maximum
@@ -4568,8 +4568,8 @@ INTEGER,              INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfwritescalartimestepportion_f(a_Id, a_timeStepId, &
                     a_NumValuesToWrite, a_startIndex, a_Values)
-	  !MS$ATTRIBUTES C,reference::xfwritescalartimestepportion_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfwritescalartimestepportion_f
+      INTEGER,               INTENT(IN)  :: a_Id
       INTEGER,              INTENT(IN)   :: a_timeStepId
       INTEGER,              INTENT(IN)   :: a_NumValuesToWrite
       INTEGER,              INTENT(IN)   :: a_startIndex
@@ -4604,8 +4604,8 @@ INTEGER,        INTENT(OUT)                                         :: error
   INTERFACE
     INTEGER FUNCTION xfwritevectortimestep_f(a_Id, a_Time, a_NumValues, a_NumComponents, &
                                              a_Values)
-	  !MS$ATTRIBUTES C,reference::xfwritevectortimestep_f
-	  INTEGER, INTENT(IN)   :: a_Id, a_NumValues, a_NumComponents
+      !MS$ATTRIBUTES C,reference::xfwritevectortimestep_f
+      INTEGER, INTENT(IN)   :: a_Id, a_NumValues, a_NumComponents
       REAL*8,  INTENT(IN)   :: a_Time
       REAL*4,    INTENT(IN), DIMENSION(a_NumComponents, a_NumValues) :: a_Values
 
@@ -4639,8 +4639,8 @@ INTEGER,                                        INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfwritevectortimestepminmax_f(a_Id, a_Time, a_NumValues, a_NumComponents, &
                                                    a_Values, a_Minimum, a_Maximum)
-	  !MS$ATTRIBUTES C,reference::xfwritevectortimestepminmax_f
-	  INTEGER,              INTENT(IN)  :: a_Id, a_NumValues, a_NumComponents
+      !MS$ATTRIBUTES C,reference::xfwritevectortimestepminmax_f
+      INTEGER,              INTENT(IN)  :: a_Id, a_NumValues, a_NumComponents
       REAL*8,               INTENT(IN)  :: a_Time
       REAL*4, DIMENSION(a_NumComponents, a_NumValues),  INTENT(IN)  :: a_Values
       REAL*4,                 INTENT(IN)  :: a_Minimum, a_Maximum
@@ -4676,8 +4676,8 @@ INTEGER,                                        INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfinitializevectortimestep_f(a_Id, a_Time, a_NumValues, a_NumComponents, &
                                                   a_Minimum, a_Maximum, timeId)
-	  !MS$ATTRIBUTES C,reference::xfinitializevectortimestep_f
-	  INTEGER,              INTENT(IN)  :: a_Id, a_NumValues, a_NumComponents
+      !MS$ATTRIBUTES C,reference::xfinitializevectortimestep_f
+      INTEGER,              INTENT(IN)  :: a_Id, a_NumValues, a_NumComponents
       REAL*8,               INTENT(IN)  :: a_Time
       REAL*4,               INTENT(IN)  :: a_Minimum, a_Maximum
       INTEGER,              INTENT(OUT) :: timeId
@@ -4712,7 +4712,7 @@ INTEGER,                                        INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfwritevectortimestepportion_f(a_Id, a_TimeId, a_NumValuesToWrite, &
               a_NumComponentsToWrite, a_startIndex, a_startComponent, a_Values)
-	  !MS$ATTRIBUTES C,reference::xfwritevectortimestepportion_f
+      !MS$ATTRIBUTES C,reference::xfwritevectortimestepportion_f
         INTEGER,                                        INTENT(IN)  :: a_Id
         INTEGER,                                         INTENT(IN)  :: a_TimeId
         INTEGER,                                        INTENT(IN)  :: a_NumValuesToWrite, a_NumComponentsToWrite
@@ -4748,8 +4748,8 @@ INTEGER,               INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfwriteactivitytimestep_f(a_Id, a_NumActive, a_Active)
 
-	  !MS$ATTRIBUTES C,reference::xfwriteactivitytimestep_f
-	  INTEGER,               INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfwriteactivitytimestep_f
+      INTEGER,               INTENT(IN)   :: a_Id
     INTEGER,               INTENT(IN)   :: a_NumActive
     !INTEGER, DIMENSION(*), INTENT(IN)   :: a_Active
     INTEGER*1, dimension(a_numactive), INTENT(IN)   :: a_Active
@@ -4781,8 +4781,8 @@ INTEGER,              INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfinitializeactivitytimestep_f(a_Id, a_NumActive, &
                        a_timestepId)
-	  !MS$ATTRIBUTES C,reference::xfinitializeactivitytimestep_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfinitializeactivitytimestep_f
+      INTEGER,               INTENT(IN)  :: a_Id
       INTEGER,               INTENT(IN)  :: a_NumActive
       INTEGER,              INTENT(OUT)  :: a_timestepId
 
@@ -4813,8 +4813,8 @@ INTEGER,              INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfwriteactivitytimestepportion_f(a_Id, a_timeStepId, &
                     a_NumValuesToWrite, a_startIndex, a_ActiveValues)
-	  !MS$ATTRIBUTES C,reference::xfwriteactivitytimestepportion_f
-	  INTEGER,               INTENT(IN)  :: a_Id
+      !MS$ATTRIBUTES C,reference::xfwriteactivitytimestepportion_f
+      INTEGER,               INTENT(IN)  :: a_Id
       INTEGER,              INTENT(IN)   :: a_timeStepId
       INTEGER,              INTENT(IN)   :: a_NumValuesToWrite
       INTEGER,              INTENT(IN)   :: a_startIndex
@@ -4843,8 +4843,8 @@ INTEGER,        INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetscalardatasetgroupid_f(a_Id)
 
-	  !MS$ATTRIBUTES C,reference::xfgetscalardatasetgroupid_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetscalardatasetgroupid_f
+      INTEGER,            INTENT(IN)   :: a_Id
 
 
     END FUNCTION xfgetscalardatasetgroupid_f
@@ -4870,8 +4870,8 @@ INTEGER,        INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetvectordatasetgroupid_f(a_Id)
 
-	  !MS$ATTRIBUTES C,reference::xfgetvectordatasetgroupid_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetvectordatasetgroupid_f
+      INTEGER,            INTENT(IN)   :: a_Id
 
 
     END FUNCTION xfgetvectordatasetgroupid_f
@@ -4898,8 +4898,8 @@ INTEGER,  INTENT(OUT)  :: error
 
   INTERFACE
     INTEGER FUNCTION xfwritereftime_f(a_Id, a_Reftime)
-	  !MS$ATTRIBUTES C,reference::xfwritereftime_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfwritereftime_f
+      INTEGER,            INTENT(IN)   :: a_Id
       REAL*8, INTENT(IN)   :: a_Reftime
 
 
@@ -4927,8 +4927,8 @@ INTEGER,        INTENT(OUT)   :: error
 
   INTERFACE
     INTEGER FUNCTION xfusereftime_f(a_Id, a_bUseReftime)
-	  !MS$ATTRIBUTES C,reference::xfusereftime_f
-	  INTEGER,      INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfusereftime_f
+      INTEGER,      INTENT(IN)   :: a_Id
     LOGICAL*2,      INTENT(OUT)  :: a_bUseReftime
 
 
@@ -4955,8 +4955,8 @@ INTEGER,        INTENT(OUT)  :: error
 
   INTERFACE
     INTEGER FUNCTION xfreadreftime_f(a_Id, a_dReftime)
-	  !MS$ATTRIBUTES C,reference::xfreadreftime_f
-	  INTEGER,              INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadreftime_f
+      INTEGER,              INTENT(IN)   :: a_Id
       REAL*8,               INTENT(OUT)  :: a_dReftime
 
 
@@ -4985,8 +4985,8 @@ INTEGER,        INTENT(OUT) :: error
 
   INTERFACE
     INTEGER FUNCTION xfgetscalardatasetsinfo_f(a_Id, a_Number, a_MaxPathLength)
-	  !MS$ATTRIBUTES C,reference::xfgetscalardatasetsinfo_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetscalardatasetsinfo_f
+      INTEGER,            INTENT(IN)     :: a_Id
     INTEGER                            :: a_Number
     INTEGER,            INTENT(OUT)    :: a_MaxPathLength
 
@@ -5019,9 +5019,9 @@ INTEGER                          pathlen
   INTERFACE
     INTEGER FUNCTION xfgetscalardatasetpaths_f(a_Id, a_Number, a_MaxPathLength, &
                                                a_Paths, pathlen)
-	!MS$ATTRIBUTES C,reference::xfgetscalardatasetpaths_f
+    !MS$ATTRIBUTES C,reference::xfgetscalardatasetpaths_f
     !DEC$ATTRIBUTES reference :: a_Paths
-	INTEGER,            INTENT(IN)       :: a_Id
+    INTEGER,            INTENT(IN)       :: a_Id
     INTEGER,            INTENT(IN)       :: a_Number, a_MaxPathLength
     CHARACTER,          DIMENSION(*)     ::  a_Paths
     INTEGER,            INTENT(IN)       :: pathlen
@@ -5055,8 +5055,8 @@ INTEGER,        INTENT(OUT)   :: error
   INTERFACE
     INTEGER FUNCTION xfgetvectordatasetsinfo_f(a_Id, a_Number, a_MaxPathLength)
 
-	  !MS$ATTRIBUTES C,reference::xfgetvectordatasetsinfo_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetvectordatasetsinfo_f
+      INTEGER,            INTENT(IN)     :: a_Id
     INTEGER                            :: a_Number
     INTEGER,            INTENT(OUT)    :: a_MaxPathLength
 
@@ -5088,9 +5088,9 @@ INTEGER                            pathlen
     INTEGER FUNCTION xfgetvectordatasetpaths_f(a_Id, a_Number, a_MaxPathLength, &
                                                a_Paths, pathlen)
 
-	!MS$ATTRIBUTES C,reference::xfgetvectordatasetpaths_f
+    !MS$ATTRIBUTES C,reference::xfgetvectordatasetpaths_f
     !DEC$ATTRIBUTES reference :: a_Paths
-	INTEGER,            INTENT(IN)     :: a_Id
+    INTEGER,            INTENT(IN)     :: a_Id
     INTEGER                            :: a_Number
     INTEGER,            INTENT(IN)     :: a_MaxPathLength
     CHARACTER,          DIMENSION(*)   :: a_Paths
@@ -5122,8 +5122,8 @@ INTEGER,              INTENT(OUT)   :: error
   INTERFACE
     INTEGER FUNCTION xfreaddatasetreftime_f(a_Id, a_dReftime)
 
-	  !MS$ATTRIBUTES C,reference::xfreaddatasetreftime_f
-	  INTEGER,              INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreaddatasetreftime_f
+      INTEGER,              INTENT(IN)   :: a_Id
       REAL*8,               INTENT(OUT)  :: a_dReftime
 
 
@@ -5148,7 +5148,7 @@ INTEGER, INTENT(OUT)       :: error
 !
   INTERFACE
     INTEGER FUNCTION xfsetdatasetnumtimes_f (a_Id, a_NumTimes)
-	  !MS$ATTRIBUTES C,reference::xfsetdatasetnumtimes_f
+      !MS$ATTRIBUTES C,reference::xfsetdatasetnumtimes_f
     INTEGER,          INTENT(IN)      :: a_Id
     INTEGER,          INTENT(IN)      :: a_NumTimes
 
@@ -5178,7 +5178,7 @@ INTEGER, INTENT(OUT)      ::   error
   INTERFACE
     INTEGER FUNCTION xfchangescalarvaluestimestepfloat_f(FileId, TimestepIndex, NumValsToEdit, &
                                                   Indices, NewValues)
-	  !MS$ATTRIBUTES C,reference::xfchangescalarvaluestimestepfloat_f
+      !MS$ATTRIBUTES C,reference::xfchangescalarvaluestimestepfloat_f
     INTEGER, INTENT(OUT) ::   FileId
     INTEGER, INTENT(IN) :: TimestepIndex
     INTEGER, INTENT(IN)       ::   NumValsToEdit
@@ -5209,8 +5209,8 @@ INTEGER,  INTENT(OUT)  :: a_NumTimes, error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetnumtimes_f(a_Id, a_Numtimes)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetnumtimes_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetnumtimes_f
+      INTEGER,            INTENT(IN)     :: a_Id
       INTEGER,            INTENT(OUT)    :: a_NumTimes
 
 
@@ -5237,8 +5237,8 @@ INTEGER,        INTENT(OUT)   :: error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetnumvals_f(a_Id, a_Numvals)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetnumvals_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetnumvals_f
+      INTEGER,            INTENT(IN)     :: a_Id
       INTEGER,            INTENT(OUT)    :: a_Numvals
 
 
@@ -5266,8 +5266,8 @@ INTEGER,        INTENT(OUT)   :: error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetnumactive_f(a_Id, a_NumActiveVals)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetnumactive_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetnumactive_f
+      INTEGER,            INTENT(IN)     :: a_Id
     INTEGER,            INTENT(OUT)    :: a_NumActiveVals
 
 
@@ -5294,8 +5294,8 @@ INTEGER,        INTENT(OUT)   :: a_NumComponents, error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetvecnumcomponents_f(a_Id, a_NumComponents)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetvecnumcomponents_f
-	  INTEGER,            INTENT(IN)     :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetvecnumcomponents_f
+      INTEGER,            INTENT(IN)     :: a_Id
     INTEGER,            INTENT(OUT)    :: a_NumComponents
 
 
@@ -5323,9 +5323,9 @@ INTEGER                          unitlen
   INTERFACE
     INTEGER FUNCTION xfgetdatasettimeunits_f(a_Id, Units, unitlen)
 
-	  !MS$ATTRIBUTES C,reference::xfgetdatasettimeunits_f
+      !MS$ATTRIBUTES C,reference::xfgetdatasettimeunits_f
     !DEC$ATTRIBUTES reference :: Units
-	  INTEGER,            INTENT(IN)     :: a_Id
+      INTEGER,            INTENT(IN)     :: a_Id
     CHARACTER(LEN=*),   INTENT(OUT)    :: Units
     INTEGER,            INTENT(IN)     :: unitlen
 
@@ -5355,8 +5355,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetdatasettimes_f(a_Id, a_nTimes, a_Times)
     
-	  !MS$ATTRIBUTES C,reference::xfgetdatasettimes_f
-	  INTEGER,              INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasettimes_f
+      INTEGER,              INTENT(IN)   :: a_Id
     INTEGER,              INTENT(IN)   :: a_nTimes
     REAL*8, DIMENSION(*), INTENT(OUT)  :: a_Times
 
@@ -5388,8 +5388,8 @@ INTEGER,            INTENT(OUT)   ::  error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetmins_f(a_Id, a_nTimes, a_Mins)
     
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetmins_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetmins_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_nTimes
     REAL*4, DIMENSION(*), INTENT(OUT)  :: a_Mins
 
@@ -5419,8 +5419,8 @@ INTEGER,            INTENT(OUT)   :: error
   INTERFACE
     INTEGER FUNCTION xfgetdatasetmaxs_f(a_Id, a_nTimes, a_Maxs)
     
-	  !MS$ATTRIBUTES C,reference::xfgetdatasetmaxs_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetdatasetmaxs_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_nTimes
     REAL*4, DIMENSION(*), INTENT(OUT)  :: a_Maxs
 
@@ -5453,8 +5453,8 @@ INTEGER,               INTENT(OUT) :: error
     INTEGER FUNCTION xfreadactivitytimestep_f(a_Id, a_TimestepIndex, a_NumVals, &
                                               a_Activity)
     
-	  !MS$ATTRIBUTES C,reference::xfreadactivitytimestep_f
-	  INTEGER,                 INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadactivitytimestep_f
+      INTEGER,                 INTENT(IN)   :: a_Id
       INTEGER,               INTENT(IN)   :: a_TimestepIndex, a_NumVals
       INTEGER, DIMENSION(*), INTENT(OUT) :: a_Activity
 
@@ -5515,8 +5515,8 @@ INTEGER,               INTENT(OUT)       :: error
     INTEGER FUNCTION xfreadactivityvaluesatindex_f(a_Id, a_Index, a_FirstTime, &
                                                    a_NumTimes, a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadactivityvaluesatindex_f
-	  INTEGER,               INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadactivityvaluesatindex_f
+      INTEGER,               INTENT(IN)   :: a_Id
     INTEGER,               INTENT(IN)   :: a_Index, a_FirstTime, a_NumTimes
     INTEGER, DIMENSION(*), INTENT(OUT)  :: a_Values
 
@@ -5550,8 +5550,8 @@ INTEGER,               INTENT(OUT)        :: error
     INTEGER FUNCTION xfreadscalarvaluestimestep_f(a_Id, a_TimestepIndex, a_NumVals, &
                                                   a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadscalarvaluestimestep_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadscalarvaluestimestep_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_TimestepIndex, a_NumVals
     REAL*4, DIMENSION(*), INTENT(OUT)  :: a_Values
 
@@ -5585,8 +5585,8 @@ INTEGER,            INTENT(OUT)       :: error
     INTEGER FUNCTION xfreadscalarvaluesatindex_f(a_Id, a_Index, a_FirstTime, &
                                                  a_NumTimes, a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadscalarvaluesatindex_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadscalarvaluesatindex_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_Index, a_FirstTime, a_NumTimes
     REAL*4, DIMENSION(*), INTENT(OUT)  :: a_Values
 
@@ -5620,7 +5620,7 @@ INTEGER,            INTENT(OUT)       :: error
     INTEGER FUNCTION xfreadscalarvaluesatindicesfloat_f(a_Id, a_nIndices, a_Indices, a_FirstTime, &
                                                  a_NumTimes, a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadscalarvaluesatindicesfloat_f
+      !MS$ATTRIBUTES C,reference::xfreadscalarvaluesatindicesfloat_f
     INTEGER             , INTENT(IN) :: a_Id
     INTEGER,           INTENT(IN)        :: a_nIndices
     INTEGER, DIMENSION(*), INTENT(IN)    :: a_Indices
@@ -5656,8 +5656,8 @@ INTEGER, INTENT(OUT)        :: error
     INTEGER FUNCTION xfreadvectorvaluestimestep_f(a_Id, a_TimestepIndex, a_NumVals, &
                                                   a_NumComponents, a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadvectorvaluestimestep_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadvectorvaluestimestep_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_TimestepIndex, a_NumVals, a_NumComponents
     REAL*4, INTENT(OUT), DIMENSION(a_NumComponents, a_NumVals) :: a_Values
 
@@ -5694,8 +5694,8 @@ INTEGER,            INTENT(OUT)       :: error
     INTEGER FUNCTION xfreadvectorvaluesatindex_f(a_Id, a_Index, a_FirstTime, a_NumTimes, &
                                                  a_NumComponents, a_Values)
     
-	  !MS$ATTRIBUTES C,reference::xfreadvectorvaluesatindex_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfreadvectorvaluesatindex_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_Index, a_FirstTime, a_NumTimes, a_NumComponents
     REAL*4, DIMENSION(*), INTENT(OUT)  :: a_Values
 
@@ -5725,8 +5725,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfscalardatalocation_f(a_Id, a_DataLoc)
     
-	  !MS$ATTRIBUTES C,reference::xfscalardatalocation_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfscalardatalocation_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLoc
 
 
@@ -5755,8 +5755,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfvector2ddatalocations_f(a_Id, a_DataLocI, a_DataLocJ)
     
-	  !MS$ATTRIBUTES C,reference::xfvector2ddatalocations_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfvector2ddatalocations_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLocI, a_DataLocJ
 
 
@@ -5785,8 +5785,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfvector3ddatalocations_f(a_Id, a_DataLocI, a_DataLocJ, a_DataLock)
     
-	  !MS$ATTRIBUTES C,reference::xfvector3ddatalocations_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfvector3ddatalocations_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLocI, a_DataLocJ, a_DataLock
 
 
@@ -5815,8 +5815,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetscalardatalocation_f(a_Id, a_DataLoc)
     
-	  !MS$ATTRIBUTES C,reference::xfgetscalardatalocation_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetscalardatalocation_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLoc
 
 
@@ -5845,8 +5845,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetvector2ddatalocations_f(a_Id, a_DataLocI, a_DataLocJ)
     
-	  !MS$ATTRIBUTES C,reference::xfgetvector2ddatalocations_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetvector2ddatalocations_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLocI, a_DataLocJ
 
 
@@ -5875,8 +5875,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetvector3ddatalocations_f(a_Id, a_DataLocI, a_DataLocJ, a_DataLocK)
     
-	  !MS$ATTRIBUTES C,reference::xfgetvector3ddatalocations_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfgetvector3ddatalocations_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(IN)   :: a_DataLocI, a_DataLocJ, a_DataLocK
 
 
@@ -5904,8 +5904,8 @@ SUBROUTINE XF_VECTORS_IN_LOCAL_COORDS (a_Id, error)
   INTERFACE
     INTEGER FUNCTION xfvectorsinlocalcoords_f(a_Id)
     
-	  !MS$ATTRIBUTES C,reference::xfvectorsinlocalcoords_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfvectorsinlocalcoords_f
+      INTEGER,            INTENT(IN)   :: a_Id
 
 
     END FUNCTION xfvectorsinlocalcoords_f
@@ -5932,8 +5932,8 @@ SUBROUTINE XF_ARE_VECTORS_IN_LOCAL_COORDS (a_Id, a_LocalCoords, error)
   INTERFACE
     INTEGER FUNCTION xfarevectorsinlocalcoords_f(a_Id, a_LocalCoords)
     
-	  !MS$ATTRIBUTES C,reference::xfarevectorsinlocalcoords_f
-	  INTEGER,            INTENT(IN)   :: a_Id
+      !MS$ATTRIBUTES C,reference::xfarevectorsinlocalcoords_f
+      INTEGER,            INTENT(IN)   :: a_Id
     INTEGER,            INTENT(OUT)  :: a_LocalCoords
 
 
@@ -5962,8 +5962,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgethorizdatum_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgethorizdatum_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgethorizdatum_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -5992,8 +5992,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgethorizunits_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgethorizunits_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgethorizunits_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6023,8 +6023,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetvertdatum_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetvertdatum_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetvertdatum_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6053,8 +6053,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetvertunits_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetvertunits_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetvertunits_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6083,8 +6083,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetlat_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetlat_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetlat_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6113,8 +6113,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetlon_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetlon_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetlon_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6142,8 +6142,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetutmzone_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetutmzone_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetutmzone_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6172,8 +6172,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetspczone_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetspczone_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetspczone_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6203,8 +6203,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgethpgnarea_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgethpgnarea_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgethpgnarea_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6235,8 +6235,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfgetcpplat_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcpplat_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetcpplat_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(OUT)  :: a_val
 
 
@@ -6266,8 +6266,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfgetcpplon_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcpplon_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetcpplon_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(OUT)  :: a_val
 
 
@@ -6295,8 +6295,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfgetellipse_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetellipse_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetellipse_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
       INTEGER,            INTENT(OUT)  :: a_val
 
 
@@ -6326,8 +6326,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfgetmajorr_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetmajorr_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetmajorr_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(OUT)  :: a_val
 
 
@@ -6356,8 +6356,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfgetminorr_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfgetminorr_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfgetminorr_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(OUT)  :: a_val
 
 
@@ -6385,8 +6385,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsethorizdatum_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsethorizdatum_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsethorizdatum_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
       INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6415,8 +6415,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsethorizunits_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsethorizunits_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsethorizunits_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
       INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6444,8 +6444,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetvertdatum_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetvertdatum_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetvertdatum_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
       INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6473,8 +6473,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetvertunits_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetvertunits_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetvertunits_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6503,8 +6503,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetlat_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetlat_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetlat_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6532,8 +6532,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetlon_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetlon_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetlon_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6561,8 +6561,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetutmzone_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetutmzone_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetutmzone_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6590,8 +6590,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetspczone_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetspczone_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetspczone_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6619,8 +6619,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsethpgnarea_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsethpgnarea_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsethpgnarea_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6649,8 +6649,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfsetcpplat_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetcpplat_f
-	  INTEGER,  INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetcpplat_f
+      INTEGER,  INTENT(IN)   :: a_CoordId
       REAL*8,   INTENT(IN)   :: a_val
 
 
@@ -6679,8 +6679,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfsetcpplon_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetcpplon_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetcpplon_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(IN)   :: a_val
 
 
@@ -6708,8 +6708,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetellipse_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetellipse_f
-	  INTEGER,            INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetellipse_f
+      INTEGER,            INTENT(IN)   :: a_CoordId
     INTEGER,            INTENT(IN)   :: a_val
 
 
@@ -6739,8 +6739,8 @@ INTEGER, INTENT(OUT)       :: error
   INTERFACE
     INTEGER FUNCTION xfsetmajorr_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetmajorr_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetmajorr_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(IN)   :: a_val
 
 
@@ -6771,8 +6771,8 @@ INTEGER, INTENT(OUT)  :: error
   INTERFACE
     INTEGER FUNCTION xfsetminorr_f(a_CoordId, a_val)
     
-	  !MS$ATTRIBUTES C,reference::xfsetminorr_f
-	  INTEGER, INTENT(IN)   :: a_CoordId
+      !MS$ATTRIBUTES C,reference::xfsetminorr_f
+      INTEGER, INTENT(IN)   :: a_CoordId
       REAL*8,  INTENT(IN)   :: a_val
 
 
@@ -6819,7 +6819,7 @@ SUBROUTINE XF_CALENDAR_TO_JULIAN (era, yr, mo, day, hr, &
     INTEGER FUNCTION xfcalendartojulian_f(era, yr, mo, day, hr, & 
                                           min, sec, julian)
     
-	  !MS$ATTRIBUTES C,reference::xfcalendartojulian_f
+      !MS$ATTRIBUTES C,reference::xfcalendartojulian_f
     REAL*8,  INTENT(OUT)  :: julian
     INTEGER, INTENT(IN)   :: era, yr, mo, day, hr, min, sec
 
@@ -6870,7 +6870,7 @@ SUBROUTINE XF_JULIAN_TO_CALENDAR (era, yr, mo, day, hr, &
     INTEGER FUNCTION xfjuliantocalendar_f(era, yr, mo, day, hr, & 
                                           min, sec, julian)
     
-	  !MS$ATTRIBUTES C,reference::xfjuliantocalendar_f
+      !MS$ATTRIBUTES C,reference::xfjuliantocalendar_f
     REAL*8,   INTENT(IN)    :: julian
     INTEGER,  INTENT(OUT)   :: era, yr, mo, day, hr, min, sec
 
@@ -6901,7 +6901,7 @@ SUBROUTINE XF_DATASET_REFTIME (a_Id, a_Reftime, error)
   INTERFACE
     INTEGER FUNCTION xfdatasetreftime_f(a_Id, a_Reftime)
     
-	  !MS$ATTRIBUTES C,reference::xfdatasetreftime_f
+      !MS$ATTRIBUTES C,reference::xfdatasetreftime_f
     INTEGER, INTENT(IN)    :: a_Id
     REAL*8,  INTENT(IN)    :: a_Reftime
     
@@ -6932,7 +6932,7 @@ INTEGER,     INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnumopenidentifiers_f (a_Id, a_Num)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnumopenidentifiers_f
+      !MS$ATTRIBUTES C,reference::xfgetnumopenidentifiers_f
     INTEGER,     INTENT(IN)  :: a_Id, a_Num
 
 
@@ -6962,7 +6962,7 @@ INTEGER,              INTENT(OUT):: error
   INTERFACE
     INTEGER FUNCTION xfpcloseopenidentifiers_f (a_Id)
     
-	  !MS$ATTRIBUTES C,reference::xfpcloseopenidentifiers_f
+      !MS$ATTRIBUTES C,reference::xfpcloseopenidentifiers_f
     INTEGER,     INTENT(IN)  :: a_Id
 
 
@@ -6996,7 +6996,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetnumberofxsects_f (a_Id, a_nXSects, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetnumberofxsects_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberofxsects_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_nXSects, a_compression
 
@@ -7029,7 +7029,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnumberofxsects_f (a_Id, a_nXSects)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnumberofxsects_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberofxsects_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_nXSects
 
@@ -7063,7 +7063,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetcsid_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetcsid_f
+      !MS$ATTRIBUTES C,reference::xfsetcsid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId, a_compression
 
@@ -7096,7 +7096,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetcsid_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcsid_f
+      !MS$ATTRIBUTES C,reference::xfgetcsid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -7131,7 +7131,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetcsname_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetcsname_f
+      !MS$ATTRIBUTES C,reference::xfsetcsname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -7167,7 +7167,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetcsname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcsname_f
+      !MS$ATTRIBUTES C,reference::xfgetcsname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -7203,7 +7203,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetcsnamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcsnamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetcsnamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -7238,7 +7238,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetreachname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfsetreachname_f
+      !MS$ATTRIBUTES C,reference::xfsetreachname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -7274,7 +7274,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetreachname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfsetreachname_f
+      !MS$ATTRIBUTES C,reference::xfsetreachname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -7310,7 +7310,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetreachnamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetreachnamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetreachnamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -7345,7 +7345,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsettopoid_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsettopoid_f
+      !MS$ATTRIBUTES C,reference::xfsettopoid_f
     !DEC$ATTRIBUTES reference :: a_propid
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -7381,7 +7381,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgettopoid_f (a_Id, a_NumVals, a_StrLen, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgettopoid_f
+      !MS$ATTRIBUTES C,reference::xfgettopoid_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -7417,7 +7417,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgettopoidlen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgettopoidlen_f
+      !MS$ATTRIBUTES C,reference::xfgettopoidlen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -7452,7 +7452,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetstation_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetstation_f
+      !MS$ATTRIBUTES C,reference::xfsetstation_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -7487,7 +7487,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetstation_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetstation_f
+      !MS$ATTRIBUTES C,reference::xfgetstation_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -7521,7 +7521,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsettype_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsettype_f
+      !MS$ATTRIBUTES C,reference::xfsettype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId, a_compression
 
@@ -7554,7 +7554,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgettype_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgettype_f
+      !MS$ATTRIBUTES C,reference::xfgettype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -7587,7 +7587,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetptype_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetptype_f
+      !MS$ATTRIBUTES C,reference::xfsetptype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId, a_compression
 
@@ -7620,7 +7620,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgettype_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgettype_f
+      !MS$ATTRIBUTES C,reference::xfgettype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -7654,7 +7654,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetpcsdblink_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetpcsdblink_f
+      !MS$ATTRIBUTES C,reference::xfsetpcsdblink_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId, a_compression
 
@@ -7687,7 +7687,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetpcsdblink_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetpcsdblink_f
+      !MS$ATTRIBUTES C,reference::xfgetpcsdblink_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -7722,7 +7722,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetnote_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetnote_f
+      !MS$ATTRIBUTES C,reference::xfsetnote_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -7758,7 +7758,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnote_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnote_f
+      !MS$ATTRIBUTES C,reference::xfgetnote_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -7794,7 +7794,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnotelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnotelen_f
+      !MS$ATTRIBUTES C,reference::xfgetnotelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -7828,7 +7828,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectgeomx_f (a_Id, a_index, a_NumVals, a_iValues, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectgeomx_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectgeomx_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -7863,7 +7863,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectgeomx_f (a_Id, a_index, a_NumVals, a_iValues)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectgeomx_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectgeomx_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -7898,7 +7898,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectgeomy_f (a_Id, a_index, a_NumVals, a_iValues, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectgeomy_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectgeomy_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -7933,7 +7933,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectgeomy_f (a_Id, a_index, a_NumVals, a_iValues)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectgeomy_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectgeomy_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -7969,7 +7969,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectgeomd_f (a_Id, a_index, a_NumVals, a_iValues, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectgeomd_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectgeomd_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -8004,7 +8004,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectgeomd_f (a_Id, a_index, a_NumVals, a_iValues)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectgeomd_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectgeomd_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -8040,7 +8040,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectgeomz_f (a_Id, a_index, a_NumVals, a_iValues, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectgeomz_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectgeomz_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -8075,7 +8075,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectgeomz_f (a_Id, a_index, a_NumVals, a_iValues)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectgeomz_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectgeomz_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_iValues
@@ -8111,7 +8111,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropfrom_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfrom_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfrom_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8146,7 +8146,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropfrom_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfrom_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfrom_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8182,7 +8182,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropto_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropto_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropto_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8217,7 +8217,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropto_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropto_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropto_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8252,7 +8252,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlineproptype_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlineproptype_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlineproptype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8287,7 +8287,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlineproptype_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlineproptype_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlineproptype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8323,7 +8323,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropivalue_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropivalue_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropivalue_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8358,7 +8358,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropivalue_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropivalue_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropivalue_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8394,7 +8394,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropfvalue_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfvalue_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfvalue_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8429,7 +8429,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropfvalue_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfvalue_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfvalue_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_index
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8464,7 +8464,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropid_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropid_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression, a_PropId
 
@@ -8497,7 +8497,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropid_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropid_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -8532,7 +8532,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropname_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropname_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -8568,7 +8568,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropname_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -8604,7 +8604,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropnamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropnamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropnamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -8639,7 +8639,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropdesc_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropdesc_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropdesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -8675,7 +8675,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropdesc_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropdesc_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropdesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -8711,7 +8711,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropdesclen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropdesclen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropdesclen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -8745,7 +8745,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropcategory_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropcategory_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropcategory_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression, a_PropId
 
@@ -8778,7 +8778,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropcategory_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropcategory_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropcategory_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -8813,7 +8813,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropfdefault_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfdefault_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropfdefault_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8848,7 +8848,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropfdefault_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfdefault_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropfdefault_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -8883,7 +8883,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropexclusive_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropexclusive_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropexclusive_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression, a_PropId
 
@@ -8916,7 +8916,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropexclusive_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropexclusive_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropexclusive_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -8950,7 +8950,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetnumberoflnpropenumgroup_f (a_Id, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetnumberoflnpropenumgroup_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberoflnpropenumgroup_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_compression, a_PropId
 
@@ -8983,7 +8983,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnumberoflnpropenumgroup_f (a_Id, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnumberoflnpropenumgroup_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberoflnpropenumgroup_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_PropId
 
@@ -9017,7 +9017,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetnumberoflinepropenum_f (a_Id, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetnumberoflinepropenum_f
+      !MS$ATTRIBUTES C,reference::xfsetnumberoflinepropenum_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_compression, a_PropId
 
@@ -9050,7 +9050,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetnumberoflinepropenum_f (a_Id, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetnumberoflinepropenum_f
+      !MS$ATTRIBUTES C,reference::xfgetnumberoflinepropenum_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_PropId
 
@@ -9084,7 +9084,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropenumid_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenumid_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenumid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_compression, a_PropId
 
@@ -9117,7 +9117,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropenumid_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenumid_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenumid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_PropId
 
@@ -9151,7 +9151,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropenummatid_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenummatid_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenummatid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_compression, a_PropId
 
@@ -9184,7 +9184,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropenummatid_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenummatid_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenummatid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_PropId
 
@@ -9219,7 +9219,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectlinepropenumname_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenumname_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectlinepropenumname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -9255,7 +9255,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlinepropenumname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenumname_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlinepropenumname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -9291,7 +9291,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectlnpropenumnamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectlnpropenumnamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectlnpropenumnamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -9326,7 +9326,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointpropmeasure_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointpropmeasure_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointpropmeasure_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_compression
     REAL*4,             INTENT(IN)  :: a_PropId
@@ -9361,7 +9361,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropmeasure_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropmeasure_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropmeasure_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals
     REAL*8,           INTENT(IN)  :: a_PropId
@@ -9396,7 +9396,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointproptype_f (a_Id, a_index, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointproptype_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointproptype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_compression, a_PropId
 
@@ -9429,7 +9429,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointproptype_f (a_Id, a_index, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointproptype_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointproptype_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_index, a_NumVals, a_PropId
 
@@ -9463,7 +9463,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointpropid_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointpropid_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointpropid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression, a_PropId
 
@@ -9496,7 +9496,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropid_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropid_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropid_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -9530,7 +9530,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointpropname_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointpropname_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointpropname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -9566,7 +9566,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropname_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropname_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropname_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -9602,7 +9602,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropnamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropnamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropnamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -9636,7 +9636,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointpropdesc_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointpropdesc_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointpropdesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -9672,7 +9672,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropdesc_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropdesc_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropdesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -9708,7 +9708,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropdesclen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropdesclen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropdesclen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -9742,7 +9742,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsectpointpropexclusive_f (a_Id, a_NumVals, a_PropId, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsectpointpropexclusive_f
+      !MS$ATTRIBUTES C,reference::xfsetxsectpointpropexclusive_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_compression, a_PropId
 
@@ -9775,7 +9775,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsectpointpropexclusive_f (a_Id, a_NumVals, a_PropId)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsectpointpropexclusive_f
+      !MS$ATTRIBUTES C,reference::xfgetxsectpointpropexclusive_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_PropId
 
@@ -9810,7 +9810,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsecttoponame_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsecttoponame_f
+      !MS$ATTRIBUTES C,reference::xfsetxsecttoponame_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -9846,7 +9846,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsecttoponame_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsecttoponame_f
+      !MS$ATTRIBUTES C,reference::xfgetxsecttoponame_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -9882,7 +9882,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsecttoponamelen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsecttoponamelen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsecttoponamelen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -9917,7 +9917,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfsetxsecttopodesc_f (a_Id, a_NumVals, a_PropId, a_StrLen, a_compression)
     
-	  !MS$ATTRIBUTES C,reference::xfsetxsecttopodesc_f
+      !MS$ATTRIBUTES C,reference::xfsetxsecttopodesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen, a_compression
@@ -9953,7 +9953,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsecttopodesc_f (a_Id, a_NumVals, a_PropId, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsecttopodesc_f
+      !MS$ATTRIBUTES C,reference::xfgetxsecttopodesc_f
     !DEC$ATTRIBUTES reference :: a_PropId
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
@@ -9989,7 +9989,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetxsecttopodesclen_f (a_Id, a_NumVals, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetxsecttopodesclen_f
+      !MS$ATTRIBUTES C,reference::xfgetxsecttopodesclen_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_NumVals, a_StrLen
 
@@ -10022,7 +10022,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetwktstringsize_f (a_Id, a_StrLen)
     
-	  !MS$ATTRIBUTES C,reference::xfgetwktstringsize_f
+      !MS$ATTRIBUTES C,reference::xfgetwktstringsize_f
     INTEGER,          INTENT(IN)  :: a_Id
     INTEGER,          INTENT(IN)  :: a_StrLen
 
@@ -10055,7 +10055,7 @@ INTEGER,          INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetwkt_f (a_Id, a_String)
     
-	  !MS$ATTRIBUTES C,reference::xfgetwkt_f
+      !MS$ATTRIBUTES C,reference::xfgetwkt_f
     INTEGER,          INTENT(IN)  :: a_Id
     CHARACTER(LEN=*), INTENT(IN)  :: a_String
 
@@ -10088,7 +10088,7 @@ INTEGER,  INTENT(OUT) :: error
   INTERFACE
     INTEGER FUNCTION xfgetcoordversion_f (a_Id, a_Version)
     
-	  !MS$ATTRIBUTES C,reference::xfgetcoordversion_f
+      !MS$ATTRIBUTES C,reference::xfgetcoordversion_f
     INTEGER, INTENT(IN)  :: a_Id
     INTEGER, INTENT(IN)  :: a_Version
 

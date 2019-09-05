@@ -1,8 +1,8 @@
       subroutine update_Q_bc
-	use EXP_Global_def 
-      USE EXP_bndcond_def	
+    use EXP_Global_def 
+      USE EXP_bndcond_def    
       USE EXP_transport_def      
-	use comvarbl, only: timehrs,ramp
+    use comvarbl, only: timehrs,ramp
       use bnd_def
       use sed_def 
       use flow_def
@@ -21,24 +21,24 @@
             inc = inc+1
             Q_str(i)%inc = inc
           enddo
-          val1 = Q_str(i)%qcurv(inc)	
-          val2 = Q_str(i)%qcurv(inc+1)	
-          tval1 = Q_str(i)%times(inc)	
+          val1 = Q_str(i)%qcurv(inc)    
+          val2 = Q_str(i)%qcurv(inc+1)    
+          tval1 = Q_str(i)%times(inc)    
           tval2 = Q_str(i)%times(inc+1)
           fac = (timeHRS-tval1) / (tval2-tval1)
           flow = (val1 + fac*(val2-val1))  !/Q_str(i)%NCells
           if(QstringEXP(i)%vface) then
             IDO = Q_str(i)%NCells
-            do j=1,IDO	!for each cell in string
-              IID = Q_str(i)%Cells(j)	
+            do j=1,IDO    !for each cell in string
+              IID = Q_str(i)%Cells(j)    
               qy(IID) = QstringEXP(i)%sgn*ramp*flow  !/dx(IID)
               qyn(IID) = qy(IID)
               !write(*,*)'Y: ',flow,qy(IID),dx(IID),IID
             enddo
           else
             IDO = Q_str(i)%NCells
-            do j=1,IDO	!for each cell in string
-              IID = Q_str(i)%Cells(j)	
+            do j=1,IDO    !for each cell in string
+              IID = Q_str(i)%Cells(j)    
               qx(IID) = QstringEXP(i)%sgn*ramp*flow  !/dy(IID)
               qxn(IID) = qx(IID)
                !write(*,*)'X: ',flow,qx(IID),dy(IID),IID           

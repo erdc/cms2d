@@ -37,10 +37,10 @@
     use comvarbl, only: dtime, timehrs
     use sed_def, only: scalemorph,solid,rhosed,alphat,&
         wsfall,Ctk,Ctkstar,Sb,dzb !,cohesivesed,Etkstar,wsfallcohsed
- 	use prec_def
- 	implicit none
- 	integer :: i
- 	real(ikind) :: fac
+     use prec_def
+     implicit none
+     integer :: i
+     real(ikind) :: fac
     
     fac = scalemorph*dtime/solid/rhosed     !for mass balance, scalemorph=1.0     
 !$OMP PARALLEL DO PRIVATE(i)
@@ -115,19 +115,19 @@
 #endif
 
     !Relaxation factors
- 	rxb = 0.5
+     rxb = 0.5
     rxm = 1.0-rxb 
 
     fmdt = scalemorph*dtime !Apply morphologic scaling factor here
     
 !$OMP PARALLEL DO PRIVATE(i,dbdz,Ctkp,aws,fterm,fterm2,fterm3,znum,zdem,pbktemp,pbksum) REDUCTION(MAX:errpbk)   
-    do i=1,ncells  	  	  
-!! 	  if(iwet(i)==0 .or. zb(i)<=hardzb(i)+1.0e-6) then
- 	  if(iwet(i)==0)then
- 	    dzb(i) = 0.0
+    do i=1,ncells              
+!!       if(iwet(i)==0 .or. zb(i)<=hardzb(i)+1.0e-6) then
+       if(iwet(i)==0)then
+         dzb(i) = 0.0
         dzbk(i,:) = 0.0
- 	    cycle    	   	
- 	  endif
+         cycle               
+       endif
       !Bed change
       dbdz = dzb(i) - db(i,1) + db1(i,1) !Rise or fall of lower bound of mixing layer
       if(dbdz>=0.0)then        
@@ -135,7 +135,7 @@
       else
         pbkstar(i,:) = pbk(i,:,2) !note: pbk(i,ks,2) does not change until bedgrad subroutine   
       endif
-      Ctkp = Ctkstar(i,:)/max(pbk(i,:,1),1.0e-20) !kg/m^3	!HLI 01/13/2017
+      Ctkp = Ctkstar(i,:)/max(pbk(i,:,1),1.0e-20) !kg/m^3    !HLI 01/13/2017
       aws = alphat(i)*wsfall(:)
       fterm = rhosed*solid*db(i,1) + fmdt*aws*Ctkp !kg/m^2
       fterm2 = db1(i,1)*pbk1(i,:) + (db(i,1)-db1(i,1))*pbkstar(i,:)
@@ -165,7 +165,7 @@
       pbk(i,:,1) = (dzbk(i,:) + db1(i,1)*pbk1(i,:) - dbdz*pbkstar(i,:))/db(i,1)            
       pbk(i,:,1) = pbk(i,:,1)*rxb + pbktemp*rxm !Relaxation      
 !      where(pbk(i,:,1)<1.0e-20) pbk(i,:,1)=1.0e-20 
-      pbksum = sum(max(pbk(i,:,1),1.0e-20)) !sum fraction	!HLI 01/13/2017
+      pbksum = sum(max(pbk(i,:,1),1.0e-20)) !sum fraction    !HLI 01/13/2017
 #ifdef DIAG_MODE
       if(abs(pbksum-1.0)>0.1 .or. isnankind(pbksum))then
         call diag_print_error('Problem calculating bed composition')
@@ -203,21 +203,21 @@
 !    !real(ikind) :: znum(nsed),zdem(nsed),Ctkp(nsed),aws(nsed)   !Closed by Wu
 !    real(ikind) :: znum(nsed),zdem(nsed),Etkp(nsed),aws(nsed)     !Wu
 !    real(ikind) :: pbksum,pbktemp(nsed),rx
-! 	
+!     
 !    rx = 0.5
 !!$OMP PARALLEL DO PRIVATE(i,ks,dbdz,Ctkp,aws,fterm,fterm2,fterm3,&
 !!$         znum,zdem,pbktemp,pbksum) REDUCTION(MAX:errpbk)   
-!    do i=1,ncells  	  	  
+!    do i=1,ncells              
 !       !!   if(idry(i).eq.0 .or. zb(i).le.hardzb(i)+1.0e-6) then
 !       if(idry(i).eq.0)then
 !          dm(i) = 0.0; dmk(i,:) = 0.0
-!          cycle    	   	
+!          cycle               
 !       endif
-! 	  
+!       
 !       !...Mixing Layer 
 !       dbms(i,1)=max(dbmin0(i)*rhobed(i,1),dm(i)+0.5*db1min*rhobed(i,1)) !Cannot have more deposition than the mixing layer thickness 
-!      	  
-!       !...Bed change 	     	  	      
+!            
+!       !...Bed change                          
 !       dbdz=dbms(i,1)-dbms1(i,1)-dm(i) !Rise or fall of lower bound of mixing layer       
 !       if(dbdz.le.0.0)then        
 !          pbkstar(i,:)=pbk1(i,:) !from last time step
@@ -232,7 +232,7 @@
 !       fterm2=dtime*(fterm2+Sb(i,:)*dbms(i,1)) !kg/m^2 **************
 !       fterm3=dtime*Etkp*pbkstar(i,:) !kg/m^2
 !       znum=fterm2/fterm         
-!       zdem=fterm3/fterm 	         
+!       zdem=fterm3/fterm              
 !       dm(i)=sum(znum)/(1.0-sum(zdem)) !Total bed change      
 !       dmk(i,:)=(fterm2+dm(i)*fterm3)/fterm !Fractional bed change      
 !       dm(i)=scalemorph*dm(i)       !Apply morphologic scaling factor
@@ -257,7 +257,7 @@
 !          dmk(i,:)=0.0
 !       enddo
 !    enddo
-! 	 	
+!          
 !    !Weir
 !    do iwr=1,numweir   !Wu, Sept, 2011  
 !       do im=nweir(iwr-1)+1,nweir(iwr)
@@ -639,9 +639,9 @@
       mu = log(d50lay(i))
       do k=1,nd
         pbklay(i,k) = (dlim(k+1)-dlim(k))*lognpdf(d(k),mu,sig)
-!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)  			!HLI 01/13/2017
+!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)              !HLI 01/13/2017
       enddo      
-      pbklay(i,:) = pbklay(i,:)/sum(max(pbklay(i,:),1.0e-20)) !Check conservations	 !HLI 01/13/2017
+      pbklay(i,:) = pbklay(i,:)/sum(max(pbklay(i,:),1.0e-20)) !Check conservations     !HLI 01/13/2017
     enddo            
 
     return
@@ -682,9 +682,9 @@
       mu = log(d50lay(i))
       do k=1,nd        
         pbklay(i,k) = (dlim(k+1)-dlim(k))*lognpdf(d(k),mu,sig)
-!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)  			!HLI 01/13/2017
+!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)              !HLI 01/13/2017
       enddo
-      pbklay(i,:) = pbklay(i,:)/sum(max(pbklay(i,:),1.0e-20)) !Check conservation	   !HLI 01/13/2017
+      pbklay(i,:) = pbklay(i,:)/sum(max(pbklay(i,:),1.0e-20)) !Check conservation       !HLI 01/13/2017
     enddo
 
     return
@@ -725,7 +725,7 @@
       mu = log(d50lay(i))      
       do k=1,nd
         pbklay(i,k) = (dlim(k+1)-dlim(k))*lognpdf(d(k),mu,sig)        
-!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)  			!HLI 01/13/2017
+!        pbklay(i,k) = max(pbklay(i,k),1.0e-20)              !HLI 01/13/2017
       enddo
       pbklay(i,:) = pbklay(i,:)/sum(max(pbklay(i,:),1.0e-20)) !Check conservation   !HLI 01/13/2017   
     enddo
@@ -836,7 +836,7 @@
         pbk(i,ks,j) = (plim(ks+1)-plim(ks))/100.0
 !        pbk(i,ks,1) = max(pbk(i,ks,1),1.0e-10) !To avoid divide by zero  !HLI 01/13/2017
       enddo
-      sumpbk=sum(max(pbk(i,:,j),1.0e-20))								  !HLI 01/13/2017
+      sumpbk=sum(max(pbk(i,:,j),1.0e-20))                                  !HLI 01/13/2017
       msg2 = ' for cellID '// Int2Str(i)
       if(sumpbk<0.8)then
         call diag_print_warning('Sum of fractions is less than 0.8',msg2)
@@ -985,7 +985,7 @@
 !      do ks=1,nsed
 !        pbk(i,ks,j) = max(pbk(i,ks,j),1.0e-20)
 !      enddo
-      pbk(i,:,j) = pbk(i,:,j)/sum(max(pbk(i,:,j),1.0e-20))	 !HLI 01/13/2017
+      pbk(i,:,j) = pbk(i,:,j)/sum(max(pbk(i,:,j),1.0e-20))     !HLI 01/13/2017
     enddo
     
     return

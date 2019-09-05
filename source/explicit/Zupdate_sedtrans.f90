@@ -1,5 +1,5 @@
       subroutine update_sedtrans()
-	  use EXP_Global_def 
+      use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def      
       use bnd_def
@@ -12,8 +12,8 @@
       !local vars
       integer :: i,j,ii
 
-	  if(sedtransEXP) then
-        !if AD, then accumulate flow to get averages when updated SS conc	
+      if(sedtransEXP) then
+        !if AD, then accumulate flow to get averages when updated SS conc    
         if(adeq) then                                                   
 !$omp parallel do                
           do i = 1,ncells
@@ -21,9 +21,9 @@
             ADSS(i)%qy = ADSS(i)%qy + qyn(i)*dt
           enddo
 !$omp end parallel do            
-        endif	
+        endif    
         
-        !if COHES, then accumulate flow to get averages when updated SS conc	
+        !if COHES, then accumulate flow to get averages when updated SS conc    
         if(cohesive) then                                               
 !$omp parallel do                
           do i = 1,ncells
@@ -31,7 +31,7 @@
             COHES(i)%qy = COHES(i)%qy + qyn(i)*dt
           enddo
 !$omp end parallel do            
-        endif	
+        endif    
         
         if(cohes_flow_bc) then
           !also need to update cells with flow bc on north and west faces
@@ -39,7 +39,7 @@
           do j = 1,NQstr  !for each cell string
             if(QstringEXP(j)%vface) then  !N or S face
               if(Q_Str(j)%cells(1).gt.ncells) then      !north face and need to update
-                do i=1,Q_Str(j)%NCells	
+                do i=1,Q_Str(j)%NCells    
                   ii=Q_Str(j)%cells(i)
                   COHES(ii)%qy = COHES(ii)%qy + qyn(ii)*dt
                 enddo
@@ -47,13 +47,13 @@
             else  !E or W face
               if(Q_Str(j)%cells(1).gt.ncells) then      !east face and need to update
                 do i=1,Q_Str(j)%NCells
-                  ii=Q_Str(j)%cells(i)	 
+                  ii=Q_Str(j)%cells(i)     
                   COHES(ii)%qx = COHES(ii)%qx + qxn(ii)*dt
                 enddo
               endif
             endif
           enddo ! end of NQdriver        
-        endif  !end cohes_flow_bc	
+        endif  !end cohes_flow_bc    
       
         tsed_elapse = tsed_elapse + dt
         
@@ -61,30 +61,30 @@
           if(watanabe) then
             call ST_watanabe()
             call ST_wet_dry_check()
-            if (do_aval)  call ST_avalanche()	
+            if (do_aval)  call ST_avalanche()    
             call ST_hardbottom()
             call TL_prep_for_output 
           elseif(lundcirp) then
             call ST_lundcirp()
             call ST_wet_dry_check()
-            if (do_aval) call ST_avalanche()	
+            if (do_aval) call ST_avalanche()    
             call ST_hardbottom() 
             call TL_prep_for_output            
           elseif(adeq) then
             call ST_adeq()
             call ST_wet_dry_check()
             if (do_aval) call ST_avalanche()
-            call ST_hardbottom_AD()	 
+            call ST_hardbottom_AD()     
             call update_ADSS_conc()  
             call ADSS_prep_for_output          
           elseif(cohesive) then
             call ST_cohesive()
-            call ST_hardbottom_COHES()	 
+            call ST_hardbottom_COHES()     
             call update_COHES_conc()        
           endif
           !calculate bed chagnes
           call ST_bed_changes_3()
-          tsed_elapse = 0.0	
+          tsed_elapse = 0.0    
         endif
 
         tmorph_elapse = tmorph_elapse + dt
@@ -102,7 +102,7 @@
       !  Chris Reed   6/28/2013
       !*************************************************************      
       subroutine ADSS_prep_for_output
-	  use EXP_Global_def 
+      use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def      
       use bnd_def

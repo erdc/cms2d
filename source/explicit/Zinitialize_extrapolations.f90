@@ -48,7 +48,7 @@
               if(cell2cell(2,id).gt.0)  num_ext_W = num_ext_W + 1
             endif
           enddo
-        endif	
+        endif    
         if(nMHstr .gt. 0) then
           do i=1,nMHstr
             do j=1,MH_Str(i)%ncells
@@ -183,7 +183,7 @@
           do i=1,num_ext_S
             write(505,*)'S ',i,ext_S(i,1),ext_S(i,2)
           enddo
-        endif	
+        endif    
         if(num_ext_E.gt.0) then 
           write(505,*)num_ext_E      
           do i=1,num_ext_E
@@ -195,7 +195,7 @@
           do i=1,num_ext_W
             write(505,*)'W ',i,ext_W(i,1),ext_W(i,2)
           enddo
-        endif	
+        endif    
         close(505)
         write(DGUNIT,*)'finished initializing bc extrapolation for u,v'
 #endif

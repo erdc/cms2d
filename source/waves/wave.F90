@@ -74,15 +74,15 @@
     endif
 
     if(noptset==3)then !Wave-Flow coupling
-	  nsteer=nsteer+1
-	  open(dgunit,file=dgfile,access='append') 
+      nsteer=nsteer+1
+      open(dgunit,file=dgfile,access='append') 
       call CMS_Wave_inline                      !call CMS_Wave   !modified MEB 10/15/2018
       close(dgunit)
       call steer_init !Needs to be called after CMS-Wave
       call interp_coef_flwav
       call interp_coef_wavfl
       !if(n2Dor3D==3) call allocate_wavestress3D2   !For 3D
-      call rol_init	  
+      call rol_init      
       call freememory_fl_wav 
       call getwave        
       !if(n2Dor3D==3) call getwave3D    !For 3D
@@ -119,33 +119,33 @@
       !   wavestrx3D(ii)=wavestrx3D2(ii)*ramp
       !   wavestry3D(ii)=wavestry3D2(ii)*ramp
       ! enddo
-  	elseif(noptset==4)then !Constant wave conditions
-  	  timehrs=ctime/3600.0
-  	  ramp=min(timehrs/rampdur,1.0)
-  	
-  	  nsteer=nsteer+1
-  	  call wave_flgrid_init
+      elseif(noptset==4)then !Constant wave conditions
+        timehrs=ctime/3600.0
+        ramp=min(timehrs/rampdur,1.0)
+      
+        nsteer=nsteer+1
+        call wave_flgrid_init
 #ifdef XMDF_IO
-	  call readscalsteph5(grdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)  	  
-	  call readscalsteph5(grdfile,perpath, nsteer,tswave1,Wper1,    ierr)  	  	  
-	  call readscalsteph5(grdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
-	  call readscalsteph5(grdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
-  	  call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
+      call readscalsteph5(grdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)        
+      call readscalsteph5(grdfile,perpath, nsteer,tswave1,Wper1,    ierr)              
+      call readscalsteph5(grdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
+      call readscalsteph5(grdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
+        call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
 #else
       call diag_print_error('Cannot read constant wave conditions without XMDF')
 #endif
-  	  do i=1,ncellsD
-  	    Wunitx1(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
+        do i=1,ncellsD
+          Wunitx1(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
         Wunity1(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
         wavediss1(i) = -rhow*wavediss1(i)  !Flip sign and convert units [N/m/s]
         if(wavediss1(i)>wavedisstol)then
           waveibr1(i) = 1.0
         endif
-  	  enddo
+        enddo
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,wavestrx1,wavestry1)      
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,Wunitx1,Wunity1) 
-  	  tswave2 = max(tswave1,ctime)
-  	  tswave1 = min(tswave1,ctime)  
+        tswave2 = max(tswave1,ctime)
+        tswave1 = min(tswave1,ctime)  
       
       !Smoothing
       do i=1,nbrksm
@@ -184,31 +184,31 @@
         waveibr(i)=waveibr1(i)
       enddo
       
-  	  nsteer=nsteer+1
+        nsteer=nsteer+1
 #ifdef XMDF_IO
-  	  call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)  	!ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
+        call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)      !ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
 #endif
       select case(ierr)
       case(:-1,1:)    !if(ierr<0 .or. ierr>0)then
-  	    do i=1,ncellsD
-  	      wavestrx2(i)=wavestrx1(i)
-  	      wavestry2(i)=wavestry1(i)
+          do i=1,ncellsD
+            wavestrx2(i)=wavestrx1(i)
+            wavestry2(i)=wavestry1(i)
           Whgt2(i)=Whgt1(i)
           Wper2(i)=Wper1(i)
-  	      wavediss2(i)=wavediss1(i)
+            wavediss2(i)=wavediss1(i)
           waveibr2(i)=waveibr1(i)
-  	      Wunitx2(i)=Wunitx1(i)
+            Wunitx2(i)=Wunitx1(i)
           Wunity2(i)=Wunity1(i)
         enddo  
       case default
 #ifdef XMDF_IO
         call readscalsteph5(grdfile,perpath, nsteer,tswave2,Wper2,              ierr)
-	    call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
-	    call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
-  	    call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
+        call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
+        call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
+          call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif
-  	    do i=1,ncellsD
-  	      Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
+          do i=1,ncellsD
+            Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i)=sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and convert units [N/m/s]
           if(wavediss2(i)>wavedisstol)then
@@ -267,8 +267,8 @@
     open(dgunit,file=dgfile,access='append')     
     do i=1,2
       if(constant_waves)then
-        write(iunit(i),*)		
-	    write(iunit(i),888) 'Constant Waves:'  
+        write(iunit(i),*)        
+        write(iunit(i),888) 'Constant Waves:'  
         write(iunit(i),222) '  Significant wave height:',waveheight,' m'
         write(iunit(i),222) '  Peak wave period:',waveperiod,' s'
         write(iunit(i),222) '  Mean wave direction:',wavedir,' deg'
@@ -326,14 +326,14 @@
     
 ! -- ibk=1 and jbv>=6 means no wave breaking
     !if(IBK==1 .or. JBV>=6) return
-		
+        
     wnk=pai2/wlmn(jm)
-	  if(wnk<1.0e-6) return        
+      if(wnk<1.0e-6) return        
     
-	  !Maximum waveheight
-	  call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
-!!	Hmax = 0.78*depm(jm)	
-	
+      !Maximum waveheight
+      call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
+!!    Hmax = 0.78*depm(jm)    
+    
     !Check incipient breaking
     Hrms=HSB(JJ)/1.414213562    
 !    if(Hsb(jj)<=0.72*Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, for random waves
@@ -404,14 +404,14 @@
     
 ! -- ibk=1 and jbv>=6 means no wave breaking
     if(IBK==1 .or. JBV>=6) return
-		
+        
     wnk=pai2/wlmn(jm)
-	  if(wnk<1.0e-6) return    
-			
-	  !Maximum waveheight
-	  call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
-!!	Hmax = 0.78*depm(jm)	
-	
+      if(wnk<1.0e-6) return    
+            
+      !Maximum waveheight
+      call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
+!!    Hmax = 0.78*depm(jm)    
+    
     !Check incipient breaking    
     Hrms=HSB(JJ)/1.414213562    
 !    if(Hsb(jj)<=0.7*Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, for random waves
@@ -494,8 +494,8 @@
     real*4 :: q,d,uu,vv,om,cw,cg,sg,akk !,f,uvw !must be single 
     
     !Stokes velocities and stresses
-    do i=1,nwavei	  
-	  do j=1,nwavej        
+    do i=1,nwavei      
+      do j=1,nwavej        
         hw=hwave(i,j)
         if(hw<0.01 .or. wheight(i,j)<1.0e-4)then
           Sxx(i,j)=0.0; Syy(i,j)=0.0; Sxy(i,j)=0.0
@@ -513,17 +513,17 @@
         E=0.0625*rhow*grav*wheight(i,j)*wheight(i,j)        
         uu=E*wcos(i,j)/(rhow*hw*c)
         vv=E*wsin(i,j)/(rhow*hw*c)
-	    Sxx(i,j)=hw*uu*uu
-	    Sxy(i,j)=hw*uu*vv 
-        Syy(i,j)=hw*vv*vv	    
-	  enddo
+        Sxx(i,j)=hw*uu*uu
+        Sxy(i,j)=hw*uu*vv 
+        Syy(i,j)=hw*vv*vv        
+      enddo
     enddo
     
     !Add stokes stress gradients to wave forcing
    ! do i=1,nwavei
-	  !i1=min(i+1,nwavei); i2=max(i-1,1)
-	  !do j=1,nwavej
-	  !  j1=min(j+1,nwavej); j2=max(j-1,1)        
+      !i1=min(i+1,nwavei); i2=max(i-1,1)
+      !do j=1,nwavej
+      !  j1=min(j+1,nwavej); j2=max(j-1,1)        
    !     wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)
    !     wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j)
    !     wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/d2y(j)
@@ -532,9 +532,9 @@
    ! enddo
    
    ! do i=1,nwavei,nwavi-1
-	  !i1=min(i+1,nwavei); i2=max(i-1,1)
-	  !do j=1,nwavej,nwavej-1
-	  !  j1=min(j+1,nwavej); j2=max(j-1,1)        
+      !i1=min(i+1,nwavei); i2=max(i-1,1)
+      !do j=1,nwavej,nwavej-1
+      !  j1=min(j+1,nwavej); j2=max(j-1,1)        
    !     wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/delx(i)
    !     wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/dely(j)
    !     wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/dely(j)
@@ -543,10 +543,10 @@
    ! enddo
    
     do i=2,nwavei-1
-	  i1=min(i+1,nwavei); i2=max(i-1,1)
+      i1=min(i+1,nwavei); i2=max(i-1,1)
       i1=i+1; i2=i-1
-	  do j=2,nwavej-1
-	    j1=j+1; j2=j-1       
+      do j=2,nwavej-1
+        j1=j+1; j2=j-1       
         wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)
         wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j)
         wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/d2y(j)
@@ -580,8 +580,8 @@
     
 !$OMP PARALLEL 
 !$OMP DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hwkw,hw)
-    do i=1,nwavei	  
-	  do j=1,nwavej        
+    do i=1,nwavei      
+      do j=1,nwavej        
         hw=hwave(i,j)
         if(hw<0.01)then
           Sxx(i,j)=0.0; Syy(i,j)=0.0; Sxy(i,j)=0.0
@@ -603,17 +603,17 @@
         !Radiation stresses        
         Sxx(i,j)=E*(cn*(1.0+wcos(i,j)*wcos(i,j))-0.5)
         Syy(i,j)=E*(cn*(1.0+wsin(i,j)*wsin(i,j))-0.5)
-	    Sxy(i,j)=E*cn*wcos(i,j)*wsin(i,j)	    
-	  enddo
+        Sxy(i,j)=E*cn*wcos(i,j)*wsin(i,j)        
+      enddo
     enddo
 !$OMP END DO
 
     !Over-ride wave radiation stress gradients
 !$OMP DO PRIVATE(i,i1,i2,j,j1,j2)
     do i=1,nwavei
-	  i1=min(i+1,nwavei); i2=max(i-1,1)
-	  do j=1,nwavej
-	    j1=min(j+1,nwavej); j2=max(j-1,1)        
+      i1=min(i+1,nwavei); i2=max(i-1,1)
+      do j=1,nwavej
+        j1=min(j+1,nwavej); j2=max(j-1,1)        
         wxrs1(i,j)=(-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j))/rhow
         wyrs1(i,j)=(-(Syy(i,j1)-Syy(i,j2))/d2y(j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i))/rhow
       enddo
@@ -651,8 +651,8 @@
     
 !$OMP PARALLEL 
 !$OMP DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hk,hw)
-    do i=1,nwavei	  
-	  do j=1,nwavej        
+    do i=1,nwavei      
+      do j=1,nwavej        
         hw=hwave(i,j)
         if(hw<0.01)then
           ECg(i,j)=0.0
@@ -671,16 +671,16 @@
         cn=0.5+hk/sinh(2.0*hk)
         E=0.0625*rhow*grav*wheight(i,j)*wheight(i,j)
         ECg(i,j)=E*cn*c    
-	  enddo
+      enddo
     enddo
 !$OMP END DO
 
     !Modifies the wave dissipation
 !$OMP DO PRIVATE(i,i1,i2,j,j1,j2)
     do i=1,nwavei
-	  i1=min(i+1,nwavei); i2=max(i-1,1)
-	  do j=1,nwavej
-	    j1=min(j+1,nwavej); j2=max(j-1,1)	    
+      i1=min(i+1,nwavei); i2=max(i-1,1)
+      do j=1,nwavej
+        j1=min(j+1,nwavej); j2=max(j-1,1)        
         val=-(ECg(i1,j)-ECg(i2,j))/d2x(i)-(ECg(i,j1)-ECg(i,j2))/d2y(j) !Central difference
         wdiss(i,j)=max(wdiss(i,j),abs(val))*wibr(i,j)
         !wdiss(i,j)=max(wdiss(i,j),abs(val))
@@ -835,8 +835,8 @@
     real(ikind) :: Hrms,dep,Qb,Hb,wk,L,gamma
     
     wk = twopi/L !Wave number    
-	Hb = 0.88/wk*tanh(gamma*wk*dep/0.88) !Miche (1951) criterion, maximum waveheight
-	Qb = exp(-(Hb/Hrms)**2) !proportion of broken waves      
+    Hb = 0.88/wk*tanh(gamma*wk*dep/0.88) !Miche (1951) criterion, maximum waveheight
+    Qb = exp(-(Hb/Hrms)**2) !proportion of broken waves      
     
     return
     endsubroutine brkwavratio    
@@ -908,7 +908,7 @@
          Worb(i) = waveorb_linear(h(i),Whgt(i),Wper(i),Wlen(i))
 !!       Worbrep(i) = Worb(i)/sqrttwo !Old approach
          Worbrep(i) = waveorbrep_ss87(grav,h(i),Whgt(i),Wper(i)) !More accurate  
-      endif	
+      endif    
     enddo
         
     return

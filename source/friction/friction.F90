@@ -80,7 +80,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)	
+    selectcase(cardname)    
     !=== Wall friction ======================
     case('USE_WALL_FRICTION_TERMS','USE_WALL_FRICTION')
       call card_boolean(77,wallfric,ierr)
@@ -92,11 +92,11 @@
       read(77,*) cardname, wallfac
           
    ! case('WALL_MANNINGS_N_CONSTANT')
-	  !backspace(77)
-	  !read(77,*) cardname, wallman
-	  !nwallfric = 2  
+      !backspace(77)
+      !read(77,*) cardname, wallman
+      !nwallfric = 2  
           
-	!=== Bottom Friction =====================  
+    !=== Bottom Friction =====================  
     case('BOTTOM_ROUGHNESS_METHOD')
       backspace(77)
       read(77,*) cardname,cdum
@@ -208,13 +208,13 @@
     case('BOTTOM_FRICTION_COEF_CONSTANT','BOTTOM_FRICTION_CONSTANT','FRICTION_COEFFICIENT_CONSTANT',&
        'BOTTOM_FRICTION_COEF_VALUE','BOTTOM_FRICTION_VALUE','FRICTION_COEFFICIENT_VALUE')
       backspace(77)
-      read(77,*) cardname, cbotfric	
+      read(77,*) cardname, cbotfric    
       mbedfric = 1 
       constbotfric = .true.          
         
     case('LINEAR_BOTTOM_FRICTION_COEF_CONSTANT','LINEAR_FRICTION_COEF_CONSTANT')
       backspace(77)
-      read(77,*) cardname, cbotfric	        
+      read(77,*) cardname, cbotfric            
       mbedfric = 4  
       constbotfric = .true.         
           
@@ -249,7 +249,7 @@
     !==== Wave bottom friction ===========================        
     case('WAVE_BOTTOM_FRICTION_COEFFICIENT','WAVE_BOTTOM_FRICTION_COEF')
       backspace(77)
-      read(77,*) cardname, cfricwav	     
+      read(77,*) cardname, cfricwav         
             
     case('WAVE-CURRENT_MEAN_STRESS','WAVE_CURRENT_MEAN_STRESS')
       backspace(77)
@@ -474,16 +474,16 @@
 342 format(' ',A,T40,F0.2,A)
 353 format(' ',A,T40,F0.3,A)
 345 format(' ',A,T40,F0.5)
-787 format(' ',A,T40,A)	   
+787 format(' ',A,T40,A)       
     
     call fileparts(fricfile,apath,aname,aext)
-	astring=trim(aname) // '.' // aext
+    astring=trim(aname) // '.' // aext
     iunit = (/6, dgunit/)
     do i=1,2
       if(i==2) open(dgunit,file=dgfile,access='append')   
-	  write(iunit(i),*)
-	  write(iunit(i),787)       '  Bottom and Wall Friction'
-	  selectcase(mbedfric)
+      write(iunit(i),*)
+      write(iunit(i),787)       '  Bottom and Wall Friction'
+      selectcase(mbedfric)
         case(0)
           write(iunit(i),787)   '    Dynamic bottom friction:','ON'
           if(mripplewave==1)then
@@ -501,48 +501,48 @@
           write(iunit(i),345)   '      Dune:',roughscaledune
           write(iunit(i),345)   '      Grain:',roughscalegrain
           write(iunit(i),345)   '      Transport:',roughscaletrans
-	    case(1)
-	      if(constbotfric)then
-	        write(iunit(i),353) '    Constant Friction Coeff:',cbotfric,' '      
-	      else
-	        write(iunit(i),787) '    Friction Coeff File:',trim(astring)
-	        write(iunit(i),787) '    Friction Coeff Path:',trim(fricpath)
-	      endif  
-	    case(2)
-	      if(constbotfric)then
-	        write(iunit(i),353) '    Constant Mannings N:',cbotfric,' '      
-	      else
-	        write(iunit(i),787) '    Mannings N File:',trim(astring)
-	        write(iunit(i),787) '    Mannings N Path:',trim(fricpath)
-	      endif  
-	    case(3)  
-	      if(constbotfric)then
-	        write(iunit(i),353) '    Constant Roughness Height:',cbotfric*1000,' mm'	      
-	      else
-	        write(iunit(i),787) '    Roughness Height File:',trim(astring)
-	        write(iunit(i),787) '    Roughness Height Path:',trim(fricpath)
-	      endif
-	    case(4)  
-	      if(constbotfric)then
-	        write(iunit(i),353) '    Constant Linear Friction Coeff: ',cbotfric,' '	      
-	      else
-	        write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'	      
-	        stop
-	      endif    
-	  endselect	
-	  if(wallfric)then
-	    write(iunit(i),787)     '    Wall Friction:','ON'
+        case(1)
+          if(constbotfric)then
+            write(iunit(i),353) '    Constant Friction Coeff:',cbotfric,' '      
+          else
+            write(iunit(i),787) '    Friction Coeff File:',trim(astring)
+            write(iunit(i),787) '    Friction Coeff Path:',trim(fricpath)
+          endif  
+        case(2)
+          if(constbotfric)then
+            write(iunit(i),353) '    Constant Mannings N:',cbotfric,' '      
+          else
+            write(iunit(i),787) '    Mannings N File:',trim(astring)
+            write(iunit(i),787) '    Mannings N Path:',trim(fricpath)
+          endif  
+        case(3)  
+          if(constbotfric)then
+            write(iunit(i),353) '    Constant Roughness Height:',cbotfric*1000,' mm'          
+          else
+            write(iunit(i),787) '    Roughness Height File:',trim(astring)
+            write(iunit(i),787) '    Roughness Height Path:',trim(fricpath)
+          endif
+        case(4)  
+          if(constbotfric)then
+            write(iunit(i),353) '    Constant Linear Friction Coeff: ',cbotfric,' '          
+          else
+            write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'          
+            stop
+          endif    
+      endselect    
+      if(wallfric)then
+        write(iunit(i),787)     '    Wall Friction:','ON'
         write(iunit(i),353)     '    Wall Friction Factor:',wallfac              
-	  else
-	    write(iunit(i),787)     '    Wall Friction:','OFF'
-	  endif    
-	  if(fricbedslope)then
-	    write(iunit(i),787)     '    Bed-slope Friction Factor:','ON'
-	  else
-	    write(iunit(i),787)     '    Bed-slope Friction Factor:','OFF'
+      else
+        write(iunit(i),787)     '    Wall Friction:','OFF'
+      endif    
+      if(fricbedslope)then
+        write(iunit(i),787)     '    Bed-slope Friction Factor:','ON'
+      else
+        write(iunit(i),787)     '    Bed-slope Friction Factor:','OFF'
       endif    
       if(noptset>=3)then
-  	    write(iunit(i),787)     '    Wave-Current Mean Bottom Shear Stress Model:',awavcur(mwavcurint)
+          write(iunit(i),787)     '    Wave-Current Mean Bottom Shear Stress Model:',awavcur(mwavcurint)
         if(mwavcurint==1)then
           write(iunit(i),353)   '    Wave Bottom Friction Coefficient:',cfricwav              
         endif
@@ -551,7 +551,7 @@
         write(iunit(i),787)     '    Bottom boundary layer streaming:','ON'
       endif
     enddo    
-    close(dgunit)		    
+    close(dgunit)            
 
     return        
     endsubroutine fric_print
@@ -667,11 +667,11 @@
     endselect
       
     !Update bottom slope friction coefficient
-	if(fricbedslope .and. calcmorph)then !Only recalculate if morphology change is on
-!$OMP PARALLEL DO PRIVATE(i)	
-  	  do i=1,ncells
-	    cmb(i)=sqrt(1.0+dzbx(i)*dzbx(i)+dzby(i)*dzby(i))
-	  enddo
+    if(fricbedslope .and. calcmorph)then !Only recalculate if morphology change is on
+!$OMP PARALLEL DO PRIVATE(i)    
+        do i=1,ncells
+        cmb(i)=sqrt(1.0+dzbx(i)*dzbx(i)+dzby(i)*dzby(i))
+      enddo
 !$OMP END PARALLEL DO
     endif
 
@@ -692,7 +692,7 @@
 ! but are being implimented here for random waves. 
 ! The bottom orbital velocity is specified here based on the significant
 ! wave height and not the root-mean-squared wave like like Delft-3D
-	if(noptset>=3)then
+    if(noptset>=3)then
       selectcase(mwavcurint) 
       case(1) !Wu 2009
 !$OMP PARALLEL DO PRIVATE(i)                 

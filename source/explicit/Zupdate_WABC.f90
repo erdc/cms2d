@@ -1,5 +1,5 @@
       subroutine update_WABC()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def       
       use bnd_def
@@ -44,7 +44,7 @@
               endif
 
               SWABC(i)%QN(j)=(SWABC(i)%Q(j)+DT*(-GRAV*DETADX/2.D0+RADval  + 0.0*tauwindT) )/(1+0.02*DT*abs(SWABC(i)%Q(j))/HGT**2 )
-	
+    
               !check wetting and drying
               DEPTH1 = -zb(id1)+ETA(id1) 
               DEPTH2 = -zb(id2)+ETA(id2)
@@ -129,8 +129,8 @@
               HPLUS = dep_ave + mwabc(i)%eta(j) !-zb(id1)+eta(id1) !+ MWABC(i)%eta(j) !swabc is added to 
               hminExp = dep_ave + mwabc(i)%eta(j+1) !-zb(id2)+eta(id2) !+ MWABC(i)%eta(j+1) !eta in wse bc routine
               DETADX = ((HPLUS**2.D0 - hminExp**2.D0) - 0.0*(HPLUS+hminExp)*(-zb(Id1)+zb(id2)) )/DELTAX
-	        HGT = (HPLUS+hminExp)/2.D0
-	        loc = MWABC(I)%rad(j)
+            HGT = (HPLUS+hminExp)/2.D0
+            loc = MWABC(I)%rad(j)
               id = MWABC(i)%cell(j)
 
               if(loc.eq.1) then
@@ -179,8 +179,8 @@
               HPLUS = dep_ave + mwabc(i)%eta(j) !-zb(id1)+eta(id1) !+ MWABC(i)%eta(j) !swabc is added to 
               hminExp = dep_ave + mwabc(i)%eta(j+1) !-zb(id2)+eta(id2) !+ MWABC(i)%eta(j+1) !eta in wse bc routine
               DETADX = ((HPLUS**2.D0 - hminExp**2.D0) - 0.0*(HPLUS+hminExp)*(-zb(Id1)+zb(id2)) )/DELTAX
-	        HGT = (HPLUS+hminExp)/2.D0
-	        loc = MWABC(I)%rad(j)
+            HGT = (HPLUS+hminExp)/2.D0
+            loc = MWABC(I)%rad(j)
               id = MWABC(i)%cell(j)
 
               if(loc.eq.1) then

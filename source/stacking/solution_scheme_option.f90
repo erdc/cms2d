@@ -10,9 +10,9 @@
 !    use met_def
 !    use bicgsilu
 !    use comvarbl
-!	use cms_def
+!    use cms_def
 !    use fl_wavegrid
-!	use wave_flgrid
+!    use wave_flgrid
     !use wavestress3D     !For 3D
     use comvarbl, only: ctlfile,nfsch   !STACK:
     use geo_def, only: telfile,igridtype
@@ -59,38 +59,38 @@
     !astring = trim(aname) // '.' // trim(aext)
     !write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
     open(77,file=ctlfile,status='unknown')
-	do k=1,1000
-	  read(77,*,iostat=ierr) cardname
+    do k=1,1000
+      read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:14)=='END_PARAMETERS') exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      if(cardname(1:14)=='END_PARAMETERS') exit
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
 
  !!   open(77,file=ctlfile,status='unknown')
-	!!do k=1,1000
-	!!  read(77,*,err=171,end=171) cardname
-	!!  if(cardname(1:14).eq.'END_PARAMETERS') exit
-	!!  if(cardname(1:1).eq.'!' .or. cardname(1:1).eq.'#') cycle
+    !!do k=1,1000
+    !!  read(77,*,err=171,end=171) cardname
+    !!  if(cardname(1:14).eq.'END_PARAMETERS') exit
+    !!  if(cardname(1:1).eq.'!' .or. cardname(1:1).eq.'#') cycle
       call geo_cards(cardname,foundcard,.false.);    if(foundcard) cycle       !meb 03/11/2019  Added another argument to this call so print statements are ignored for from this subroutine call.
-	  !call ignr_cards(cardname,foundcard); if(foundcard) cycle
-	  call flow_cards(cardname,foundcard,.false.);   if(foundcard) cycle       !meb 03/11/2019  Added another argument to this call so print statements are ignored for from this subroutine call.
-	  !call bnd_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call fric_cards(cardname,foundcard); if(foundcard) cycle
-	  !call hot_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call sed_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call sal_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call wind_cards(cardname,foundcard); if(foundcard) cycle  
-	  !call veg_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call rol_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call out_cards(cardname,foundcard);  if(foundcard) cycle
-!!	  call q3d_cards(cardname,foundcard);  if(foundcard) cycle
-	  !call stat_cards(cardname,foundcard)
-!	  if(.not.foundcard)then
-!	    write(*,*) cardname,' not found'
-!	    open(dgunit,file=dgfile,access='append') 
-!	    write(dgunit,*) cardname,' not found'
-!	    close(dgunit)
-!	  endif
-	enddo
+      !call ignr_cards(cardname,foundcard); if(foundcard) cycle
+      call flow_cards(cardname,foundcard,.false.);   if(foundcard) cycle       !meb 03/11/2019  Added another argument to this call so print statements are ignored for from this subroutine call.
+      !call bnd_cards(cardname,foundcard);  if(foundcard) cycle
+      !call fric_cards(cardname,foundcard); if(foundcard) cycle
+      !call hot_cards(cardname,foundcard);  if(foundcard) cycle
+      !call sed_cards(cardname,foundcard);  if(foundcard) cycle
+      !call sal_cards(cardname,foundcard);  if(foundcard) cycle
+      !call wind_cards(cardname,foundcard); if(foundcard) cycle  
+      !call veg_cards(cardname,foundcard);  if(foundcard) cycle
+      !call rol_cards(cardname,foundcard);  if(foundcard) cycle
+      !call out_cards(cardname,foundcard);  if(foundcard) cycle
+!!      call q3d_cards(cardname,foundcard);  if(foundcard) cycle
+      !call stat_cards(cardname,foundcard)
+!      if(.not.foundcard)then
+!        write(*,*) cardname,' not found'
+!        open(dgunit,file=dgfile,access='append') 
+!        write(dgunit,*) cardname,' not found'
+!        close(dgunit)
+!      endif
+    enddo
 171 close(77)   
     
 

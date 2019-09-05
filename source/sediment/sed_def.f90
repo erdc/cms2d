@@ -312,7 +312,7 @@ module sed_def
     endtype sed_bnd_srcsnk_type
     type(sed_bnd_srcsnk_type), allocatable :: sed_bnd_srcsnk(:)
     
-    !Constant wave parameters for testing and idealized cases	   !From Chris' Code
+    !Constant wave parameters for testing and idealized cases       !From Chris' Code
     !logical :: constant_waves
     
     !Percentile Datasets

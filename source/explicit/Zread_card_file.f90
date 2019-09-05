@@ -1,10 +1,10 @@
       subroutine ReadCardFile_EXP
       !use XMDF
-	  use EXP_Global_def
+      use EXP_Global_def
       USE EXP_transport_def 
       USE EXP_bndcond_def 
-      use EXP_Structures_def 	  
-	  use flow_def, only: hmin
+      use EXP_Structures_def       
+      use flow_def, only: hmin
       use comvarbl, only: ctlfile,dtime  
                  
       implicit none
@@ -38,10 +38,10 @@
       !BC extrabploation
       ADVCOEF = 1.0d0 
       !cohesive
-	  CHparms%Dfac = 1.0
-      !COHD_PATH = "COHES_DIFF"	
-	  !RAINFALL
-	  rainfall = .false.   
+      CHparms%Dfac = 1.0
+      !COHD_PATH = "COHES_DIFF"    
+      !RAINFALL
+      rainfall = .false.   
 
       OPEN(1, FILE=CTLFILE, STATUS='OLD') 
     
@@ -73,9 +73,9 @@
             READ(1,*) CARDNAME, STRINGNAME
             IF     (STRINGNAME.EQ.'WATANABE')  THEN 
               ISEDFORM=1
- 	        ELSEIF (STRINGNAME.EQ.'LUND_CIRP') THEN 
+             ELSEIF (STRINGNAME.EQ.'LUND_CIRP') THEN 
               ISEDFORM=2
- 	        ELSEIF (STRINGNAME.EQ.'EXNER') THEN 
+             ELSEIF (STRINGNAME.EQ.'EXNER') THEN 
               ISEDFORM=2              
             ELSEIF (STRINGNAME.EQ.'A-D')       THEN 
               ISEDFORM=3
@@ -323,7 +323,7 @@
       ENDDO
 
       CLOSE(1)
-	    
+        
       return
       end subroutine
     

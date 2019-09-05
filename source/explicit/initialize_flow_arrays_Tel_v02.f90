@@ -1,10 +1,10 @@
       subroutine initialize_flow_arrays_tel
 #include "CMS_cpp.h"    
-	  use EXP_Global_def
+      use EXP_Global_def
       USE EXP_transport_def 
       USE EXP_bndcond_def
       use size_def    
-	  use flow_def, only: eta,iwet
+      use flow_def, only: eta,iwet
       use met_def, only: tauwindx,tauwindy   
       use wave_flowgrid_def, only: wavestrx,wavestry
       use geo_def, only: zb,cell2cell,idirface,dx,dy,mapid
@@ -75,7 +75,7 @@
       id2 = linktodummiesTel(2,i)
       dx(id2) = dx(id1)
       dy(id2) = dy(id1)    
-    enddo	    
+    enddo        
 
     !put cell mapping info into cellmap array
     !this array combines implicit code cell2cell and idirface arrays
@@ -878,7 +878,7 @@
       ADVECTY(I) = 0.0
       iWET(I) = 1
       RHOPrim(I) = 1.0          !CR - 01/21/2009
-    ENDDO	
+    ENDDO    
 
     if(ADVECT .or. mixing .or. saltrans) then
       allocate (Fuu(0:numxfaces),Fuv(0:numxfaces),Gvv(0:numyfaces),Gvu(0:numyfaces))
@@ -903,7 +903,7 @@
       eta(id2) = eta(id1)
       etan(id2) = etan(id1)
       zb(id2) = zb(id1)       
-    enddo	
+    enddo    
 
     !These arrays are from the IMPLICIT code, and may or may not be dimensioned,
     !however they are needed for the explicit flowcode even if wind or waves are 

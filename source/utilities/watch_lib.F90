@@ -79,7 +79,7 @@ contains
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
     
-    do i=1,2	    
+    do i=1,2        
       write(iunit(i),*) ''   
       write(iunit(i),222) ' Watches:','ON'
     enddo

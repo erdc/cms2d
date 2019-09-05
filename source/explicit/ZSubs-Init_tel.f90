@@ -61,7 +61,7 @@
               sum = sum + dx(ID_T)
             enddo  
             do j=1,Q_str(i)%Ntimes
-            Q_str(i)%qcurv(j)	=   Q_str(i)%qcurv(j)/sum
+            Q_str(i)%qcurv(j)    =   Q_str(i)%qcurv(j)/sum
             enddo            
           endif
           if(icntT.eq.icnt_E) then
@@ -75,7 +75,7 @@
               sum = sum + dy(ID_T)
             enddo
             do j=1,Q_str(i)%Ntimes
-            Q_str(i)%qcurv(j)	=   Q_str(i)%qcurv(j)/sum
+            Q_str(i)%qcurv(j)    =   Q_str(i)%qcurv(j)/sum
             enddo
           endif
           ! no need to shift cells for W and S cases, since these cell faces are the 
@@ -90,7 +90,7 @@
               sum = sum + dx(ID_T)
             enddo
             do j=1,Q_str(i)%Ntimes
-            Q_str(i)%qcurv(j)	=   Q_str(i)%qcurv(j)/sum
+            Q_str(i)%qcurv(j)    =   Q_str(i)%qcurv(j)/sum
             enddo              
           endif
           if(icntT.eq.icnt_W) then
@@ -103,7 +103,7 @@
               sum = sum + dy(ID_T)
             enddo
             do j=1,Q_str(i)%Ntimes
-            Q_str(i)%qcurv(j)	=   Q_str(i)%qcurv(j)/sum
+            Q_str(i)%qcurv(j)    =   Q_str(i)%qcurv(j)/sum
             enddo
         endif
           
@@ -186,7 +186,7 @@
               SWABC(i)%RAD(Ndim),SWABC(i)%WDTH(Ndim),SWABC(i)%QN(Ndim))
 
             WRITE(STR,'(I0)')I
-            SWABC(i)%name = 'SWABC_'//trim(STR)	
+            SWABC(i)%name = 'SWABC_'//trim(STR)    
             do j=1,H_Str(i)%ncells - 1
               id1 = H_Str(i)%cells(j)
               id2 = H_Str(i)%cells(j+1)
@@ -210,7 +210,7 @@
                 SWABC(i)%eta(j) = 0
                 SWABC(i)%del(j) = (dy(id1)+dy(id2))/2.
                 SWABC(i)%wdth(j) = min(dx(id1),dx(id2))
-              endif	
+              endif    
                if(id2.eq.cellmap(7,id1) .or. id2.eq.cellmap(8,id1) ) then   ! cell string directed to the west
                 SWABC(i)%sgn(j) = 1
                 SWABC(i)%rad(j) = 1
@@ -290,7 +290,7 @@
               TWABC(i)%eta(j) = 0
               TWABC(i)%del(j) = (dy(id1)+dy(id2))/2.
               TWABC(i)%wdth(j) = min(dx(id1),dx(id2))
-            endif	
+            endif    
             if(id2.eq.cellmap(7,id1) .or. id2.eq.cellmap(8,id1)) then
               TWABC(i)%sgn(j) = 1
               TWABC(i)%rad(j) = 1
@@ -326,7 +326,7 @@
         if(nMHstr .ge. 0) then
           ALLOCATE (MWABC(nMHstr))
           do i=1,nMHstr
-            Ndim = MH_Str(i)%ncells	
+            Ndim = MH_Str(i)%ncells    
             ALLOCATE (MWABC(i)%Q(Ndim),MWABC(i)%ETA(Ndim),               &
               MWABC(i)%del(Ndim),MWABC(i)%SGN(Ndim),MWABC(i)%CELL(Ndim), &
               MWABC(i)%RAD(Ndim),MWABC(i)%WDTH(Ndim),MWABC(i)%QN(Ndim))
@@ -354,7 +354,7 @@
                 MWABC(i)%eta(j) = 0
                 MWABC(i)%del(j) = (dy(id1)+dy(id2))/2.
                 MWABC(i)%wdth(j) = min(dx(id1),dx(id2))
-              endif	
+              endif    
               if(id2.eq.cellmap(7,id1) .or. id2.eq.cellmap(8,id1)) then
                 MWABC(i)%sgn(j) = 1
                 MWABC(i)%rad(j) = 1
@@ -391,7 +391,7 @@
 #ifdef DEBUG
         write(DGUNIT,*)'finished initalizing radiation stress'
 #endif
-      endif  ! radstr or wndsim or wind_spatial		 CR
+      endif  ! radstr or wndsim or wind_spatial         CR
       
       RETURN
       END SUBROUTINE INITIALIZE_WABC_tel
@@ -582,20 +582,20 @@
           allocate(cohes_bc_cells(nQstr,ndummy))
           !now assign cell values
           do i=1,nQstr
-            if(QstringEXP(I)%Vface .eqv. .true.) then !then on north or south face  	
+            if(QstringEXP(I)%Vface .eqv. .true.) then !then on north or south face      
               do j=1,Q_Str(I)%NCELLS
                 ID_T = Q_Str(I)%cells(j)
                 if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the north face
                 if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(3,ID_T) !on the south face
              enddo
            endif
-           if(QstringEXP(I)%Vface .eqv. .false.) then !then on east or west face  	
+           if(QstringEXP(I)%Vface .eqv. .false.) then !then on east or west face      
              do j=1,Q_Str(I)%NCELLS
                ID_T = Q_Str(I)%cells(j)
                if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the east face
                if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(4,ID_T) !on the west face
               enddo
-            endif	 
+            endif     
           enddo      
         endif !end cohes_flow_bc
       

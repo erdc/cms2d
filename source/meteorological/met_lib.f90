@@ -524,7 +524,7 @@ contains
     endsubroutine read_pres_owi
     
 !**************************************************************************
-	subroutine read_blended_winds(wunit,thrs,uw,vw,ierr)
+    subroutine read_blended_winds(wunit,thrs,uw,vw,ierr)
 ! Reads a NOAA blended winds file
 !**************************************************************************
     use comvarbl, only: tjulday0
@@ -548,13 +548,13 @@ contains
     call julian2calendar(tjuldayw,iyrw,imow,idayw,ihrw,iminw,isecw)
     
 456 format(I4.4,I2.2,I2.2)
-    write(fname(3:10),456) iyrw,imow,idayw	!for daily files, each contains 4 (6-hrly) records
+    write(fname(3:10),456) iyrw,imow,idayw    !for daily files, each contains 4 (6-hrly) records
     fin = trim(fpath) // trim(fname)
     write(*,*) ' Reading Blended Sea Winds File: ',fin
     open(wunit,file=fin,form='unformatted',status='old',convert='big_endian') !daily files,each contains 4 (6-hrly) records 
     do k=1,4
       read(wunit) uw(:,:)
-	  read(wunit) vw(:,:)
+      read(wunit) vw(:,:)
       if(ihrw<=(k-1)*6) exit 
     enddo
     close(wunit)

@@ -343,7 +343,7 @@
          cc = ep2 * cos (phi) * cos (phi)
 
     !!! Not needed (dhg) k = k0 * (1 + (1+cc)*aa2/2 + (5-4*tt+42*cc+13*cc*cc-28*ep2) * aa4 / 24.0 + &
-    !!! Not needed (dhg) 	     (61-148*tt+16*tt*tt) * aa6 / 720.0)
+    !!! Not needed (dhg)          (61-148*tt+16*tt*tt) * aa6 / 720.0)
          x = k0 * nn * (aa + (1.0d0-tt+cc) * aa3 / 6.0d0 + 
      &          (5.0d0-18.0d0*tt+tt*tt+72.0d0*cc-58.0d0*ep2) * aa5 / 120.0d0)
          y = k0 * (mm - mm0 + nn * tan (phi) *

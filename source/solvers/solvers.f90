@@ -52,7 +52,7 @@ d1: do k=1,10
       foundcard = .true.
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)    
       case('MATRIX_SOLVER','SOLVER_TYPE')
         backspace(77)
@@ -245,11 +245,11 @@ d1: do k=1,10
       case(1)
         call gauss_seidel(nswp(n),acoef,ap,ss,phi)
       case(2)
-	    if(n==1 .and. rmom(1)<1.0e-3)then
-	      !call gauss_seidel_SOR(nswp(n),relaxsor,acoef,ap,ss,phi)
+        if(n==1 .and. rmom(1)<1.0e-3)then
+          !call gauss_seidel_SOR(nswp(n),relaxsor,acoef,ap,ss,phi)
           call solv_ssor(nswp(n),relaxsor,acoef,ap,ss,phi)
         else
-	      !call gauss_seidel(nswp(n),acoef,ap,ss,phi)
+          !call gauss_seidel(nswp(n),acoef,ap,ss,phi)
           call solv_sgs(nswp(n),acoef,ap,ss,phi)
         endif
       case(3)
@@ -266,9 +266,9 @@ d1: do k=1,10
           nswp(2:3)=nswp0(2:3)*4
           nswp(4:5)=nswp0(2:3)*3
           if(n==1 .and. rmom(n)<1.0e-3)then
-	        call gauss_seidel_SOR(nswp(n),relaxsor,acoef,ap,ss,phi)
+            call gauss_seidel_SOR(nswp(n),relaxsor,acoef,ap,ss,phi)
           else
-	        call gauss_seidel(nswp(n),acoef,ap,ss,phi)
+            call gauss_seidel(nswp(n),acoef,ap,ss,phi)
           endif 
           nswp(1:3)=nswp0(1:3)
         endif  

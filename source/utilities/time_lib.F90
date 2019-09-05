@@ -92,7 +92,7 @@ contains
     julday=iday-32075+1461*(iyr+4800+(imo-14)/12)/4 &
            +367*(imo-2-(imo-14)/12*12)/12 &
            -3*((iyr+4900+(imo-14)/12)/100)/4         
-	julday = julday - 2415019  !ADDED TO MAKE CONSISTENT WITH EXCELL JULIAN DATE
+    julday = julday - 2415019  !ADDED TO MAKE CONSISTENT WITH EXCELL JULIAN DATE
     
     return
     endfunction julday

@@ -1,6 +1,6 @@
       subroutine update_ADSS_conc()
-	use size_def; use geo_def
-	use EXP_Global_def; use flow_def; use comvarbl
+    use size_def; use geo_def
+    use EXP_Global_def; use flow_def; use comvarbl
       USE EXP_bndcond_def
       use bnd_def
       use sed_def
@@ -44,8 +44,8 @@
 !$OMP DO PRIVATE (NCW,NCS,DIFFT,DXT,DYT,AREA)
       do i=1,ncells
         ncs = cell2cell(3,i)
-        ncw = cell2cell(4,i)	
-        if(active(i,1)) then	
+        ncw = cell2cell(4,i)    
+        if(active(i,1)) then    
           diffT = (ADSS(i)%diffC+ADSS(ncw)%diffC)/2.
           dxT = (dx(i)+dx(ncw))/2.
           area = dy(i)*(eta(i)-zb(i)+eta(ncw)-zb(ncw))/2.
@@ -94,9 +94,9 @@
       
       subroutine ADeq_conc_BC()
       USE EXP_transport_def 
- 	use EXP_Global_def; use flow_def; use comvarbl
+     use EXP_Global_def; use flow_def; use comvarbl
       USE EXP_bndcond_def     
-	use size_def; use geo_def
+    use size_def; use geo_def
       use bnd_def
       use sed_def
 
@@ -111,13 +111,13 @@
           if(QstringEXP(i)%vface) then 
               
            if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j)
               ncs = cell2cell(3,ii)
               ADSS(ncs)%conc = ADSS(ii)%conc
             enddo
            else  !north face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cell2cell(3,ii)
               ADSS(ii)%conc = ADSS(ncs)%conc
@@ -127,13 +127,13 @@
           else
               
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
               ncw = cell2cell(4,ii)
               ADSS(ncw)%conc = ADSS(ii)%conc         
             enddo
           else  !east face
-            do j=1,Q_str(i)%NCells	!for each cell in string
+            do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)   
               ncw = cell2cell(4,ii)
               ADSS(ii)%conc = ADSS(ncw)%conc
@@ -150,17 +150,17 @@
 ! calculation in the update_adeq_conc subroutine
         do j=1,NQstr  
           if(QstringEXP(j)%vface) then
-            do ii=1,Q_str(j)%NCells	!calculate GVV
+            do ii=1,Q_str(j)%NCells    !calculate GVV
               i=Q_str(j)%cells(ii)
               if(ADSS(i)%qy.gt.0) then
                 ncs = cell2cell(3,i)
                 Gvv(i) = ADSS(i)%qy* ADSS(ncs)%Conc*dx(i)
               else
                 Gvv(i) = ADSS(i)%qy* ADSS(i)%conc*dx(i)
-              endif	
+              endif    
             enddo
           else 
-            do ii=1,Q_str(j)%NCells	!calculate FUU
+            do ii=1,Q_str(j)%NCells    !calculate FUU
               i=Q_str(j)%cells(ii)
               if(ADSS(i)%qx.gt.0) then
                 ncw = cell2cell(4,i)
@@ -178,8 +178,8 @@
             ii=H_str(i)%Cells(j) 
             ncn = cell2cell(1,ii)
             nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)	
-            ncw = cell2cell(4,ii)	            
+            ncs = cell2cell(3,ii)    
+            ncw = cell2cell(4,ii)                
             quT = qx(ii)+qx(nce)
             qvT = qy(ii)+qy(ncn)
 

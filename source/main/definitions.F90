@@ -128,7 +128,7 @@ module comvarbl
     integer :: jday             !Julian day
     integer :: ical(6)          !Calendar date [yyyy,mm,dd,HH,MM,SS]
     real(ikind) :: tjulday0,tjulhr0,tjulhryr,dtj     !Julian days and hours
-	
+    
     !Skewness correction
     logical:: skewcor
     
@@ -161,7 +161,7 @@ module comvarbl
     !Explicit scheme    
     integer:: norder  !Order of solution
     integer:: nriem   !Reimann solver
-    !integer:: nbeta   !Slope limiter		
+    !integer:: nbeta   !Slope limiter        
     !character(len=32) :: abeta(0:6)
     character(len=4) :: ariem(3) !Riemann solver names
     data ariem /'ROE',& !1

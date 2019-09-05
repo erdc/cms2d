@@ -233,7 +233,7 @@
     character(len=100) :: msg2
     
     foundcard = .true.
-    selectcase(cardname)	          
+    selectcase(cardname)              
     !----- On Switch -----------------
     case('CALC_SEDIMENT_TRANSPORT')
       call card_boolean(77,sedtrans,ierr)
@@ -1136,8 +1136,8 @@ d1: do ii=1,10
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit d1
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('NAME')
           backspace(77)
           read(77,*) cardname,sedclass(nsed)%name
@@ -1225,7 +1225,7 @@ d1: do ii=1,10
           call diag_print_warning('Invalid Card: ',cardname,&
             '  Found in block: ','    SEDIMENT_SIZE_CLASS_BEGIN')
         
-	  endselect
+      endselect
     enddo d1
     
     if(sedclass(nsed)%diam<0.0)then
@@ -1341,8 +1341,8 @@ d1: do ii=1,30
       foundcard = .true.
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit d1
-	  if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-	  selectcase(cardname)
+      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+      selectcase(cardname)
         case('BED_LAYER_END','END')
           exit d1
           
@@ -1439,7 +1439,7 @@ d1: do ii=1,30
             write(msg4,*) '  BED_LAYER_BEGIN'
             call diag_print_warning('WARNING: Invalid Card: ',msg2,msg3,msg4)
           endif
-	  endselect
+      endselect
     enddo d1
 
     !Read in bed layer
@@ -1581,7 +1581,7 @@ d1: do ii=1,30
     
     !Surface percentile diameters
     allocate(d50(ncellsD),d90(ncellsD))  !Only ones required. Others only needed for output
-	allocate(d50lay(ncellsD))   !(hli, 03/15/16)
+    allocate(d50lay(ncellsD))   !(hli, 03/15/16)
     
     if(nsed>1) singlesize = .false.
     !==== Multiple-sizes sediment transport =======
@@ -2325,7 +2325,7 @@ d1: do ii=1,30
     open(dgunit,file=dgfile,access='append')
     
     do i=1,2
-	  write(iunit(i),*)     
+      write(iunit(i),*)     
       if(.not.sedtrans)then
         write(iunit(i),111)     'Sediment Transport:','OFF'
         if(i==1) cycle
@@ -2610,11 +2610,11 @@ d1: do ii=1,30
       write(iunit(i),111)       '  Numerical Methods'
       write(iunit(i),111)       '    Matrix Solver:',trim(asolv(nsolv))
       if(ntsch==1)then
-	    write(iunit(i),111)     '    Temporal Scheme:','TWO-LEVEL'
-	  else
-	    write(iunit(i),111)     '    Temporal Scheme:','THREE-LEVEL'
+        write(iunit(i),111)     '    Temporal Scheme:','TWO-LEVEL'
+      else
+        write(iunit(i),111)     '    Temporal Scheme:','THREE-LEVEL'
         write(iunit(i),445)     '    Implicit Weighting Factor:',wtsch  
-	  endif
+      endif
       write(iunit(i),111)       '    Advection Scheme:',trim(advsc(ndsch))
       write(iunit(i),111)       '    Spatial Derivative Scheme:',trim(ader(nder))
       write(iunit(i),233)       '    Maximum transport iterations:',maxitersed    
@@ -2847,7 +2847,7 @@ d1: do ii=1,30
       !--- Total-load sediment transport vectors ---
       !Advective transports
       qtx(i)=u(i)*h(i)*Ct(i)
-	  qty(i)=v(i)*h(i)*Ct(i) 	    
+      qty(i)=v(i)*h(i)*Ct(i)         
       !Diffusive transport (approximate)
       fac=h(i)*vis(i)/schmidt  
       qtx(i)=qtx(i)-fac*sum(rsk(i,:)*dCtkx(i,:))
@@ -2860,7 +2860,7 @@ d1: do ii=1,30
       
     !--- Wave-induced sediment transports ----------
      if(wavesedtrans)then
-!$OMP PARALLEL DO PRIVATE(i)	     
+!$OMP PARALLEL DO PRIVATE(i)         
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
@@ -2883,7 +2883,7 @@ if (icapac.eq.6) then
       !--- Total-load sediment transport vectors ---
       !Suspended advective transport
       qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
-      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i) 	    
+      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         
 
       !Bedload transport
       Hrms = Whgt(i)/sqrt(2.)  
@@ -3040,7 +3040,7 @@ endif
         else
           Worb(i) = 0.78*pi*h(i)/(waveperiod*sinh(arg))
         endif
-      endif	
+      endif    
     enddo
         
     return
@@ -3060,9 +3060,9 @@ endif
         Qws,QwsP,Sb,pbk,Ctk,Ctkstar,rhosed
     use wave_flowgrid_def, only: Wunitx,Wunity
     use interp_def
- 	use cms_def, only: cmswave 
- 	use const_def, only: small
- 	use prec_def
+     use cms_def, only: cmswave 
+     use const_def, only: small
+     use prec_def
     implicit none
     integer :: i,j,k,ks,ih,ibnd,nck
     real(ikind) :: Sw,fk,fp

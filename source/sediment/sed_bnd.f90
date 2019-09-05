@@ -41,15 +41,15 @@
       endif
       call fileparts(sedfluxfile,apath,aname,aext)  
       if(len_trim(apath)==0)then
-	    sedfluxfile = trim(flowpath) // sedfluxfile
-	  endif
-	  inquire(file=sedfluxfile,exist=ok)
-	  if(.not.ok) then
+        sedfluxfile = trim(flowpath) // sedfluxfile
+      endif
+      inquire(file=sedfluxfile,exist=ok)
+      if(.not.ok) then
         write(msg,*) 'Could not find sediment boundary flux file: ',sedfluxfile
         call diag_print_error(msg)
-      endif		
+      endif        
       
-  	  call XF_OPEN_FILE(sedfluxfile,READONLY,PID,ierr)
+        call XF_OPEN_FILE(sedfluxfile,READONLY,PID,ierr)
       do i=1,nsedflux                  
         call XF_OPEN_GROUP(PID,sedfluxpath(i),GID,ierr)
         call XF_GET_PROPERTY_NUMBER(GID,'Sed_Times',nstimes,ierr) !Determine number of time steps
@@ -289,15 +289,15 @@
       if(len_trim(sedsourcefile)==0)then
         sedsourcefile = mpfile
       endif
-	  call fileparts(sedsourcefile,apath,aname,aext)  
-	  if(len_trim(apath)==0)then
-  	    sedsourcefile = trim(flowpath) // sedsourcefile
-	  endif   
-	  inquire(file=sedsourcefile,exist=ok)
-	  if(.not.ok)then
+      call fileparts(sedsourcefile,apath,aname,aext)  
+      if(len_trim(apath)==0)then
+          sedsourcefile = trim(flowpath) // sedsourcefile
+      endif   
+      inquire(file=sedsourcefile,exist=ok)
+      if(.not.ok)then
         write(msg,*) 'Could not find sediment source file: ',sedsourcefile  
         call diag_print_error(msg)
-	  endif
+      endif
       call XF_OPEN_FILE(sedsourcefile,READONLY,PID,ierr)
       do i=1,nsedsource                  
         call XF_OPEN_GROUP(PID,sedsourcepath(i),GID,ierr)
@@ -477,7 +477,7 @@
             qstarcell = max(qstarcell,0.0001) 
             fac = qstarcell/(h(i)*uv(i)*qstartot)
             Ctkstar(nck,ks) = fac*sedbnd(ised,ks) !convert kg/sec to kg/m^3
-			!HLI 01/13/2017
+            !HLI 01/13/2017
             CtstarP(nck,ks) = Ctkstar(nck,ks)/max(pbk(i,ks,1),1.0e-20) !Note i index in pbk, used in bound_c, pbk(i,ks,1)*CtstarP(nck,ks) used as boundary condition
             qsedtot = qsedtot + ds(k,i)*h(i)*uv(i)*Ctkstar(nck,ks)  !kg/sec  
           else

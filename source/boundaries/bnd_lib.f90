@@ -243,34 +243,34 @@ contains
     do k=1,ncface(id2) !Determine the outward face (boundary)
       if(cell2cell(k,id2)>ncells)then
         nbndtemp = nbndtemp + 1
-	    ibndtemp(nbndtemp) = id1
+        ibndtemp(nbndtemp) = id1
         do kk=1,ncface(id1)
           if(idirface(kk,id1)==idirface(k,id2))then
             kfacetemp(nbndtemp) = kk
             exit
           endif
         enddo
-	  endif   
+      endif   
     enddo
-	    
+        
     do j=2,nstrcells-1   !Wu
       id = icells(j)
       do k=1,ncface(id) !Determine the outward face (boundary)
         if(cell2cell(k,id)>ncells)then 
-	      nbndtemp = nbndtemp + 1
-	      ibndtemp(nbndtemp) = id       
-	      kfacetemp(nbndtemp) = k 	          
-	    endif
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id       
+          kfacetemp(nbndtemp) = k               
+        endif
       enddo !k        
     enddo !j   
-	    
+        
     !Use second-to-last cell to determine outward face of last cell in string
     id1 = icells(nstrcells)
     id2 = icells(nstrcells-1)
     do k=1,ncface(id2) !Determine the outward face (boundary)
       if(cell2cell(k,id2)>ncells)then
         nbndtemp = nbndtemp + 1
-	    ibndtemp(nbndtemp) = id1
+        ibndtemp(nbndtemp) = id1
         do kk=1,ncface(id1)
           if(idirface(kk,id1)==idirface(k,id2))then
             kfacetemp(nbndtemp) = kk
@@ -333,30 +333,30 @@ contains
     do k=1,ncface(id2) !Determine the outward face (boundary)
       if(cell2cell(k,id2)>ncells)then
         nbndtemp = nbndtemp + 1
-	    ibndtemp(nbndtemp) = id1
-	    kfacetemp(nbndtemp) = k
-	  endif   
+        ibndtemp(nbndtemp) = id1
+        kfacetemp(nbndtemp) = k
+      endif   
     enddo
-	    
+        
     do j=2,nstrcells-1   !   !Wu
       id = icells(j)
       do k=1,ncface(id) !Determine the outward face (boundary)
         if(cell2cell(k,id)>ncells)then 
-	      nbndtemp = nbndtemp + 1
-	      ibndtemp(nbndtemp) = id       
-	      kfacetemp(nbndtemp) = k 	          
-	    endif
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id       
+          kfacetemp(nbndtemp) = k               
+        endif
       enddo !k        
     enddo !j   
-	    
+        
     !Use second-to-last cell to determine outward face of last cell in string
     id1 = icells(nstrcells)
     id2 = icells(nstrcells-1)
     do k=1,ncface(id2) !Determine the outward face (boundary)
       if(cell2cell(k,id2)>ncells)then
         nbndtemp = nbndtemp + 1
-	    ibndtemp(nbndtemp) = id1
-	    kfacetemp(nbndtemp) = k
+        ibndtemp(nbndtemp) = id1
+        kfacetemp(nbndtemp) = k
       endif
     enddo !k-face
     

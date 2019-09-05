@@ -1,5 +1,5 @@
       subroutine update_salinity_tel()
-	use EXP_Global_def 
+    use EXP_Global_def 
       USE EXP_bndcond_def
       USE EXP_transport_def       
       use bnd_def
@@ -25,7 +25,7 @@
           yTransQ(i) = yTransQ(i) + yface_qn(i)*dt
         enddo
 !$OMP END PARALLEL DO
-	    
+        
         
 !!******************************************************
 !!  calculate salt update for transport time step       
@@ -37,8 +37,8 @@
           
           do i=1,ncellsD
             salt(i)%diffC = 0.0
-            if(iwet(i) .eq. 1) salt(i)%diffC = vis(i)	
-          enddo	
+            if(iwet(i) .eq. 1) salt(i)%diffC = vis(i)    
+          enddo    
       
           !this needs to be done before conc fluc bc 
           !since time-ave flows used to calculate fluxes
@@ -55,7 +55,7 @@
 !$OMP END PARALLEL DO
       
           call update_salinity_bc_tel()
-	
+    
           call update_salt_conc_tel()
           
           xTransQ=0.0
