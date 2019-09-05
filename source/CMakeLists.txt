@@ -200,13 +200,13 @@ SET( CMS_SOURCE_FILES
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
 
-  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -fopenmp -ffree-line-length-none -ffixed-line-length-none -O3" )
+  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -fopenmp -ffree-line-length-none -ffixed-line-length-none -O3 -D__linux" )
 
 ELSEIF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
 
   # Setting -static so that ifort runtime libraries are linked into the executable.
   # Setting -assume no underscore so C code compiled with GCC can be linked by ifort.
-  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-fpp -extend_source 132 -static -assume nounderscore" )
+  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-fpp -extend_source 132 -static -assume nounderscore -D__linux" )
 
 ELSE()
 

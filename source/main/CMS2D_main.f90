@@ -37,8 +37,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 10             !Revision number
-    rdate    = '09/04/2019'
+    revision = 11             !Revision number
+    rdate    = '09/05/2019'
     
 #ifdef _WIN32
     machine='Windows'
@@ -62,8 +62,9 @@
 #else
     call steering_default 
 
-    !call get_com_arg      !get command line arguments
-    call get_com_arg_v2
+    call get_com_arg      !get command line arguments
+
+    !call get_com_arg_v2     !presently enters an infinite loop on Linux and doesn't keep the command line arguments for filenames.
     
     call print_header     !screen and debug file header  
     
