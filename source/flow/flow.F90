@@ -1064,19 +1064,19 @@
         write(iunit(i),342)     '    Salinity:',watersalt,' ppt'
       endif
       write(iunit(i),342)       '    Density:',rhow,' kg/m^3'
-      write(iunit(i),354)       '    Kinematic Viscosity: ',vstrlz(viscos,'(1pe10.3)'),' m^2/s'
+      write(iunit(i),354)       '    Kinematic Viscosity: ',trim(vstrlz(viscos,'(1pe10.3)')),' m^2/s'
 	  write(iunit(i),111)       '  Timing'
 	  write(iunit(i),5431)      iyr,imo,iday,ihr,imin,isec
-	  write(iunit(i),354)       '    Hydrodynamic time step: ',vstrlz(dtime,'(f0.3)'),' sec'
-	  write(iunit(i),354)       '    Simulation Duration: ',vstrlz(tmax,'(f0.3)'),' hours'
-      write(iunit(i),354)       '    Ramp Duration: ',vstrlz(rampdur,'(f0.3)'),' hours'    
+	  write(iunit(i),354)       '    Hydrodynamic time step: ',trim(vstrlz(dtime,'(f0.3)')),' sec'
+	  write(iunit(i),354)       '    Simulation Duration: ',trim(vstrlz(tmax,'(f0.3)')),' hours'
+      write(iunit(i),354)       '    Ramp Duration: ',trim(vstrlz(rampdur,'(f0.3)')),' hours'    
 
       !write(iunit(i),*)	
 	  write(iunit(i),111)	    '  Wetting and Drying'
 #ifdef DEV_MODE
-      write(iunit(i),354)       '    Minimum Depth: ',vstrlz(hmin,'(1pe10.3)'),' m'
+      write(iunit(i),354)       '    Minimum Depth: ',trim(vstrlz(hmin,'(1pe10.3)')),' m'
 #endif
-	  write(iunit(i),354)       '    Drying Depth: ',vstrlz(hdry,'(f0.3)'),' m'	
+	  write(iunit(i),354)       '    Drying Depth: ',trim(vstrlz(hdry,'(f0.3)')),' m'	
       if(ponding)then
 	    write(iunit(i),222)     '    Water Ponding: ','ON'
       else
@@ -1084,8 +1084,8 @@
       endif
       if(narrowchannels)then
 	    write(iunit(i),222)     '    Narrow Channels: ','ON'
-        write(iunit(i),354)     '    One-cell Drying Depth: ',vstrlz(hdry1,'(f0.3)'),' m'	
-        write(iunit(i),354)     '    Two-cell Drying Depth: ',vstrlz(hdry2,'(f0.3)'),' m'	
+        write(iunit(i),354)     '    One-cell Drying Depth: ',trim(vstrlz(hdry1,'(f0.3)')),' m'	
+        write(iunit(i),354)     '    Two-cell Drying Depth: ',trim(vstrlz(hdry2,'(f0.3)')),' m'	
       else
 	    write(iunit(i),222)     '    Narrow Channels:','OFF'
       endif  
@@ -1105,26 +1105,26 @@
     
       if(icoriolisplane==1)then
 	    write(iunit(i),222) '  Coriolis Approximation:','F-PLANE'  
-        write(iunit(i),354) '    Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
-	    write(iunit(i),354) '    Constant Value:',vstrlz(fcoriolis,'(1pe10.3)'),' 1/s'
+        write(iunit(i),354) '    Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
+	    write(iunit(i),354) '    Constant Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
 	  else
 	    write(iunit(i),222) '  Coriolis Approximation:','BETA-PLANE'
-        write(iunit(i),354) '    Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
-	    write(iunit(i),354) '    Central Value:',vstrlz(fcoriolis,'(1pe10.3)'),' 1/s'
+        write(iunit(i),354) '    Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
+	    write(iunit(i),354) '    Central Value:',trim(vstrlz(fcoriolis,'(1pe10.3)')),' 1/s'
 	  endif
     
 	  write(iunit(i),222)   '  Turbulence Model:',trim(aturb(mturbul))
 	  write(iunit(i),111)   '    Coefficients'
-      write(iunit(i),354)   '    Constant:',vstrlz(cviscon,'(1pe10.3)')
+      write(iunit(i),354)   '    Constant:',trim(vstrlz(cviscon,'(1pe10.3)'))
       if(mturbul>=2)then
-        write(iunit(i),354) '    Current Bottom Shear:',vstrlz(cvisbot,'(f0.3)')
+        write(iunit(i),354) '    Current Bottom Shear:',trim(vstrlz(cvisbot,'(f0.3)'))
       endif  
       if(mturbul>=3)then
-        write(iunit(i),354) '    Current Horizontal Shear: ',vstrlz(cvishor,'(f0.3)')
+        write(iunit(i),354) '    Current Horizontal Shear: ',trim(vstrlz(cvishor,'(f0.3)'))
       endif  
       if(noptset>=3)then
-        write(iunit(i),354) '    Wave Bottom Shear:',vstrlz(cviswav,'(f0.3)')
-        write(iunit(i),354) '    Wave Breaking:',vstrlz(cviswavbrk,'(f0.3)')
+        write(iunit(i),354) '    Wave Bottom Shear:',trim(vstrlz(cviswav,'(f0.3)'))
+        write(iunit(i),354) '    Wave Breaking:',trim(vstrlz(cviswavbrk,'(f0.3)'))
 	  endif	
 	
       write(iunit(i),111)   '  Numerical Methods'
@@ -1145,26 +1145,26 @@
 	      write(iunit(i),222) '    Temporal Scheme:','TWO-LEVEL'
 	    else
 	      write(iunit(i),222) '    Temporal Scheme:','THREE-LEVEL'
-          write(iunit(i),354) '    Implicit Weighting Factor:',vstrlz(wtsch,'(f0.3)')
+          write(iunit(i),354) '    Implicit Weighting Factor:',trim(vstrlz(wtsch,'(f0.3)'))
 	    endif
         write(iunit(i),222)   '    Advection Scheme:',trim(advsc(ndsch))
         write(iunit(i),222)   '    Matrix Solver:',trim(asolv(nsolv))
         if(nsolv==2 .or. nsolv==5)then
-          write(iunit(i),354) '    SOR Constant:',vstrlz(relaxsor,'(f0.3)')
+          write(iunit(i),354) '    SOR Constant:',trim(vstrlz(relaxsor,'(f0.3)'))
         endif   
         write(iunit(i),801)   '    Maximum Solver Iterations:',maxit
         write(iunit(i),801)   '    Pressure Iterations:',nswp(1)
         write(iunit(i),801)   '    Velocity Iterations:',nswp(2)   
-        write(iunit(i),354)   '    Pressure Relaxation:',vstrlz(relax(8),'(f0.3)')
-        write(iunit(i),354)   '    Velocity Relaxation:',vstrlz(relax(2),'(f0.3)')
-        write(iunit(i),354)   '    Pressure Max Residual:',vstrlz(rmommaxp,'(1pe10.3)')
-        write(iunit(i),354)   '    Pressure Target Residual:',vstrlz(rmomtargetp,'(1pe10.3)')
-        write(iunit(i),354)   '    Pressure Min Residual:',vstrlz(rmomminp,'(1pe10.3)')
-        write(iunit(i),354)   '    Velocity Max Residual:',vstrlz(rmommaxuv,'(1pe10.3)')
-        write(iunit(i),354)   '    Velocity Target Residual:',vstrlz(rmomtargetuv,'(1pe10.3)')
-        write(iunit(i),354)   '    Velocity Min Residual:',vstrlz(rmomminuv,'(1pe10.3)')
-        write(iunit(i),354)   '    Water Level Max:',vstrlz(presmax*gravinv,'(f0.3)'), ' m'
-        write(iunit(i),354)   '    Velocity Max:',vstrlz(velmax,'(f0.3)'),' m/s'
+        write(iunit(i),354)   '    Pressure Relaxation:',trim(vstrlz(relax(8),'(f0.3)'))
+        write(iunit(i),354)   '    Velocity Relaxation:',trim(vstrlz(relax(2),'(f0.3)'))
+        write(iunit(i),354)   '    Pressure Max Residual:',trim(vstrlz(rmommaxp,'(1pe10.3)'))
+        write(iunit(i),354)   '    Pressure Target Residual:',trim(vstrlz(rmomtargetp,'(1pe10.3)'))
+        write(iunit(i),354)   '    Pressure Min Residual:',trim(vstrlz(rmomminp,'(1pe10.3)'))
+        write(iunit(i),354)   '    Velocity Max Residual:',trim(vstrlz(rmommaxuv,'(1pe10.3)'))
+        write(iunit(i),354)   '    Velocity Target Residual:',trim(vstrlz(rmomtargetuv,'(1pe10.3)'))
+        write(iunit(i),354)   '    Velocity Min Residual:',trim(vstrlz(rmomminuv,'(1pe10.3)'))
+        write(iunit(i),354)   '    Water Level Max:',trim(vstrlz(presmax*gravinv,'(f0.3)')), ' m'
+        write(iunit(i),354)   '    Velocity Max:',trim(vstrlz(velmax,'(f0.3)')),' m/s'
         if(skewcor)then
           write(iunit(i),222) '    Skewness Correction:','ON'
         else

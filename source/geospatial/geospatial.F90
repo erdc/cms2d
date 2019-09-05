@@ -271,11 +271,11 @@
       
       if(igridtype<=1)then
         if(grdpath(1:1)/=' ') write(iunit(i),787)  '  Depth Dataset:',trim(grdpath)  
-        write(iunit(i),144)  '  Orientation:',vstrlz(val,'(f0.3)'),' deg'    !Writes out the same value that was written in the .cmcards file - MEB 01/13/2017
-	    write(iunit(i),144)  '  x-Origin:',vstrlz(xorigin,'(f0.3)'),' m'
-	    write(iunit(i),144)  '  y-Origin:',vstrlz(yorigin,'(f0.3)'),' m'
+        write(iunit(i),144)  '  Orientation:',trim(vstrlz(val,'(f0.3)')),' deg'    !Writes out the same value that was written in the .cmcards file - MEB 01/13/2017
+	    write(iunit(i),144)  '  x-Origin:',trim(vstrlz(xorigin,'(f0.3)')),' m'
+	    write(iunit(i),144)  '  y-Origin:',trim(vstrlz(yorigin,'(f0.3)')),' m'
       endif
-	  write(iunit(i),144)    '  Average Latitude:',vstrlz(avg_lat,'(f0.3)'),' deg'
+	  write(iunit(i),144)    '  Average Latitude:',trim(vstrlz(avg_lat,'(f0.3)')),' deg'
       write(iunit(i),222)    '  Total cells:',ncellsD
       write(iunit(i),222)    '  Active cells:',ncells
       if(igridtype==1)then

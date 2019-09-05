@@ -2519,7 +2519,7 @@ d1: do i=1,ntf
         write(iunit(i),141)     '      Cellstring Path:',trim(TH_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',TH_str(iwse)%ncells
         if (TH_str(iwse)%ioffsetmode.eq.1) then
-          write(iunit(i),341)   '      Water/Sea Level Change Offset:',vstrlz(TH_str(iwse)%wseoffset,'(f0.3)'),' m'
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',trim(vstrlz(TH_str(iwse)%wseoffset,'(f0.3)')),' m'
         elseif (TH_str(iwse)%ioffsetmode.eq.2)then
           write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(TH_str(iwse)%offsetfile)    
         endif
@@ -2593,7 +2593,7 @@ d1: do i=1,ntf
           write(iunit(i),353)   '      Water Level Value:',H_str(iwse)%wseconst,' m'  
         endif  
         if (H_str(iwse)%ioffsetmode.eq.1) then
-          write(iunit(i),341)   '      Water/Sea Level Change Offset:',vstrlz(H_str(iwse)%wseoffset,'(f0.3)'),' m'
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',trim(vstrlz(H_str(iwse)%wseoffset,'(f0.3)')),' m'
         elseif (H_str(iwse)%ioffsetmode.eq.2)then
           write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(H_str(iwse)%offsetfile)    
         endif
