@@ -76,7 +76,7 @@
     mturbul = 5
     cvismax = 20.0
     cviscon = 1.0e-6 !constant (base value)
-        cvisbot = 0.0667 !bottom current shear
+    cvisbot = 0.0667 !bottom current shear
     if(mturbul==5) cvisbot = 0.0667 !bottom current shear
     cvishor = 0.4    !horizontal current, OLD
     if(mturbul==5) cvishor = 0.2    !horizontal curren, NEW 
