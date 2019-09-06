@@ -135,11 +135,11 @@
     character(len=10)  :: aext
     character(len=37)  :: cardname
     character(len=200) :: apath,aname
-    character(len=400) :: aline
+    character(len=400) :: aline,afile
     integer :: ierr, ival,nquotes,aNumber
     logical :: foundfile
 ! added 5/21/2018
-    integer :: ival1,ival2
+    integer :: ival1,ival2,ilen
     logical :: isMP, isLatLong
     
     backspace(inunit)
@@ -150,6 +150,17 @@
     endif
     call fileparts(datafile,apath,aname,aext)
     call lowercase(aext)
+
+    ilen=len_trim(aPath)-1
+    if (ilen.gt.0) then
+#ifdef _WIN32
+      aFile = trim(aPath(1:ilen))//'\'//trim(aName)//'.'//trim(aExt)
+#else
+      aFile = trim(aPath(1:ilen))//'/'//trim(aName)//'.'//trim(aExt)
+#endif
+      datafile = trim(aFile)
+    endif
+
     if(len_trim(aext)==0)then !Is NOT a file. It is a path
       datapath = datafile
       datafile = defaultfile !Assume the file is the grid file
@@ -383,16 +394,28 @@
     character(len=*),intent(inout) :: bidpath  !Boundary ID Path (for XMDF files)
     integer,         intent(out)   :: idnum    !Boundary ID number within bid file
     !Internal Variables
-    character(len=10) :: aext
-    character(len=37) :: cardname
+    character(len=10)  :: aext
+    character(len=37)  :: cardname
     character(len=200) :: aname,apath
-    logical :: foundfile
+    character(len=300) :: aFile
+    integer            :: ilen
+    logical            :: foundfile
     
     !Read file and path
     backspace(77)
     read(77,*) cardname,bidfile,bidpath
     call fileparts(bidfile,apath,aname,aext)
     
+    ilen=len_trim(aPath)-1
+    if(ilen .gt. 0) then
+#ifdef _WIN32
+      aFile = trim(aPath(1:ilen))//'\'//trim(aName)//'.'//trim(aExt)
+#else
+      aFile = trim(aPath(1:ilen))//'/'//trim(aName)//'.'//trim(aExt)
+#endif
+      bidfile = trim(aFile)
+    endif
+
     !Check file exists and guess path if necessary
     inquire(file=bidfile,exist=foundfile)  
     if(.not.foundfile .and. len_trim(apath)==0)then

@@ -11,7 +11,7 @@
     integer :: i,k,nn    
     
     nn = len_trim(astr)    
-    !Determmin path
+    !Determine path
     apath = ''   
     do k=nn,1,-1
       if(astr(k:k)=='\' .or. astr(k:k)=='/')then
