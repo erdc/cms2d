@@ -800,7 +800,7 @@
     maxit0=maxit      
     rmom0=1.e10
     rmom=0.0
-    
+  
 !$  if(nthr>=1) call omp_set_num_threads(nthr)
 !!$  nthr = omp_get_num_threads() 
 
