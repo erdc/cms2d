@@ -92,7 +92,7 @@
     enddo
 #else
     call diag_print_error('Temperature not available without XMDF at present time')
-#endif      
+#endif
     
     deallocate(vtemp)
 
