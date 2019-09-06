@@ -7,7 +7,7 @@ CMS is developed by the USACE - Coastal and Hydraulics Laboratory
 
 
 To build CMS On linux you must have CMAKE software above 3.4
-1) `cd trunk/source`
+1) `cd source`
 
 2) `cmake .`
 
@@ -16,4 +16,4 @@ To build CMS On linux you must have CMAKE software above 3.4
 This will leave you with an executable named 'cms' in your local working directory 
 
 To clean all of the intermediate files and old executable, type 'make clean' from the 
-"trunk/source" directory.
+"source" directory.
