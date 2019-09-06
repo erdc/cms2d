@@ -52,14 +52,14 @@
       call card_scalar(77,'min','min',dredge_interval,ierr)   !Default read-in units if not specified - minutes, convert to units - minutes
 
     case('DREDGE_OPERATION_BEGIN')
-#ifdef _WIN32        
       ndredge_operations = ndredge_operations + 1 
       dredging = .true.
+!#ifdef _WIN32        
       call dredge_operation_increment()         
       call dredge_op_block()
-#else
-      call diag_print_error('Dredge Operation not presently possible with ASCII-only input')
-#endif
+!#else
+!      call diag_print_error('Dredge Operation not presently possible with ASCII-only input')
+!#endif
       
     case('OUTPUT_DREDGE_DIAGNOSTICS')
       call card_boolean(77,write_dredge_diag,ierr)        
@@ -128,6 +128,8 @@
     use diag_def
     use diag_lib
     use unitconv_lib, only: unitconv_var
+    use geo_def, only: grdfile
+    use comvarbl, only: flowpath
     implicit none
 
     integer :: kk,ierr,m
@@ -144,8 +146,9 @@
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
       selectcase(cardname)
       case('DEPTH_DATASET')
-        backspace(77)
-        read(77,*)cardname,File,Path             
+        call card_dataset(77,grdfile,flowpath,File,Path,1) 
+        !backspace(77)
+        !read(77,*)cardname,File,Path             
         dredge_operations(ndredge_operations)%DredgeSourceAreaFile = trim(File)
         dredge_operations(ndredge_operations)%DredgeSourceAreaPath = trim(Path)
 !        write(msg2,*)'  Dredge file: ',trim(dredge_operations(ndredge_operations)%DredgeSourceAreaFile)
@@ -280,6 +283,9 @@
 ! written by Chris Reed
 !********************************************************************
     use dredge_def
+    use geo_def, only: grdfile
+    use comvarbl, only: flowpath
+   
     implicit none
 
     integer :: kk,ierr
@@ -310,10 +316,11 @@
       selectcase(cardname) 
 
       case('AREA','AREA_DATASET')
-      backspace(77)
-      read(77,*)cardname,File,Path             
-      dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas) = trim(File)
-      dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas) = trim(Path)
+        call card_dataset(77,grdfile,flowpath,File,Path,1) 
+        !backspace(77)
+        !read(77,*)cardname,File,Path             
+        dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas) = trim(File)
+        dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas) = trim(Path)
       
       case('START_METHOD','PLACEMENT_METHOD')   
         backspace(77)
@@ -553,6 +560,7 @@
     use dredge_def
     use prec_def
     use diag_def, only: dgunit,dgfile
+    use tool_def, only: vstrlz
     implicit none
 
     integer i,j,k,m, iunit(2)
@@ -563,6 +571,7 @@
 134 format(' ',A,T40,F0.4)
 135 format(' ',A,T40,I0,2(2x,F0.2))
 345 format(' ',A,T40,F0.5)
+354 format(' ',A,T40,A,A)    !Added for vstrlz function results
 445 format(' ',A,T40,I0)    
 
     iunit = (/6,dgunit/)
@@ -584,8 +593,8 @@
         enddo
         sum=sum/dredge_operations(j)%NumDredgeAreaCells
 
-        write(iunit(i),345)     '    Average dredge depth:',sum
-        write(iunit(i),134)     '    Dredge rate (m^3/sec):',dredge_operations(j)%Rate
+        write(iunit(i),354)     '    Average dredge depth:',trim(vstrlz(sum,'(f0.2)'))
+        write(iunit(i),354)     '    Dredge rate (m^3/sec):',trim(vstrlz(dredge_operations(j)%Rate,'(f0.4)'))
          
         if(dredge_operations(j)%dredge_approach == 2) then
           write(iunit(i),222)   '    Dredge Start method:','SPECIFIED CELL'          !Previously this was 'CELL'.  I changed to make terminology consistent between interface and CMS input.
@@ -596,13 +605,13 @@
             
         if(dredge_operations(j)%Trigger_Approach == 1) then
           write(iunit(i),222)   '    Trigger method:','DEPTH'
-          write(iunit(i),345)   '    Trigger depth (m):',dredge_operations(j)%Trigger_Depth
+          write(iunit(i),354)   '    Trigger depth (m):',trim(vstrlz(dredge_operations(j)%Trigger_Depth,'(f0.2)'))
         elseif(dredge_operations(j)%Trigger_Approach == 2) then
           write(iunit(i),222)   '    Trigger method:','VOLUME'
-          write(iunit(i),345)   '    Trigger volume (m^3):',dredge_operations(j)%Trigger_Vol
+          write(iunit(i),354)   '    Trigger volume (m^3):',trim(vstrlz(dredge_operations(j)%Trigger_Vol,'(f0.2)'))
         elseif(dredge_operations(j)%Trigger_Approach == 2) then
           write(iunit(i),222)   '    Trigger method:','PERCENT'
-          write(iunit(i),345)   '    Trigger percent (%):',dredge_operations(j)%Trigger_percentage  
+          write(iunit(i),354)   '    Trigger percent (%):',trim(vstrlz(dredge_operations(j)%Trigger_percentage,'(f0.2)'))
         elseif(dredge_operations(j)%Trigger_Approach == 4) then
           write(iunit(i),222)   '    Trigger method:','TIME PERIODS'
           write(iunit(i),445)   '    Num. trigger time periods:',dredge_operations(j)%num_trigger_intervals
@@ -631,11 +640,11 @@
             write(iunit(i),445) '        Starting cell:',dredge_operations(j)%Placement_start_cell(k) 
           endif        
           if(dredge_operations(j)%Placement_Depth(k) > -999.0) &
-            write(iunit(i),133) '        Depth Limit (m):',dredge_operations(j)%Placement_Depth(k)
+            write(iunit(i),354) '        Depth Limit (m):',trim(vstrlz(dredge_operations(j)%Placement_Depth(k),'(f0.2)'))
           if(dredge_operations(j)%Placement_thickness(k) > -999.0) & 
-            write(iunit(i),133) '        Thickness Limit (m):',dredge_operations(j)%Placement_thickness(k)
+            write(iunit(i),354) '        Thickness Limit (m):',trim(vstrlz(dredge_operations(j)%Placement_thickness(k),'(f0.2)'))
           if(dredge_operations(j)%PAMETHOD == 2) & 
-            write(iunit(i),133) '        Distribution %:',dredge_operations(j)%DredgePlacementAllocation(k)
+            write(iunit(i),354) '        Distribution %:',trim(vstrlz(dredge_operations(j)%DredgePlacementAllocation(k),'(f0.2)'))
         enddo         
       enddo
     enddo  
@@ -731,6 +740,8 @@
       
       call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
       if (write_dredge_diag) write(2056,*)'Internal dredge data read error  = ',error      
+
+      call XF_CLOSE_FILE(DFILE_ID,error)
 #endif
       case('txt')
         call readscalTxt(datafile,TMPARRAY,error)
@@ -742,6 +753,10 @@
           sumcells = sumcells + 1
         endif
       enddo
+      if(sumcells == 0) then
+        call diag_print_error('No cells specified in Dredge dataset')
+      endif
+      
       dredge_operations(k)%NumDredgeAreaCells = sumcells
       allocate (dredge_operations(k)%DredgeAreaCells(sumcells),dredge_operations(k)%Dredge_depth(sumcells))
       dredge_operations(k)%dredge_depth = 0.0
@@ -754,9 +769,6 @@
           dredge_operations(k)%dredge_depth(kk) = TMPARRAY(i)
         endif
       enddo  
-#ifdef XMDF_IO
-      call XF_CLOSE_FILE(DFILE_ID,error)
-#endif      
 
       ! get list of cells in each placement area and convert to active grid
       SumMax = 0
@@ -776,41 +788,62 @@
           call diag_print_error(msg)
         endif
         datapath = dredge_operations(k)%DredgePlaceAreaPath(j)
-
+        error = -999
+      
+        call fileext(trim(datafile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
-        call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error) 
-        if (write_dredge_diag) write(2056,*)'Internal placement data file number = ',error        
+          call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error) 
+          if (write_dredge_diag) write(2056,*)'Internal placement data file number = ',error        
         
-        call XF_OPEN_GROUP(DFILE_ID,trim(dataPATH),DCELL_ID,error)
-        if (write_dredge_diag) write(2056,*)'Internal placement data path number = ',error         
+          call XF_OPEN_GROUP(DFILE_ID,trim(dataPATH),DCELL_ID,error)
+          if (write_dredge_diag) write(2056,*)'Internal placement data path number = ',error         
         
-        call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
-        if (write_dredge_diag) write(2056,*)'Internal placement data read error  = ',error          
+          call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)
+          if (write_dredge_diag) write(2056,*)'Internal placement data read error  = ',error          
+
+          call XF_CLOSE_FILE(DFILE_ID,error)  
 #endif
+        case('txt')
+          call readscalTxt(datafile,TMPARRAY,error)
+        end select
         
         sumcells = 0
         do i = 1,ncellsfull
           if(TMPARRAY(i) > 1.0e-20) sumcells = sumcells + 1
         enddo
+        if(sumcells == 0) then
+          call diag_print_error('No cells specified in Dredge dataset')
+        endif
+        
         dredge_operations(k)%NumPlacementAreaCells(j) = sumcells
         if (write_dredge_diag) write(2056,*)'PA # of cells: ',k,j,dredge_operations(k)%NumPlacementAreaCells(j)
         SumMax = max(SumMax,sumcells)
-#ifdef XMDF_IO
-        call XF_CLOSE_FILE(DFILE_ID,error)  
-#endif
         if (write_dredge_diag) write(2056,*)'sumMax = ',sumMax
       ENDDO
+      
       allocate(dredge_operations(k)%PlacementAreaCells(dredge_operations(k)%NumPlacementAreas,SumMax)) 
       allocate(dredge_operations(k)%Placement_Limit(dredge_operations(k)%NumPlacementAreas,SumMax))        
       allocate(dredge_operations(k)%Placement_Area(dredge_operations(k)%NumPlacementAreas))
       DO j=1,dredge_operations(k)%NumPlacementAreas 
         datafile = dredge_operations(k)%DredgePlaceAreaFile(j)        
         datapath = dredge_operations(k)%DredgePlaceAreaPath(j)
+        error = -999
+      
+        call fileext(trim(datafile),aext)      
+        select case (aext)
+        case('h5')
 #ifdef XMDF_IO
         call XF_OPEN_FILE(datafile,READONLY,DFILE_ID,error)         
         call XF_OPEN_GROUP(DFILE_ID,trim(dataPATH),DCELL_ID,error)
         call XF_READ_SCALAR_VALUES_TIMESTEP(DCELL_ID,1,ncellsfull,TMPARRAY,error)   
+        call XF_CLOSE_FILE(DFILE_ID,error)      
 #endif        
+        case('txt')
+          call readscalTxt(datafile,TMPARRAY,error)
+        end select
+
         kk=0
         do i = 1,ncellsfull
           if(TMPARRAY(i) > 1.0e-20) then
@@ -828,9 +861,6 @@
           ii=dredge_operations(k)%PlacementAreaCells(j,i)
           dredge_operations(k)%Placement_Area(j)=dredge_operations(k)%Placement_Area(j)+dx(ii)*dy(ii)
         enddo
-#ifdef XMDF_IO
-        call XF_CLOSE_FILE(DFILE_ID,error)      
-#endif
       ENDDO 
     
       !calculate placement limit for each placment area
@@ -938,8 +968,7 @@
       endif  
     enddo  !end of dredge operations
 999 FORMAT (A,1000(',',a19))
-    
-    
+        
     !convert dredge time interval from minutes to seconds
     dredge_interval = dredge_interval * 60
     
@@ -947,8 +976,7 @@
     if(.not. allocated(zb0) ) then
       allocate(zb0(ncellsD))
       zb0 = zb
-    endif
-    
+    endif    
     
     !find max array dimension needed for bed_change and allocate
     summax = 0

@@ -3,13 +3,13 @@
 ! 
 ! Contains:
 !   fric_default - Sets the default values to the friction related variables
-!   fric_cards - Reads wind data from Model Parameters file
-!   fric_init - Friction variable initialization
-!   fric_print - Prints the friction variables to the diagnostic 
-!                file and the screen
-!   fric_bed - Calculates bed friction term using one of five
-!              wave-current interaction models
-!   fric_eval - Updates the bed friction variables
+!   fric_cards   - Reads wind data from Model Parameters file
+!   fric_init    - Friction variable initialization
+!   fric_print   - Prints the friction variables to the diagnostic 
+!                  file and the screen
+!   fric_bed     - Calculates bed friction term using one of five
+!                  wave-current interaction models
+!   fric_eval    - Updates the bed friction variables
 !
 ! written by Alex Sanchez, USACE-CHL
 !===========================================================================

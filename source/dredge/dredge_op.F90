@@ -176,8 +176,6 @@
       bed_change(i) = 0.0
     enddo     
     
-
-    
     ! write(*,*)'------------------------------------------------------'
     ! write(*,*)'ncnt = ',ncnt
     ! write(777,*)'vol_tot = ',vol_tot
@@ -429,10 +427,8 @@
     ENDIF
      
     return
-    endsubroutine Placement_allocation    
-    
-    
-    
+    endsubroutine Placement_allocation        
+        
     
 !**************************************************************
    subroutine place_it(k,j,placement_vol,amount_placed,excess)

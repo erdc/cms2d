@@ -1,8 +1,9 @@
-== Version 5.1.11 (09/04/2019)==
+== Version 5.1.11 (09/06/2019)==
 * Change: Moved all repository folders up one level, removing "Trunk" folder which was not needed.
 * Change: If any Unknown Cards are read from the parameter file, CMS gives the user a chance to stop and fix.
 * Change: Added __linux definition to CMake options.
 * Bug fix: Corrected infinite loop experienced in Linux during interpretation of command line arguments.
+* New Feature: Dredge Module is now available using ASCII input/output.
 
 == Version 5.1.10 (08/29/2019)== 
 * Change: Modified screen and diagnostic file output by aligning at T40. Mainly for Implicit runs.

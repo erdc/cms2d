@@ -2284,12 +2284,13 @@ d1: do ii=1,30
 #include "CMS_cpp.h"    
     use size_def    
     use sed_def
-    use comvarbl, only: dtime,nsolv,ndsch,ntsch,wtsch,advsc
+    use comvarbl,  only: dtime,nsolv,ndsch,ntsch,wtsch,advsc
     use diag_def
-    use solv_def, only: asolv
+    use solv_def,  only: asolv
     use der_def
     use const_def, only: deg2rad
     use prec_def
+    use tool_def,  only: vstrlz
     implicit none
     integer :: i,ii,j,jj,ks,iunit(2),ierr
     real(ikind) :: pbklow(nsed,nlay),pbkhigh(nsed,nlay),pbkmean(nsed,nlay)
@@ -2312,6 +2313,7 @@ d1: do ii=1,30
 
 111 format(' ',A,T40,A)
 233 format(' ',A,T40,I0)
+354 format(' ',A,T40,A,A)    !Added for vstrlz function results
 445 format(' ',A,T40,F0.2,A)
 466 format(' ',A,T40,F0.3,A)
 453 format(' ',A,T40,I2,A,I2)
@@ -2335,20 +2337,20 @@ d1: do ii=1,30
       write(iunit(i),111)       'Sediment Transport:','ON'
       write(iunit(i),111)       '  Transport Model:',trim(asedmodel(isedmodel))
       if(isedmodel==1)then
-        write(iunit(i),445)     '  Max Total-load Conc. Capacity:',Cteqmax,' kg/m^3'
+        write(iunit(i),354)     '  Max Total-load Conc. Capacity:',trim(vstrlz(Cteqmax,'(f0.2)')),' kg/m^3'
       endif
       write(iunit(i),111)       '  Transport Capacity Formula:',trim(acapac(icapac))
       write(iunit(i),445)       '  Timing'
-      write(iunit(i),445)       '    Transport Time Step:',dtime,' sec'
-      write(iunit(i),445)       '    Morphologic Time Step:',dtime,' sec'   
-      write(iunit(i),445)       '    Morphology Starting Time:',tStartMorph,  ' hrs'
+      write(iunit(i),354)       '    Transport Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'
+      write(iunit(i),354)       '    Morphologic Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'   
+      write(iunit(i),354)       '    Morphology Starting Time:',trim(vstrlz(tStartMorph,'(f0.2)')),' hrs'
       if(nsed>1)then
-        write(iunit(i),445)     '    Composition Starting Time:',tStartBedComp,' hrs'
+        write(iunit(i),354)     '    Composition Starting Time:',trim(vstrlz(tStartBedComp,'(f0.2)')),' hrs'
       endif  
       
       write(iunit(i),445)       '  Sediment Properties'
-      write(iunit(i),445)       '    Density:',rhosed,' kg/m^3'      
-      write(iunit(i),445)       '    Porosity:',poros
+      write(iunit(i),354)       '    Density:',trim(vstrlz(rhosed,'(f0.2)')),' kg/m^3'      
+      write(iunit(i),354)       '    Porosity:',trim(vstrlz(poros,'(f0.2)'))
     
       if(singlesize)then !Single-size
         write(iunit(i),466)     '    Charactestic Diameter:',diam(1)*1000.0,'mm'
@@ -2390,35 +2392,35 @@ d1: do ii=1,30
       write(iunit(i),111)       '    Method:',trim(atotm(iadapttot))
       selectcase(iadapttot)
       case(1)
-        write(iunit(i),445)     '    Adaptation length:',Ltot, ' m'
+        write(iunit(i),354)     '    Adaptation length:',trim(vstrlz(Ltot,'(f0.2)')),' m'
       case(2)
-        write(iunit(i),445)     '    Adaptation time:',Ttot,' sec'
+        write(iunit(i),354)     '    Adaptation time:',trim(vstrlz(Ttot,'(f0.2)')),' sec'
       case(3)
         write(iunit(i),111)     '    Adaptation length file:',trim(aLtotfile)
         write(iunit(i),111)     '    Adaptation length path:',trim(aLtotpath)
       case(4)
-        write(iunit(i),445)     '    Erosion length:',Lerotot,' m'
-        write(iunit(i),445)     '    Deposition length:',Ldeptot,' m'      
+        write(iunit(i),354)     '    Erosion length:',trim(vstrlz(Lerotot,'(f0.2)')),' m'
+        write(iunit(i),354)     '    Deposition length:',trim(vstrlz(Ldeptot,'(f0.2)')),' m'      
       case(5,6)
         write(iunit(i),111)     '  Bed-load Adaptation Coefficient'
         write(iunit(i),111)     '    Method:',trim(abedm(iadaptbed))
         selectcase(iadaptbed)
         case(1)
-          write(iunit(i),445)   '    Adaptation length:',Lbed, ' m'
+          write(iunit(i),354)   '    Adaptation length:',trim(vstrlz(Lbed,'(f0.2)')),' m'
         case(2)
-          write(iunit(i),445)   '    Adaptation time:',Tbed,' sec'  
+          write(iunit(i),354)   '    Adaptation time:',trim(vstrlz(Tbed,'(f0.2)')),' sec'  
         case(5)
-          write(iunit(i),445)   '    Depth dependant factor:',fbed
+          write(iunit(i),354)   '    Depth dependant factor:',trim(vstrlz(fbed,'(f0.2)'))
         endselect !iadaptbed 
         write(iunit(i),111)     '  Suspended-load Adaptation Coefficient '
         write(iunit(i),111)     '    Method:',trim(asusm(iadaptsus))
         selectcase(iadaptsus)
         case(1)
-          write(iunit(i),445)   '    Adaptation length:',Lsus, ' m'
+          write(iunit(i),354)   '    Adaptation length:',trim(vstrlz(Lsus,'(f0.2)')), ' m'
         case(2)
-          write(iunit(i),445)   '    Adaptation time:',Tsus,' sec'         
+          write(iunit(i),354)   '    Adaptation time:',trim(vstrlz(Tsus,'(f0.2)')),' sec'         
         case(3)
-          write(iunit(i),445)   '    Adaptation coefficient:',alphasus
+          write(iunit(i),354)   '    Adaptation coefficient:',trim(vstrlz(alphasus,'(f0.2)'))
         endselect !iadaptsus
       endselect !iadapttot      
     
@@ -2436,50 +2438,50 @@ d1: do ii=1,30
       !Avalanching
       if(do_aval)then
         write(iunit(i),111)     '  Avalanching:','ON'
-        write(iunit(i),445)     '    Repose angle:',atan(a_repose)/deg2rad,' deg'
-        write(iunit(i),445)     '    Relaxation coefficient:',relax_aval
+        write(iunit(i),354)     '    Repose angle:',trim(vstrlz(atan(a_repose)/deg2rad,'(f0.2)')),' deg'
+        write(iunit(i),354)     '    Relaxation coefficient:',trim(vstrlz(relax_aval,'(f0.2)'))
         write(iunit(i),233)     '    Maximum iterations:',nmaxaval  
       else
         write(iunit(i),111)     '  Avalanching:','OFF'  
       endif          
     
       write(iunit(i),111)       '  Scaling factors '    
-      write(iunit(i),445)       '    Suspended Load:',scalesus
-      write(iunit(i),445)       '    Bed Load:',scalebed
-      write(iunit(i),445)       '    Morphologic:',scalemorph_orig    
+      write(iunit(i),354)       '    Suspended Load:',trim(vstrlz(scalesus,'(f0.2)'))
+      write(iunit(i),354)       '    Bed Load:',trim(vstrlz(scalebed,'(f0.2)'))
+      write(iunit(i),354)       '    Morphologic:',trim(vstrlz(scalemorph_orig,'(f0.2)'))
       if (scalemorph_rampdur .gt. 0.0) then
-        write(iunit(i),445)     '      Ramp duration (hrs):',scalemorph_rampdur
+        write(iunit(i),354)     '      Ramp duration (hrs):',trim(vstrlz(scalemorph_rampdur,'(f0.2)'))
       endif
      
       write(iunit(i),111)       '  Bed slope effects'   
-      write(iunit(i),445)       '    Diffusion coefficient:',dcoeff
+      write(iunit(i),354)       '    Diffusion coefficient:',trim(vstrlz(dcoeff,'(f0.2)'))
       write(iunit(i),111)       '    Transport Correction:',trim(abedslope(ibedslope))
       if(ibedslope==2)then !Bailard (1981)
-        write(iunit(i),445)     '    Bed-load coefficient:',betaslope  
-        write(iunit(i),445)     '    Susp-load coefficient:',effslope
+        write(iunit(i),354)     '    Bed-load coefficient:',trim(vstrlz(betaslope,'(f0.2)'))
+        write(iunit(i),354)     '    Susp-load coefficient:',trim(vstrlz(effslope,'(f0.2)'))
       endif
     
       if(variableD50 .or. .not.singlesize)then
         write(iunit(i),111)     '  Hiding and Exposure'   
         write(iunit(i),111)     '    Formulation:',trim(ahidexpform(ihidexpform))
         if(ihidexpform==2 .or. ihidexpform==3)Then
-          write(iunit(i),445)   '    Coefficient:',mhe
+          write(iunit(i),354)   '    Coefficient:',trim(vstrlz(mhe,'(f0.2)'))
         endif
       endif
       
       if(isedmodel<=2)then       
         if(sedconstmix)then
-          write(iunit(i),445)   '  Constant Mixing Coefficient:',cmixsed
+          write(iunit(i),354)   '  Constant Mixing Coefficient:',trim(vstrlz(cmixsed,'(f0.2)'))
         else
-          write(iunit(i),445)   '  Schmidt Number:',schmidt
+          write(iunit(i),354)   '  Schmidt Number:',trim(vstrlz(schmidt,'(f0.2)'))
         endif 
       endif    
      
-      write(iunit(i),445)       '  Inflow Loading Factor:',facQtotin    
+      write(iunit(i),354)       '  Inflow Loading Factor:',trim(vstrlz(facQtotin,'(f0.2)'))  
       if(isedmodel<=2)then
         selectcase(ibt)
         case(0)
-          write(iunit(i),445)   '  Constant Total Load Correction Factor: ',betatot
+          write(iunit(i),354)   '  Constant Total Load Correction Factor: ',trim(vstrlz(betatot,'(f0.2)'))
         case(1)
           write(iunit(i),111)   '  Concentration profile:','EXPONENTIAL    (Used for Total Load Correction Factor)'
         case default
@@ -2497,15 +2499,15 @@ d1: do ii=1,30
           write(iunit(i),111)   '  Variable D50:','OFF'
         endif  
       else
-        write(iunit(i),445)     '  Mixing Layer'    
+        write(iunit(i),111)     '  Mixing Layer'    
         if(mixlayconst)then          
-          write(iunit(i),445)   '    Formulation:','CONSTANT'
-          write(iunit(i),445)   '    Thickness:',dmconst !Constant mixing layer thickness [m]
+          write(iunit(i),111)   '    Formulation:','CONSTANT'
+          write(iunit(i),354)   '    Thickness:',trim(vstrlz(dmconst,'(f0.2)'))  !Constant mixing layer thickness [m]
         else
-          write(iunit(i),445)   '    Formulation:','AUTOMATIC'  
+          write(iunit(i),111)   '    Formulation:','AUTOMATIC'  
         endif
-        write(iunit(i),445)     '  Minimum Layer Thickness:',dbmin   !Minimum layer thickness [m]
-        write(iunit(i),445)     '  Maximum Layer Thickness:',dbmax   !Maximum layer thickness for new layers. Existing layers are not affected [m]    
+        write(iunit(i),354)     '  Minimum Layer Thickness:',trim(vstrlz(dbmin,'(f0.2)'))   !Minimum layer thickness [m]
+        write(iunit(i),354)     '  Maximum Layer Thickness:',trim(vstrlz(dbmax,'(f0.2)'))   !Maximum layer thickness for new layers. Existing layers are not affected [m]    
         write(iunit(i),233)     '  Number of Bed Layers:',nlay
         do j=1,nlay
           if(bedlay(j)%ipbkinp==0) cycle
@@ -2520,7 +2522,7 @@ d1: do ii=1,30
           write(iunit(i),111)   '    Layer Thickness Method:',trim(adbinp(bedlay(j)%idbinp))
           selectcase(bedlay(j)%idbinp)
           case(0,1,2)
-            write(iunit(i),445) '    Layer Thickness:',bedlay(j)%dbconst,' m'
+            write(iunit(i),354) '    Layer Thickness:',trim(vstrlz(bedlay(j)%dbconst,'(f0.2)')),' m'
           case(3)
             write(iunit(i),111) '    Layer Thickness Dataset File:',trim(bedlay(j)%dbfile)
             write(iunit(i),111) '    ----------------------- Path:',trim(bedlay(j)%dbpath)
@@ -2531,7 +2533,7 @@ d1: do ii=1,30
             write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
             write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
             if (bedlay(j)%geostddev .ge. 0.0) then
-              write(iunit(i),466) '    Geometric standard deviation:',bedlay(j)%geostddev,' mm'    
+              write(iunit(i),354) '    Geometric standard deviation:',trim(vstrlz(bedlay(j)%geostddev,'(f0.3)')),' mm'    
             endif
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
@@ -2601,7 +2603,7 @@ d1: do ii=1,30
 #ifdef DEV_MODE
       if(erosdry%calc)then
         write(iunit(i),111)     '  Erosion of dry cells:','ON'
-        write(iunit(i),445)     '    Erosion transfer:',erosdry%fac
+        write(iunit(i),354)     '    Erosion transfer:',trim(vstrlz(erosdry%fac,'(f0.2)'))
       else
         write(iunit(i),111)     '  Erosion of dry cells:','OFF'
       endif
@@ -2613,7 +2615,7 @@ d1: do ii=1,30
         write(iunit(i),111)     '    Temporal Scheme:','TWO-LEVEL'
       else
         write(iunit(i),111)     '    Temporal Scheme:','THREE-LEVEL'
-        write(iunit(i),445)     '    Implicit Weighting Factor:',wtsch  
+        write(iunit(i),354)     '    Implicit Weighting Factor:',trim(vstrlz(wtsch,'(f0.2)')) 
       endif
       write(iunit(i),111)       '    Advection Scheme:',trim(advsc(ndsch))
       write(iunit(i),111)       '    Spatial Derivative Scheme:',trim(ader(nder))
