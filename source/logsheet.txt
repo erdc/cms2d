@@ -2,7 +2,10 @@
 * Change: Moved all repository folders up one level, removing "Trunk" folder which was not needed.
 * Change: If any Unknown Cards are read from the parameter file, CMS gives the user a chance to stop and fix.
 * Change: Added __linux definition to CMake options.
+* Change: Output message when Boundary Cellstring is defined, but lacks cells (SMS issue)
 * Bug fix: Corrected infinite loop experienced in Linux during interpretation of command line arguments.
+* Bug fix: Fixed issue with d16/d50/d84 percentile allocatable array
+* Buf fix: Fixed issue with missing Hard Bottom Dataset
 * New Feature: Dredge Module is now available using ASCII input/output.
 
 == Version 5.1.10 (08/29/2019)== 

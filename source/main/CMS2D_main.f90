@@ -39,7 +39,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 11             !Revision number
-    rdate    = '09/06/2019'
+    rdate    = '09/10/2019'
     
 #ifdef _WIN32
     machine='Windows'
@@ -848,35 +848,40 @@
 ! Prints the general CMS settings to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************    
-    use comvarbl, only: flowpath,ctlfile, input_ver
+    use comvarbl, only: flowpath,ctlfile, input_ver, advfile, read_adv
     use cms_def, only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath,&
-       dtsteer,radpath,wavpath,perpath,dirpath,disspath,&
+       dtsteer,radpath,wavpath,perpath,dirpath,disspath,                  &
        noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
     use diag_def
     
     implicit none
     integer :: iunit(2),i
-    character :: aname*200,apath*200,aext*10,astring*200,adate*8,atime*10,azone*5
+    character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5
 
 342 format(' ',A,T40,F0.2,A)    
 887 format(' ',A,T40,A)
 764 format(' ',A,T40,F0.3,A)  
     
     call DATE_AND_TIME (date=adate,time=atime,zone=azone)
-    astring=adate(5:6)//'/'//adate(7:8)//'/'//adate(1:4)
-    astring=trim(astring)//' '//atime(1:2)//':'//atime(3:4)//' '//azone
+    dstring=adate(5:6)//'/'//adate(7:8)//'/'//adate(1:4)
+    dstring=trim(dstring)//' '//atime(1:2)//':'//atime(3:4)//' '//azone
 
     open(dgunit,file=dgfile,access='append') 
     iunit = (/6,dgunit/)
 
     do i=1,2
-      write(iunit(i),887) 'Actual Start Date/Time: ',trim(astring)
+      write(iunit(i),887) 'Actual Start Date/Time: ',trim(dstring)
       if(noptset>=2)then   
         if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
         astring=trim(aname) // '.' // aext
         write(iunit(i),887)    'CMS-Flow Card File:',trim(astring)
         write(iunit(i),342)    'Input Version:',input_ver     
+      endif
+      if (read_adv) then
+        call fileparts(advfile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext
+        write(iunit(i),887)    'Advanced Card File used:',trim(astring)
       endif
       if(noptset==1 .or. noptset==3)then
         write(iunit(i),887)    'CMS-Wave Path:',trim(wavepath)

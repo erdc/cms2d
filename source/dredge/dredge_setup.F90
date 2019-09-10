@@ -814,7 +814,7 @@
           if(TMPARRAY(i) > 1.0e-20) sumcells = sumcells + 1
         enddo
         if(sumcells == 0) then
-          call diag_print_error('No cells specified in Dredge dataset')
+          call diag_print_error('No cells specified in Placement dataset')
         endif
         
         dredge_operations(k)%NumPlacementAreaCells(j) = sumcells

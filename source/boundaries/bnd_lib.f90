@@ -29,6 +29,7 @@ contains
 !******************************************************************************************
 #include "CMS_cpp.h"
     use diag_lib, only: diag_print_error
+    use diag_def, only: msg,msg2
     
     implicit none
     !Input/Output
@@ -69,6 +70,12 @@ contains
       if(idbnd==0) read(bidpath,*) idbnd
       call bnd_read_nodestr_2dm(idbnd,nstrnodes,jnodes) 
     endselect
+    
+    if(nstrcells==0)then
+      msg='No cells found for cellstring: '//trim(bidpath)
+      msg2='Please check boundary setup and restart'
+      call diag_print_error(msg,msg2)
+    endif
     
     if(iBndStrType==1)then
       !Map id's from full to active grid

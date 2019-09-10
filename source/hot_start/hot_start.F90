@@ -1873,11 +1873,12 @@ loopj:  do j=1,nlay
 !***********************************************************************    
     use hot_def
     use diag_def, only: dgunit,dgfile
+    use tool_def, only: vstrlz
     implicit none
     integer :: i,iunit(2)
     
 645 format(' ',A,T40,F0.2,A)
-222 format(' ',A,T40,A)
+222 format(' ',A,T40,A,A)
     
     iunit = (/6, dgunit/)
     
@@ -1894,12 +1895,12 @@ loopj:  do j=1,nlay
         if(hot_timehr)then 
           write(iunit(i),222) 'Single Hot Start Output: '
           write(iunit(i),222) '  File:',trim(hotfile)
-          write(iunit(i),645) '  Time:',hottime,' hrs'
+          write(iunit(i),222) '  Time:',trim(vstrlz(hottime,'(f0.2)')),' hrs'
         endif
         if(hot_recur)then
           write(iunit(i),222) 'Recurring Hot Start Output: '
           write(iunit(i),222) '  File:',trim(autohotfile)
-          write(iunit(i),645) '  Recurring Interval:',hotdt,' hrs'
+          write(iunit(i),222) '  Recurring Interval:',trim(vstrlz(hotdt,'(f0.2)')),' hrs'
         endif
       endif
     enddo

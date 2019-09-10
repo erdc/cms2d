@@ -104,6 +104,7 @@
         astring = trim(aname) // '.' // trim(aext)
         write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
         open(77,file=advfile,status='unknown')
+        read_adv = .true.
       endif
       do k=1,1000
         read(77,*,iostat=ierr) cardname

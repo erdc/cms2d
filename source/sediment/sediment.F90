@@ -1724,7 +1724,7 @@ d1: do ii=1,30
           select case (aext)
           case('h5')
 #ifdef XMDF_IO
-          call readscalh5(file,path,d50lay,ierr) !Dataset should be in mm
+            call readscalh5(file,path,d50lay,ierr) !Dataset should be in mm
 #endif         
           case('txt')
             call readscalTxt(file,d50lay,ierr)
@@ -1747,14 +1747,16 @@ d1: do ii=1,30
           
         case(2)  !D16, D50, D84
           OutPerDiam(ipd(16)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(84)) = .true.
-          allocate(d16lay(ncellsD),d50lay(ncellsD),d84lay(ncellsD))
+          if(.not.allocated(d16lay)) allocate(d16lay(ncellsD))
+          if(.not.allocated(d84lay)) allocate(d84lay(ncellsD))
+          if(.not.allocated(d50lay)) allocate(d50lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(16))%file; path = bedlay(j)%perdiam(ipd(16))%path
 
           call fileext(trim(file),aext)      
           select case (aext)
           case('h5')
 #ifdef XMDF_IO
-          call readscalh5(file,path,d16lay,ierr) !Dataset should be in mm    
+            call readscalh5(file,path,d16lay,ierr) !Dataset should be in mm    
 #endif          
           case('txt')
             call readscalTxt(file,d16lay,ierr)
@@ -1767,7 +1769,7 @@ d1: do ii=1,30
           select case (aext)
           case('h5')
 #ifdef XMDF_IO
-          call readscalh5(file,path,d50lay,ierr)   
+            call readscalh5(file,path,d50lay,ierr)   
 #endif          
           case('txt')
             call readscalTxt(file,d50lay,ierr)
@@ -1780,7 +1782,7 @@ d1: do ii=1,30
           select case (aext)
           case('h5')
 #ifdef XMDF_IO
-          call readscalh5(file,path,d84lay,ierr)    
+            call readscalh5(file,path,d84lay,ierr)    
 #endif         
           case('txt')
             call readscalTxt(file,d84lay,ierr)
@@ -2660,12 +2662,18 @@ d1: do ii=1,30
     select case (aext)
     case('h5')
 #ifdef XMDF_IO
-    call readscalh5(hbfile,hbpath,hardzb,ierr)
-    if(ierr/=0)then
-      write(msg2,*) '  File: ',trim(hbfile)
-      write(msg3,*) '  Path: ',trim(hbpath)
-      call diag_print_error('Could not open hardbottom dataset: ',msg2,msg3)
-    endif
+      if (hbpath == 'Datasets/') then                 !This should handle SMS writing out empty HARDBOTTOM_DATASET card.
+        call diag_print_warning('Hard Bottom dataset not specified - turning off hardbottom','')
+        hardbottom=.false.
+        return
+      endif  
+      call readscalh5(hbfile,hbpath,hardzb,ierr)
+    
+      if(ierr/=0)then
+        write(msg2,*) '  File: ',trim(hbfile)
+        write(msg3,*) '  Path: ',trim(hbpath)
+        call diag_print_error('Could not open hardbottom dataset: ',msg2,msg3)
+      endif
 #endif
     case('txt')
       call readscalTxt(hbfile,hardzb,ierr)
