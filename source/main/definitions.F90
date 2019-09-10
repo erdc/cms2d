@@ -106,6 +106,7 @@ module comvarbl
     character(len=200) :: ctlfile              !Control File
     character(len=200) :: mpfile               !Model parameters file     
     character(len=200) :: advfile              !Advanced card file - added MEB 07/29/2019
+    logical            :: read_adv = .false.   !Switched to True if file exists and is read
 
     !Timing
     !Note: Use double precision for time variables
