@@ -1398,12 +1398,12 @@ d1: do ii=1,4
       do while(timehrs+1.0e-5>windhr2 .and. ierr==0)
         windhr1 = windhr2        
         call read_wind_owi(wunit,nwindi,nwindj,windhr2,wndspdx2,wndspdy2,ierr)    
-        !$OMP WORKSHARE
+!$OMP WORKSHARE
         wndspdx2 = wndspdx2*fac !Convert from different temporal scales
         wndspdy2 = wndspdy2*fac
         uwind1 = uwind2
         vwind1 = vwind2
-        !$OMP END WORKSHARE        
+!$OMP END WORKSHARE        
         !Spatial interpolation
         call interp_vec_curv2tel(nwindi,nwindj,ncellsD,ncellsD,ijntpwnd,cntpwnd,&
                  undefvel,lowvel,highvel,defvel,wndspdx2,uwind2,wndspdy2,vwind2)
@@ -1413,9 +1413,9 @@ d1: do ii=1,4
         ierr = 0  
         do while(timehrs+1.0e-5>preshr2 .and. ierr==0)  
           preshr1 = preshr2
-          !$OMP WORKSHARE
+!$OMP WORKSHARE
           pressatm1 = pressatm2
-          !$OMP END WORKSHARE
+!$OMP END WORKSHARE
           call read_pres_owi(punit,nwindi,nwindj,preshr2,atmpres2,ierr)          
           call interp_scal_curv2tel(nwindi,nwindj,ncellsD,ncellsD,ijntpwnd,cntpwnd,&
                  undefpres,lowpres,highpres,defpres,atmpres2,pressatm2)
@@ -1429,12 +1429,12 @@ d1: do ii=1,4
         windhr2 = windhr2 + 6.0 ![hrs]
         call read_blended_winds(wunit,windhr2,wndspdx2,wndspdy2,ierr)        
         preshr1 = windhr1 !Fore wind and pressure times to be the same
-        !$OMP WORKSHARE
+!$OMP WORKSHARE
         wndspdx2 = wndspdx2*fac
         wndspdy2 = wndspdy2*fac
         uwind1 = uwind2
         vwind1 = vwind2
-        !$OMP END WORKSHARE
+!$OMP END WORKSHARE
         preshr2 = windhr2 !Force times to be the same
         call interp_vec_curv2tel(nwindi,nwindj,ncellsD,ncellsD,ijntpwnd,cntpwnd,&
                  undefvel,lowvel,highvel,defvel,wndspdx2,uwind2,wndspdy2,vwind2)        
@@ -1447,12 +1447,12 @@ d1: do ii=1,4
       do while(timehrs+1.0e-5>windhr2 .and. ierr==0)
         windhr1 = windhr2          
         call read_met_spddir(wunit,nwindi,nwindj,windhr2,wndspdx2,wndspdy2,ierr)
-        !$OMP WORKSHARE
+!$OMP WORKSHARE
         wndspdx2 = wndspdx2*fac
         wndspdy2 = wndspdy2*fac
         uwind1 = uwind2
         vwind1 = vwind2    
-        !$OMP END WORKSHARE      
+!$OMP END WORKSHARE      
         !Spatial Interpolation
         call interp_vec_curv2tel(nwindi,nwindj,ncellsD,ncellsD,ijntpwnd,cntpwnd,&
                  undefvel,lowvel,highvel,defvel,wndspdx2,uwind2,wndspdy2,vwind2)
@@ -1467,13 +1467,13 @@ d1: do ii=1,4
         preshr1 = windhr1 !Fore wind and pressure times to be the same              
         call read_met_uvp(wunit,nwindi,nwindj,windhr2,&
                wndspdx2,wndspdy2,atmpres2,wtiminc,ierr)
-        !$OMP WORKSHARE
+!$OMP WORKSHARE
         wndspdx2 = wndspdx2*fac
         wndspdy2 = wndspdy2*fac
         uwind1 = uwind2
         vwind1 = vwind2
         pressatm1 = pressatm2         
-        !$OMP END WORKSHARE        
+!$OMP END WORKSHARE        
         preshr2 = windhr2 !Fore wind and pressure times to be the same        
         !Spatial Interpolation
         call interp_vec_curv2tel(nwindi,nwindj,ncellsD,ncellsD,ijntpwnd,cntpwnd,&
@@ -1552,54 +1552,54 @@ d1: do ii=1,4
 
     if(present(b))then
       if(t<=t1)then
-        !$OMP PARALLEL DO PRIVATE(i)    
+!$OMP PARALLEL DO PRIVATE(i)    
         do i=1,nc
           a(i) = ramp*a1(i)
           b(i) = ramp*b1(i)
         enddo
-        !$OMP END PARALLEL DO  
+!$OMP END PARALLEL DO  
       elseif(t>t2)then
-        !$OMP PARALLEL DO PRIVATE(i)    
+!$OMP PARALLEL DO PRIVATE(i)    
         do i=1,nc
           a(i) = ramp*a2(i)
           b(i) = ramp*b2(i)
         enddo
-        !$OMP END PARALLEL DO   
+!$OMP END PARALLEL DO   
       else
         fac=(t-t1)/(t2-t1)
         fac=max(min(fac,1.0),0.0) !Avoids extrapolation
         fac1=ramp*(1.0-fac)  !Apply ramp here
         fac2=ramp*fac        !Apply ramp here
-        !$OMP PARALLEL DO PRIVATE(i)          
+!$OMP PARALLEL DO PRIVATE(i)          
         do i=1,nc
           a(i) = fac1*a1(i) + fac2*a2(i)
           b(i) = fac1*b1(i) + fac2*b2(i)
         enddo
-        !$OMP END PARALLEL DO        
+!$OMP END PARALLEL DO        
       endif    
     else
       if(t<=t1)then
-        !$OMP PARALLEL DO PRIVATE(i)    
+!$OMP PARALLEL DO PRIVATE(i)    
         do i=1,nc
           a(i) = ramp*a1(i)
         enddo
-        !$OMP END PARALLEL DO  
+!$OMP END PARALLEL DO  
       elseif(t>t2)then
-        !$OMP PARALLEL DO PRIVATE(i)    
+!$OMP PARALLEL DO PRIVATE(i)    
         do i=1,nc
           a(i) = ramp*a2(i)
         enddo
-        !$OMP END PARALLEL DO   
+!$OMP END PARALLEL DO   
       else
         fac=(t-t1)/(t2-t1)
         fac=max(min(fac,1.0),0.0) !Avoids extrapolation
         fac1=ramp*(1.0-fac)  !Apply ramp here
         fac2=ramp*fac        !Apply ramp here
-        !$OMP PARALLEL DO PRIVATE(i)          
+!$OMP PARALLEL DO PRIVATE(i)          
         do i=1,nc
           a(i) = fac1*a1(i) + fac2*a2(i)
         enddo
-        !$OMP END PARALLEL DO        
+!$OMP END PARALLEL DO        
       endif
     endif
     

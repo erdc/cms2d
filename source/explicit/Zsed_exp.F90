@@ -150,38 +150,38 @@
 
 
     !=== Set Time Average Flows =====================
-        do i=1,ncells
-        ADSS(i)%qx = ADSS(i)%qx/tsed_elapse
-        ADSS(i)%qy = ADSS(i)%qy/tsed_elapse
-        enddo
+    do i=1,ncells
+      ADSS(i)%qx = ADSS(i)%qx/tsed_elapse
+      ADSS(i)%qy = ADSS(i)%qy/tsed_elapse
+    enddo
 
     !=== Solve each A-D equation =====================
-           do ks=1,nsed   
-          do j=1,NQstr  
-          if(QstringEXP(j)%vface) then
-            IDO = Q_str(j)%NCells
-            do ii=1,IDO    !calculate GVV
-              i=Q_str(j)%cells(ii)
-              if(ADSS(i)%qy.gt.0) then
-                ncs = cell2cell(3,i)
-                Gvv(i) = ADSS(i)%qy* Ctk(ncs,ks)*dx(i)
-              else
-                Gvv(i) = ADSS(i)%qy* Ctk(i,ks)*dx(i)
-              endif    
-            enddo
-          else
-            IDO = Q_str(j)%NCells
-            do ii=1,IDO    !calculate FUU
-              i=Q_str(j)%cells(ii)
-              if(ADSS(i)%qx.gt.0) then
-                ncw = cell2cell(4,i)
-                Fuu(i) = ADSS(i)%qx*Ctk(ncw,ks)*dy(i)
-              else
-                Fuu(i) = ADSS(i)%qx*Ctk(i,ks)*dy(i)
-              endif
-            enddo
-          endif
-        enddo ! end of NQstr
+    do ks=1,nsed   
+      do j=1,NQstr  
+        if(QstringEXP(j)%vface) then
+          IDO = Q_str(j)%NCells
+          do ii=1,IDO    !calculate GVV
+            i=Q_str(j)%cells(ii)
+            if(ADSS(i)%qy.gt.0) then
+              ncs = cell2cell(3,i)
+              Gvv(i) = ADSS(i)%qy* Ctk(ncs,ks)*dx(i)
+            else
+              Gvv(i) = ADSS(i)%qy* Ctk(i,ks)*dx(i)
+            endif    
+          enddo
+        else
+          IDO = Q_str(j)%NCells
+          do ii=1,IDO    !calculate FUU
+            i=Q_str(j)%cells(ii)
+            if(ADSS(i)%qx.gt.0) then
+              ncw = cell2cell(4,i)
+              Fuu(i) = ADSS(i)%qx*Ctk(ncw,ks)*dy(i)
+            else
+              Fuu(i) = ADSS(i)%qx*Ctk(i,ks)*dy(i)
+            endif
+          enddo
+        endif
+      enddo ! end of NQstr
 
 !$OMP DO PRIVATE (NCW,NCS)
       do i=1,ncells
@@ -221,49 +221,49 @@
 
 !$OMP DO PRIVATE (NCE,NCN,VOLN)
       do i=1,ncells
-      Ctkstar(i,ks)=CtstarP(i,ks) !*pbk(i,ks,1)       
+        Ctkstar(i,ks)=CtstarP(i,ks) !*pbk(i,ks,1)       
         ncn = cell2cell(1,i)
         nce = cell2cell(2,i)
         if(active(i,3)) then
           voln = (-zb(i) + etan(i))*dx(i)*dy(i)        
-          ADSS(i)%concn = Ctk(i,ks)*ADSS(i)%vol  &
-          + (Fuu(i)-Fuu(nce) + Gvv(i)-Gvv(ncn) +   &
-          alphat(i)*wsfall(ks)*(Ctkstar(i,ks)-Ctk(i,ks))*dx(i)*dy(i)  ) &
-          *tsed_elapse*Btk(i,ks) 
+          ADSS(i)%concn = Ctk(i,ks)*ADSS(i)%vol                                        &
+                        + (Fuu(i)-Fuu(nce) + Gvv(i)-Gvv(ncn)                           &
+                        + alphat(i)*wsfall(ks)*(Ctkstar(i,ks)-Ctk(i,ks))*dx(i)*dy(i) ) &
+                        * tsed_elapse*Btk(i,ks) 
           ADSS(i)%concn = ADSS(i)%concn/voln
           ADSS(i)%vol = voln
         endif
       enddo
 !$OMP END DO          
 
-         do i=1,ncells
-          if(active(i,3)) ctk(i,ks) = adss(i)%concn
-         enddo
-           enddo !ks 
+      do i=1,ncells
+        if(active(i,3)) ctk(i,ks) = adss(i)%concn
+      enddo
+    enddo !ks 
          
-!        ii=cell2cell(440,2)   
-!        write(*,*)ctk(439,1),ctk(440,1),ctkstar(440,1) 
-!        write(*,*)Fuu(439),Fuu(440),Fuu(ii)
+!    ii=cell2cell(440,2)   
+!    write(*,*)ctk(439,1),ctk(440,1),ctkstar(440,1) 
+!    write(*,*)Fuu(439),Fuu(440),Fuu(ii)
            
                  
-       !=== Bedslope term =================
-       if(do_bedslope) call bedslope !Sb(i,ks)
+    !=== Bedslope term =================
+    if(do_bedslope) call bedslope !Sb(i,ks)
          
-       !=== Wave-induced sed transport ============
-       if(wavesedtrans) call sed_wave !Sb(i,ks)+Sw(i) 
+    !=== Wave-induced sed transport ============
+    if(wavesedtrans) call sed_wave !Sb(i,ks)+Sw(i) 
         
-       !=== Bed Change and Sorting ==============
-       if(calcmorph)then                   
-         if(singlesize)then !no sorting needed
-           call bedchange !dzb(i)
-         else      
-           call bedchangesort !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
-         endif
-         call struct_dzb !dzb(i) and optionally dzbk(i,ks)
-         call check_hardbottom
-       endif                  
+    !=== Bed Change and Sorting ==============
+    if(calcmorph)then                   
+      if(singlesize)then !no sorting needed
+        call bedchange !dzb(i)
+      else      
+        call bedchangesort !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
+      endif
+      call struct_dzb !dzb(i) and optionally dzbk(i,ks)
+      call check_hardbottom
+    endif                  
        
-!!!       !=== Print to screen ==============
+!!! !=== Print to screen ==============
 !!!       if(mod(itersed,10)==0 .or. itersed==1)then
 !!!         if(nsed>1 .and. sedcouple)then
 !!!           write(*,751) itersed,errCtk,errpbk
@@ -335,19 +335,19 @@
     endif
  
     !==== Update bed elevation ====================
-     do i=1,ncells         
-       if(abs(dzb(i))>0.5*h(i))then     
-         open(dgunit,file=dgfile,access='append')        
-         write(dgunit,*)
-         write(dgunit,*) 'WARNING: Large bed change'
-         close(dgunit) 
-         write(*,*)
-         write(*,*) 'WARNING: Large bed change'
-         call print_sedvar(i,1)
+    do i=1,ncells         
+      if(abs(dzb(i))>0.5*h(i))then     
+        open(dgunit,file=dgfile,access='append')        
+        write(dgunit,*)
+        write(dgunit,*) 'WARNING: Large bed change'
+        close(dgunit) 
+        write(*,*)
+        write(*,*) 'WARNING: Large bed change'
+        call print_sedvar(i,1)
       endif
       !zb(i)=zb1(i)+dzb(i)   !*****************
       zb(i)=zb(i)+dzb(i)*tsed_elapse/dtime   !*****************      
-     enddo  
+    enddo  
       
     !=== Avalanching =============
     if(do_aval) call avalanche
@@ -385,7 +385,7 @@
     return
     endsubroutine sed_exp
     
-   !***********************************************************************
+!***********************************************************************
     subroutine Zsedbnd_eval_exp
 ! Applies sediment transport boundaries
 ! Blocks off dry regions which are not solved
@@ -409,287 +409,277 @@
     real(ikind) :: fac,qstartot,qstarcell,qsedtot,qut,qvt
 
     
-      if(nHstr .gt. 0) then
-        do i = 1,nHstr  !for each cell string
-          do j=1,H_str(i)%NCells    !for each cell in string
-            ii=H_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-         if(isedinflowbc==1)then
+    if(nHstr .gt. 0) then
+      do i = 1,nHstr  !for each cell string
+        do j=1,H_str(i)%NCells    !for each cell in string
+          ii=H_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(isedinflowbc==1)then
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
+              CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
             endif
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                          
-          enddo
-        enddo ! end of each cell string
-      endif  !nHstr strings
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                          
+        enddo
+      enddo ! end of each cell string
+    endif  !nHstr strings
 
 
-      if(nTHstr .gt. 0) then
+    if(nTHstr .gt. 0) then
       do iwse=1,nTHstr
         do j=1,TH_str(iwse)%NCells    !for each cell in string
-            ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-         if(isedinflowbc==1)then
+          ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(isedinflowbc==1)then
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
+              CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
             endif
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-            
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                               
-            
-       enddo 
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                               
+        enddo 
       enddo !iwse-str      
-      endif  !H_tide
+    endif  !H_tide
 
-      if(nMHstr .gt. 0) then
-        do i = 1,nMHstr  !for each cell string                        
-          do j=1,MH_str(i)%NCells   !for each cell in string
-            ii=MH_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-         if(isedinflowbc==1)then
+    if(nMHstr .gt. 0) then
+      do i = 1,nMHstr  !for each cell string                        
+        do j=1,MH_str(i)%NCells   !for each cell in string
+          ii=MH_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(isedinflowbc==1)then
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
+              CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
             endif
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
-            
-            
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                                  
-              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                                  
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi
 
-      if(nMHVstr .gt. 0) then
-        do i = 1,nMHVstr  !for each cell string
-          do j=1,MHV_str(i)%NCells   !for each cell in string
-           ii=MHV_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-         if(isedinflowbc==1)then
+    if(nMHVstr .gt. 0) then
+      do i = 1,nMHVstr  !for each cell string
+        do j=1,MHV_str(i)%NCells   !for each cell in string
+          ii=MHV_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(isedinflowbc==1)then
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
+              CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
+              CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
             endif
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
-            
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                                 
-              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi   
-
-      
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                                 
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi   
  
-      if(nQstr .gt. 0) then
-        do i = 1,nQstr  !for each cell string
-          if(QstringEXP(i)%vface) then 
-              
-           if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
+    if(nQstr .gt. 0) then
+      do i = 1,nQstr  !for each cell string
+        if(QstringEXP(i)%vface) then 
+          if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
             do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j) 
               ncs = cell2cell(3,Q_str(i)%Cells(j))
@@ -697,7 +687,7 @@
               !Ctk(iid,:)=pbk(iid,:,1)*CtstarP(iid,:)
               Ctk(ncs,:)=CtstarP(ncs,:) 
             enddo
-           else  !north face
+          else  !north face
             do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cell2cell(3,Q_str(i)%Cells(j))
@@ -706,9 +696,7 @@
               Ctk(ii,:)=CtstarP(ii,:) 
             enddo               
           endif
-              
-          else
-              
+        else
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
             do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
@@ -726,18 +714,14 @@
               Ctk(ii,:)=CtstarP(ii,:) 
             enddo        
           endif  
-            
-         endif
-        enddo ! end of NQdriver
-      endif  !Q_single     
-      
-      
-      
-      
-      
-        goto 1000
-      
-  !Sediment flux boundaries, will overide river boundary conditions
+        endif
+      enddo ! end of NQdriver
+    endif  !Q_single     
+     
+    goto 1000
+
+!BELOW HERE TO THE 1000 LABEL WILL NEVER BE EXECUTED                   !Was this a future addition that was never finished?   MEB    
+    !Sediment flux boundaries, will overide river boundary conditions
     do ised=1,nsedflux
       !find out where we are in the time/value arrays
       inc = sed_str(ised)%inc
@@ -839,12 +823,12 @@
       close(dgunit)
     enddo !ised
 
-1000    continue    
+1000 continue    
     
     return
     endsubroutine Zsedbnd_eval_EXP
     
-   !***********************************************************************
+!***********************************************************************
     subroutine Zbndzb_exp
 ! Applies sediment transport boundaries
 ! Blocks off dry regions which are not solved

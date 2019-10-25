@@ -48,7 +48,7 @@
     transD50 = .false.     !User has specified transport d50
     calcd50  = .false.     !CMS has calculated d50 from d50 dataset
     constd50 = .false.     !User has specified constant grain size
-    sedbalance = .false. !Global sediment balance
+    sedbalance = .false.   !Global sediment balance
     sedcouple = .true.     !Coupling between transport, bed change and sorting    
     sedconstmix = .false.  !Use constant mixing coefficient
     calcmorph = .false.    !Calculate bed change
@@ -638,20 +638,20 @@
     case('SEDIMENT_GRAIN_SIZE')  !For old input files
       call card_scalar(77,'mm','mm',singleD50,ierr)
       nsed = 1; nlay = 1
-      singlesize = .true.
       call sedclass_resize
       call bedlay_resize
       sedclass(1)%diam = singleD50
+      singlesize = .true.
       variableD50 = .false.            
            
     case('TRANSPORT_GRAIN_SIZE')
       call card_scalar(77,'mm','mm',singleD50,ierr)
       nsed = 1; nlay = 1
-      singlesize = .true.
       call sedclass_resize
       call bedlay_resize
       sedclass(1)%diam = singleD50
-      variableD50 = .true.
+      singlesize = .true.
+      variableD50 = .true.              !Shouldn't this be False?  MEB 9/30/19
       transd50 = .true.
       calcd50 = .false.
       
@@ -2355,12 +2355,12 @@ d1: do ii=1,30
       write(iunit(i),354)       '    Porosity:',trim(vstrlz(poros,'(f0.2)'))
     
       if(singlesize)then !Single-size
-        write(iunit(i),466)     '    Charactestic Diameter:',diam(1)*1000.0,'mm'
-        write(iunit(i),955)     '    Fall Velocity:',wsfall(1),' m/s'
-        write(iunit(i),955)     '    Corey Shape Factor:',coreyshape(1)
+        write(iunit(i),354)     '    Characteristic Diameter:',trim(vstrlz(diam(1)*1000.0,'(f0.3)')),'mm'
+        write(iunit(i),354)     '    Fall Velocity:',trim(vstrlz(wsfall(1),'(f0.4)')),' m/s'
+        write(iunit(i),354)     '    Corey Shape Factor:',trim(vstrlz(coreyshape(1),'(f0.4)'))
         if(icapac==1 .or. icapac==3)then
-          write(iunit(i),955)   '    Shields Parameter:',thetacr(1)
-          write(iunit(i),955)   '    Critical Shear Stress:',taucr(1),' Pa'
+          write(iunit(i),354)   '    Shields Parameter:',trim(vstrlz(thetacr(1),'(f0.4)'))
+          write(iunit(i),354)   '    Critical Shear Stress:',trim(vstrlz(taucr(1),'(f0.4)')),' Pa'
         endif        
         if(calcd50)then
           write(iunit(i),111)   '    Grain Size Determined from D50 Dataset'
@@ -2713,7 +2713,7 @@ d1: do ii=1,30
     if(nhbwarn .gt. 0) then 
       write(msg2,100) nhbwarn
       write(msg3,101) 
-      call diag_print_warning(msg2,msg3)
+      call diag_print_warning(msg2,msg3,'')
 !      write(*,99)      (hbwarn(i),i=1,nhbwarn)
       
       open(200,file='hb_warning.txt',status='unknown') 
