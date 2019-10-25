@@ -1,3 +1,9 @@
+== Version 5.1.12 (10/25/2019)==
+* Bug fix: Corrected display of Rubble Mound Structure cells in diagnostic output
+* Bug fix: Removed extra output file of Hard Bottom warning cells
+* Change: Started adding in extra code for NetCDF input/output files (logical operators, etc).
+* Change: Increased the limit to the maximum number of save points from 255 to 1000.  Added error messages.
+
 == Version 5.1.11 (09/06/2019)==
 * Change: Moved all repository folders up one level, removing "Trunk" folder which was not needed.
 * Change: If any Unknown Cards are read from the parameter file, CMS gives the user a chance to stop and fix.
@@ -5,7 +11,7 @@
 * Change: Output message when Boundary Cellstring is defined, but lacks cells (SMS issue)
 * Bug fix: Corrected infinite loop experienced in Linux during interpretation of command line arguments.
 * Bug fix: Fixed issue with d16/d50/d84 percentile allocatable array
-* Buf fix: Fixed issue with missing Hard Bottom Dataset
+* Bug fix: Fixed issue with missing Hard Bottom Dataset
 * New Feature: Dredge Module is now available using ASCII input/output.
 
 == Version 5.1.10 (08/29/2019)== 

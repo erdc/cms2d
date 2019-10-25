@@ -1034,9 +1034,9 @@
             idrubmound(kk)=mapid(i)  !Convert from internal to SMS Cell ID number
           endif
         enddo
-        open(200,file='CELL_IDs.txt',status='unknown')  !Remove after testing, meb
-        write(200,99) (idrubmound(i),i=1,kk)  
-        close(200)
+        !open(200,file='CELL_IDs.txt',status='unknown')  !Remove after testing, meb
+        !write(200,99) (idrubmound(i),i=1,kk)  
+        !close(200)
 
 !read rock diameter from dataset
         call fileext(trim(arockdiamfile),aext)      
@@ -1250,12 +1250,17 @@
     open(dgunit,file=dgfile,access='append') 
     do i=1,2
       write(iunit(i),*)  
-      if(numtidegate+numweir+numculvert>0)then
+      if(numtidegate+numweir+numculvert+numrubmound > 0)then
         write(iunit(i),111) '  Structures:','ON'
       else
         write(iunit(i),111) '  Structures:','OFF'  
         cycle
       endif
+      !---- Rubble Mound Structures -------
+      if (numrubmound > 0) then
+        write(iunit(i),241) '    Number of Rubble Mound Cells:',numrubmound
+      endif
+      
       !---- Tidal Gate --------------------
       if(numtidegate>0)then
         write(iunit(i),241) '    Number of Tidal Gates:',numtidegate

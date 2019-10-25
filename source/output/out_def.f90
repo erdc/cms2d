@@ -134,7 +134,8 @@ module out_def
     
     !ASCII/XMDF Controls
     logical :: write_ascii_input  !Turns on or off outputting ASCII input files
-    logical :: write_xmdf_output  !Turns on or off outputting XMDF input files
+    logical :: write_xmdf_output  !Turns on or off outputting XMDF output files
+    logical :: write_netcdf       !Turns on or off outputting NetCDF output files
     
 !--- Observation cells (save points) --------------------------------
     logical :: obs_cell = .false.   !Any observation cell
@@ -154,6 +155,7 @@ module out_def
     
 !--- New save point vars ------------   5/7/12 - meb
     logical :: save_point = .false.
+    integer :: maxout                   !Maximum number of output values (set in 'out_default', checked in 'out_cards')
     character(len=100) :: splabel = ' ' !Used for Save Points output path
     
     type save_pt_group

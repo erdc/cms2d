@@ -100,7 +100,8 @@
     
     !Input/Output
     write_ascii_input = .false.  !Turns on or off writing the ASCII input files
-    write_tecplot = .false.      !Tecplot files 
+    write_tecplot     = .false.  !Tecplot files 
+    write_netcdf      = .false.  !NetCDF files   !Just Preparing to add this feature  MEB 10/03/2019
 
 #ifdef _WIN32
     write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
@@ -120,6 +121,8 @@
     endif
     
     !--- Save points --------------
+    maxout = 1000
+    
     !Flow/Hydro
     savept(1)%group = 'HYDRO'
     savept(1)%time_inc = 0.0   !1 is Hydro group
@@ -199,6 +202,13 @@
     character(len=120) :: saveargs,astring
     real(ikind) :: xsave,ysave
     logical :: foundcard
+    
+    interface
+      function toUpper (astr)
+        character(len=*),intent(in) :: astr
+        character(len=len(astr)) :: toUpper
+      end function
+    end interface    
     
     do i=1,ngroups
       group(i) = ''
@@ -544,12 +554,18 @@
       case('OUTPUT_FILE_TYPE')
         backspace(77)
         read(77,*) cardname,astring
-        if(astring=="XMDF") then
+        if(toUpper(astring(1:4)) == "XMDF") then        !XMDF, turn off other types
           write_xmdf_output = .true.
-          write_sup = .false.
-        else
+          write_netcdf      = .false.
+          write_sup         = .false.
+        elseif(toUpper(astring(1:6)) == 'NETCDF') then  !NETCDF, turn off other types
+          write_netcdf      = .true.
           write_xmdf_output = .false.
-          write_sup = .true.
+          write_sup         = .false.
+        else                            !Other, turn on ASCII and turn off other types
+          write_sup         = .true.
+          write_netcdf      = .false.
+          write_xmdf_output = .false.
         endif
         
       !Hydrodynamics  
@@ -882,7 +898,9 @@
         
     !-------------------------------------------------------------
         subroutine savept_add_group(igroup,name,cell,x,y)
-        use out_def, only: save_pt_group
+        use out_def, only: save_pt_group, maxout
+        use diag_lib, only: diag_print_error
+        use diag_def, only: msg, msg2
         use prec_def
         implicit none
         integer       :: igroup,num_cells,cell
@@ -919,6 +937,12 @@
         savept(igroup)%x(num_cells)    = x
         savept(igroup)%y(num_cells)    = y
         savept(igroup)%ncells       = num_cells
+        
+        if(num_cells > maxout) then    !MAXOUT defined in out_def
+          write(msg,'(I0)') maxout
+          msg2 = 'Number of Save Points exceeds the present limit of '//trim(msg)
+          call diag_print_error(msg2)
+        endif
         
         return
         endsubroutine savept_add_group
@@ -1355,7 +1379,7 @@
 
 787 format(' ',A,T40,A)    
 485 format(' ',A,T40,F0.2,A)
-262 format(' ',A,T40,I0)
+262 format(' ',A,T40,I0,A)
 
     iunit = (/6,dgunit/)
     open(dgunit,file=dgfile,access='append')
@@ -1448,6 +1472,7 @@
         do k=1,ngroups
           if(.not.savept(k)%active) cycle
           write(iunit(i),787)   '  Group:',trim(savept(k)%group)
+          write(iunit(i),485)   '   Output Interval:',savept(k)%time_inc,' sec'
           write(iunit(i),262)   '   Number of variables:',savept(k)%nvar
           write(iunit(i),787)   '    Variable,   File,                                   Units'
           do j=1,savept(k)%nvar
@@ -3302,20 +3327,21 @@ implicit none
 
       call date_and_time(values=idate)
 
-      write(iunit,'(A20,A)') "SAVE_POINT_OUTPUT   ", trim(savept(i)%names(j))
-      write(iunit,780)       "REFERENCE_TIME      ", iyr,imo,iday,ihr,imin
-      write(iunit,'(A20,A)') "SAVE_POINT_LABEL    ", '"'//trim(splabel)//'"'
-      write(iunit,784)       "CREATION_DATE       ", idate(1),idate(2),idate(3),idate(5),idate(6)
-      write(iunit,783)       "CMS_VERSION         ", version,revision
+      write(iunit,'(A20,A)')    "SAVE_POINT_OUTPUT   ", trim(savept(i)%names(j))
+      write(iunit,780)          "REFERENCE_TIME      ", iyr,imo,iday,ihr,imin
+      write(iunit,'(A20,A)')    "SAVE_POINT_LABEL    ", '"'//trim(splabel)//'"'
+      write(iunit,784)          "CREATION_DATE       ", idate(1),idate(2),idate(3),idate(5),idate(6)
+      write(iunit,783)          "CMS_VERSION         ", version,revision
       
-      write(iunit,'(A20,A)') "HORIZ_PROJECTION    ", trim(HProj)
-      write(iunit,'(A20,A)') "VERT_DATUM          ", trim(VProj)
+      write(iunit,'(A20,A)')    "HORIZ_PROJECTION    ", trim(HProj)
+      write(iunit,'(A20,A)')    "VERT_DATUM          ", trim(VProj)
 
-      write(iunit,'(A)')     'TIME_UNITS          hrs'    !always HOURS, just in for clarity to user
-      write(iunit,'(A20,A)') "OUTPUT_UNITS        ", savept(i)%ounit(j)
-      write(iunit,'(A20,I0)')"NUMBER_POINTS       ", npts
-      write(iunit,'(A)')     " "
-      write(iunit,'(A)')     "NAME_BEGIN"  
+      write(iunit,'(A,F0.2,A)') 'OUTPUT_INTERVAL     ', savept(i)%time_inc, ' sec'
+      write(iunit,'(A)')        'TIME_UNITS          hrs'    !always HOURS, just in for clarity to user
+      write(iunit,'(A20,A)')    "OUTPUT_UNITS        ", savept(i)%ounit(j)
+      write(iunit,'(A20,I0)')   "NUMBER_POINTS       ", npts
+      write(iunit,'(A)')        " "
+      write(iunit,'(A)')        "NAME_BEGIN"  
       do k=1,npts    
         write(iunit,781) TRIM(savept(i)%id(k))
       enddo
@@ -3327,8 +3353,13 @@ implicit none
       enddo
       write(iunit,'(A)')     "XY_END"
       write(iunit,'(A)')     " "
-      if (savept(i)%vals(j)==1) write(iunit,'(A)') "SCALAR_TS_BEGIN"
-      if (savept(i)%vals(j)==2) write(iunit,'(A)') "VECTOR_TS_BEGIN    !Global space"
+      if (savept(i)%vals(j)==1) then
+        write(iunit,'(A,T21,A,I0,A)')  "EXAMPLE_TS_OUTPUT:","'<time>  [<value(i)> ,i=1,",npts,"]'"
+        write(iunit,'(A)') "SCALAR_TS_BEGIN"
+      else
+        write(iunit,'(A,T21,A,I0,A)')  "EXAMPLE_TS_OUTPUT:","'<time>  [<u_value(i)> <v_value(i)> ,i=1,",npts,"]'"
+        write(iunit,'(A)') "VECTOR_TS_BEGIN    !Global space"
+      endif
       !after this comes the actual data in the same order as POINT_NAMES above.
 
       return
@@ -3455,6 +3486,9 @@ implicit none
 !> Writes a scalar savept cell variable to its corresponding file
 !> written by Mitchell Brown, USACE-ERDC-CHL    
 !********************************************************************************   
+! Presently the maximum number of output values is 1000.  This value is checked upon cards being read.  MEB  10/22/2019
+! This value is contained in the global output variable MAXOUT    
+    
     use size_def, only: ncellsD
     use out_def, only: savept
     use comvarbl, only: timehrs
@@ -3467,7 +3501,7 @@ implicit none
     real(ikind),intent(in) :: var(ncellsD)    !< scalar array of size 'ncellsD'
     
     open(savept(i)%funits(j),file=savept(i)%files(j),access='append')
-973 format(1x,1pe11.4,255(1x,1pe11.4))
+973 format(1x,1pe11.4,2x,1000(1x,1pe11.4))
     write(savept(i)%funits(j),973) timehrs,(var(savept(i)%cell(k)),k=1,savept(i)%ncells)  
     close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation
     
@@ -3479,6 +3513,9 @@ implicit none
 !> Writes a vector savept cell variable to its corresponding file
 !> written by Mitchell Brown, USACE-ERDC-CHL    
 !********************************************************************************   
+! Presently the maximum number of output values is 1000.  This value is checked upon cards being read.  MEB  10/22/2019
+! This value is contained in the global output variable MAXOUT    
+
     use size_def, only: ncellsD
     use out_def, only: savept
     use comvarbl, only: timehrs
@@ -3492,7 +3529,7 @@ implicit none
     real(ikind),intent(in) :: var2(ncellsD)   !< vector component of size 'ncellsD'
     
     open(savept(i)%funits(j),file=savept(i)%files(j),access='append')
-973 format(1x,1pe11.4,255(1x,1pe11.4))
+973 format(1x,1pe11.4,2x,1000(1x,1pe11.4))
     write(savept(i)%funits(j),973) timehrs,  &
         (var1(savept(i)%cell(k)),var2(savept(i)%cell(k)),k=1,savept(i)%ncells)  
     close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation

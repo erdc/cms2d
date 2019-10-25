@@ -7,10 +7,10 @@
 ! Code changes recorded in logsheet.txt
 !
 ! written by     
-!   Weimings Wu, NCCHE - hydrodynamics + sediment transport
-!   Alex Sanchez, USACE-CHL - sediment transport + hydrodynamics
-!   Lihwa Lin, USACE-CHL - wave transformation
-!   Mitch Brown, USACE-CHL - auxiliary subroutines
+!   Weiming Wu   NCCHE     - hydrodynamics + sediment transport
+!   Alex Sanchez USACE-CHL - sediment transport + hydrodynamics
+!   Mitch Brown  USACE-CHL - auxiliary subroutines
+!   Lihwa Lin    USACE-CHL - wave transformation
 ! notes
 !   noptset==1 - CMS Wave only
 !   noptset==2 - CMS Flow only
@@ -38,8 +38,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 11             !Revision number
-    rdate    = '09/10/2019'
+    revision = 12             !Revision number
+    rdate    = '10/25/2019'
     
 #ifdef _WIN32
     machine='Windows'
@@ -1056,10 +1056,10 @@
         case(2)
           write(iunit(i),887) 'Bottom Friction:','ON, Variable Darcy-Weisbach'
         case(3)
-          write(iunit(i),887) "Bottom Friction:','ON, Constant Manning's"
+          write(iunit(i),887) "Bottom Friction:","ON, Constant Manning's"
           write(iunit(i),354) '  Value: ',trim(vstrlz(bf,'(f0.2)'))
         case(4)
-          write(iunit(i),887) "Bottom Friction:','ON, Variable Manning's"
+          write(iunit(i),887) "Bottom Friction:","ON, Variable Manning's"
       end select
 
       select case (iark)
@@ -1116,7 +1116,7 @@
         case(0)
           write(iunit(i),887) "Wind Forcing:","ON (if 'wind.dat' exists)"
         case(1)
-          write(iunit(i),887) "Wind Forcing:','OFF"
+          write(iunit(i),887) "Wind Forcing:","OFF"
         case(2)
           write(iunit(i),887) "Wind Forcing:","ON (dismiss incident wave inflation under stronger wind forcing)"
       end select
@@ -1130,13 +1130,13 @@
       
       select case (ixmdf)
         case(0)
-          write(iunit(i),887) "Output:','ASCII"
+          write(iunit(i),887) "Output:","ASCII"
         case(1)
-          write(iunit(i),887) "Output:','XMDF"
+          write(iunit(i),887) "Output:","XMDF"
         case(2)
-          write(iunit(i),887) "Input/Output:','XMDF"
+          write(iunit(i),887) "Input/Output:","XMDF"
         case(-1)
-          write(iunit(i),887) "Output:','ASCII"
+          write(iunit(i),887) "Output:","ASCII"
       end select
       
       select case (iproc)
