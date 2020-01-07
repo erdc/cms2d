@@ -300,7 +300,7 @@
     
     if(write_ascii_input)then
       if(igridtype<1)then !Nonuniform Cartesian grid
-      call diag_print_message('Writing ASCII grid file')
+        call diag_print_message('Writing ASCII grid file')
         call grid_cart_write_ascii  
       !elseif
       endif
@@ -997,7 +997,7 @@
     if(ierr/=0)then
       call diag_print_error('Could not open 2dm file: ',grdfile)
     endif
-    do i=1,1000000
+    do
       read(85,*,iostat=ierr) crd
       if(ierr/=0) exit
       selectcase(crd)
@@ -1070,7 +1070,7 @@
     xn = 0.0; yn = 0.0; zbn = 0.0
     nd = 0
     open(85,file=grdfile,iostat=ierr)
-    do i=1,1000000
+    do
       read(85,*,iostat=ierr) crd
       if(ierr/=0) exit
       selectcase(crd)
@@ -1640,7 +1640,7 @@ loopj: do j=1,numnode  !number of faces
           if(idirface(k,i) == 4) llec2llec(k,i)=2
         endif
         if(llec2llec(k,i)==0)then
-          call diag_print_error('Problem is calculating backwards cell to cell connectivity')
+          call diag_print_error('Problem in calculating backwards cell to cell connectivity')
         endif
       enddo
     enddo
@@ -2860,7 +2860,7 @@ d1: do k=1,10
       call diag_print_error('Grid file: ',grdfile,'  not found.')
     endif
     open(kunit,file=grdfile,status='unknown')
-    do k=1,10000000
+    do
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       foundcard = .true.

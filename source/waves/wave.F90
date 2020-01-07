@@ -17,6 +17,7 @@
     subroutine wave_cards(cardname,foundcard)
 !***********************************************************************    
     use wave_flowgrid_def
+    use cms_def, only:  ignore_brk_restr
     use in_lib
     implicit none
     integer :: ierr
@@ -37,6 +38,9 @@
       call card_scalar(77,'deg','deg',wavedir,ierr) 
       constant_waves = .true.
     
+    case('IGNORE_BREAKING_RESTRICTION')
+      call card_boolean(77,ignore_brk_restr,ierr)
+
     case default 
       foundcard = .false.
       

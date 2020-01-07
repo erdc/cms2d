@@ -1,3 +1,7 @@
+== Version 5.1.13 (01/07/2020)==
+* Bug fix: CMCARDS was only able to read a maximum of 1000 lines.  Anything else was ignored.
+* Change: Improved printing of information regarding Statistics process types.
+
 == Version 5.1.12 (10/25/2019)==
 * Bug fix: Corrected display of Rubble Mound Structure cells in diagnostic output
 * Bug fix: Removed extra output file of Hard Bottom warning cells
