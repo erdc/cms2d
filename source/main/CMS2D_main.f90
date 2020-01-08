@@ -38,8 +38,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 12             !Revision number
-    rdate    = '10/25/2019'
+    revision = 13             !Revision number
+    rdate    = '10/28/2019'
     
 #ifdef _WIN32
     machine='Windows'
@@ -448,7 +448,7 @@
           cmsflow = .true.
           !Search for Steering Cards
           open(77,file=astr)
-          do k=1,1000
+          do
             read(77,*,iostat=ierr) cardname    
             if(ierr/=0) exit
             call steering_cards(cardname)
@@ -534,8 +534,8 @@
         cmsflow = .true.
         !Search for Steering Cards
         open(77,file=astr)
-        do k=1,1000
-             read(77,*,iostat=ierr) cardname
+        do
+          read(77,*,iostat=ierr) cardname
           if(ierr/=0) exit
           call steering_cards(cardname)              
         enddo

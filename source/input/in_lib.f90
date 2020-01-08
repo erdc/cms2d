@@ -238,7 +238,7 @@ contains
       call diag_print_error('Problem reading header in TSD file: ',trim(afile))  
     endif
     if(nt<=0)then !Determine length of file        
-      do i=1,1000000
+      do
         read(454,*,iostat=ierr)
         if(ierr/=0) exit
         nt = nt + 1

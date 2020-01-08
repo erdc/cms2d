@@ -23,7 +23,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !---------------------------------------------------------------
 #include "CMS_cpp.h"
       use GLOBAL_INLINE
-      use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
+      use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath,ignore_brk_restr
       use hot_def, only: coldstart
       use comvarbl, only: ctime
       use diag_lib, only: diag_print_message
@@ -1376,7 +1376,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       !iwvbk=iwbk
       
       imod = 0
-      if(iwvbk.ne.2 .and. iwvbk.ne.4) iwvbk = 2  !Alex, ***** Hardcode ************
+      
+      if(.not. ignore_brk_restr) then              !Allow code to use other breaking types if requested via card, IGNORE_BREAKING_RESTRICTION
+        if(iwvbk.ne.2 .and. iwvbk.ne.4) iwvbk = 2  !Alex, ***** Hardcode ************
+      endif
       if(noptset.eq.3 .and. irs.eq.0) irs = 1   !Alex, always output radiation stress if in steering
       
 !
@@ -1692,7 +1695,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         ni=nj
         nj=nc
       end if
-        imod=0
+      imod=0
 !
 424   continue
 !
@@ -8377,7 +8380,7 @@ contains
           write(66,'(i8,i5)') kdate,idate
         end if
       else
-      write(66,'(i8)') idate
+       write(66,'(i8)') idate
       end if
       if(iwet.lt.0) then
       if(isteer.eq.1.and.idate.lt.10000) then

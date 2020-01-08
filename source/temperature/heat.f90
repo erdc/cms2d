@@ -411,7 +411,7 @@ d1: do k=1,10
     use prec_def   
     implicit none
     integer :: i,j,k,iterheat
-    real(ikind) :: tempxyz(1000,3),azimuth_r,cosang,sinang
+    real(ikind) :: tempxyz(10000,3),azimuth_r,cosang,sinang
     real(ikind) :: x_global,y_global,sumdis,sumheat,factobs,distobs2
     logical :: ok    
     
@@ -425,7 +425,7 @@ d1: do k=1,10
     open(65,file=heatobsfile)
     read(65,*) !Skip header file
     nheatobs = 0
-    do i=1,1000
+    do i=1,10000
       read(65,*,end=342) (tempxyz(i,j),j=1,3)
       nheatobs = nheatobs + 1
     enddo

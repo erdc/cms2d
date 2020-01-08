@@ -49,7 +49,7 @@
     
     !Get CMS Version number for setting defaults
     open(77,file=ctlfile,status='unknown')
-    do k=1,1000
+    do
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:11)=='CMS_VERSION')then !Get CMS Version
@@ -106,7 +106,7 @@
         open(77,file=advfile,status='unknown')
         read_adv = .true.
       endif
-      do k=1,1000
+      do
         read(77,*,iostat=ierr) cardname
         if(ierr/=0) exit
         if(cardname(1:14)=='END_PARAMETERS') exit
@@ -447,6 +447,7 @@
       case('WAVE_STRESSES_SMOOTHING_ITERATIONS','WAVE_STRESS_SMOOTHING_ITERATIONS','WAVE_STRESSES_SMOOTHING_ITER','WAVE_STRESSES_SMOOTH_ITER','WAVE_STRESS_SMOOTH_ITER')
       case('WAVE_PERIOD_SMOOTHING_ITERATIONS','WAVE_PERIOD_SMOOTHING_ITER','WAVE_PERIOD_SMOOTH_ITER')
       case('TEMPORAL_WAVE_INTERPOLATION')
+      case('BOUND_ADVECTION_EXTRAP_COEFFICIENT')
       case default
         foundcard = .false.
     endselect
