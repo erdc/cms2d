@@ -334,7 +334,7 @@ contains
       !Only add the filename the first time.
       open(46,file=filesup,status='old')
       foundfile=.false.
-      do k=1,1000
+      do
         read(46,'(A100)',iostat=ierr) aline
         if(ierr/=0) exit
         i = index(aline,trim(filedat))
@@ -559,7 +559,7 @@ contains
       !Search for filename and only add the filename the first time
       open(46,file=filesup,status='old')
       foundfile=.false.
-      do k=1,1000
+      do
         read(46,'(A100)',iostat=ierr) aline
         if(ierr/=0) exit
         i = index(aline,trim(filedat))

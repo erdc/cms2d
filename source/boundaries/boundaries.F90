@@ -1009,7 +1009,7 @@
       instaname = .false.
     endif
     
-    do k=1,1000
+    do
       read(kunit,*,iostat=kerr) ind,namesta,idsta,latsta,lonsta
       if(kerr/=0)then 
         exit
@@ -1037,8 +1037,8 @@
           backspace(kunit)
           read(kunit,*,iostat=ierr) ind,namesta,idsta,latsta,lonsta,(phasetemp(i),amptemp(i),i=1,ntf)
         endif
-      else !Use closest station to boundary
-          
+      else !Use closest station to boundary   !Missing instructions - found 10/30/19 MEB
+        continue  
       endif
     enddo
     

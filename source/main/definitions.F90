@@ -40,6 +40,7 @@ module cms_def
     real(8) :: timenow    !Julian time for speed monitor
     character(len=200) :: wavsimfile,wavepath,wavename  !Alex
     character(len=200) :: radpath,wavpath,perpath,dirpath,disspath
+    logical :: ignore_brk_restr = .false.
     
     !For keeping a list of unknown cards and values
     character(len=200) :: aValue

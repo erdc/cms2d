@@ -457,12 +457,15 @@
     subroutine stat_update()
 !***************************************************************************    
     use stat_def
+    use diag_lib
     implicit none
+    logical :: write_extraLines = .false.
     
+    if(flowstats.or.sedstats.or.salstats.or.wavestats) call diag_print_message('')    !Nicer output with empty line before stats are output. MEB  01/07/2020
     if(flowstats) call stat_update_flow  !Flow statistics
     if(sedstats)  call stat_update_sed   !Sediment statistics
     if(salstats)  call stat_update_sal   !Salinity statistics
-    if(wavestats) call stat_update_wave !Wave statistics
+    if(wavestats) call stat_update_wave  !Wave statistics
     
     return
     endsubroutine stat_update
@@ -1016,16 +1019,18 @@
     character(len=10) aext
     character(len=200) dirpath
     
+787 format(A,T40,F7.2,A) 
+    
     !call fileext(statfile,aext)
     if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
       aext='h5        '
-      write(msg2,'(A,F7.2,A)') 'Writing XMDF Flow Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing XMDF Flow Statistics at: ',timehrs,' hrs'
     else
       aext='txt       '
-      write(msg2,'(A,F7.2,A)') 'Writing ASCII Flow Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing ASCII Flow Statistics at: ',timehrs,' hrs'
     endif
     if(write_xmdf_output .or. timehrs .ne. 0.d0) then
-    call diag_print_message(' ',msg2,' ')
+    call diag_print_message(msg2)
     endif  
     
     select case(aext)
@@ -1166,17 +1171,19 @@
     character(len=10) aext
     character(len=200) dirpath
     real(ikind) :: ones(ncellsD)
+
+787 format(A,T40,F7.2,A) 
     
     !call fileext(statfile,aext)
     if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
       aext='h5        '
-      write(msg2,'(A,F7.2,A)') 'Writing XMDF Sediment Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing XMDF Sediment Statistics at: ',timehrs,' hrs'
     else
       aext='txt       '
-      write(msg2,'(A,F7.2,A)') 'Writing ASCII Sediment Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing ASCII Sediment Statistics at: ',timehrs,' hrs'
     endif
     if(write_xmdf_output .or. timehrs .ne. 0.d0) then
-    call diag_print_message(' ',msg2,' ')
+    call diag_print_message(msg2)
     endif  
     
     ones = 1.0
@@ -1232,15 +1239,17 @@
     character(len=10) aext
     character(len=200) dirpath
 
+787 format(A,T40,F7.2,A) 
+    
     if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
       aext='h5        '
-      write(msg2,'(A,F7.2,A)') 'Writing XMDF Salinity Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing XMDF Salinity Statistics at: ',timehrs,' hrs'
     else
       aext='txt       '
-      write(msg2,'(A,F7.2,A)') 'Writing ASCII Salinity Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing ASCII Salinity Statistics at: ',timehrs,' hrs'
     endif
     if(write_xmdf_output .or. timehrs .ne. 0.d0) then
-    call diag_print_message(' ',msg2,' ')
+    call diag_print_message(msg2)
     endif  
     
     select case(aext)
@@ -1285,16 +1294,18 @@
     implicit none
     character(len=10) aext
     character(len=200) dirpath
+
+787 format(A,T40,F7.2,A) 
     
     if(write_xmdf_output)then          !If no XMDF output, then force to output the Stats in ASCII.
       aext='h5        '
-      write(msg2,'(A,F7.2,A)') 'Writing XMDF Wave Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing XMDF Wave Statistics at: ',timehrs,' hrs'
     else
       aext='txt       '
-      write(msg2,'(A,F7.2,A)') 'Writing ASCII Wave Statistics at: ',timehrs,' hrs'
+      write(msg2,787) 'Writing ASCII Wave Statistics at: ',timehrs,' hrs'
     endif
     if(write_xmdf_output .or. timehrs .ne. 0.d0) then
-    call diag_print_message(' ',msg2,' ')
+    call diag_print_message(msg2)
     endif  
     
     select case (aext)

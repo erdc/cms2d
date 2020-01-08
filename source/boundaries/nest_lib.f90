@@ -55,7 +55,7 @@ contains
     endif
     open(88,file=ctlfilepar,status='unknown')
     telpargrd = .false.
-    do k=1,1000
+    do
       read(88,*,iostat=ierr) cardname
       if(ierr/=0) exit
       selectcase(cardname)

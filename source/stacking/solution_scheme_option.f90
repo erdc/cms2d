@@ -59,7 +59,7 @@
     !astring = trim(aname) // '.' // trim(aext)
     !write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
     open(77,file=ctlfile,status='unknown')
-    do k=1,1000
+    do
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:14)=='END_PARAMETERS') exit
