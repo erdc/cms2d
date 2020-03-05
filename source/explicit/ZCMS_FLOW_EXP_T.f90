@@ -20,7 +20,7 @@
     use NupdateMod, only: nupdateint,nupdatecnt,nupdate         
     use sed_def,    only: sedtrans
     use flow_def,   only: h,eta,u,v,uv,mturbul
-    use size_def,   only: ncells
+    use size_def,   only: ncells, ncellsfull
     use exp_telescoping
     use geo_def,    only: zb
     use diag_def,   only: dgunit,dgfile

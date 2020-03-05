@@ -4,7 +4,7 @@ module size_def
 !===================================================================
     implicit none
     save
-    integer:: ncellsfull   !Full cells or elements
+    integer:: ncellsfull   !Full cells or elements (Total grid cells active and inactive, but not ghost cells)
     integer:: ncells       !Active cells or elements
     integer:: ncellsD      !Active cells plus dummy or ghost cells
     integer:: nnodes       !# of nodes

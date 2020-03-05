@@ -29,10 +29,10 @@
     a_repose2 = a_repose + 1.0e-4 !Used to avoid cycling due to precision error
 
 !$OMP PARALLEL DO PRIVATE(i)
-      do i=1,ncells
-        zbav(i) = zb(i)  
-        dzbav(1:ncface(i),i) = 0.0
-      enddo
+    do i=1,ncells
+      zbav(i) = zb(i)  
+      dzbav(1:ncface(i),i) = 0.0
+    enddo
 !$OMP END PARALLEL DO    
     
     do iter=1,nmaxaval
@@ -104,29 +104,29 @@
       enddo  !ncelljoint
 !$OMP END DO
 !$OMP DO PRIVATE(i,ii,j,k,nck,slope,val)
-    do i=1,ncellpoly
-      do j=1,nxyface(i) !No repeat cell faces
-        k = kxyface(j,i)
-        nck = cell2cell(k,i)
-        if(nck<=ncells)then  
-          slope = (zbav(nck)-zbav(i))/dc(k,i)
-          if(slope<-a_repose2 .and. zbav(i)>hardzb(i))then !Downslope from i to nck, slope<0
-            val = dc(k,i)*(slope+a_repose)/(areap(i)+areap(nck))  !Wu
-            dzbav(k,i) = val*areap(nck)
-            dzbav(llec2llec(k,i),nck) = -val*areap(i)
-            nat = nat + 1
-          elseif(slope>a_repose2 .and. zbav(nck)>hardzb(nck))then !Upslope, slope>0
-            val = dc(k,i)*(slope-a_repose)/(areap(i)+areap(nck))   !Wu
-            dzbav(k,i) = val*areap(nck)
-            dzbav(llec2llec(k,i),nck) = -val*areap(i)
-            nat = nat + 1
+      do i=1,ncellpoly
+        do j=1,nxyface(i) !No repeat cell faces
+          k = kxyface(j,i)
+          nck = cell2cell(k,i)
+          if(nck<=ncells)then  
+            slope = (zbav(nck)-zbav(i))/dc(k,i)
+            if(slope<-a_repose2 .and. zbav(i)>hardzb(i))then !Downslope from i to nck, slope<0
+              val = dc(k,i)*(slope+a_repose)/(areap(i)+areap(nck))  !Wu
+              dzbav(k,i) = val*areap(nck)
+              dzbav(llec2llec(k,i),nck) = -val*areap(i)
+              nat = nat + 1
+            elseif(slope>a_repose2 .and. zbav(nck)>hardzb(nck))then !Upslope, slope>0
+              val = dc(k,i)*(slope-a_repose)/(areap(i)+areap(nck))   !Wu
+              dzbav(k,i) = val*areap(nck)
+              dzbav(llec2llec(k,i),nck) = -val*areap(i)
+              nat = nat + 1
+            endif
           endif
-        endif
-      enddo !j-no-repeat face
-    enddo !ncellpoly
+        enddo !j-no-repeat face
+      enddo !ncellpoly
 !$OMP END DO
 !$OMP CRITICAL
-    na = na + nat
+      na = na + nat
 !$OMP END CRITICAL
 !$OMP END PARALLEL
       if(na==0) exit
@@ -157,8 +157,8 @@
       iddzbavmaxt = 0
       dzbavmaxt = 0.0
       dzbavmax = 0.0
-!$OMP PARALLEL
-!$OMP DO PRIVATE(i,val,iddzbavmaxt,dzbavmaxt)
+!!$OMP PARALLEL
+!!$OMP DO PRIVATE(i,val,iddzbavmaxt,dzbavmaxt)
       do i=1,ncells
         val = zb(i) - zbav(i)
         dzb(i) = dzb(i) + val
@@ -168,25 +168,25 @@
           iddzbavmaxt = i
         endif
       enddo
-!$OMP END DO
+!!$OMP END DO
       !Distribute avalanching according for fractional bed change
       if(nsed>1)then
-!$OMP DO PRIVATE(i,ks,val)
+!!$OMP DO PRIVATE(i,ks,val)
         do i=1,ncells
           val = zb(i) - zbav(i)  
           do ks=1,nsed
             dzbk(i,ks) = dzbk(i,ks) + pbk(i,ks,1)*val 
           enddo
         enddo
-!$OMP END DO
+!!$OMP END DO
       endif
-!$OMP CRITICAL
+!!$OMP CRITICAL
     if(abs(dzbavmaxt)>abs(dzbavmax))then
       dzbavmax = dzbavmaxt
       iddzbavmax = iddzbavmaxt
     endif
-!$OMP END CRITICAL
-!$OMP END PARALLEL
+!!$OMP END CRITICAL
+!!$OMP END PARALLEL
       if(allocated(mapid))then
         iddzbavmax = mapid(iddzbavmax)
       endif

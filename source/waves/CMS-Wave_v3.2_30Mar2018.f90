@@ -70,7 +70,7 @@
       COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
       COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
       COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
-      COMMON /REFB/KRF,KCR(2,2*IPMX),RKR(2*IPMX),xangl(2*IPMX)
+      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)                 !changed to 6*ipmx - meb, 02/03/2020
       COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
                    ,sigm(jgpx),IWVBK,ibk3
       COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
@@ -2844,7 +2844,7 @@
             jb=j-1
             if(jb.lt.1) jb=1
             krf=krf+1
-            if(krf.gt.2*ipmx) go to 5001
+            if(krf.gt.6*ipmx) go to 5001                                  !changed to 6*ipmx - meb, 02/03/2020
             kcr(1,krf)=i
             kcr(2,krf)=j
             xangl(krf)=0.
@@ -2882,8 +2882,8 @@
 !
       if(iarkr.ge.1) then
         write(*,*) 'Total backward reflection cells =',krf
-        if(krf.gt.2*ipmx) then
-          write(*,*) 'Total backward reflection cells >',2*ipmx
+        if(krf.gt.6*ipmx) then                                   !changed to 6*ipmx - meb, 02/03/2020
+          write(*,*) 'Total backward reflection cells >',6*ipmx
           write(*,*) 'Need to increase total reflection cells'
           write(*,*) 'allowed -- Stop run'
 !         call PressReturn('ERROR:')
@@ -3832,7 +3832,7 @@
       COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
       COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
       COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
-      COMMON /REFB/KRF,KCR(2,2*IPMX),RKR(2*IPMX),xangl(2*IPMX)
+      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)            !changed to 6*ipmx - meb, 02/03/2020
       COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
       common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
       COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)

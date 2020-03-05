@@ -48,14 +48,14 @@ module flow_def
   logical :: waveflux !Wave mass flux
   real(ikind), allocatable :: us(:),vs(:)  !Stokes velocities
     
-    !Implicit solver
-    real(ikind), allocatable :: acoef(:,:),ap(:)
+  !Implicit solver
+  real(ikind), allocatable :: acoef(:,:),ap(:)
   real(ikind), allocatable :: pp(:),ppk(:,:),dppx(:),dppy(:) !pressure correction 
-    real(ikind), allocatable :: su(:),sv(:),sp(:),spu(:),spv(:)
-    real(ikind), allocatable :: ssu0(:),ssv0(:),spuv0(:),sspp0(:),sppp0(:)
+  real(ikind), allocatable :: su(:),sv(:),sp(:),spu(:),spv(:)
+  real(ikind), allocatable :: ssu0(:),ssv0(:),spuv0(:),sspp0(:),sppp0(:)
   real(ikind), allocatable :: Hu(:),dHux(:),dHuy(:),dHuxm(:),dHuym(:)
   real(ikind), allocatable :: Hv(:),dHvx(:),dHvy(:),dHvxm(:),dHvym(:)
-    real(ikind), allocatable :: apuareap(:),dapuareapx(:),dapuareapy(:),dapuareaxm(:),dapuareaym(:)
+  real(ikind), allocatable :: apuareap(:),dapuareapx(:),dapuareapy(:),dapuareaxm(:),dapuareaym(:)
   real(ikind), allocatable :: sumu(:) !,dsumux(:),dsumuy(:)
   real(ikind), allocatable :: rsp(:),rsu(:),rsv(:)
     
@@ -69,26 +69,26 @@ module flow_def
   real(ikind), allocatable :: hpred(:),upred(:),vpred(:)
     
   !Numerical methods for implicit schemes
-    type numimp
-      integer :: ntsch     !Temporal scheme
-      integer :: ndsch     !Advection scheme
-    integer :: nrecon    !Reconstruction type, 0-none,1-cell-based,2-face-based
-      logical :: skewcor   !Skewness correction
-    logical :: pred_corr !Predictor-corrector
-      real(ikind) :: ctsch,ctsch1,ctsch2,wtsch   !Temporal scheme variables
-    endtype numimp
+  type numimp
+    integer     :: ntsch     !Temporal scheme
+    integer     :: ndsch     !Advection scheme
+    integer     :: nrecon    !Reconstruction type, 0-none,1-cell-based,2-face-based
+    logical     :: skewcor   !Skewness correction
+    logical     :: pred_corr !Predictor-corrector
+    real(ikind) :: ctsch,ctsch1,ctsch2,wtsch   !Temporal scheme variables
+  endtype numimp
+  type(numimp)  :: usch,vsch,ppsch
 
-  type(numimp) :: usch,vsch,ppsch
-  logical :: volcor,flowvolbal
+  logical     :: volcor,flowvolbal
   real(ikind) :: volH2Ocumstg,volH2Ocumbnd,volH2Ocumflux
   real(ikind) :: volH2Ocumrain,volH2Ocumevap,volH2Ocumnorm
     
   !Eddy viscosity
-  logical :: crossdiff
-  integer:: mturbul !Turbulence model ID
+  logical           :: crossdiff
+  integer           :: mturbul    !Turbulence model ID
   character(len=32) :: aturb(0:5) !Turbulence model name
-  real(ikind) :: cviscon,cvisbot,cvishor,cviswav,cviswavbrk,cvismax
-  real(ikind) :: cvishor2areaavg2,cvishor2areaavg
+  real(ikind)       :: cviscon,cvisbot,cvishor,cviswav,cviswavbrk,cvismax
+  real(ikind)       :: cvishor2areaavg2,cvishor2areaavg
   real(ikind), allocatable :: vis(:),viskfl(:,:),visk(:,:)
   real(ikind), allocatable :: diswall(:)
   data aturb /'CONSTANT',&      !0
@@ -98,10 +98,10 @@ module flow_def
               'MIXING-LENGTH',& !4
               'SUBGRID'/        !5    
     
-    !Coriolis
+  !Coriolis
   integer :: icoriolisplane !1=f-plane,2=beta-plane
   real(ikind) :: fcoriolis,betacoriolis
-    real(ikind), allocatable :: fc(:)
+  real(ikind), allocatable :: fc(:)
     
   !Temporal Wave Interpolation      
   logical :: wave_interp = .true.     !If false, then wave input is constant until next wave update.   MEB  01/22/2014

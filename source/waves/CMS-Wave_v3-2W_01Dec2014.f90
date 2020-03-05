@@ -68,8 +68,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
       COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
       COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /REFA/KRMX,KR(2,4*IPMX),RK(4*IPMX),yangl(4*IPMX)
-      COMMON /REFB/KRF,KCR(2,2*IPMX),RKR(2*IPMX),xangl(2*IPMX)
+      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
+      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)
       COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
                    ,sigm(jgpx),IWVBK,ibk3
       COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
@@ -3002,7 +3002,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             ib=i-1
             jb=j-1
             krmx=krmx+1
-            if(krmx.gt.4*ipmx) go to 5000
+            if(krmx.gt.6*ipmx) go to 5000                      !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
             kr(1,krmx)=i
             kr(2,krmx)=j
             yangl(krmx)=0.
@@ -3027,8 +3027,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       if(iark.ge.1) then
         write(*,*) 'Total forward reflection cells  =',krmx
-        if(krmx.gt.4*ipmx) then
-          write(*,*) 'Total forward reflection cells >',4*ipmx
+        if(krmx.gt.6*ipmx) then                                    !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
+          write(*,*) 'Total forward reflection cells >',6*ipmx
           write(*,*) 'Need to increase total reflection cells'
           write(*,*) 'allowed -- Stop run'
           stop
@@ -3047,7 +3047,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             jb=j-1
             if(jb.lt.1) jb=1
             krf=krf+1
-            if(krf.gt.2*ipmx) go to 5001
+            if(krf.gt.6*ipmx) go to 5001                        !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
             kcr(1,krf)=i
             kcr(2,krf)=j
             xangl(krf)=0.
@@ -3085,8 +3085,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       if(iarkr.ge.1) then
         write(*,*) 'Total backward reflection cells =',krf
-        if(krf.gt.2*ipmx) then
-          write(*,*) 'Total backward reflection cells >',2*ipmx
+        if(krf.gt.6*ipmx) then                                     !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
+          write(*,*) 'Total backward reflection cells >',6*ipmx
           write(*,*) 'Need to increase total reflection cells'
           write(*,*) 'allowed -- Stop run'
           stop
@@ -4193,8 +4193,8 @@ contains
       COMMON /SPECD/SIMAX(JGPX,NPF,MPD),SJJ(JGPX)
       COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
       COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /REFA/KRMX,KR(2,4*IPMX),RK(4*IPMX),yangl(4*IPMX)
-      COMMON /REFB/KRF,KCR(2,2*IPMX),RKR(2*IPMX),xangl(2*IPMX)
+      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
+      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)
       COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
       common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
       COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
@@ -9580,35 +9580,35 @@ contains
             isub1=i-1
             jadd1=j+1
             jsub1=j-1
-            if(iadd1.gt.igmx) iadd1=igmx
-            if(isub1.lt.1)  isub1=1
-            if(jadd1.gt.jgmx) jadd1=jgmx
-            if(jsub1.lt.1)  jsub1=1
-            cc=0.
-            if(d1(iadd1,j).le..0) cc=cc+1.
-            if(d1(isub1,j).le..0) cc=cc+1.
-            if(d1(i,jadd1).le..0) cc=cc+1.
-            if(d1(i,jsub1).le..0) cc=cc+1.
-            if(cc.gt..5) then
+            if(iadd1 .gt. igmx) iadd1=igmx
+            if(isub1 .lt. 1)  isub1=1
+            if(jadd1 .gt. jgmx) jadd1=jgmx
+            if(jsub1 .lt. 1)  jsub1=1
+            cc=0.0
+            if(d1(iadd1,j) .le. 0.0) cc=cc+1.
+            if(d1(isub1,j) .le. 0.0) cc=cc+1.
+            if(d1(i,jadd1) .le. 0.0) cc=cc+1.
+            if(d1(i,jsub1) .le. 0.0) cc=cc+1.
+            if(cc.gt. 0.5) then
               ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10)
               sdis=sqrt(dvarx(i)**2+dvary(j)**2)
               ssc=0.0005*sdis/cc/ss
-              if(ssc.lt.1.) then
+              if(ssc .lt. 1.0) then
                 wxrs(i,j)=wxrs(i,j)*ssc
                 wyrs(i,j)=wyrs(i,j)*ssc
               end if
               go to 301
             end if
 !     Check four diagonal neighbour cells
-            if(d1(iadd1,jadd1).le..0) cc=cc+1.
-            if(d1(iadd1,jsub1).le..0) cc=cc+1.
-            if(d1(isub1,jadd1).le..0) cc=cc+1.
-            if(d1(isub1,jsub1).le..0) cc=cc+1.
-            if(cc.gt..5) then
+            if(d1(iadd1,jadd1) .le. 0.0) cc=cc+1.
+            if(d1(iadd1,jsub1) .le. 0.0) cc=cc+1.
+            if(d1(isub1,jadd1) .le. 0.0) cc=cc+1.
+            if(d1(isub1,jsub1) .le. 0.0) cc=cc+1.
+            if(cc .gt. 0.5) then
               ss=sqrt(wxrs(i,j)**2+wyrs(i,j)**2+1.e-10) !Alex, to avoid divide by zero
               sdis=sqrt(dvarx(i)**2+dvary(j)**2)
               ssc=0.0005*sdis/cc/ss
-              if(ssc.lt.1.) then
+              if(ssc .lt. 1.0) then
                 wxrs(i,j)=wxrs(i,j)*ssc
                 wyrs(i,j)=wyrs(i,j)*ssc
               end if 
@@ -9670,7 +9670,7 @@ contains
       END SUBROUTINE
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!  CALCULATION OF Matrix BY GAUS-SEIDEL METHOD---revised version
+!  CALCULATION OF Matrix BY GAUSS-SEIDEL METHOD---revised version
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       SUBROUTINE GSR_inline(II,JB,JE,NMX,MARK)

@@ -628,6 +628,7 @@
     use diag_lib
     use prec_def
     implicit none
+    
     integer :: i,ii,j,k,id,nck,nck2,ndum
     integer, allocatable :: loctemp(:,:)    
     integer, parameter :: inan = -99
@@ -635,6 +636,7 @@
     real(ikind) :: xg,yg,val,cosAng,sinAng   
     real(ikind), allocatable :: xtemp(:),ytemp(:),dxtemp(:),dytemp(:),ztemp(:)
     character(len=100) :: msg2,msg3
+    integer :: isolated(ncells,2), nIsolated
 
     nmaxfaces = 6  !Maximum # of faces in all directions
     ndmaxfaces = 4 !Maximum # of faces in each direction
@@ -911,6 +913,8 @@
 !    enddo
 !**** TEMPORARY *******************
 
+    nIsolated = 0  
+    isolated = 0
 !--- Check for single cell lakes --------------------
     do i=1,ncells
       if(cell2cell(1,i)>ncells .and. & 
@@ -921,18 +925,43 @@
         xg=xOrigin+x(i)*cosAng-y(i)*sinAng
         yg=yOrigin+x(i)*sinAng+y(i)*cosAng
         write(msg3,*)  '   Coordinates: ',xg,yg             
-        if(igridtype==0)then
+
 8615 format('  i=' ,I6,' j=',I6)          
-          write(msg2,8615) icol(i),irow(i)   
-          call diag_print_error('Invalid ocean cell ',msg2,msg3)
-        else
 8617 format('  id=' ,I6)       
-          write(msg2,8617) mapid(i)
-          call diag_print_error('Invalid ocean cell ',msg2,msg3)
+        
+    !Modified the code so that the user can get a list of all cell IDs to fix before CMS stops, MEB 01/31/2020
+        if(igridtype==0)then
+          !write(msg2,8615) icol(i),irow(i)   
+          !call diag_print_error('Invalid ocean cell ',msg2,msg3)
+          nIsolated = nIsolated + 1
+          isolated(nIsolated,1) = icol(i)
+          isolated(nIsolated,2) = irow(i)
+        else
+          !write(msg2,8617) mapid(i)
+          !call diag_print_error('Invalid ocean cell ',msg2,msg3)  
+          nIsolated = nIsolated + 1
+          isolated(nIsolated,1) = mapid(i)
         endif 
       endif      
-    enddo          
-    
+    enddo
+    if (nIsolated .gt. 0) then
+      if(igridtype == 0) then
+        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of I/J identifiers")
+      else
+        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of cell IDs")
+      endif
+      open(999,file="isolated.txt",status='unknown')
+      write(999,*) nIsolated
+      do i=1,nIsolated
+        if(igridtype == 0) then
+          write(999,*) isolated(i,1), isolated(i,2)
+        else
+          write(999,*) isolated(i,1)
+        endif
+      enddo
+      close(999)
+    endif
+        
 !    if(debug_mode)then
 !    !Cell Mapping
 !      icasen = index(casename,' ')-1 

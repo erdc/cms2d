@@ -783,7 +783,8 @@ contains
     
     return
     endsubroutine writescalh5
-
+    
+    
 !**************************************************************************
     subroutine writevech5(afile,apath,aname,varx,vary,aunits,timehr,iwritedry)
 ! writes a vector dataset to the xmdf file with id ncellsfull PID
@@ -887,8 +888,132 @@ contains
       END SELECT
       
      RETURN
-    END SUBROUTINE
+    END SUBROUTINE OPEN_CREATE_DATASET
 #endif
+
+
+!!**************************************************************************
+!    subroutine writescalnc(afile,apath,aname,var,aunits,timehr,iwritedry)
+!! writes a scalar dataset to the NetCDF file with id number PID
+!!
+!! written by Mitchell Brown, USACE-ERDC-CHL   03/05/2020
+!!**************************************************************************
+!    use size_def, only: ncellsD,ncellsfull,ncellpoly
+!    use NETCDF 
+!    use interp_lib, only: interp_scal_cell2node
+!    use prec_def
+!    implicit none
+!    !Input/Output
+!    character(len=*),intent(in) :: afile,apath,aname,aunits
+!    real(ikind),intent(in) :: var(ncellsD),timehr
+!    integer,intent(in) :: iwritedry
+!    !Internal variables
+!    integer :: fid,gid,ierr    
+!    real(8) :: timed  !Must be double    
+!    real(4) :: scalout(ncellsfull) !Must be single
+!    character(len=200) :: afullpath
+!    
+!    if(ncellpoly>0)then
+!      call interp_scal_cell2node(var,scalout,iwritedry)
+!    else
+!      call map_scal_active2full(var,scalout,iwritedry)  
+!    endif
+!    
+!    afullpath=trim(apath)//trim(aname)    
+!    ierr = nf90_open(trim(afile),ND90_WRITE,fid)            !Open existing NC file if it exists
+!    if(ierr /= NF90_NOERR)then
+!      ierr = nf90_create(trim(afile),NF90_CLOBBER,fid)       !Create new file if it didn't exist
+!    endif                 
+!    call OPEN_CREATE_NCDATASET(fid,trim(afullpath),gid,1,aunits,ierr)  !Open/create dataset          
+!    timed = dble(timehr)
+!    call XF_WRITE_SCALAR_TIMESTEP(gid,timed,ncellsfull,scalout,ierr) !Write data to XMDF file
+!    call XF_CLOSE_GROUP(gid,ierr)  !Close dataset    
+!    call XF_CLOSE_FILE(fid,ierr)   !Close XMDF file
+!    
+!    return
+!    endsubroutine writescalnc
+!
+!!**************************************************************************
+!    SUBROUTINE OPEN_CREATE_NCDATASET(OCID,STRING1,OCDID,DIM,OUNITS,OCERR)
+!! THIS FUNCTION OPENS OR CREATES A SCALAR OR VECTOR DATASET AND 
+!!   EXITS IF IT CAN'T CREATE ONE.
+!!
+!! - OCID:     parent group/file id
+!! - STRING1:  name for dataset
+!! - OCDID:    child group id
+!! - DIM:      dataset dimensions (1- scalar, 2- vector)
+!! - OUNITS:   Data units ('m','m/s','kg/m^3',etc.)
+!! - REFTIME (in):  SMS Reference time for dataset
+!!
+!! written by MEB 03/05/20
+!!  - fixed time units to hours 
+!!  - added compression option
+!!  - added output units for dataset
+!!**************************************************************************
+!    use comvarbl, only: reftime
+!    use out_def, only: ixmdfcomp
+!    use diag_lib
+!    use NETCDF4
+!    use NETCDF
+!    implicit none
+!    integer OCERR,OCDID,DIM,OCDPID,OCID
+!    character(LEN=*) STRING1,OUNITS    
+!      
+!    SELECT CASE (DIM)
+!      CASE (1)
+!        OCERR = nf90_inq_ncid (OCID, STRING1, OCDID) 
+!        if (OCERR /= nf90_noerr) then
+!          OCERR = nf90_def_grp (OCID, STRING1, OCDID)
+!          if (OCERR /= nf90_noerr) then
+!            call diag_print_error('Could not create scalar NC dataset: ',STRING1)
+!          endif
+!        endif
+!
+!!        CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
+!!        IF(OCERR<0)THEN
+!!          !CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
+!!          !Note: Time units always in hours (hard-wired from SMS)
+!!          CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR)
+!!          IF(OCERR<=0)THEN
+!!            call diag_print_error('Could not create scalar dataset: ',STRING1)            
+!!          ENDIF
+!!          CALL XF_DATASET_REFTIME(OCDID,REFTIME,OCERR)
+!!          CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
+!!          CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
+!!          CALL XF_SCALAR_DATA_LOCATION(OCDID,GRID_LOC_CENTER,OCERR)
+!!        ENDIF
+!      
+!      CASE (2)
+!        OCERR = nf90_inq_ncid (OCID, STRING1, OCDID) 
+!        if (OCERR /= nf90_noerr) then
+!          OCERR = nf90_def_grp (OCID, STRING1, OCDID)
+!          if (OCERR /= nf90_noerr) then
+!            call diag_print_error('Could not create vector NC dataset: ',STRING1)
+!          endif
+!        endif
+!
+!!        CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
+!!        IF(OCERR<0)THEN
+!!          !CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
+!!          !Note: Time units always in hours (hard-wired from SMS)
+!!          CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR) 
+!!          IF(OCERR<=0)THEN
+!!            call diag_print_error('Could not create vector dataset: ',STRING1)   
+!!          ENDIF
+!!          CALL XF_DATASET_REFTIME(OCDID,REFTIME,OCERR)
+!!          CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
+!!          CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
+!!          CALL XF_VECTORS_IN_LOCAL_COORDS(OCDID,OCERR)
+!!!          CALL XF_VECTOR_2D_DATA_LOCS (OCDID,GRID_LOC_FACE_I,GRID_LOC_FACE_J,OCERR)
+!!          CALL XF_VECTOR_2D_DATA_LOCS(OCDID,GRID_LOC_CENTER,GRID_LOC_CENTER,OCERR)
+!!        ENDIF
+!      
+!      END SELECT
+!      
+!     RETURN
+!    END SUBROUTINE OPEN_CREATE_NCDATASET
+
+
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! XMDF End

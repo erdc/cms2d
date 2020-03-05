@@ -1,26 +1,26 @@
-      subroutine initialize_flow_arrays_tel
+    subroutine initialize_flow_arrays_tel
 #include "CMS_cpp.h"    
-      use EXP_Global_def
-      USE EXP_transport_def 
-      USE EXP_bndcond_def
-      use size_def    
-      use flow_def, only: eta,iwet
-      use met_def, only: tauwindx,tauwindy   
-      use wave_flowgrid_def, only: wavestrx,wavestry
-      use geo_def, only: zb,cell2cell,idirface,dx,dy,mapid
-      use met_Def, only: pressatm
-      use exp_telescoping
-      use sal_def, only: saltrans,sal        
-      use bnd_def
+    use EXP_Global_def
+    USE EXP_transport_def 
+    USE EXP_bndcond_def
+    use size_def    
+    use flow_def, only: eta,iwet
+    use met_def, only: tauwindx,tauwindy   
+    use wave_flowgrid_def, only: wavestrx,wavestry
+    use geo_def, only: zb,cell2cell,idirface,dx,dy,mapid,icol,irow
+    use met_Def, only: pressatm
+    use exp_telescoping
+    use sal_def, only: saltrans,sal        
+    use bnd_def
       
-      implicit none 
-      !local variables
-      integer i,icnt,ii,jj,ncn2,itag,k,j,id1,id2,IDopt1,IDopt2,L
-      integer id3,id4,IT1,IT2,IB1,IB2,IR1,IR2,IL1,IL2
-      integer  n_cnt,e_cnt,s_cnt,w_cnt,nfaces
-      real totdepth
-      logical id1dummy,id2dummy,id3dummy,id4dummy
-      logical reg1,reg2,reg3,reg4,reg5,reg6
+    implicit none 
+    !local variables
+    integer i,icnt,ii,jj,ncn2,itag,k,j,id1,id2,IDopt1,IDopt2,L
+    integer id3,id4,IT1,IT2,IB1,IB2,IR1,IR2,IL1,IL2
+    integer  n_cnt,e_cnt,s_cnt,w_cnt,nfaces
+    real totdepth
+    logical id1dummy,id2dummy,id3dummy,id4dummy
+    logical reg1,reg2,reg3,reg4,reg5,reg6
  
     !create the linktodummies array and populate
     !this array is used to quickly copy grid interior values to dummy cells
