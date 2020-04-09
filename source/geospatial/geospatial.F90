@@ -220,10 +220,10 @@
         read(77,*) cardname  
       
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
-        call proj_horiz_block(77,projfl)
+        if(doPrint) call proj_horiz_block(77,projfl)            !Only process if in main section not the Solution Scheme part
         
       case('VERTICAL_PROJECTION_BEGIN','VERT_PROJ_BEGIN')
-        call proj_vert_block(77,projfl)
+        if(doPrint) call proj_vert_block(77,projfl)             !Only process if in main section not the Solution Scheme part
           
       case default
           foundcard = .false.  
@@ -2446,14 +2446,15 @@ di: do i=1,ncellsD
        aHorizCoordSystem,aHorizUnits
     use diag_lib
     implicit none
+    
     !Input/Output
     integer,intent(in) :: kunit
     type(projection),intent(inout) :: proj
     !Internal
-    integer :: i,k,ierr
+    integer :: i,k,ierr,ilen1,ilen2
     character(len=37) :: cardname
-    character(len=200) :: aline
-    logical :: foundcard
+    character(len=200) :: aline,dtype,azone
+    logical :: foundcard,matched
     
 d1: do k=1,10
       foundcard = .true.
@@ -2463,20 +2464,25 @@ d1: do k=1,10
       selectcase(cardname)  
       case('COORDINATE_DATUM','HORIZONTAL_DATUM','DATUM')
         backspace(kunit)
-        read(kunit,*) cardname, aline
+        read(kunit,'(A200)') aline
+        read(aline,*) cardname, dtype
+
+        matched=.false.
         do i=0,2
-          if(aline(1:5)==aHorizDatum(i))then
+          if(dtype(1:5)==aHorizDatum(i))then
             proj%iHorizDatum = i
+            matched=.true.
             exit
           endif
-          !if(i==1)then
-          !  write(*,*)  
-          !  write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
-          !  write(*,*) trim(aline)
-          !  read(*,*)
-          !  stop
-          !endif
         enddo
+        if(.not.matched)then
+          write(*,*)  
+          write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
+          write(*,*) trim(aline)
+          write(*,*) '- Will run as LOCAL Datum'
+          write(*,*)
+          proj%iHorizDatum = 2
+        endif
        
       case('COORDINATE_SYSTEM','COORD_SYSTEM','SYSTEM','HORIZONTAL_COORDINATE_SYSTEM')
         backspace(kunit)
@@ -2497,11 +2503,24 @@ d1: do k=1,10
         
       case('COORDINATE_ZONE','ZONE')
         backspace(kunit)
-        read(kunit,*) cardname, aline
-        read(aline,*,iostat=ierr) proj%iHorizZone
-        if(ierr/=0)then
-          proj%iHorizZone = 0
+        read(kunit,'(A200)') aline
+        aline=adjustl(aline)
+        ilen1=len_trim(aline)
+        ilen2=len_trim(cardname)
+        if (aline(ilen1:ilen1)==',') then
+          aline(ilen1:ilen1)=' '
+          ilen1=len_trim(aline)
         endif
+        if (ilen1==ilen2) then
+          !no zone specified, skip this card
+          continue
+        else
+          read(aline,*) cardname, azone
+          read(azone,*,iostat=ierr) proj%iHorizZone
+          if(ierr/=0)then
+            proj%iHorizZone = 0
+          endif
+        endif  
         
       case('COORDINATE_UNITS','HORIZONTAL_UNITS','UNITS')
         backspace(kunit)

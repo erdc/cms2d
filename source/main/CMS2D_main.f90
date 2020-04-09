@@ -39,7 +39,7 @@
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
     revision = 14             !Revision number
-    rdate    = '02/26/2020'
+    rdate    = '04/08/2020'
     
 #ifdef _WIN32
     machine='Windows'
@@ -410,6 +410,13 @@
     character :: cardname*37,aext*10, answer
     character(len=200) :: astr,apath,aname
     logical :: ok
+    
+    interface
+      function toLower (astr)
+        character(len=*),intent(in) :: astr
+        character(len=len(astr)) :: toLower
+      end function
+    end interface    
       
 !!    narg = iargc() !Not supported by PGI
     narg = command_argument_count()
@@ -432,7 +439,9 @@
       else
         call getarg(i,astr)
       endif
-      call fileparts(astr,apath,aname,aext)                    
+      astr = toLower(trim(astr))
+      call fileparts(astr,apath,aname,aext)           
+      if (astr == 'inline') aext=astr
       selectcase(aext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.cmcards'
@@ -468,6 +477,10 @@
           endif    
           cmswave = .true.          
           noptset = 3 
+          
+        case('inline')
+          inlinewave = .true.
+          narg = narg -1
 
         case('flp')  !Old format input files       
           casename = aname !(1:ind-1)   
@@ -848,16 +861,18 @@
 ! Prints the general CMS settings to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************    
-    use comvarbl, only: flowpath,ctlfile, input_ver, advfile, read_adv
+    use comvarbl, only: flowpath,ctlfile, input_ver, advfile, read_adv, SMS_ver
     use cms_def, only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath,&
        dtsteer,radpath,wavpath,perpath,dirpath,disspath,                  &
        noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
     use diag_def
+    use tool_def,  only: vstrlz    
     
     implicit none
     integer :: iunit(2),i
     character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5
 
+341 format(' ',A,T40,A,A)     !Added for vstrlz function results
 342 format(' ',A,T40,F0.2,A)    
 887 format(' ',A,T40,A)
 764 format(' ',A,T40,F0.3,A)  
@@ -870,13 +885,15 @@
     iunit = (/6,dgunit/)
 
     do i=1,2
+      write(iunit(i),*) 
       write(iunit(i),887) 'Actual Start Date/Time: ',trim(dstring)
       if(noptset>=2)then   
         if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
         astring=trim(aname) // '.' // aext
         write(iunit(i),887)    'CMS-Flow Card File:',trim(astring)
-        write(iunit(i),342)    'Input Version:',input_ver     
+        write(iunit(i),342)    'CMS Input Version:',input_ver    
+        if (SMS_ver .ne. -1) write(iunit(i),342)  'SMS Version used:',SMS_ver
       endif
       if (read_adv) then
         call fileparts(advfile,apath,aname,aext)
@@ -891,7 +908,7 @@
       endif  
       if(noptset==3)then  
         write(iunit(i),887)    'Steering Mode:','ON'
-        write(iunit(i),764)    'Steering Interval:',dtsteer/3600.0,' hrs'
+        write(iunit(i),341)    'Steering Interval:',trim(vstrlz(dtsteer/3600.0,'(F0.3)')),' hrs'
         write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Interpolation:','LINEAR'
         !write(iunit(i),764)      '  Extrapolation Distance:   ',xtrpdistwav,' m'         

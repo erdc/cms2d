@@ -2502,8 +2502,8 @@ d1: do i=1,ntf
         elseif(ang>360.0)then
           ang = ang - 360.0
         endif
-        write(iunit(i),353)   '      Direction:',ang,' deg'
-        write(iunit(i),353)   '      Conveyance Coefficient:',Q_str(iriv)%cmvel
+        write(iunit(i),341)   '      Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
+        write(iunit(i),341)   '      Conveyance Coefficient:',trim(vstrlz(Q_str(iriv)%cmvel,'(f0.3)'))
       enddo !i-str
     
       !--- Tidal/Harmonic BC (Type 2=TH) ------------------------------------------------
@@ -2543,7 +2543,7 @@ d1: do i=1,ntf
           elseif(ang>360.0)then
             ang = ang - 360.0
           endif
-          write(iunit(i),353)   '      Incident Direction:',ang,' deg'
+          write(iunit(i),341)   '      Incident Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
         endif               
         if(TH_str(iwse)%istidal)then
           write(iunit(i),261)   '      Number of Constituents:',TH_str(iwse)%ntc

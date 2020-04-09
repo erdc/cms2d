@@ -302,7 +302,7 @@
     case('CSHORE_BLP')   !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
-      write(*,*)'reading CSblp = ',CSblp
+      !write(*,*)'reading CSblp = ',CSblp
 
     case('CSHORE_SLP')   !added 6/7/2019 bdj
       backspace(77)
@@ -545,7 +545,7 @@
       read(77,*) cardname, facQtotin
       
     !----- Wave-Induced Sediment Transport ------------------    
-    case('WAVE_INDUCED_SED_TRANS','WAVE-INDUCED_SED_TRANS')
+    case('WAVE_INDUCED_SED_TRANS','WAVE-INDUCED_SED_TRANS','WAVESEDTRANS')
       call card_boolean(77,wavesedtrans,ierr)       
         
     case('ONSHORE_SED_TRANS_SCALE_FACTOR')

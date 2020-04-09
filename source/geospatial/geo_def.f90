@@ -126,7 +126,7 @@ module geo_def
     character(len=6)  :: aVertDatum(0:9)         !Vertical Datum
     character(len=6)  :: aVertUnits(1:4)         !Vertical Units
     type projection
-      integer :: iHorizDatum        !0-NAD27,1-NAD82,2-Local      
+      integer :: iHorizDatum        !0-NAD27,1-NAD83,2-Local      
       integer :: iHorizCoordSystem  !Code number for input horizontal coordinate system
       integer :: iHorizZone         !Code number for input horizontal coordinate zone
       integer :: iHorizUnits        !Code number for input horizontal coordinate units
@@ -138,8 +138,8 @@ module geo_def
     integer :: nzones
     type zonetype
       character(len=200) :: name  !Zone name
-      character(len=4) :: fip     !Zone code
-      character(len=10) :: utm    !UTM zone
+      character(len=4)   :: fip   !Zone code
+      character(len=10)  :: utm   !UTM zone
     endtype zonetype    
     type(zonetype), allocatable :: zones(:)
     character(len=200) :: HProj,VProj     !added to keep track on projection
