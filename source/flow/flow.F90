@@ -155,7 +155,7 @@
     presmax = 20.0*grav !m*(m/s^2)
     velmax = 10.0       !m/s
     
-    !Advanced card default file name
+    !Advanced card default file name. Added to version 5.1.13 MEB
     advfile = 'advanced.cmcards'
     
     
@@ -193,6 +193,10 @@
     
     foundcard = .true.
     selectcase(cardname)
+    case('SMS_VERSION')                !added MEB 03/19/2020 to assist with knowing which version of SMS output the CMCARDS file being used.
+      backspace(77)
+      read(77,*) cardname, SMS_ver
+        
     case('PARAMS_FILE')
       backspace(77)
       read(77,*) cardname, mpfile
@@ -278,7 +282,7 @@
       call calendar2julian(iyr,imo,iday,ihr,imin,isec,tjulday0)
       tjulhr0 = tjulday0*24.0
       tjulhryr = julday(iyr,1,1)*24.0    !start of year, hours
-      jday = (tjulhr0-tjulhryr)/24    !Julian day (1-366)      
+      jday = ((tjulhr0-tjulhryr)/24)+1   !Julian day (1-366)      !Modified to make first day of year 1 instead of 0.   04/13/2020 MEB
       dtj = tjulhr0-tjulhryr
           
     case('STARTING_JDATE')

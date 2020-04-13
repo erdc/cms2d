@@ -152,9 +152,11 @@
 !****************************************************************       
     use rol_def
     use diag_def, only: dgunit,dgfile
+    use tool_def, only: vstrlz
     implicit none
     integer :: iunit(2),i
     
+341 format(' ',A,T40,A,A)     !Added for vstrlz function results
 888 format(' ',A,T40,A)    
 222 format(' ',A,T40,F0.2,A)
     
@@ -163,15 +165,15 @@
     do i=1,2
         write(iunit(i),*)      
       if(roller)then
-         write(iunit(i),888)      'Roller Model:','ON'
+         write(iunit(i),888)     'Roller Model:','ON'
         if(rolflux)then
           write(iunit(i),888)    '  Mass Flux:','ON'
         else
           write(iunit(i),888)    '  Mass Flux:','OFF'
         endif
-        write(iunit(i),222)      '  Dissipation Coefficient:',br
-        write(iunit(i),222)      '  Wave Breaking Efficiency:',ceff
-        write(iunit(i),222)      '  Courant Number:',rol_courant
+        write(iunit(i),341)      '  Dissipation Coefficient:',trim(vstrlz(br,'(F0.2)'))
+        write(iunit(i),341)      '  Wave Breaking Efficiency:',trim(vstrlz(ceff,'(F0.2)'))
+        write(iunit(i),341)      '  Courant Number:',trim(vstrlz(rol_courant,'(F0.2)'))
         if(irolscheme==1)then
           write(iunit(i),888)    '  Transport Scheme:','UPWIND1'
         elseif(irolscheme==2)then        

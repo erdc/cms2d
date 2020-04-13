@@ -1,6 +1,12 @@
+== Version 5.1.14 (02/26/2020)==
+* Bug fix: Avoid accessing unallocated array in some situations (boundaries.F90)
+* Change: Increased number of reflection cells allowed and consolidated this value between inline and stand-alone.
+* Change: Improved handling of Isolated ocean cells - output all values to a text file instead of showing only the first, then STOP.
+
 == Version 5.1.13 (01/07/2020)==
 * Bug fix: CMCARDS was only able to read a maximum of 1000 lines.  Anything else was ignored.
 * Change: Improved printing of information regarding Statistics process types.
+* New: Added the ability to put advanced cards into 'advanced.cmcards' for processing in desired.
 
 == Version 5.1.12 (10/25/2019)==
 * Bug fix: Corrected display of Rubble Mound Structure cells in diagnostic output

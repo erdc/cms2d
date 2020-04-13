@@ -220,10 +220,10 @@
         read(77,*) cardname  
       
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
-        call proj_horiz_block(77,projfl)
+        if(doPrint) call proj_horiz_block(77,projfl)            !Only process if in main section not the Solution Scheme part
         
       case('VERTICAL_PROJECTION_BEGIN','VERT_PROJ_BEGIN')
-        call proj_vert_block(77,projfl)
+        if(doPrint) call proj_vert_block(77,projfl)             !Only process if in main section not the Solution Scheme part
           
       case default
           foundcard = .false.  
@@ -628,6 +628,7 @@
     use diag_lib
     use prec_def
     implicit none
+    
     integer :: i,ii,j,k,id,nck,nck2,ndum
     integer, allocatable :: loctemp(:,:)    
     integer, parameter :: inan = -99
@@ -635,6 +636,7 @@
     real(ikind) :: xg,yg,val,cosAng,sinAng   
     real(ikind), allocatable :: xtemp(:),ytemp(:),dxtemp(:),dytemp(:),ztemp(:)
     character(len=100) :: msg2,msg3
+    integer :: isolated(ncells,2), nIsolated
 
     nmaxfaces = 6  !Maximum # of faces in all directions
     ndmaxfaces = 4 !Maximum # of faces in each direction
@@ -911,6 +913,8 @@
 !    enddo
 !**** TEMPORARY *******************
 
+    nIsolated = 0  
+    isolated = 0
 !--- Check for single cell lakes --------------------
     do i=1,ncells
       if(cell2cell(1,i)>ncells .and. & 
@@ -921,18 +925,43 @@
         xg=xOrigin+x(i)*cosAng-y(i)*sinAng
         yg=yOrigin+x(i)*sinAng+y(i)*cosAng
         write(msg3,*)  '   Coordinates: ',xg,yg             
-        if(igridtype==0)then
+
 8615 format('  i=' ,I6,' j=',I6)          
-          write(msg2,8615) icol(i),irow(i)   
-          call diag_print_error('Invalid ocean cell ',msg2,msg3)
-        else
 8617 format('  id=' ,I6)       
-          write(msg2,8617) mapid(i)
-          call diag_print_error('Invalid ocean cell ',msg2,msg3)
+        
+    !Modified the code so that the user can get a list of all cell IDs to fix before CMS stops, MEB 01/31/2020
+        if(igridtype==0)then
+          !write(msg2,8615) icol(i),irow(i)   
+          !call diag_print_error('Invalid ocean cell ',msg2,msg3)
+          nIsolated = nIsolated + 1
+          isolated(nIsolated,1) = icol(i)
+          isolated(nIsolated,2) = irow(i)
+        else
+          !write(msg2,8617) mapid(i)
+          !call diag_print_error('Invalid ocean cell ',msg2,msg3)  
+          nIsolated = nIsolated + 1
+          isolated(nIsolated,1) = mapid(i)
         endif 
       endif      
-    enddo          
-    
+    enddo
+    if (nIsolated .gt. 0) then
+      if(igridtype == 0) then
+        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of I/J identifiers")
+      else
+        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of cell IDs")
+      endif
+      open(999,file="isolated.txt",status='unknown')
+      write(999,*) nIsolated
+      do i=1,nIsolated
+        if(igridtype == 0) then
+          write(999,*) isolated(i,1), isolated(i,2)
+        else
+          write(999,*) isolated(i,1)
+        endif
+      enddo
+      close(999)
+    endif
+        
 !    if(debug_mode)then
 !    !Cell Mapping
 !      icasen = index(casename,' ')-1 
@@ -2417,14 +2446,15 @@ di: do i=1,ncellsD
        aHorizCoordSystem,aHorizUnits
     use diag_lib
     implicit none
+    
     !Input/Output
     integer,intent(in) :: kunit
     type(projection),intent(inout) :: proj
     !Internal
-    integer :: i,k,ierr
+    integer :: i,k,ierr,ilen1,ilen2
     character(len=37) :: cardname
-    character(len=200) :: aline
-    logical :: foundcard
+    character(len=200) :: aline,dtype,azone
+    logical :: foundcard,matched
     
 d1: do k=1,10
       foundcard = .true.
@@ -2434,20 +2464,25 @@ d1: do k=1,10
       selectcase(cardname)  
       case('COORDINATE_DATUM','HORIZONTAL_DATUM','DATUM')
         backspace(kunit)
-        read(kunit,*) cardname, aline
+        read(kunit,'(A200)') aline
+        read(aline,*) cardname, dtype
+
+        matched=.false.
         do i=0,2
-          if(aline(1:5)==aHorizDatum(i))then
+          if(dtype(1:5)==aHorizDatum(i))then
             proj%iHorizDatum = i
+            matched=.true.
             exit
           endif
-          !if(i==1)then
-          !  write(*,*)  
-          !  write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
-          !  write(*,*) trim(aline)
-          !  read(*,*)
-          !  stop
-          !endif
         enddo
+        if(.not.matched)then
+          write(*,*)  
+          write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
+          write(*,*) trim(aline)
+          write(*,*) '- Will run as LOCAL Datum'
+          write(*,*)
+          proj%iHorizDatum = 2
+        endif
        
       case('COORDINATE_SYSTEM','COORD_SYSTEM','SYSTEM','HORIZONTAL_COORDINATE_SYSTEM')
         backspace(kunit)
@@ -2468,11 +2503,24 @@ d1: do k=1,10
         
       case('COORDINATE_ZONE','ZONE')
         backspace(kunit)
-        read(kunit,*) cardname, aline
-        read(aline,*,iostat=ierr) proj%iHorizZone
-        if(ierr/=0)then
-          proj%iHorizZone = 0
+        read(kunit,'(A200)') aline
+        aline=adjustl(aline)
+        ilen1=len_trim(aline)
+        ilen2=len_trim(cardname)
+        if (aline(ilen1:ilen1)==',') then
+          aline(ilen1:ilen1)=' '
+          ilen1=len_trim(aline)
         endif
+        if (ilen1==ilen2) then
+          !no zone specified, skip this card
+          continue
+        else
+          read(aline,*) cardname, azone
+          read(azone,*,iostat=ierr) proj%iHorizZone
+          if(ierr/=0)then
+            proj%iHorizZone = 0
+          endif
+        endif  
         
       case('COORDINATE_UNITS','HORIZONTAL_UNITS','UNITS')
         backspace(kunit)

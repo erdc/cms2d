@@ -783,7 +783,8 @@ contains
     
     return
     endsubroutine writescalh5
-
+    
+    
 !**************************************************************************
     subroutine writevech5(afile,apath,aname,varx,vary,aunits,timehr,iwritedry)
 ! writes a vector dataset to the xmdf file with id ncellsfull PID
@@ -887,8 +888,10 @@ contains
       END SELECT
       
      RETURN
-    END SUBROUTINE
+    END SUBROUTINE OPEN_CREATE_DATASET
 #endif
+
+
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! XMDF End

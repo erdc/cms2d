@@ -30,3 +30,9 @@ trunk/Intel_vs2013/x64/Debug/
 /trunk/Intel_vs2013/Debug/CMS2D_V5p1.exe
 /trunk/Intel_vs2013/x64/Debug/BuildLog.htm
 *.exe
+
+Intel_vs2017/x64/Debug/
+
+Intel_vs2017/x64/Release/
+
+trunk/Intel_vs2017/.vs/CMS2D_V5p1/v15/

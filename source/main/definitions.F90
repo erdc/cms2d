@@ -97,7 +97,8 @@ module comvarbl
     character(len=10) :: rdate
     character(len=10) :: machine     !06/11/2019 MEB - added to denote type of machine compiled on
     
-    real      :: input_ver !CMS-Flow Input Version. Read from cmcards file    !renamed from 'ver', 6/28/2016
+    real      :: input_ver        !CMS-Flow Input Version. Read from cmcards file    !renamed from 'ver', 6/28/2016
+    real      :: SMS_ver   = -1   !SMS Version used to write these files             !added MEB  03/19/2020
    
     !Used for testing only
     integer :: iflow1D !makes flow 1D    

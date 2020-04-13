@@ -145,12 +145,6 @@
       do i=1,nCards
         call diag_print_message('  '//trim(cardList(i)%cardname))
       enddo
-      write(*,*) 'Continue? (Y,n)'
-      read(*,*) aLetter
-      if (aLetter == 'n' .or. aLetter == 'N') then
-        call diag_print_message('Correct issue(s) and restart')
-        stop
-      endif
     endif
 
     if(coldstart .and. hot_out)then

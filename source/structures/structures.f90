@@ -814,6 +814,7 @@
     RM_struct(irubmound)%structbaseD_const = 0.0
     RM_struct(irubmound)%rubmoundmeth      = 0.0
     RM_struct(irubmound)%ncells            = 0
+    RM_struct(irubmound)%name              = ''
     
     return
     end subroutine rubble_mound_alloc
@@ -878,7 +879,11 @@
           backspace(77)
           read(77,*) cardname,numids,(RM_struct(irubmound)%cells(irm),irm=1,numids)
           rm_dset = .false.
-             
+
+        case('NAME')
+          backspace(77)
+          read(77,*) cardname,RM_struct(irubmound)%name                !meb added index 3/17/2020
+          
         case('ROCK_DIAMETER_CONSTANT')
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%rockdia_const       !meb added index 1/28/2019
@@ -1018,7 +1023,7 @@
         allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound),   & 
         rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
         rubmoundbotm(numrubmound))   
-
+        
         do irm=1,numrubmound
           nrubmound(irm)=irm
         enddo
@@ -1122,7 +1127,9 @@
 
       allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound), & 
         rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
-        rubmoundbotm(numrubmound),idrubmound(numrubmound))   
+        rubmoundbotm(numrubmound),idrubmound(numrubmound))  
+
+      allocate(rubmoundname(numrubmound))  !Added to keep names for rubble mound structures  !meb  03/19/20
 
       do irm=1,numrubmound
         nrubmound(irm)=irm
@@ -1139,6 +1146,7 @@
           rubmoundbotm(kk)   = RM_struct(irubmound)%structbaseD_const
           methrubmoundab(kk) = RM_struct(irubmound)%rubmoundmeth
         enddo
+        rubmoundname(j)      = RM_struct(irubmound)%name
       enddo
     endif  
     

@@ -1620,6 +1620,7 @@ d1: do i=1,ntf
     implicit none      
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
     integer :: iriv,iwse,icsh,korient,id1,id2,ibnd,ipar,idpar,kk
+    integer :: itide    !adding a descriptive loop control variable for the tidal and harmonic cell strings
     character(len=10) :: aext
     real(ikind) :: dep,cosang,sinang,val,distx,disty,tjuldaypar,xtrapdist
     integer :: ibndtemp(ncellsD)
@@ -1721,60 +1722,62 @@ d1: do i=1,ntf
     enddo !i-str
     
 !--- Tidal/Harmonic BC (Type 2=TH) ------------------------------------------------
-    do iwse=1,nTHstr
+    do itide=1,nTHstr                                                     !Switched loop control from 'iwse' to 'itide' for clarity - MEB 01/28/2020
       !Read cell/node string  
-      call read_bndstr(TH_str(iwse)%bidfile,TH_str(iwse)%bidpath,&
-        TH_str(iwse)%istrtype,TH_str(iwse)%idnum,&
-        TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces)
+      call read_bndstr(TH_str(itide)%bidfile,TH_str(itide)%bidpath,&
+        TH_str(itide)%istrtype,TH_str(itide)%idnum,&
+        TH_str(itide)%ncells,TH_str(itide)%cells,TH_str(itide)%faces)
       
       !Water level adjustment
-      if(TH_str(iwse)%ncells<3) TH_str(iwse)%wseadjust = .false.
+      if(TH_str(itide)%ncells<3) TH_str(itide)%wseadjust = .false.
       
       !Initialize variables
-      allocate(TH_str(iwse)%wsebnd0(TH_str(iwse)%ncells)) !Initial water levels at boundary (not necessary the same as forcing)
-      allocate(TH_str(iwse)%wsebnd(TH_str(iwse)%ncells)) !Water levels at boundary (not necessary the same as forcing)
-      allocate(TH_str(iwse)%wsevar(TH_str(iwse)%ncells))         
-      TH_str(iwse)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
-      TH_str(iwse)%wsebnd(:)  = 0.0
-      TH_str(iwse)%wsevar(:)  = 0.0
-      if(TH_str(iwse)%wseadjust)then
-        allocate(TH_str(iwse)%wseadj(TH_str(iwse)%ncells))  !Adjusted water levels with wind and wave setup     
-        TH_str(iwse)%wseadj(:)  = 0.0      
+      allocate(TH_str(itide)%wsebnd0(TH_str(itide)%ncells)) !Initial water levels at boundary (not necessary the same as forcing)
+      allocate(TH_str(itide)%wsebnd(TH_str(itide)%ncells)) !Water levels at boundary (not necessary the same as forcing)
+      allocate(TH_str(itide)%wsevar(TH_str(itide)%ncells))         
+      TH_str(itide)%wsebnd0(:) = 0.0 !May be overwritten in hot_read if initial condition is specified
+      TH_str(itide)%wsebnd(:)  = 0.0
+      TH_str(itide)%wsevar(:)  = 0.0
+      if(TH_str(itide)%wseadjust)then
+        allocate(TH_str(itide)%wseadj(TH_str(itide)%ncells))  !Adjusted water levels with wind and wave setup     
+        TH_str(itide)%wseadj(:)  = 0.0      
       endif
       
       !Calculate phase difference due incident angle and regional wse gradients
-      allocate(TH_str(nTHstr)%psi(TH_str(nTHstr)%ncells,TH_str(nTHstr)%ntc))
-      TH_str(nTHstr)%psi = 0.0
+      !allocate(TH_str(nTHstr)%psi(TH_str(nTHstr)%ncells,TH_str(nTHstr)%ntc))     !meb 1/31/2020  I think these should reference each cell string's PSI instead of always the max
+      !TH_str(nTHstr)%psi = 0.0
+      allocate(TH_str(itide)%psi(TH_str(itide)%ncells,TH_str(itide)%ntc))
+      TH_str(itide)%psi = 0.0
       !Calculate characteristic depth
-      if(TH_str(iwse)%angle>-900.0)then
+      if(TH_str(itide)%angle>-900.0)then
         dep = 0.0
-        do j=1,TH_str(iwse)%ncells
-          i = TH_str(iwse)%cells(j)
-          dep = dep - zb(i) + TH_str(iwse)%wseoffset  !h is undefined at this point
+        do j=1,TH_str(itide)%ncells
+          i = TH_str(itide)%cells(j)
+          dep = dep - zb(i) + TH_str(itide)%wseoffset  !h is undefined at this point
         enddo
-        dep = dep/real(TH_str(iwse)%ncells,kind=ikind)      
+        dep = dep/real(TH_str(itide)%ncells,kind=ikind)      
       endif      
-      im = TH_str(iwse)%ncells/2
-      i = TH_str(iwse)%cells(im) !Reference cell
-      cosang = cos(TH_str(iwse)%angle)
-      sinang = sin(TH_str(iwse)%angle)
-      do j=1,TH_str(iwse)%ncells
-        ii=TH_str(iwse)%cells(j)
+      im = TH_str(itide)%ncells/2
+      i = TH_str(itide)%cells(im) !Reference cell
+      cosang = cos(TH_str(itide)%angle)
+      sinang = sin(TH_str(itide)%angle)
+      do j=1,TH_str(itide)%ncells
+        ii=TH_str(itide)%cells(j)
         distx=x(ii)-x(i); disty=y(ii)-y(i)
-        TH_str(iwse)%wsevar(j) = distx*TH_str(iwse)%dwsex + disty*TH_str(iwse)%dwsey
-        if(TH_str(iwse)%angle<-900.0) cycle
+        TH_str(itide)%wsevar(j) = distx*TH_str(itide)%dwsex + disty*TH_str(itide)%dwsey
+        if(TH_str(itide)%angle<-900.0) cycle
         val = (distx*cosang+disty*sinang)/sqrt(grav*dep)/3600.0
-        do k=1,TH_str(iwse)%ntc
-          TH_str(iwse)%psi(j,k) = TH_str(iwse)%psi(j,k) + TH_str(iwse)%speed(k)*val
+        do k=1,TH_str(itide)%ntc
+          TH_str(itide)%psi(j,k) = TH_str(itide)%psi(j,k) + TH_str(itide)%speed(k)*val
         enddo
       enddo
-      if(TH_str(iwse)%ioffsetmode==2)then !Time-series offset (hli,10/04/17)
+      if(TH_str(itide)%ioffsetmode==2)then !Time-series offset (hli,10/04/17)
         !Read offset data           
-        call read_offsetwsedata(TH_str(iwse)%offsetfile,TH_str(iwse)%offsetpath,&
-             TH_str(iwse)%ntimesoffset,TH_str(iwse)%offsettimes,TH_str(iwse)%offsetcurve)
-!        write(3000,*)'TH_str(iwse)%offsetfile = ',TH_str(iwse)%offsetfile
-!        write(3000,*)'TH_str(iwse)%offsettimes = ',TH_str(iwse)%offsettimes
-!        write(3000,*)'TH_str(iwse)%offsetcurve = ',TH_str(iwse)%offsetcurve
+        call read_offsetwsedata(TH_str(itide)%offsetfile,TH_str(itide)%offsetpath,&
+             TH_str(itide)%ntimesoffset,TH_str(itide)%offsettimes,TH_str(itide)%offsetcurve)
+!        write(3000,*)'TH_str(itide)%offsetfile = ',TH_str(itide)%offsetfile
+!        write(3000,*)'TH_str(itide)%offsettimes = ',TH_str(itide)%offsettimes
+!        write(3000,*)'TH_str(itide)%offsetcurve = ',TH_str(itide)%offsetcurve
       endif
     enddo !i-str   
 
@@ -2499,8 +2502,8 @@ d1: do i=1,ntf
         elseif(ang>360.0)then
           ang = ang - 360.0
         endif
-        write(iunit(i),353)   '      Direction:',ang,' deg'
-        write(iunit(i),353)   '      Conveyance Coefficient:',Q_str(iriv)%cmvel
+        write(iunit(i),341)   '      Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
+        write(iunit(i),341)   '      Conveyance Coefficient:',trim(vstrlz(Q_str(iriv)%cmvel,'(f0.3)'))
       enddo !i-str
     
       !--- Tidal/Harmonic BC (Type 2=TH) ------------------------------------------------
@@ -2540,7 +2543,7 @@ d1: do i=1,ntf
           elseif(ang>360.0)then
             ang = ang - 360.0
           endif
-          write(iunit(i),353)   '      Incident Direction:',ang,' deg'
+          write(iunit(i),341)   '      Incident Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
         endif               
         if(TH_str(iwse)%istidal)then
           write(iunit(i),261)   '      Number of Constituents:',TH_str(iwse)%ntc

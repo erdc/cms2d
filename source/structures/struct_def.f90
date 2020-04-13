@@ -54,6 +54,7 @@ module struct_def
     real(ikind),allocatable :: permeability(:),rockdiam(:),structporo(:),structbaseD(:)  !hli(12/11/12)
     integer,allocatable     :: methrubmoundab(:)
     real(ikind),allocatable :: structmeth(:)  !hli(12/11/12)
+    character(len=200),allocatable :: rubmoundname(:)
 
  !Added meb 1/18/2019
     !This type facilitates reading in of the information from multiple blocks.
@@ -61,6 +62,7 @@ module struct_def
     integer :: irubmound = 0  !present index of rubble mound inputs from block
     type RM_type
       integer              :: ncells
+      character (len=200)  :: name
       integer, allocatable :: cells(:)
       real                 :: rockdia_const
       real                 :: structporo_const

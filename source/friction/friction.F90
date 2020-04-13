@@ -472,11 +472,11 @@
     character(len=200) :: apath,aname,astring
     character(len=10) :: aext
     
-342 format(' ',A,T40,F0.2,A)
-353 format(' ',A,T40,F0.3,A)
-354  format(' ',A,T40,A,A)    !Added for vstrlz function results
-345 format(' ',A,T40,F0.5)
-787 format(' ',A,T40,A)       
+342 format(' ',A,T52,F0.2,A)
+353 format(' ',A,T52,F0.3,A)
+354 format(' ',A,T52,A,A)    !Added for vstrlz function results
+345 format(' ',A,T52,F0.5)
+787 format(' ',A,T52,A)       
     
     call fileparts(fricfile,apath,aname,aext)
     astring=trim(aname) // '.' // aext
