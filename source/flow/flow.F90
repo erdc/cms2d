@@ -282,7 +282,7 @@
       call calendar2julian(iyr,imo,iday,ihr,imin,isec,tjulday0)
       tjulhr0 = tjulday0*24.0
       tjulhryr = julday(iyr,1,1)*24.0    !start of year, hours
-      jday = (tjulhr0-tjulhryr)/24    !Julian day (1-366)      
+      jday = ((tjulhr0-tjulhryr)/24)+1   !Julian day (1-366)      !Modified to make first day of year 1 instead of 0.   04/13/2020 MEB
       dtj = tjulhr0-tjulhryr
           
     case('STARTING_JDATE')
