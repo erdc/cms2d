@@ -1518,7 +1518,7 @@ loopj:  do j=1,nlay
 ! update 06/07/19 - If not hot start, you will not even get into this routine.  
 !***********************************************************************
     use out_lib,  only: write_xy_file
-    use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_recur, coldstart,icfile
+    use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_timehr, hot_recur, coldstart,icfile
     use comvarbl, only: casename
     use diag_def, only: debug_mode
     use diag_lib, only: diag_print_error
@@ -1532,8 +1532,8 @@ loopj:  do j=1,nlay
     integer            :: nunit,ierr,filecopied
 
     iSingleHot = .false. ; iAutoHot = .false.
-    if(hot_out)   iSingleHot = .true.      
-    if(hot_recur) iAutoHot   = .true.   
+    if(hot_timehr) iSingleHot = .true.        !Changed from 'hot_out'.  'hot_timehr' governs Single time hot start
+    if(hot_recur)  iAutoHot   = .true.   
     
     !Save all these files to a subdirectory named "ASCII_HotStart"
     hotdirpath='ASCII_HotStart'
@@ -1563,7 +1563,7 @@ loopj:  do j=1,nlay
       do
         read(100,'(A)',iostat=ierr) astring
         if(ierr<0) exit
-        write(101,'(A)') astring
+        write(101,'(A)') trim(astring)
       enddo
       close(100)
       close(101)
