@@ -626,6 +626,7 @@
     use comvarbl
     use const_def, only: deg2rad,small
     use diag_lib
+    use diag_def, only: msg,msg2,msg3
     use prec_def
     implicit none
     
@@ -635,8 +636,7 @@
     real(ikind), parameter :: fnan = -999.0          
     real(ikind) :: xg,yg,val,cosAng,sinAng   
     real(ikind), allocatable :: xtemp(:),ytemp(:),dxtemp(:),dytemp(:),ztemp(:)
-    character(len=100) :: msg2,msg3
-    integer :: isolated(ncells,2), nIsolated
+    integer :: isolated(ncells,4), nIsolated
 
     nmaxfaces = 6  !Maximum # of faces in all directions
     ndmaxfaces = 4 !Maximum # of faces in each direction
@@ -936,30 +936,43 @@
           nIsolated = nIsolated + 1
           isolated(nIsolated,1) = icol(i)
           isolated(nIsolated,2) = irow(i)
+          isolated(nIsolated,3) = xg
+          isolated(nIsolated,4) = yg
         else
           !write(msg2,8617) mapid(i)
           !call diag_print_error('Invalid ocean cell ',msg2,msg3)  
           nIsolated = nIsolated + 1
           isolated(nIsolated,1) = mapid(i)
+          isolated(nIsolated,3) = xg
+          isolated(nIsolated,4) = yg
         endif 
       endif      
     enddo
     if (nIsolated .gt. 0) then
+      msg  = 'Isolated ocean cells identified'
       if(igridtype == 0) then
-        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of I/J identifiers")
+        msg2 = "See 'isolated.txt' for list of I/J identifiers"
       else
-        call diag_print_error('Isolated ocean cells identified',"See 'isolated.txt' for list of cell IDs")
+        msg2 = "See 'isolated.txt' for list of cell IDs"
       endif
       open(999,file="isolated.txt",status='unknown')
       write(999,*) nIsolated
+
+      if(igridtype == 0) then
+        write(999,*) 'I   J   X   Y'
+      else
+        write(999,*) 'ID   X   Y'
+      endif
+      
       do i=1,nIsolated
         if(igridtype == 0) then
-          write(999,*) isolated(i,1), isolated(i,2)
+          write(999,*) isolated(i,1), isolated(i,2), isolated(i,3), isolated(i,4)
         else
-          write(999,*) isolated(i,1)
+          write(999,*) isolated(i,1), isolated(i,3), isolated(i,4)
         endif
       enddo
       close(999)
+      call diag_print_error(msg,msg2,msg3)
     endif
         
 !    if(debug_mode)then
