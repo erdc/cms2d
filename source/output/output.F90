@@ -1009,7 +1009,7 @@
     logical :: foundfile,found,created
     
 #ifdef XMDF_IO
-    call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+    call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)       !Set reference time for XMDF from month, day, year, hour, minute and second.
     !call XF_JULIAN_TO_CALENDAR(0,iyr,imo,iday,ihr,imin,isec,reftime,error)
 #endif
 
