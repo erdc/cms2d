@@ -958,7 +958,6 @@ contains
     real(ikind),dimension(ncellsD) :: duxm,duym,dvxm,dvym
     !logical :: isnankind
 
-    continue
 !$OMP PARALLEL
 !--- Save input derivatives for deferred corrections ------------------
     if(go%ider==2)then 

@@ -194,14 +194,14 @@
 #endif
       select case(ierr)
       case(:-1,1:)    !if(ierr<0 .or. ierr>0)then
-          do i=1,ncellsD
-            wavestrx2(i)=wavestrx1(i)
-            wavestry2(i)=wavestry1(i)
+        do i=1,ncellsD
+          wavestrx2(i)=wavestrx1(i)
+          wavestry2(i)=wavestry1(i)
           Whgt2(i)=Whgt1(i)
           Wper2(i)=Wper1(i)
-            wavediss2(i)=wavediss1(i)
+          wavediss2(i)=wavediss1(i)
           waveibr2(i)=waveibr1(i)
-            Wunitx2(i)=Wunitx1(i)
+          Wunitx2(i)=Wunitx1(i)
           Wunity2(i)=Wunity1(i)
         enddo  
       case default
@@ -209,10 +209,10 @@
         call readscalsteph5(grdfile,perpath, nsteer,tswave2,Wper2,              ierr)
         call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
         call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
-          call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
+        call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif
-          do i=1,ncellsD
-            Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
+        do i=1,ncellsD
+          Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i)=sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and convert units [N/m/s]
           if(wavediss2(i)>wavedisstol)then

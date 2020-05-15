@@ -24,7 +24,6 @@
     use comvarbl, only: casename,flowpath!,input_ver
     implicit none
     
-#include "CMS_cpp.h"
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
     
@@ -1796,7 +1795,7 @@ implicit none
       call writescalh5(outlist(3)%afile,apath,'Eddy_Viscosity',vis,'m^2/s',timehrs,0)  
     endif    
     
-    !SEDIMENT TRANNSPORT GROUP
+    !SEDIMENT TRANSPORT GROUP
     if(check_time_list(4))then
       call print_output_header(header)      
       !Total-load sediment concentration, capacity and transports          
@@ -2119,7 +2118,7 @@ implicit none
 #endif
 
     return
-    endsubroutine write_output_xmdf
+    end subroutine write_output_xmdf
     
 !***********************************************************************    
     subroutine write_output_sup(header)
