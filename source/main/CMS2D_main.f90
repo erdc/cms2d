@@ -439,24 +439,24 @@
       else
         call getarg(i,astr)
       endif
-      astr = toLower(trim(astr))
       call fileparts(astr,apath,aname,aext)           
+      astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       if (astr == 'inline') aext=astr
       selectcase(aext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.cmcards'
           flowpath = apath
           casename = aname
-          inquire(file=astr,exist=ok)
+          inquire(file=ctlfile,exist=ok)
           if(.not.ok)then
-            write(*,*) 'ERROR: ',trim(astr),' does not exist'
+            write(*,*) 'ERROR: ',trim(ctlfile),' does not exist'
             write(*,*) 'Press any key to continue.'
             read(*,*)
             stop
           endif    
           cmsflow = .true.
           !Search for Steering Cards
-          open(77,file=astr)
+          open(77,file=ctlfile)
           do
             read(77,*,iostat=ierr) cardname    
             if(ierr/=0) exit
