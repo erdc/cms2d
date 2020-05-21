@@ -182,7 +182,7 @@
           read(77,*) cardname,numrubmound,(nrubmound(irm),irm=1,numrubmound),  &
                      (idrubmound(idrm),idrm=1,maxrubmound),   &
                      (rubmounddia(irm),rubmoundporo(irm),methrubmoundab(irm),irm=1,numrubmound)   
-          do irm=1,numrubmound              !coefficients a and b 
+          do irm=1,numrubmound                   !coefficients a and b 
              if(methrubmoundab(irm)==1) then     !Sidiropoulou et al. (2007)
                 rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5)  *rubmoundporo(irm)**0.06         
                 rubmoundb(irm)=0.194  *rubmounddia(irm)**(-1.265)*rubmoundporo(irm)**(-1.14)

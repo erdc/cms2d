@@ -38,8 +38,8 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.1            !CMS version
-    revision = 14             !Revision number
-    rdate    = '04/13/2020'
+    revision = 15             !Revision number
+    rdate    = '05/21/2020'
     
 #ifdef _WIN32
     machine='Windows'
@@ -407,7 +407,7 @@
     use out_def, only: write_sup,write_tecplot,write_ascii_input
     implicit none
     integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr
-    character :: cardname*37,aext*10, answer
+    character :: cardname*37,aext*10, answer,laext*10   !added variable to hold lowercase version of the extension for the case statement.
     character(len=200) :: astr,apath,aname
     logical :: ok
     
@@ -439,24 +439,25 @@
       else
         call getarg(i,astr)
       endif
-      astr = toLower(trim(astr))
       call fileparts(astr,apath,aname,aext)           
+      astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
+      laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
       if (astr == 'inline') aext=astr
-      selectcase(aext)
+      selectcase(laext)
         case('cmcards') !Flow model
-          ctlfile = trim(aname) // '.cmcards'
+          ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
           flowpath = apath
           casename = aname
-          inquire(file=astr,exist=ok)
+          inquire(file=ctlfile,exist=ok)
           if(.not.ok)then
-            write(*,*) 'ERROR: ',trim(astr),' does not exist'
+            write(*,*) 'ERROR: ',trim(ctlfile),' does not exist'
             write(*,*) 'Press any key to continue.'
             read(*,*)
             stop
           endif    
           cmsflow = .true.
           !Search for Steering Cards
-          open(77,file=astr)
+          open(77,file=ctlfile)
           do
             read(77,*,iostat=ierr) cardname    
             if(ierr/=0) exit
@@ -465,10 +466,10 @@
           close(77)
 
         case('sim') !Wave model
-          WavSimFile = trim(aname) // '.sim'
+          WavSimFile = trim(aname) // '.' // trim(aext)  !'.sim'
           Wavepath=apath
           wavename=aname
-          inquire(file=astr,exist=ok)
+          inquire(file=WavSimFile,exist=ok)
             if(.not.ok) then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
             write(*,*) 'Press any key to continue.'

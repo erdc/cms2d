@@ -149,7 +149,6 @@
       call diag_print_error('Could not read dataset card: ',cardname)
     endif
     call fileparts(datafile,apath,aname,aext)
-    call lowercase(aext)
 
     ilen=len_trim(aPath)-1
     if (ilen.gt.0) then
@@ -166,6 +165,7 @@
       datafile = defaultfile !Assume the file is the grid file
       return  
     endif            
+    call lowercase(aext)
     select case(aext)
     case('h5')
       call countquotes(aline,nquotes)        !Account for lacking final quote on Bed Layer cards

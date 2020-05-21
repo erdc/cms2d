@@ -149,23 +149,19 @@
             solarms=solarmsdat(numhtflux)
        endif
        do iht=1,numhtflux-1
-          if(theat.gt.dathtflux(iht).and.   &
-                        theat.le.dathtflux(iht+1)) then 
-             airtmp=airtmpdat(iht)+(airtmpdat(iht+1)-airtmpdat(iht))   &
-                                   *(theat-dathtflux(iht))              &
-                                   /(dathtflux(iht+1)-dathtflux(iht))
-             dewpt=dewptdat(iht)+(dewptdat(iht+1)-dewptdat(iht))       &
-                                    *(theat-dathtflux(iht))             &
-                                    /(dathtflux(iht+1)-dathtflux(iht))
-             cloud=clouddat(iht)+(clouddat(iht+1)-clouddat(iht))       &
-                                   *(theat-dathtflux(iht))              &
-                                   /(dathtflux(iht+1)-dathtflux(iht))
-             solarms=solarmsdat(iht)+(solarmsdat(iht+1)-solarmsdat(iht))  &
-                                  *(theat-dathtflux(iht))                 &
-                                  /(dathtflux(iht+1)-dathtflux(iht))
-          endif
+         if(theat.gt.dathtflux(iht).and.   &
+            theat.le.dathtflux(iht+1)) then 
+           airtmp  = airtmpdat(iht)+(airtmpdat(iht+1)-airtmpdat(iht))              &
+                     *(theat-dathtflux(iht)) / (dathtflux(iht+1)-dathtflux(iht))
+           dewpt   = dewptdat(iht)+(dewptdat(iht+1)-dewptdat(iht))                 &
+                     *(theat-dathtflux(iht)) / (dathtflux(iht+1)-dathtflux(iht))
+           cloud   = clouddat(iht)+(clouddat(iht+1)-clouddat(iht))                 &
+                     *(theat-dathtflux(iht)) / (dathtflux(iht+1)-dathtflux(iht))
+           solarms = solarmsdat(iht)+(solarmsdat(iht+1)-solarmsdat(iht))           &
+                     *(theat-dathtflux(iht)) / (dathtflux(iht+1)-dathtflux(iht))
+         endif
        enddo       
-        !write(*,*) ctime,airtmp,dewpt, cloud, solarms         
+       !write(*,*) ctime,airtmp,dewpt, cloud, solarms         
     return
     end subroutine heatdatainterpol
     

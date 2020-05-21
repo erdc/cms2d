@@ -2628,10 +2628,10 @@ d1: do i=1,ntf
           write(iunit(i),141)   '        Path:',trim(MH_str(iwse)%wsepath)
         endif
         write(iunit(i),261)     '        Data Points:',MH_str(iwse)%ntimes
-        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),141)     '        Temporal Smoothing:'
         write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nsi
         write(iunit(i),261)     '          Width:',MH_str(iwse)%nsw
-        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),141)     '        Spatial Smoothing:'
         write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nssi
         write(iunit(i),261)     '          Width:',MH_str(iwse)%nssw
       enddo !i-str
@@ -2648,10 +2648,10 @@ d1: do i=1,ntf
           write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%wsepath)
         endif
         write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimeswse
-        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),141)     '        Temporal Smoothing:'
         write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsiwse
         write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswwse
-        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),141)     '        Spatial Smoothing:'
         write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssiwse
         write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswwse
         write(iunit(i),141)     '      Velocity Data:'
@@ -2660,10 +2660,10 @@ d1: do i=1,ntf
           write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%velpath)
         endif
         write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimesvel
-        write(iunit(i),141)     '        Temporal Smothing:'
+        write(iunit(i),141)     '        Temporal Smoothing:'
         write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsivel
         write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswvel
-        write(iunit(i),141)     '        Spatial Smothing:'
+        write(iunit(i),141)     '        Spatial Smoothing:'
         write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssivel
         write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswvel
       enddo !i-str

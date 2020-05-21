@@ -62,7 +62,8 @@
     Awatan = 0.5           !Watanabe coefficient
 
     !--- CSHORE Defaults ------------------------------ added 6/7/2019 bdj
-    CSeffb = 0.03          !CSHORE coefficient
+    !CSeffb = 0.03          !CSHORE coefficient  !updated to 0.003 from Brad's Branch  05/15/2020
+    CSeffb = 0.003         !CSHORE coefficient
     CSblp  = 0.002         !CSHORE coefficient
     CSslp  = 0.3           !CSHORE coefficient        
     
@@ -295,16 +296,15 @@
       backspace(77)
       read(77,*) cardname, Awatan  
 
-    case('CSHORE_EFFB')  !added 6/7/2019 bdj
+    case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
 
-    case('CSHORE_BLP')   !added 6/7/2019 bdj
+    case('CSHORE_BLP','CSHORE_BED_LOAD')   !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
-      !write(*,*)'reading CSblp = ',CSblp
 
-    case('CSHORE_SLP')   !added 6/7/2019 bdj
+    case('CSHORE_SLP','CSHORE_SUSP_LOAD')   !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSslp
       
@@ -477,7 +477,7 @@
     case('SEDIMENT_FALL_VELOCITY_FORMULA','SEDIMENT_FALL_VEL_FORM','FALL_VELOCITY_FORMULA')
       backspace(77)
       read(77,*) cardname, cdum !SOULSBY | WU-WANG
-      if(cdum(1:2)=='SO')then
+      if(cdum(1:2)=='SO')then				 !Previously, this was mishandling the assignment of type
         sedclass(:)%iws = 2
       elseif(cdum(1:2)=='WU')then
         sedclass(:)%iws = 3
@@ -2898,7 +2898,7 @@ if (icapac.eq.6) then
       !Bedload transport
       Hrms = Whgt(i)/sqrt(2.)  
       sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-      call prob_bedload(sigT,Wper(i),CSsg,diam(1),CSPb)
+      call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
       !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
       qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
       qbx = 1.*qb*wunitx(i)
@@ -2908,7 +2908,7 @@ if (icapac.eq.6) then
       qtx(i) = qsx + qbx
       qty(i) = qsy + qby
       
-!      write(1234,*)i,qbx,qsx,qtx(i) !bdj          6/7/2019 bdj left in a write statement
+      !write(1234,*)i,qbx,qsx,qtx(i) !bdj
       
       ! if(i.ge.1514.and.i.le.1524) then 
       !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
@@ -2929,31 +2929,49 @@ endif
     return
     endsubroutine sed_total
     
-    subroutine prob_bedload(sigT,Tp,CSsg,d50,CSPb)
+    subroutine prob_bedload(sigT,Tp,CSsg,d50,u,v,CSPb)
 ! calculates the probability of bedload transport, Pb
 ! written by Brad Johnson, USACE-CHL;
-! shear is on the basis of waves alone at this point
+! shear is on the basis of waves alone at this point	   
+! updated from Brad's branch - 05/15/2020
 !************************************************************************      
     use prec_def
     implicit none
     integer :: i,numsteps
-    real(ikind) :: sigT,Tp,CSsg,d50,CSPb
-    real(ikind) :: fw,shields,tau_c,tau,t,u,dum
+    real(ikind) :: sigT,Tp,CSsg,d50,u,v,CSPb,dr
+    real(ikind) :: fw,shields,tau_c,tau,dum
+    real,DIMENSION(101) :: r,f,fdum,ta
  
     fw = 0.02
     shields = 0.05
     tau_c = 9810.*(CSsg-1.)*d50*shields
-    numsteps = 20 
-    dum = 0.
-    do i = 1,numsteps
-      t = (float(i)-1.)/float(numsteps)*Tp
-      u = sqrt(2.)*sigT*sin(t*2.*3.14/Tp)
-      tau = 1000*fw/2.*u**2.
-      if(tau.gt.tau_c) dum = dum+1.
-      !write(*,*),'bdj sigT,t,u,tau,tau_c,dum',sigT,t,u,tau,tau_c,dum
-    enddo
-    CSPb = dum/float(numsteps)
-    !write(*,*),'bdj in prob_bedload',sigT,Tp,Pb    
+    r = (/ (I, I = -50,50,1) /)
+    r = r/10.
+    dr = r(2)-r(1)
+    f = 1/SQRT(2.*3.14)*exp(-r**2./2)
+    fdum = f
+    ta = 1000*fw/2.*(r*sigT)**2.
+    where(ta<tau_c)
+       fdum = 0.
+    end where
+    CSPb = sum(fdum)*dr
+    ! write(*,*) r
+    ! write(*,*) ta
+    ! write(*,*) fdum
+    ! write(*,*) 'CSPb ',CSPb
+
+
+    ! numsteps = 30 
+    ! dum = 0.
+    ! do i = 1,numsteps
+    !   t = (float(i)-1.)/float(numsteps)*Tp
+    !   u = sqrt(2.)*sigT*sin(t*2.*3.14/Tp)
+    !   tau = 1000*fw/2.*u**2.
+    !   if(tau.gt.tau_c) dum = dum+1.
+    !   !write(*,*),'bdj sigT,t,u,tau,tau_c,dum',sigT,t,u,tau,tau_c,dum
+    ! enddo
+    ! CSPb = dum/float(numsteps)
+    ! write(*,*)'bdj in prob_bedload',sigT,Tp,CSPb    
 
     return
     endsubroutine prob_bedload

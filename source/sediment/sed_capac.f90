@@ -440,9 +440,9 @@ subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
   do i = 1,numsteps
      ! write(*,*) CSPs
      r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
-     f = 1/sqrt(2.*3.14)*exp(-.5*r**2.);
-     Uwc = 1*abs(u)+1.*sigT*cos(alpha)*r;
-     Vwc = 1*abs(v)+1.*sigT*sin(alpha)*r;
+     f = 1./sqrt(2.*3.14)*exp(-.5*r**2.);
+     Uwc = 1.*abs(u)+1.*sigT*cos(alpha)*r;
+     Vwc = 1.*abs(v)+1.*sigT*sin(alpha)*r;
      Ua = sqrt(Uwc**2.+Vwc**2.);
      diss = .5*fw*rho*Ua**3.;
      if(((diss/rho)**(0.33333)).gt.CSwf) then
@@ -472,9 +472,9 @@ subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
   do i = 1,numsteps
      ! write(*,*) CSPs
      r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
-     f = 1/sqrt(2.*3.14)*exp(-.5*r**2.);
-     Uwc = 1*abs(u)+1.*sigT*cos(alpha)*r;
-     Vwc = 1*abs(v)+1.*sigT*sin(alpha)*r;
+     f = 1./sqrt(2.*3.14)*exp(-.5*r**2.);
+     Uwc = 1.*abs(u)+1.*sigT*cos(alpha)*r;
+     Vwc = 1.*abs(v)+1.*sigT*sin(alpha)*r;
      Ua = sqrt(Uwc**2.+Vwc**2.);
      diss = .5*fw*rho*Ua**3.;
      CSDf = CSDf + dr*diss*f;
