@@ -123,33 +123,33 @@
       !   wavestrx3D(ii)=wavestrx3D2(ii)*ramp
       !   wavestry3D(ii)=wavestry3D2(ii)*ramp
       ! enddo
-      elseif(noptset==4)then !Constant wave conditions
-        timehrs=ctime/3600.0
-        ramp=min(timehrs/rampdur,1.0)
+    elseif(noptset==4)then !Constant wave conditions
+      timehrs=ctime/3600.0
+      ramp=min(timehrs/rampdur,1.0)
       
-        nsteer=nsteer+1
-        call wave_flgrid_init
+      nsteer=nsteer+1
+      call wave_flgrid_init
 #ifdef XMDF_IO
       call readscalsteph5(grdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)        
       call readscalsteph5(grdfile,perpath, nsteer,tswave1,Wper1,    ierr)              
       call readscalsteph5(grdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
       call readscalsteph5(grdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
-        call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
+      call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
 #else
       call diag_print_error('Cannot read constant wave conditions without XMDF')
 #endif
-        do i=1,ncellsD
-          Wunitx1(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
+      do i=1,ncellsD
+        Wunitx1(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
         Wunity1(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
         wavediss1(i) = -rhow*wavediss1(i)  !Flip sign and convert units [N/m/s]
         if(wavediss1(i)>wavedisstol)then
           waveibr1(i) = 1.0
         endif
-        enddo
+      enddo
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,wavestrx1,wavestry1)      
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,Wunitx1,Wunity1) 
-        tswave2 = max(tswave1,ctime)
-        tswave1 = min(tswave1,ctime)  
+      tswave2 = max(tswave1,ctime)
+      tswave1 = min(tswave1,ctime)  
       
       !Smoothing
       do i=1,nbrksm
@@ -188,9 +188,9 @@
         waveibr(i)=waveibr1(i)
       enddo
       
-        nsteer=nsteer+1
+      nsteer=nsteer+1
 #ifdef XMDF_IO
-        call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)      !ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
+      call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)      !ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
 #endif
       select case(ierr)
       case(:-1,1:)    !if(ierr<0 .or. ierr>0)then
@@ -297,6 +297,7 @@
     use global, only: NPF,MPD,IPMX,JPMX,IGPX,JGPX
     use wave_lib, only: wavebreak_bj78,wave_Hmax
     implicit none
+
     integer :: ii,jm,jj,jbv
     real :: cab,Hrms,wnk,Hmax,fp,Qb
     integer :: kdate,idate
@@ -307,12 +308,12 @@
     common /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
     integer :: IWVBK,ibk3
     real :: DEPM,DMNJ,SLF,wlmn,cmn,sigm
-    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
-                 ,sigm(jgpx),IWVBK,ibk3
+    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
+                 sigm(jgpx),IWVBK,ibk3
     integer :: imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
     real :: PAI2,PAI,HPAI,RAD,akap,depmin0
-    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
-                   ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
+                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
     integer :: IBR,KPEAK,IBACK,NBLOCK,IWIND
     real :: H13S,diss,TP,PRD,IBND,VL,TIDE
@@ -321,7 +322,7 @@
     real :: HS0,wd,ws,ph0,wdd,dissij
     common /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd)
 
-   !Initialize
+    !Initialize
     cab=0.0 
     if(IBACK==0)then
       diss(ii,jj)=0.0
@@ -332,10 +333,10 @@
     !if(IBK==1 .or. JBV>=6) return
         
     wnk=pai2/wlmn(jm)
-      if(wnk<1.0e-6) return        
+    if(wnk<1.0e-6) return        
     
-      !Maximum waveheight
-      call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
+    !Maximum waveheight
+    call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
 !!    Hmax = 0.78*depm(jm)    
     
     !Check incipient breaking
@@ -385,12 +386,12 @@
     common /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
     integer :: IWVBK,ibk3
     real :: DEPM,DMNJ,SLF,wlmn,cmn,sigm
-    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
-                 ,sigm(jgpx),IWVBK,ibk3
+    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
+                 sigm(jgpx),IWVBK,ibk3
     integer :: imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
     real :: PAI2,PAI,HPAI,RAD,akap,depmin0
-    COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
-                   ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+    COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
+                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
     integer :: IBR,IBND,KPEAK,IBACK,NBLOCK,IWIND
     real :: H13S,diss,TP,PRD,VL,TIDE
@@ -410,10 +411,10 @@
     if(IBK==1 .or. JBV>=6) return
         
     wnk=pai2/wlmn(jm)
-      if(wnk<1.0e-6) return    
+    if(wnk<1.0e-6) return    
             
-      !Maximum waveheight
-      call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
+    !Maximum waveheight
+    call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
 !!    Hmax = 0.78*depm(jm)    
     
     !Check incipient breaking    
@@ -484,14 +485,14 @@
 ! written by Alex Sanchez, USACE-CHL, May 2012
 !*********************************************************************************    
     use flow_wavegrid_def, only: uwave,vwave,hwave
-    use wave_wavegrid_def, only: nwavei,nwavej,xwave,ywave,dxwav,dywav,&
-                wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
+    use wave_wavegrid_def, only: nwavei,nwavej,xwave,ywave,dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
     use wave_flowgrid_def, only: wavestrx2,wavestry2
     use rol_def, only: d2x,d2y
     use flow_def, only: waveflux,rhow,hmin,grav
     use const_def, only: twopi,pi,small
     use prec_def
     implicit none 
+
     integer :: i,i1,i2,j,j1,j2
     real(ikind) :: Sxx(nwavei,nwavej),Sxy(nwavei,nwavej),Syy(nwavei,nwavej)
     real(ikind) :: E,wlength,c,hw !,hk,wavelength,val
@@ -576,14 +577,14 @@
     use flow_def, only: waveflux,rhow,hmin,grav
     use const_def, only: twopi,pi,small
     use prec_def
+    
     implicit none 
     integer :: i,i1,i2,j,j1,j2
     real(ikind) :: Sxx(nwavei,nwavej),Sxy(nwavei,nwavej),Syy(nwavei,nwavej)
     real(ikind) :: E,wlength,c,cn,hwkw,hw
     real*4 :: q,d,uu,vv,om,cw,cg,sg,akk !must be single 
     
-!$OMP PARALLEL 
-!$OMP DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hwkw,hw)
+!$OMP PARALLEL DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hwkw,hw)
     do i=1,nwavei      
       do j=1,nwavej        
         hw=hwave(i,j)
@@ -610,10 +611,10 @@
         Sxy(i,j)=E*cn*wcos(i,j)*wsin(i,j)        
       enddo
     enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     !Over-ride wave radiation stress gradients
-!$OMP DO PRIVATE(i,i1,i2,j,j1,j2)
+!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2)
     do i=1,nwavei
       i1=min(i+1,nwavei); i2=max(i-1,1)
       do j=1,nwavej
@@ -622,8 +623,7 @@
         wyrs1(i,j)=(-(Syy(i,j1)-Syy(i,j2))/d2y(j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i))/rhow
       enddo
     enddo   
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END PARALLEL DO
     
     return 
     endsubroutine wave_rad_stress
@@ -648,13 +648,13 @@
     use const_def, only: twopi,pi,small
     use prec_def
     implicit none 
+    
     integer :: i,i1,i2,j,j1,j2
     real(ikind) :: ECg(nwavei,nwavej)
     real(ikind) :: E,wlength,c,cn,hk,hw,val
     real*4 :: q,d,uu,vv,om,cw,cg,sg,akk !must be single 
     
-!$OMP PARALLEL 
-!$OMP DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hk,hw)
+!$OMP PARALLEL DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hk,hw)
     do i=1,nwavei      
       do j=1,nwavej        
         hw=hwave(i,j)
@@ -677,10 +677,10 @@
         ECg(i,j)=E*cn*c    
       enddo
     enddo
-!$OMP END DO
+!$OMP END PARALLEL DO
 
     !Modifies the wave dissipation
-!$OMP DO PRIVATE(i,i1,i2,j,j1,j2)
+!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2)
     do i=1,nwavei
       i1=min(i+1,nwavei); i2=max(i-1,1)
       do j=1,nwavej
@@ -692,8 +692,7 @@
 !        wdiss(i,j)=abs(val) !*wibr(i,j)
       enddo
     enddo   
-!$OMP END DO
-!$OMP END PARALLEL
+!$OMP END PARALLEL DO
 
     return 
     endsubroutine wave_dissipation
@@ -708,6 +707,7 @@
     use wave_lib, only: wavenumber,wavebreak_bj78,wave_Hmax
     use prec_def
     implicit none
+    
     integer :: i,ib
     real(ikind),intent(in) :: h(ncellsD),u(ncellsD),v(ncellsD)
     real(ikind),intent(in) :: whgt(ncellsD),wper(ncellsD),wdir(ncellsD)
@@ -764,6 +764,7 @@
     use diag_def
     use diag_lib
     implicit none    
+
     !Input/Output
     real,intent(in) :: wd,h,u,v,wa
     real,intent(out) :: cw,cg,sig,wk

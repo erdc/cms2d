@@ -477,7 +477,7 @@
     case('SEDIMENT_FALL_VELOCITY_FORMULA','SEDIMENT_FALL_VEL_FORM','FALL_VELOCITY_FORMULA')
       backspace(77)
       read(77,*) cardname, cdum !SOULSBY | WU-WANG
-      if(cdum(1:2)=='SO')then
+      if(cdum(1:2)=='SO')then				 !Previously, this was mishandling the assignment of type
         sedclass(:)%iws = 2
       elseif(cdum(1:2)=='WU')then
         sedclass(:)%iws = 3
