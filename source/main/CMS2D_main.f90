@@ -37,9 +37,9 @@
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    version  = 5.1            !CMS version
-    revision = 15             !Revision number
-    rdate    = '05/21/2020'
+    version  = 5.2           !CMS version
+    revision = 0             !Revision number
+    rdate    = '07/01/2020'
     
 #ifdef _WIN32
     machine='Windows'
