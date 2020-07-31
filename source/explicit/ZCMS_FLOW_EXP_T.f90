@@ -164,7 +164,7 @@
          
          !get cell centered velocities for output 
          
-!$OMP PARALLEL DO private(i,DepthT)       
+!!$OMP PARALLEL DO private(i,DepthT)       
         do ii=1,numREGCells
           i=REGCells(ii)          
           depthT = eta(i) - zb(i)
@@ -177,7 +177,7 @@
           v(i) = v(i)/DepthT
           uv(i) = sqrt(u(i)*u(i)+v(i)*v(i))
         enddo
-!$OMP END PARALLEL DO
+!!$OMP END PARALLEL DO
       
 #ifdef PROFILE
         call watch_stop('CC_vel')

@@ -37,6 +37,7 @@
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
+    !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           !CMS version
     revision = 0             !Revision number
     rdate    = '07/01/2020'
@@ -675,13 +676,15 @@
     use diag_def
     
     implicit none
-    integer :: iunit(2),i
+    integer      :: iunit(2),i
+    character*12 :: string
 
 7009  format(' **********************************************************')
 7011  format('              U.S. Army Corps of Engineers                 ')
 7012  format('            Coastal Inlets Research Program                ')
 7013  format('                Coastal Modeling System                    ')
-7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,A)
+7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,1X,A)
+8014  format('       CMS2D, Version ',F5.2,'.',F4.1,1X,A,1X,A)
 7114  format('          This version is for testing purposes only!       ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
@@ -705,12 +708,20 @@
       write(iunit(i),7011)
       write(iunit(i),7012)
       write(iunit(i),7013)
-      if(.not.release)then                            !BETA
-        write(iunit(i),7014) version,revision,'BETA for ',trim(machine)
+      if(.not.release)then      !BETA
+        string='BETA for'
         write(iunit(i),7114)
-      else                                               !RELEASE
-        write(iunit(i),7014) version,revision,'RELEASE for ',trim(machine)
+      else                      !RELEASE
+        string='RELEASE for'
       endif
+
+      !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
+      if (int(revision)/revision .eq. 1) then
+        write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
+      else
+        write(iunit(i),8014) version,revision,trim(string),trim(machine)
+      endif
+      
       write(iunit(i),7016) rdate !Last revision date
       write(iunit(i),7017)
       write(iunit(i),7018)

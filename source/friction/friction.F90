@@ -597,7 +597,7 @@
     
 !***********************************************************************
     subroutine fric_eval()
-! Calculates current mangitud and bed shear variables
+! Calculates current magnitude and bed shear variables
 ! Updates coefman,z0,cfrict,uv,uelwc,bsxy,bsvel
 ! last modified April 2, 2010
 ! by Weiming Wu, Jan. 2010
@@ -631,8 +631,12 @@
     case(2) !Manning's equation  
 !$OMP PARALLEL DO PRIVATE(i)       
       do i=1,ncells
-        cfrict(i) = fric_conv_man2drag(grav,coefman(i),h(i),hmax)          
-        z0(i) = fric_conv_drag2length(cfrict(i),h(i)) 
+        cfrict(i) = fric_conv_man2drag(grav,coefman(i),h(i),hmax)  
+        
+        !added test to avoid div/0   MEB  07/30/2020
+        if (cfrict(i) .ne. 0.0) then
+          z0(i) = fric_conv_drag2length(cfrict(i),h(i)) 
+        endif
 #ifdef DIAG_MODE
         if(cfrict(i)>0.5 .or. isnankind(cfrict(i)))then
           continue
