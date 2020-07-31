@@ -1,3 +1,6 @@
+== Version 5.2.0 (07/01/2020) ==
+* Initial release of 5.2 compatible with SMS version 13.1.
+
 == Version 5.1.14 (02/26/2020)==
 * Bug fix: Avoid accessing unallocated array in some situations (boundaries.F90)
 * Change: Increased number of reflection cells allowed and consolidated this value between inline and stand-alone.

@@ -38,9 +38,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
-    version  = 5.1            !CMS version
-    revision = 15.1           !Revision number
-    rdate    = '07/30/2020'   !Date of revision
+    version  = 5.2           !CMS version
+    revision = 0             !Revision number
+    rdate    = '07/31/2020'
     
 #ifdef _WIN32
     machine='Windows'
