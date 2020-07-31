@@ -10,7 +10,6 @@ CMakeFil*
 Makefile
 cmake_install.cmake
 cms
-trunk/test/*
 mfiles/*
 lstf/*
 brad_notes.*
@@ -19,22 +18,18 @@ brad_notes.*
 
 *.user
 
-trunk/Intel_vs2010/x64/Debug/
-
-trunk/Intel_vs2013/x64/Debug/
-/trunk/Intel_vs2013/x64/Release/BuildLog.htm
 *genmod.f90
 *.pdb
-/trunk/Intel_vs2013/Debug/BuildLog.htm
 *.exe.intermediate.manifest
-/trunk/Intel_vs2013/Debug/CMS2D_V5p1.exe
-/trunk/Intel_vs2013/x64/Debug/BuildLog.htm
-*.exe
 
+Intel_vs2013/Debug/
+Intel_vs2013/Release/
+Intel_vs2013/x64/Debug/
+Intel_vs2013/x64/Release/
+
+Intel_vs2017/Debug/
+Intel_vs2017/Release/
 Intel_vs2017/x64/Debug/
-
 Intel_vs2017/x64/Release/
-
-trunk/Intel_vs2017/.vs/CMS2D_V5p1/v15/
 
 *.htm
