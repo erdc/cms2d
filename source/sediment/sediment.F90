@@ -296,15 +296,15 @@
       backspace(77)
       read(77,*) cardname, Awatan  
 
-    case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
+    case('CSHORE_EFFB','CSHORE_BREAK_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
 
-    case('CSHORE_BLP','CSHORE_BED_LOAD')   !added 6/7/2019 bdj
+    case('CSHORE_BLP','CSHORE_BED_LOAD')           !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
 
-    case('CSHORE_SLP','CSHORE_SUSP_LOAD')   !added 6/7/2019 bdj
+    case('CSHORE_SLP','CSHORE_SUSP_LOAD')          !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSslp
       
