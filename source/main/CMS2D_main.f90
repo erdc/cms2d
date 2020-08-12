@@ -676,7 +676,7 @@
     use diag_def
     
     implicit none
-    integer      :: iunit(2),i
+    integer      :: iunit(2),i,bugfix
     character*12 :: string
 
 7009  format(' **********************************************************')
@@ -684,7 +684,7 @@
 7012  format('            Coastal Inlets Research Program                ')
 7013  format('                Coastal Modeling System                    ')
 7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,1X,A)
-8014  format('       CMS2D, Version ',F5.2,'.',F4.1,1X,A,1X,A)
+8014  format('       CMS2D, Version ',F5.2,'.',I2.2,'.',I1.1,1X,A,1X,A)
 7114  format('          This version is for testing purposes only!       ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
@@ -716,10 +716,12 @@
       endif
 
       !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
-      if (int(revision)/revision .eq. 1) then
+      
+      if (int(revision+1)/(revision+1) .eq. 1) then
         write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
       else
-        write(iunit(i),8014) version,revision,trim(string),trim(machine)
+        bugfix = (revision-int(revision))*10
+        write(iunit(i),8014) version,int(revision),bugfix,trim(string),trim(machine)
       endif
       
       write(iunit(i),7016) rdate !Last revision date
