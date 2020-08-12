@@ -39,8 +39,8 @@
     !NOTE: Change variables Below to update header information
     !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           !CMS version
-    revision = 0             !Revision number
-    rdate    = '07/31/2020'
+    revision = 0.1           !Revision number
+    rdate    = '08/12/2020'
     
 #ifdef _WIN32
     machine='Windows'
@@ -676,7 +676,7 @@
     use diag_def
     
     implicit none
-    integer      :: iunit(2),i
+    integer      :: iunit(2),i,bugfix
     character*12 :: string
 
 7009  format(' **********************************************************')
@@ -684,7 +684,7 @@
 7012  format('            Coastal Inlets Research Program                ')
 7013  format('                Coastal Modeling System                    ')
 7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,1X,A)
-8014  format('       CMS2D, Version ',F5.2,'.',F4.1,1X,A,1X,A)
+8014  format('       CMS2D, Version ',F5.2,'.',I2.2,'.',I1.1,1X,A,1X,A)
 7114  format('          This version is for testing purposes only!       ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
@@ -720,7 +720,8 @@
       if (int(revision+1)/(revision+1) .eq. 1) then
         write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
       else
-        write(iunit(i),8014) version,revision,trim(string),trim(machine)
+        bugfix = (revision-int(revision))*10
+        write(iunit(i),8014) version,int(revision),bugfix,trim(string),trim(machine)
       endif
       
       write(iunit(i),7016) rdate !Last revision date
