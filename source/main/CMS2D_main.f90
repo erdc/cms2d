@@ -716,7 +716,8 @@
       endif
 
       !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
-      if (int(revision)/revision .eq. 1) then
+      
+      if (int(revision+1)/(revision+1) .eq. 1) then
         write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
       else
         write(iunit(i),8014) version,revision,trim(string),trim(machine)
