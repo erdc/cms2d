@@ -39,8 +39,8 @@
     !NOTE: Change variables Below to update header information
     !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           !CMS version
-    revision = 0.1           !Revision number
-    rdate    = '08/12/2020'
+    revision = 2.0           !Revision number
+    rdate    = '08/13/2020'
     
 #ifdef _WIN32
     machine='Windows'
@@ -716,7 +716,6 @@
       endif
 
       !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
-      
       if (int(revision+1)/(revision+1) .eq. 1) then
         write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
       else
