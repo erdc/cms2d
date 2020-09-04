@@ -33,3 +33,5 @@ Intel_vs2017/x64/Debug/
 Intel_vs2017/x64/Release/
 
 *.htm
+
+*.dll
