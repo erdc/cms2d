@@ -1,3 +1,7 @@
+== Version 5.2.2.0 (09/04/2020) ==
+* Incorporated some bug fixes and needed this number for coordingating with Aquaveo on SMS release.
+* Bug fix: Isolated ocean cell checking had an issue. Removed extra output file, switched to screen output.
+
 == Version 5.2.0 (07/31/2020) ==
 * Initial release of 5.2 compatible with SMS version 13.1.
 

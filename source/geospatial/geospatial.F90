@@ -636,7 +636,13 @@
     real(ikind), parameter :: fnan = -999.0          
     real(ikind) :: xg,yg,val,cosAng,sinAng   
     real(ikind), allocatable :: xtemp(:),ytemp(:),dxtemp(:),dytemp(:),ztemp(:)
-    integer :: isolated(ncells,4), nIsolated
+    
+    integer :: nIsolated
+    type isoType 
+      integer     :: id, col, row
+      real(ikind) :: xg,yg
+    endtype isoType
+    type(isoType), allocatable :: isolated(:)
 
     nmaxfaces = 6  !Maximum # of faces in all directions
     ndmaxfaces = 4 !Maximum # of faces in each direction
@@ -913,66 +919,58 @@
 !    enddo
 !**** TEMPORARY *******************
 
+    allocate( isolated(ncells) )
     nIsolated = 0  
-    isolated = 0
 !--- Check for single cell lakes --------------------
     do i=1,ncells
-      if(cell2cell(1,i)>ncells .and. & 
-        cell2cell(2,i)>ncells .and. &
-        cell2cell(3,i)>ncells .and. &
-        cell2cell(4,i)>ncells)then        
+      if (cell2cell(1,i)>ncells .and. & 
+          cell2cell(2,i)>ncells .and. &
+          cell2cell(3,i)>ncells .and. &
+          cell2cell(4,i)>ncells) then
         !Convert from local to global coordinates
         xg=xOrigin+x(i)*cosAng-y(i)*sinAng
-        yg=yOrigin+x(i)*sinAng+y(i)*cosAng
-        write(msg3,*)  '   Coordinates: ',xg,yg             
+        yg=yOrigin+x(i)*sinAng+y(i)*cosAng        
 
 8615 format('  i=' ,I6,' j=',I6)          
 8617 format('  id=' ,I6)       
         
     !Modified the code so that the user can get a list of all cell IDs to fix before CMS stops, MEB 01/31/2020
         if(igridtype==0)then
-          !write(msg2,8615) icol(i),irow(i)   
-          !call diag_print_error('Invalid ocean cell ',msg2,msg3)
           nIsolated = nIsolated + 1
-          isolated(nIsolated,1) = icol(i)
-          isolated(nIsolated,2) = irow(i)
-          isolated(nIsolated,3) = xg
-          isolated(nIsolated,4) = yg
+          isolated(nIsolated)%col = icol(i)
+          isolated(nIsolated)%row = irow(i)
+          isolated(nIsolated)%xg  = xg
+          isolated(nIsolated)%yg  = yg
         else
-          !write(msg2,8617) mapid(i)
-          !call diag_print_error('Invalid ocean cell ',msg2,msg3)  
           nIsolated = nIsolated + 1
-          isolated(nIsolated,1) = mapid(i)
-          isolated(nIsolated,3) = xg
-          isolated(nIsolated,4) = yg
+          isolated(nIsolated)%id = mapid(i)
+          isolated(nIsolated)%xg = xg
+          isolated(nIsolated)%yg = yg
         endif 
       endif      
     enddo
+    
+100 FORMAT ('ERROR: ',i0,1x,'isolated ocean cells identified')
+101 FORMAT ('  Column: ',i0,3x,'Row: ',i0,3x,'X: ',f0.5,3x,'Y: ',f0.5)
+102 FORMAT ('  ID:',i0,3x,'X:',f0.5,3x,'Y:',f0.5)    
+103 FORMAT ('Correct isolated cells before continuing')
+    
     if (nIsolated .gt. 0) then
-      msg  = 'Isolated ocean cells identified'
-      if(igridtype == 0) then
-        msg2 = "See 'isolated.txt' for list of I/J identifiers"
-      else
-        msg2 = "See 'isolated.txt' for list of cell IDs"
-      endif
-      open(999,file="isolated.txt",status='unknown')
-      write(999,*) nIsolated
-
-      if(igridtype == 0) then
-        write(999,*) 'I   J   X   Y'
-      else
-        write(999,*) 'ID   X   Y'
-      endif
-      
+      write(msg,100) nIsolated
+      call diag_print_message(' ',msg)
       do i=1,nIsolated
         if(igridtype == 0) then
-          write(999,*) isolated(i,1), isolated(i,2), isolated(i,3), isolated(i,4)
+          write(msg2,101) isolated(i)%col, isolated(i)%row, isolated(i)%xg, isolated(i)%yg
         else
-          write(999,*) isolated(i,1), isolated(i,3), isolated(i,4)
+          write(msg2,102) isolated(i)%id, isolated(i)%xg, isolated(i)%yg
         endif
+        call diag_print_message(msg2)
       enddo
-      close(999)
-      call diag_print_error(msg,msg2,msg3)
+      write(msg,103)
+      call diag_print_message(msg)
+      write(*,*) 'Press any key to continue.'
+      read(*,*)
+      stop
     endif
         
 !    if(debug_mode)then
@@ -1008,6 +1006,7 @@
 !    endif        
     
     deallocate(xtemp,ytemp,dxtemp,dytemp,ztemp,loctemp)     
+    deallocate( isolated )
     
     return
     endsubroutine read_tel    

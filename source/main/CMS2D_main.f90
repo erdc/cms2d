@@ -39,8 +39,8 @@
     !NOTE: Change variables Below to update header information
     !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           !CMS version
-    revision = 1             !Revision number
-    rdate    = '08/11/2020'
+    revision = 2.1           !Revision number
+    rdate    = '09/04/2020'
     
 #ifdef _WIN32
     machine='Windows'
@@ -689,7 +689,7 @@
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
 7017  format('       For the latest version of CMS please visit          ')
-7018  format('          http://cirp.usace.army.mil/products/             ')
+7018  format('         https://cirp.usace.army.mil/products/             ')
 
 9001  format('      By using this software the user has agreed to the    ')
 9002  format('      terms and conditions of CMS license agreement.       ') 
@@ -716,7 +716,6 @@
       endif
 
       !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
-      
       if (int(revision+1)/(revision+1) .eq. 1) then
         write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
       else
