@@ -108,13 +108,13 @@
     integer     :: ierr
     real(8)     :: dtimetemp,rtime !,dtimetemp2,dtime2
     real(8)     :: timedur,timerem,timelast,speed,err,timeint
-    character(len=100) :: str
     logical     :: found
+    character(len=100) :: str
     
     ntime = ntime + 1  !Time step iteration counter
     
     if (etime > 0 .and. timesecs > 0.0) then      !This should be modified for implicit
-      if(ntime==11 .or. mod(ntime,nprt)==0)then
+      if(ntime==10 .or. mod(ntime,nprt)==0)then
         timelast = timenow
         timenow = time_jul()
         timeint = timenow - timelast  !Time interval between last speed check [sec]
@@ -123,19 +123,19 @@
         ctime1 = ctime
         timerem = dble(stimet-ctime)/speed
         msg=''; msg2=''
-        call time_sec2str(timesecs,str)
+        call time_sec2str(timesecs,str,.false.)
         write(msg,'(A,A)',iostat=ierr)       'Elapsed Simulation Time:       ',trim(str)
 
         ! meb 02/06/2019
         ! Adding an output statement to write out the "Elapsed Morphologic Time" if Morphologic Acceleration Factor > 1
         if (scalemorph .gt. 1) then
-          call time_sec2str(timesecs*scalemorph,str)
+          call time_sec2str(timesecs*scalemorph,str,.false.)
           write(msg2,'(A,A)',iostat=ierr)     '- Effective Morphologic Time:  ',trim(str)
         endif   
         !------------
         call diag_print_message(' ',msg,msg2)
 
-        call time_sec2str(timedur,str)
+        call time_sec2str(timedur,str,.false.)
         write(msg,'(A,A)',iostat=ierr)       'Elapsed Clock Time:            ',trim(str)
         call diag_print_message(msg)
 
@@ -143,7 +143,7 @@
         write(msg,'(A,A)',iostat=ierr)       'Computational Speed:           ',trim(str)
         call diag_print_message(msg)
 
-        call time_sec2str(timerem,str)
+        call time_sec2str(timerem,str,.false.)
         write(msg,'(A,A)',iostat=ierr)       'Remaining Clock Time:          ',trim(str)
         call diag_print_message(msg)
 

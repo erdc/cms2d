@@ -1,3 +1,6 @@
+== Version 5.2.3 (09/10/2020) ==
+* Minor: added optional argument to 'time_sec2str' for outputting seconds with I0 or F7.3
+
 == Version 5.2.2.0 (09/04/2020) ==
 * Incorporated some bug fixes and needed this number for coordingating with Aquaveo on SMS release.
 * Bug fix: Isolated ocean cell checking had an issue. Removed extra output file, switched to screen output.

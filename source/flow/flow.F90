@@ -655,7 +655,7 @@
     if(nfsch==0)then
       nprt=20                   !Print elapsed output for Implicit scheme every XX timesteps
     elseif(nfsch==1)then
-      nprt=4000                   !Print elapsed output for Explicit scheme every XX timesteps
+      nprt=4000                 !Print elapsed output for Explicit scheme every XX timesteps
     elseif(nfsch==2)then
       nprt=4000                 !Print elapsed output for Semi-implicit scheme every XX timesteps
     endif  

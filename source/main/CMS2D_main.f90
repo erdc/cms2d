@@ -39,8 +39,8 @@
     !NOTE: Change variables Below to update header information
     !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           !CMS version
-    revision = 2.1           !Revision number
-    rdate    = '09/04/2020'
+    revision = 3.0           !Revision number
+    rdate    = '09/10/2020'
     
 #ifdef _WIN32
     machine='Windows'
