@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/>
 		<Platform Name="x64"/></Platforms>
 	<Configurations>
-		<Configuration Name="Debug|Win32" OutputDirectory="Humboldt_G09v2__OldBathy.cmcards Humboldt_G09v2__OldBathy.sim 4" IntermediateDirectory="Z:\Common\!Projects\Inlet_Morph\FY20\Humboldt\MorFacSensitivity\Flat\MorFac5_Steer4\temp">
+		<Configuration Name="Debug|Win32" OutputDirectory="$(PlatformName)\$(ConfigurationName)" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
 				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT " GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0d_2017.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
@@ -14,7 +14,7 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="Release|Win32" OutputDirectory="Humboldt_G09v2__OldBathy.cmcards Humboldt_G09v2__OldBathy.sim 4" IntermediateDirectory="Z:\Common\!Projects\Inlet_Morph\FY20\Humboldt\MorFacSensitivity\Flat\MorFac5_Steer4\temp">
+		<Configuration Name="Release|Win32" OutputDirectory="$(PlatformName)\$(ConfigurationName)" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" Traceback="true" BoundsCheck="true" UninitializedVariablesCheck="true"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0_2017.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
@@ -24,7 +24,7 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="Debug|x64" OutputDirectory="Humboldt_G09v2__OldBathy.cmcards Humboldt_G09v2__OldBathy.sim 4" IntermediateDirectory="Z:\Common\!Projects\Inlet_Morph\FY20\Humboldt\MorFacSensitivity\Flat\MorFac5_Steer4\temp">
+		<Configuration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
 				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT.lib" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
@@ -34,7 +34,7 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="Release|x64" OutputDirectory="Humboldt_G09v2__OldBathy.cmcards Humboldt_G09v2__OldBathy.sim 4" IntermediateDirectory="Z:\Common\!Projects\Inlet_Morph\FY20\Humboldt\MorFacSensitivity\Flat\MorFac5_Steer4\temp">
+		<Configuration Name="Release|x64">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
