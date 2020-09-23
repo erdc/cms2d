@@ -338,6 +338,60 @@
     return
     endsubroutine delete_file
     
+!-----------------------------------------------------------------------
+!   converts a real*4 value with n significant digits to a character 
+!   string
+!-----------------------------------------------------------------------
+      subroutine split_real_to_integers (x, n, first, second) 
+
+      integer*4      :: i, idot, n, lstring, first, second, loc
+      real*4         :: x
+      logical        :: significant_number
+      character (len=20) :: string, part1, part2
+
+      if (n < 2) n = 2
+      if (n > 7) n = 7
+
+      if (n == 2) then
+          write (string, '(f0.2)') x
+      else if (n == 3) then
+          write (string, '(f0.3)') x
+      else if (n == 4) then
+          write (string, '(f0.4)') x
+      else if (n == 5) then
+          write (string, '(f0.5)') x
+      else if (n == 6) then
+          write (string, '(f0.6)') x
+      else 
+          write (string, '(f0.7)') x
+      end if
+
+      lstring = len_trim(string)
+!
+!     remove trailing zeros 
+!
+      idot = index (string(1:lstring),'.')
+ 
+      do i = lstring, idot+2, -1
+         if (string(i:i) == '0') then
+             string(i:i) = ' '
+             significant_number = .false.
+         else
+             significant_number = .true.
+         end if
+         if (significant_number) exit 
+      end do
+
+      loc=index(string,'.')
+      part1 = string(:loc-1)
+      part2 = string(loc+1:)
+
+      read(part1,*) first
+      read(part2,*) second
+      
+      return      
+      end subroutine split_real_to_integers    
+    
 !************************************************************
     character(len=20) function Int2Str(k)
 !   "Convert an integer to string."

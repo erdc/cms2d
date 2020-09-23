@@ -22,7 +22,7 @@
 #endif
     use cms_def
     use diag_def
-    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine
+    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine,major_version, minor_version, bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -31,16 +31,21 @@
 
 
     implicit none
-    integer k,j,ID,i,jlay,iper
+    integer k,j,ID,i,jlay,iper,loc,lstr
+    character(len=20) :: astr,first,second
     real depthT
     real(ikind), allocatable :: dper(:)
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
-    version  = 5.2           !CMS version
-    revision = 3.0           !Revision number
-    rdate    = '09/10/2020'
+    version  = 5.2           ! CMS version
+    revision = 3             ! Revision number
+    bugfix   = 0            ! Bugfix number
+    rdate    = '09/15/2020'
+
+    !Manipulate to get major and minor versions - MEB  09/15/20
+    call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
+
     
 #ifdef _WIN32
     machine='Windows'
@@ -672,25 +677,24 @@
 !************************************************************************    
     subroutine print_header
 !************************************************************************        
-    use comvarbl, only: version,revision,release,rdate,machine
+    use comvarbl, only: version,revision,release,rdate,machine,major_version,minor_version,bugfix
     use diag_def
     
     implicit none
-    integer      :: iunit(2),i,bugfix
+    integer      :: iunit(2),i
     character*12 :: string
 
 7009  format(' **********************************************************')
 7011  format('              U.S. Army Corps of Engineers                 ')
 7012  format('            Coastal Inlets Research Program                ')
 7013  format('                Coastal Modeling System                    ')
-7014  format('       CMS2D, Version ',F5.2,'.',I2.2,1X,A,1X,A)
-8014  format('       CMS2D, Version ',F5.2,'.',I2.2,'.',I1.1,1X,A,1X,A)
+7014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,1X,A,1X,A)
+8014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,'.',I0,1X,A,1X,A)
 7114  format('          This version is for testing purposes only!       ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
 7017  format('       For the latest version of CMS please visit          ')
-7018  format('         https://cirp.usace.army.mil/products/             ')
-
+7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
 9001  format('      By using this software the user has agreed to the    ')
 9002  format('      terms and conditions of CMS license agreement.       ') 
 9003  format('      A copy of the license can be obtained from the       ')
@@ -715,12 +719,11 @@
         string='RELEASE for'
       endif
 
-      !Adding logic to better represent a bug fix (revision isn't an integer) and print it.  MEB  07/30/20
-      if (int(revision+1)/(revision+1) .eq. 1) then
-        write(iunit(i),7014) version,int(revision),trim(string),trim(machine)
+      !Adding logic to show information for a bug fix and print it.      MEB  09/15/20
+      if (bugfix == 0) then
+        write(iunit(i),7014) major_version,minor_version,revision,trim(string),trim(machine)
       else
-        bugfix = (revision-int(revision))*10
-        write(iunit(i),8014) version,int(revision),bugfix,trim(string),trim(machine)
+        write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
       endif
       
       write(iunit(i),7016) rdate !Last revision date

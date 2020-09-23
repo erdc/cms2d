@@ -92,8 +92,9 @@ module comvarbl
     
     !Code version - Moved assignment to CMS2D_Main.f90
     real      :: Version   !CMS version
-    real      :: Revision  !Revision number    !MEB 07/30/20 - Modified from Integer to represent bug fixes.
+    integer   :: Revision  !Revision number    !MEB 09/15/20 - Switched back to integer
     logical   :: release
+    integer   :: major_version, minor_version, bugfix
     character(len=10) :: rdate
     character(len=10) :: machine     !06/11/2019 MEB - added to denote type of machine compiled on
     
