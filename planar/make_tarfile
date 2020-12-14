@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+
+fn0=`date +"%Y-%m-%d"`
+#fn1="cshore_usace-"$fn0".tar"
+fn2="cms-inputs-"$1-$fn0".tar"
+echo making $fn2
+
+tar cvfh $fn2 \
+    $1.sim\
+    $1.std\
+    $1.eng\
+    $1.cart\
+    $1.dep\
+    $1.bid\
+    $1.cmcards
+
+

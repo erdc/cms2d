@@ -3093,7 +3093,7 @@ endif
      use prec_def
     implicit none
     integer :: i,j,k,ks,ih,ibnd,nck
-    real(ikind) :: Sw,fk,fp
+    real(ikind) :: Sw,fk,fp,Swk
     real(ikind) :: awkx,awky,asum
         
     !--- Actual transport based on composition and loading ------
@@ -3157,6 +3157,22 @@ endif
           asum=asum+max(acoef(k,i),0.0)
         enddo !k
         Sw=Sw+asum*Qws(i,ks)
+! corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+        Sw=0.0; asum=0.0
+        do k=1,ncface(i)
+          Swk = acoef(k,i)*Qws(cell2cell(k,i),ks)
+          if (Swk.le.0.) then ! transport is into cell
+            Sw = Sw - Swk
+            if (i.eq.487) write(*,*)'k, Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,Qws(cell2cell(k,i),ks),Swk,Sw
+          else ! transport is out of cell
+            Sw = Sw - acoef(k,i)*Qws(i,ks)
+            if (i.eq.487) write(*,*)'k,Qws(i,ks), outflux, Swk, Sw',k,Qws(i,ks),Swk,Sw
+          endif
+
+        enddo
+        if (i.eq.487) write(*,*)'corrected total Sw',i,Sw
+! end corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+         
         Sb(i,ks)=Sb(i,ks)+Sw/areap(i)
         if(Sb(i,ks)>50.0)then
           write(*,*) 'acoef(k,i) ',(acoef(k,i),k=1,ncface(i))

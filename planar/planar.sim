@@ -1,0 +1,19 @@
+CMS-WAVE      0.0     0.0     0.0
+DEP       planar.dep
+OPTS      planar.std
+SPEC      planar.eng
+OBSE      planar.obs
+NEST      planar.nst
+BREAK     planar.brk
+SPGEN     planar.txt
+RADS      planar.rad
+STRUCT    planar.struct
+SELHTS    planar.out
+ETA       planar.eta
+FRIC      planar.fric
+FREF      planar.fref
+BREF      planar.bref
+MUD       planar.mud
+WIND      planar.wind
+WAVE      planar.wav
+CURR      planar.cur

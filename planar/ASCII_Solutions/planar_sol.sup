@@ -1,0 +1,13 @@
+SUPER
+SCAT2D    "ASCII_Solutions/planar.xy"
+DATA    "ASCII_Solutions/planar_eta.dat"
+DATA    "ASCII_Solutions/planar_vel.dat"
+DATA    "ASCII_Solutions/planar_Ct.dat"
+DATA    "ASCII_Solutions/planar_Ctstar.dat"
+DATA    "ASCII_Solutions/planar_Qt.dat"
+DATA    "ASCII_Solutions/planar_rs.dat"
+DATA    "ASCII_Solutions/planar_dep.dat"
+DATA    "ASCII_Solutions/planar_dzb.dat"
+DATA    "ASCII_Solutions/planar_Hs.dat"
+DATA    "ASCII_Solutions/planar_Tp.dat"
+DATA    "ASCII_Solutions/planar_wav.dat"
