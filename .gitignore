@@ -13,6 +13,15 @@ cms
 trunk/test/*
 mfiles/*
 lstf/*
+planar/
+benson_beach
+spike_run
+doc
+frf
+run_model.m*
+cms_noswash
+do_not_git
+tar_bundle*
 brad_notes.*
 
 *.suo
