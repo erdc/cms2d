@@ -410,7 +410,8 @@ subroutine sedcapac_cshore
         call prob_susload(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSPs)
         CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
         CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing CSHORE convention of depth integrated 
-        ! write(*,*)'bdj i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf',i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf
+        if (i.eq.487)         write(*,*)'bdj i,h(i),Hrms,CSefff,CSeffb',i,h(i),Hrms,CSefff,CSeffb
+        if (i.eq.487)         write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
         ! volumentric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
         ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
         ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
