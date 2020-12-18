@@ -299,6 +299,7 @@
     case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
+      write(*,*)'bdj reading sed cards CSeffb',CSeffb
 
     case('CSHORE_BLP','CSHORE_BED_LOAD')   !added 6/7/2019 bdj
       backspace(77)
