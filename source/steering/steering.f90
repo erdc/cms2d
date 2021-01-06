@@ -14,7 +14,7 @@
     noptvel = 1          !0-none, 1-vel2=vel1
     noptzb  = 1          !0-none, 1-zb2=zb,2-bed change,3-interpolate from datasets
     nbrksm = 3           !Breaking smoothing iterations
-    ndissm = 3           !Dissipation smoothing iterations
+    ndissm = 1           !Dissipation smoothing iterations   !Lihwa changed from 3 to 1    12/18/2020
     nradsm = 1           !Radiation stresses smoothing iterations
     npersm = 4           !Wave period smoothing iterations
     nsteer = 0           !Wave steering interval number
@@ -159,11 +159,11 @@
         cmswave = .true.   
         
       !==== Wave Smoothing =========================
-      case('WAVE_BREAKING_SMOOTHING_ITERATIONS',&
-        'WAVE_BREAKING_SMOOTHING_ITER','WAVE_BREAKING_SMOOTH_ITER')
-        backspace(77)  
-        read(77,*) cardname, nbrksm
-        nbrksm = min(max(nbrksm,0),10)
+      !case('WAVE_BREAKING_SMOOTHING_ITERATIONS',&
+      !  'WAVE_BREAKING_SMOOTHING_ITER','WAVE_BREAKING_SMOOTH_ITER')
+      !  backspace(77)  
+      !  read(77,*) cardname, nbrksm
+      !  nbrksm = min(max(nbrksm,0),10)
           
       case('WAVE_DISSIPATION_SMOOTHING_ITERATIONS',&
         'WAVE_DISSIPATION_SMOOTHING_ITER','WAVE_DISSIPATION_SMOOTH_ITER')
@@ -171,11 +171,11 @@
         read(77,*) cardname, ndissm
         ndissm = min(max(ndissm,0),10)  
           
-      case('WAVE_STRESSES_SMOOTHING_ITERATIONS','WAVE_STRESS_SMOOTHING_ITERATIONS',&
-        'WAVE_STRESSES_SMOOTHING_ITER','WAVE_STRESSES_SMOOTH_ITER','WAVE_STRESS_SMOOTH_ITER')
-        backspace(77)  
-        read(77,*) cardname, nradsm
-        nradsm = min(max(nradsm,0),10)
+      !case('WAVE_STRESSES_SMOOTHING_ITERATIONS','WAVE_STRESS_SMOOTHING_ITERATIONS',&
+      !  'WAVE_STRESSES_SMOOTHING_ITER','WAVE_STRESSES_SMOOTH_ITER','WAVE_STRESS_SMOOTH_ITER')
+      !  backspace(77)  
+      !  read(77,*) cardname, nradsm
+      !  nradsm = min(max(nradsm,0),10)
           
       case('WAVE_PERIOD_SMOOTHING_ITERATIONS',&
         'WAVE_PERIOD_SMOOTHING_ITER','WAVE_PERIOD_SMOOTH_ITER')
@@ -198,10 +198,12 @@
     use flow_wavegrid_def, only: flwav_intpcoef_file,depwave,depwave0,hwave
     use wave_wavegrid_def, only: nwavei,nwavej,nwaveij,&
        dxwav,dywav,xwave,ywave,azimuth_wav,xwav0,ywav0
-    use global !CMS-Wave module
+    !use global !CMS-Wave module
+    use global_inline    !Lihwa recommends these instead      12/18/2020
     use sed_def, only: sedtrans
     use comvarbl, only: flowpath
-    use cms_def, only: wavepath,noptzb,nbrksm,ndissm,nradsm,npersm
+    !use cms_def, only: wavepath,noptzb,nbrksm,ndissm,nradsm,npersm
+    use cms_def, only: wavepath,noptzb,ndissm,npersm
     use const_def, only: deg2rad
     use geo_def, only: bathydata
     use prec_def
@@ -330,7 +332,7 @@
     allocate(Whgt(ncellsD),Whgt1(ncellsD),Whgt2(ncellsD))             !Significant wave height [m]
     allocate(Wper(ncellsD),Wper1(ncellsD),Wper2(ncellsD))             !Peak wave period [s]
     allocate(Wang(ncellsD))                                           !Wave angle [rad]
-    allocate(waveibr(ncellsD),waveibr1(ncellsD),waveibr2(ncellsD))    !Wave breaking index [-]
+    !allocate(waveibr(ncellsD),waveibr1(ncellsD),waveibr2(ncellsD))    !Wave breaking index [-]
     allocate(wavediss(ncellsD),wavediss1(ncellsD),wavediss2(ncellsD)) !Wave breaking dissipation                 
     allocate(Wlen(ncellsD))                                           !Wave length [m]
     allocate(Worb(ncellsD))                                           !Wave bottom orbital velocity based on Whgt and Wper [m/s]
@@ -351,7 +353,7 @@
     wavestrx = 0.0; wavestrx1 = 0.0; wavestrx2 = 0.0;
     wavestry = 0.0; wavestry1 = 0.0; wavestry2 = 0.0;
     wavediss = 0.0; wavediss1 = 0.0; wavediss2 = 0.0; 
-    waveibr = 0.0; waveibr1 = 0.0; waveibr2 = 0.0; 
+    !waveibr = 0.0; waveibr1 = 0.0; waveibr2 = 0.0; 
     ijwavcell = 0; coefintp_wavfl = 0.0
     Wunitx = 0.0; Wunitx1 = 0.0; Wunitx2 = 0.0
     Wunity = 0.0; Wunity1 = 0.0; Wunity2 = 0.0         
@@ -411,12 +413,14 @@
     allocate(dxwav(nwavei),dywav(nwavej)) !Alex
     allocate(wxrs1(nwavei,nwavej),wyrs1(nwavei,nwavej))
     allocate(wheight(nwavei,nwavej),wperiod(nwavei,nwavej))
-    allocate(wibr(nwavei,nwavej),wdiss(nwavei,nwavej))
+    !allocate(wibr(nwavei,nwavej),wdiss(nwavei,nwavej))
+    allocate(wdiss(nwavei,nwavej))							 !Lihwa 12/18/2020
     allocate(wcos(nwavei,nwavej),wsin(nwavei,nwavej))  
     xwave=0.0; ywave=0.0
     wxrs1=0.0; wyrs1=0.0
     wheight=0.0; wperiod=0.0
-    wibr=0.0; wdiss=0.0
+    !wibr=0.0; wdiss=0.0
+    wdiss=0.0												 !Lihwa 12/18/2020
     wcos=0.0; wsin=0.0
     
     return
@@ -780,7 +784,7 @@
     use wave_flowgrid_def
     use wave_wavegrid_def, only: nwavei,nwavej
     use sed_def, only: sedtrans
-    use global, only: IGPX,JGPX,IPMX,JPMX,KOMX,NPF !Alex
+    use global_inline, only: IGPX,JGPX,IPMX,JPMX,KOMX,NPF   !Lihwa recommends  12/18/2020
     use const_def, only: deg2rad
 #ifdef DEV_MODE
     use q3d_def, only: ivelwav
@@ -1131,15 +1135,16 @@
 !***********************************************************************
 #include "CMS_cpp.h"
     use size_def, only: ncells,ncellsD
-    use flow_def, only: rhow,waveflux,hdry
+    use flow_def, only: rhow,waveflux,hdry,grav
+    use comvarbl, only: nfsch
     use geo_def, only: azimuth_fl
     use flow_wavegrid_def, only: hwave
     use wave_flowgrid_def, only: wavestrx2,wavestry2,whgt2,wper2,&
-       wunitx2,wunity2,waveibr2,wavediss2
+       wunitx2,wunity2,wavediss2
     use wave_wavegrid_def, only: nwavei,nwavej,azimuth_wav,&
-       wxrs1,wyrs1,wheight,wperiod,wcos,wsin,wibr,wdiss,idatewave
-    use cms_def, only: nbrksm,ndissm,nradsm,npersm,wavedisstol
-    use global
+       wxrs1,wyrs1,wheight,wperiod,wcos,wsin,wdiss,idatewave
+    use cms_def, only: ndissm,npersm,wavedisstol
+    use global_inline
     use rol_def, only: roller
     use sed_def, only: sedtrans,wavesedtrans
     use const_def, only: deg2rad
@@ -1155,7 +1160,7 @@
     common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     integer :: i,j,iwave,jwave !,ierr
-    real(ikind) :: thetadgr
+    real(ikind) :: thetadgr, g
     !real :: sfac(nwavei,nwavej),svar(nwavei,nwavej)
     real(4) :: DX,DY,DXX,DMESH,DTH,depmax,depmax0
     integer :: kdate,idate
@@ -1202,8 +1207,9 @@
           wperiod(iwave,jwave)=max(T13(i,j),wpermin)
           wcos(iwave,jwave)=cos(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wsin(iwave,jwave)=sin(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
-          wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
-          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]          
+          !wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
+          !wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          wdiss(iwave,jwave) = diss(i,j)   !Lihwa  12/18/2020
         enddo
       enddo  
 !$OMP END PARALLEL DO
@@ -1219,8 +1225,9 @@
           wperiod(iwave,jwave)=max(T13(i,j),wpermin)
           wcos(iwave,jwave)=cos(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wsin(iwave,jwave)=sin(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
-          wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
-          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          !wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
+          !wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          wdiss(iwave,jwave)=diss(i,j)   !Lihwa  12/18/2020
         enddo
       enddo  
 !$OMP END PARALLEL DO
@@ -1236,8 +1243,9 @@
           wperiod(iwave,jwave)=max(T13(i,j),wpermin)
           wcos(iwave,jwave)=cos(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wsin(iwave,jwave)=sin(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
-          wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
-          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          !wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
+          !wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          wdiss(iwave,jwave)=diss(i,j)   !Lihwa  12/18/2020
         enddo
       enddo  
 !$OMP END PARALLEL DO
@@ -1253,12 +1261,15 @@
           wperiod(iwave,jwave)=max(T13(i,j),wpermin)
           wcos(iwave,jwave)=cos(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
           wsin(iwave,jwave)=sin(dmn(i,j)*deg2rad) !going, Cartesian, 0-east,90-north,180-west,270-south
-          wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
-          wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          !wibr(iwave,jwave)=max(real(ibr(i,j)),0.0)
+          !wdiss(iwave,jwave)=-rhow*diss(i,j)*ibr(i,j) !Alex, wdiss=[N/m/s]
+          wdiss(iwave,jwave)=diss(i,j)   !Lihwa  12/18/2020
         enddo
       enddo 
 !$OMP END PARALLEL DO
     endif    
+
+    wdiss=-rhow*wdiss*grav		!Lihwa  12/18/2020
     
 #ifdef DIAG_MODE
     ierr=0
@@ -1274,26 +1285,26 @@
     endif
 #endif
     
-    !call wave_rad_stress !Over-rides the wave radiation stresses from the wave model
-    if(waveflux) call stokes_stress !Adds the stokes stress gradients to the wave forcing
+    !call wave_rad_stress !Overrides the wave radiation stresses from the wave model
+    !if(waveflux) call stokes_stress !Adds the stokes stress gradients to the wave forcing
     !call wave_dissipation !Over-rides the wave dissipation from the wave model
 
-    where(wdiss<=wavedisstol)
-      wibr=0.0 !If no dissipation than there must be no breaking
-    endwhere  
+    !where(wdiss<=wavedisstol)
+    !  wibr=0.0 !If no dissipation than there must be no breaking
+    !endwhere  
 
     !Smoothing factor for transition from breaking to nonbreaking
     !!call smooth_wavegrid_scal(wibr,nbrksm,0) !Replaced by below procedure
-    do i=1,nbrksm
-      where(hwave<=hdry)
-        wibr=1.0 !Set all dry cells as breaking
-      endwhere  
-      call smooth_wavegrid_scal(wibr,1,0)
-    enddo
+    !do i=1,nbrksm
+    !  where(hwave<=hdry)
+    !    wibr=1.0 !Set all dry cells as breaking
+    !  endwhere  
+    !  call smooth_wavegrid_scal(wibr,1,0)
+    !enddo
     if(ndissm>0) call smooth_wavegrid_scal(wdiss,ndissm,0)
-    if(nradsm>0) call smooth_wavegrid_vec(wxrs1,wyrs1,nradsm)
-    wxrs1=wxrs1*wibr !Limit radiation stresses to breaking zone
-    wyrs1=wyrs1*wibr !Limit radiation stresses to breaking zone
+    !if(nradsm>0) call smooth_wavegrid_vec(wxrs1,wyrs1,nradsm)
+    !wxrs1=wxrs1*wibr !Limit radiation stresses to breaking zone
+    !wyrs1=wyrs1*wibr !Limit radiation stresses to breaking zone
     if(npersm>0) call smooth_wavegrid_scal(wperiod,npersm,0) !Wave period smoothing
 
     !--- Add roller contribution to stresses ----    
@@ -1301,17 +1312,17 @@
     
     !--- Spatial Interpolation from Wave to Flow ------
     call interp_vec_wavfl(wxrs1,wyrs1,wavestrx2,wavestry2) !Extrapolate to zero
-    call interp_scal_wavfl(wheight,Whgt2) !Extrapolate to zero
-    call interp_scal_wavfl(wperiod,Wper2) !Extrapolate to zero
-    call interp_vec_wavfl(wcos,wsin,Wunitx2,Wunity2) !Extrapolate to zero
-    call interp_scal_wavfl(wibr,waveibr2) !Extrapolate to zero
-    call interp_scal_wavfl(wdiss,wavediss2) !Extrapolate to zero
+    call interp_scal_wavfl(wheight,Whgt2)             !Extrapolate to zero
+    call interp_scal_wavfl(wperiod,Wper2)             !Extrapolate to zero
+    call interp_vec_wavfl(wcos,wsin,Wunitx2,Wunity2)  !Extrapolate to zero
+    !call interp_scal_wavfl(wibr,waveibr2)             !Extrapolate to zero
+    call interp_scal_wavfl(wdiss,wavediss2)           !Extrapolate to zero
 
     !Check for negative wave heights from bad interpolations
 !$OMP PARALLEL DO PRIVATE(i)    
     do i=1,ncells
       if(Whgt2(i)<0.0)    Whgt2(i) = 0.0
-      if(waveibr2(i)<0.0) waveibr2(i) = 0.0
+      !if(waveibr2(i)<0.0) waveibr2(i) = 0.0
       if(Wper2(i)<1.0)    Wper2(i) = 1.0
 #ifdef DIAG_MODE
       if(isnankind(wavestrx2(i)) .or. isnankind(wavestry2(i)))then
@@ -1338,16 +1349,6 @@
     !!thetadgr=azimuth_fl-azimuth !Note: should use the same angle as for the wave stresses
     call rotate_vector(ncellsD,ncellsD,thetadgr,Wunitx2,Wunity2)    
     
-    !---- Wave Breaking -------------------
-!    do ii=1,ncells
-!      if(waveibr2(ii)<0.5) then
-!        do k=1,ncface(ii)
-!          nck=cell2cell(ii,k)
-!          if(waveibr2(nck)>0.9) waveibr2(ii)=1.0
-!        enddo
-!      endif            
-!    enddo
-
     write(*,'(A)') ' Wave-to-flow interpolation complete'
 
     return 
@@ -1689,7 +1690,7 @@
         Wper1(ii)=Wper2(ii)     
         Wunitx1(ii)=Wunitx2(ii)
         Wunity1(ii)=Wunity2(ii)
-        waveibr1(ii)=waveibr2(ii)
+        !waveibr1(ii)=waveibr2(ii)
         wavediss1(ii)=wavediss2(ii)  !Alex, Aug 3, 2009
       enddo
 !$OMP END PARALLEL DO
@@ -1707,6 +1708,11 @@
       close(dgunit) !Close after CMS-Wave run
       call diag_print_message(' ','*** CMS-Wave run successful ***')
         
+!Lihwa added  12/18/2020
+!$  if(nthr>=1) call omp_set_num_threads(nthr)
+
+      write(*,*) 'NTHR =', nthr
+
       call getwave
       
       if(sedtrans) wetsteer = 0.0 !Restart wet count for wet cells, Alex
@@ -1737,37 +1743,32 @@
             Wunitx2(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and change units [N/m/s]
-          if(wavediss2(i)>wavedisstol)then
-            waveibr2(i) = 1.0
-          endif
+          !if(wavediss2(i)>wavedisstol)then
+          !  waveibr2(i) = 1.0
+          !endif
         enddo
 !$OMP END PARALLEL DO    
 !!        call rotate_vector(ncellsD,ncellsD,azimuth_fl,wavestrx2,wavestry2)                   
 !!        call rotate_vector(ncellsD,ncellsD,azimuth_fl,Wunitx2,Wunity2)   
 
         !Smoothing
-        do i=1,nbrksm
-          where(iwet==0)
-            waveibr2 = 1.0 !Set all dry cells as breaking
-          endwhere  
-          call smooth_flowgrid_scal(waveibr2,1)
-        enddo
+        !do i=1,nbrksm
+        !  where(iwet==0)
+        !    waveibr2 = 1.0 !Set all dry cells as breaking
+        !  endwhere  
+        !  call smooth_flowgrid_scal(waveibr2,1)
+        !enddo
         if(ndissm>0) call smooth_flowgrid_scal(wavediss2,ndissm)
-        if(nradsm>0) call smooth_flowgrid_vec(wavestrx2,wavestry2,nradsm)
+        !if(nradsm>0) call smooth_flowgrid_vec (wavestrx2,wavestry2,nradsm)
         if(npersm>0) call smooth_flowgrid_scal(Wper2,npersm) !Wave period smoothing
       
 !$OMP PARALLEL DO PRIVATE(i)
         do i=1,ncellsD
           if(wavediss2(i)<wavedisstol)then
             wavediss2(i) = 0.0
-            !waveibr2(i) = 0.0
-            !wavestrx2(i) = 0.0 !Limit radiation stresses to breaking zone
-            !wavestry2(i) = 0.0 !Limit radiation stresses to breaking zone
-          !else
-          !  waveibr2(i) = 1.0
           endif
-          wavestrx2(i) = wavestrx2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
-          wavestry2(i) = wavestry2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
+          !wavestrx2(i) = wavestrx2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
+          !wavestry2(i) = wavestry2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
         enddo
 !$OMP END PARALLEL DO 
       endif  
@@ -1789,7 +1790,7 @@
         Wunity(ii)=Wunity(ii)/val
         
         Wang(ii)=atan2(Wunity(ii),Wunitx(ii))
-        waveibr(ii)=waveibr1(ii)
+        !waveibr(ii)=waveibr1(ii)
         wavediss(ii)=wavediss1(ii)  !Alex, Aug 3, 2009
       enddo
 !$OMP END PARALLEL DO
@@ -1807,7 +1808,7 @@
         Wunitx(ii)=Wunitx(ii)/val
         Wunity(ii)=Wunity(ii)/val
         Wang(ii)=atan2(Wunity(ii),Wunitx(ii))
-        waveibr(ii)=waveibr2(ii)
+        !waveibr(ii)=waveibr2(ii)
         wavediss(ii)=wavediss2(ii)  !Alex, Aug 3, 2009
       enddo
 !$OMP END PARALLEL DO 
@@ -1828,8 +1829,7 @@
         Wunitx(ii)=Wunitx(ii)/val
         Wunity(ii)=Wunity(ii)/val
         Wang(ii)=atan2(Wunity(ii),Wunitx(ii))
-        waveibr(ii)=waveibr1(ii)+facintep*(waveibr2(ii)-waveibr1(ii))
-!        waveibr(ii)=max(waveibr1(ii),waveibr2(ii))
+        !waveibr(ii)=waveibr1(ii)+facintep*(waveibr2(ii)-waveibr1(ii))
         wavediss(ii)=wavediss1(ii)+facintep*(wavediss2(ii)-wavediss1(ii))  !Alex, Aug 3, 2009
       enddo
 !$OMP END PARALLEL DO 
@@ -1901,7 +1901,8 @@
 !      Wlen(i)=wavelength(Wper(i),h(i)) !No wave-current interaction
        om=twopi/Wper(i)       
        q=Wang(i); d=h(i); uu=u(i); vv=v(i);
-       call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !Wave-current interaction
+       !call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !Wave-current interaction
+       call wccg_inline(q,d,uu,vv,om,cw,cg,sg,akk) !Wave-current interaction   !Lihwa 12/18/2020
        !call wccg3(q,d,uu,vv,om,cw,cg,sg,akk) !Wave-current interaction
        Wlen(i)=twopi/akk
 !       f = 1.0/Wper(i); d=h(i)
@@ -1959,32 +1960,6 @@
     endif
 !$OMP END PARALLEL        
         
-    !!Set wave stress component normal to dry faces equal to zero
-    !if(ncellpoly>0)then
-    !  do i=1,ncells
-    !     if(waveibr(i)==0) cycle
-    !       val =  h(i)*sqrt(dpx(i)*dpx(i)+dpy(i)*dpy(i))/ &
-    !         sqrt(wavestrx(i)*wavestrx(i)+wavestry(i)*wavestry(i)) 
-    !       val = max(min(val,1.0),0.1)
-    !       wavestrx(i) = wavestrx(i)*val
-    !       wavestry(i) = wavestry(i)*val
-    !  !  do k=1,ncface(i)
-    !  !    if(iwet(cell2cell(k,i))==0)then
-    !  !      wavestrnorm=wavestrx(i)*fnx(k,i)+wavestry(i)*fny(k,i)  !Wall normal wave stress
-    !  !      !!Wave stress should approximately balance the pressure gradient
-    !  !      !hdpn=h(i)*(dpx(i)*fnx(k,i)+dpy(i)*fny(k,i))
-    !  !      !if(abs(wavestrnorm)>abs(hdpn)then
-    !  !      !  wavestrnorm
-    !  !      !endif
-    !  !      wavestrx(i)=wavestrx(i)-wavestrnorm*fnx(k,i) !Wall parallel wave stress x-component
-    !  !      wavestry(i)=wavestry(i)-wavestrnorm*fny(k,i) !Wall parallel wave stress y-component
-    !  !    endif
-    !  !  enddo  
-    !  enddo
-    !endif
-    
-    !!Calculate wave stresses on the flow grid
-    !call wave_rad_stress_fl
 
     if(sedtrans)then
 !$OMP PARALLEL DO PRIVATE(i)

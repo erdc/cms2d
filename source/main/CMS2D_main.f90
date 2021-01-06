@@ -38,10 +38,10 @@
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    version  = 5.2           ! CMS version
+    version  = 5.5           ! CMS version         !For interim version
     revision = 3             ! Revision number
     bugfix   = 0            ! Bugfix number
-    rdate    = '09/30/2020'
+    rdate    = '12/18/2020'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -80,7 +80,6 @@
 
       !Might check to see if dtsteer already set
       dtsteer=3.0
-
       ctime=0.0
       coldstart=.true.
 
@@ -88,7 +87,8 @@
       if (inlinewave) then
         call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
       else
-        call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
+        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
+!       call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
       endif
       
       close(dgunit)

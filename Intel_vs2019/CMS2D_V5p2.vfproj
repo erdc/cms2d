@@ -288,19 +288,14 @@
 		<File RelativePath="..\source\vegetation\veg_def.f90"/>
 		<File RelativePath="..\source\vegetation\vegetation.F90"/></Filter>
 		<Filter Name="Waves">
-		<File RelativePath="..\source\waves\CMS-Wave_v3-2W_01Dec2014.f90">
+		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
 			<FileConfiguration Name="Debug|Win32">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" OpenMP="OpenMPParallelCode" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\source\waves\CMS-Wave_v3.2_30Mar2018.f90">
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\waves\wave.F90"/>
 		<File RelativePath="..\source\waves\wave_def.f90"/>

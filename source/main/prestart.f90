@@ -257,6 +257,11 @@
     
 !--- Waves ---------------------------    
     call wave_init         !Waves, Note: needs to be after hot_read
+											  
+!Added by Lihwa to enable OpenMP for Wave model only
+!$  if(nthr>=1) call omp_set_num_threads(nthr)
+
+    write(*,*) 'NTHR =', nthr
     
 !--- Initialize Hot Start -----------------------------------------
     if(.not.coldstart)then !Hot Start    

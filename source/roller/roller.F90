@@ -200,7 +200,8 @@
     use diag_lib
     use flow_wavegrid_def, only: depwave,uwave,vwave,etawave,hwave
     use wave_wavegrid_def, only: nwaveij,nwavei,nwavej,xwave,ywave,&
-        dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
+        !dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
+        dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1
     !use wavestress3D     !Wu, 8/5/2011
     !use fl3d, only: dsigma   !Wu
     use const_def, only: twopi,pi,deg2rad,small
