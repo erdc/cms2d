@@ -1,3 +1,6 @@
+== Version 5.2.4 (01/06/2021) ==
+* Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency
+
 == Version 5.2.3 (09/10/2020) ==
 * Minor: added optional argument to 'time_sec2str' for outputting seconds with I0 or F7.3
 

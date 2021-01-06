@@ -296,15 +296,16 @@
       backspace(77)
       read(77,*) cardname, Awatan  
 
-    case('CSHORE_EFFB','CSHORE_BREAK_EFFICIENCY')  !added 6/7/2019 bdj
+    case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
+      !write(*,*)'bdj reading sed cards CSeffb',CSeffb
 
-    case('CSHORE_BLP','CSHORE_BED_LOAD')           !added 6/7/2019 bdj
+    case('CSHORE_BLP','CSHORE_BED_LOAD')     !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
 
-    case('CSHORE_SLP','CSHORE_SUSP_LOAD')          !added 6/7/2019 bdj
+    case('CSHORE_SLP','CSHORE_SUSP_LOAD')    !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSslp
       
@@ -2858,6 +2859,7 @@ d1: do ii=1,30
       !Advective transports
       qtx(i)=u(i)*h(i)*Ct(i)
       qty(i)=v(i)*h(i)*Ct(i)         
+      !if (i.eq.487) write(*,*)'total load transport qtx(487),qty(487)',qtx(i),qty(i)
       !Diffusive transport (approximate)
       fac=h(i)*vis(i)/schmidt  
       qtx(i)=qtx(i)-fac*sum(rsk(i,:)*dCtkx(i,:))
@@ -2869,15 +2871,15 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO 
       
     !--- Wave-induced sediment transports ----------
-     if(wavesedtrans)then
+    if(wavesedtrans)then
 !$OMP PARALLEL DO PRIVATE(i)         
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
       enddo
 !$OMP END PARALLEL DO    
-    endif      
-
+    endif
+    
 ! bdj some heavy-handed cshore mods
 if (icapac.eq.6) then
    !CSslp = 0.5            !commented 6/7/2019 bdj
@@ -2890,6 +2892,7 @@ if (icapac.eq.6) then
       Ct(i)=sum(Ctk(i,:))
       Ctstar(i)=sum(Ctkstar(i,:))
       rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
+
       !--- Total-load sediment transport vectors ---
       !Suspended advective transport
       qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
@@ -3093,13 +3096,14 @@ endif
      use prec_def
     implicit none
     integer :: i,j,k,ks,ih,ibnd,nck
-    real(ikind) :: Sw,fk,fp
-    real(ikind) :: awkx,awky,asum
+    real(ikind) :: Sw,fk,fp,Swk
+    real(ikind) :: awkx,awky       !,asum
         
     !--- Actual transport based on composition and loading ------
     do i=1,ncells
       do ks=1,nsed
 !!        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)*max(min(Ctk(i,ks)/(Ctkstar(i,ks)+small),1.5),0.0) !m^2/sec, Bug fix, changed k to ks
+        !write(*,*)'i,pbk(i,ks,1)',i,pbk(i,ks,1) 
         Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks
       enddo  
     enddo        
@@ -3151,12 +3155,30 @@ endif
     do ks=1,nsed 
     !Calculate bed-slope term    
       do i=1,ncells
-        Sw=0.0; asum=0.0
+! I think that this is incorrect 2020-12-16 bdj below
+!        Sw=0.0; asum=0.0
+!        do k=1,ncface(i)
+!          Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
+!          asum=asum+max(acoef(k,i),0.0)
+!          if (i.eq.487) write(*,*)'old code, k, acoef(k,i),Qws(cell2cell(k,i),ks)',k,acoef(k,i),Qws(cell2cell(k,i),ks)
+!        enddo !k
+!        Sw=Sw+asum*Qws(i,ks)
+! I think that this is incorrect 2020-12-16 bdj above
+! corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+        Sw=0.0
         do k=1,ncface(i)
-          Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
-          asum=asum+max(acoef(k,i),0.0)
-        enddo !k
-        Sw=Sw+asum*Qws(i,ks)
+          Swk = acoef(k,i)*Qws(cell2cell(k,i),ks)
+          if (Swk.le.0.) then ! transport is into cell     bdj 1/6/21
+            Sw = Sw - Swk
+            !if (i.eq.487) write(*,*)'k, acoef(k,i),Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,acoef(k,i),Qws(cell2cell(k,i),ks),Swk,Sw
+          else                ! transport is out of cell   bdj 1/6/21
+            Sw = Sw - acoef(k,i)*Qws(i,ks)
+            !if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks), outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
+          endif
+        enddo
+        !if (i.eq.487) write(*,*)'corrected total Sw,areap(i), slope-driven Sb',i,Sw,areap(i),Sb(i,ks)
+! end corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+         
         Sb(i,ks)=Sb(i,ks)+Sw/areap(i)
         if(Sb(i,ks)>50.0)then
           write(*,*) 'acoef(k,i) ',(acoef(k,i),k=1,ncface(i))
