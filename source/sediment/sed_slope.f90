@@ -98,7 +98,7 @@
         do k=1,ncface(i)
           nck=cell2cell(k,i)
           Sb(i,ks)=Sb(i,ks)+acoef(k,i)*zb1(nck) !changed zb to zb1
-            if (i.eq.487) write(*,*)'in sed_slope k, acoef(k,i),Sb(i,ks)',k,acoef(k,i),Sb(i,ks)
+          !  if (i.eq.487) write(*,*)'in sed_slope k, acoef(k,i),Sb(i,ks)',k,acoef(k,i),Sb(i,ks)
           !          Sb(i,ks)=Sb(i,ks)+acoef(k,i)*(zb1(nck)+dzb(nck)) !estimate zb
           asum=asum+acoef(k,i)
         enddo !k

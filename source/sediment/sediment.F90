@@ -299,7 +299,7 @@
     case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
-      write(*,*)'bdj reading sed cards CSeffb',CSeffb
+      !write(*,*)'bdj reading sed cards CSeffb',CSeffb
 
     case('CSHORE_BLP','CSHORE_BED_LOAD')   !added 6/7/2019 bdj
       backspace(77)
@@ -2859,7 +2859,7 @@ d1: do ii=1,30
       !Advective transports
       qtx(i)=u(i)*h(i)*Ct(i)
       qty(i)=v(i)*h(i)*Ct(i)         
-      !if (i.eq.487) write(*,*)'total load transport qtx(487),qty(487)',qtx(i),qty(i)
+      !if (i.eq.487) write(*,*)'in sed_total, no Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)
       !Diffusive transport (approximate)
       fac=h(i)*vis(i)/schmidt  
       qtx(i)=qtx(i)-fac*sum(rsk(i,:)*dCtkx(i,:))
@@ -2876,6 +2876,7 @@ d1: do ii=1,30
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
+       ! if (i.eq.487) write(*,*)'in sed_total, now adding Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)
       enddo
 !$OMP END PARALLEL DO    
     endif
@@ -2895,28 +2896,31 @@ if (icapac.eq.6) then
 
       !--- Total-load sediment transport vectors ---
       !Suspended advective transport
-      qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
-      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         
+
+      !qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i) !commented 2021-01-08 
+      !qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         !commented 2021-01-08 
+      qsx=1.*u(i)*h(i)*Ct(i)
+      qsy=1.*v(i)*h(i)*Ct(i)         
 
       !Bedload transport
-      Hrms = Whgt(i)/sqrt(2.)  
-      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-      call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+      !Hrms = Whgt(i)/sqrt(2.)  
+      !sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+      !call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
       !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
-      qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
-      qbx = 1.*qb*wunitx(i)
-      qby = 1.*qb*wunity(i)
+      !qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
+      !qbx = 1.*qb*wunitx(i) !commented 2021-01-08 
+      !qby = 1.*qb*wunity(i) !commented 2021-01-08 
       
       !Total = sus + bedload
-      qtx(i) = qsx + qbx
-      qty(i) = qsy + qby
+      !qtx(i) = qsx + qbx !commented 2021-01-08 
+      !qty(i) = qsy + qby !commented 2021-01-08 
       
       !write(1234,*)i,qbx,qsx,qtx(i) !bdj
       
-      ! if(i.ge.1514.and.i.le.1524) then 
+       !if(i.eq.487)then 
       !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
-      !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)
-      ! endif
+       !   write(*,*)'bdj just set bedload i Hrms,sigT,qsx,qbx,qtx(i)',i,Hrms,sigT,qsx,qbx,qtx(i)
+      !endif
    enddo
 !$OMP END PARALLEL DO   
 endif
@@ -3104,7 +3108,7 @@ endif
       do ks=1,nsed
 !!        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)*max(min(Ctk(i,ks)/(Ctkstar(i,ks)+small),1.5),0.0) !m^2/sec, Bug fix, changed k to ks
         !write(*,*)'i,pbk(i,ks,1)',i,pbk(i,ks,1) 
-        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks
+        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks (I disagree with alex's units here, bdj 2021-01-07) 
       enddo  
     enddo        
     
@@ -3156,12 +3160,13 @@ endif
     !Calculate bed-slope term    
       do i=1,ncells
 ! I think that this is incorrect 2020-12-16 bdj below
-        Sw=0.0; asum=0.0
-        do k=1,ncface(i)
-          Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
-          asum=asum+max(acoef(k,i),0.0)
-        enddo !k
-        Sw=Sw+asum*Qws(i,ks)
+        ! Sw=0.0; asum=0.0
+        ! do k=1,ncface(i)
+        !   Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
+        !   asum=asum+max(acoef(k,i),0.0)
+        !   !if (i.eq.487) write(*,*)'old code, k, acoef(k,i),Qws(cell2cell(k,i),ks)',k,acoef(k,i),Qws(cell2cell(k,i),ks)
+        ! enddo !k
+        ! Sw=Sw+asum*Qws(i,ks)
 ! I think that this is incorrect 2020-12-16 bdj above
 ! corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
         Sw=0.0; asum=0.0
@@ -3169,14 +3174,13 @@ endif
           Swk = acoef(k,i)*Qws(cell2cell(k,i),ks)
           if (Swk.le.0.) then ! transport is into cell
             Sw = Sw - Swk
-            if (i.eq.487) write(*,*)'k, acoef(k,i),Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,acoef(k,i),Qws(cell2cell(k,i),ks),Swk,Sw
+            !if (i.eq.487) write(*,*)'k, acoef(k,i),Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,acoef(k,i),Qws(cell2cell(k,i),ks),Swk,Sw
           else ! transport is out of cell
             Sw = Sw - acoef(k,i)*Qws(i,ks)
-            if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks), outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
+            !if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks),              outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
           endif
-
         enddo
-        if (i.eq.487) write(*,*)'corrected total Sw,areap(i), slope-driven Sb',i,Sw,areap(i),Sb(i,ks)
+        !if (i.eq.487) write(*,*)'corrected total Sw,areap(i), slope-driven Sb',i,Sw,areap(i),Sb(i,ks)
 ! end corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
          
         Sb(i,ks)=Sb(i,ks)+Sw/areap(i)
