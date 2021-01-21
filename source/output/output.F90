@@ -68,7 +68,7 @@
     !Wave
     write_wave_detail = .false.  !Wave details
     write_wavstress = .false.    !Wave stress vectors
-    write_wavbrkdiss = .false.    !Wave dissipation 
+    write_wavbrkdiss = .false.   !Wave dissipation 
     write_wavbrkind = .false.    !Wave breaking index (0 or 1)
     write_fracbreak = .false.    !Fraction of breaking waves
     write_wavdisscoef = .false.  !Wave dissipation coefficient

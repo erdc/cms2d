@@ -2091,7 +2091,7 @@ contains
             exit
           elseif(j==ntc)then
             write(*,*) 'WARNING: Constituent ',namein(k),' missing'
-            write(*,*) '  Skipping constinutent'
+            write(*,*) '  Skipping constituent'
           endif
         enddo
       enddo    

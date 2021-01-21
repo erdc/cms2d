@@ -350,7 +350,7 @@
             cxSrdx=0.0  
           endif                         
         endselect      
-        roldiss(i,j)=grav*br*Sr(i,j)/c(i,j) !Stive and De Vriend, Note: Sr=2*Er
+        roldiss(i,j)=grav*br*Sr(i,j)/c(i,j)                     !Stive and De Vriend, Note: Sr=2*Er
         val=dtrol*(-cxSrdx-cySrdy-roldiss(i,j)+ceff*wdiss(i,j)) !Wave dissipation units should be N/m/s=kg/s^3
         Sr(i,j)=Sr(i,j)+val  
         Sr(i,j)=max(Sr(i,j),0.0)        

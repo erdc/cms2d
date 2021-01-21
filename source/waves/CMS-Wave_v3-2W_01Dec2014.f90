@@ -1293,8 +1293,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         n=int(ctime/dtsteer)
         write(*,*)
         write(9,*) 
-        write(*,*) 'Skipping ',n,' spectra'        
-        write(9,*) 'Skipping ',n,' spectra'
+        write(*,*) 'Skipping ',n,' spectral records'        
+        write(9,*) 'Skipping ',n,' spectral records'
         do i=1,n
           read(8,*,end=410) eDate,ws,wd,fp,Tide
           idate = int(mod(edate,100000.))
