@@ -393,7 +393,9 @@
         Sxy(i,j) = Sr(i,j)*wcos(i,j)*wsin(i,j)
         Syy(i,j) = Sr(i,j)*wsin(i,j)*wsin(i,j)
         !Total dissipation with roller dissipation
-        wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ******************
+        !wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ******************      !commented by bdj 2021-01-13 
+        wdiss(i,j) = roldiss(i,j)                                                             ! new statement by bdj 2021-01-13
+        !write(*,*) 'bdj setting wave diss to roller diss'
       enddo
     enddo
 !$OMP END PARALLEL DO

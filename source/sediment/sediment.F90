@@ -2859,7 +2859,7 @@ d1: do ii=1,30
       !Advective transports
       qtx(i)=u(i)*h(i)*Ct(i)
       qty(i)=v(i)*h(i)*Ct(i)         
-      !if (i.eq.487) write(*,*)'total load transport qtx(487),qty(487)',qtx(i),qty(i)
+      !if (i.eq.487) write(*,*)'in sed_total, no Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)              !bdj 01/2021
       !Diffusive transport (approximate)
       fac=h(i)*vis(i)/schmidt  
       qtx(i)=qtx(i)-fac*sum(rsk(i,:)*dCtkx(i,:))
@@ -2876,48 +2876,52 @@ d1: do ii=1,30
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
+       ! if (i.eq.487) write(*,*)'in sed_total, now adding Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)   !bdj 01/2021
       enddo
 !$OMP END PARALLEL DO    
     endif
     
 ! bdj some heavy-handed cshore mods
 if (icapac.eq.6) then
-   !CSslp = 0.5            !commented 6/7/2019 bdj
-   !CSblp = 0.001          !commented 6/7/2019 bdj 
-   CSsg = rhosed/1000.
+  !CSslp = 0.5            !commented 6/7/2019 bdj
+  !CSblp = 0.001          !commented 6/7/2019 bdj 
+  CSsg = rhosed/1000.
 !$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
-   do i=1,ncells
-      !--- Total-load sediment concentrations 
-      ! and fraction of suspended sediments ---  
-      Ct(i)=sum(Ctk(i,:))
-      Ctstar(i)=sum(Ctkstar(i,:))
-      rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
+  do i=1,ncells
+    !--- Total-load sediment concentrations 
+    ! and fraction of suspended sediments ---  
+    Ct(i)=sum(Ctk(i,:))
+    Ctstar(i)=sum(Ctkstar(i,:))
+    rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
 
-      !--- Total-load sediment transport vectors ---
-      !Suspended advective transport
-      qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
-      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         
+    !--- Total-load sediment transport vectors ---
+    !Suspended advective transport
 
-      !Bedload transport
-      Hrms = Whgt(i)/sqrt(2.)  
-      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-      call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
-      !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
-      qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
-      qbx = 1.*qb*wunitx(i)
-      qby = 1.*qb*wunity(i)
+    !qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+    !qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+    qsx=1.*u(i)*h(i)*Ct(i)
+    qsy=1.*v(i)*h(i)*Ct(i)         
+
+    !Bedload transport
+    !Hrms = Whgt(i)/sqrt(2.)  
+    !sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+    !call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+    !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
+    !qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
+    !qbx = 1.*qb*wunitx(i) !commented 2021-01-08 
+    !qby = 1.*qb*wunity(i) !commented 2021-01-08 
+     
+    !Total = sus + bedload
+    !qtx(i) = qsx + qbx !commented 2021-01-08 
+    !qty(i) = qsy + qby !commented 2021-01-08 
       
-      !Total = sus + bedload
-      qtx(i) = qsx + qbx
-      qty(i) = qsy + qby
-      
-      !write(1234,*)i,qbx,qsx,qtx(i) !bdj
-      
-      ! if(i.ge.1514.and.i.le.1524) then 
-      !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
-      !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)
-      ! endif
-   enddo
+    !write(1234,*)i,qbx,qsx,qtx(i) !bdj
+     
+    !if(i.eq.487)then 
+    !  !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
+    !  write(*,*)'bdj just set bedload i Hrms,sigT,qsx,qbx,qtx(i)',i,Hrms,sigT,qsx,qbx,qtx(i)
+    !endif
+  enddo
 !$OMP END PARALLEL DO   
 endif
 
@@ -3104,7 +3108,7 @@ endif
       do ks=1,nsed
 !!        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)*max(min(Ctk(i,ks)/(Ctkstar(i,ks)+small),1.5),0.0) !m^2/sec, Bug fix, changed k to ks
         !write(*,*)'i,pbk(i,ks,1)',i,pbk(i,ks,1) 
-        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks
+        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks (I disagree with alex's units here, bdj 2021-01-07) 
       enddo  
     enddo        
     
@@ -3173,7 +3177,7 @@ endif
             !if (i.eq.487) write(*,*)'k, acoef(k,i),Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,acoef(k,i),Qws(cell2cell(k,i),ks),Swk,Sw
           else                ! transport is out of cell   bdj 1/6/21
             Sw = Sw - acoef(k,i)*Qws(i,ks)
-            !if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks), outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
+            !if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks),               outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
           endif
         enddo
         !if (i.eq.487) write(*,*)'corrected total Sw,areap(i), slope-driven Sb',i,Sw,areap(i),Sb(i,ks)
