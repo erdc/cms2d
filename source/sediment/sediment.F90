@@ -3159,30 +3159,27 @@ endif
     do ks=1,nsed 
     !Calculate bed-slope term    
       do i=1,ncells
-! I think that this is incorrect 2020-12-16 bdj below
-!        Sw=0.0; asum=0.0
-!        do k=1,ncface(i)
-!          Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
-!          asum=asum+max(acoef(k,i),0.0)
-!          if (i.eq.487) write(*,*)'old code, k, acoef(k,i),Qws(cell2cell(k,i),ks)',k,acoef(k,i),Qws(cell2cell(k,i),ks)
-!        enddo !k
-!        Sw=Sw+asum*Qws(i,ks)
-! I think that this is incorrect 2020-12-16 bdj above
+
 ! corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
         Sw=0.0
         do k=1,ncface(i)
           Swk = acoef(k,i)*Qws(cell2cell(k,i),ks)
-          if (Swk.le.0.) then ! transport is into cell     bdj 1/6/21
+          if (Swk.le.0.) then     ! transport is into cell     bdj 1/6/21
             Sw = Sw - Swk
-            !if (i.eq.487) write(*,*)'k, acoef(k,i),Qws(cell2cell(k,i),ks), influx, Swk, Sw',k,acoef(k,i),Qws(cell2cell(k,i),ks),Swk,Sw
-          else                ! transport is out of cell   bdj 1/6/21
+          else                    ! transport is out of cell   bdj 1/6/21
             Sw = Sw - acoef(k,i)*Qws(i,ks)
-            !if (i.eq.487) write(*,*)'k,acoef(k,i),Qws(i,ks),               outflux, Swk, Sw',k,acoef(k,i),Qws(i,ks),Swk,Sw
           endif
         enddo
-        !if (i.eq.487) write(*,*)'corrected total Sw,areap(i), slope-driven Sb',i,Sw,areap(i),Sb(i,ks)
 ! end corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
-         
+! I think that this is incorrect 2020-12-16 bdj below
+        ! Sw=0.0; asum=0.0
+        ! do k=1,ncface(i)
+        !   Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
+        !   asum=asum+max(acoef(k,i),0.0)
+        !   !if (i.eq.487) write(*,*)'old code, k, acoef(k,i),Qws(cell2cell(k,i),ks)',k,acoef(k,i),Qws(cell2cell(k,i),ks)
+        ! enddo !k
+        ! Sw=Sw+asum*Qws(i,ks)
+
         Sb(i,ks)=Sb(i,ks)+Sw/areap(i)
         if(Sb(i,ks)>50.0)then
           write(*,*) 'acoef(k,i) ',(acoef(k,i),k=1,ncface(i))

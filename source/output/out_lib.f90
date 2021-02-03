@@ -211,8 +211,9 @@ contains
 204 format('ID',1x,I5)
 205 format('DELEV 0.0')
 206 format('IXY',1x,I6)
-! 207 format(I8,1x,F12.5,1x,F12.5)   !for whatever reason, this was causing a run-time error
-207 format(I8,1x,F12.4,1x,F12.4)    
+! 207 format(I8,1x,F12.5,1x,F12.5)   !for whatever reason, this was causing a run-time error - meb
+! 207 format(I8,1x,F12.4,1x,F12.4)   !commented by bdj as roundoff error was printed to xy file
+207 format(I8,1x,F12.3,1x,F12.3)    
 208 format('ENDSET')
 
     filexy = trim(aname) // '.xy'
