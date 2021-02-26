@@ -3341,7 +3341,7 @@ d1: do i=1,ntf
             v(nck)=v(i)*h(i)/h(nck)*iwet(i)
           endif
         else
-          v(nck)=CS_str(icsh)%vcsh(im)  
+          v(nck)=CS_str(icsh)%vcsh(im)
           if(flux(k,i)<0.0)then !Inflow
             sv(i)=sv(i)+acoef(k,i)*v(nck)   
             spv(i)=spv(i)-acoef(k,i)
@@ -4385,6 +4385,7 @@ d1: do i=1,ntf
         u(nck) = u(nck)*qnorm
         v(nck) = v(nck)*qnorm
         flux(k,i) = iwet(i)*iwet(nck)*ds(k,i)*hk(k,i)*(u(nck)*fnx(k,i)+v(nck)*fny(k,i))
+
         flux(jcn,nck) = -flux(k,i)
         qfluxchk = qfluxchk - flux(k,i)
       enddo
@@ -4576,14 +4577,15 @@ d1: do i=1,ntf
     !  enddo
     !  return
     !endif
-    
     relaxcsh=0.5
     relaxcsh1=1.0-relaxcsh
     iterxsh=max(5,30-niter**2)    
     do icsh=1,nCSstr
+
       im1=CS_str(icsh)%ncells/2 
-      k  =CS_str(icsh)%faces(im1) 
-      if(mod(idirface(im1,k),2)==0)then !East/West 
+      k  =CS_str(icsh)%faces(im1)
+      !if(mod(idirface(im1,k),2)==0)then !East/West commented bdj 2021-02-25 
+      if(mod(idirface(k,im1),2)==0)then !East/West 
         CS_str(icsh)%vcsh(:)=0.0
         do kk=1,iterxsh   
           im=1 !First node
@@ -4649,6 +4651,8 @@ d1: do i=1,ntf
             cfuwc=fric_bed(h(i),cfrict(i),z0(i),u(nck),CS_str(icsh)%vcsh(im),&
                         us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))
           endif
+
+
           vxshim=(uhdelxxdw*CS_str(icsh)%vcsh(im+1)+forcey(i))/(uhdelxxdw+cfuwc+small)
           CS_str(icsh)%vcsh(im)=(relaxcsh1*CS_str(icsh)%vcsh(im)+relaxcsh*vxshim)*iwet(i)
           do im=2,CS_str(icsh)%ncells-1
@@ -4705,7 +4709,6 @@ d1: do i=1,ntf
     implicit none
     integer :: icsh,i,i1,k,im,im1,nck
     real(ikind) :: wsesetupx,wsesetupy
-    
     do icsh=1,nCSstr
       im=1 !First node of each cross-shore bnd
       i =CS_str(icsh)%cells(im) 
@@ -4715,7 +4718,8 @@ d1: do i=1,ntf
       CS_str(icsh)%wsecsh(im) = p(i)*gravinv !New 09/10/13 
       im1=CS_str(icsh)%ncells/2
       k=CS_str(icsh)%faces(im1)
-      if(mod(idirface(im1,k),2)==1)then !North/South boundary
+      !if(mod(idirface(im1,k),2)==1)then !North/South boundary commented bdj 2021-02-25 
+      if(mod(idirface(k,im1),2)==1)then !North/South boundary
         do im=2,CS_str(icsh)%ncells   !Second node to end
           i1=CS_str(icsh)%cells(im-1)
           i =CS_str(icsh)%cells(im)          
@@ -4875,7 +4879,7 @@ d1: do i=1,ntf
       flux(k,i)=iwet(i)*ds(k,i)*hk(k,i)*(fnx(k,i)*u(nck)+fny(k,i)*v(nck))
       jcn=llec2llec(k,i) !Backwards connectivity
       flux(jcn,nck)=-flux(k,i)
-    enddo    
+    enddo
     
     return
     endsubroutine fluxbnd    

@@ -369,7 +369,7 @@ subroutine sedcapac_cshore
   ! written by Brad Johnson, USACE-CHL
   !********************************************************************    
   use size_def
-  use geo_def, only: mapid,dzbx,dzby,x,cell2cell
+  use geo_def, only: mapid,dzbx,dzby,x,y,cell2cell
   use flow_def
   use const_def
   use wave_flowgrid_def
@@ -399,7 +399,7 @@ subroutine sedcapac_cshore
      endif
 
      do ks=1,nsed
-        CSDb = wavediss(i)
+        CSDb = max(wavediss(i),0.)
         CSefff = 2.*CSeffb
         !if(i.lt.10) write(*,*) 'CSeffb,CSblp,CSclp = ',CSeffb,CSblp,CSslp
         !CSeffb = .005
@@ -417,18 +417,19 @@ subroutine sedcapac_cshore
         ! if (i.eq.487)         write(*,*)'x(cell2cell(4,i)),x(cell2cell(2,i))',x(cell2cell(4,i)),x(cell2cell(2,i))
         ! if (i.eq.487)         write(*,*)'h(cell2cell(4,i)),h(i),h(cell2cell(2,i))',h(cell2cell(4,i)),h(i),h(cell2cell(2,i))
         ! if (i.eq.487)         write(*,*)'Hs(cell2cell(4,i)),Hs(i),Hs(cell2cell(2,i))',Whgt(cell2cell(4,i)),Whgt(i),Whgt(cell2cell(2,i))
-        ! if (i.eq.487)         write(*,*)'bdj i,h(i),Hrms,CSPb,sigT,qb',i,h(i),Hrms,CSPb,sigT,qb
+        ! if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
         ! if (i.eq.487)         write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
         ! volumentric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
         ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
         ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
         if(wavesedtrans)then
-        ! following the previous convention, wave-related trasport id BY DEFINITION in direction of wave propagation  
-        ! Asymettry related will be pos and return current related will be neg
+          ! following the previous convention, wave-related trasport id BY DEFINITION in direction of wave propagation  
+          ! Asymettry related will be pos and return current related will be neg
           !QwsP(i,ks) = rhosed*(.0000001)*x(i) !Potential net onshore transport, kg/m/sec
           QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !only return-current transport here, kg/m/sec
           QwsP(i,ks) = QwsP(i,ks) + qb ! the addition of bedload
-          
+          !if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
+          !if (i.eq.487)         write(*,*)'bdj i,x,y,us,QwsP(i,ks)',i,x(i),y(i),sqrt(us(i)**2.+vs(i)**2.),QwsP(i,ks)
           !QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*1 !commented 2021-01-08
 
           !QwsP(i,ks) = -rhosed*(csslp)*us(i) !Potential net onshore transport, kg/m/sec

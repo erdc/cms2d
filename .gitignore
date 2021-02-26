@@ -13,7 +13,9 @@ cms
 mfiles/*
 lstf/*
 planar/
+junk
 benson_beach
+south_padre
 spike_run
 doc
 frf
@@ -22,7 +24,7 @@ cms_noswash
 do_not_git
 tar_bundle*
 brad_notes.*
-
+for*.png
 *.suo
 
 *.user
