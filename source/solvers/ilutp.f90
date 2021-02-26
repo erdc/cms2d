@@ -57,14 +57,6 @@
       jw(n+ii) = ii
 
       do j = j1, j2
-        !added MEB 1/12/2021 - Warn user of potential issue where activity classification in SMS leaves a 
-        !  couple of land cells active producing an error in this routine.
-        if (n+ja(j) .ge. n*2) then
-          msg  = "Problem inside ILUTP solver"
-          msg2 = "- Possibly related to active cells at edge of land"
-          msg3 = "- Check cell activity"
-          call diag_print_error(msg,msg2,msg3,"")
-        endif
         k = iperm(n+ja(j))
         t = aa_matrix(j)
         if (k .lt. ii) then

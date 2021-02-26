@@ -93,8 +93,10 @@
 !************************************************************************
 #include "CMS_cpp.h"
     use size_def
+    use prec_def, only: ikind
     use geo_def, only: cell2cell,ncface
     use comvarbl, only: mpfile
+    use in_lib, only: read_xys
     use diag_lib
     use sal_def
     use bnd_def
@@ -109,22 +111,42 @@
     integer, intent(inout) :: isal
     !Internal Variables
     integer :: nstimes,ierr,PID,GID
+    character(len=100) :: apath,afile,aext,abnd
+    character(len=200) :: asalfile
+    real(ikind),pointer :: stimes(:),sval(:)
     
+    call fileext(bidfile,aext)
+    select case (aext)
+    case('h5')
 #ifdef XMDF_IO
-    call XF_OPEN_FILE(bidfile,READONLY,PID,ierr)
-    call XF_OPEN_GROUP(PID,bidpath,GID,ierr)
-    call XF_GET_PROPERTY_NUMBER(GID,'Sal_Times',nstimes,ierr)
-    if(ierr<0)then
-      call diag_print_error('Salinity must be specified at multi-wse boundary conditions')
-    endif
-    isal = isal + 1
-    sal_str(isal)%ntimes = nstimes
-    allocate(sal_str(isal)%val(nstimes))
-    allocate(sal_str(isal)%timesal(nstimes))
-    call XF_READ_PROPERTY_FLOAT(GID,'Sal_Times',nstimes,sal_str(isal)%timesal(1),ierr)
-    call XF_READ_PROPERTY_FLOAT(GID,'Salinity',nstimes,sal_str(isal)%val(1),ierr)
-    call XF_CLOSE_GROUP(GID,ierr)
-    call XF_CLOSE_FILE(PID,ierr)
+      call XF_OPEN_FILE(bidfile,READONLY,PID,ierr)
+      call XF_OPEN_GROUP(PID,bidpath,GID,ierr)
+      call XF_GET_PROPERTY_NUMBER(GID,'Sal_Times',nstimes,ierr)
+      if(ierr<0)then
+        call diag_print_error('Salinity must be specified at multi-wse boundary conditions')
+      endif
+      isal = isal + 1
+      sal_str(isal)%ntimes = nstimes
+      allocate(sal_str(isal)%val(nstimes))
+      allocate(sal_str(isal)%timesal(nstimes))
+      call XF_READ_PROPERTY_FLOAT(GID,'Sal_Times',nstimes,sal_str(isal)%timesal(1),ierr)
+      call XF_READ_PROPERTY_FLOAT(GID,'Salinity',nstimes,sal_str(isal)%val(1),ierr)
+      call XF_CLOSE_GROUP(GID,ierr)
+      call XF_CLOSE_FILE(PID,ierr)
+#endif
+    case('bid')
+      isal = isal + 1                           !First time through this is 0.  Needs to be incremented to read from correct file.
+      call fileparts (bidfile,apath,afile,aext)
+      write(abnd,'(I0)') isal
+      asalfile = trim(apath) // trim(afile) // '_sal_' // trim(abnd) // '.xys'
+      call read_xys(asalfile,nstimes,stimes,sval)
+      sal_str(isal)%ntimes = nstimes
+      allocate(sal_str(isal)%val(nstimes))
+      allocate(sal_str(isal)%timesal(nstimes))
+      sal_str(isal)%timesal = stimes
+      sal_str(isal)%val = sval
+        
+    end select
     
     !Cell id's and faces
     sal_str(isal)%ncells = nbndcells
@@ -132,8 +154,6 @@
     allocate(sal_str(isal)%faces(nbndcells))
     sal_str(isal)%cells = icells
     sal_str(isal)%faces = kfaces
-    
-#endif
     
     return
     endsubroutine sal_bnd_chk

@@ -742,6 +742,30 @@ contains
     return
     end subroutine writevecTxt
     
+!**************************************************************************
+    subroutine write_xys (id,apath,outprefix,aprefix,ntimes,times,val)
+    
+    implicit none
+    integer            :: id,ntimes,i
+    character(len=*)   :: apath,aprefix,outprefix
+    character(len=200) :: xysoutfile,abnd,astring,astring2
+    real(4)            :: times(ntimes),val(ntimes)
+    
+    write(abnd,'(I0)') id
+    xysoutfile = trim(apath)// '/' //trim(outprefix) // trim(aprefix) // trim(abnd) // '.xys'
+    open(913,file=xysoutfile)
+    write(913,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,ntimes,'"','"'
+    do i=1,ntimes
+      if (val(i) .eq. -0.0) val(i) = 0.0
+      write(astring, '(F10.2)') times(i)
+      write(astring2,'(F10.2)') val(i)
+      write(913,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))
+    enddo
+    close(913)
+    
+    return
+    end subroutine write_xys
+    
     
 #ifdef XMDF_IO
 !**************************************************************************

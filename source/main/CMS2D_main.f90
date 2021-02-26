@@ -40,8 +40,8 @@
     !NOTE: Change variables Below to update header information
     version  = 5.2           ! CMS version
     revision = 4             ! Revision number
-    bugfix   = 0            ! Bugfix number
-    rdate    = '01/06/2021'
+    bugfix   = 0             ! Bugfix number
+    rdate    = '02/26/2021'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.

@@ -194,6 +194,7 @@
     use out_def
     use prec_def
     use comvarbl, only: etime
+    use diag_lib, only: diag_print_warning
     implicit none
     integer :: i,j,cell,ierr
     character(len=37) :: cardname,cdum,ptname
@@ -553,18 +554,19 @@
       case('OUTPUT_FILE_TYPE')
         backspace(77)
         read(77,*) cardname,astring
-        if(toUpper(astring(1:4)) == "XMDF") then        !XMDF, turn off other types
+        if    (toUpper(astring(1:4)) == "XMDF")  then   !XMDF, turn off other types
           write_xmdf_output = .true.
-          write_netcdf      = .false.
           write_sup         = .false.
-        elseif(toUpper(astring(1:6)) == 'NETCDF') then  !NETCDF, turn off other types
-          write_netcdf      = .true.
-          write_xmdf_output = .false.
-          write_sup         = .false.
-        else                            !Other, turn on ASCII and turn off other types
+        elseif(toUpper(astring(1:5)) == 'ASCII') then   !ASCII, turn off other types
           write_sup         = .true.
-          write_netcdf      = .false.
           write_xmdf_output = .false.
+        elseif(toUpper(astring(1:4)) == 'BOTH')  then   !Other, allow for both XMDF and ASCII
+          write_sup         = .true.
+          write_xmdf_output = .true.
+        else
+          write_xmdf_output = .true.
+          write_sup         = .false.
+          call diag_print_warning('Unrecognized value for card, OUTPUT_FILE_TYPE','Defaulting to XMDF')
         endif
         
       !Hydrodynamics  
