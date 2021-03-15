@@ -1002,15 +1002,23 @@ loopj:  do j=1,nlay
           endif  
           do ks=1,nsed
             write(apbk,62) ks
-            apath = icpath(1:npath) //'Fraction' // trim(apbk) // alay 
+            apath = icpath(1:npath) //'Fraction' // trim(apbk) // trim(alay)
             call readscallasth5(tfile,apath,ntimes,pbk(:,ks,j),reftimehot,temphr,ierr)            
+            if(ierr<0)then                                                        !Fix for missing space or underscore  MEB  03/15/2021
+              apath = icpath(1:npath) // 'Fraction' // trim(apbk) // ' ' // trim(alay)
+              call readscallasth5(tfile,apath,ntimes,db(:,j),reftimehot,temphr,ierr)
+              if(ierr<0)then 
+                apath = icpath(1:npath) // 'Fraction' // trim(apbk) // '_' // trim(alay)
+                call readscallasth5(tfile,apath,ntimes,db(:,j),reftimehot,temphr,ierr)
+              endif            
+            endif
             if(ierr<0)then
               call diag_print_warning('Problem reading bed composition',&
                '  Setting the bed composition to the default values')  
               ok = .false.
               exit loopj
             else
-              write(msg,'(A,A)') 'Read bed layer thickness: ',trim(apath)
+              write(msg,'(A,A)') 'Read bed composition: ',trim(apath)   !Copy/paste error.  This still printed "bed layer thickness" instead of "bed composition"  MEB  03/15/2021
               call diag_print_message(msg)  
             endif
           enddo !ks
@@ -1081,17 +1089,20 @@ loopj:  do j=1,nlay
 !          close(dgunit)     
           do ks=1,nsed
             write(apbk,62) ks
-            apath = icpath(1:npath) // 'Concentration_' // apbk
+            apath = icpath(1:npath) // 'Concentration' // apbk                         !The underscore is already added with the '62' format  MEB  03/15/2021
             call readscallasth5(tfile,apath,ntimes,Ctk(:,ks),reftimehot,temphr,ierr)
             if(ierr<0)then
               call diag_print_warning('Unable to find initial sediment concentrations',&
                 '   Setting initial sediment concentrations to equilibrium concentration')
               setconc2eq = .true. 
               exit
+            else
+              write(msg,'(A,A)') 'Read sediment concentration: ',trim(apath)
+              call diag_print_message(msg)
             endif 
           enddo
         else
-          write(msg,*) 'Read sediment concentration: ',trim(apath)
+          write(msg,'(A,A)') 'Read sediment concentration: ',trim(apath)
           call diag_print_message(msg)
           do ks=1,nsed
             Ctkstar(:,ks) = Ctk(:,1)*pbk(:,ks,1)          
@@ -1721,7 +1732,7 @@ loopj:  do j=1,nlay
           call writescalh5(outfile,outpath,aname,db(:,j),'m',timehrs,1)  
           do ks=1,nsed
             write(apbk,62) ks
-            aname = 'Fraction' // trim(apbk) // alay
+            aname = 'Fraction' // trim(apbk) // alay 
             call writescalh5(outfile,outpath,aname,pbk(:,ks,j),'none',timehrs,1)          
           enddo !j
         enddo !ks      
@@ -1838,7 +1849,7 @@ loopj:  do j=1,nlay
           do ks=1,nsed
             write(apbk,62) ks
             lname = 'Fraction' // trim(apbk) // alay
-            sname = 'frac' // trim(apbk) // '-' // alay  !adding an underscore to the name to make it easier to read back in
+            sname = 'frac' // trim(apbk) // alay  
             call write_scal_dat_file(aname,lname,sname,pbk(:,ks,j))
           enddo !j
         enddo !ks      
