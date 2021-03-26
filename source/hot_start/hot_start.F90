@@ -197,7 +197,7 @@
     integer :: nscal,nvec
     type(scaldattype), pointer :: scaldat(:)
     type(vecdattype),  pointer :: vecdat(:)
-    real(4) :: etemp(ncellsD),utemp(ncellsD),vtemp(ncellsD),wtemp(ncellsD)
+    real(4) :: etemp(ncellsD),utemp(ncellsD),vtemp(ncellsD),wtemp(ncellsD), umax, vmax
     real(ikind) :: temp(ncellsD)
     
     kunit = 500
@@ -286,13 +286,18 @@
             utemp(i) = vecdat(1)%val(i,1,vecdat(1)%nt)
             vtemp(i) = vecdat(1)%val(i,2,vecdat(1)%nt)        
           enddo
-          do i=nd+1,ncellsd                              !If nd==ncellsD, do nothing more
-            etemp(i) = 0.0
+          do i=nd+1,ncellsd   !If nd==ncellsD, do nothing more
+            !etemp(i) = 0.0   !removed 03/25/21  Copied from scalar, but not correctly modified for vector  MEB
+            utemp(i) = 0.0    !added
+            vtemp(i) = 0.0    !added
           enddo
           
           u=utemp
           v=vtemp
 
+          !umax = maxval(u)   !added for testing purposes  03/25/2021  MEB
+          !vmax = maxval(v)
+          
           !if(ncellpoly>0)then
           !  call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
           !  call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers

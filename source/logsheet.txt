@@ -4,13 +4,11 @@
 * Bug fix: Small logic error in boundary condition corrected.
 * Bug fix: STARTING_JDATE uses a 2-digit year. Fixed logic to make years > 50 = 1900+yr and all other years 2000+yr. (change of 20 to 50)
 * Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency 
+* Bug fix: Initialization was missing for initial condition with ASCII input file for Vector data types.
 * Minor: Added capability to write out both XMDF and ASCII output files by using "OUTPUT_FILE_TYPE    BOTH"
 * Minor: Ensured both cards for running CMS with initial conditions were excluded from a warning.
 * Minor: Removed fix for ILUTP solver which caused other issues.
-<<<<<<< HEAD
 * Minor: Clearer error messages in reading from input files.
-=======
->>>>>>> develop
 
 == Version 5.2.3 (09/10/2020) ==
 * Minor: added optional argument to 'time_sec2str' for outputting seconds with I0 or F7.3
