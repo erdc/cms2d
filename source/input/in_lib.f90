@@ -724,6 +724,7 @@ contains
     integer :: i,j,ierr
     type(vecdattype), allocatable :: vecdattemp(:)
     character(len=37) :: cardname
+    real(4) :: umax,vmax
     
     if(nvec>0)then
       !Allocate temporary variable   
@@ -849,6 +850,9 @@ contains
         if(vecdat(nvec)%istatus==1)then
           vecdat(nvec)%stat(:,:) = vecdattemp(1)%stat(:,:)
         endif
+        
+!        umax = maxval(vecdat(nvec)%val(:,1,1))
+!        vmax = maxval(vecdat(nvec)%val(:,2,1))
                         
         !Deallocate temporary variable
         deallocate(vecdattemp)  
