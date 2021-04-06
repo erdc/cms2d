@@ -103,7 +103,7 @@ contains
           read(88,*) cardname, cdum
           read(cdum(1:2),*) iyrpar
           if(iyrpar<100)then
-            if(iyr>50)then       !if(iyr>20)then    MEB Modified - 02/22/2021   This changed all dates in 2021 to 1921.  SMS is now using the card STARTING_DATE_TIME, so this shouldn't be an issue much longer.
+            if(iyrpar>50)then       !if(iyrpar>20)then    MEB Modified - 02/22/2021   This changed all dates in 2021 to 1921.  SMS is now using the card STARTING_DATE_TIME, so this shouldn't be an issue much longer.
               iyrpar = iyrpar + 1900
             else
               iyrpar = iyrpar + 2000
