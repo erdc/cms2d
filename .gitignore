@@ -52,3 +52,5 @@ Intel_vs2019/x64/Debug/
 Intel_vs2019/x64/Release/
 
 Intel_vs2019/.vs/CMS2D_V5p2/v16/
+
+*.u2d
