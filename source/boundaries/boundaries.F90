@@ -2034,9 +2034,10 @@ d1: do i=1,ntf
           ParSim(ipar)%projpar%iHorizDatum = 1         !Horizontal Datum = NAD83
           ParSim(ipar)%projpar%iHorizCoordSystem = 0   !Horizontal Coordinate System = GEOGRAPHIC
           ParSim(ipar)%projpar%iHorizUnits = 4         !Horizontal Units = DEGREES
+          ParSim(ipar)%projpar%iHorizZone = 0          !Horizontal Zone = NONE          !Added MEB 04/08/2021
           ParSim(ipar)%projpar%iVertDatum = 9          !Vertical Datum = LOCAL
           ParSim(ipar)%projpar%iVertUnits = 2          !Vertical units = METERS
-          ParSim(ipar)%projpar%VertOffset = 0.0       !Vertical offset from datum
+          ParSim(ipar)%projpar%VertOffset = 0.0        !Vertical offset from datum
         endif    
         !Reproject parent grid to child grid projection
         call proj_horiz_conv(ParSim(ipar)%projpar,projfl,ParSim(ipar)%nptspar,&
@@ -2453,7 +2454,7 @@ d1: do i=1,ntf
 543 format('                  Speed         [m]               [deg]         Factor   Arg.')
 533 format('                  Speed        [m/s]              [deg]         Factor   Arg.')
 544 format('      ID  Name   [deg/hr]  Min   Max   Avg    Min   Max   Avg    [-]    [deg]')
-431 format('        Start Date and Time:    ',I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
+431 format('         Start Date and Time:',T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
     
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
@@ -2619,7 +2620,7 @@ d1: do i=1,ntf
 
       !--- Multiple Water Level BC (Type 4=MH) -----------------------------------------------
       do iwse=1,nMHstr
-        write(iunit(i),241)     '    Multiple Water Level Boundary: ',iwse
+        write(iunit(i),241)     '    Multi WSE Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(MH_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(MH_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',MH_str(iwse)%ncells
@@ -2639,7 +2640,7 @@ d1: do i=1,ntf
     
       !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------------------
       do iwse=1,nMHVstr
-        write(iunit(i),241)     '    Multiple Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),241)     '    Multi WSE and Velocity Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(MHV_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(MHV_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',MHV_str(iwse)%ncells
@@ -2679,7 +2680,7 @@ d1: do i=1,ntf
     
       !--- Nested Water Level BC (Type 7=NH) ---------------------------------------------
       do iwse=1,nNHstr
-        write(iunit(i),241)     '    Nested Water Level Boundary: ',iwse
+        write(iunit(i),241)     '    Nested WSE Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NH_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NH_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',NH_str(iwse)%ncells
@@ -2718,7 +2719,7 @@ d1: do i=1,ntf
     
       !--- Nested Water Level and Velocity BC (Type 8=NHV) -----------------------------------
       do iwse=1,nNHVstr
-        write(iunit(i),241)     '    Nested Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),241)     '    Nested WSE and Velocity Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NHV_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NHV_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',NHV_str(iwse)%ncells
@@ -2773,7 +2774,7 @@ d1: do i=1,ntf
     
       !--- Tidal Database WSE BC (Type 9=NTH) -----------------------------------
       do iwse=1,nNTHstr
-        write(iunit(i),241)     '    Tidal Database Water Level Boundary:',iwse
+        write(iunit(i),241)     '    Tidal DB WSE Boundary:',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NTH_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NTH_str(iwse)%bidpath)        
         write(iunit(i),261)     '      Boundary Cells:',NTH_str(iwse)%ncells
@@ -2818,7 +2819,7 @@ d1: do i=1,ntf
     
       !--- Tidal Database WSE and Velocity BC (Type 10=NTHV) --------------------------------
       do iwse=1,nNTHVstr
-        write(iunit(i),241)     '    Tidal Database Water Level and Velocity Boundary: ',iwse
+        write(iunit(i),241)     '    Tidal DB WSE and Vel Boundary:',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NTHV_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NTHV_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',NTHV_str(iwse)%ncells
@@ -4412,13 +4413,14 @@ d1: do i=1,ntf
         flux(jcn,nck) = -flux(k,i)
         qfluxchk = qfluxchk - flux(k,i)
       enddo
-      val=abs((qfluxchk-Q_str(iriv)%qflux)/Q_str(iriv)%qflux) !Normalized error
-      if(val>0.001)then                                      
-        write(msg2,*) '  Flux Boundary:   ',Q_str(iriv)%idnum
-        write(msg3,*) '  Specified Flux:  ',Q_str(iriv)%qflux,' m^3/s'
-        write(msg4,*) '  Calculated Flux: ',qfluxchk,' m^3/s'  
-        call diag_print_warning('Problem distributing flow at flux boundary ',&
-          msg2,msg3,msg4)
+      if (Q_str(iriv)%qflux .ne. 0.0) then                      !Avoid divide by zero  MEB  04/08/2021
+        val=abs((qfluxchk-Q_str(iriv)%qflux)/Q_str(iriv)%qflux) !Normalized error
+        if(val>0.001)then                                      
+          write(msg2,*) '  Flux Boundary:   ',Q_str(iriv)%idnum
+          write(msg3,*) '  Specified Flux:  ',Q_str(iriv)%qflux,' m^3/s'
+          write(msg4,*) '  Calculated Flux: ',qfluxchk,' m^3/s'  
+          call diag_print_warning('Problem distributing flow at flux boundary ',msg2,msg3,msg4)
+        endif
       endif
     enddo
     

@@ -423,17 +423,17 @@
           idpar = nParSim
         endif
       endif
-      ParSim(idpar)%ctlfilepar = ctlfilepar
-      ParSim(idpar)%grdfilepar = grdfilepar
-      ParSim(idpar)%projpar = projpar
-      ParSim(idpar)%tjuldaypar = tjuldaypar
+      ParSim(idpar)%ctlfilepar  = ctlfilepar
+      ParSim(idpar)%grdfilepar  = grdfilepar
+      ParSim(idpar)%projpar     = projpar
+      ParSim(idpar)%tjuldaypar  = tjuldaypar
       ParSim(idpar)%timestarthr = timestarthr
-      ParSim(idpar)%wsefilepar = wsefilepar
-      ParSim(idpar)%wsepathpar = wsepathpar
-      ParSim(idpar)%ntiwsepar = max(ParSim(idpar)%ntiwsepar,ntiwse)
+      ParSim(idpar)%wsefilepar  = wsefilepar
+      ParSim(idpar)%wsepathpar  = wsepathpar
+      ParSim(idpar)%ntiwsepar   = max(ParSim(idpar)%ntiwsepar,ntiwse)
       if(ibndtype==8)then
-        ParSim(idpar)%velpar = .true.  
-        ParSim(idpar)%ntivelpar = max(ParSim(idpar)%ntivelpar,ntivel)
+        ParSim(idpar)%velpar     = .true.  
+        ParSim(idpar)%ntivelpar  = max(ParSim(idpar)%ntivelpar,ntivel)
         ParSim(idpar)%velfilepar = velfilepar
         ParSim(idpar)%velpathpar = velpathpar
       endif

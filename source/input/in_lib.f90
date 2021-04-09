@@ -883,9 +883,9 @@ contains
     use prec_def
     implicit none
     !Input/Output
-    integer,        intent(in)  :: nnodes  !# of nodes  
-    integer,        intent(out) :: ierr    !error message
-    real(ikind),    intent(out) :: timesec !time in seconds
+    integer,        intent(in)  :: nnodes       !# of nodes  
+    integer,        intent(out) :: ierr         !error message
+    real(ikind),    intent(out) :: timesec      !time in seconds
     real(ikind),    intent(out) :: wsen(nnodes) !wse at each node
     !Internal variables
     integer :: k,kdum 
@@ -893,8 +893,7 @@ contains
     
     read(63,*,iostat=ierr) timesec
     if(ierr/=0)then
-      write(msg,*,iostat=ierr)  '  timesec=',timesec
-      write(msg2,*,iostat=ierr) '  ierr=',ierr  
+      write(msg,*,iostat=ierr)  '  Timesec =',timesec
       call diag_print_error('Could not read time stamp information in',&
           '  ADCIRC fort.63 file',msg,msg2)
     endif
@@ -927,26 +926,27 @@ contains
     
     read(64,*,iostat=ierr) timesec
     if(ierr/=0)then
-      write(msg,*,iostat=ierr)  '  timesec=',timesec
-      write(msg2,*,iostat=ierr) '  ierr=',ierr  
+      write(msg,*,iostat=ierr)  '  Timesec =',timesec
       call diag_print_error('Could not read time stamp information in',&
-          '  ADCIRC fort.64 file',msg,msg2)
+          '  ADCIRC fort.64 file',msg)
     endif
     
     do k=1,nnodes
       !Read velocities
       read(64,*,iostat=ierr) kdum,un(k),vn(k)
       if(ierr/=0)then
-        write(msg,*,iostat=ierr)  '  k=',k    
-        write(msg2,*,iostat=ierr) '  ierr=',ierr  
+        write(msg,*,iostat=ierr)  '  ADCIRC node id =',k    
         call diag_print_error('Could not read velocity data in',&
-          '  ADCIRC fort.64 file',msg,msg2)  
+          '  ADCIRC fort.64 file',msg)  
       endif
       !Check values
-      if(abs(un(k))>5.0 .or. abs(vn(k))>5.0)then
-        write(msg,*,iostat=ierr)  '  k=',k
-        write(msg2,*,iostat=ierr) '  un(k)=',un(k)
-        write(msg3,*,iostat=ierr) '  vn(k)=',vn(k)
+      if(abs(un(k))>=99999.0 .or. abs(vn(k))>=99999.0)then  !MEB 04/07/2021  added to address change in ADCIRC output for dry node.
+        un(k) = 0.0
+        vn(k) = 0.0
+      elseif(abs(un(k))>5.0 .or. abs(vn(k))>5.0)then
+        write(msg,*,iostat=ierr)  '  ADCIRC node id =',k
+        write(msg2,*,iostat=ierr) '  U =',un(k)
+        write(msg3,*,iostat=ierr) '  V =',vn(k)
         call diag_print_warning('Large velocities found in ',&
           '  ADCIRC fort.64 file',msg,msg2,msg3)
         !continue

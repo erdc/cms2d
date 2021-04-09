@@ -1,10 +1,14 @@
-== Version 5.2.4 (03/15/2021) ==
+== Version 5.2.4 (04/08/2021) ==
 * Bug fix: Hot start with multiple sediment grain sizes was broken due to bad names in path to dataset.
 * Bug fix: Using ASCII input files wasn't working for salinity. 
 * Bug fix: Small logic error in boundary condition corrected.
 * Bug fix: STARTING_JDATE uses a 2-digit year. Fixed logic to make years > 50 = 1900+yr and all other years 2000+yr. (change of 20 to 50)
 * Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency 
 * Bug fix: Initialization was missing for initial condition with ASCII input file for Vector data types.
+* Bug fix: Divide by zero during normalization of river flux boundaries corrected.
+* Bug fix: CMS was looking for a ZONE when Geographic coordinate system was specified.
+* Bug fix: CMS only recognized NAD83/NAD27/LOCAL for Datum. Modified to accept any of the other variants (NAD 1983, etc)
+* Bug fix: ADCIRC fort.64 file now uses -9.9999e+04 for dry cells instead of 0.0 m/s. CMS needed a small fix to read properly.
 * Minor: Added capability to write out both XMDF and ASCII output files by using "OUTPUT_FILE_TYPE    BOTH"
 * Minor: Ensured both cards for running CMS with initial conditions were excluded from a warning.
 * Minor: Removed fix for ILUTP solver which caused other issues.
