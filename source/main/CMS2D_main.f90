@@ -445,10 +445,11 @@
       else
         call getarg(i,astr)
       endif
+
       call fileparts(astr,apath,aname,aext)           
       astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
-      if (astr == 'inline') aext=astr
+      if (astr == 'inline' .or. astr == 'tools') laext=astr
       selectcase(laext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
@@ -488,6 +489,9 @@
         case('inline')
           inlinewave = .true.
           narg = narg -1
+          
+        case('tools')
+          call CMS_tools_dialog
 
         case('flp')  !Old format input files       
           casename = aname !(1:ind-1)   
