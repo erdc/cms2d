@@ -2916,7 +2916,7 @@ if (icapac.eq.6) then
       !qty(i) = qsy + qby !commented 2021-01-08 
       
       !write(1234,*)i,qbx,qsx,qtx(i) !bdj
-      
+      !write(1235,*)i,qby,qsy,qty(i) !bdj
        !if(i.eq.487)then 
       !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
        !   write(*,*)'bdj just set bedload i Hrms,sigT,qsx,qbx,qtx(i)',i,Hrms,sigT,qsx,qbx,qtx(i)
