@@ -1,20 +1,24 @@
-== Version 5.2.4 (04/14/2021) ==
+== Version 5.2.5 (6/10/2021) == 
 * Bug fix: Hot start with multiple sediment grain sizes was broken due to bad names in path to dataset.
 * Bug fix: Using ASCII input files wasn't working for salinity. 
 * Bug fix: Small logic error in boundary condition corrected.
-* Bug fix: STARTING_JDATE uses a 2-digit year. Fixed logic to make years > 50 = 1900+yr and all other years 2000+yr. (change of 20 to 50)
 * Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency 
 * Bug fix: Initialization was missing for initial condition with ASCII input file for Vector data types.
-* Bug fix: Divide by zero during normalization of river flux boundaries corrected.
-* Bug fix: CMS was looking for a ZONE when Geographic coordinate system was specified.
-* Bug fix: CMS only recognized NAD83/NAD27/LOCAL for Datum. Modified to accept any of the other variants (NAD 1983, etc)
-* Bug fix: ADCIRC fort.64 file now uses -9.9999e+04 for dry cells instead of 0.0 m/s. CMS needed a small fix to read properly.
 * Minor: Added capability to write out both XMDF and ASCII output files by using "OUTPUT_FILE_TYPE    BOTH"
 * Minor: Ensured both cards for running CMS with initial conditions were excluded from a warning.
 * Minor: Removed fix for ILUTP solver which caused other issues.
 * Minor: Clearer error messages in reading from input files.
 * Added: Command line option 'Tools' to perform a few independent tasks.
 ** Added two routines - one to convert an actual date to a REFTIME and one to do the reverse.
+
+== Version 5.2.4 (06/10/2021) ==
+* Bug fix: When using single wave condition, CMS now stores the gridname in a new variable for proper internal reference.
+* Bug fix: CMS now stores ADCIRC Parent grid and path information correctly for nesting.
+* Bug fix: Divide by zero during normalization of river flux boundaries corrected.
+* Bug fix: CMS was looking for a ZONE when Geographic coordinate system was specified.
+* Bug fix: CMS only recognized NAD83/NAD27/LOCAL for Datum. Modified to accept any of the other variants (NAD 1983, etc)
+* Bug fix: ADCIRC fort.64 file now uses -9.9999e+04 for dry cells instead of 0.0 m/s. CMS needed a small fix to read properly.
+* Bug fix: STARTING_JDATE uses a 2-digit year. Fixed logic to make years > 50 = 1900+yr and all other years 2000+yr. (change of 20 to 50)
 
 == Version 5.2.3 (09/10/2020) ==
 * Minor: added optional argument to 'time_sec2str' for outputting seconds with I0 or F7.3

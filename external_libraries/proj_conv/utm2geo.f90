@@ -80,8 +80,7 @@
 
 !  /* Now the special "X" grid */
 
-      if (latitude .GT. 72.0d0 .AND.
-     &     longitude .GT. 0.0d0 .AND. longitude .LT. 42.0d0) then
+      if (latitude .GT. 72.0d0 .AND. longitude .GT. 0.0d0 .AND. longitude .LT. 42.0d0) then
          if (longitude .LT. 9.0d0) then
             lambda0 = 4.5d0 * M_PI / 180.0d0
          elseif (longitude .LT. 21.0d0) then
@@ -96,8 +95,7 @@
 
 !  /* Handle the special "V" grid */
 
-      if (latitude .GT. 56.0d0 .AND. latitude .LT. 64.0d0 .AND.
-     &     longitude .GT. 0.0d0 .AND. longitude .LT. 12.0d0) then
+      if (latitude .GT. 56.0d0 .AND. latitude .LT. 64.0d0 .AND. longitude .GT. 0.0d0 .AND. longitude .LT. 12.0d0) then
          if (longitude .LT. 3.0d0) then
             lambda0 = 1.5d0 * M_PI / 180.0d0
          elseif (longitude .LT. 12.0d0) then
@@ -158,8 +156,7 @@
          return 
       endif
 
-      if (latitude .GT. 56.0d0 .AND. latitude .LT. 64.0d0 .AND.
-     &     longitude .GT. 0.0d0 .AND. longitude .LT. 12.0d0) then
+      if (latitude .GT. 56.0d0 .AND. latitude .LT. 64.0d0 .AND. longitude .GT. 0.0d0 .AND. longitude .LT. 12.0d0) then
          if (longitude .LT. 3.0d0) then
             lambda0 = 1.5 * M_PI / 180.0d0
          elseif (longitude .LT. 12.0d0) then
@@ -169,8 +166,7 @@
          return
       endif
   
-      if (latitude .GT. 72.0d0 .AND.
-     &     longitude .GT. 0.0d0 .AND. longitude < 42.0d0) then
+      if (latitude .GT. 72.0d0 .AND. longitude .GT. 0.0d0 .AND. longitude < 42.0d0) then
          if (longitude .LT. 9.0d0) then
             lambda0 = 4.5d0 * M_PI / 180.0d0
          elseif (longitude .LT. 21.0d0) then
@@ -271,8 +267,7 @@
 
          k0 = 0.994d0
 
-         t = sqrt ( ((1.0d0 - sin (phi)) / (1.0d0 + sin (phi))) *
-     &       (((1.0d0 + e * sin (phi)) / (1. - e * sin (phi))) ** e) )
+         t = sqrt ( ((1.0d0 - sin (phi)) / (1.0d0 + sin (phi))) * (((1.0d0 + e * sin (phi)) / (1. - e * sin (phi))) ** e) )
          rho = 2.0 * a * k0 * t / sqrt ( ((1.0d0 + e) ** (1.0d0 + e)) * ((1.0d0 - e) ** (1.0d0 - e)) )
     !!! Not needed (dhg) m = cos (phi) / sqrt (1.0 - e2 * sin (phi) * sin (phi))
 
@@ -295,8 +290,7 @@
 
          k0 = 0.994d0
 
-         t = sqrt (((1.0d0 - sin (phi)) / (1.0d0 + sin (phi))) *
-     &          ( ( (1.0d0 + e * sin (phi)) / (1.0d0 - e * sin (phi)) ** e) ) )
+         t = sqrt (((1.0d0 - sin (phi)) / (1.0d0 + sin (phi))) * ( ( (1.0d0 + e * sin (phi)) / (1.0d0 - e * sin (phi)) ** e) ) )
          rho = 2.0d0 * a * k0 * t / sqrt ( ((1.0d0+e) ** (1.0d0+e)) * ((1.0d0-e) ** (1.0d0-e)) )
     !!! Not needed (dhg) m = cos (phi) / sqrt (1.0 - e2 * sin (phi) * sin (phi))
 
@@ -320,15 +314,15 @@
     
          k0 = 0.9996d0
 
-         mm = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi -
-     &        (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi) +
-     &        (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi) - 
-     &        (35.0d0*e6/3072.0d0) * sin (6.0d0*phi))
+         mm = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi -              &
+              (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi) +     &
+              (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi) -                    &
+              (35.0d0*e6/3072.0d0) * sin (6.0d0*phi))
 
-         mm0 = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi0 - 
-     &         (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi0) + 
-     &         (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi0) - 
-     &         (35.0d0*e6/3072.0d0) * sin (6.0d0*phi0))
+         mm0 = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi0 -            &
+               (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi0) +   &
+               (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi0) -                  &
+               (35.0d0*e6/3072.0d0) * sin (6.0d0*phi0))
 
          aa = (lambda - lambda0) * cos(phi)
          aa2 = aa * aa
@@ -344,11 +338,10 @@
 
     !!! Not needed (dhg) k = k0 * (1 + (1+cc)*aa2/2 + (5-4*tt+42*cc+13*cc*cc-28*ep2) * aa4 / 24.0 + &
     !!! Not needed (dhg)          (61-148*tt+16*tt*tt) * aa6 / 720.0)
-         x = k0 * nn * (aa + (1.0d0-tt+cc) * aa3 / 6.0d0 + 
-     &          (5.0d0-18.0d0*tt+tt*tt+72.0d0*cc-58.0d0*ep2) * aa5 / 120.0d0)
-         y = k0 * (mm - mm0 + nn * tan (phi) *
-     &          (aa2 / 2.0d0 + (5.0d0-tt+9.0d0*cc+4.0d0*cc*cc) * aa4 / 24.0d0 +
-     &          (61.0d0 - 58.0d0*tt + tt*tt + 600.0d0*cc - 330.0d0*ep2) * aa6 / 720.0d0))
+         x = k0 * nn * (aa + (1.0d0-tt+cc) * aa3 / 6.0d0 + (5.0d0-18.0d0*tt+tt*tt+72.0d0*cc-58.0d0*ep2) * aa5 / 120.0d0)
+         y = k0 * (mm - mm0 + nn * tan (phi) *                                               &
+                  (aa2 / 2.0d0 + (5.0d0-tt+9.0d0*cc+4.0d0*cc*cc) * aa4 / 24.0d0 +            &
+                  (61.0d0 - 58.0d0*tt + tt*tt + 600.0d0*cc - 330.0d0*ep2) * aa6 / 720.0d0))
 
     !/* Apply false easting and northing */
 
@@ -458,10 +451,10 @@
     !/* Solve for latitude and longitude */
 
          chi = M_PI_2 - 2.0d0 * atan (t)
-         phit = chi + (e2/2.0d0 + 5.0d0*e4/24.0d0 + e6/12.0d0 + 13.0d0*e8/360.0d0) * sin(2.0d0*chi) +
-     &            (7.0d0*e4/48.0d0 + 29.0d0*e6/240.0d0 + 811.0d0*e8/11520.0d0) * sin(4.0d0*chi) +
-     &            (7.0d0*e6/120 + 81.0d0*e8/1120.0d0) * sin(6.0d0*chi) +
-     &            (4279.0d0*e8/161280.0d0) * sin(8.0d0*chi)
+         phit = chi + (e2/2.0d0 + 5.0d0*e4/24.0d0 + e6/12.0d0 + 13.0d0*e8/360.0d0) * sin(2.0d0*chi) + &
+                  (7.0d0*e4/48.0d0 + 29.0d0*e6/240.0d0 + 811.0d0*e8/11520.0d0) * sin(4.0d0*chi) +     &
+                  (7.0d0*e6/120 + 81.0d0*e8/1120.0d0) * sin(6.0d0*chi) +                              &
+                  (4279.0d0*e8/161280.0d0) * sin(8.0d0*chi)
 
          do while (ABS (phi-phit) .GT. LOWER_EPS_LIMIT)
             phi = phit
@@ -486,10 +479,10 @@
     !/* Solve for latitude and longitude */
 
          chi = M_PI_2 - 2.0d0 * atan (t)
-         phit = chi + (e2/2.0d0 + 5.0d0*e4/24.0d0 + e6/12.0d0 + 13.0d0*e8/360.0d0) * sin (2.0d0*chi) +
-     &      (7.0d0*e4/48.0d0 + 29.0d0*e6/240.0d0 + 811.0d0*e8/11520.0d0) * sin (4.0d0*chi) +
-     &      (7.0d0*e6/120.0d0 + 81.0d0*e8/1120.0d0) * sin (6.0d0*chi) +
-     &      (4279.0d0*e8/161280.0d0) * sin (8.0d0*chi)
+         phit = chi + (e2/2.0d0 + 5.0d0*e4/24.0d0 + e6/12.0d0 + 13.0d0*e8/360.0d0) * sin (2.0d0*chi) + &
+            (7.0d0*e4/48.0d0 + 29.0d0*e6/240.0d0 + 811.0d0*e8/11520.0d0) * sin (4.0d0*chi) +           &
+            (7.0d0*e6/120.0d0 + 81.0d0*e8/1120.0d0) * sin (6.0d0*chi) +                                &
+            (4279.0d0*e8/161280.0d0) * sin (8.0d0*chi)
 
          do while (ABS (phi-phit) .GT. LOWER_EPS_LIMIT)
             phi = phit;
@@ -522,17 +515,17 @@
          e13 = e1 * e12
          e14 = e12 * e12
 
-         mm0 = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi0 - 
-     &       (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi0) + 
-     &       (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi0) - 
-     &       (35.0d0*e6/3072.0d0) * sin (6.0d0*phi0))
+         mm0 = a * ((1.0d0-e2/4.0d0 - 3.0d0*e4/64.0d0 - 5.0d0*e6/256.0d0) * phi0 -         &
+             (3.0d0*e2/8.0d0 + 3.0d0*e4/32.0d0 + 45.0d0*e6/1024.0d0) * sin (2.0d0*phi0) +  &
+             (15.0d0*e4/256.0d0 + 45.0d0*e6/1024.0d0) * sin (4.0d0*phi0) -                 &
+             (35.0d0*e6/3072.0d0) * sin (6.0d0*phi0))
          mm = mm0 + y/k0;
          mu = mm / (a * (1.0d0-e2/4.0d0-3.0d0*e4/64.0d0-5.0d0*e6/256.0d0))
 
-         phi1 = mu + (3.0d0*e1/2.0d0 - 27.0d0*e13/32.0d0) * sin (2.0d0*mu) + 
-     &       (21.0d0*e12/16.0d0 - 55.0d0*e14/32.0d0) * sin (4.0d0*mu) + 
-     &       (151.0d0*e13/96.0d0) * sin (6.0d0*mu) + 
-     &       (1097.0d0*e14/512.0d0) * sin (8.0d0*mu)
+         phi1 = mu + (3.0d0*e1/2.0d0 - 27.0d0*e13/32.0d0) * sin (2.0d0*mu) +  &
+             (21.0d0*e12/16.0d0 - 55.0d0*e14/32.0d0) * sin (4.0d0*mu) +       &
+             (151.0d0*e13/96.0d0) * sin (6.0d0*mu) +                          &
+             (1097.0d0*e14/512.0d0) * sin (8.0d0*mu)
 
     !/* Now calculate lambda and phi */
 
@@ -551,12 +544,11 @@
          dd5 = dd3 * dd2
          dd6 = dd4 * dd2
 
-         phi = phi1 - (nn1 * tan (phi1) / rr1) *
-     &     (dd2/2.0d0 - (5.0d0+3.0d0*tt1+10.0d0*cc1-4.0d0*cc1*cc1-9.0d0*ep2) * dd4 / 24.0d0 +
-     &     (61.0d0+90.0d0*tt1+298.0d0*cc1+45.0d0*tt1*tt1-252.0d0*ep2-3.0d0*cc1*cc1) * dd6 / 720.0d0)
-         lambda = lambda0 + 
-     &        (dd - (1.0d0+2.0d0*tt1+cc1) * dd3 / 6.0d0 +
-     &        (5.0d0-2.0d0*cc1+28.0d0*tt1-3.0d0*cc1*cc1+8.0d0*ep2+24.0d0*tt1*tt1) * dd5 / 120.0d0) / cos (phi1)
+         phi = phi1 - (nn1 * tan (phi1) / rr1) *                                                             &
+           (dd2/2.0d0 - (5.0d0+3.0d0*tt1+10.0d0*cc1-4.0d0*cc1*cc1-9.0d0*ep2) * dd4 / 24.0d0 +                &
+           (61.0d0+90.0d0*tt1+298.0d0*cc1+45.0d0*tt1*tt1-252.0d0*ep2-3.0d0*cc1*cc1) * dd6 / 720.0d0)
+         lambda = lambda0 + (dd - (1.0d0+2.0d0*tt1+cc1) * dd3 / 6.0d0 +                                      &
+           (5.0d0-2.0d0*cc1+28.0d0*tt1-3.0d0*cc1*cc1+8.0d0*ep2+24.0d0*tt1*tt1) * dd5 / 120.0d0) / cos (phi1)
       endif
 
   !/* Convert phi/lambda to degrees */
