@@ -44,7 +44,7 @@
         call diag_print_error('Cannot read parent grid water level from *.h5 file without XMDF libraries')
 #endif
       elseif(aext(1:2)=='63')then !ADCIRC ASCII file
-        open(63,file=wsefilepar)
+        open(63,file=wsefilepar,iostat=ierr)
         read(63,*) 
         read(63,*)   
         do k=1,nti1
