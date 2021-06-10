@@ -44,7 +44,7 @@
 !    Change - Moved wave smoothing variables from flow cards
 !**************************************************************
     use cms_def
-    use geo_def, only: grdfile
+    use geo_def, only: wgrdfile,grdfile
     use flow_def
     implicit none
     integer :: ierr
@@ -130,31 +130,31 @@
         
       case('WAVE_RSTRESS_DATASET')
         backspace(77)   
-        read(77,*) cardname,grdfile,radpath    
+        read(77,*) cardname,wgrdfile,radpath    
         noptset = 4
         cmswave = .true.  
         
       case('WAVE_HEIGHT_DATASET')
         backspace(77)   
-        read(77,*) cardname,grdfile,wavpath    
+        read(77,*) cardname,wgrdfile,wavpath    
         noptset = 4  
         cmswave = .true.  
         
       case('WAVE_PERIOD_DATASET')
         backspace(77)   
-        read(77,*) cardname,grdfile,perpath    
+        read(77,*) cardname,wgrdfile,perpath    
         noptset = 4    
         cmswave = .true.  
         
       case('WAVE_DIRECTION_DATASET')
         backspace(77)   
-        read(77,*) cardname,grdfile,dirpath    
+        read(77,*) cardname,wgrdfile,dirpath    
         noptset = 4    
         cmswave = .true.    
         
       case('WAVE_DISS_DATASET')
         backspace(77)   
-        read(77,*) cardname,grdfile,disspath    
+        read(77,*) cardname,wgrdfile,disspath    
         noptset = 4    
         cmswave = .true.   
         
@@ -1721,16 +1721,16 @@
     if(ctime>(tswave2-1.0e-6) .and. noptset==4)then
       nsteer=nsteer+1
 #ifdef XMDF_IO
-      call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)
+      call readscalsteph5(wgrdfile,wavpath,nsteer,tswave2,Whgt2,ierr)                 !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021 
 #else
       call diag_print_error('ERROR: Cannot read initial wave condition without XMDF')
 #endif     
       if(ierr>=0)then
 #ifdef XMDF_IO
-        call readscalsteph5(grdfile,perpath,nsteer,tswave2,Wper2,ierr)
-        call readscalsteph5(grdfile,dirpath,nsteer,tswave2,Wang,ierr)
-        call readscalsteph5(grdfile,wavpath,nsteer,tswave2,wavediss2,ierr)
-        call readvecsteph5(grdfile,wavpath,nsteer,tswave2,wavestrx2,wavestry2,ierr)
+        call readscalsteph5(wgrdfile,perpath,nsteer,tswave2,Wper2,ierr)               !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021
+        call readscalsteph5(wgrdfile,dirpath,nsteer,tswave2,Wang,ierr)
+        call readscalsteph5(wgrdfile,wavpath,nsteer,tswave2,wavediss2,ierr)
+        call readvecsteph5 (wgrdfile,wavpath,nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif       
 !$OMP PARALLEL DO PRIVATE(i)
           do i=1,ncellsD

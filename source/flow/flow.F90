@@ -290,7 +290,7 @@
       read(77,*) cardname, stringname
       read(stringname(1:2),*) iyr
       if(iyr<100)then
-        if(iyr>20)then
+        if(iyr>50)then       !if(iyr>20)then    MEB Modified - 02/22/2021   This changed all dates in 2021 to 1921.  SMS is now using the card STARTING_DATE_TIME, so this shouldn't be an issue much longer.
           iyr = iyr + 1900
         else
           iyr = iyr + 2000
@@ -298,6 +298,7 @@
       endif
       read(stringname(3:5),*) jday !julian day (1-366)
       call julianday2calendarmonthday(iyr,jday,imo,iday)
+
     
     case('STARTING_JDATE_HOUR')
       backspace(77)

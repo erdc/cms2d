@@ -340,9 +340,12 @@ contains
     endsubroutine time_cal2str
     
 !**************************************************************************
-    subroutine time_sec2str(timesec,str)
+    subroutine time_sec2str(timesec,str,flag)
 ! Converts an elapsed time in seconds to nicely formated string using
 ! days, hours, minutes, and seconds
+!
+! The 'flag' is a logical that indicates whether precision is desired for
+! the value of seconds.  If False, an integer will be printed.
 !
 ! Years designated as 365 days
 !
@@ -352,21 +355,36 @@ contains
     use diag_lib
     implicit none
     !Input/Output
-    real(8), intent(in) :: timesec
+    real(8), intent(in)             :: timesec
     character(len=*), intent(inout) :: str
+    logical, optional, intent(in)   :: flag
+    
     !Internal
     integer :: idays,ihrs,imin,isec,imilsec,ierr,iyrs
     real(8) :: sec
+    logical :: precision = .true.
 
 950 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
-975 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min')    
 850 format(I0,' days, ',I0,' hrs, ',I0,' min, ',F7.3,' s')
-875 format(I0,' days, ',I0,' hrs, ',I0,' min')    
 750 format(I0,' hrs, ',I0,' min, ',F7.3,' s')
-775 format(I0,' hrs, ',I0,' min')
 650 format(I0,' min, ',F7.3,' s')
-675 format(I0,' min')
 550 format(F7.3,' s')
+
+951 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min, ',i0,' s')
+851 format(I0,' days, ',I0,' hrs, ',I0,' min, ',I0,' s')
+751 format(I0,' hrs, ',I0,' min, ',I0,' s')
+651 format(I0,' min, ',I0,' s')
+551 format(I0,' s')
+    
+975 format(I0,' years, ',I0,' days, ',I0,' hrs, ',I0,' min')    
+875 format(I0,' days, ',I0,' hrs, ',I0,' min')    
+775 format(I0,' hrs, ',I0,' min')
+675 format(I0,' min')
+575 format('0.0 sec')
+    
+    if(present(flag)) then
+      precision = flag
+    endif
     
     call time_s2dhs(timesec,idays,ihrs,imin,isec,imilsec)    
     sec = dble(isec) + dble(imilsec)*0.001d0
@@ -377,32 +395,45 @@ contains
       iyrs = int(idays/365)
       idays = mod(idays,365)
     endif
-    if(iyrs>=1)then
-      if(sec .eq. 0.0d0) then
-        write(str,975,iostat=ierr) iyrs, idays, ihrs, imin   !Don't write out 0.000 s   MEB 01/17/2019    
+    
+    if (sec .eq. 0.0d0) then       !Don't write out seconds if zero, except exactly 0.0   MEB 01/17/2019
+      if (iyrs>=1) then
+        write(str,975,iostat=ierr) iyrs, idays, ihrs, imin   
+      elseif (idays>=1) then
+        write(str,875,iostat=ierr) idays, ihrs, imin
+      elseif (ihrs>=1) then
+        write(str,775,iostat=ierr) ihrs, imin
+      elseif (imin>=1) then
+        write(str,675,iostat=ierr) imin
       else
-        write(str,950,iostat=ierr) iyrs, idays, ihrs, imin, sec
+        write(str,575,iostat=ierr)
       endif
-    elseif(idays>=1)then
-      if (sec .eq. 0.0d0) then
-        write(str,875,iostat=ierr) idays,ihrs,imin           !Don't write out 0.000 s   MEB 01/17/2019    
+    else                           !Check precision variable and determine whether to return integer or float
+      if (precision) then             !Return Float
+        if(iyrs>=1)then
+          write(str,950,iostat=ierr) iyrs, idays, ihrs, imin, sec
+        elseif(idays>=1)then
+          write(str,850,iostat=ierr) idays, ihrs, imin, sec
+        elseif(ihrs>=1)then
+          write(str,750,iostat=ierr) ihrs, imin, sec
+        elseif(imin>=1)then
+          write(str,650,iostat=ierr) imin,sec
+        else
+          write(str,550,iostat=ierr) sec
+        endif
       else
-        write(str,850,iostat=ierr) idays,ihrs,imin,sec
+        if(iyrs>=1)then               !Return integer
+          write(str,951,iostat=ierr) iyrs, idays, ihrs, imin, int(sec)
+        elseif(idays>=1)then
+          write(str,851,iostat=ierr) idays, ihrs, imin, int(sec)
+        elseif(ihrs>=1)then
+          write(str,751,iostat=ierr) ihrs, imin, int(sec)
+        elseif(imin>=1)then
+          write(str,651,iostat=ierr) imin, int(sec)
+        else
+          write(str,551,iostat=ierr) int(sec)
+        endif
       endif
-    elseif(ihrs>=1)then
-      if (sec .eq. 0.0d0) then 
-        write(str,775,iostat=ierr) ihrs,imin                 !Don't write out 0.000 s   MEB 01/17/2019
-      else
-        write(str,750,iostat=ierr) ihrs,imin,sec
-      endif
-    elseif(imin>=1)then
-      if (sec .eq. 0.0d0) then 
-        write(str,675,iostat=ierr) imin                      !Don't write out 0.000 s   MEB 01/17/2019
-      else
-        write(str,650,iostat=ierr) imin,sec
-      endif
-    else
-      write(str,550,iostat=ierr) sec
     endif
     
     if(ierr/=0)then
@@ -411,7 +442,7 @@ contains
     endif
     
     return
-    endsubroutine time_sec2str    
+    end subroutine time_sec2str    
     
 !**************************************************************************
     subroutine time_s2dhs(timesec,idays,ihrs,imin,isec,imilsec)
