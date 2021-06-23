@@ -168,13 +168,15 @@
         read(77,*) cardname, nflowgrd
       
       case('GRID_FILE')
-        backspace(77)
-        read(77,*) cardname, grdfile    
-        call fileparts(grdfile,apath,aname,aext)  
-        if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
-        call lowercase(aext)
-        if(aext(1:3)=='2dm') igridtype = 2  !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
-        if(aext(1:3)=='tel') igridtype = 1
+        if (telfile(1:1) .eq. ' ') then
+          backspace(77)
+          read(77,*) cardname, grdfile    
+          call fileparts(grdfile,apath,aname,aext)  
+          if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
+          call lowercase(aext)
+          if(aext(1:3)=='2dm') igridtype = 2  !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
+          if(aext(1:3)=='tel') igridtype = 1
+        endif
         
       case('TELESCOPING','TELESCOPING_FILE')
         backspace(77)
@@ -265,7 +267,11 @@
       write(iunit(i),*)
       write(iunit(i),888)    'Grid '         
       
-      call fileparts(grdfile,apath,aname,aext)
+      if (telfile .eq. " ") then
+        call fileparts(grdfile,apath,aname,aext)
+      else
+        call fileparts(telfile,apath,aname,aext)
+      endif
       astring=trim(aname) // '.' // aext
       write(iunit(i),787)    '  Grid File:',trim(astring)
       

@@ -28,8 +28,9 @@ module geo_def
     save  
     
     !Files
-    character(len=200) :: grdfile = " ",grdpath = " "      !Grid file and path
-    character(len=200) :: telfile              !Telescoping grid file
+    character(len=200) :: grdfile  = " ",grdpath = " "  !Grid file and path
+    character(len=200) :: wgrdfile = " "                !Wave grid file when reading 5 static wave datasets in SMS 13.1+  
+    character(len=200) :: telfile  = " "                !Telescoping grid file
     character(len=200) :: latfile,latpath      !Latitude file name and path
     character(len=200) :: lonfile,lonpath      !Longitude file name and path
     character(len=200) :: typespath,proppath,rootpath

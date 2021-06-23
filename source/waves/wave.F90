@@ -206,10 +206,10 @@
         enddo  
       case default
 #ifdef XMDF_IO
-        call readscalsteph5(grdfile,perpath, nsteer,tswave2,Wper2,              ierr)
-        call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
-        call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
-        call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
+        call readscalsteph5(wgrdfile,perpath, nsteer,tswave2,Wper2,              ierr) !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021
+        call readscalsteph5(wgrdfile,dirpath, nsteer,tswave2,Wang,               ierr)
+        call readscalsteph5(wgrdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
+        call readvecsteph5 (wgrdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif
         do i=1,ncellsD
           Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
@@ -557,7 +557,7 @@
         wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/d2y(j)
         wyrs1(i,j)=wyrs1(i,j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i)
       enddo
-    enddo   
+    enddo
     
     return 
     endsubroutine stokes_stress

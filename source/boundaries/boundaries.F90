@@ -1146,9 +1146,13 @@
       !  read(77,*) cardname,velfilepar
         
       case('WSE_SOLUTION','WSE_DATASET','WSE_FILE','PARENT_WSE_FILE','WSE_OUT_FILE','WSE_SOL_FILE')
+        backspace(77)                                 !added 6/10/21 MEB
+        read(77,*) cardname, mpfilepar, flowpathpar   !added 6/10/21 MEB
         call card_dataset(77,mpfilepar,flowpathpar,wsefilepar,wsepathpar,1)
         
       case('VEL_SOLUTION','VEL_DATASET','VEL_FILE','PARENT_VEL_FILE','VEL_OUT_FILE','VEL_SOL_FILE')
+        backspace(77)                                 !added 6/10/21 MEB
+        read(77,*) cardname, mpfilepar, flowpathpar   !added 6/10/21 MEB
         call card_dataset(77,mpfilepar,flowpathpar,velfilepar,velpathpar,2)
         
       case('STARTING_DATE_TIME','START_DATE_TIME','PARENT_STARTING_DATE_TIME')
