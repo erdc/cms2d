@@ -174,7 +174,11 @@
 		<File RelativePath="..\source\solvers\solv_def.f90"/>
 		<File RelativePath="..\source\solvers\solvers.f90"/>
 		<File RelativePath="..\source\solvers\sparse.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90"/>
+		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			<FileConfiguration Name="Debug|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\statistics\stat_def.f90"/>
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
