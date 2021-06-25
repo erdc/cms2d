@@ -249,7 +249,7 @@ contains
       read(454,*,iostat=ierr) msg
     endif    
     if(ncol<2)then
-      call diag_print_error('Invalid Number of Colums in TSD File: ',trim(afile),&
+      call diag_print_error('Invalid Number of Columns in TSD File: ',trim(afile),&
        '  Must be equal or greater than 2')
     endif
     ndat = ncol - 1 !Subtract time column to get number of data columns    

@@ -39,9 +39,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.2           ! CMS version
-    revision = 5             ! Revision number
+    revision = 6             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '06/10/2021'
+    rdate    = '06/25/2021'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -422,6 +422,13 @@
         character(len=*),intent(in) :: astr
         character(len=len(astr)) :: toLower
       end function
+
+      function findCard(aFile,aCard,aValue)
+        character(len=*),intent(in)    :: aFile
+        character(len=*),intent(in)    :: aCard
+        character(len=100),intent(out) :: aValue
+        logical :: findCard
+      end function
     end interface    
       
 !!    narg = iargc() !Not supported by PGI
@@ -668,11 +675,16 @@
       dgfile  = wavepath(1:nlenwav) // dgfile
     endif
     
+    aext=''
     if(noptset>=2)then !Only needed if running flow
       ctlfile  = flowpath(1:nlenflow) // ctlfile     
-      grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
-      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
-      telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
+      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'   
+
+      if (findCard(ctlfile,'GRID_FILE',grdfile)) then      !Get the value for GRID_FILE from the ctlfile
+        call removequotes(grdfile)                           !If result is in quotes, remove the quotes so it can properly call next subroutine
+        call fileext(grdfile,aext)                           !Return the extension of the gridfile
+      endif
+      if (aext /= 'cart') telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'         !If gridfile extension is 'cart', leave TELFILE = ' '
     endif
     
     return

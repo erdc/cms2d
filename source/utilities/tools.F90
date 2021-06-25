@@ -81,6 +81,54 @@
     end subroutine CMS_Tools_Dialog
 !******************************************************    
     
+!******************************************************
+    logical function findCard(aFile,aCard,aValue)    
+! Find a given card in the cardfile and return the rest of the selected line in the variable, aValue.
+! written by Mitch Brown, USACE-CHL 06/25/2021
+!
+! The correct interface is given below
+    !interface  
+    ! function findCard(aFile,aCard,aValue)
+    !    character(len=*),intent(in)    :: aFile
+    !    character(len=*),intent(in)    :: aCard
+    !    character(len=100),intent(out) :: aValue
+    !    logical :: findCard
+    !  end function
+    !end interface
+!******************************************************    
+    implicit none
+    character(len=*), intent(in)    :: aFile
+    character(len=*), intent(in)    :: aCard
+    character(len=100), intent(out) :: aValue
+    
+    character(len=80)  :: testCard
+    character(len=100) :: aLine
+    logical            :: foundCard = .false.
+    integer            :: iloc
+    
+    open(77,file=aFile,status='unknown')
+    do 
+      read(77,*,end=100) testCard
+      if (trim(testCard) == trim(aCard)) then
+        backspace(77)
+        read(77,'(A100)') aLine
+        iloc = index(aLine,' ')
+        aLine = adjustL(aLine(iloc:))
+        read(aLine, '(A100)') aValue
+        findCard = .true.
+        return
+        exit
+      else
+        findCard = .false.
+      endif
+    enddo
+
+100 findCard = .false.
+
+    return
+    end function findcard
+!******************************************************    
+   
     
 !******************************************************
     subroutine fileparts(astr,apath,aname,aext)    

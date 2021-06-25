@@ -30,7 +30,6 @@ for*.png
 *.user
 
 *genmod.f90
-*.pdb
 *.exe.intermediate.manifest
 
 Intel_vs2013/Debug/

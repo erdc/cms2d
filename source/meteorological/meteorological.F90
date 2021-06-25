@@ -649,36 +649,44 @@ d1: do ii=1,4
     !endif    
     
     call fileext(windfile,aext)
-    if(aext(1:2)=='h5')then !Model parameters file
+    
+    select case (aext)                                                         !Switched from IF/ELSE to CASE.  MEB 06/25/2021
+    case ('h5')                    !Model parameters file
 #ifdef XMDF_IO
       call read_dataseth5(windfile,windpath,'Times',nwtimes,wndtimes)
       call read_dataseth5(windfile,windpath,'Magnitude',nwtimes,wndvalsx)
       call read_dataseth5(windfile,windpath,'Direction',nwtimes,wndvalsy)
 #endif
-    elseif(aext(1:3)=='txt')then !Standard Met File
+
+    case ('txt')                   !Standard Met File
       tjulend = tjulday0 + tmax/24.0
       windfile = adjustl(windfile)
       i = index(windfile,'h')
       aname = windfile(1:i-1)
       call read_stdmetfile(aname,windpath,tjulday0,tjulend,&
         nwtimes,wndtimes,wndvalsx,wndvalsy)
-    elseif(aext(1:3)=='tsd')then
+      
+    case ('tsd')                   !Time Series Delimited file
       call read_tsd(windfile,aname,atype,ndat,nwtimes,tjuldaybegwnd,wndtimes,wdat)
       wndtimes = wndtimes/3600.0 + 24.0*(tjuldaybegwnd - tjulday0) !Note conversion to hours
       allocate(wndvalsx(nwtimes),wndvalsy(nwtimes))
       wndvalsx = wdat(:,1) !Speed [m/s]
       wndvalsy = wdat(:,2) !Direction [deg coming from clockwise from true North]
       deallocate(wdat)
-    elseif(aext(1:3)=='xys')then
+      
+    case ('xys')                   !XY Series formatted file
       call read_xys(windfile,nwtimes,wndtimes,wndvalsx)
       call read_xys(windpath,i,wndtimes,wndvalsy)
       if(i/=nwtimes)then
         call diag_print_error('Time series length in wind speed and direction ',&
           '  files do not match')  
       endif    
-    endif
+      
+    case default
+      call diag_print_error('Unknown wind file format')     !Added MEB 06/25/2021 to stop if the wind file format was unrecognized.
+    end select 
     
-    !keep speeds and magnitudes if needed for writing ascii output later
+    !Keep speeds and magnitudes if needed for writing ascii output later
     if(write_ascii_input)then
       allocate(wndspeed(nwtimes),wnddirection(nwtimes))
       wndspeed=wndvalsx
