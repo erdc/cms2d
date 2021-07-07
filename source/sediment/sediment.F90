@@ -1125,7 +1125,8 @@
     use prec_def
     implicit none
     integer :: ii,ks,ierr,iswap(1),iswap2
-    character(len=37) :: cardname,cdum
+    character(len=37)  :: cardname,cdum
+    character(len=200) :: aline
     logical :: foundcard
     real(ikind),allocatable :: diamtemp(:)
     type(sed_size_class), allocatable :: sedclasstemp(:)
@@ -1139,6 +1140,9 @@ d1: do ii=1,10
       if(ierr/=0) exit d1
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)
+        case('SEDIMENT_SIZE_CLASS_END','END')
+          exit d1
+          
         case('NAME')
           backspace(77)
           read(77,*) cardname,sedclass(nsed)%name
@@ -1153,8 +1157,9 @@ d1: do ii=1,10
           sedclass(nsed)%idiam = 2
           
         case('COREY_SHAPE_FACTOR','SHAPE_FACTOR','SHAPE')  
-          backspace(77)
-          read(77,*) cardname,sedclass(nsed)%shape
+          backspace(77)   
+          read(77,'(A)') aline                                                 !Added this line in case no value given at end of this line.  MEB 07/06/21
+          read(aline,*,iostat=ierr) cardname,sedclass(nsed)%shape
           
         case('FALL_VELOCITY')
           backspace(77)  
@@ -1163,6 +1168,12 @@ d1: do ii=1,10
             sedclass(nsed)%iws = 2
           elseif(cdum(1:2)=='WU')then
             sedclass(nsed)%iws = 3
+          elseif(cdum == '')then             
+            if(sedclass(nsed)%iws == 1) then                                   !If value is blank and FALL_VELOCITY_FORMULA is 'User' there is an error       MEB  07/06/2021
+              call diag_print_error('No Fall Velocity specified for "User Defined" formula')
+            else                                                               !Otherwise, don't worry about it 
+              continue
+            endif
           else
             call card_scalar(77,'m/s','m/s',sedclass(nsed)%wsfall,ierr)  
             sedclass(nsed)%iws = 1 !User-specified  
@@ -1204,8 +1215,9 @@ d1: do ii=1,10
           
         case('CRITICAL_SHEAR_STRESS','CRITICAL_STRESS','CRITICAL_SHEAR')
           backspace(77)
-          read(77,*,iostat=ierr) cardname, cdum
-          if(cdum(1:2)=='SO')then
+          read(77,'(A)') aline                                 !Added this line in case no value given at end of this line.  MEB 07/06/21
+          read(aline,*,end=50) cardname, cdum
+50        if(cdum(1:2)=='SO')then
             sedclass(nsed)%icr = 3
           elseif(cdum(1:2)=='WU')then
             sedclass(nsed)%icr = 4
@@ -1217,9 +1229,6 @@ d1: do ii=1,10
         !case('COVERAGE')
         !  call card_dataset(77,grdfile,flowpath,&
         !    sedclass(nsed)%covfile,sedclass(nsed)%covpath)
-          
-        case('SEDIMENT_SIZE_CLASS_END','END')
-          exit d1
           
         case default
           foundcard = .false.
@@ -1290,7 +1299,7 @@ d1: do ii=1,10
       sedclass(ks)%icr     = 0    !Incipient motion, 0-none,1-User shields,2-user shear,3-Soulsby,4-Wu and Wang
       sedclass(ks)%thetacr = -1.0 !Shields parameter
       sedclass(ks)%taucr   = -1.0 !Critical shear stress
-      sedclass(ks)%shape = 0.7    !Cory shape factor
+      sedclass(ks)%shape = 0.7    !Corey shape factor
       !sedclass(ks)%existcoverage = .false.
       !sedclass(ks)%covfile = ''
       !sedclass(ks)%covpath = ''

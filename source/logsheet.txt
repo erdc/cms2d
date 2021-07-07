@@ -1,4 +1,5 @@
 == Version 5.2.6 (6/25/2021) == 
+* Bug fix: Fixed error if FALL_VELOCITY, CRITICAL_SHEAR, and COREY_SHAPE_FACTOR cards had no value.
 * Minor: Added descriptive print statements to structure types instead of an application error.
 * Minor: Added error message when the Wind file format is not an expected type.
 * Bug fix: Small fix unset the TELFILE name when a GRID_FILE of '.cart.' type is found.
