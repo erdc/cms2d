@@ -22,7 +22,7 @@
 #endif
     use cms_def
     use diag_def
-    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine,bugfix,major_version,minor_version
+    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine,major_version, minor_version, bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -31,17 +31,21 @@
 
 
     implicit none
-    integer k,j,ID,i,jlay,iper
+    integer k,j,ID,i,jlay,iper,loc,lstr
+    character(len=20) :: astr,first,second
     real depthT
     real(ikind), allocatable :: dper(:)
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    !If bug fix for release version, make revision a float (ie 15.1, 15.2, etc).   MEB  07/30/20
     version  = 5.2           ! CMS version
-    revision = 4             ! Revision number
+    revision = 7             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '06/10/2020'
+    rdate    = '09/20/2021'
+
+    !Manipulate to get major and minor versions - MEB  09/15/20
+    call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
+
     
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -421,6 +425,13 @@
         character(len=*),intent(in) :: astr
         character(len=len(astr)) :: toLower
       end function
+
+      function findCard(aFile,aCard,aValue)
+        character(len=*),intent(in)    :: aFile
+        character(len=*),intent(in)    :: aCard
+        character(len=100),intent(out) :: aValue
+        logical :: findCard
+      end function
     end interface    
       
 !!    narg = iargc() !Not supported by PGI
@@ -444,10 +455,11 @@
       else
         call getarg(i,astr)
       endif
+
       call fileparts(astr,apath,aname,aext)           
       astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
-      if (astr == 'inline') aext=astr
+      if (astr == 'inline' .or. astr == 'tools') laext=astr
       selectcase(laext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
@@ -487,6 +499,9 @@
         case('inline')
           inlinewave = .true.
           narg = narg -1
+          
+        case('tools')
+          call CMS_tools_dialog
 
         case('flp')  !Old format input files       
           casename = aname !(1:ind-1)   
@@ -663,11 +678,16 @@
       dgfile  = wavepath(1:nlenwav) // dgfile
     endif
     
+    aext=''
     if(noptset>=2)then !Only needed if running flow
       ctlfile  = flowpath(1:nlenflow) // ctlfile     
-      grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
-      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
-      telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
+      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'   
+
+      if (findCard(ctlfile,'GRID_FILE',grdfile)) then      !Get the value for GRID_FILE from the ctlfile
+        call removequotes(grdfile)                           !If result is in quotes, remove the quotes so it can properly call next subroutine
+        call fileext(grdfile,aext)                           !Return the extension of the gridfile
+      endif
+      if (aext /= 'cart') telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'         !If gridfile extension is 'cart', leave TELFILE = ' '
     endif
     
     return
@@ -717,7 +737,7 @@
       else                      !RELEASE
         string='RELEASE for'
       endif
-      
+
       !Adding logic to show information for a bug fix and print it.      MEB  09/15/20
       if (bugfix == 0) then
         write(iunit(i),7014) major_version,minor_version,revision,trim(string),trim(machine)

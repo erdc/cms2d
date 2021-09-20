@@ -74,6 +74,7 @@ module out_def
     logical :: write_velres       !Turns on or off the normalized residuals for u,v
     logical :: write_streamcurv   !Turns on or off the streamwise curvature
     logical :: write_volres       !Turns on or off the volume residual
+    logical :: write_maxwse       !Turns on or off the maximum WSE value output    !Added MEB 9/20/2021
     
     !Sediment transport
     logical :: write_conc         !Turns on or off the total-load sediment concentration output

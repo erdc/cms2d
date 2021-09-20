@@ -44,7 +44,7 @@
 !    Change - Moved wave smoothing variables from flow cards
 !**************************************************************
     use cms_def
-    use geo_def, only: wgrdfile,grdfile
+    use geo_def, only: grdfile,wgrdfile
     use flow_def
     implicit none
     integer :: ierr

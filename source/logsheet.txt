@@ -1,4 +1,29 @@
-== Version 5.2.4 (06/10/2021)
+== Version 5.2.7 (9/20/2021) ==
+* Minor: Added more diagnostic output for various types of Derivative Calculation routines.
+* Added output option to tell CMS to output maximum WSE values over simulation period for each cell.
+*  - new card name for this option is "MAXIMUM_WATER_LEVEL_OUTPUT" and takes 'ON' or 'OFF' as arguments.
+
+== Version 5.2.6 (6/25/2021) == 
+* Bug fix: Fixed error if FALL_VELOCITY, CRITICAL_SHEAR, and COREY_SHAPE_FACTOR cards had no value.
+* Minor: Added descriptive print statements to structure types instead of an application error.
+* Minor: Added error message when the Wind file format is not an expected type.
+* Bug fix: Small fix unset the TELFILE name when a GRID_FILE of '.cart.' type is found.
+* Added function to parse through a cardfile looking for a specific card and returning the rest of the line.
+
+== Version 5.2.5 (6/10/2021) == 
+* Bug fix: Hot start with multiple sediment grain sizes was broken due to bad names in path to dataset.
+* Bug fix: Using ASCII input files wasn't working for salinity. 
+* Bug fix: Small logic error in boundary condition corrected.
+* Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency 
+* Bug fix: Initialization was missing for initial condition with ASCII input file for Vector data types.
+* Minor: Added capability to write out both XMDF and ASCII output files by using "OUTPUT_FILE_TYPE    BOTH"
+* Minor: Ensured both cards for running CMS with initial conditions were excluded from a warning.
+* Minor: Removed fix for ILUTP solver which caused other issues.
+* Minor: Clearer error messages in reading from input files.
+* Added: Command line option 'Tools' to perform a few independent tasks.
+** Added two routines - one to convert an actual date to a REFTIME and one to do the reverse.
+
+== Version 5.2.4 (06/10/2021) ==
 * Bug fix: When using single wave condition, CMS now stores the gridname in a new variable for proper internal reference.
 * Bug fix: CMS now stores ADCIRC Parent grid and path information correctly for nesting.
 * Bug fix: Divide by zero during normalization of river flux boundaries corrected.

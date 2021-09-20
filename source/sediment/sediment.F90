@@ -299,12 +299,13 @@
     case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSeffb
+      !write(*,*)'bdj reading sed cards CSeffb',CSeffb
 
-    case('CSHORE_BLP','CSHORE_BED_LOAD')   !added 6/7/2019 bdj
+    case('CSHORE_BLP','CSHORE_BED_LOAD')     !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSblp
 
-    case('CSHORE_SLP','CSHORE_SUSP_LOAD')   !added 6/7/2019 bdj
+    case('CSHORE_SLP','CSHORE_SUSP_LOAD')    !added 6/7/2019 bdj
       backspace(77)
       read(77,*) cardname, CSslp
       
@@ -1124,7 +1125,8 @@
     use prec_def
     implicit none
     integer :: ii,ks,ierr,iswap(1),iswap2
-    character(len=37) :: cardname,cdum
+    character(len=37)  :: cardname,cdum
+    character(len=200) :: aline
     logical :: foundcard
     real(ikind),allocatable :: diamtemp(:)
     type(sed_size_class), allocatable :: sedclasstemp(:)
@@ -1138,6 +1140,9 @@ d1: do ii=1,10
       if(ierr/=0) exit d1
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)
+        case('SEDIMENT_SIZE_CLASS_END','END')
+          exit d1
+          
         case('NAME')
           backspace(77)
           read(77,*) cardname,sedclass(nsed)%name
@@ -1152,8 +1157,9 @@ d1: do ii=1,10
           sedclass(nsed)%idiam = 2
           
         case('COREY_SHAPE_FACTOR','SHAPE_FACTOR','SHAPE')  
-          backspace(77)
-          read(77,*) cardname,sedclass(nsed)%shape
+          backspace(77)   
+          read(77,'(A)') aline                                                 !Added this line in case no value given at end of this line.  MEB 07/06/21
+          read(aline,*,iostat=ierr) cardname,sedclass(nsed)%shape
           
         case('FALL_VELOCITY')
           backspace(77)  
@@ -1162,6 +1168,12 @@ d1: do ii=1,10
             sedclass(nsed)%iws = 2
           elseif(cdum(1:2)=='WU')then
             sedclass(nsed)%iws = 3
+          elseif(cdum == '')then             
+            if(sedclass(nsed)%iws == 1) then                                   !If value is blank and FALL_VELOCITY_FORMULA is 'User' there is an error       MEB  07/06/2021
+              call diag_print_error('No Fall Velocity specified for "User Defined" formula')
+            else                                                               !Otherwise, don't worry about it 
+              continue
+            endif
           else
             call card_scalar(77,'m/s','m/s',sedclass(nsed)%wsfall,ierr)  
             sedclass(nsed)%iws = 1 !User-specified  
@@ -1203,8 +1215,9 @@ d1: do ii=1,10
           
         case('CRITICAL_SHEAR_STRESS','CRITICAL_STRESS','CRITICAL_SHEAR')
           backspace(77)
-          read(77,*,iostat=ierr) cardname, cdum
-          if(cdum(1:2)=='SO')then
+          read(77,'(A)') aline                                 !Added this line in case no value given at end of this line.  MEB 07/06/21
+          read(aline,*,end=50) cardname, cdum
+50        if(cdum(1:2)=='SO')then
             sedclass(nsed)%icr = 3
           elseif(cdum(1:2)=='WU')then
             sedclass(nsed)%icr = 4
@@ -1216,9 +1229,6 @@ d1: do ii=1,10
         !case('COVERAGE')
         !  call card_dataset(77,grdfile,flowpath,&
         !    sedclass(nsed)%covfile,sedclass(nsed)%covpath)
-          
-        case('SEDIMENT_SIZE_CLASS_END','END')
-          exit d1
           
         case default
           foundcard = .false.
@@ -1289,7 +1299,7 @@ d1: do ii=1,10
       sedclass(ks)%icr     = 0    !Incipient motion, 0-none,1-User shields,2-user shear,3-Soulsby,4-Wu and Wang
       sedclass(ks)%thetacr = -1.0 !Shields parameter
       sedclass(ks)%taucr   = -1.0 !Critical shear stress
-      sedclass(ks)%shape = 0.7    !Cory shape factor
+      sedclass(ks)%shape = 0.7    !Corey shape factor
       !sedclass(ks)%existcoverage = .false.
       !sedclass(ks)%covfile = ''
       !sedclass(ks)%covpath = ''
@@ -2858,6 +2868,7 @@ d1: do ii=1,30
       !Advective transports
       qtx(i)=u(i)*h(i)*Ct(i)
       qty(i)=v(i)*h(i)*Ct(i)         
+      !if (i.eq.487) write(*,*)'in sed_total, no Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)              !bdj 01/2021
       !Diffusive transport (approximate)
       fac=h(i)*vis(i)/schmidt  
       qtx(i)=qtx(i)-fac*sum(rsk(i,:)*dCtkx(i,:))
@@ -2869,52 +2880,57 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO 
       
     !--- Wave-induced sediment transports ----------
-     if(wavesedtrans)then
+    if(wavesedtrans)then
 !$OMP PARALLEL DO PRIVATE(i)         
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
+       ! if (i.eq.487) write(*,*)'in sed_total, now adding Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)   !bdj 01/2021
       enddo
 !$OMP END PARALLEL DO    
-    endif      
-
+    endif
+    
 ! bdj some heavy-handed cshore mods
 if (icapac.eq.6) then
-   !CSslp = 0.5            !commented 6/7/2019 bdj
-   !CSblp = 0.001          !commented 6/7/2019 bdj 
-   CSsg = rhosed/1000.
+  !CSslp = 0.5            !commented 6/7/2019 bdj
+  !CSblp = 0.001          !commented 6/7/2019 bdj 
+  CSsg = rhosed/1000.
 !$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
-   do i=1,ncells
-      !--- Total-load sediment concentrations 
-      ! and fraction of suspended sediments ---  
-      Ct(i)=sum(Ctk(i,:))
-      Ctstar(i)=sum(Ctkstar(i,:))
-      rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
-      !--- Total-load sediment transport vectors ---
-      !Suspended advective transport
-      qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)
-      qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         
+  do i=1,ncells
+    !--- Total-load sediment concentrations 
+    ! and fraction of suspended sediments ---  
+    Ct(i)=sum(Ctk(i,:))
+    Ctstar(i)=sum(Ctkstar(i,:))
+    rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
 
-      !Bedload transport
-      Hrms = Whgt(i)/sqrt(2.)  
-      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-      call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
-      !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
-      qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
-      qbx = 1.*qb*wunitx(i)
-      qby = 1.*qb*wunity(i)
+    !--- Total-load sediment transport vectors ---
+    !Suspended advective transport
+
+    !qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+    !qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+    qsx=1.*u(i)*h(i)*Ct(i)
+    qsy=1.*v(i)*h(i)*Ct(i)         
+
+    !Bedload transport
+    !Hrms = Whgt(i)/sqrt(2.)  
+    !sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+    !call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+    !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
+    !qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
+    !qbx = 1.*qb*wunitx(i) !commented 2021-01-08 
+    !qby = 1.*qb*wunity(i) !commented 2021-01-08 
+     
+    !Total = sus + bedload
+    !qtx(i) = qsx + qbx !commented 2021-01-08 
+    !qty(i) = qsy + qby !commented 2021-01-08 
       
-      !Total = sus + bedload
-      qtx(i) = qsx + qbx
-      qty(i) = qsy + qby
-      
-      !write(1234,*)i,qbx,qsx,qtx(i) !bdj
-      
-      ! if(i.ge.1514.and.i.le.1524) then 
-      !    !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
-      !    write(*,*),'bdj i Hrms,sigT,qsx,qbx,qtx(i)',Hrms,sigT,qsx,qbx,qtx(i)
-      ! endif
-   enddo
+    !write(1234,*)i,qbx,qsx,qtx(i) !bdj
+     
+    !if(i.eq.487)then 
+    !  !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
+    !  write(*,*)'bdj just set bedload i Hrms,sigT,qsx,qbx,qtx(i)',i,Hrms,sigT,qsx,qbx,qtx(i)
+    !endif
+  enddo
 !$OMP END PARALLEL DO   
 endif
 
@@ -3093,14 +3109,15 @@ endif
      use prec_def
     implicit none
     integer :: i,j,k,ks,ih,ibnd,nck
-    real(ikind) :: Sw,fk,fp
-    real(ikind) :: awkx,awky,asum
+    real(ikind) :: Sw,fk,fp,Swk
+    real(ikind) :: awkx,awky       !,asum
         
     !--- Actual transport based on composition and loading ------
     do i=1,ncells
       do ks=1,nsed
 !!        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)*max(min(Ctk(i,ks)/(Ctkstar(i,ks)+small),1.5),0.0) !m^2/sec, Bug fix, changed k to ks
-        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks
+        !write(*,*)'i,pbk(i,ks,1)',i,pbk(i,ks,1) 
+        Qws(i,ks)=pbk(i,ks,1)*QwsP(i,ks)  !m^2/sec, Bug fix, changed k to ks (I disagree with alex's units here, bdj 2021-01-07) 
       enddo  
     enddo        
     
@@ -3151,12 +3168,27 @@ endif
     do ks=1,nsed 
     !Calculate bed-slope term    
       do i=1,ncells
-        Sw=0.0; asum=0.0
+
+! corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+        Sw=0.0
         do k=1,ncface(i)
-          Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
-          asum=asum+max(acoef(k,i),0.0)
-        enddo !k
-        Sw=Sw+asum*Qws(i,ks)
+          Swk = acoef(k,i)*Qws(cell2cell(k,i),ks)
+          if (Swk.le.0.) then     ! transport is into cell     bdj 1/6/21
+            Sw = Sw - Swk
+          else                    ! transport is out of cell   bdj 1/6/21
+            Sw = Sw - acoef(k,i)*Qws(i,ks)
+          endif
+        enddo
+! end corrected code to properly account for Qws including pos and neg, bdj 2020-12-11 
+! I think that this is incorrect 2020-12-16 bdj below
+        ! Sw=0.0; asum=0.0
+        ! do k=1,ncface(i)
+        !   Sw=Sw+min(acoef(k,i),0.0)*Qws(cell2cell(k,i),ks)
+        !   asum=asum+max(acoef(k,i),0.0)
+        !   !if (i.eq.487) write(*,*)'old code, k, acoef(k,i),Qws(cell2cell(k,i),ks)',k,acoef(k,i),Qws(cell2cell(k,i),ks)
+        ! enddo !k
+        ! Sw=Sw+asum*Qws(i,ks)
+
         Sb(i,ks)=Sb(i,ks)+Sw/areap(i)
         if(Sb(i,ks)>50.0)then
           write(*,*) 'acoef(k,i) ',(acoef(k,i),k=1,ncface(i))

@@ -89,6 +89,7 @@ subroutine sedcapac_lundcirp
               call asymmetry(h(i),Hrms,Wper(i),Wlen(i),Worbrep(i),&
                    rhosed,rhow,diam(ks),fwf,taucr(ks),taucwtb,taucwmtb,Qba)
               QwsP(i,ks) = rhosed*(fba*Qba+fac*(fsr*Qsr-fsm*Qsm-fbm*Qbm)) !Potential net onshore transport, kg/m/sec
+              !if (i.eq.487) write(*,*)'in sedcapac_lundcirp, now setting QwsP(487,ks)',QwsP(i,ks)                                   !added bdj 01/2021
               !            QwsP(i,ks) = min(0.0001,QwsP(i,ks)) !Limit transport to unrealistic transport near wet/dry interface
               !            QwsP(i,ks) = max(-0.0001,QwsP(i,ks)) !Limit transport to unrealistic transport near wet/dry interface
               !if(isnankind(QwsP(i,ks)))then
@@ -368,7 +369,7 @@ subroutine sedcapac_cshore
   ! written by Brad Johnson, USACE-CHL
   !********************************************************************    
   use size_def
-  use geo_def, only: mapid,dzbx,dzby
+  use geo_def, only: mapid,dzbx,dzby,x,y,cell2cell
   use flow_def
   use const_def
   use wave_flowgrid_def
@@ -382,14 +383,14 @@ subroutine sedcapac_cshore
   real(ikind) :: tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb
   real(ikind) :: fcf,fwf,fcwf,BDpart,Ustc,Ustw,Hrms,sigT,phi,alfa,ur,gamma,um
   real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac
-  real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSwf,CSsg,CSVs
+  real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSwf,CSsg,CSVs,qb
   !real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs      !CSeffb now defined in sed_def and initialized in sed_default - bdj 6/7/19
 
   !write(*,*)'bdj in sedcapac_cshore , noptset = ',noptset
   iripple = 1               
   gamma = 0.78      
   !Parallel statements added 6/20/2018 - meb  
-  !$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  
+!  !!$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  ! this parr loop commented by bdj 2020-12-18 
   do i=1,ncells     
      if(iwet(i)==0)then
         CtstarP(i,:)=0.0
@@ -398,7 +399,7 @@ subroutine sedcapac_cshore
      endif
 
      do ks=1,nsed
-        CSDb = wavediss(i)
+        CSDb = max(wavediss(i),0.)
         CSefff = 2.*CSeffb
         !if(i.lt.10) write(*,*) 'CSeffb,CSblp,CSclp = ',CSeffb,CSblp,CSslp
         !CSeffb = .005
@@ -408,15 +409,36 @@ subroutine sedcapac_cshore
         sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
         call get_CSDf(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSDf)
         call prob_susload(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSPs)
+        call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+        qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
         CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
         CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing CSHORE convention of depth integrated 
-        ! write(*,*)'bdj i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf',i,h(i),Hrms,CSPs,CSVs,CSDb,CSDf
+        ! if (i.eq.487)         write(*,*)'i,CSPs,CSDf,CSDb,CSVs,CSwf',i,CSPs,CSDf,CSDb,CSVs,CSwf
+        ! if (i.eq.487)         write(*,*)'x(cell2cell(4,i)),x(cell2cell(2,i))',x(cell2cell(4,i)),x(cell2cell(2,i))
+        ! if (i.eq.487)         write(*,*)'h(cell2cell(4,i)),h(i),h(cell2cell(2,i))',h(cell2cell(4,i)),h(i),h(cell2cell(2,i))
+        ! if (i.eq.487)         write(*,*)'Hs(cell2cell(4,i)),Hs(i),Hs(cell2cell(2,i))',Whgt(cell2cell(4,i)),Whgt(i),Whgt(cell2cell(2,i))
+        ! if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
+        ! if (i.eq.487)         write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
         ! volumentric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
         ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
         ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
+        if(wavesedtrans)then
+          ! following the previous convention, wave-related trasport id BY DEFINITION in direction of wave propagation  
+          ! Asymettry related will be pos and return current related will be neg
+          !QwsP(i,ks) = rhosed*(.0000001)*x(i) !Potential net onshore transport, kg/m/sec
+          QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !only return-current transport here, kg/m/sec
+          QwsP(i,ks) = QwsP(i,ks) + qb ! the addition of bedload
+          !if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
+          !if (i.eq.487)         write(*,*)'bdj i,x,y,us,QwsP(i,ks)',i,x(i),y(i),sqrt(us(i)**2.+vs(i)**2.),QwsP(i,ks)
+          !QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*1 !commented 2021-01-08
+
+          !QwsP(i,ks) = -rhosed*(csslp)*us(i) !Potential net onshore transport, kg/m/sec
+          ! if (i.eq.487) write(*,*)'in sedcapac_cshore, now setting QwsP(487,ks)',QwsP(i,ks)
+          ! if (i.eq.487) write(*,*)'in sedcapac_cshore, u(487),us(487),vs(487)',u(487),us(487),vs(487)
+        endif
      enddo
-  enddo
-  !$OMP END PARALLEL DO  
+   enddo
+!  !!$OMP END PARALLEL DO  
 
   return
 endsubroutine sedcapac_cshore

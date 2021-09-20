@@ -1,4 +1,136 @@
 !******************************************************
+    subroutine CMS_Tools_Dialog    
+! Perfom one of a selection of internal tools
+! written by Mitchell Brown, USACE-CHL
+! 04/14/2021
+!******************************************************    
+    use diag_lib, only: diag_print_message
+    implicit none
+    integer :: ichoice 
+    
+50  continue
+#ifdef _WIN32
+    call system('cls')
+#else
+    call system('clear')
+#endif
+    write(*,*) ''
+    write(*,*) '**********************************************************'
+    write(*,*) 'Make a choice from the following CMS Tools'
+    write(*,*) '1 - Print RT_JULIAN/REFTIME corresponding to actual date'
+    write(*,*) '2 - Print actual date corresponding to RT_JULIAN/REFTIME'
+    write(*,*) '9 - Exit'
+    write(*,*) '**********************************************************'
+    write(*,*) ''
+100 read (*,*) ichoice
+    
+    select case (ichoice)
+    case (1) 
+      call CMS_date2reftime
+    case (2) 
+      call CMS_reftime2date
+    case (9)
+      STOP
+    case default
+      call diag_print_message ('Selection not available, make another selection')
+      goto 100
+    end select
+    
+    goto 50
+    
+    contains
+      subroutine CMS_date2reftime
+        use XMDF
+        use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
+        implicit none
+        integer :: ierr
+        
+        
+        write(*,'(A)') 'Enter date (yyyy-mm-dd hh:mm:ss)'
+        call card_datetime(5,iyr,imo,iday,ihr,imin,isec) 
+        call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+        write(*,*)''
+        write(*,'(A,F0.6)') 'RT_JULIAN date is: ',reftime
+        write(*,'(A)') 'Press any key to continue.'
+        read(*,*)
+        write(*,*)''
+        
+        return
+      end subroutine CMS_date2reftime
+    
+      subroutine CMS_reftime2date
+        use XMDF
+        use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
+        implicit none
+        integer :: ierr, era = 0
+
+100     format('Calendar date is: ',i4.4,'-',i2.2,'-',i2.2, 1x ,i2.2,':',i2.2,':',i2.2)
+        
+        write(*,*) 'Enter reference time:'
+        read (*,*) reftime 
+        call XF_JULIAN_TO_CALENDAR(era,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+        write(*,*)''
+        write(*,100) iyr, imo, iday, ihr, imin, isec
+        write(*,'(A)') 'Press any key to continue.'
+        read(*,*)
+        write(*,*)''
+        
+        return
+      end subroutine CMS_reftime2date
+
+    end subroutine CMS_Tools_Dialog
+!******************************************************    
+    
+!******************************************************
+    logical function findCard(aFile,aCard,aValue)    
+! Find a given card in the cardfile and return the rest of the selected line in the variable, aValue.
+! written by Mitch Brown, USACE-CHL 06/25/2021
+!
+! The correct interface is given below
+    !interface  
+    ! function findCard(aFile,aCard,aValue)
+    !    character(len=*),intent(in)    :: aFile
+    !    character(len=*),intent(in)    :: aCard
+    !    character(len=100),intent(out) :: aValue
+    !    logical :: findCard
+    !  end function
+    !end interface
+!******************************************************    
+    implicit none
+    character(len=*), intent(in)    :: aFile
+    character(len=*), intent(in)    :: aCard
+    character(len=100), intent(out) :: aValue
+    
+    character(len=80)  :: testCard
+    character(len=100) :: aLine
+    logical            :: foundCard = .false.
+    integer            :: iloc
+    
+    open(77,file=aFile,status='unknown')
+    do 
+      read(77,*,end=100) testCard
+      if (trim(testCard) == trim(aCard)) then
+        backspace(77)
+        read(77,'(A100)') aLine
+        iloc = index(aLine,' ')
+        aLine = adjustL(aLine(iloc:))
+        read(aLine, '(A100)') aValue
+        findCard = .true.
+        return
+        exit
+      else
+        findCard = .false.
+      endif
+    enddo
+
+100 findCard = .false.
+
+    return
+    end function findcard
+!******************************************************    
+   
+    
+!******************************************************
     subroutine fileparts(astr,apath,aname,aext)    
 ! Determines the parts of a file name
 ! written by Alex Sanchez, USACE-CHL

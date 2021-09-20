@@ -350,7 +350,7 @@
             cxSrdx=0.0  
           endif                         
         endselect      
-        roldiss(i,j)=grav*br*Sr(i,j)/c(i,j) !Stive and De Vriend, Note: Sr=2*Er
+        roldiss(i,j)=grav*br*Sr(i,j)/c(i,j)                     !Stive and De Vriend, Note: Sr=2*Er
         val=dtrol*(-cxSrdx-cySrdy-roldiss(i,j)+ceff*wdiss(i,j)) !Wave dissipation units should be N/m/s=kg/s^3
         Sr(i,j)=Sr(i,j)+val  
         Sr(i,j)=max(Sr(i,j),0.0)        
@@ -393,7 +393,10 @@
         Sxy(i,j) = Sr(i,j)*wcos(i,j)*wsin(i,j)
         Syy(i,j) = Sr(i,j)*wsin(i,j)*wsin(i,j)
         !Total dissipation with roller dissipation
-        wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ******************
+        !wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ****************** commented by bdj 2021-01-13 
+        !wdiss(i,j) = roldiss(i,j)                        ! 1st fix, replaced by next. by bdj 2021-01-13
+        wdiss(i,j) = (1.0-ceff)*wdiss(i,j) + roldiss(i,j) ! new statement by bdj 2021-02-03 as suggested by A Sanchez
+        !write(*,*) 'bdj ceff = ',ceff
       enddo
     enddo
 !$OMP END PARALLEL DO

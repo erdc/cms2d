@@ -249,7 +249,7 @@ contains
       read(454,*,iostat=ierr) msg
     endif    
     if(ncol<2)then
-      call diag_print_error('Invalid Number of Colums in TSD File: ',trim(afile),&
+      call diag_print_error('Invalid Number of Columns in TSD File: ',trim(afile),&
        '  Must be equal or greater than 2')
     endif
     ndat = ncol - 1 !Subtract time column to get number of data columns    
@@ -724,6 +724,7 @@ contains
     integer :: i,j,ierr
     type(vecdattype), allocatable :: vecdattemp(:)
     character(len=37) :: cardname
+    real(4) :: umax,vmax
     
     if(nvec>0)then
       !Allocate temporary variable   
@@ -849,6 +850,9 @@ contains
         if(vecdat(nvec)%istatus==1)then
           vecdat(nvec)%stat(:,:) = vecdattemp(1)%stat(:,:)
         endif
+        
+!        umax = maxval(vecdat(nvec)%val(:,1,1))
+!        vmax = maxval(vecdat(nvec)%val(:,2,1))
                         
         !Deallocate temporary variable
         deallocate(vecdattemp)  
@@ -922,7 +926,7 @@ contains
     
     read(64,*,iostat=ierr) timesec
     if(ierr/=0)then
-      write(msg,*,iostat=ierr)  '  Timesec=',timesec
+      write(msg,*,iostat=ierr)  '  Timesec =',timesec
       call diag_print_error('Could not read time stamp information in',&
           '  ADCIRC fort.64 file',msg)
     endif

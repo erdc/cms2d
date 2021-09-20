@@ -94,7 +94,7 @@ module comvarbl
     real      :: Version   !CMS version
     integer   :: Revision  !Revision number    !MEB 09/15/20 - Switched back to integer
     logical   :: release
-    integer   :: major_version, minor_version, bugfix    
+    integer   :: major_version, minor_version, bugfix
     character(len=10) :: rdate
     character(len=10) :: machine     !06/11/2019 MEB - added to denote type of machine compiled on
     

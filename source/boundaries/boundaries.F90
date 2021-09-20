@@ -107,6 +107,7 @@
       !Note: when using this card, the id and data files are assumed to be same
       !To allow them to be different a block structure input format must be used
       call flux_alloc
+      
       call card_bid(flowpath,Q_str(nQstr)%bidfile,Q_str(nQstr)%bidpath,Q_str(nQstr)%idnum)
       !Note: when this card is used, it is assumed that the id file is the same as the data file
       Q_str(nQstr)%fluxfile = Q_str(nQstr)%bidfile
@@ -1145,13 +1146,13 @@
       !  read(77,*) cardname,velfilepar
         
       case('WSE_SOLUTION','WSE_DATASET','WSE_FILE','PARENT_WSE_FILE','WSE_OUT_FILE','WSE_SOL_FILE')
-        backspace(77)
-        read(77,*) cardname, mpfilepar, flowpathpar
+        backspace(77)                                 !added 6/10/21 MEB
+        read(77,*) cardname, mpfilepar, flowpathpar   !added 6/10/21 MEB
         call card_dataset(77,mpfilepar,flowpathpar,wsefilepar,wsepathpar,1)
         
       case('VEL_SOLUTION','VEL_DATASET','VEL_FILE','PARENT_VEL_FILE','VEL_OUT_FILE','VEL_SOL_FILE')
-        backspace(77)
-        read(77,*) cardname, mpfilepar, flowpathpar
+        backspace(77)                                 !added 6/10/21 MEB
+        read(77,*) cardname, mpfilepar, flowpathpar   !added 6/10/21 MEB
         call card_dataset(77,mpfilepar,flowpathpar,velfilepar,velpathpar,2)
         
       case('STARTING_DATE_TIME','START_DATE_TIME','PARENT_STARTING_DATE_TIME')
@@ -2037,7 +2038,7 @@ d1: do i=1,ntf
           ParSim(ipar)%projpar%iHorizDatum = 1         !Horizontal Datum = NAD83
           ParSim(ipar)%projpar%iHorizCoordSystem = 0   !Horizontal Coordinate System = GEOGRAPHIC
           ParSim(ipar)%projpar%iHorizUnits = 4         !Horizontal Units = DEGREES
-          ParSim(ipar)%projpar%iHorizZone = 0          !Horizontal Zone = NONE          !Added MEB 04/08/2021          
+          ParSim(ipar)%projpar%iHorizZone = 0          !Horizontal Zone = NONE          !Added MEB 04/08/2021
           ParSim(ipar)%projpar%iVertDatum = 9          !Vertical Datum = LOCAL
           ParSim(ipar)%projpar%iVertUnits = 2          !Vertical units = METERS
           ParSim(ipar)%projpar%VertOffset = 0.0        !Vertical offset from datum
@@ -3066,15 +3067,18 @@ d1: do i=1,ntf
     
     use bnd_def,  only: nbndstr,bnd_str,nqstr,q_str,nthstr,th_str,nhstr,h_str
     use out_def,  only: outprefix
+    use out_lib,  only: write_xys
     use prec_def, only: ikind
     use geo_def,  only: mapid
     use diag_lib, only: diag_print_error
+    use sal_def,  only: sal_str,nsalstr
+
 #ifdef _WIN32
     use IFPORT
 #endif
     
     implicit none
-    integer              :: kunit,i,j, val, ibnd, nstrcells, correctID
+    integer              :: kunit,i,j, val, ibnd, nstrcells, correctID, id, ntimes
     integer, allocatable :: ibndcells(:)
     character(len=200)   :: bidoutfile, xysoutfile, astring,astring2, abnd, indirpath
     logical              :: found,created
@@ -3097,30 +3101,31 @@ d1: do i=1,ntf
 #endif
 
     !Write Boundary ID file
-      kunit=912
+    kunit=912
     bidoutfile = trim(indirpath)// '/' //trim(outprefix) // '.bid'   !ASCII Boundary ID File  
-      open(kunit,file=bidoutfile)
-      write(astring,'(I4)') nbndstr
-      write(kunit,*) adjustl(trim(astring)),' !# of cellstrings'
-      do ibnd=1,nbndstr
-        !Determine cells without repeats
-        allocate(ibndcells(0:bnd_str(ibnd)%ncells))
-        ibndcells = 0
-        nstrcells = 0
-        do j=1,bnd_str(ibnd)%ncells
-           i = mapid(bnd_str(ibnd)%cells(j))
+    open(kunit,file=bidoutfile)
+    write(astring,'(I4)') nbndstr
+    write(kunit,*) adjustl(trim(astring)),' !# of cellstrings'
+    do ibnd=1,nbndstr
+      !Determine cells without repeats
+      allocate(ibndcells(0:bnd_str(ibnd)%ncells))
+      ibndcells = 0
+      nstrcells = 0
+      do j=1,bnd_str(ibnd)%ncells
+        i = mapid(bnd_str(ibnd)%cells(j))
         if (i .ne. ibndcells(nstrcells)) then
-             nstrcells = nstrcells + 1
-             ibndcells(nstrcells) = i
-           endif
-        enddo
-        !Write cell ID's
-        write(astring,'(I5)') nstrcells
-        write(kunit,*) adjustl(trim(astring)), '!# of cells in this cellstring'
-        do j=1,nstrcells
-          write(astring,'(I7)') ibndcells(j)
-          write(kunit,*) adjustl(trim(astring))
-        enddo
+          nstrcells = nstrcells + 1
+          ibndcells(nstrcells) = i
+        endif
+      enddo
+      !Write cell ID's
+      write(astring,'(I5)') nstrcells
+      write(kunit,*) adjustl(trim(astring)), '!# of cells in this cellstring'
+      do j=1,nstrcells
+        write(astring,'(I7)') ibndcells(j)
+        write(kunit,*) adjustl(trim(astring))
+      enddo
+      
       !Write forcing information
       select case(bnd_str(ibnd)%ibndtype)
       case(1) !Flux boundaries - ISTRTYPE = 1
@@ -3133,6 +3138,7 @@ d1: do i=1,ntf
           endif
         enddo
         if(correctID .lt. 0) call diag_print_error('Could not locate correct Boundary string')
+        
         !Write curve information for correct boundary
         if (q_str(correctID)%ifluxmode == 2) then    !if iFluxMode==2(CURVE) instead of 1(CONSTANT)
           write(abnd,'(I0)') q_str(correctID)%idnum  !Use ID number from SMS (Boundary_#2 = 2) as the number to write out.          
@@ -3149,6 +3155,14 @@ d1: do i=1,ntf
           enddo
           close(kunit+1)
         endif
+        
+        !Write out salinity information, if present
+        if (nsalstr > 0) then
+          id = q_str(correctID)%idnum
+          ntimes = sal_str(correctID)%ntimes
+          call write_xys (id, indirpath, outprefix, '_sal_', ntimes, sal_str(correctID)%timesal,sal_str(correctID)%val)
+        endif     
+                      
       case(2) !Tidal Harmonic boundaries - ISTRTYPE = 2 (Nothing to write here)
         continue
       case(3) !Single WSE boundaries - ISTRTYPE = 3
@@ -3166,18 +3180,27 @@ d1: do i=1,ntf
         open(kunit+1,file=xysoutfile)
         write(kunit+1,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,h_str(correctID)%ntimes,'"','"'
         do i=1,h_str(correctID)%ntimes
-            if(h_str(correctID)%wsecurv(i) == -0.0) then
-              h_str(correctID)%wsecurv(i) = 0.0
-            endif
+          if(h_str(correctID)%wsecurv(i) == -0.0) then
+            h_str(correctID)%wsecurv(i) = 0.0
+          endif
           write(astring, '(F10.2)') h_str(correctID)%times(i)
           write(astring2,'(F10.4)') h_str(correctID)%wsecurv(i)
           write(kunit+1,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))
         enddo
         close(kunit+1)
+        
+        !Write out salinity information, if present
+        if (nsalstr > 0) then
+          id = h_str(correctID)%idnum
+          ntimes = sal_str(correctID)%ntimes
+          call write_xys (id, indirpath, outprefix, '_sal_', ntimes, sal_str(correctID)%timesal,sal_str(correctID)%val)
+        endif     
+
       end select  
-        deallocate(ibndcells)
-      enddo
-      close(kunit)
+
+      deallocate(ibndcells)
+    enddo
+    close(kunit)
     
     return
     end subroutine write_boundary_to_ascii
@@ -3346,7 +3369,7 @@ d1: do i=1,ntf
             v(nck)=v(i)*h(i)/h(nck)*iwet(i)
           endif
         else
-          v(nck)=CS_str(icsh)%vcsh(im)  
+          v(nck)=CS_str(icsh)%vcsh(im)
           if(flux(k,i)<0.0)then !Inflow
             sv(i)=sv(i)+acoef(k,i)*v(nck)   
             spv(i)=spv(i)-acoef(k,i)
@@ -4390,6 +4413,7 @@ d1: do i=1,ntf
         u(nck) = u(nck)*qnorm
         v(nck) = v(nck)*qnorm
         flux(k,i) = iwet(i)*iwet(nck)*ds(k,i)*hk(k,i)*(u(nck)*fnx(k,i)+v(nck)*fny(k,i))
+
         flux(jcn,nck) = -flux(k,i)
         qfluxchk = qfluxchk - flux(k,i)
       enddo
@@ -4399,8 +4423,7 @@ d1: do i=1,ntf
           write(msg2,*) '  Flux Boundary:   ',Q_str(iriv)%idnum
           write(msg3,*) '  Specified Flux:  ',Q_str(iriv)%qflux,' m^3/s'
           write(msg4,*) '  Calculated Flux: ',qfluxchk,' m^3/s'  
-          call diag_print_warning('Problem distributing flow at flux boundary ',&
-            msg2,msg3,msg4)
+          call diag_print_warning('Problem distributing flow at flux boundary ',msg2,msg3,msg4)
         endif
       endif
     enddo
@@ -4583,14 +4606,14 @@ d1: do i=1,ntf
     !  enddo
     !  return
     !endif
-    
     relaxcsh=0.5
     relaxcsh1=1.0-relaxcsh
     iterxsh=max(5,30-niter**2)    
     do icsh=1,nCSstr
       im1=CS_str(icsh)%ncells/2 
-      k  =CS_str(icsh)%faces(im1) 
-      if(mod(idirface(im1,k),2)==0)then !East/West 
+      k  =CS_str(icsh)%faces(im1)
+      !if(mod(idirface(im1,k),2)==0)then !East/West commented bdj 2021-02-25 
+      if(mod(idirface(k,im1),2)==0)then !East/West 
         CS_str(icsh)%vcsh(:)=0.0
         do kk=1,iterxsh   
           im=1 !First node
@@ -4603,7 +4626,7 @@ d1: do i=1,ntf
             cfuwc=cfrict(i)
           else    
             cfuwc=fric_bed(h(i),cfrict(i),z0(i),CS_str(icsh)%ucsh(im),v(nck),&
-                        us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))   
+                           us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))   
           endif
           uxshim=(uhdelyydw*CS_str(icsh)%ucsh(im+1)+forcex(i))/(uhdelyydw+cfuwc+small)
           CS_str(icsh)%ucsh(im)=(relaxcsh1*CS_str(icsh)%ucsh(im)+relaxcsh*uxshim)*iwet(i)        
@@ -4619,7 +4642,7 @@ d1: do i=1,ntf
               cfuwc=cfrict(i)
             else
               cfuwc=fric_bed(h(i),cfrict(i),z0(i),CS_str(icsh)%ucsh(im),&
-                          v(nck),us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))
+                             v(nck),us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))
             endif
             uxshim=(uhdelyyup*CS_str(icsh)%ucsh(im-1)           &
                    +uhdelyydw*CS_str(icsh)%ucsh(im+1)+forcex(i)) &
@@ -4636,7 +4659,7 @@ d1: do i=1,ntf
             cfuwc=cfrict(i)
           else    
             cfuwc=fric_bed(h(i),cfrict(i),z0(i),CS_str(icsh)%ucsh(im),v(nck),&
-                        us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))  
+                           us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))  
           endif
           uxshim=(uhdelyyup*CS_str(icsh)%ucsh(im-1)+forcex(i))/(uhdelyyup+cfuwc+small)
           CS_str(icsh)%ucsh(im)=(relaxcsh1*CS_str(icsh)%ucsh(im)+relaxcsh*uxshim)*iwet(i)   
@@ -4654,7 +4677,7 @@ d1: do i=1,ntf
             cfuwc=cfrict(i)
           else
             cfuwc=fric_bed(h(i),cfrict(i),z0(i),u(nck),CS_str(icsh)%vcsh(im),&
-                        us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))
+                           us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))
           endif
           vxshim=(uhdelxxdw*CS_str(icsh)%vcsh(im+1)+forcey(i))/(uhdelxxdw+cfuwc+small)
           CS_str(icsh)%vcsh(im)=(relaxcsh1*CS_str(icsh)%vcsh(im)+relaxcsh*vxshim)*iwet(i)
@@ -4670,7 +4693,7 @@ d1: do i=1,ntf
               cfuwc=cfrict(i)
             else
               cfuwc=fric_bed(h(i),cfrict(i),z0(i),u(nck),CS_str(icsh)%vcsh(im),&
-                          us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))    
+                             us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))    
             endif
             vxshim=(uhdelxxup*CS_str(icsh)%vcsh(im-1)            &
                    +uhdelxxdw*CS_str(icsh)%vcsh(im+1)+forcey(i)) &
@@ -4687,7 +4710,7 @@ d1: do i=1,ntf
             cfuwc=cfrict(i)
           else    
             cfuwc=fric_bed(h(i),cfrict(i),z0(i),u(nck),CS_str(icsh)%vcsh(im),&
-                        us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))  
+                           us(i),vs(i),worb(i),worbrep(i),wper(i),Wang(i))  
           endif
           vxshim=(uhdelxxup*CS_str(icsh)%vcsh(im-1)+forcey(i))/(uhdelxxup+cfuwc+small)
           CS_str(icsh)%vcsh(im)=(relaxcsh1*CS_str(icsh)%vcsh(im)+relaxcsh*vxshim)*iwet(i)
@@ -4712,7 +4735,6 @@ d1: do i=1,ntf
     implicit none
     integer :: icsh,i,i1,k,im,im1,nck
     real(ikind) :: wsesetupx,wsesetupy
-    
     do icsh=1,nCSstr
       im=1 !First node of each cross-shore bnd
       i =CS_str(icsh)%cells(im) 
@@ -4722,7 +4744,8 @@ d1: do i=1,ntf
       CS_str(icsh)%wsecsh(im) = p(i)*gravinv !New 09/10/13 
       im1=CS_str(icsh)%ncells/2
       k=CS_str(icsh)%faces(im1)
-      if(mod(idirface(im1,k),2)==1)then !North/South boundary
+      !if(mod(idirface(im1,k),2)==1)then !North/South boundary commented bdj 2021-02-25 
+      if(mod(idirface(k,im1),2)==1)then !North/South boundary
         do im=2,CS_str(icsh)%ncells   !Second node to end
           i1=CS_str(icsh)%cells(im-1)
           i =CS_str(icsh)%cells(im)          
@@ -4882,7 +4905,7 @@ d1: do i=1,ntf
       flux(k,i)=iwet(i)*ds(k,i)*hk(k,i)*(fnx(k,i)*u(nck)+fny(k,i)*v(nck))
       jcn=llec2llec(k,i) !Backwards connectivity
       flux(jcn,nck)=-flux(k,i)
-    enddo    
+    enddo
     
     return
     endsubroutine fluxbnd    

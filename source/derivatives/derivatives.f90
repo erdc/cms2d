@@ -42,16 +42,16 @@
         nder = 1  !Cell-based Green-Gauss (1st order for skewed cells)
       case('CBGGCR','CELL-BASED_GREEN-GAUSS_CELL-RECON')
         nder = 2  !Cell-based Green-Gauss with cell-recontruction (second order)
-      case('CBGGFR','CELL-BASED_GREEN-GAUSS_FACE-RECON')  
-        nder = 3  !Cell-based Green-Gauss with face-recontruction (second order)
-      case('CBGGLR','CELL-BASED_GREEN-GAUSS_LINEAR')  
-        nder = 4  !Cell-based Green-Gauss with linear interpolation (second order)
-      case('NBGG','NODE-BASED_GREEN-GAUSS')
-        nder = 5  !Nodal-based Green-Gauss (has an extended stensil, first order)  
+!      case('CBGGFR','CELL-BASED_GREEN-GAUSS_FACE-RECON')  
+!        nder = 3  !Cell-based Green-Gauss with face-recontruction (second order)
+!      case('CBGGLR','CELL-BASED_GREEN-GAUSS_LINEAR')  
+!        nder = 4  !Cell-based Green-Gauss with linear interpolation (second order)
+!      case('NBGG','NODE-BASED_GREEN-GAUSS')
+!        nder = 5  !Nodal-based Green-Gauss (has an extended stensil, first order)  
       case('CBWLSFS','CELL-BASED_WEIGHTED-LEAST-SQUARES')
         nder = 6  !Compact stenil cell-based least-squares (uses face-sharing neighboring cells) (first order)
-      case('CBWLSNS','EXTENDED_CELL-BASED_LEAST-SQUARES')
-        nder = 7  !Extended stenil cell-based least-squares (uses node-sharing neighboring cells) (first order, but more stable)   
+!      case('CBWLSNS','EXTENDED_CELL-BASED_LEAST-SQUARES')
+!        nder = 7  !Extended stenil cell-based least-squares (uses node-sharing neighboring cells) (first order, but more stable)   
       case('CBFD','CELL-BASED_FINITE-DIFFERENCE')  
         nder = 8  
       case default
@@ -90,6 +90,7 @@
     use size_def
     use flow_def, only: dHuxm,dHuym,dHvxm,dHvym,dapuareaxm,dapuareaym
     use comvarbl, only: skewcor
+    use diag_lib, only: diag_print_error
     use geo_def
     use der_def
     use der_lib
@@ -135,31 +136,34 @@
     ilistga = ilistgw
     
     !--- Initialize Gradient Operator -------------------------------
-    selectcase(nder)
+    select case(nder)
     case(1) !Cell-basd-Green-Gauss (first order)
-      call der_grad_cbgg(goa,ncellsD,nlistca,ilistca) !Intialize all cells
-      call der_grad_cbgg(gow,ncellsD,nlistcw,ilistcw) !Intialize wet cells
-    case(2) !Cell-basd-Green-Gauss with cell-recontruction
-      call der_grad_cbgg(goa,ncellsD,nlistca,ilistca) !Intialize all cells
-      call der_grad_cbgg(gow,ncellsD,nlistcw,ilistcw) !Intialize wet cells
-      call der_grad_cbggcr(goa,ncellsD,nlistca,ilistca) !Intialize all cells
-      call der_grad_cbggcr(gow,ncellsD,nlistcw,ilistcw) !Intialize wet cells
-    !case(3) !Cell-basd-Green-Gauss with face-recontruction
+      call der_grad_cbgg(goa,ncellsD,nlistca,ilistca) !Initialize all cells
+      call der_grad_cbgg(gow,ncellsD,nlistcw,ilistcw) !Initialize wet cells
+    case(2) !Cell-basd-Green-Gauss with cell-reconstruction
+      call der_grad_cbgg(goa,ncellsD,nlistca,ilistca) !Initialize all cells
+      call der_grad_cbgg(gow,ncellsD,nlistcw,ilistcw) !Initialize wet cells
+      call der_grad_cbggcr(goa,ncellsD,nlistca,ilistca) !Initialize all cells
+      call der_grad_cbggcr(gow,ncellsD,nlistcw,ilistcw) !Initialize wet cells
+    !case(3) !Cell-basd-Green-Gauss with face-reconstruction
     !  call cbggfr_init  
     !case(4) !Cell-basd-Green-Gauss with linear interpolation
     !  call cbgglin_init
     !case(6) !Node-based-Green-Gauss (second order)
     !  call nbgg_init
     case(6) !Weighted Least-squares method (compact stensil)      
-      call der_grad_cbwlsfs(goa,ncellsD,nlistca,ilistca) !Intialize all cells
-      call der_grad_cbwlsfs(gow,ncellsD,nlistcw,ilistcw) !Intialize wet cells
+      call der_grad_cbwlsfs(goa,ncellsD,nlistca,ilistca) !Initialize all cells
+      call der_grad_cbwlsfs(gow,ncellsD,nlistcw,ilistcw) !Initialize wet cells
     !case(7) !Least-squares method (extended stensil)
     !  call cbwlsns_init !CBWLSNS   
     case(8) !Cell-based Finite-Difference (second order)
-      call der_grad_cbfd(goa,ncellsD,nlistca,ilistca) !Intialize all cells
-      call der_grad_cbfd(gow,ncellsD,nlistcw,ilistcw) !Intialize wet cells
+      call der_grad_cbfd(goa,ncellsD,nlistca,ilistca) !Initialize all cells
+      call der_grad_cbfd(gow,ncellsD,nlistcw,ilistcw) !Initialize wet cells
       
-    endselect
+    case default
+      call diag_print_error('Choice must be CBGG, CBGGCR, CBWLSFS, or CBFS')
+      
+    end select
     
     call der_update
     

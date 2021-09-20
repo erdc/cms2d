@@ -211,8 +211,9 @@ contains
 204 format('ID',1x,I5)
 205 format('DELEV 0.0')
 206 format('IXY',1x,I6)
-! 207 format(I8,1x,F12.5,1x,F12.5)   !for whatever reason, this was causing a run-time error
-207 format(I8,1x,F12.4,1x,F12.4)    
+! 207 format(I8,1x,F12.5,1x,F12.5)   !for whatever reason, this was causing a run-time error - meb
+! 207 format(I8,1x,F12.4,1x,F12.4)   !commented by bdj as roundoff error was printed to xy file
+207 format(I8,1x,F12.3,1x,F12.3)    
 208 format('ENDSET')
 
     filexy = trim(aname) // '.xy'
@@ -740,6 +741,30 @@ contains
           
     return
     end subroutine writevecTxt
+    
+!**************************************************************************
+    subroutine write_xys (id,apath,outprefix,aprefix,ntimes,times,val)
+    
+    implicit none
+    integer            :: id,ntimes,i
+    character(len=*)   :: apath,aprefix,outprefix
+    character(len=200) :: xysoutfile,abnd,astring,astring2
+    real(4)            :: times(ntimes),val(ntimes)
+    
+    write(abnd,'(I0)') id
+    xysoutfile = trim(apath)// '/' //trim(outprefix) // trim(aprefix) // trim(abnd) // '.xys'
+    open(913,file=xysoutfile)
+    write(913,'(A3,x,i0,x,i0,x,A1,A1)') 'XYS',2,ntimes,'"','"'
+    do i=1,ntimes
+      if (val(i) .eq. -0.0) val(i) = 0.0
+      write(astring, '(F10.2)') times(i)
+      write(astring2,'(F10.2)') val(i)
+      write(913,'(A)') trim(adjustl(astring))//' '//trim(adjustl(astring2))
+    enddo
+    close(913)
+    
+    return
+    end subroutine write_xys
     
     
 #ifdef XMDF_IO

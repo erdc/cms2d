@@ -27,6 +27,7 @@ contains
     use xmdf
     use prec_def
     use diag_lib, only: diag_print_error
+    use diag_def, only: msg
     implicit none
     
     !Input/Output
@@ -39,17 +40,21 @@ contains
     real(4),allocatable :: ftemp(:) !Should be single    
        
     call XF_OPEN_FILE(afile,READONLY,pid,ierr)
-    if (ierr < 0) call diag_print_error ('Unable to open model parameters file.')
+    msg = "Unable to open file: '" // trim(afile) // "'"
+    if (ierr < 0) call diag_print_error (msg)
     
     call XF_OPEN_GROUP(pid,apath,gid,ierr)
-    if (ierr < 0) call diag_print_error ('Unable to open dataset group- ',trim(apath), '. Check model parameters file for correct input.')
+    msg = "Unable to open dataset: '" // trim(apath) // "from file: '" // trim(afile) // "'"
+    if (ierr < 0) call diag_print_error (msg)
 
     call XF_GET_PROPERTY_NUMBER(gid,trim(aname),nn,ierr)
-    if (ierr < 0) call diag_print_error ('Unable to obtain number of times.')
+    msg = "Unable to obtain number of times from file: '" // trim(afile) // "'"
+    if (ierr < 0) call diag_print_error (msg)
 
     allocate(vec(nn),ftemp(nn))
     call XF_READ_PROPERTY_FLOAT(gid,trim(aname),nn,ftemp(1),ierr)
-    if (ierr < 0) call diag_print_error ('Unable to get list of times.')
+    msg = "Unable to get list of times from file: '" // trim(afile) // "'"
+    if (ierr < 0) call diag_print_error (msg)
 
     vec = ftemp !Useful for converting precision    
     call XF_CLOSE_GROUP(gid,ierr)
