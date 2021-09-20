@@ -43,6 +43,7 @@ module flow_def
   real(ikind), allocatable :: hvstar(:),dhvstarx(:),dhvstary(:),hvstark(:,:)
   real(ikind), allocatable :: fluxstar(:,:)
   real(ikind), allocatable :: h0(:)
+  real(ikind), allocatable :: maxeta(:)  !Added MEB  9/20/2021
     
   !Wave flux velocities
   logical :: waveflux !Wave mass flux

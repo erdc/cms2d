@@ -41,7 +41,7 @@
     watertemp = 15.0  !Water temperature [ºC]
     watersalt = 35.0  !Water salinity [ppt]
     rhow = 1025.0   !Water density [kg/m^3] (approximate for 15ºC and 34 ppt)    
-    viscos = 1.1812e-6 !Kinematic water viscosity [m^2/s] (approx for 15ºC and 35 ppt)    
+    viscos = 1.1812e-6 !Kinematic water viscosity [m^2/s] (approx for 15ºC and 35 ppt)   
     
     !Wetting and drying
     hmin = 0.05           !Minimum water depth [m]
@@ -599,27 +599,27 @@
       
     !Water density
     selectcase(idensit) 
-    case(0) !User-specified
-      !Solve for salinity based on input temperature and density
-      epssal = 0.001  !iterative change in salinity
-      epsheat = 0.001 !iterative change in temperature
-      toldens = 0.001 !error in density
-      iter = 100      !maximum number of iterations
-      s(1) = 25.0; s(2) = 35.0; !First guesses
-      call secant(water_density_UNESCO,rhow,watertemp,s,f,epssal,toldens,iter)
-      watersalt = s(3)
-    case(1); rhow = water_density_ekart(watertemp,watersalt)
-    case(2); rhow = water_density_UNESCO(watertemp,watersalt)
-    case(3); rhow = water_density_fofonoff(watertemp,watersalt)    
+      case(0) !User-specified
+        !Solve for salinity based on input temperature and density
+        epssal = 0.001  !iterative change in salinity
+        epsheat = 0.001 !iterative change in temperature
+        toldens = 0.001 !error in density
+        iter = 100      !maximum number of iterations
+        s(1) = 25.0; s(2) = 35.0; !First guesses
+        call secant(water_density_UNESCO,rhow,watertemp,s,f,epssal,toldens,iter)
+        watersalt = s(3)
+      case(1); rhow = water_density_ekart(watertemp,watersalt)
+      case(2); rhow = water_density_UNESCO(watertemp,watersalt)
+      case(3); rhow = water_density_fofonoff(watertemp,watersalt)    
     endselect
     
     !Kinematic viscosity, m^2/s
     selectcase(iviscos) 
-    !case(0); User-specified
-    case(1); viscos = water_viscosity_kinematic(watertemp)  !Temperature only
-    case(2); viscos = water_viscosity_dynamic(watertemp,watersalt)/rhow !Temperature and salinity
+      !case(0); User-specified
+      case(1); viscos = water_viscosity_kinematic(watertemp)  !Temperature only
+      case(2); viscos = water_viscosity_dynamic(watertemp,watersalt)/rhow !Temperature and salinity
     endselect
-    
+      
     !Timing variables  
 !added meb 03/11/2019
     scalemorph_rampdur = max(scalemorph_rampdur, dtime/3600.0) !hours
@@ -841,6 +841,7 @@
     allocate(p(ncellsD),p1(ncellsD),pk(nmaxfaces,ncellsD))
     allocate(dpx(ncellsD),dpy(ncellsD))
     allocate(eta(ncellsD),uv(ncellsD))
+    allocate(maxeta(ncellsD))         !added MEB 9/20/2021
     allocate(h(ncellsD),h1(ncellsD)) 
     allocate(hk(nmaxfaces,ncellsD))
     allocate(u(ncellsD),u1(ncellsD),dux(ncellsD),duy(ncellsD))    
@@ -851,6 +852,7 @@
     h=0.0; h1=0.0; hk=0.0
     u=0.0; u1=0.0; dux=0.0; duy=0.0
     v=0.0; v1=0.0; dvx=0.0; dvy=0.0        
+    maxeta = 0.0  !Initialize maximum eta array to 0.0      !added MEB 9/20/2021
     
     allocate(su(ncellsD),sv(ncellsD),sp(ncellsD)) 
     su=0.0; sv=0.0; sp=0.0
@@ -1208,13 +1210,15 @@
 #include "CMS_cpp.h"
     use size_def
     use geo_def
-    use flow_def
+    use flow_def, only: h, p, gravinv, hdry, hdry1, hdry2, hmin, iwet, iwet1, flux
+    use flow_def, only: ponding, icorner, narrowchannels, u, v, vis, mturbul, diswall, visk, hk
     use bnd_def
     use interp_def, only: fintp
     use comvarbl, only: dtime,pred_corr
     use const_def, only: small
     use diag_lib
     use prec_def
+
     implicit none
     integer :: i,j,k,kk,ksum,nck,iflagdry   !ibnd
     integer :: jcn,iwetface,iwetface1

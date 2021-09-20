@@ -51,6 +51,7 @@
     write_presgrad = .false.     !Pressure gradients = (dpx,dpy)
     write_presres = .false.      !Normalized residuals for p
     write_velres = .false.       !Normalized residuals for u,v
+    write_maxwse = .false.       !Maximum water level output 
     
     !Sediment
     write_conc = .true.          !Concentration
@@ -632,6 +633,9 @@
         
       case('VELOCITY_RESIDUALS_OUTPUT','OUTPUT_VELOCITY_RESIDUALS')
         call card_boolean(77,write_velres,ierr)  
+        
+      case('MAXIMUM_WATER_LEVEL_OUTPUT')            !Added MEB 9/20/2021  Provide a mechanism to turn this on
+        call card_boolean(77,write_maxwse,ierr)
         
       !Sediment Transport  
       case('CONC_OUTPUT','CONCENTRATION_OUTPUT','OUTPUT_CONC','OUTPUT_CONCENTRATION') !Ct
@@ -1462,6 +1466,9 @@
         if(obs(4)%active)then
           write(iunit(i),485)   '  Bed increment:',obs(4)%time_inc,' sec'
         endif
+      endif
+      if(write_maxwse) then
+        write(iunit(i),787)     '  Maximum Water Level Output:','ON'
       endif
 
 234   format(' ',4x,A12,A40,'''',A,'''')

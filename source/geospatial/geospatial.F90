@@ -300,6 +300,7 @@
         write(iunit(i),222)  '    Zone:',projfl%iHorizZone
       endif      
       write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
+      
     enddo
 
     close(dgunit)
