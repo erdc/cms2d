@@ -15,12 +15,13 @@
     call system('clear')
 #endif
     write(*,*) ''
-    write(*,*) '**********************************************************'
+    write(*,*) '*****************************************************************'
     write(*,*) 'Make a choice from the following CMS Tools'
     write(*,*) '1 - Print RT_JULIAN/REFTIME corresponding to actual date'
     write(*,*) '2 - Print actual date corresponding to RT_JULIAN/REFTIME'
+    write(*,*) '3 - Read WSE Dataset and output a Max WSE dataset for all times'
     write(*,*) '9 - Exit'
-    write(*,*) '**********************************************************'
+    write(*,*) '*****************************************************************'
     write(*,*) ''
 100 read (*,*) ichoice
     
@@ -29,6 +30,8 @@
       call CMS_date2reftime
     case (2) 
       call CMS_reftime2date
+    case (3)
+      call CMS_MaxWSE
     case (9)
       STOP
     case default
@@ -39,6 +42,118 @@
     goto 50
     
     contains
+      subroutine CMS_MaxWSE
+        use XMDF
+        use out_lib, only: OPEN_CREATE_DATASET
+        use EXP_Global_def, only: RROUND
+        use comvarbl, only: reftime
+        use diag_lib, only: diag_print_error
+        
+        implicit none
+        integer :: fid, gid, ierr, a_Number, a_MaxPathLength, iloc
+        integer :: nfid, ndid
+        integer :: i, j, a_NumTimes, nCells, complete
+        real(4) :: Num
+        real(4), allocatable :: Values(:), max_array(:)
+        real(8), allocatable :: Times(:)
+        character(100) :: filename, newfile, a_Path
+        character(100), allocatable :: Paths(:)
+        logical :: exists
+
+        do
+          write(*,'(A)') 'Enter filename of WSE solution file (*_wse.h5, *_sol.h5, etc)'
+          read(*,*) filename
+          inquire(FILE=trim(filename),EXIST=exists)
+          if (.not.exists) then
+            write(*,'(A)') 'File not found, try again'
+          else
+            exit
+          endif
+        enddo
+
+        call XF_OPEN_FILE(trim(filename),readwrite,fid,ierr) !Open XMDF file
+        if(ierr<0)then
+          write(*,'(A)') 'Error opening file'
+        endif          
+        call XF_GET_SCALAR_DATASETS_INFO (fid, a_Number, a_MaxPathLength, ierr)
+        allocate(Paths(a_Number))
+        do i=1,a_Number
+          call XF_GET_SCALAR_DATASET_PATHS (fid, i, a_MaxPathLength, Paths, ierr)
+          a_Path = Paths(i)
+          iloc = index(a_Path,'Water_Elevation')
+          if (iloc <= 0) then
+            cycle
+          else
+            a_Path(iloc+15:100) = ' '
+            exit
+          endif
+        enddo
+        deallocate(Paths)
+        
+        if (i > a_Number) then
+          write (*,'(A)') 'No Water Elevation Dataset found'
+          stop
+        endif 
+        
+        call OPEN_CREATE_DATASET(fid,trim(a_Path),gid,1,'m',ierr)
+        
+        !Parse through the datasets in the file and get max value
+        call XF_READ_REFTIME(gid, Reftime, ierr)
+        call XF_GET_DATASET_NUM_TIMES(gid, a_NumTimes, ierr)
+        allocate(Times(a_NumTimes))
+        times = 0.0 ;
+        
+        call XF_GET_DATASET_TIMES(gid, a_NumTimes, Times, ierr)
+        call XF_GET_DATASET_NUMVALS(gid, nCells, ierr)
+        allocate(max_array(nCells),Values(nCells))
+        max_array = -1000.0 ; values = 0.0
+        complete = 0
+        write(*,*) ' '
+        write(*,'(A)') ' Parsing existing Water Elevations'
+        do i=1,a_NumTimes
+          call XF_READ_SCALAR_VALUES_TIMESTEP(gid, i, nCells, Values, ierr)
+          do j=1,nCells
+            max_array(j) = max(Values(j),max_array(j))
+          enddo
+          num = real(i)/real(a_NumTimes)*100
+          if (num .ge. complete) then           
+            write(*,'(2x,I3,x,A)') complete, 'Percent Complete'
+            complete = complete + 10
+          endif
+        enddo
+        call XF_CLOSE_GROUP(gid,ierr)  !Close old dataset    
+        call XF_CLOSE_FILE(fid,ierr)   !Close old file
+        
+        !Create new file for the Max Water Elevations based on original filename
+        iloc = index(filename,'_wse')
+        newfile = filename(1:iloc-1)//'_maxwse.h5'
+        iloc = index(a_Path,'Water_Elevation')
+        a_Path = a_Path(1:iloc-1)//'Max_Water_Elevation'
+
+        inquire(FILE=trim(newfile), EXIST=exists)
+        if (exists) then
+          open(100,file=newfile,iostat=ierr)
+          close(100,status='delete',iostat=ierr)
+        endif            
+        call XF_CREATE_FILE(trim(newfile),readwrite,nfid,ierr)
+        call OPEN_CREATE_DATASET(nfid,trim(a_Path),ndid,1,'m',ierr)
+        if (ierr.ge.0) then
+          write(*,*) ' '
+          write(*,'(A,A)')" Writing Maximum elevations to file: '"//trim(newfile)//"'"
+          write(*,*) ' '
+        else
+          call diag_print_error('Error creating dataset')
+        endif
+        call XF_WRITE_SCALAR_TIMESTEP(ndid,0.d0,nCells,max_array,ierr)
+        
+        call XF_CLOSE_GROUP(ndid,ierr) !Close new dataset
+        call XF_CLOSE_FILE(nfid,ierr)  !Close new file 
+        write(*,*) 'Press the Enter key to continue'
+        read(*,*) 
+        
+        return
+      end subroutine CMS_MaxWSE
+    
       subroutine CMS_date2reftime
         use XMDF
         use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
