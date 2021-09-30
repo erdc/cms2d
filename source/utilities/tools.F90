@@ -2,7 +2,8 @@
     subroutine CMS_Tools_Dialog    
 ! Perfom one of a selection of internal tools
 ! written by Mitchell Brown, USACE-CHL
-! 04/14/2021
+! 1 and 2 - 04/14/2021
+! 3 - 9/30/2021
 !******************************************************    
     use diag_lib, only: diag_print_message
     implicit none
@@ -42,26 +43,17 @@
     goto 50
     
     contains
+
+!******************************************************
       subroutine CMS_MaxWSE
-        use XMDF
-        use out_lib, only: OPEN_CREATE_DATASET
-        use EXP_Global_def, only: RROUND
-        use comvarbl, only: reftime
-        use diag_lib, only: diag_print_error
+        use diag_lib, only: diag_print_message
         
         implicit none
-        integer :: fid, gid, ierr, a_Number, a_MaxPathLength, iloc
-        integer :: nfid, ndid
-        integer :: i, j, a_NumTimes, nCells, complete
-        real(4) :: Num
-        real(4), allocatable :: Values(:), max_array(:)
-        real(8), allocatable :: Times(:)
-        character(100) :: filename, newfile, a_Path
-        character(100), allocatable :: Paths(:)
-        logical :: exists
+        character :: filename*100, aext*10
+        logical   :: exists
 
         do
-          write(*,'(A)') 'Enter filename of WSE solution file (*_wse.h5, *_sol.h5, etc)'
+          write(*,'(A)') 'Enter filename of WSE solution file (*_wse.h5, *_eta.dat, etc)'
           read(*,*) filename
           inquire(FILE=trim(filename),EXIST=exists)
           if (.not.exists) then
@@ -70,6 +62,108 @@
             exit
           endif
         enddo
+
+        call fileext (filename,aext)
+        select case (aext)
+          case('h5')
+#ifdef _WIN32            
+            call CMS_MaxWSE_h5(trim(filename))
+#else
+            call diag_print_message("XMDF/H5 file functionality is missing for Linux")
+#endif
+          case('dat')
+            call CMS_MaxWSE_dat(trim(filename))
+          case default
+            call diag_print_message("This tool presently only works on '.dat' and '.h5' files")
+        end select
+        write(*,*) ' '
+        write(*,*) 'Press the Enter key to continue'
+        read(*,*) 
+          
+        return
+      end subroutine CMS_MaxWSE
+
+!*************************************************************
+      subroutine CMS_MaxWSE_dat (filename)
+        use in_def,   only: scaldattype,vecdattype 
+        use in_lib,   only: read_dat
+        use out_lib,  only: write_scal_dat_file
+        use comvarbl, only: reftime
+        use size_def, only: ncells
+        
+        implicit none
+        character(len=*), intent(in) :: filename
+        real(4), allocatable :: max_array(:)
+        
+        integer :: nscal, nvec, nTimes, wseRec = -1
+        type(scaldattype), pointer :: scaldat(:)
+        type(vecdattype),  pointer :: vecdat(:)
+        integer :: i, j, iloc
+        logical :: found = .false.
+        character :: newfile*100, aName*100
+        
+        call read_dat (filename,nscal,scaldat,nvec,vecdat)
+        do i=1,nscal
+          if(scaldat(i)%NAME == 'Water_Elevation') then
+            nTimes  = scaldat(i)%NT
+            nCells  = scaldat(i)%NC
+            reftime = scaldat(i)%reftime
+            allocate(max_array(nCells))
+            max_array = -1000.0
+            found = .true.
+            wseRec = i
+            exit
+          else
+            cycle
+          endif
+        enddo
+        
+        if (.not.found) then
+          call diag_print_message ("Error: 'Water_Elevation' dataset not found in file")
+          write(*,*) 'Press the Enter key to continue'
+          read(*,*) 
+          return
+        endif
+        write(*,*)' '
+        write(*,'(A)') ' Parsing existing Water Elevations'
+        do i=1,nTimes
+          do j=1,nCells
+            max_array(j) = max(scaldat(wseRec)%VAL(j,i),max_array(j))
+          enddo
+        enddo
+        
+        !Create new file for the Max Water Elevations based on original filename
+        iloc    = index(filename,'_eta')
+        aName   = filename(1:iloc-1)
+        newfile = trim(aName)//'_maxeta.dat'
+        write(*,'(A)')" Writing Maximum elevations to file: '"//trim(newfile)//"'"
+
+        call write_scal_dat_file(aName,'Maximum_WSE','maxeta',max_array)
+
+        return
+      end subroutine CMS_MaxWSE_dat
+      
+      
+!*************************************************************
+      subroutine CMS_MaxWSE_h5 (filename)
+        use XMDF
+        use out_lib, only: OPEN_CREATE_DATASET
+        use EXP_Global_def, only: RROUND
+        use comvarbl, only: reftime
+        use diag_lib, only: diag_print_error
+        
+        implicit none
+        character(len=*), intent(in) :: filename
+        
+        integer :: fid, gid, ierr, a_Number, a_MaxPathLength, iloc
+        integer :: nfid, ndid
+        integer :: i, j, a_NumTimes, nCells, complete
+        real(4) :: Num
+        real(4), allocatable :: Values(:), max_array(:)
+        real(8), allocatable :: Times(:)
+        character(100) :: newfile, a_Path
+        character(100), allocatable :: Paths(:)
+        logical :: exists
 
         call XF_OPEN_FILE(trim(filename),readwrite,fid,ierr) !Open XMDF file
         if(ierr<0)then
@@ -140,7 +234,6 @@
         if (ierr.ge.0) then
           write(*,*) ' '
           write(*,'(A,A)')" Writing Maximum elevations to file: '"//trim(newfile)//"'"
-          write(*,*) ' '
         else
           call diag_print_error('Error creating dataset')
         endif
@@ -148,12 +241,11 @@
         
         call XF_CLOSE_GROUP(ndid,ierr) !Close new dataset
         call XF_CLOSE_FILE(nfid,ierr)  !Close new file 
-        write(*,*) 'Press the Enter key to continue'
-        read(*,*) 
         
         return
-      end subroutine CMS_MaxWSE
-    
+      end subroutine CMS_MaxWSE_h5
+      
+!**************************************************************************
       subroutine CMS_date2reftime
         use XMDF
         use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
