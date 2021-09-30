@@ -345,9 +345,16 @@ contains
         endif
       enddo
       close(46)
+      i = 0
       if(.not.foundfile) then
         open(46,file=filesup,status='old',position='append')
-        write(46,103) trim(filedat)
+        !Ensure name written has the 'ASCII_Solutions' prefix like the others  MEB 9/30/2021
+        i = index(filedat,'ASCII_Solutions')
+        if (i == 0) then
+          write(46,103) aline(10:25)//trim(filedat)
+        else
+          write(46,103) trim(filedat)
+        endif
         close(46)
       endif  
     else
