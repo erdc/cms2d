@@ -10,11 +10,7 @@
     integer :: ichoice 
     
 50  continue
-#ifdef _WIN32
-    call system('cls')
-#else
-    call system('clear')
-#endif
+    
     write(*,*) ''
     write(*,*) '*****************************************************************'
     write(*,*) 'Make a choice from the following CMS Tools'
@@ -29,10 +25,13 @@
     select case (ichoice)
     case (1) 
       call CMS_date2reftime
+      call clear_screen       !This will present a fresh menu after it returns
     case (2) 
       call CMS_reftime2date
+      call clear_screen
     case (3)
       call CMS_MaxWSE
+      call clear_screen
     case (9)
       STOP
     case default
@@ -43,6 +42,19 @@
     goto 50
     
     contains
+    
+!******************************************************
+      subroutine clear_screen
+      
+#ifdef _WIN32
+        call system('cls')
+#else
+        call system('clear')
+#endif
+
+      return
+      end subroutine clear_screen
+      
 
 !******************************************************
       subroutine CMS_MaxWSE
