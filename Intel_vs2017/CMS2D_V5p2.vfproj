@@ -26,7 +26,7 @@
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT.lib" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT.lib" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -36,7 +36,7 @@
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|x64">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
-				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
+				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -47,7 +47,12 @@
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\source\main\CMS_cpp.h"/></Filter>
-		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+<<<<<<< HEAD
+=======
+		<File RelativePath="..\source\CMakeLists.txt"/>
+>>>>>>> 5.2.7
+		<File RelativePath="..\source\logsheet.txt"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_def.f90"/>
@@ -93,7 +98,7 @@
 		<File RelativePath="..\source\friction\fric_lib.f90"/>
 		<File RelativePath="..\source\friction\friction.F90"/>
 		<File RelativePath="..\source\solvers\gauss-seidel.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\gctp.f">
+		<File RelativePath="..\external_libraries\proj_conv\gctp.f90">
 			<FileConfiguration Name="Debug|Win32">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Release|x64">
@@ -172,15 +177,15 @@
 		<File RelativePath="..\source\solvers\solv_def.f90"/>
 		<File RelativePath="..\source\solvers\solvers.f90"/>
 		<File RelativePath="..\source\solvers\sparse.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.F">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+<<<<<<< HEAD
+		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90">
 			<FileConfiguration Name="Release|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+=======
+		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90"/>
+>>>>>>> develop
 		<File RelativePath="..\source\statistics\stat_def.f90"/>
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
@@ -188,7 +193,7 @@
 		<File RelativePath="..\source\structures\struct_def.f90"/>
 		<File RelativePath="..\source\structures\struct_lib.f90"/>
 		<File RelativePath="..\source\structures\structures.f90"/>
-		<File RelativePath="..\source\boundaries\tide_fac.f">
+		<File RelativePath="..\source\boundaries\tide_fac.f90">
 			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\boundaries\tide_lib.F90"/>
@@ -196,11 +201,11 @@
 		<File RelativePath="..\source\utilities\time_test.F90"/>
 		<File RelativePath="..\source\utilities\tools.F90"/>
 		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
-		<File RelativePath="..\external_libraries\proj_conv\utm2geo.F">
+		<File RelativePath="..\external_libraries\proj_conv\utm2geo.f90">
 			<FileConfiguration Name="Debug|Win32">
 				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
 			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
+				<Tool Name="VFFortranCompilerTool" SourceFileFormat="fileFormatDefault"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Release|Win32">

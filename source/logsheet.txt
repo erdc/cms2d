@@ -1,3 +1,43 @@
+== Version 5.2.9 (9/30/2021) == 
+* Max WSE Tool now works for ASCII file as well as XMDF
+
+== Version 5.2.8 (9/29/2021) ==
+* Added new option to 'Tools' menu for post-processing the CMS Water elevation file to create a Maximum WSE file/dataset.
+
+== Version 5.2.7 (9/20/2021) ==
+* Minor: Added more diagnostic output for various types of Derivative Calculation routines.
+* Added output option to tell CMS to output maximum WSE values over simulation period for each cell.
+*  - new card name for this option is "MAXIMUM_WATER_LEVEL_OUTPUT" and takes 'ON' or 'OFF' as arguments.
+
+== Version 5.2.6 (6/25/2021) == 
+* Bug fix: Fixed error if FALL_VELOCITY, CRITICAL_SHEAR, and COREY_SHAPE_FACTOR cards had no value.
+* Minor: Added descriptive print statements to structure types instead of an application error.
+* Minor: Added error message when the Wind file format is not an expected type.
+* Bug fix: Small fix unset the TELFILE name when a GRID_FILE of '.cart.' type is found.
+* Added function to parse through a cardfile looking for a specific card and returning the rest of the line.
+
+== Version 5.2.5 (6/10/2021) == 
+* Bug fix: Hot start with multiple sediment grain sizes was broken due to bad names in path to dataset.
+* Bug fix: Using ASCII input files wasn't working for salinity. 
+* Bug fix: Small logic error in boundary condition corrected.
+* Bug fix: Corrected sign error which resulted in a sediment bed-change inconsistency 
+* Bug fix: Initialization was missing for initial condition with ASCII input file for Vector data types.
+* Minor: Added capability to write out both XMDF and ASCII output files by using "OUTPUT_FILE_TYPE    BOTH"
+* Minor: Ensured both cards for running CMS with initial conditions were excluded from a warning.
+* Minor: Removed fix for ILUTP solver which caused other issues.
+* Minor: Clearer error messages in reading from input files.
+* Added: Command line option 'Tools' to perform a few independent tasks.
+** Added two routines - one to convert an actual date to a REFTIME and one to do the reverse.
+
+== Version 5.2.4 (06/10/2021) ==
+* Bug fix: When using single wave condition, CMS now stores the gridname in a new variable for proper internal reference.
+* Bug fix: CMS now stores ADCIRC Parent grid and path information correctly for nesting.
+* Bug fix: Divide by zero during normalization of river flux boundaries corrected.
+* Bug fix: CMS was looking for a ZONE when Geographic coordinate system was specified.
+* Bug fix: CMS only recognized NAD83/NAD27/LOCAL for Datum. Modified to accept any of the other variants (NAD 1983, etc)
+* Bug fix: ADCIRC fort.64 file now uses -9.9999e+04 for dry cells instead of 0.0 m/s. CMS needed a small fix to read properly.
+* Bug fix: STARTING_JDATE uses a 2-digit year. Fixed logic to make years > 50 = 1900+yr and all other years 2000+yr. (change of 20 to 50)
+
 == Version 5.2.3 (09/10/2020) ==
 * Minor: added optional argument to 'time_sec2str' for outputting seconds with I0 or F7.3
 
@@ -16,7 +56,7 @@
 == Version 5.1.13 (01/07/2020)==
 * Bug fix: CMCARDS was only able to read a maximum of 1000 lines.  Anything else was ignored.
 * Change: Improved printing of information regarding Statistics process types.
-* New: Added the ability to put advanced cards into 'advanced.cmcards' for processing in desired.
+* New: Added the ability to put advanced cards into 'advanced.cmcards' for processing if desired.
 
 == Version 5.1.12 (10/25/2019)==
 * Bug fix: Corrected display of Rubble Mound Structure cells in diagnostic output

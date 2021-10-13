@@ -72,7 +72,7 @@
     foundcard = .true.
     selectcase(cardname)
       !----- Initial Condition (Input) ----------------------------------------
-      case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE')
+      case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE')     !If another is added to the list, modify the appropriate line in 'input.F90' for subroutine 'card_dataset'
         call card_dataset(77,icfile,flowpath,icfile,icpath,1)
         atemp = icfile
         call uppercase(atemp) 
@@ -197,7 +197,7 @@
     integer :: nscal,nvec
     type(scaldattype), pointer :: scaldat(:)
     type(vecdattype),  pointer :: vecdat(:)
-    real(4) :: etemp(ncellsD),utemp(ncellsD),vtemp(ncellsD),wtemp(ncellsD)
+    real(4) :: etemp(ncellsD),utemp(ncellsD),vtemp(ncellsD),wtemp(ncellsD), umax, vmax
     real(ikind) :: temp(ncellsD)
     
     kunit = 500
@@ -286,13 +286,18 @@
             utemp(i) = vecdat(1)%val(i,1,vecdat(1)%nt)
             vtemp(i) = vecdat(1)%val(i,2,vecdat(1)%nt)        
           enddo
-          do i=nd+1,ncellsd                              !If nd==ncellsD, do nothing more
-            etemp(i) = 0.0
+          do i=nd+1,ncellsd   !If nd==ncellsD, do nothing more
+            !etemp(i) = 0.0   !removed 03/25/21  Copied from scalar, but not correctly modified for vector  MEB
+            utemp(i) = 0.0    !added
+            vtemp(i) = 0.0    !added
           enddo
           
           u=utemp
           v=vtemp
 
+          !umax = maxval(u)   !added for testing purposes  03/25/2021  MEB
+          !vmax = maxval(v)
+          
           !if(ncellpoly>0)then
           !  call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
           !  call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers
@@ -1002,15 +1007,23 @@ loopj:  do j=1,nlay
           endif  
           do ks=1,nsed
             write(apbk,62) ks
-            apath = icpath(1:npath) //'Fraction' // trim(apbk) // alay 
+            apath = icpath(1:npath) //'Fraction' // trim(apbk) // trim(alay)
             call readscallasth5(tfile,apath,ntimes,pbk(:,ks,j),reftimehot,temphr,ierr)            
+            if(ierr<0)then                                                        !Fix for missing space or underscore  MEB  03/15/2021
+              apath = icpath(1:npath) // 'Fraction' // trim(apbk) // ' ' // trim(alay)
+              call readscallasth5(tfile,apath,ntimes,db(:,j),reftimehot,temphr,ierr)
+              if(ierr<0)then 
+                apath = icpath(1:npath) // 'Fraction' // trim(apbk) // '_' // trim(alay)
+                call readscallasth5(tfile,apath,ntimes,db(:,j),reftimehot,temphr,ierr)
+              endif            
+            endif
             if(ierr<0)then
               call diag_print_warning('Problem reading bed composition',&
                '  Setting the bed composition to the default values')  
               ok = .false.
               exit loopj
             else
-              write(msg,'(A,A)') 'Read bed layer thickness: ',trim(apath)
+              write(msg,'(A,A)') 'Read bed composition: ',trim(apath)   !Copy/paste error.  This still printed "bed layer thickness" instead of "bed composition"  MEB  03/15/2021
               call diag_print_message(msg)  
             endif
           enddo !ks
@@ -1081,17 +1094,20 @@ loopj:  do j=1,nlay
 !          close(dgunit)     
           do ks=1,nsed
             write(apbk,62) ks
-            apath = icpath(1:npath) // 'Concentration_' // apbk
+            apath = icpath(1:npath) // 'Concentration' // apbk                         !The underscore is already added with the '62' format  MEB  03/15/2021
             call readscallasth5(tfile,apath,ntimes,Ctk(:,ks),reftimehot,temphr,ierr)
             if(ierr<0)then
               call diag_print_warning('Unable to find initial sediment concentrations',&
                 '   Setting initial sediment concentrations to equilibrium concentration')
               setconc2eq = .true. 
               exit
+            else
+              write(msg,'(A,A)') 'Read sediment concentration: ',trim(apath)
+              call diag_print_message(msg)
             endif 
           enddo
         else
-          write(msg,*) 'Read sediment concentration: ',trim(apath)
+          write(msg,'(A,A)') 'Read sediment concentration: ',trim(apath)
           call diag_print_message(msg)
           do ks=1,nsed
             Ctkstar(:,ks) = Ctk(:,1)*pbk(:,ks,1)          
@@ -1721,7 +1737,7 @@ loopj:  do j=1,nlay
           call writescalh5(outfile,outpath,aname,db(:,j),'m',timehrs,1)  
           do ks=1,nsed
             write(apbk,62) ks
-            aname = 'Fraction' // trim(apbk) // alay
+            aname = 'Fraction' // trim(apbk) // alay 
             call writescalh5(outfile,outpath,aname,pbk(:,ks,j),'none',timehrs,1)          
           enddo !j
         enddo !ks      
@@ -1838,7 +1854,7 @@ loopj:  do j=1,nlay
           do ks=1,nsed
             write(apbk,62) ks
             lname = 'Fraction' // trim(apbk) // alay
-            sname = 'frac' // trim(apbk) // '-' // alay  !adding an underscore to the name to make it easier to read back in
+            sname = 'frac' // trim(apbk) // alay  
             call write_scal_dat_file(aname,lname,sname,pbk(:,ks,j))
           enddo !j
         enddo !ks      

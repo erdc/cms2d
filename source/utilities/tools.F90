@@ -1,4 +1,355 @@
 !******************************************************
+    subroutine CMS_Tools_Dialog    
+! Perform one of a selection of internal tools
+! written by Mitchell Brown, USACE-CHL
+! 1 and 2 - 04/14/2021
+! 3 - 9/30/2021
+!******************************************************    
+    use diag_lib, only: diag_print_message
+    implicit none
+    integer :: ichoice 
+    
+50  continue
+    
+    write(*,*) ''
+    write(*,*) '*****************************************************************'
+    write(*,*) 'Make a choice from the following CMS Tools'
+    write(*,*) '1 - Print RT_JULIAN/REFTIME corresponding to actual date'
+    write(*,*) '2 - Print actual date corresponding to RT_JULIAN/REFTIME'
+    write(*,*) '3 - Read WSE Dataset and output a Max WSE dataset for all times'
+    write(*,*) '9 - Exit'
+    write(*,*) '*****************************************************************'
+    write(*,*) ''
+100 read (*,*) ichoice
+    
+    select case (ichoice)
+    case (1) 
+      call CMS_date2reftime
+      call clear_screen       !This will present a fresh menu after it returns
+    case (2) 
+      call CMS_reftime2date
+      call clear_screen
+    case (3)
+      call CMS_MaxWSE
+      call clear_screen
+    case (9)
+      STOP
+    case default
+      call diag_print_message ('Selection not available, make another selection')
+      goto 100
+    end select
+    
+    goto 50
+    
+    contains
+    
+!******************************************************
+      subroutine clear_screen
+      
+#ifdef _WIN32
+        call system('cls')
+#else
+        call system('clear')
+#endif
+
+      return
+      end subroutine clear_screen
+      
+
+!******************************************************
+      subroutine CMS_MaxWSE
+        use diag_lib, only: diag_print_message
+        
+        implicit none
+        character :: filename*100, aext*10
+        logical   :: exists
+
+        do
+          write(*,'(A)') 'Enter filename of WSE solution file (*_wse.h5, *_eta.dat, etc)'
+          read(*,*) filename
+          inquire(FILE=trim(filename),EXIST=exists)
+          if (.not.exists) then
+            write(*,'(A)') 'File not found, try again'
+          else
+            exit
+          endif
+        enddo
+
+        call fileext (filename,aext)
+        select case (aext)
+          case('h5')
+#ifdef _WIN32            
+            call CMS_MaxWSE_h5(trim(filename))
+#else
+            call diag_print_message("XMDF/H5 file functionality is missing for Linux")
+#endif
+          case('dat')
+            call CMS_MaxWSE_dat(trim(filename))
+          case default
+            call diag_print_message("This tool presently only works on '.dat' and '.h5' files")
+        end select
+        write(*,*) ' '
+        write(*,*) 'Press the Enter key to continue'
+        read(*,*) 
+          
+        return
+      end subroutine CMS_MaxWSE
+
+!*************************************************************
+      subroutine CMS_MaxWSE_dat (filename)
+        use in_def,   only: scaldattype,vecdattype 
+        use in_lib,   only: read_dat
+        use out_lib,  only: write_scal_dat_file
+        use comvarbl, only: reftime
+        use size_def, only: ncells
+        
+        implicit none
+        character(len=*), intent(in) :: filename
+        real(4), allocatable :: max_array(:)
+        
+        integer :: nscal, nvec, nTimes, wseRec = -1
+        type(scaldattype), pointer :: scaldat(:)
+        type(vecdattype),  pointer :: vecdat(:)
+        integer :: i, j, iloc
+        logical :: found = .false.
+        character :: newfile*100, aName*100
+        
+        call read_dat (filename,nscal,scaldat,nvec,vecdat)
+        do i=1,nscal
+          if(scaldat(i)%NAME == 'Water_Elevation') then
+            nTimes  = scaldat(i)%NT
+            nCells  = scaldat(i)%NC
+            reftime = scaldat(i)%reftime
+            allocate(max_array(nCells))
+            max_array = -1000.0
+            found = .true.
+            wseRec = i
+            exit
+          else
+            cycle
+          endif
+        enddo
+        
+        if (.not.found) then
+          call diag_print_message ("Error: 'Water_Elevation' dataset not found in file")
+          write(*,*) 'Press the Enter key to continue'
+          read(*,*) 
+          return
+        endif
+        write(*,*)' '
+        write(*,'(A)') ' Parsing existing Water Elevations'
+        do i=1,nTimes
+          do j=1,nCells
+            max_array(j) = max(scaldat(wseRec)%VAL(j,i),max_array(j))
+          enddo
+        enddo
+        
+        !Create new file for the Max Water Elevations based on original filename
+        iloc    = index(filename,'_eta')
+        aName   = filename(1:iloc-1)
+        newfile = trim(aName)//'_maxeta.dat'
+        write(*,'(A)')" Writing Maximum elevations to file: '"//trim(newfile)//"'"
+
+        call write_scal_dat_file(aName,'Maximum_WSE','maxeta',max_array)
+
+        return
+      end subroutine CMS_MaxWSE_dat
+      
+      
+!*************************************************************
+      subroutine CMS_MaxWSE_h5 (filename)
+        use XMDF
+        use out_lib, only: OPEN_CREATE_DATASET
+        use EXP_Global_def, only: RROUND
+        use comvarbl, only: reftime
+        use diag_lib, only: diag_print_error
+        
+        implicit none
+        character(len=*), intent(in) :: filename
+        
+        integer :: fid, gid, ierr, a_Number, a_MaxPathLength, iloc
+        integer :: nfid, ndid
+        integer :: i, j, a_NumTimes, nCells, complete
+        real(4) :: Num
+        real(4), allocatable :: Values(:), max_array(:)
+        real(8), allocatable :: Times(:)
+        character(100) :: newfile, a_Path
+        character(100), allocatable :: Paths(:)
+        logical :: exists
+
+        call XF_OPEN_FILE(trim(filename),readwrite,fid,ierr) !Open XMDF file
+        if(ierr<0)then
+          write(*,'(A)') 'Error opening file'
+        endif          
+        call XF_GET_SCALAR_DATASETS_INFO (fid, a_Number, a_MaxPathLength, ierr)
+        allocate(Paths(a_Number))
+        do i=1,a_Number
+          call XF_GET_SCALAR_DATASET_PATHS (fid, i, a_MaxPathLength, Paths, ierr)
+          a_Path = Paths(i)
+          iloc = index(a_Path,'Water_Elevation')
+          if (iloc <= 0) then
+            cycle
+          else
+            a_Path(iloc+15:100) = ' '
+            exit
+          endif
+        enddo
+        deallocate(Paths)
+        
+        if (i > a_Number) then
+          write (*,'(A)') 'No Water Elevation Dataset found'
+          stop
+        endif 
+        
+        call OPEN_CREATE_DATASET(fid,trim(a_Path),gid,1,'m',ierr)
+        
+        !Parse through the datasets in the file and get max value
+        call XF_READ_REFTIME(gid, Reftime, ierr)
+        call XF_GET_DATASET_NUM_TIMES(gid, a_NumTimes, ierr)
+        allocate(Times(a_NumTimes))
+        times = 0.0 ;
+        
+        call XF_GET_DATASET_TIMES(gid, a_NumTimes, Times, ierr)
+        call XF_GET_DATASET_NUMVALS(gid, nCells, ierr)
+        allocate(max_array(nCells),Values(nCells))
+        max_array = -1000.0 ; values = 0.0
+        complete = 0
+        write(*,*) ' '
+        write(*,'(A)') ' Parsing existing Water Elevations'
+        do i=1,a_NumTimes
+          call XF_READ_SCALAR_VALUES_TIMESTEP(gid, i, nCells, Values, ierr)
+          do j=1,nCells
+            max_array(j) = max(Values(j),max_array(j))
+          enddo
+          num = real(i)/real(a_NumTimes)*100
+          if (num .ge. complete) then           
+            write(*,'(2x,I3,x,A)') complete, 'Percent Complete'
+            complete = complete + 10
+          endif
+        enddo
+        call XF_CLOSE_GROUP(gid,ierr)  !Close old dataset    
+        call XF_CLOSE_FILE(fid,ierr)   !Close old file
+        
+        !Create new file for the Max Water Elevations based on original filename
+        iloc = index(filename,'_wse')
+        newfile = filename(1:iloc-1)//'_maxwse.h5'
+        iloc = index(a_Path,'Water_Elevation')
+        a_Path = a_Path(1:iloc-1)//'Max_Water_Elevation'
+
+        inquire(FILE=trim(newfile), EXIST=exists)
+        if (exists) then
+          open(100,file=newfile,iostat=ierr)
+          close(100,status='delete',iostat=ierr)
+        endif            
+        call XF_CREATE_FILE(trim(newfile),readwrite,nfid,ierr)
+        call OPEN_CREATE_DATASET(nfid,trim(a_Path),ndid,1,'m',ierr)
+        if (ierr.ge.0) then
+          write(*,*) ' '
+          write(*,'(A,A)')" Writing Maximum elevations to file: '"//trim(newfile)//"'"
+        else
+          call diag_print_error('Error creating dataset')
+        endif
+        call XF_WRITE_SCALAR_TIMESTEP(ndid,0.d0,nCells,max_array,ierr)
+        
+        call XF_CLOSE_GROUP(ndid,ierr) !Close new dataset
+        call XF_CLOSE_FILE(nfid,ierr)  !Close new file 
+        
+        return
+      end subroutine CMS_MaxWSE_h5
+      
+!**************************************************************************
+      subroutine CMS_date2reftime
+        use XMDF
+        use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
+        implicit none
+        integer :: ierr
+        
+        
+        write(*,'(A)') 'Enter date (yyyy-mm-dd hh:mm:ss)'
+        call card_datetime(5,iyr,imo,iday,ihr,imin,isec) 
+        call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+        write(*,*)''
+        write(*,'(A,F0.6)') 'RT_JULIAN date is: ',reftime
+        write(*,'(A)') 'Press any key to continue.'
+        read(*,*)
+        write(*,*)''
+        
+        return
+      end subroutine CMS_date2reftime
+    
+      subroutine CMS_reftime2date
+        use XMDF
+        use comvarbl, only: iyr, imo, iday, ihr, imin, isec, reftime
+        implicit none
+        integer :: ierr, era = 0
+
+100     format('Calendar date is: ',i4.4,'-',i2.2,'-',i2.2, 1x ,i2.2,':',i2.2,':',i2.2)
+        
+        write(*,*) 'Enter reference time:'
+        read (*,*) reftime 
+        call XF_JULIAN_TO_CALENDAR(era,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+        write(*,*)''
+        write(*,100) iyr, imo, iday, ihr, imin, isec
+        write(*,'(A)') 'Press any key to continue.'
+        read(*,*)
+        write(*,*)''
+        
+        return
+      end subroutine CMS_reftime2date
+
+    end subroutine CMS_Tools_Dialog
+!******************************************************    
+    
+!******************************************************
+    logical function findCard(aFile,aCard,aValue)    
+! Find a given card in the cardfile and return the rest of the selected line in the variable, aValue.
+! written by Mitch Brown, USACE-CHL 06/25/2021
+!
+! The correct interface is given below
+    !interface  
+    ! function findCard(aFile,aCard,aValue)
+    !    character(len=*),intent(in)    :: aFile
+    !    character(len=*),intent(in)    :: aCard
+    !    character(len=100),intent(out) :: aValue
+    !    logical :: findCard
+    !  end function
+    !end interface
+!******************************************************    
+    implicit none
+    character(len=*), intent(in)    :: aFile
+    character(len=*), intent(in)    :: aCard
+    character(len=100), intent(out) :: aValue
+    
+    character(len=80)  :: testCard
+    character(len=100) :: aLine
+    logical            :: foundCard = .false.
+    integer            :: iloc
+    
+    open(77,file=aFile,status='unknown')
+    do 
+      read(77,*,end=100) testCard
+      if (trim(testCard) == trim(aCard)) then
+        backspace(77)
+        read(77,'(A100)') aLine
+        iloc = index(aLine,' ')
+        aLine = adjustL(aLine(iloc:))
+        read(aLine, '(A100)') aValue
+        findCard = .true.
+        return
+        exit
+      else
+        findCard = .false.
+      endif
+    enddo
+
+100 findCard = .false.
+
+    return
+    end function findcard
+!******************************************************    
+   
+    
+!******************************************************
     subroutine fileparts(astr,apath,aname,aext)    
 ! Determines the parts of a file name
 ! written by Alex Sanchez, USACE-CHL

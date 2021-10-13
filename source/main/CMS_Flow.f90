@@ -21,8 +21,12 @@
     use flow_semi_mod
     use geo_def, only: bathydata,zb
 #endif    
-
+!! Added MEB  9/20/2021
+    use flow_def, only: maxeta
+    use out_lib, only: writescalh5, write_scal_dat_file
+    
     implicit none
+    character(len=200) :: apath, aname
     
     call prestart    
     
@@ -35,49 +39,63 @@
     endif
     
     do while(ctime < stimet) !Note that stimet includes ramp period
-       call timing   !ntime, mtime, dtime, ctime, timehrs, ramp                        !added scalemorph_ramp - meb 03/11/2019
-       if(cmswave) call wave_eval !Run wave model, and interpolate in space and time
-       if(constant_waves) call wave_const_update !Set constant wave parameters, for idealized cases and lab experiments
+      call timing   !ntime, mtime, dtime, ctime, timehrs, ramp                        !added scalemorph_ramp - meb 03/11/2019
+      if(cmswave) call wave_eval !Run wave model, and interpolate in space and time
+      if(constant_waves) call wave_const_update !Set constant wave parameters, for idealized cases and lab experiments
 
 #ifdef DEV_MODE       
-       if(mbedfric == 0) call fric_rough_eval
+      if(mbedfric == 0) call fric_rough_eval
 #endif 
 
 !Temporary to match Chris' Files for choosing Explicit/Implicit
-!!       if(nfsch==0)then !Implicit                     !Temporarily commented
-         call flow_imp !u,v,p,eta,h,flux,vis,etc
-!!       elseif(nfsch==1)then !Explicit                 !Temporarily commented
-!!         call flow_exp !u,v,p,eta,h,flux,vis,etc      !Temporarily commented
-!!       elseif(nfsch==2)then !Semi-implicit            !Temporarily commented
-!!         call flow_semi !u,v,p,eta,h,flux,vis,etc     !Temporarily commented
-!!       endif                                          !Temporarily commented
+!!      if(nfsch==0)then !Implicit                     !Temporarily commented
+        call flow_imp !u,v,p,eta,h,flux,vis,etc
+!!      elseif(nfsch==1)then !Explicit                 !Temporarily commented
+!!        call flow_exp !u,v,p,eta,h,flux,vis,etc      !Temporarily commented
+!!      elseif(nfsch==2)then !Semi-implicit            !Temporarily commented
+!!        call flow_semi !u,v,p,eta,h,flux,vis,etc     !Temporarily commented
+!!      endif                                          !Temporarily commented
 !#ifdef DEV_MODE
-!       if(iFlow1D>0) call makeflow1D !Constant flow conditions in column direction, for testing only       
+!      if(iFlow1D>0) call makeflow1D !Constant flow conditions in column direction, for testing only       
 !#endif       
-       if(sedtrans) call sed_imp !Sediment transport, implicit solution
-       if(saltrans) call sal_imp !Salinity transport, implicit solution
-       if(heattrans) call heat_imp  !Heat transfer, implicit solution
-       if(dredging)then
-         call dredge_eval
-         if(sedtrans) call sed_concdepthchange !Correct concentrations for depth changes
-       endif
+      if(sedtrans) call sed_imp !Sediment transport, implicit solution
+      if(saltrans) call sal_imp !Salinity transport, implicit solution
+      if(heattrans) call heat_imp  !Heat transfer, implicit solution
+      if(dredging)then
+        call dredge_eval
+        if(sedtrans) call sed_concdepthchange !Correct concentrations for depth changes
+      endif
 #ifdef DEV_MODE       
-       if(bathydata%ison)then
-         call geo_bathy_update(zb,-1)
-         call geo_flowdepth_update
-       endif
+      if(bathydata%ison)then
+        call geo_bathy_update(zb,-1)
+        call geo_flowdepth_update
+      endif
 #endif
 
-       if(hot_out) call hot_write
-       if(timehrs > timeout)then !Avoids writing before end of last simulation        
-         call write_output     !Global variable snapshots
-         call stat_update      !Global variable statistics
-       endif
+      if(hot_out) call hot_write
+      if(timehrs > timeout)then !Avoids writing before end of last simulation        
+        call write_output     !Global variable snapshots
+        call stat_update      !Global variable statistics
+      endif
+
 !#ifdef DEV_MODE
 !       if(pred_corr) call flow_pred !Flow prediction based on simple explicit scheme  
 !#endif
-       call flow_update    !Reset variables for next iterations
+      call flow_update    !Reset variables for next iterations
     enddo
+
+    !added MEB 9/20/2021    Output the Maximum WSE to the correct file.
+    if(write_maxwse) then !Maximum WSE 
+          
+#ifdef XMDF_IO
+      apath = trim(simlabel)//'/'
+      if(write_xmdf_output) call writescalh5(outlist(1)%afile,apath,'Maximum Water_Elevation',maxeta,'m',timehrs,0)
+#endif   
+      aname = trim(flowpath) // 'ASCII_Solutions' // '/' // trim(casename)
+      if(write_sup) call write_scal_dat_file(aname,'Maximum_Water_Elevation','maxeta',maxeta) !SUPER ASCII File
+                        !write_scal_dat_file(aname,'Water_Elevation','eta',eta) !SUPER ASCII File      
+    endif
+    
     if(save_point) call save_point_close
     call sim_end_print
     call cleanup
@@ -227,7 +245,8 @@
 #include "CMS_cpp.h"
     use size_def
     use geo_def, only: zb
-    use flow_def
+    use flow_def, only: maxeta, u2, v2, p2, h2, u1, v1, p1, h1, iwet, iwet1,flux, flux1
+    use flow_def, only: u, v, p, h, pp, dppx, dppy, eta
     use comvarbl, only: dtime,dtime1,wtsch,ntime,nspinup,nfsch
     use sed_def
     use sal_def
@@ -325,6 +344,11 @@
       enddo
 !$OMP END DO NOWAIT
     endif
+    
+!Update maximum WSE values   !added MEB 9/20/2021
+    do i=1,ncellsD
+      maxeta(i) = max(eta(i),maxeta(i))
+    enddo
     
 !--- Sediment -------------------
     if(sedtrans)then

@@ -1511,12 +1511,14 @@ di:   do i=1,ncells
         k=Q_str(iriv)%faces(j)
         qfluxchk = qfluxchk - flux(k,i)
       enddo
-      qfluxchk=abs((qfluxchk-Q_str(iriv)%qflux)/Q_str(iriv)%qflux) !Normalized error
-      if(qfluxchk>0.001)then
-        write(msg2,*) '  Flux Boundary:   ',Q_str(iriv)%idnum
-        write(msg3,*) '  Specified Flux:  ',Q_str(iriv)%qflux,' m^3/s'
-        write(msg4,*) '  Calculated Flux: ',qfluxchk,' m^3/s' 
-        call diag_print_warning('Problem distributing flow at flux boundary ',msg2,msg3,msg4)
+      if (Q_str(iriv)%qflux .ne. 0.0) then                           !Avoid divide by zero  MEB  04/08/2021
+        qfluxchk=abs((qfluxchk-Q_str(iriv)%qflux)/Q_str(iriv)%qflux) !Normalized error
+        if(qfluxchk>0.001)then
+          write(msg2,*) '  Flux Boundary:   ',Q_str(iriv)%idnum
+          write(msg3,*) '  Specified Flux:  ',Q_str(iriv)%qflux,' m^3/s'
+          write(msg4,*) '  Calculated Flux: ',qfluxchk,' m^3/s' 
+          call diag_print_warning('Problem distributing flow at flux boundary ',msg2,msg3,msg4)
+        endif
       endif
     enddo
 

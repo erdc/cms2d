@@ -83,16 +83,16 @@
     aHorizDatum(2) = 'LOCAL'
     
     !Horizontal Coordinate system    
-    aHorizCoordSystem(0) = 'GEOGRAPHIC'
-    aHorizCoordSystem(1) = 'UTM'
-    aHorizCoordSystem(2) = 'STATE_PLANE'
-    aHorizCoordSystem(3) = 'ALBERS_CONICAL_EQUAL-AREA'
-    aHorizCoordSystem(4) = 'LAMBERT_CONFORMAL_CONIC'
-    aHorizCoordSystem(5) = 'MERCATOR'
-    aHorizCoordSystem(6) = 'POLAR_STEREOGRAPHIC'
-    aHorizCoordSystem(7) = 'POLYCONIC'
-    aHorizCoordSystem(8) = 'EQUIDISTANT_CONIC'
-    aHorizCoordSystem(9) = 'TRANSVERSE_MERCATOR'
+    aHorizCoordSystem(0)  = 'GEOGRAPHIC'
+    aHorizCoordSystem(1)  = 'UTM'
+    aHorizCoordSystem(2)  = 'STATE_PLANE'
+    aHorizCoordSystem(3)  = 'ALBERS_CONICAL_EQUAL-AREA'
+    aHorizCoordSystem(4)  = 'LAMBERT_CONFORMAL_CONIC'
+    aHorizCoordSystem(5)  = 'MERCATOR'
+    aHorizCoordSystem(6)  = 'POLAR_STEREOGRAPHIC'
+    aHorizCoordSystem(7)  = 'POLYCONIC'
+    aHorizCoordSystem(8)  = 'EQUIDISTANT_CONIC'
+    aHorizCoordSystem(9)  = 'TRANSVERSE_MERCATOR'
     aHorizCoordSystem(10) = 'STEREOGRAPHIC'
     aHorizCoordSystem(11) = 'LAMBERT_AZIMUTHAL_EQUAL-AREA'
     aHorizCoordSystem(12) = 'AZIMUTHAL_EQUIDISTANT'
@@ -168,13 +168,15 @@
         read(77,*) cardname, nflowgrd
       
       case('GRID_FILE')
-        backspace(77)
-        read(77,*) cardname, grdfile    
-        call fileparts(grdfile,apath,aname,aext)  
-        if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
-        call lowercase(aext)
-        if(aext(1:3)=='2dm') igridtype = 2  !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
-        if(aext(1:3)=='tel') igridtype = 1
+        if (telfile(1:1) .eq. ' ') then
+          backspace(77)
+          read(77,*) cardname, grdfile    
+          call fileparts(grdfile,apath,aname,aext)  
+          if(len_trim(apath)==0) grdfile = trim(flowpath) // grdfile
+          call lowercase(aext)
+          if(aext(1:3)=='2dm') igridtype = 2  !0-Non-telescoping, 1-Telescoping, 2-Polygonal, 3-Curvilinear
+          if(aext(1:3)=='tel') igridtype = 1
+        endif
         
       case('TELESCOPING','TELESCOPING_FILE')
         backspace(77)
@@ -265,7 +267,11 @@
       write(iunit(i),*)
       write(iunit(i),888)    'Grid '         
       
-      call fileparts(grdfile,apath,aname,aext)
+      if (telfile .eq. " ") then
+        call fileparts(grdfile,apath,aname,aext)
+      else
+        call fileparts(telfile,apath,aname,aext)
+      endif
       astring=trim(aname) // '.' // aext
       write(iunit(i),787)    '  Grid File:',trim(astring)
       
@@ -294,6 +300,7 @@
         write(iunit(i),222)  '    Zone:',projfl%iHorizZone
       endif      
       write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
+      
     enddo
 
     close(dgunit)
@@ -2464,6 +2471,7 @@ di: do i=1,ncellsD
     type(projection),intent(inout) :: proj
     !Internal
     integer :: i,k,ierr,ilen1,ilen2
+    integer :: i27=0,i83=0
     character(len=37) :: cardname
     character(len=200) :: aline,dtype,azone
     logical :: foundcard,matched
@@ -2480,7 +2488,7 @@ d1: do k=1,10
         read(aline,*) cardname, dtype
 
         matched=.false.
-        do i=0,2
+        do i=0,2    !0 = NAD27, 1 = NAD83, 2 = LOCAL
           if(dtype(1:5)==aHorizDatum(i))then
             proj%iHorizDatum = i
             matched=.true.
@@ -2488,12 +2496,22 @@ d1: do k=1,10
           endif
         enddo
         if(.not.matched)then
-          write(*,*)  
-          write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
-          write(*,*) trim(aline)
-          write(*,*) '- Will run as LOCAL Datum'
-          write(*,*)
-          proj%iHorizDatum = 2
+          i27=index(dtype,'27')
+          i83=index(dtype,'83')
+          if (i27) then
+            proj%iHorizDatum = 0
+            matched=.true.
+          elseif (i83) then
+            proj%iHorizDatum = 1
+            matched=.true.
+          else
+            write(*,*)  
+            write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
+            write(*,*) trim(aline)
+            write(*,*) '- Will run as LOCAL Datum'
+            write(*,*)
+            proj%iHorizDatum = 2
+          endif
         endif
        
       case('COORDINATE_SYSTEM','COORD_SYSTEM','SYSTEM','HORIZONTAL_COORDINATE_SYSTEM')

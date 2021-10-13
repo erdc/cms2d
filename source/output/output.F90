@@ -51,6 +51,7 @@
     write_presgrad = .false.     !Pressure gradients = (dpx,dpy)
     write_presres = .false.      !Normalized residuals for p
     write_velres = .false.       !Normalized residuals for u,v
+    write_maxwse = .false.       !Maximum water level output 
     
     !Sediment
     write_conc = .true.          !Concentration
@@ -68,7 +69,7 @@
     !Wave
     write_wave_detail = .false.  !Wave details
     write_wavstress = .false.    !Wave stress vectors
-    write_wavbrkdiss = .false.    !Wave dissipation 
+    write_wavbrkdiss = .false.   !Wave dissipation 
     write_wavbrkind = .false.    !Wave breaking index (0 or 1)
     write_fracbreak = .false.    !Fraction of breaking waves
     write_wavdisscoef = .false.  !Wave dissipation coefficient
@@ -194,6 +195,7 @@
     use out_def
     use prec_def
     use comvarbl, only: etime
+    use diag_lib, only: diag_print_warning
     implicit none
     integer :: i,j,cell,ierr
     character(len=37) :: cardname,cdum,ptname
@@ -553,18 +555,19 @@
       case('OUTPUT_FILE_TYPE')
         backspace(77)
         read(77,*) cardname,astring
-        if(toUpper(astring(1:4)) == "XMDF") then        !XMDF, turn off other types
+        if    (toUpper(astring(1:4)) == "XMDF")  then   !XMDF, turn off other types
           write_xmdf_output = .true.
-          write_netcdf      = .false.
           write_sup         = .false.
-        elseif(toUpper(astring(1:6)) == 'NETCDF') then  !NETCDF, turn off other types
-          write_netcdf      = .true.
-          write_xmdf_output = .false.
-          write_sup         = .false.
-        else                            !Other, turn on ASCII and turn off other types
+        elseif(toUpper(astring(1:5)) == 'ASCII') then   !ASCII, turn off other types
           write_sup         = .true.
-          write_netcdf      = .false.
           write_xmdf_output = .false.
+        elseif(toUpper(astring(1:4)) == 'BOTH')  then   !Other, allow for both XMDF and ASCII
+          write_sup         = .true.
+          write_xmdf_output = .true.
+        else
+          write_xmdf_output = .true.
+          write_sup         = .false.
+          call diag_print_warning('Unrecognized value for card, OUTPUT_FILE_TYPE','Defaulting to XMDF')
         endif
         
       !Hydrodynamics  
@@ -630,6 +633,9 @@
         
       case('VELOCITY_RESIDUALS_OUTPUT','OUTPUT_VELOCITY_RESIDUALS')
         call card_boolean(77,write_velres,ierr)  
+        
+      case('MAXIMUM_WATER_LEVEL_OUTPUT')            !Added MEB 9/20/2021  Provide a mechanism to turn this on
+        call card_boolean(77,write_maxwse,ierr)
         
       !Sediment Transport  
       case('CONC_OUTPUT','CONCENTRATION_OUTPUT','OUTPUT_CONC','OUTPUT_CONCENTRATION') !Ct
@@ -1460,6 +1466,9 @@
         if(obs(4)%active)then
           write(iunit(i),485)   '  Bed increment:',obs(4)%time_inc,' sec'
         endif
+      endif
+      if(write_maxwse) then
+        write(iunit(i),787)     '  Maximum Water Level Output:','ON'
       endif
 
 234   format(' ',4x,A12,A40,'''',A,'''')

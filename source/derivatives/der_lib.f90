@@ -4,40 +4,30 @@ module der_lib
 !
 ! Contains the following:
 ! - Initialization - 
-!     der_grad_cbfd     - Computes the spatial deriviate coefficients using
-!                    a second-order Finite-Difference Approximation
-!     der_grad_cbgg     - Computes the spatial deriviate coefficients using the 
-!                    cell-based Green-Gauss method (first order for skewed cells)
-!     der_grad_cbggcr   - Computes the deriviate coefficients using the 
-!                    cell-based Green-Gauss method with linear cell reconstruction
-!     der_grad_cbwlsfs  - Weighted cell-based least-squares (face-sharing) 
-!                    gradient coefficients
+!     der_grad_cbfd     - Computes the spatial deriviate coefficients using a second-order Finite-Difference Approximation
+!     der_grad_cbgg     - Computes the spatial deriviate coefficients using the cell-based Green-Gauss method (first order for skewed cells)
+!     der_grad_cbggcr   - Computes the deriviate coefficients using the cell-based Green-Gauss method with linear cell reconstruction
+!     der_grad_cbwlsfs  - Weighted cell-based least-squares (face-sharing) gradient coefficients
+
 ! - Gradients - 
-!     der_grad_eval - Cell-centered gradient operator for a scalar array 
-!                on arbitrary structured grids at all cells
-!     der_gradvec_eval - Cell-centered gradient operator for a vector array 
-!                vstructured grids at all cells
-!     gradxyvecrecon - Cell-centered gradient operator for a vector array 
-!                on arbitrary structured grids onlt reconstruction cells
-!     dk2d - Calculates the gradient in the cross-cell direction
-!                with the positive directions in the outward direction
-!     dxy2d -    Cell-centered gradient operator in x- and y-directions
-!                at an individual cell 
-!     dx2d -     Cell-centered gradient operator in x-direction 
-!                at an individual cell 
-!     dy2d -     Cell-centered gradient operator in y-direction 
-!                at an individual cell 
+!     der_grad_eval - Cell-centered gradient operator for a scalar array on arbitrary structured grids at all cells
+!     der_gradvec_eval - Cell-centered gradient operator for a vector array structured grids at all cells
+!     gradxyvecrecon - Cell-centered gradient operator for a vector array on arbitrary structured grids onlt reconstruction cells
+!     dk2d - Calculates the gradient in the cross-cell direction with the positive directions in the outward direction
+!     dxy2d -    Cell-centered gradient operator in x- and y-directions at an individual cell 
+!     dx2d -     Cell-centered gradient operator in x-direction at an individual cell 
+!     dy2d -     Cell-centered gradient operator in y-direction at an individual cell 
+
 ! - Curvature -
-!     curvxy - Curvature operator for variable scalar arrays on 
-!              arbitrary structured grids
-!     d2xy2d - Calculates the second derivative in two dimensions 
-!              at an indivudal cell
+!     curvxy - Curvature operator for variable scalar arrays on arbitrary structured grids
+!     d2xy2d - Calculates the second derivative in two dimensions at an indivudal cell
+
 ! - Slope limiters - 
 !     limitslope - Differentiable slope limiter for Cartesian grids
 !     bjlim - Barth and Jespersen type slope limiter for scalar arrays
 !     bjlimvec - Barth and Jespersen type slope limiter for vector arrays
-!     lcdlim - Limited Central Difference slope limter for a scalar arrays
-!     lcdlimvec - Limited Central Difference slope limter for a vector arrays
+!     lcdlim - Limited Central Difference slope limiter for a scalar arrays
+!     lcdlimvec - Limited Central Difference slope limiter for a vector arrays
 !     vanleerslopelim - Van leer (Harmonic) slope limiter
 !     vanalbadaslopelim - Van Alabada slope limiter
 !     musclslopelim - MUSCL (BJ) slope limiter
@@ -260,7 +250,7 @@ contains
         write(msg3,*,iostat=ierr) 'sumwx,sumwy: ',sumwx,sumwy
         write(msg4,*,iostat=ierr) 'wcxt(0:ncface(i)):',wcxt(0:ncface(i))
         write(msg5,*,iostat=ierr) 'wcyt(0:ncface(i)):',wcyt(0:ncface(i))
-        call diag_print_error('Problem calculating gradient coefficients',msg2,msg3,msg4,msg5)
+        call diag_print_error('Problem calculating gradient coefficients using Cell-based Finite-Difference method',msg2,msg3,msg4,msg5)
       endif
       !Only keep significant weights    
       call screen_weights(4,wcxt,wcyt,icxt,icyt,&
@@ -369,7 +359,7 @@ contains
         write(msg2,*,iostat=ierr) i,sumwx,sumwy
         write(msg3,*,iostat=ierr) 'wcxt: ',wcxt
         write(msg4,*,iostat=ierr) 'wcyt: ',wcyt
-        call diag_print_error('Problem calculating gradient coefficients',msg2,msg3,msg4)
+        call diag_print_error('Problem calculating gradient coefficients using cell-based Green-Gauss method',msg2,msg3,msg4)
       endif
       !Only keep significant weights    
       call screen_weights(nmaxfaces,wcxt,wcyt,icxt,icyt,go%nsc,go%ncx(i),go%ncy(i),&
@@ -667,7 +657,7 @@ contains
       if(abs(errx)>1.0e-5 .or. abs(erry)>1.0e-5)then
         write(msg2,*) i,sumwx,sumwy
         write(msg3,*) wcxt(0:nw),wcyt(0:nw)  
-        call diag_print_error('Problem calculating gradient coefficients',msg2,msg3)
+        call diag_print_error('Problem calculating gradient coefficients with Weighted Cell-based least-squares method',msg2,msg3)
       endif
       !Only keep significant weights
       call screen_weights(nw,wcxt,wcyt,icxt,icyt,go%nsc,go%ncx(i),go%ncy(i),&

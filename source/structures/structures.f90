@@ -304,7 +304,8 @@
         case('CELLS')
           backspace(77)
           ival = WR_struct(iweir)%ncells 
-          read(77,*) cardname, (WR_struct(iweir)%cells(iwr),iwr=1,ival)
+          read(77,*,iostat=ierr) cardname, (WR_struct(iweir)%cells(iwr),iwr=1,ival)
+          if(ierr/=0) call diag_print_error('Must specify the number of cells for each weir')            !MEB 06/21  better descriptive output without application error
 
         case('DISTRIBUTION_COEFFICIENT')
           backspace(77)
@@ -368,6 +369,7 @@
 !************************************************************************************
     use const_def, only: deg2rad
     use struct_def
+    use diag_lib, only: diag_print_error                                                                 !MEB 06/21  better descriptive output without application error
     implicit none
     integer :: i,iwr,ierr,maxweir
     character(len=34) :: cardname
@@ -386,7 +388,8 @@
 
         case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
           backspace(77)
-          read(77,*) cardname,(nweir(iwr),iwr=1,numweir)              
+          read(77,*,iostat=ierr) cardname,(nweir(iwr),iwr=1,numweir)              
+          if(ierr/=0) call diag_print_error('Must specify the number of cells for each weir')            !MEB 06/21  better descriptive output without application error
           nweir(0) = 0
           maxweir = 0
           do iwr=1,numweir
@@ -400,31 +403,38 @@
 
         case('CELLS')
           backspace(77)
-          read(77,*) cardname,(idweir(iwr),iwr=1,maxweir)     
+          read(77,*,iostat=ierr) cardname,(idweir(iwr),iwr=1,maxweir)     
+          if(ierr/=0) call diag_print_error('Must specify the Cell IDs in each weir')
 
         case('DISTRIBUTION_COEFFICIENT')
           backspace(77)
-          read(77,*) cardname,(coefweirlateral(iwr),iwr=1,maxweir)     
+          read(77,*,iostat=ierr) cardname,(coefweirlateral(iwr),iwr=1,maxweir)     
+          if(ierr/=0) call diag_print_error('Must specify the distribution coefficient values for each weir')
 
         case('ORIENTATION')
           backspace(77)
-          read(77,*) cardname,(orientweir(iwr),iwr=1,numweir)     
+          read(77,*,iostat=ierr) cardname,(orientweir(iwr),iwr=1,numweir)     
+          if(ierr/=0) call diag_print_error('Must specify the orientation for each weir')
 
         case('TYPE')
           backspace(77)
-          read(77,*) cardname,(iweirtype(iwr),iwr=1,numweir)     
+          read(77,*,iostat=ierr) cardname,(iweirtype(iwr),iwr=1,numweir)     
+          if(ierr/=0) call diag_print_error('Must specify the type for each weir')
 
         case('FLOW_COEFFICIENT')
           backspace(77)
-          read(77,*) cardname,(coefweir(iwr,1),coefweir(iwr,2),iwr=1,numweir)     
+          read(77,*,iostat=ierr) cardname,(coefweir(iwr,1),coefweir(iwr,2),iwr=1,numweir)     
+          if(ierr/=0) call diag_print_error('Must specify the flow coefficient for each weir')
 
         case('CREST_ELEVATION')
           backspace(77)
-          read(77,*) cardname,(elevweir(iwr),iwr=1,numweir)     
+          read(77,*,iostat=ierr) cardname,(elevweir(iwr),iwr=1,numweir)     
+          if(ierr/=0) call diag_print_error('Must specify the crest elevation for each weir')
 
         case('METH')
           backspace(77)
-          read(77,*) cardname,(methweir(iwr),iwr=1,numweir)     
+          read(77,*,iostat=ierr) cardname,(methweir(iwr),iwr=1,numweir)     
+          if(ierr/=0) call diag_print_error('Must specify the flux calculation method for each weir')
 
         !Initialize       
         dqweirdzdown = 0.0;  dqweirdzup = 0.0  
@@ -463,6 +473,7 @@
 ! written by Alex Sanchez, USACE-CHL    
 !************************************************************************************
     use const_def, only: deg2rad
+    use diag_lib, only: diag_print_error                                                                !MEB 06/21  better descriptive output without application error
     use struct_def
     implicit none
     integer :: i,icv,ierr
@@ -500,11 +511,13 @@
           
         case('CELLS')
           backspace(77)
-          read(77,*) cardname,(idculvert(icv,1),idculvert(icv,2),icv=1,numculvert)  
-    
+          read(77,*,iostat=ierr) cardname,(idculvert(icv,1),idculvert(icv,2),icv=1,numculvert)  
+          if(ierr/=0) call diag_print_error('Must specify bay and sea side cell IDs for each culvert')   !MEB 06/21  better descriptive output without application error
+
         case('TYPE')
           backspace(77)
-          read(77,*) cardname,(strings(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(strings(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a BOX or CIR type for each culvert')
           do icv=1,numculvert
             cdum = strings(icv)  
             if(cdum(1:3)=='CIR')then
@@ -516,7 +529,8 @@
           
         case('FLAP_GATE')
           backspace(77)
-          read(77,*) cardname,(strings(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(strings(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify Flap Gate ON or OFF value for each culvert')
           do icv=1,numculvert
             cdum = strings(icv)  
             if(cdum(1:2)=='ON')then
@@ -528,47 +542,55 @@
         
         case('RADIUS')
           backspace(77)
-          read(77,*) cardname,(culvertrad(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertrad(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a radius value for each culvert')
           do icv=1,numculvert
             culvertwidth(icv)=2.0*culvertrad(icv)
           enddo
 
         case('WIDTH')
           backspace(77)
-          read(77,*) cardname,(culvertwidth(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertwidth(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a width value for each culvert')
           do icv=1,numculvert
             culvertrad(icv)=0.5*culvertwidth(icv)
           enddo
             
         case('HEIGHT')
           backspace(77)
-          read(77,*) cardname,(culvertheight(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertheight(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a height value for each culvert')
           
         case('LENGTH')
           backspace(77)
-          read(77,*) cardname,(culvertlength(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertlength(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a length value for each culvert')
           
         case('DARCY_FRICTION_FACTOR')
           backspace(77)
-          read(77,*) cardname,(culvertfrict(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertfrict(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a Darcy friction value for each culvert')
           do icv=1,numculvert
             culvertfrict(icv)=max(culvertfrict(icv),0.001)
           enddo 
           
         case('MANNINGS_COEFFICIENT')
           backspace(77)
-          read(77,*) cardname,(culvertmann(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertmann(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a Mannings coefficient value for each culvert')
           do icv=1,numculvert
             culvertmann(icv)=max(culvertmann(icv),0.001)
           enddo
             
         case('INVERT_ELEVATIONS')
           backspace(77)
-          read(77,*) cardname,(culvertelevbay(icv),culvertelevsea(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(culvertelevbay(icv),culvertelevsea(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side invert elevation value for each culvert')
           
         case('ENTRY_HEAD_LOSSES')
           backspace(77)
-          read(77,*) cardname,(cvheadlossbayentr(icv),cvheadlossseaentr(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(cvheadlossbayentr(icv),cvheadlossseaentr(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side entry head loss value for each culvert')
           do icv=1,numculvert
             cvheadlossbayentr(icv)=max(cvheadlossbayentr(icv),0.0)
             cvheadlossseaentr(icv)=max(cvheadlossseaentr(icv),0.0)
@@ -576,7 +598,8 @@
             
         case('EXIT_HEAD_LOSSES')
           backspace(77)
-          read(77,*) cardname,(cvheadlossbayexit(icv),cvheadlossseaexit(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(cvheadlossbayexit(icv),cvheadlossseaexit(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side exit head loss value for each culvert')
           do icv=1,numculvert
             cvheadlossbayexit(icv)=max(cvheadlossbayexit(icv),0.0)
             cvheadlossseaexit(icv)=max(cvheadlossseaexit(icv),0.0)
@@ -584,7 +607,8 @@
           
         case('OUTFLOW_ANGLES')
           backspace(77)
-          read(77,*) cardname,(angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert)
+          read(77,*,iostat=ierr) cardname,(angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert)
+          if(ierr/=0) call diag_print_error('Must specify Bay and Sea outflow angle values for each culvert')
           do icv=1,numculvert
             angleculvertbay(icv)=angleculvertbay(icv)*deg2rad
             angleculvertsea(icv)=angleculvertsea(icv)*deg2rad
@@ -610,6 +634,7 @@
 !************************************************************************************
     use const_def, only: deg2rad
     use struct_def
+    use diag_lib, only: diag_print_error                                                                    !MEB 06/21  better descriptive output without application error
     implicit none
     integer :: i,ii,ierr,maxtidegate
     character(len=34) :: cardname
@@ -628,7 +653,9 @@
 
         case('NUM_CELL_TIDE_GATE')
           backspace(77)
-          read(77,*) cardname,(ntidegate(ii),ii=1,numtidegate)              
+          read(77,*,iostat=ierr) cardname,(ntidegate(ii),ii=1,numtidegate)              
+          if(ierr/=0) call diag_print_error('Must specify the number of cells for each tide gate')           !MEB 06/21  better descriptive output without application error
+          
           ntidegate(0) = 0
           maxtidegate = 0
           do ii=1,numtidegate
@@ -643,31 +670,39 @@
 
         case('CELLS')
           backspace(77)
-          read(77,*) cardname,(idtidegate(ii),ii=1,maxtidegate)     
-
+          read(77,*,iostat=ierr) cardname,(idtidegate(ii),ii=1,maxtidegate)     
+          if(ierr/=0) call diag_print_error('Must specify the Cell IDs for each tide gate')
+          
         case('DISTRIBUTION_COEFFICIENT')
           backspace(77)
-          read(77,*) cardname,(coeftglateral(ii),ii=1,maxtidegate)     
+          read(77,*,iostat=ierr) cardname,(coeftglateral(ii),ii=1,maxtidegate)     
+          if(ierr/=0) call diag_print_error('Must specify the distribution coefficient for each tide gate')          
 
         case('ORIENTATION')
           backspace(77)
-          read(77,*) cardname,(orienttidegate(ii),ii=1,numtidegate)     
-
+          read(77,*,iostat=ierr) cardname,(orienttidegate(ii),ii=1,numtidegate)     
+          if(ierr/=0) call diag_print_error('Must specify the orientation for each tide gate')
+          
         case('FLOW_COEFFICIENT')
           backspace(77)
-          read(77,*) cardname,(coeftidegate(ii,1),coeftidegate(ii,2),ii=1,numtidegate) 
-
+          read(77,*,iostat=ierr) cardname,(coeftidegate(ii,1),coeftidegate(ii,2),ii=1,numtidegate) 
+          if(ierr/=0) call diag_print_error('Must specify the flow coefficient for each tide gate')
+          
         case('OPEN_HEIGHT')
           backspace(77)
-          read(77,*) cardname,(openhgttidegate(ii),ii=1,numtidegate) 
-
+          read(77,*,iostat=ierr) cardname,(openhgttidegate(ii),ii=1,numtidegate) 
+          if(ierr/=0) call diag_print_error('Must specify the gate opening height for each tide gate')
+          
         case('BOTTOM_ELEVATION')
           backspace(77)
-          read(77,*) cardname,(elevtidegate(ii),ii=1,numtidegate)  
+          read(77,*,iostat=ierr) cardname,(elevtidegate(ii),ii=1,numtidegate)  
+          if(ierr/=0) call diag_print_error('Must specify the bottom elevation for each tide gate')
 
         case('METH')
           backspace(77)
-          read(77,*) cardname,(methtidegate(ii),ii=1,numtidegate)     
+          read(77,*,iostat=ierr) cardname,(methtidegate(ii),ii=1,numtidegate)     
+          if(ierr/=0) call diag_print_error('Must specify the flux calculation method for each tide gate')
+
         !Initialize       
         dqtgdzdown = 0.0;  dqtgdzup = 0.0  
      
@@ -708,6 +743,7 @@
 !************************************************************************************
     use const_def, only: deg2rad
     use struct_def
+    use diag_lib, only: diag_print_error
     implicit none
     integer :: i,ii,ierr,k,maxtidegateopt
     character(len=34) :: cardname
@@ -723,7 +759,8 @@
       selectcase(cardname)
         case('OPERATION_TYPE')
           backspace(77)
-          read(77,*) cardname,(operation_type(ii),ii=1,numtidegate)
+          read(77,*,iostat=ierr) cardname,(operation_type(ii),ii=1,numtidegate)
+          if(ierr/=0) call diag_print_error('Must specify the operation schedule type for each tide gate')
           do ii=1,numtidegate
             if(operation_type(ii)(1:3).eq.'REG') then
               mtidegateopt(ii)=1
@@ -735,38 +772,49 @@
               mtidegateopt(ii)=4
             endif
           enddo
+
         case('NUM_CONTROL_ELEMENT')
           backspace(77)
-          read(77,*) cardname,(ntidegateopt(ii),ii=1,numtidegate)  
+          read(77,*,iostat=ierr) cardname,(ntidegateopt(ii),ii=1,numtidegate)  
+          if(ierr/=0) call diag_print_error('Must specify the number of controlling elements for each tide gate')
           ntidegateopt(0)=0
           do ii=1,numtidegate
             ntidegateopt(ii)=ntidegateopt(ii-1)+ntidegateopt(ii)
           enddo
           maxtidegateopt=ntidegateopt(numtidegate)
           allocate(tidegateopt(maxtidegateopt))
-
-        k=0
+          k=0
+          
         case('REG_START_TIME')
           k=k+1
           backspace(77)
-          read(77,*) cardname,tidegateopt(k)    
+          read(77,*,iostat=ierr) cardname,tidegateopt(k)    
+          if(ierr/=0) call diag_print_error('Must specify the regular start time (hr) for each tide gate')
+          
         case('REG_OPEN_FREQUENCY')
           k=k+1
           backspace(77)
-          read(77,*) cardname,tidegateopt(k) 
+          read(77,*,iostat=ierr) cardname,tidegateopt(k) 
+          if(ierr/=0) call diag_print_error('Must specify the regular opening frequency (hr) for each tide gate')
+          
         case('REG_OPEN_DURATION')
           k=k+1
           backspace(77)
-          read(77,*) cardname,tidegateopt(k)   
+          read(77,*,iostat=ierr) cardname,tidegateopt(k)   
+          if(ierr/=0) call diag_print_error('Must specify the regular opening duration (hr) for each tide gate')
+          
         case('DES_START_TIME')
           k=k+1
           backspace(77)
-          read(77,*) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)   
+          read(77,*,iostat=ierr) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)   
+          if(ierr/=0) call diag_print_error('Must specify the designated start time (hr) for each tide gate')
+          
         case('DES_OPEN_DURATION')
           k=k+1
           backspace(77)
-          read(77,*) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)  
-
+          read(77,*,iostat=ierr) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)  
+          if(ierr/=0) call diag_print_error('Must specify the designated opening duration (hr) for each tide gate')
+          
       case('SCHEDULE_END','END')
         exit
           

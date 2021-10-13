@@ -41,12 +41,11 @@
     version  = 5.5           ! CMS version         !For interim version
     revision = 3             ! Revision number
     bugfix   = 0            ! Bugfix number
-    rdate    = '12/18/2020'
+    rdate    = '10/13/2021'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
-
-    
+  
 #ifdef _WIN32
     machine='Windows'
 #elif defined (__linux)
@@ -69,12 +68,9 @@
 #else
     call steering_default 
 
+    call print_header     !screen and debug file header  
     call get_com_arg      !get command line arguments
 
-    !call get_com_arg_v2     !presently enters an infinite loop on Linux and doesn't keep the command line arguments for filenames.
-    
-    call print_header     !screen and debug file header  
-    
     if(noptset==1) then   !CMS-Wave only, use Stand alone code unless INLINE card present   MEB  10/15/2018
       call sim_start_print  !start timer here
 
@@ -118,287 +114,9 @@
       !endif
     endif
 #endif
-
-!    !special output for dredge-multiple grains size CHETN'
-!    if (dredging) then
-!      allocate(dper(ncellsD))
-!      iper = 50
-!      open(unit=4044,file='beddist.txt')
-!      write(4044,*)'X Z d50 F1 F2 F3'
-!      do k=2517,2539
-!        id = idmap(k)        
-!        depthT= -6.8 + 20*(zb(ID)+6.8)
-!        j=1
-!        jlay = j
-!        call sedpercentile_bedlayer(iper,jlay,dper)        
-!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed) 
-!        j=1
-!        jlay = j
-!        call sedpercentile_bedlayer(iper,jlay,dper)          
-!        depthT = depthT - 20*db(id,j)/2.0               
-!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)        
-!        do j=2,nlay
-!          jlay = j
-!          call sedpercentile_bedlayer(iper,jlay,dper)              
-!          depthT = depthT - 20*db(id,j-1)/2.0 - 20*db(id,j)/2.0
-!          write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)
-!        enddo
-!        j=nlay
-!        jlay = j
-!        call sedpercentile_bedlayer(iper,jlay,dper)          
-!        depthT = depthT - 20*db(id,j)/2.0               
-!        write(4044,"(6e15.7)")X(ID),depthT,1000*dper(ID),(pbk(id,i,j),i=1,nsed)          
-!      enddo
-!    endif !dredging
-    
+   
     endprogram CMS2D
     
-!************************************************
-    subroutine get_com_arg_v2
-! Gets the command line arguments
-! or runs an interactive input
-! meb 03/08/2019  Trying a more logical way to 
-!                 get the arguments and set the 
-!                 proper variables
-!************************************************  
-    use geo_def, only: grdfile,telfile
-    use cms_def
-    use comvarbl
-    use diag_def
-    use diag_lib
-    use hot_def, only: coldstart
-    use out_def, only: write_sup,write_tecplot,write_ascii_input
-
-    implicit none
-    integer :: narg, i, ierr, nlenwav, nlenflow, ncase
-    logical :: found, restart
-    character(10)  :: aext
-    character(37)  :: cardname
-    character(200) :: arg(0:6), astr,apath,aname
-    
-    character(500) :: aline
-    
-    interface
-      function toUpper (astr)
-        character(len=*),intent(in) :: astr
-        character(len=len(astr)) :: toUpper
-      end function
-    end interface
-
-    interface
-      function toLower (astr)
-        character(len=*),intent(in) :: astr
-        character(len=len(astr)) :: toLower
-      end function
-    end interface
-    
-    narg = command_argument_count()
-    narg = min(narg,6)               !maximum 6 arguments after the executable for now.
-    call GET_COMMAND(aline)
-    
-    arg=''
-    read(aline,*) (arg(i),i=0,narg)
-    
-    if (narg == 0) then !CMS was called with no arguments
-      write(*,*) ' '
-      write(*,*) 'Type name of CMS-Flow Card File or '
-      write(*,*) '  CMS-Wave Sim File and Press <RETURN>'
-      write(*,*) ' '
-      read(*,*) arg(1)
-      narg = 1
-
-      call fileparts(arg(1),apath,aname,aext)  
-      select case (aext)
-      case ('cmcards') !If Flow provided by user, ask for Wave (or no more inputs)
-        write(*,*) ' '
-        write(*,*) 'Type name of CMS-Wave Sim File'
-        write(*,*) 'or type 0 for none and Press <RETURN>'
-        read(*,*) arg(2)
-        if (arg(2)(1:1)/='0' .and. arg(2)(1:4) /= 'none') then
-          narg = narg + 1
-        endif
-      case ('sim')     !If Wave provided by user, ask for Flow (or no more inputs)
-        write(*,*) ' '
-        write(*,*) 'Type name of CMS-Flow Card File'
-        write(*,*) 'or type 0 for none and Press <RETURN>'
-        read(*,*) arg(2)
-        if (arg(2)(1:1)/='0' .and. arg(2)(1:4) /= 'none') then
-          narg = narg + 1
-        endif
-      end select          
-    endif
-
-    do                                            !repeat if needed
-      continue
-      !At least one argument now, check existence
-      do i=1,min(narg,2)
-        call fileparts(arg(i),apath,aname,aext)  
-        aext=ToLower(trim(aext))
-        
-        if (ToLower(trim(arg(i))) == 'inline') then
-          inlinewave = .true.
-          narg = narg -1
-          restart = .false.
-          exit
-        endif  
-          
-        select case (aext)
-        case ('cmcards')
-          inquire(file=arg(i),exist=found)
-          if (.not.found) then 
-            msg=trim(astr)//' does not exist'
-            call diag_print_error(msg)
-          endif
-          ctlfile  = trim(aname) // '.cmcards'
-          flowpath = apath
-          casename = aname
-          cmsflow  = .true.
-          
-          !Search for steering cards
-          open(77,file=arg(i))
-          do 
-            read(77,*,iostat=ierr) cardname
-            if (ierr/=0) exit
-            call steering_cards(cardname)
-          enddo
-          close(77)
-          restart = .false.
-      
-        case('sim')
-          inquire(file=arg(i),exist=found)
-          if (.not.found) then
-            msg=trim(astr)//' does not exist'
-            call diag_print_error(msg)
-          endif
-          WavSimFile = trim(aname) // '.sim'
-          Wavepath   = apath
-          wavename   = aname
-          cmswave    = .true.
-          restart = .false.
-          
-        case default                    !if first argument is not a .cmcard file or .sim file, append them together and recheck.
-          arg(1)=trim(arg(1))//' '//trim(arg(2))
-          arg(2)=''
-          narg = narg -1
-          restart=.true.                !rerun this loop because we concatenated two arguments
-          exit
-       
-        end select  
-      enddo
-      if (restart) then
-        cycle
-      else
-        exit
-      endif
-    enddo  
-
-    if (cmswave .and. .not. cmsflow .and.  narg <= 1) then     !CMS-Wave Only (no arguments)
-      noptset = 1   
-      casename = wavename
-    elseif(cmswave .and. .not. cmsflow .and. narg == 2) then    !CMS-Wave Only (1 argument) -- only check to see if 'INLINE' card is present      meb 03/11/2019
-      if (toUpper(trim(arg(2))) == 'INLINE') inlinewave = .true.
-      noptset = 1
-      casename = wavename
-    elseif(.not.cmswave .and. cmsflow .and. narg <= 1) then    !CMS-Flow Only
-      noptset = 2   
-    elseif (cmswave .and. cmsflow .and. narg >= 2) then        !CMS-Flow and CMS-Wave
-      noptset = 3   
-    endif
-    
-    !Get steering interval, if specified
-    if(narg>=3)then 
-      read(arg(3),*) dtsteer          
-      dtsteer = dtsteer*3600.0    !Convert from hours to seconds 
-    else
-      dtsteer = 10800.0           !3 hours default interval
-    endif
-
-    !Wave water level
-    if(narg>=4)then
-      read(arg(4),*) noptwse       
-    endif
-    
-    !Wave current velocity
-    if(narg>=5)then
-      read(arg(5),*) noptvel       
-    endif
-    
-    !Wave bed elevation
-    if(narg>=6)then
-      read(arg(6),*) noptzb       
-    endif 
-    
-    if (noptset == 3) then
-      if (narg == 2 .and. dtsteer < 0.0) then  !By this point, if Noptset is 3, then both a flow and wave grid have been read in, ask for more info.
-        write(*,*) 'Type the steering interval'
-        write(*,*) 'in hours and Press <RETURN>'
-        write(*,*) ' '
-        read(*,*) dtsteer
-        dtsteer = dtsteer*3600.0  !Convert from hours to seconds 
-        
-        if(WavSimFile(1:1) == ' ') then
-          write(*,*) ' '
-          write(*,*) 'Select the method for estimating the wave '
-          write(*,*) 'water levels from below and Press <RETURN>' 
-          write(*,*) '  0 - wse(wave_time,wave_grid)=0.0'
-          write(*,*) '  1 - wse(wave_time,wave_grid)=wse(flow_time,flow_grid)'
-          write(*,*) '  2 - wse(wave_time,wave_grid)=tide(wave_time,flow_grid)'
-          write(*,*) '  3 - wse(wave_time,wave_grid)=wse(flow_time,flow_grid) '
-          write(*,*) '        +tide(wave_time)-tide(flow_time)'
-          read(*,*) noptwse
-          noptwse = max(min(noptwse,3),0)
-          write(*,*) ' '
-          write(*,*) 'Select the method for estimating the wave '
-          write(*,*) 'current velocities from below and Press <RETURN>' 
-          write(*,*) '  0 - vel(wave_time,wave_grid)=0.0'
-          write(*,*) '  1 - vel(wave_time,wave_grid)=vel(flow_time,flow_grid)'
-          read(*,*) noptvel
-          noptvel = max(min(noptvel,1),0)
-          write(*,*) ' '
-          write(*,*) 'Select the method for estimating the wave '
-          write(*,*) 'bed elevations from below and Press <RETURN>' 
-          write(*,*) '  0 - zb(wave_grid)=zb(wave_grid)'
-          write(*,*) '  1 - zb(wave_time,wave_grid)=zb(flow_time,flow_grid)'
-          read(*,*) noptzb
-          noptzb = max(min(noptzb,1),0)
-        else
-          write(*,*) ' '
-          write(*,*) '--Using steering card values or wave steering parameter defaults'
-        endif
-      endif  
-    else
-      dtsteer = 10800.0         !3 hours default interval
-    endif
-        
-    !If wave path is empty than use path for flow    
-    nlenwav = len_trim(wavepath)
-    nlenflow = len_trim(flowpath)
-    if(nlenwav==0 .and. nlenflow>0)then
-      wavepath = flowpath !*******************  
-      nlenwav = len_trim(wavepath)
-    endif
-    
-    !Declare file names    
-    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
-    dgunit = 9
-    ncase = len_trim(casename)  
-    !dgfile  = casename(1:ncase) // '_diag.txt'
-    if(cmsflow .and. nlenflow>0)then
-      dgfile  = flowpath(1:nlenflow) // dgfile    
-    elseif(cmswave .and. nlenwav>0 .and. .not.cmsflow)then !if only waves and there is a path, put diagnostic file there.
-      dgfile  = wavepath(1:nlenwav) // dgfile
-    endif
-    
-    !Modified 5/1/2019 - GRDFILE was being renamed after it was already set.
-    if(noptset>=2)then !Only needed if running flow
-      ctlfile  = flowpath(1:nlenflow) // ctlfile     
-      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
-      telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
-      if (grdfile .eq. '') grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
-    endif
-    
-    return
-    end subroutine get_com_arg_v2    
     
 !*************************************
     subroutine get_com_arg
@@ -421,6 +139,13 @@
       function toLower (astr)
         character(len=*),intent(in) :: astr
         character(len=len(astr)) :: toLower
+      end function
+
+      function findCard(aFile,aCard,aValue)
+        character(len=*),intent(in)    :: aFile
+        character(len=*),intent(in)    :: aCard
+        character(len=100),intent(out) :: aValue
+        logical :: findCard
       end function
     end interface    
       
@@ -445,10 +170,11 @@
       else
         call getarg(i,astr)
       endif
+
       call fileparts(astr,apath,aname,aext)           
       astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
-      if (astr == 'inline') aext=astr
+      if (astr == 'inline' .or. astr == 'tools') laext=astr
       selectcase(laext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
@@ -488,6 +214,9 @@
         case('inline')
           inlinewave = .true.
           narg = narg -1
+          
+        case('tools')
+          call CMS_tools_dialog
 
         case('flp')  !Old format input files       
           casename = aname !(1:ind-1)   
@@ -653,22 +382,24 @@
       nlenwav = len_trim(wavepath)
     endif
     
-    !Declare file names    
-    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
-    dgunit = 9
     ncase = len_trim(casename)  
-    !dgfile  = casename(1:ncase) // '_diag.txt'
+
     if(cmsflow .and. nlenflow>0)then
       dgfile  = flowpath(1:nlenflow) // dgfile    
     elseif(cmswave .and. nlenwav>0 .and. .not.cmsflow)then !if only waves and there is a path, put diagnostic file there.
       dgfile  = wavepath(1:nlenwav) // dgfile
     endif
     
+    aext=''
     if(noptset>=2)then !Only needed if running flow
       ctlfile  = flowpath(1:nlenflow) // ctlfile     
-      grdfile  = flowpath(1:nlenflow) // casename(1:ncase) // '_grid.h5'
-      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'    
-      telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'      
+      mpfile   = flowpath(1:nlenflow) // casename(1:ncase) // '_mp.h5'   
+
+      if (findCard(ctlfile,'GRID_FILE',grdfile)) then      !Get the value for GRID_FILE from the ctlfile
+        call removequotes(grdfile)                           !If result is in quotes, remove the quotes so it can properly call next subroutine
+        call fileext(grdfile,aext)                           !Return the extension of the gridfile
+      endif
+      if (aext /= 'cart') telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'         !If gridfile extension is 'cart', leave TELFILE = ' '
     endif
     
     return
@@ -704,6 +435,10 @@
 8002  format('      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,        ')
 8003  format('      either express or implied.                           ')
           
+    !Declare file names    
+    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
+    dgunit = 9
+    
     open(dgunit,file=dgfile,STATUS='unknown')   
     iunit = (/6,dgunit/)
     do i=1,2
@@ -725,7 +460,7 @@
       else
         write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
       endif
-      
+ 
       write(iunit(i),7016) rdate !Last revision date
       write(iunit(i),7017)
       write(iunit(i),7018)
@@ -877,19 +612,20 @@
 ! Prints the general CMS settings to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************    
-    use comvarbl, only: flowpath,ctlfile, input_ver, advfile, read_adv, SMS_ver
-    use cms_def, only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath,&
-       dtsteer,radpath,wavpath,perpath,dirpath,disspath,                  &
+    use comvarbl,  only: flowpath,ctlfile, input_ver, advfile, read_adv, SMS_ver
+    use cms_def,   only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath,  &
+       dtsteer,radpath,wavpath,perpath,dirpath,disspath,                      &
        noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
     use diag_def
+    use geo_def,   only: wgrdfile
     use tool_def,  only: vstrlz    
     
     implicit none
-    integer :: iunit(2),i
+    integer :: iunit(2),i, first, second
     character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5
 
 341 format(' ',A,T40,A,A)     !Added for vstrlz function results
-342 format(' ',A,T40,F0.2,A)    
+342 format(' ',A,T40,I0,'.',I0,A)  
 887 format(' ',A,T40,A)
 764 format(' ',A,T40,F0.3,A)  
     
@@ -899,7 +635,7 @@
 
     open(dgunit,file=dgfile,access='append') 
     iunit = (/6,dgunit/)
-
+    
     do i=1,2
       write(iunit(i),*) 
       write(iunit(i),887) 'Actual Start Date/Time: ',trim(dstring)
@@ -907,9 +643,13 @@
         if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
         astring=trim(aname) // '.' // aext
-        write(iunit(i),887)    'CMS-Flow Card File:',trim(astring)
-        write(iunit(i),342)    'CMS Input Version:',input_ver    
-        if (SMS_ver .ne. -1) write(iunit(i),342)  'SMS Version used:',SMS_ver
+        write(iunit(i),887)  'CMS-Flow Card File:',trim(astring)
+        
+        call split_real_to_integers(input_ver,2,first,second)
+        write(iunit(i),342)  'CMS Input Version:',first,second    
+        
+        call split_real_to_integers(SMS_ver,2,first,second)
+        write(iunit(i),342)  'SMS Version used:',first,second
       endif
       if (read_adv) then
         call fileparts(advfile,apath,aname,aext)
@@ -962,11 +702,13 @@
         endselect
         !write(iunit(i),764)    '  Extrapolation Distance:   ',xtrpdistfl,' m'        
       elseif(noptset==4)then    
-        write(iunit(i),887)    'Wave Height Dataset:',trim(wavpath)
-        write(iunit(i),887)    'Wave Period Dataset:',trim(perpath)      
-        write(iunit(i),887)    'Wave Direction Dataset:',trim(dirpath)      
-        write(iunit(i),887)    'Wave Dissipation Dataset:',trim(disspath)      
-        write(iunit(i),887)    'Radiation Stress Dataset:',trim(radpath)
+        write(iunit(i),*) ' '
+        write(iunit(i),887)    'Forcing with Single Wave Condition:',trim(wgrdfile)
+        write(iunit(i),887)    '  Wave Height Dataset:'     ,'- '//trim(wavpath)
+        write(iunit(i),887)    '  Wave Period Dataset:'     ,'- '//trim(perpath)      
+        write(iunit(i),887)    '  Wave Direction Dataset:'  ,'- '//trim(dirpath)      
+        write(iunit(i),887)    '  Wave Dissipation Dataset:','- '//trim(disspath)      
+        write(iunit(i),887)    '  Radiation Stress Dataset:','- '//trim(radpath)
       endif      
    !   call fileparts(mpfile,apath,aname,aext)
       !astring=trim(aname) // '.' // aext

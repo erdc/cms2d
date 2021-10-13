@@ -56,7 +56,7 @@
 !***********************************************************************
 #include "CMS_cpp.h"    
     use size_def, only: ncellsD
-    use geo_def, only: grdfile,azimuth_fl
+    use geo_def, only: grdfile,wgrdfile,azimuth_fl
     use cms_def
     use flow_def, only: iwet,rhow
     use comvarbl, only: timehrs,ctime,ramp,rampdur
@@ -130,11 +130,11 @@
       nsteer=nsteer+1
       call wave_flgrid_init
 #ifdef XMDF_IO
-      call readscalsteph5(grdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)        
-      call readscalsteph5(grdfile,perpath, nsteer,tswave1,Wper1,    ierr)              
-      call readscalsteph5(grdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
-      call readscalsteph5(grdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
-      call readvecsteph5 (grdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
+      call readscalsteph5(wgrdfile,wavpath, nsteer,tswave1,Whgt1,    ierr)           !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021
+      call readscalsteph5(wgrdfile,perpath, nsteer,tswave1,Wper1,    ierr)              
+      call readscalsteph5(wgrdfile,dirpath, nsteer,tswave1,Wang,     ierr)  
+      call readscalsteph5(wgrdfile,disspath,nsteer,tswave1,wavediss1,ierr)  
+      call readvecsteph5 (wgrdfile,radpath, nsteer,tswave1,wavestrx1,wavestry1,ierr)
 #else
       call diag_print_error('Cannot read constant wave conditions without XMDF')
 #endif
@@ -190,7 +190,8 @@
       
       nsteer=nsteer+1
 #ifdef XMDF_IO
-      call readscalsteph5(grdfile,wavpath,nsteer,tswave2,Whgt2,ierr)      !ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
+      !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021
+      call readscalsteph5(wgrdfile,wavpath,nsteer,tswave2,Whgt2,ierr)      !ierr returns: -2 if File can't open, 3 if can't read timestep, 4 if can't read data record
 #endif
       select case(ierr)
       case(:-1,1:)    !if(ierr<0 .or. ierr>0)then
@@ -206,10 +207,10 @@
         enddo  
       case default
 #ifdef XMDF_IO
-        call readscalsteph5(grdfile,perpath, nsteer,tswave2,Wper2,              ierr)
-        call readscalsteph5(grdfile,dirpath, nsteer,tswave2,Wang,               ierr)
-        call readscalsteph5(grdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
-        call readvecsteph5 (grdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
+        call readscalsteph5(wgrdfile,perpath, nsteer,tswave2,Wper2,              ierr) !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021
+        call readscalsteph5(wgrdfile,dirpath, nsteer,tswave2,Wang,               ierr)
+        call readscalsteph5(wgrdfile,disspath,nsteer,tswave2,wavediss2,          ierr)
+        call readvecsteph5 (wgrdfile,radpath, nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif
         do i=1,ncellsD
           Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
@@ -805,8 +806,7 @@
         write(msg4,*) 'h=',h
         write(msg5,*) 'u=',u
         write(msg6,*) 'v=',v
-        call diag_print_warning('Wave blocking detected in wavenumber',&
-          msg2,msg3,msg4,msg5,msg6)
+        call diag_print_warning('Wave blocking detected in wavenumber',msg2,msg3,msg4,msg5,msg6)
         exit  
       elseif(isnansingle(wk))then
         wk = yi/h*2.5 !Use a small wave length (large wave number) to avoid divide by zeros
@@ -815,8 +815,7 @@
         write(msg4,*) 'h=',h
         write(msg5,*) 'u=',u
         write(msg6,*) 'v=',v
-        call diag_print_error('Calculated NaN value for wk in wavenumber',&
-          msg2,msg3,msg4,msg5,msg6)
+        call diag_print_error('Calculated NaN value for wk in wavenumber',msg2,msg3,msg4,msg5,msg6)
       endif    
       err = abs(wk-wki)
       if(err < tol) exit

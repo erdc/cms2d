@@ -28,8 +28,9 @@ module geo_def
     save  
     
     !Files
-    character(len=200) :: grdfile = " ",grdpath = " "      !Grid file and path
-    character(len=200) :: telfile              !Telescoping grid file
+    character(len=200) :: grdfile  = " ",grdpath = " "  !Grid file and path
+    character(len=200) :: wgrdfile = " "                !Wave grid file when reading 5 static wave datasets in SMS 13.1+  
+    character(len=200) :: telfile  = " "                !Telescoping grid file
     character(len=200) :: latfile,latpath      !Latitude file name and path
     character(len=200) :: lonfile,lonpath      !Longitude file name and path
     character(len=200) :: typespath,proppath,rootpath
@@ -55,8 +56,8 @@ module geo_def
     
     !Connectivity (general)
     integer,allocatable:: ncface(:)                !# of cell faces
-    integer,allocatable:: cell2cell(:,:)           !Forward connectivity table to neighbors
-                                                   !  First arg = neighbor (1,2,3,4 = north, east, south, west), Sec arg = cellID
+    integer,allocatable:: cell2cell(:,:)           !Forward connectivity table to neighest neighbors
+                                                   !  First arg = neighbor (1,2,3,4 = north, east, south, west), Sec arg = cellID    
     integer,allocatable:: llec2llec(:,:)           !Backward connectivity table 
     integer,allocatable:: nxface(:),kxface(:,:)    !No repeat cell faces in x-direction only
     integer,allocatable:: nyface(:),kyface(:,:)    !No repeat cell faces in y-direction only

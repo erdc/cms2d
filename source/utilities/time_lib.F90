@@ -442,7 +442,7 @@ contains
     endif
     
     return
-    endsubroutine time_sec2str    
+    end subroutine time_sec2str    
     
 !**************************************************************************
     subroutine time_s2dhs(timesec,idays,ihrs,imin,isec,imilsec)

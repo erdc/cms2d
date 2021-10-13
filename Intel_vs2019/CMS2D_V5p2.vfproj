@@ -35,7 +35,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="DEFINED_SED_DATA=sed_def" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
@@ -47,32 +47,154 @@
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\source\main\CMS_cpp.h"/></Filter>
-		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+		<File RelativePath="..\source\logsheet.txt"/>
+		<File RelativePath="..\source\readme.txt"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<Filter Name="Boundaries">
 		<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_def.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 		<File RelativePath="..\source\boundaries\boundaries.F90"/>
+		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			<FileConfiguration Name="Debug|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\source\main\CMS2D_main.f90"/>
+		<File RelativePath="..\source\main\CMS_Flow.f90"/>
+		<File RelativePath="..\source\main\CMS_test.F90"/>
+		<File RelativePath="..\source\schemes\comp_lib.f90"/>
+		<File RelativePath="..\source\schemes\computational.F90"/>
+		<File RelativePath="..\source\main\definitions.F90"/>
+		<File RelativePath="..\source\derivatives\der_def.f90"/>
+		<File RelativePath="..\source\derivatives\der_lib.f90"/>
+		<File RelativePath="..\source\derivatives\derivatives.f90"/>
+		<File RelativePath="..\source\utilities\diag_def.f90"/>
+		<File RelativePath="..\source\utilities\diag_lib.f90"/>
+		<File RelativePath="..\source\utilities\diagnostics.f90"/>
+		<File RelativePath="..\source\dredge\dredge_def.f90"/>
+		<File RelativePath="..\source\dredge\dredge_op.F90"/>
+		<File RelativePath="..\source\dredge\dredge_setup.F90"/>
+		<File RelativePath="..\source\flow\flow.F90"/>
+		<File RelativePath="..\source\flow\flow_def.f90"/>
+		<File RelativePath="..\source\flow\flow_eddyvis.f90"/>
+		<File RelativePath="..\source\flow\flow_imp.F90"/>
+		<File RelativePath="..\source\flow\flow_imp_flux.f90"/>
+		<File RelativePath="..\source\flow\flow_lib.F90"/>
+		<File RelativePath="..\source\friction\fric_def.f90"/>
+		<File RelativePath="..\source\friction\fric_lib.f90"/>
+		<File RelativePath="..\source\friction\friction.F90"/>
+		<File RelativePath="..\source\solvers\gauss-seidel.f90"/>
+		<File RelativePath="..\external_libraries\proj_conv\gctp.f90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			<FileConfiguration Name="Debug|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\source\geospatial\geo_def.f90"/>
+		<File RelativePath="..\source\geospatial\geo_lib.f90"/>
+		<File RelativePath="..\source\geospatial\geo_test.F90"/>
+		<File RelativePath="..\source\geospatial\geospatial.F90"/>
+		<File RelativePath="..\source\temperature\heat.f90"/>
+		<File RelativePath="..\source\temperature\heat_bnd.f90"/>
+		<File RelativePath="..\source\temperature\heat_def.f90"/>
+		<File RelativePath="..\source\temperature\heatflux.f90"/>
+		<File RelativePath="..\source\hot_start\hot_def.f90"/>
+		<File RelativePath="..\source\hot_start\hot_start.F90"/>
+		<File RelativePath="..\source\solvers\iccg.f90"/>
+		<File RelativePath="..\source\solvers\iccgstab.f90"/>
+		<File RelativePath="..\source\solvers\ilu0.f90"/>
+		<File RelativePath="..\source\solvers\ilutp.f90"/>
+		<File RelativePath="..\source\input\in_def.F90"/>
+		<File RelativePath="..\source\input\in_lib.f90"/>
+		<File RelativePath="..\source\input\in_xmdf_lib.f90"/>
+		<File RelativePath="..\source\explicit\initialize_flow_arrays.f90"/>
+		<File RelativePath="..\source\explicit\initialize_flow_arrays_Tel_v02.f90"/>
+		<File RelativePath="..\source\input\input.F90"/>
+		<File RelativePath="..\source\interpolation\interp_def.f90"/>
+		<File RelativePath="..\source\interpolation\interp_lib.f90"/>
+		<File RelativePath="..\source\interpolation\interpolation.F90"/>
+		<File RelativePath="..\source\sediment\lund-cirp.F90"/>
+		<File RelativePath="..\source\utilities\math_lib.F90"/>
+		<File RelativePath="..\source\utilities\math_test.F90"/>
+		<File RelativePath="..\source\meteorological\met_def.f90"/>
+		<File RelativePath="..\source\meteorological\met_lib.f90"/>
+		<File RelativePath="..\source\meteorological\meteorological.F90"/>
 		<File RelativePath="..\source\boundaries\nest_lib.f90"/>
 		<File RelativePath="..\source\boundaries\nest_par.f90"/>
 		<File RelativePath="..\source\boundaries\nesting.F90"/>
-		<File RelativePath="..\source\boundaries\tide_fac.f">
+		<File RelativePath="..\source\output\out_def.f90"/>
+		<File RelativePath="..\source\output\out_lib.f90"/>
+		<File RelativePath="..\source\output\output.F90"/>
+		<File RelativePath="..\source\solvers\pbicgstab.f90"/>
+		<File RelativePath="..\source\solvers\pgmres.f90"/>
+		<File RelativePath="..\source\interpolation\plagr_lib.f90"/>
+		<File RelativePath="..\source\main\prestart.f90"/>
+		<File RelativePath="..\source\quasi3d\q3d_def.F90"/>
+		<File RelativePath="..\source\quasi3d\q3d_lib.F90"/>
+		<File RelativePath="..\source\quasi3d\quasi3d.F90"/>
+		<File RelativePath="..\source\roller\rol_def.f90"/>
+		<File RelativePath="..\source\roller\roller.F90"/>
+		<File RelativePath="..\source\salinity\sal_bnd.f90"/>
+		<File RelativePath="..\source\salinity\sal_def.f90"/>
+		<File RelativePath="..\source\salinity\salinity.F90"/>
+		<File RelativePath="..\source\solvers\secant_lib.f90"/>
+		<File RelativePath="..\source\sediment\sed_adapt.f90"/>
+		<File RelativePath="..\source\sediment\sed_aval.f90"/>
+		<File RelativePath="..\source\sediment\sed_bed.f90"/>
+		<File RelativePath="..\source\sediment\sed_beta.f90"/>
+		<File RelativePath="..\source\sediment\sed_beta_def.F90"/>
+		<File RelativePath="..\source\sediment\sed_beta_lib.F90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Optimization="optimizeDisabled"/></FileConfiguration></File>
+		<File RelativePath="..\source\sediment\sed_bnd.f90"/>
+		<File RelativePath="..\source\sediment\sed_capac.f90"/>
+		<File RelativePath="..\source\sediment\sed_def.f90"/>
+		<File RelativePath="..\source\sediment\sed_dry.f90"/>
+		<File RelativePath="..\source\sediment\sed_hidexp.f90"/>
+		<File RelativePath="..\source\sediment\sed_imp.f90"/>
+		<File RelativePath="..\source\sediment\sed_lib.f90"/>
+		<File RelativePath="..\source\sediment\sed_slope.f90"/>
+		<File RelativePath="..\source\sediment\sediment.F90"/>
+		<File RelativePath="..\source\solvers\sip.f90"/>
+		<File RelativePath="..\source\stacking\solution_scheme_option.f90"/>
+		<File RelativePath="..\source\solvers\solv_def.f90"/>
+		<File RelativePath="..\source\solvers\solvers.f90"/>
+		<File RelativePath="..\source\solvers\sparse.f90"/>
+		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\source\boundaries\tide_lib.F90"/></Filter>
-		<Filter Name="Derivatives">
-		<File RelativePath="..\source\derivatives\der_def.f90"/>
-		<File RelativePath="..\source\derivatives\der_lib.f90"/>
-		<File RelativePath="..\source\derivatives\derivatives.f90"/></Filter>
-		<Filter Name="Dredge">
-		<File RelativePath="..\source\dredge\dredge_def.f90"/>
-		<File RelativePath="..\source\dredge\dredge_op.F90"/>
-		<File RelativePath="..\source\dredge\dredge_setup.F90"/></Filter>
-		<Filter Name="Explicit">
-		<File RelativePath="..\source\explicit\initialize_flow_arrays.f90"/>
-		<File RelativePath="..\source\explicit\initialize_flow_arrays_Tel_v02.f90"/>
+		<File RelativePath="..\source\statistics\stat_def.f90"/>
+		<File RelativePath="..\source\statistics\statistics.F90"/>
+		<File RelativePath="..\source\steering\steer_def.f90"/>
+		<File RelativePath="..\source\steering\steering.f90"/>
+		<File RelativePath="..\source\structures\struct_def.f90"/>
+		<File RelativePath="..\source\structures\struct_lib.f90"/>
+		<File RelativePath="..\source\structures\structures.f90"/>
+		<File RelativePath="..\source\boundaries\tide_fac.f90">
+			<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			<FileConfiguration Name="Debug|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\source\boundaries\tide_lib.F90"/>
+		<File RelativePath="..\source\utilities\time_lib.F90"/>
+		<File RelativePath="..\source\utilities\time_test.F90"/>
+		<File RelativePath="..\source\utilities\tools.F90"/>
+		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
+		<File RelativePath="..\external_libraries\proj_conv\utm2geo.f90"/>
+		<File RelativePath="..\source\vegetation\veg_def.f90"/>
+		<File RelativePath="..\source\vegetation\vegetation.F90"/>
+		<File RelativePath="..\source\utilities\watch_def.F90"/>
+		<File RelativePath="..\source\utilities\watch_lib.F90"/>
+		<File RelativePath="..\source\utilities\watch_test.F90"/>
+		<File RelativePath="..\source\waves\wave.F90"/>
+		<File RelativePath="..\source\waves\wave_def.f90"/>
+		<File RelativePath="..\source\waves\wave_lib.F90"/>
+		<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>
+		<File RelativePath="..\source\sediment\wuetal.F90"/>
+		<File RelativePath="..\external_libraries\XMDF\Xmdff-2.0.f90"/>
 		<File RelativePath="..\source\explicit\ZCMS_FLOW_EXP_C.f90"/>
 		<File RelativePath="..\source\explicit\ZCMS_FLOW_EXP_Main.f90"/>
 		<File RelativePath="..\source\explicit\ZCMS_FLOW_EXP_T.f90"/>
@@ -134,173 +256,5 @@
 		<File RelativePath="..\source\explicit\Zupdate_wetdry_tel.f90"/>
 		<File RelativePath="..\source\explicit\Zupdate_wse.f90"/>
 		<File RelativePath="..\source\explicit\Zupdate_wse_bc.f90"/>
-		<File RelativePath="..\source\explicit\Zupdate_wse_Tel.f90"/></Filter>
-		<Filter Name="Flow">
-		<File RelativePath="..\source\flow\flow.F90"/>
-		<File RelativePath="..\source\flow\flow_def.f90"/>
-		<File RelativePath="..\source\flow\flow_eddyvis.f90"/>
-		<File RelativePath="..\source\flow\flow_imp.F90"/>
-		<File RelativePath="..\source\flow\flow_imp_flux.f90"/>
-		<File RelativePath="..\source\flow\flow_lib.F90"/></Filter>
-		<Filter Name="Friction">
-		<File RelativePath="..\source\friction\fric_def.f90"/>
-		<File RelativePath="..\source\friction\fric_lib.f90"/>
-		<File RelativePath="..\source\friction\friction.F90"/></Filter>
-		<Filter Name="Geospatial">
-		<File RelativePath="..\source\geospatial\geo_def.f90"/>
-		<File RelativePath="..\source\geospatial\geo_lib.f90"/>
-		<File RelativePath="..\source\geospatial\geo_test.F90"/>
-		<File RelativePath="..\source\geospatial\geospatial.F90"/></Filter>
-		<Filter Name="Hot_start">
-		<File RelativePath="..\source\hot_start\hot_def.f90"/>
-		<File RelativePath="..\source\hot_start\hot_start.F90"/></Filter>
-		<Filter Name="Input">
-		<File RelativePath="..\source\input\in_def.F90"/>
-		<File RelativePath="..\source\input\in_lib.f90"/>
-		<File RelativePath="..\source\input\in_xmdf_lib.f90"/>
-		<File RelativePath="..\source\input\input.F90"/></Filter>
-		<Filter Name="Interpolation">
-		<File RelativePath="..\source\interpolation\interp_def.f90"/>
-		<File RelativePath="..\source\interpolation\interp_lib.f90"/>
-		<File RelativePath="..\source\interpolation\interpolation.F90"/>
-		<File RelativePath="..\source\interpolation\plagr_lib.f90"/></Filter>
-		<Filter Name="Main">
-		<File RelativePath="..\source\main\CMS2D_main.f90"/>
-		<File RelativePath="..\source\main\CMS_Flow.f90"/>
-		<File RelativePath="..\source\main\CMS_test.F90"/>
-		<File RelativePath="..\source\main\definitions.F90"/>
-		<File RelativePath="..\source\main\prestart.f90"/></Filter>
-		<Filter Name="Meteorological">
-		<File RelativePath="..\source\meteorological\met_def.f90"/>
-		<File RelativePath="..\source\meteorological\met_lib.f90"/>
-		<File RelativePath="..\source\meteorological\meteorological.F90"/></Filter>
-		<Filter Name="Output">
-		<File RelativePath="..\source\output\out_def.f90"/>
-		<File RelativePath="..\source\output\out_lib.f90"/>
-		<File RelativePath="..\source\output\output.F90"/></Filter>
-		<Filter Name="ProjConv">
-		<File RelativePath="..\external_libraries\proj_conv\gctp.f">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength72" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.F">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\external_libraries\proj_conv\utm2geo.F">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration></File></Filter>
-		<Filter Name="Quasi3D">
-		<File RelativePath="..\source\quasi3d\q3d_def.F90"/>
-		<File RelativePath="..\source\quasi3d\q3d_lib.F90"/>
-		<File RelativePath="..\source\quasi3d\quasi3d.F90"/></Filter>
-		<Filter Name="Roller">
-		<File RelativePath="..\source\roller\rol_def.f90"/>
-		<File RelativePath="..\source\roller\roller.F90"/></Filter>
-		<Filter Name="Salinity">
-		<File RelativePath="..\source\salinity\sal_bnd.f90"/>
-		<File RelativePath="..\source\salinity\sal_def.f90"/>
-		<File RelativePath="..\source\salinity\salinity.F90"/></Filter>
-		<Filter Name="Schemes">
-		<File RelativePath="..\source\schemes\comp_lib.f90"/>
-		<File RelativePath="..\source\schemes\computational.F90"/></Filter>
-		<Filter Name="Sediment">
-		<File RelativePath="..\source\sediment\lund-cirp.F90"/>
-		<File RelativePath="..\source\sediment\sed_adapt.f90"/>
-		<File RelativePath="..\source\sediment\sed_aval.f90"/>
-		<File RelativePath="..\source\sediment\sed_bed.f90"/>
-		<File RelativePath="..\source\sediment\sed_beta.f90"/>
-		<File RelativePath="..\source\sediment\sed_beta_def.F90"/>
-		<File RelativePath="..\source\sediment\sed_beta_lib.F90">
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Optimization="optimizeDisabled"/></FileConfiguration></File>
-		<File RelativePath="..\source\sediment\sed_bnd.f90"/>
-		<File RelativePath="..\source\sediment\sed_capac.f90"/>
-		<File RelativePath="..\source\sediment\sed_def.f90"/>
-		<File RelativePath="..\source\sediment\sed_dry.f90"/>
-		<File RelativePath="..\source\sediment\sed_hidexp.f90"/>
-		<File RelativePath="..\source\sediment\sed_imp.f90"/>
-		<File RelativePath="..\source\sediment\sed_lib.f90"/>
-		<File RelativePath="..\source\sediment\sed_slope.f90"/>
-		<File RelativePath="..\source\sediment\sediment.F90"/>
-		<File RelativePath="..\source\sediment\wuetal.F90"/></Filter>
-		<Filter Name="Solvers">
-		<File RelativePath="..\source\solvers\gauss-seidel.f90"/>
-		<File RelativePath="..\source\solvers\iccg.f90"/>
-		<File RelativePath="..\source\solvers\iccgstab.f90"/>
-		<File RelativePath="..\source\solvers\ilu0.f90"/>
-		<File RelativePath="..\source\solvers\ilutp.f90"/>
-		<File RelativePath="..\source\solvers\pbicgstab.f90"/>
-		<File RelativePath="..\source\solvers\pgmres.f90"/>
-		<File RelativePath="..\source\solvers\secant_lib.f90"/>
-		<File RelativePath="..\source\solvers\sip.f90"/>
-		<File RelativePath="..\source\solvers\solv_def.f90"/>
-		<File RelativePath="..\source\solvers\solvers.f90"/>
-		<File RelativePath="..\source\solvers\sparse.f90"/></Filter>
-		<Filter Name="Stacking">
-		<File RelativePath="..\source\stacking\solution_scheme_option.f90"/></Filter>
-		<Filter Name="Statistics">
-		<File RelativePath="..\source\statistics\stat_def.f90"/>
-		<File RelativePath="..\source\statistics\statistics.F90"/></Filter>
-		<Filter Name="Steering">
-		<File RelativePath="..\source\steering\steer_def.f90"/>
-		<File RelativePath="..\source\steering\steering.f90"/></Filter>
-		<Filter Name="Structures">
-		<File RelativePath="..\source\structures\struct_def.f90"/>
-		<File RelativePath="..\source\structures\struct_lib.f90"/>
-		<File RelativePath="..\source\structures\structures.f90"/></Filter>
-		<Filter Name="Temperature">
-		<File RelativePath="..\source\temperature\heat.f90"/>
-		<File RelativePath="..\source\temperature\heat_bnd.f90"/>
-		<File RelativePath="..\source\temperature\heat_def.f90"/>
-		<File RelativePath="..\source\temperature\heatflux.f90"/></Filter>
-		<Filter Name="Utilities">
-		<File RelativePath="..\source\utilities\diag_def.f90"/>
-		<File RelativePath="..\source\utilities\diag_lib.f90"/>
-		<File RelativePath="..\source\utilities\diagnostics.f90"/>
-		<File RelativePath="..\source\utilities\math_lib.F90"/>
-		<File RelativePath="..\source\utilities\math_test.F90"/>
-		<File RelativePath="..\source\utilities\time_lib.F90"/>
-		<File RelativePath="..\source\utilities\time_test.F90"/>
-		<File RelativePath="..\source\utilities\tools.F90"/>
-		<File RelativePath="..\source\utilities\unitconv_def.f90"/>
-		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
-		<File RelativePath="..\source\utilities\watch_def.F90"/>
-		<File RelativePath="..\source\utilities\watch_lib.F90"/>
-		<File RelativePath="..\source\utilities\watch_test.F90"/></Filter>
-		<Filter Name="Vegetation">
-		<File RelativePath="..\source\vegetation\veg_def.f90"/>
-		<File RelativePath="..\source\vegetation\vegetation.F90"/></Filter>
-		<Filter Name="Waves">
-		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\source\waves\wave.F90"/>
-		<File RelativePath="..\source\waves\wave_def.f90"/>
-		<File RelativePath="..\source\waves\wave_lib.F90"/>
-		<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/></Filter>
-		<Filter Name="XMDF">
-		<File RelativePath="..\external_libraries\XMDF\Xmdff-2.0.f90"/></Filter></Filter></Files>
+		<File RelativePath="..\source\explicit\Zupdate_wse_Tel.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

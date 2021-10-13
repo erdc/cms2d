@@ -12,14 +12,24 @@ cmake_install.cmake
 cms
 mfiles/*
 lstf/*
+planar/
+junk
+benson_beach
+south_padre
+spike_run
+doc
+frf
+run_model.m*
+cms_noswash
+do_not_git
+tar_bundle*
 brad_notes.*
-
+for*.png
 *.suo
 
 *.user
 
 *genmod.f90
-*.pdb
 *.exe.intermediate.manifest
 
 Intel_vs2013/Debug/
@@ -36,4 +46,20 @@ Intel_vs2017/x64/Release/
 
 *.dll
 
+<<<<<<< HEAD
+Intel_vs2019/.vs/CMS2D_V5p2/v16/
+
+Intel_vs2019/x64/Release/
+
+Intel_vs2019/CMS2D_V5p2.u2d
+=======
 Intel_vs2019/x64/Debug/
+
+Intel_vs2019/x64/Release/
+
+Intel_vs2019/.vs/CMS2D_V5p2/v16/
+>>>>>>> 5.2.7
+
+*.u2d
+
+*.exe
