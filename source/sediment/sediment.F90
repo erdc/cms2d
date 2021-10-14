@@ -2890,49 +2890,41 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO    
     endif
     
-! bdj some heavy-handed cshore mods
-if (icapac.eq.6) then
-  !CSslp = 0.5            !commented 6/7/2019 bdj
-  !CSblp = 0.001          !commented 6/7/2019 bdj 
-  CSsg = rhosed/1000.
+    ! bdj some heavy-handed cshore mods
+    if (icapac.eq.6) then
+      !CSslp = 0.5            !commented 6/7/2019 bdj
+      !CSblp = 0.001          !commented 6/7/2019 bdj 
+      CSsg = rhosed/1000.
 !$OMP PARALLEL DO PRIVATE(qsx,qsy,Hrms,sigT,i,qb,qbx,qby,CSPb)   
-  do i=1,ncells
-    !--- Total-load sediment concentrations 
-    ! and fraction of suspended sediments ---  
-    Ct(i)=sum(Ctk(i,:))
-    Ctstar(i)=sum(Ctkstar(i,:))
-    rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
+      do i=1,ncells
+        !--- Total-load sediment concentrations and fraction of suspended sediments ---  
+        Ct(i)=sum(Ctk(i,:))
+        Ctstar(i)=sum(Ctkstar(i,:))
+        rs(i)=sum(Ctk(i,:)*rsk(i,:))/max(Ct(i),small)       
 
-    !--- Total-load sediment transport vectors ---
-    !Suspended advective transport
+        !--- Total-load sediment transport vectors ---
+        !Suspended advective transport
 
-    !qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
-    !qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
-    qsx=1.*u(i)*h(i)*Ct(i)
-    qsy=1.*v(i)*h(i)*Ct(i)         
+        !qsx=1.*(u(i)-(CSslp*us(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+        !qsy=1.*(v(i)-(CSslp*vs(i)))*h(i)*Ct(i)         !commented 2021-01-08  bdj
+        qsx=1.*u(i)*h(i)*Ct(i)
+        qsy=1.*v(i)*h(i)*Ct(i)         
 
-    !Bedload transport
-    !Hrms = Whgt(i)/sqrt(2.)  
-    !sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-    !call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
-    !write(*,*),'bdj coming from prob_bedload,sigT,Wper(i),nsed,diam(1),Pb',sigT,Wper(i),nsed,diam(1),Pb
-    !qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
-    !qbx = 1.*qb*wunitx(i) !commented 2021-01-08 
-    !qby = 1.*qb*wunity(i) !commented 2021-01-08 
+        !Bedload transport
+        !Hrms = Whgt(i)/sqrt(2.)  
+        !sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+        !call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+        !qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
+        !qbx = 1.*qb*wunitx(i) !commented 2021-01-08 
+        !qby = 1.*qb*wunity(i) !commented 2021-01-08 
      
-    !Total = sus + bedload
-    !qtx(i) = qsx + qbx !commented 2021-01-08 
-    !qty(i) = qsy + qby !commented 2021-01-08 
+        !Total = sus + bedload
+        !qtx(i) = qsx + qbx !commented 2021-01-08 
+        !qty(i) = qsy + qby !commented 2021-01-08 
       
-    !write(1234,*)i,qbx,qsx,qtx(i) !bdj
-     
-    !if(i.eq.487)then 
-    !  !write(*,*),'bdj i wunitx(i) wunity(i) wang(i) cos sin',i,wunitx(i),wunity(i),wang(i),cos(wang(i)),sin(wang(i))
-    !  write(*,*)'bdj just set bedload i Hrms,sigT,qsx,qbx,qtx(i)',i,Hrms,sigT,qsx,qbx,qtx(i)
-    !endif
-  enddo
+      enddo
 !$OMP END PARALLEL DO   
-endif
+    endif
 
 ! bdj end some heavy-handed cshore mods
 !$OMP PARALLEL DO PRIVATE(i)          
