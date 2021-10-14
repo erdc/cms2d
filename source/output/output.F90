@@ -1575,7 +1575,8 @@
     use sed_def
     use size_def
     use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,           &
-        wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
+        !wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
+        wavediss,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
     use dredge_def
 #ifdef DEV_MODE
     use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,        &
@@ -1920,16 +1921,9 @@ implicit none
       !if(write_fracbreak)then
       !  call writescalh5(outlist(7)%afile,apath,'Frac_Broken_Waves',vecx,'-',timehrs,0)
       !endif
-      if(write_wavbrkind)then
-        !do i=1,ncells
-        !  if(waveibr(i)>1.e-8)then
-        !    waveibr(i)=1.0
-        !  else
-        !    waveibr(i)=0.0
-        !  endif
-        !enddo
-        call writescalh5(outlist(7)%afile,apath,'Wave_Breaking',waveibr,'none',timehrs,0)  
-      endif
+      !if(write_wavbrkind)then
+      !  call writescalh5(outlist(7)%afile,apath,'Wave_Breaking',waveibr,'none',timehrs,0)  
+      !endif
       !if(write_wavdisscoef)then
       !  call writescalh5(outlist(7)%afile,apath,'Dissipation_Coeff',vecy,'-',timehrs,0)   
       !endif
@@ -2163,7 +2157,8 @@ implicit none
         db,wavesedtrans,Qws,rs,nperdiam,outperdiam,iper,ipd
     use size_def
     use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,&
-        wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
+        !wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
+        wavediss,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
     implicit none    
     integer :: i,ii,j,ks,nn,nd,nc
     real(ikind) :: val(ncellsD),vecx(ncellsD),vecy(ncellsD)
@@ -2362,16 +2357,9 @@ implicit none
       !if(write_fracbreak)then
       !  call writescalh5(outlist(7)%afile,apath,'Frac_Broken_Waves',vecx,'-',timehrs,0)
       !endif
-      if(write_wavbrkind)then
-        !do i=1,ncells
-        !  if(waveibr(i)>1.e-8)then
-        !    waveibr(i)=1.0
-        !  else
-        !    waveibr(i)=0.0
-        !  endif
-        !enddo    
-        call write_scal_dat_file(aname,'Wave_Breaking','wbrkind',waveibr)
-      endif
+      !if(write_wavbrkind)then
+      !  call write_scal_dat_file(aname,'Wave_Breaking','wbrkind',waveibr)
+      !endif
       !if(write_wavdisscoef)then
       !  call writescalh5(outlist(7)%afile,apath,'Dissipation_Coeff',vecy,'-',timehrs,0)   
       !endif

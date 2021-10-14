@@ -1,6 +1,6 @@
 !******************************************************
     subroutine CMS_Tools_Dialog    
-! Perfom one of a selection of internal tools
+! Perform one of a selection of internal tools
 ! written by Mitchell Brown, USACE-CHL
 ! 1 and 2 - 04/14/2021
 ! 3 - 9/30/2021

@@ -37,7 +37,8 @@ module wave_wavegrid_def
     real(ikind),allocatable:: wxrs1(:,:),wyrs1(:,:)   !Wave radiation stress gradients [m^2/s^2]
     real(ikind),allocatable:: wheight(:,:)            !Wave height [m]
     real(ikind),allocatable:: wperiod(:,:)            !Wave peak period, [sec]
-    real(ikind),allocatable:: wibr(:,:)               !Wave breaking index, 0-no breaking, 1-Breaking
+!Lihwa removed - test   12/18/2020
+    !real(ikind),allocatable:: wibr(:,:)               !Wave breaking index, 0-no breaking, 1-Breaking
     real(ikind),allocatable:: wdiss(:,:)              !Wave dissipation [N/m/s]
     real(ikind),allocatable:: wcos(:,:),wsin(:,:)     !Wave unit vectors [-]
     
@@ -57,7 +58,8 @@ module wave_flowgrid_def
     real(ikind),allocatable:: Whgt(:),Whgt1(:),Whgt2(:)              !Significant Wave height [m]
     real(ikind),allocatable:: Wper(:),Wper1(:),Wper2(:)              !Peak Wave period [sec]
     real(ikind),allocatable:: wavediss(:),wavediss1(:),wavediss2(:)  !Wave dissipation [N/m/s]
-    real(ikind),allocatable:: waveibr(:),waveibr1(:),waveibr2(:)     !Breaking index (0 or 1)
+!Lihwa removed - test   12/18/2020
+    !real(ikind),allocatable:: waveibr(:),waveibr1(:),waveibr2(:)     !Breaking index (0 or 1)
     real(ikind),allocatable:: wavestrx(:),wavestrx1(:),wavestrx2(:)  !Wave radiation stress gradient in x-direction [m^2/s^2]
     real(ikind),allocatable:: wavestry(:),wavestry1(:),wavestry2(:)  !Wave radiation stress gradient in y-direction [m^2/s^2]
     real(ikind),allocatable:: Wunitx(:),Wunitx1(:),Wunitx2(:)        !Wave unit vector in x-direction [-]
