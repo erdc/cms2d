@@ -27,6 +27,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use hot_def, only: coldstart
       use comvarbl, only: ctime
       use diag_lib, only: diag_print_message
+      use diag_def, only: dgunit
 !$include "omp_lib.h"
 !      dimension dep0(ipmx,jpmx)
 !      dimension fsp(npf),xc(mpd),yc(mpd),wc(mpd),wcd(mpd)
@@ -115,13 +116,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180  SimFile, OptsFile, DepFile, CurrFile, EngInFile
 ! ... Output/Input variable
       CHARACTER*180 NestFile, StrucFile, SurgeFile
-      CHARACTER*180 MudFile, FricFile, FrflFile, BrflFile, WindFile
-      CHARACTER*180 SpecFile, XMDFFile,SetupFile,ShipFile
-      CHARACTER*180 SeaFile, SwellFile                                 !Mitch 3/22/2017
-      logical :: foundfile
+      CHARACTER*180 MudFile,  FricFile,  FrflFile,  BrflFile, WindFile
+      CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
+      CHARACTER*180 SeaFile,  SwellFile                                 !Mitch 03/22/2017
+      CHARACTER*80 :: cardname                                          !Mitch 10/18/2021
+      
+      logical :: foundfile, foundcard
 ! ... Output file variables
+      INTEGER      :: iunit(2)     
 !
-!!    noptset=0 !Uncomment to run as stand alone
+      iunit = (/6,dgunit/)
 
       if(noptset.eq.3.and.nsteer.gt.1) goto 70                              !Wu/Zhang
   
@@ -145,7 +149,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 #ifdef MERGED_CODE
       call diag_print_message(' ')
       call diag_print_message('**********************************************')
-      call diag_print_message('CMS-Wave V-3.2 Inline, last update 30 Apr 2020')
+      call diag_print_message('CMS-Wave V-3.2 Inline, last update 19 Oct 2021')
       call diag_print_message('**********************************************')
       call diag_print_message('  Point of Contact:')
       call diag_print_message('  Lihwa Lin, USACE ERDC')
@@ -153,7 +157,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       call diag_print_message('**********************************************')
       call diag_print_message(' ')
 #else
-      print*,'CMS-Wave V-3.2 Inline, last update 30 Apr 2020'
+      print*,'CMS-Wave V-3.2 Inline, last update 19 Oct 2021'
       print*,'**********************************************'
       print*,'  Point of Contact:'
       print*,'  Lihwa Lin, USACE ERDC'
@@ -163,15 +167,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 #endif
 
     endif
-!
-!     if(noptset.eq.3)then
-!       call GetWaveFilenames_inline (SimFile) !Alex
-!     else
-!       CALL GetSimNameFile_inline (SimFile) !Get sim file from the command line
-        call GetWaveFilenames_inline (SimFile)
-        CALL STWfiles_inline (SimFile)
-!     endif
-!
+
+!Read filenames from .sim file and get correct paths set right.
+      !call GetWaveFilenames_inline (SimFile)  !MEB 10/18/21 Removing this routine.  All it did was to make the next assignment to SimFile and then Call STWfiles_inline which is called here anyway.
+      SimFile = trim(wavepath) // WavSimFile
+      CALL STWfiles_inline (SimFile)
+
       inquire(file=OptsFile,exist=foundfile) 
       if(.not.foundfile)then
         write(*,*) 'ERROR: Could not find file: ',trim(OptsFile)
@@ -270,7 +271,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           close(7)
          end if 
 !
-!     options/set-up parameters
+!Set default values for parameters
       iprpp=1
       icur=0
       ibreak=0
@@ -298,140 +299,142 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iproc=1
       iview=0
       iroll=0
-      read(11,'(a150)') text
+!Read parameters from OptsFile (.std)
       itxt=0
-      do k=1,80
-        if(text(k:k).eq.'!') then   
-          itxt=1  !this means to use different scheme to read parameters
-          exit
-        end if
-      enddo
-!
-      if(itxt.eq.1) then   
-        backspace(11)
-        do 137 l=1,500
-          read(11,'(a80)',end=33) text
-          do 138 k=1,75
-            kk3=k+3
-            kk4=k+4
-            kk5=k+5
-            if(text(k:kk4).eq.'!free') then
-              goto 139
-            else if(text(k:kk4).eq.'!iprp') then
-              read(text,*)iprpp
-              goto 139
-            else if(text(k:kk4).eq.'!icur') then
-              read(text,*)icur
-              goto 139
-            else if(text(k:kk4).eq.'!ibre') then
-              read(text,*)ibreak
-              goto 139
-            else if(text(k:kk3).eq.'!irs') then
-              read(text,*)irs
-              goto 139
-            else if(text(k:kk4).eq.'!kout') then
-              read(text,*)kout
-                 if(iabs(kout).ge.1) then
+      read(11,'(a150)') text
+      read(text,*) cardname, itxt
+      
+      !MEB 10/18/21  Going to rework this to allow for CARDS first, then parameter just like the CMS Parameter file
+      !do k=1,80                        !Original method
+      !  if(text(k:k).eq.'!') then    
+      !    itxt=1  !this means to use different scheme to read parameters
+      !    exit
+      !  end if
+      !enddo
+      
+      select case (cardname)
+      case('CMS_WAVE_STD')
+        if(itxt.eq.2) then             !New format effort to be more readable - card first, then value(s)  MEB 10/18/21
+          call diag_print_message('Reading Options File with Card Format Version 2',' ')
+          do  
+            read(11,*,iostat=ierr) cardname
+            if(ierr .ne. 0) exit
+            if(cardname(1:14)=='END_PARAMETERS') exit
+            if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
+            call cmswave_cards(cardname,foundcard)
+            if(foundcard) then
+              cycle
+            else
+              write(*,*) 'Card in CMS-Wave options file not recognized: ',trim(cardname)
+            endif
+          enddo
+        else
+          call diag_print_message('Reading Options File with Card Format Version 1',' ')
+          backspace(11)
+          do 
+            read(11,'(a80)',iostat=ierr) text
+            if (ierr .ne. 0) exit
+            do 138 k=1,75
+              kk3=k+3
+              kk4=k+4
+              kk5=k+5
+              if(text(k:kk4).eq.'!free') then
+                goto 139
+              else if(text(k:kk4).eq.'!iprp') then
+                read(text,*)iprpp
+                goto 139
+              else if(text(k:kk4).eq.'!icur') then
+                read(text,*)icur
+                goto 139
+              else if(text(k:kk4).eq.'!ibre') then
+                read(text,*)ibreak
+                goto 139
+              else if(text(k:kk3).eq.'!irs') then
+                read(text,*)irs
+                goto 139
+              else if(text(k:kk4).eq.'!kout') then
+                read(text,*)kout
+                if(iabs(kout).ge.1) then
                   read (11,*) (ijsp(1,nn),ijsp(2,nn),nn=1,iabs(kout))
-                  do nn=1,80
-                    read(11,'(a150)',end=33) text
-                    if(text(1:10).ne.'          ') then
-                      backspace(11)
-                      goto 137
-                    end if
-                  enddo
                 end if
-              goto 139
-            else if(text(k:kk5).eq.'!inest') then
-              read(text,*)nest
+                goto 139
+              else if(text(k:kk5).eq.'!inest') then
+                read(text,*)nest
                 if(nest.ge.1) then
                   read (11,*) (inest(nn),jnest(nn),nn=1,nest)
-                  do nn=1,80
-                    read(11,'(a150)',end=33) text
-                    if(text(1:10).ne.'          ') then
-                      backspace(11)
-                      goto 137
-                    end if
-                  enddo
                 end if
-              goto 139
-            else if(text(k:kk4).eq.'!ibnd') then
-              read(text,*)ibnd
-              goto 139
-            else if(text(k:kk4).eq.'!iwet') then
-              read(text,*)iwet
-              goto 139
-            else if(text(k:kk3).eq.'!ibf') then
-              read(text,*)ibf
-              goto 139
-            else if(text(k:kk4).eq.'!iark'.and.text(kk5:kk5).ne.'r')then
-              read(text,*)iark
-              goto 139
-            else if(text(k:kk5).eq.'!iarkr') then
-              read(text,*)iarkr
-              goto 139
-            else if(text(k:kk4).eq.'!akap') then
-              read(text,*)akap
-              goto 139
-            else if(text(k:k+2).eq.'!bf') then
-              read(text,*)bf
-              goto 139
-            else if(text(k:kk3).eq.'!ark'.and.text(kk4:kk4).ne.'r') then
-              read(text,*)ark
-              goto 139
-            else if(text(k:kk4).eq.'!arkr') then
-              read(text,*)arkr
-              goto 139
-            else if(text(k:kk4).eq.'!iwvb') then
-              read(text,*)iwvbk
-              goto 139
-            else if(text(k:kk5).eq.'!nonln') then
-              read(text,*)nonln
-              goto 139
-            else if(text(k:kk5).eq.'!igrav') then
-              read(text,*)igrav
-              goto 139
-            else if(text(k:kk5).eq.'!irunu') then
-              read(text,*)irunup
-              goto 139
-            else if(text(k:kk4).eq.'!imud') then
-              read(text,*)imud
-              goto 139
-            else if(text(k:kk4).eq.'!iwnd') then
-              read(text,*)iwnd
-              goto 139
-            else if(text(k:kk5).eq.'!isolv') then
-              read(text,*)isolv
-              goto 139
-            else if(text(k:kk5).eq.'!ixmdf') then
-              read(text,*)ixmdf
-              goto 139
-            else if(text(k:kk5).eq.'!iproc') then
-              read(text,*)iproc
-              goto 139
-            else if(text(k:kk5).eq.'!iview') then
-              read(text,*)iview
-              goto 139
-            else if(text(k:kk5).eq.'!iroll') then
-              read(text,*)iroll
-              goto 139
-            end if
-138       continue
-          do k=1,80
-            if(text(k:k).ne.' ') then
-              backspace(11)
-              go to 33
-            end if
-          end do
-139       continue
-137     continue
-        go to 33
-      else
-        read(text,*,end=33,err=33)iprpp, icur, ibreak, irs, kout, ibnd, &
+                goto 139
+              else if(text(k:kk4).eq.'!ibnd') then
+                read(text,*)ibnd
+                goto 139
+              else if(text(k:kk4).eq.'!iwet') then
+                read(text,*)iwet
+                goto 139
+              else if(text(k:kk3).eq.'!ibf') then
+                read(text,*)ibf
+                goto 139
+              else if(text(k:kk4).eq.'!iark'.and.text(kk5:kk5).ne.'r')then
+                read(text,*)iark
+                goto 139
+              else if(text(k:kk5).eq.'!iarkr') then
+                read(text,*)iarkr
+                goto 139
+              else if(text(k:kk4).eq.'!akap') then
+                read(text,*)akap
+                goto 139
+              else if(text(k:k+2).eq.'!bf') then
+                read(text,*)bf
+                goto 139
+              else if(text(k:kk3).eq.'!ark'.and.text(kk4:kk4).ne.'r') then
+                read(text,*)ark
+                goto 139
+              else if(text(k:kk4).eq.'!arkr') then
+                read(text,*)arkr
+                goto 139
+              else if(text(k:kk4).eq.'!iwvb') then
+                read(text,*)iwvbk
+                goto 139
+              else if(text(k:kk5).eq.'!nonln') then
+                read(text,*)nonln
+                goto 139
+              else if(text(k:kk5).eq.'!igrav') then
+                read(text,*)igrav
+                goto 139
+              else if(text(k:kk5).eq.'!irunu') then
+                read(text,*)irunup
+                goto 139
+              else if(text(k:kk4).eq.'!imud') then
+                read(text,*)imud
+                goto 139
+              else if(text(k:kk4).eq.'!iwnd') then
+                read(text,*)iwnd
+                goto 139
+              else if(text(k:kk5).eq.'!isolv') then
+                read(text,*)isolv
+                goto 139
+              else if(text(k:kk5).eq.'!ixmdf') then
+                read(text,*)ixmdf
+                goto 139
+              else if(text(k:kk5).eq.'!iproc') then
+                read(text,*)iproc
+                goto 139
+              else if(text(k:kk5).eq.'!iview') then
+                read(text,*)iview
+                goto 139
+              else if(text(k:kk5).eq.'!iroll') then
+                read(text,*)iroll
+                goto 139
+              end if
+138         continue
+139         continue
+          enddo
+        endif  
+      case default 
+        read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd, &
         iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
         imud,iwnd,isolv,ixmdf,iproc,iview,iroll
-      end if
-33    continue
+      end select
+
 !
       iibreak=0
       inquire(file='std.dat',exist=getfile17)
@@ -979,20 +982,20 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
   191   continue
 !
       if(ibf.ne.0) then
-      inquire(file=FricFile,exist=getfile8)
+        inquire(file=FricFile,exist=getfile8)
         if(getfile8) then
-        write(*,*) ' '
-        write(*,*) ' *** FricFile FOUND ***'
-        write(*,*) '     Read friction coef file'
-        write(*,*) ' '
-        open(unit=28,file=FricFile,status='old')
-        read(28,*) kbi,kbj
+          write(*,*) ' '
+          write(*,*) ' *** FricFile FOUND ***'
+          write(*,*) '     Read friction coef file'
+          write(*,*) ' '
+          open(unit=28,file=FricFile,status='old')
+          read(28,*) kbi,kbj
           if(kbi.ne.ni.or.kbj.ne.nj) then
-          write(*,*) 'Wrong friction field file'
-          close(28)
-          stop
+            write(*,*) 'Wrong friction field file'
+            close(28)
+            stop
           end if
-        close(28)
+          close(28)
         end if
       end if
 !
@@ -1492,36 +1495,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       if(noptset.eq.3 .and. irs.eq.0) irs = 1   !Alex, always output radiation stress if in steering
 !
-      write(*,*) 'iprp    icur    ibk     irs    kout',   &
-            '     ibnd     iwet    ibf     iark    iarkr'
-      write(*,'(3(i3,5x),i3,3x,i5,5x,5(i3,5x))') &
+!Reworked this section to always output to screen and diagnostic file.  MEB 10/19/2021
+      do i=1,2
+        write(iunit(i),*) 'iprp    icur    ibk     irs    kout     ibnd     iwet    ibf     iark    iarkr'
+        write(iunit(i),'(3(i3,5x),i3,3x,i5,5x,5(i3,5x))') &
                   iprpp,  icur,   ibreak,  irs,   kout,  &
                   ibnd,   iwet,    ibf,    iark,   iarkr
-      write(*,*)
-      write(*,*) 'akap    bf      ark     arkr   iwvbk ', &
-             '   nonln    igrav   irunup  imud    iwnd '
-      write(*,'(4(f7.4,1x),6(i3,5x))') akap, bf, ark, arkr, iwvbk, &
-                 nonln,igrav,irunup,imud,iwnd
-      write(*,*)
-      write(*,*) 'isolv   ixmdf   iproc   iview   iroll'
-      write(*,'(6(i3,5x))') isolv,ixmdf,iproc,iview,iroll
-      write(*,*)
-!
-      if(noptset.eq.3)then
-        write(9,*) 'iprp    icur    ibk     irs    kout',   &
-            '     ibnd     iwet    ibf     iark    iarkr'
-        write(9,'(10(i3,5x))') iprpp,icur,ibreak,irs,kout,  &
-                  ibnd,iwet, ibf, iark, iarkr
-        write(9,*)
-        write(9,*) 'akap    bf      ark     arkr   iwvbk ', &
-             '   nonln    igrav   irunup  imud    iwnd '
-        write(9,'(4(f7.4,1x),6(i3,5x))') akap, bf, ark, arkr, iwvbk, &
-                 nonln,igrav,irunup,imud,iwnd
-        write(9,*)
-        write(9,*) 'isolv   ixmdf   iproc   iview   iroll'
-        write(9,'(6(i3,5x))') isolv,ixmdf,iproc,iview,iroll
-        write(9,*)
-      endif 
+        write(iunit(i),*)
+        write(iunit(i),*) 'akap    bf      ark     arkr   iwvbk    nonln    igrav   irunup  imud    iwnd '
+        write(iunit(i),'(4(f7.4,1x),6(i3,5x))') akap, bf, ark, arkr, iwvbk, nonln,igrav,irunup,imud,iwnd
+        write(iunit(i),*)
+        write(iunit(i),*) 'isolv   ixmdf   iproc   iview   iroll'
+        write(iunit(i),'(6(i3,5x))') isolv,ixmdf,iproc,iview,iroll
+        write(iunit(i),*)
+        if (gamma_bj87 .gt. -1) then
+          write(iunit(i),'(A,F6.2)') ' User defined gamma value for Battjes-Janssen 1987: ', gamma_bj87
+        endif
+        write(iunit(i),*) ' '
+      enddo
 !
       if(noptset.eq.3 .and. irs.eq.0) irs = 1   !Alex, always output radiation stress if in steering
       if(noptset.eq.3 .and. ijstruct2.ge.1) irs = 2
@@ -1611,8 +1602,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         wd=wd-180.
         if(iwave.eq.1) then
           read(24,'(a150)',end=424) text
-      READ(text,*,err=423,end=424) JDATE,ws1,wd1,fp1,Tide1,xc(1),yc(1),hs13(1)
-      if(abs(hs13(1)).gt.900.) hs13(1)=0.
+          READ(text,*,err=423,end=424) JDATE,ws1,wd1,fp1,Tide1,xc(1),yc(1),hs13(1)
+          if(abs(hs13(1)).gt.900.) hs13(1)=0.
 423       continue
           if(abs(ws1).lt..001) wd1=0.
           ws=ws1
@@ -1654,16 +1645,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           read(21,'(a150)',end=219,err=219) text
           READ(text,*) ieta_date
           open (15,file=DepFile,status='old')
-            read (15,*)
-            do j=nj,1,-1
+          read (15,*)
+          do j=nj,1,-1
             read (15,*) (dep0(i,j),i=1,ni)
             read (21,*,end=219,err=219) (eta(i,j),i=1,ni)
-              do i=1,ni
-                if(dep0(i,j).lt.-20.) dep0(i,j)=-20.
-                if(iwet.eq.1.and.dep0(i,j).lt..01) dep0(i,j)=-10.
-              end do
+            do i=1,ni
+              if(dep0(i,j).lt.-20.) dep0(i,j)=-20.
+              if(iwet.eq.1.and.dep0(i,j).lt..01) dep0(i,j)=-10.
             end do
-            close(15)
+          end do
+          close(15)
 !
           do i=1,ni
             do j=2,nj-1
@@ -1673,8 +1664,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
                 end if
               end if
             end do
-           if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
-           if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
+            if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
+            if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
           end do
 !
           do j=1,nj
@@ -1709,15 +1700,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       enddo
     endif
 !
-      if(ibnd.eq.0) then
-        READ(8,*,end=420) eDate,ws,wd,fp,Tide
-            idate = int(mod(edate,100000.))
-            kdate = int(edate/100000.)
-          if(edate.lt.99999999.) then
-          kdate=0
-          idate=int(edate)
-          end if
-      else
+    if(ibnd.eq.0) then
+      READ(8,*,end=420) eDate,ws,wd,fp,Tide
+      idate = int(mod(edate,100000.))
+      kdate = int(edate/100000.)
+      if(edate.lt.99999999.) then
+        kdate=0
+        idate=int(edate)
+      end if
+    else
 !
       if(getfile5) then
         do i=1,inest1
@@ -1762,71 +1753,71 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       read(text,*,end=421,err=421) &
       eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
       if(abs(hs13(1)).gt.900.) hs13(1)=0.
-            idate = int(mod(edate,100000.))
-            kdate = int(edate/100000.)
-          if(edate.lt.99999999.) then
-          kdate=0
-          idate=int(edate)
-          end if
-421     continue
+      idate = int(mod(edate,100000.))
+      kdate = int(edate/100000.)
+      if(edate.lt.99999999.) then
+        kdate=0
+        idate=int(edate)
       end if
+421   continue
+    end if
 !    
-      if(iprp.eq.1.or.iprp.eq.-2) ws=0.
-!     write(*,*) 'Wave Input Index =',kdate,idate
-      if(kdate.gt.0) then
-        if(idate.le.9999) then
-          idate1=mod(kdate,10)*100000+idate
-          kdate1=kdate/10
-          write(*,'("Wave Input Index =",i7,i6)') kdate1,idate1
-        else
-          write(*,'("Wave Input Index =",i8,i5)') kdate,idate
-        end if
+    if(iprp.eq.1.or.iprp.eq.-2) ws=0.
+!    write(*,*) 'Wave Input Index =',kdate,idate
+    if(kdate.gt.0) then
+      if(idate.le.9999) then
+        idate1=mod(kdate,10)*100000+idate
+        kdate1=kdate/10
+        write(*,'("Wave Input Index =",i7,i6)') kdate1,idate1
       else
-        if(idate.lt.itms) idate=itms
-        if(idate.lt.iidate) idate=iidate
-        write(*,'("Wave Input Index =",i8)') idate
+        write(*,'("Wave Input Index =",i8,i5)') kdate,idate
       end if
-      write(*,*) ' '
+    else
+      if(idate.lt.itms) idate=itms
+      if(idate.lt.iidate) idate=iidate
+      write(*,'("Wave Input Index =",i8)') idate
+    end if
+    write(*,*) ' '
 !
-      if(imod.eq.1.or.imod.eq.3) then
-        nc=ni
-        ni=nj
-        nj=nc
-      end if
-      imod=0
+    if(imod.eq.1.or.imod.eq.3) then
+      nc=ni
+      ni=nj
+      nj=nc
+    end if
+    imod=0
 !
-424   continue
+424 continue
 !
-      iengspc=8
-      if(iplane.eq.2) iengspc=24
-      READ(iengspc,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+    iengspc=8
+    if(iplane.eq.2) iengspc=24
+    READ(iengspc,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
 !
-      DTH = 180./float(MDD+1)
-      if(iview.ge.1) then
-        DTH = 180./float(MDD)
-        dsfd=dsfd*float(mdd)/float(mdd+1)
-      end if
-      DTH = DTH*RAD
+    DTH = 180./float(MDD+1)
+    if(iview.ge.1) then
+      DTH = 180./float(MDD)
+      dsfd=dsfd*float(mdd)/float(mdd+1)
+    end if
+    DTH = DTH*RAD
 ! 
-      if(wd.gt.270.) wd=wd-360.
-      if(wd.lt.-270.) wd=wd+360.
+    if(wd.gt.270.) wd=wd-360.
+    if(wd.lt.-270.) wd=wd+360.
 !
-      DO NN=2,NF-1
-        DF(NN)=0.5*(FFCN(NN+1)-FFCN(NN-1))
-      ENDDO
-!     DF(1)=0.5*(FFCN(2)+FFCN(1))
-      DF(1)=DF(2)
-      DF(NF)=DF(NF-1)
-      DFINP=DF
+    DO NN=2,NF-1
+      DF(NN)=0.5*(FFCN(NN+1)-FFCN(NN-1))
+    ENDDO
+!   DF(1)=0.5*(FFCN(2)+FFCN(1))
+    DF(1)=DF(2)
+    DF(NF)=DF(NF-1)
+    DFINP=DF
 !
-      sum=0.
-      do mm=1,mdd
-        do nn=1,nf
-          sum=sum+dsfd(nn,mm)*df(nn)
-        ENDDO
+    sum=0.
+    do mm=1,mdd
+      do nn=1,nf
+        sum=sum+dsfd(nn,mm)*df(nn)
       ENDDO
-      hs0=4.*sqrt(sum*dth)
-!     write(*,*) ' tmp hs0 =', hs0
+    ENDDO
+    hs0=4.*sqrt(sum*dth)
+!   write(*,*) ' tmp hs0 =', hs0
 !
 425   continue
 !
@@ -6454,22 +6445,22 @@ contains
 !     if(iprpp.ne.-1.and.dxx.gt.300.) ifast=1
       winp1=0.00002*om2/g/dth/.03
       deca1=0.01*om35/g/dth/dfc
-        if(md.eq.7.and.iprp.eq.2) then
+      if(md.eq.7.and.iprp.eq.2) then
         winp1=0.000027*om2/g/dth/.03
         deca1=0.012*om35/g/dth/dfc
-        end if
+      end if
 !
 !     if(iwind.ge.1) then
-!     winp1=0.00002*om2/g/dth/.03
-!     deca1=0.01*om35/g/dth/dfc
+!       winp1=0.00002*om2/g/dth/.03
+!       deca1=0.01*om35/g/dth/dfc
 !     end if
       if(dvarx(ii).gt.300.) then
-      winp1=winp1*sqrt(300./dvarx(ii))
-      deca1=deca1*(300./dvarx(ii))**.6
+        winp1=winp1*sqrt(300./dvarx(ii))
+        deca1=deca1*(300./dvarx(ii))**.6
       end if
 !
       if(igrav.eq.3) then
-      winp1=winp1*2.
+        winp1=winp1*2.
       end if
 !
 !     winp1=0.000021*om2/g/dth/.03
@@ -6483,12 +6474,12 @@ contains
       if(ix1(ii).eq.0.and.aakap.gt.1.) aakap=1.
       winln=10.
       if(ws.ge..1) then
-!     winln=5.
-      if(hs0.lt..5) winln=1.5
-      ph00=ph0*3.
-      if(ph00.gt.1.25) ph00=1.25
+!       winln=5.
+        if(hs0.lt..5) winln=1.5
+        ph00=ph0*3.
+        if(ph00.gt.1.25) ph00=1.25
 ! --- the above ph00 keep long waves in the upwind lake area.
-      om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
+        om51=om**5*exp(0.74*min((ph00/om)**4,10.))/dth/.03
       end if
 !
       gamma1=0.0001*aakap
@@ -6498,65 +6489,65 @@ contains
       NMX=(MD-imd+1)*JMESH
       NN=0
       DO 10 N=1,NMX
-      DO 20 M=1,5
-      AA(M,N)=0.
-      IA(M,N)=0
-   20 CONTINUE
-      B(N)=0.
+        DO 20 M=1,5
+          AA(M,N)=0.
+          IA(M,N)=0
+   20   CONTINUE
+        B(N)=0.
    10 CONTINUE
       jgrav=0
       if(igrav.ge.1) then
-      do jm=jb,je
-      if(ijb(ii,jm).eq.4.or.ijb(ii,jm).eq.5) then
-      jgrav=jgrav+1
-      end if
-      end do
+        do jm=jb,je
+          if(ijb(ii,jm).eq.4.or.ijb(ii,jm).eq.5) then
+            jgrav=jgrav+1
+          end if
+        end do
       end if
 
 ! -- iteration for J mesh
       DO 30 JM=1,JMESH
-      JBM=JB+JM
-      JJ=JBM-1
-      t3=tp
-      if(ii.ge.2) t3=t13(ii-1,jj)
-      if(ii.eq.1.and.depmax0.lt..01) t3=1.
-      om1=pai2/t3/om
+        JBM=JB+JM
+        JJ=JBM-1
+        t3=tp
+        if(ii.ge.2) t3=t13(ii-1,jj)
+        if(ii.eq.1.and.depmax0.lt..01) t3=1.
+        om1=pai2/t3/om
 !
-      if(iwind.ge.1) then
-      ws=sqrt(v10(ii,jj)**2+u10(ii,jj)**2)
-      wd=atan2(v10(ii,jj),u10(ii,jj))
-      if(ws.lt.wsmag) ws=wsmag
-      end if
+        if(iwind.ge.1) then
+          ws=sqrt(v10(ii,jj)**2+u10(ii,jj)**2)
+          wd=atan2(v10(ii,jj),u10(ii,jj))
+          if(ws.lt.wsmag) ws=wsmag
+        end if
 !
-      if(ws.gt..1) then
-      om1=(pai2/(t3+1.))/om
-      if(nonln.eq.1) winp1=winp2*1.5
-      end if
+        if(ws.gt..1) then
+          om1=(pai2/(t3+1.))/om
+          if(nonln.eq.1) winp1=winp2*1.5
+        end if
 !
-      nln=0
-      if(nonln.eq.1) then
-      cc=om1
-      if(om1.gt.winln) cc=winln
-      cc1=(cosh(min(9.424,om**2*abs(d1(ii,jj))/g))/6200.)
-      cc1=min(tanh((d1(ii,jj)/100.)**2),cc1)
-      cc2=cc**12*cc1**2
-      om52=om5*cc2
-      om81=om8*cc2
-      if(om1.lt.winln) nln=1
-      end if
+        nln=0
+        if(nonln.eq.1) then
+          cc=om1
+          if(om1.gt.winln) cc=winln
+          cc1=(cosh(min(9.424,om**2*abs(d1(ii,jj))/g))/6200.)
+          cc1=min(tanh((d1(ii,jj)/100.)**2),cc1)
+          cc2=cc**12*cc1**2
+          om52=om5*cc2
+          om81=om8*cc2
+          if(om1.lt.winln) nln=1
+        end if
 !
-      hsij=hs0
-      if(ii.ge.2) hsij=h13(ii-1,jj)
-      cc=hsij/(abs(d1(ii,jj))+.01)
-      if(cc.gt.1.) cc=1.
+        hsij=hs0
+        if(ii.ge.2) hsij=h13(ii-1,jj)
+        cc=hsij/(abs(d1(ii,jj))+.01)
+        if(cc.gt.1.) cc=1.
         if(imud.ge.0) then
-           aamud=amud(ii,jj)*cc
+          aamud=amud(ii,jj)*cc
         else
-           aamud=sqrt(2.*amud(ii,jj)/om)*cc
+          aamud=sqrt(2.*amud(ii,jj)/om)*cc
         end if
 !
 !  following gam is changed in coefficiets A1, A2, A3      
-      gam=2./om/dvary(jj)**2*gamma1
+        gam=2./om/dvary(jj)**2*gamma1
 !  above gam should be changed due to spatial variation of intrin-
 !  sic aungular frequency due to spatial change of current field
 !
@@ -6599,7 +6590,7 @@ contains
           CALL WVBRK3_inline(CAB,JBV,II,JJM,JJ)
         elseif (IWVBK.eq.4) then
           CALL WVBRK4_inline(CAB,JBV,II,JJM,JJ)
-	elseif (IWVBK.eq.0) then
+	    elseif (IWVBK.eq.0) then
           CALL WVBRK_inline(CAB,JBV,II,JJM,JJ,um,vm,fc)
         end if
 !
@@ -7029,7 +7020,7 @@ contains
    30 CONTINUE
 
       RETURN
-      END
+      END SUBROUTINE SETAB_inline
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
@@ -7043,6 +7034,7 @@ contains
 !    in subroutine veloc
 !---------------------------------------------------------------
       USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      USE global_inline, ONLY: gamma_bj87                    !added MEB 10/19/2021
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
       COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
       COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
@@ -7054,54 +7046,60 @@ contains
       IF(IBK.EQ.1) GOTO 10
       IF(JBV.GE.6) GOTO 10
 
-	slj=slf(jm)
+	  slj=slf(jm)
       if(slj.ge.0.04) go to 10
-	gama=0.73
+      
+      if(gamma_bj87 .ne. -1) then
+        gama = gamma_bj87          !allow use of user-specified value if requested  MEB 10/19/2021
+      else
+        gama=0.73                  !otherwise use default value.
+      endif
+    
 !     alfabj=1.0/1.414
-	alfabj=0.707
+	  alfabj=0.707
 !
       H13=HSB(JJ)
 !     hrms=h13/sqrt(2.0)
-	hrms=h13/1.414
-	dep=depm(jm)
-	wnk=pai2/wlmn(jm)
-	sig=sigm(jm)
+	  hrms=h13/1.414
+	  dep=depm(jm)
+	  wnk=pai2/wlmn(jm)
+	  sig=sigm(jm)
 	
-	hmax=gama*dep 
+      hmax=gama*dep 
 
-	if(wnk.lt.0.0) goto 10
+	  if(wnk.lt.0.0) goto 10
 
-	if(hmax.gt.0.0.and.hrms.gt.0.0) then
-	B=hrms/hmax
-	else
-	B=0.0
-	endif
-	if(B.le.0.5) then
-	Q0=0.0
-	elseif(B.lt.1.0) then
-	Q0=(2.0*B-1.0)**2
-	endif
-	if(B.le.0.2) then
-	Qb=0.0
-	elseif(B.lt.1.0) then
-	B2=B*B
-	EQ0=exp((Q0-1.0)/B2)
-	Qb=Q0-B2*(Q0-EQ0)/(B2-EQ0)
-	else
-	Qb=1.0
-	endif
+	  if(hmax.gt.0.0.and.hrms.gt.0.0) then
+	    B=hrms/hmax
+	  else
+	    B=0.0
+	  endif
+	  if(B.le.0.5) then
+	    Q0=0.0
+	  elseif(B.lt.1.0) then
+	    Q0=(2.0*B-1.0)**2
+	  endif
+	  if(B.le.0.2) then
+	    Qb=0.0
+      elseif(B.lt.1.0) then
+	    B2=B*B
+	    EQ0=exp((Q0-1.0)/B2)
+	    Qb=Q0-B2*(Q0-EQ0)/(B2-EQ0)
+	  else
+	    Qb=1.0
+	  endif
 
 !     Dab=0.25*alfabj*Qb*(sig/pai2)*hmax**2
-	Dab=0.04*alfabj*Qb*sig*hmax**2
+	  Dab=0.04*alfabj*Qb*sig*hmax**2
 !     cab=Dab/(sig*(1.0/8.0)*hrms**2)
-	cab=8.0*dab/sig/hrms**2*om
-	goto 20
+	  cab=8.0*dab/sig/hrms**2*om
+	  goto 20
  
    10 CAB=0.0
 
    20 continue
       RETURN
-      END
+      END SUBROUTINE WVBRK2_inline
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
@@ -7151,7 +7149,7 @@ contains
 !     Dissipation coefficient, 0.8154944=8.0/9.8
 
       RETURN
-      END
+      END SUBROUTINE WVBRK4_inline
 
 !*****************************************     
       real function erf_inline(x)
@@ -7180,7 +7178,7 @@ contains
       erf_inline = fac*S
       if (erf_inline.gt.1.0) erf_inline = 1.0
       return
-      end
+      end function erf_inline
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
@@ -7219,15 +7217,15 @@ contains
 !     qstar=qjm/(g*g*TP**3)
 !     ed=qstar*slj**(0.25)/(depm(jm)/wL0)
       if(um.lt.0.) then
-      qstar=sqrt(um**2+vm**2)/g**2/TP**3
-      ed=qstar*slj**.25*WL0
-	if    (ed.lt.0.0005) then
-	  ced=1.0
-	elseif(ed.gt.0.0024) then
-	  ced=0.506
-	else
-	  ced=1.13-260.0*ed
-	endif
+        qstar=sqrt(um**2+vm**2)/g**2/TP**3
+        ed=qstar*slj**.25*WL0
+	    if    (ed.lt.0.0005) then
+          ced=1.0
+        elseif(ed.gt.0.0024) then
+          ced=0.506
+	    else
+          ced=1.13-260.0*ed
+        endif
       else
         ced=1.0
       endif
@@ -7267,7 +7265,7 @@ contains
 
    20 continue
       RETURN
-      END
+      END SUBROUTINE WVBRK_inline
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
@@ -7292,39 +7290,40 @@ contains
       IF(IBK.EQ.1) GOTO 10
       IF(JBV.GE.6) GOTO 10
 
-	slj=slf(jm)
+	  slj=slf(jm)
       if(slj.ge.0.04) go to 10
       g=9.806
       gama=0.6
       beta=0.4
       H13=HSB(JJ)
 !     hrms=h13/sqrt(2.0)
-	hrms=h13/1.414
-	dep=depm(jm)
-	wnk=pai2/wlmn(jm)
-	sig=sigm(jm)
+	  hrms=h13/1.414
+	  dep=depm(jm)
+	  wnk=pai2/wlmn(jm)
+	  sig=sigm(jm)
 
-	if(wnk.lt.0.0) goto 10
+	  if(wnk.lt.0.0) goto 10
 
-	tkh=wnk/tanh(wnk*dep)
-	ab=1.0+(tkh*hrms/gama)**2
+	  tkh=wnk/tanh(wnk*dep)
+	  ab=1.0+(tkh*hrms/gama)**2
 !     dab1=1.0-1.0/ab**(5.0/2.0)
-	dab1=1.0-1.0/ab**2.5
-	dab2=(tkh/gama)**2
-	dab3=sqrt(g*tkh)
+	  dab1=1.0-1.0/ab**2.5
+	  dab2=(tkh/gama)**2
+	  dab3=sqrt(g*tkh)
 !     dab3=sqrt(g*tkh)*g*wnk
 ! --- is it g*wnk missing in the equation?
 !     dab=3.0*beta*wnk*dab3*dab2*dab1*hrms**5/(32.0*sqrt(pai))
-	dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
+	  dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
 !     cab=dab/(sig*(1.0/8.0)*hrms**2)
-	cab=8.0*dab/sig/hrms**2
-	goto 20
+	  cab=8.0*dab/sig/hrms**2
+	  goto 20
  
    10 CAB=0.0
 
-   20 continue
+20    continue
+      
       RETURN
-      END
+      END SUBROUTINE WVBRK3_inline
 
 !&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 !  subroutine to obtain wave breaking energy dissipation term
@@ -10499,53 +10498,238 @@ contains
 
       RETURN
       END SUBROUTINE
+    
+!***********************************************************************   
+    subroutine cmswave_cards(aCard,foundcard)
+! Reads cards from the CMS-Wave options file (*.std)
+! written by Mitchell Brown, USACE-CHL  10/18/2021
+!***********************************************************************
+    use diag_lib,      only: diag_print_warning, diag_print_error
+    use global_inline, only: gamma_bj87, KOMX, JGPX, IGPX
+    
+    implicit integer (i-n), real (a-h,o-z)
+    
+    COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
+                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+    COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
+    COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
+    COMMON /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr                 !Wu
+    COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(JGPX),  &
+                 sigm(JGPX),IWVBK,ibk3    
+    COMMON /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
+    COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
+    
+    character(len=*),intent(inout) :: aCard
+    logical,intent(out)            :: foundcard
+    
+    character*80  :: aVal
+    
+    foundcard = .true.
+    
+    select case (aCard)
+    case('WV_PROPAGATION_TYPE') 
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'WAVE_AND_SPECTRA') then         ! 0 - wave generation and spectra (use wind if provided)
+        iprpp = 0
+      else if (aVal == 'SPECTRA_ONLY') then        ! 1 - propagation with spectra only (neglect wind input)
+        iprpp = 1
+      else
+        iprpp = -1    !'FAST_MODE'                 !-1 - fast-mode (wave generation and spectra)
+      endif
+    case('WV_CURRENT_TYPE')       
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF' .or. aVal == 'NONE') then  !0 - no current
+        icur = 0
+      else if (aVal == 'MULTIPLE') then            !1 - multiple currents in seq. order
+        icur = 1
+      else            !'SINGLE'                    !2 - read only first current record
+        icur = 2
+      endif
+    case('WV_BREAKING_OUTPUT')    
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF' .or. aVal == 'NONE') then
+        ibreak = 0
+      elseif (aVal == 'BREAKING_INDICES') then
+        ibreak = 1
+      else
+        ibreak = 2   !'DISSIPATION_VALUES'
+      endif
+    case('WV_RAD_STRESS_OUTPUT')   
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF' .or. aVal == 'NONE') then  !0 - no rad output 
+        irs = 0
+      elseif (aVal == 'RAD_STRESS') then           !1 - output wave radiation stresses only (*.rad)
+        irs = 1
+      else
+        irs = 2      !'STRESS_SETUP'               !2 - output wave radiation stresses and setup/maximum water level
+      endif
+    case('WV_OBSERVATION_OUTPUT') 
+      backspace(11)
+      read(11,*) aCard, kout                       !0 - no obs output
+      if(kout.ge.1) then                           !n - output of spectra and parameters at 'n' selected cells
+        read (11,*) (ijsp(1,nn),ijsp(2,nn),nn=1,kout)
+      end if
+    case('WV_NESTING_CELLS') 
+      backspace(11)
+      read(text,*)nest                             !0 - no nest cells
+      if(nest.ge.1) then                           !n - list of nesting cells to read in  
+        read (11,*) (inest(nn),jnest(nn),nn=1,nest)
+      end if
+    case('WV_BOUNDARY_NESTING')   
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then                      !0 - no nesting
+        ibnd = 0
+      else if (aVal == 'LINEAR') then              !1 - linear interp for 'n' points
+        ibnd = 1
+      else            !'MORPHIC'                   !2 - morphic interp for 'n' points
+        ibnd = 2
+      endif
+    case('WV_WETTING_DRYING')     
+      backspace(11)
+      read(11,*) aCard, aVal
+      iwet = 0                                     !0 - normal wetting/drying
+      if(aVal == 'OFF') iwet = 1                   !1 - no wetting/drying
+    case('WV_BOTTOM_FRICTION')    
+      backspace(11)
+      read(11,*) aCard, aVal                       
+      if(aVal == 'NONE' .or. aVal == 'OFF') then   !0 - no bottom friction
+        ibf = 0
+      elseif (aVal == 'CONST_DARCY_WEISBACH') then !1 - constant Darcy-Weisbach coefficient (=bf)
+        ibf = 1
+      elseif (aVal == 'VAR_DARCY_WEISBACH') then   !2 - variable Darcy-Weisbach coefficient (friction.dat)
+        ibf = 2          
+      elseif (aVal == 'CONST_MANNINGS') then       !3 - constant Manning coefficient (=bf)
+        ibf = 3
+      else           !'VAR_MANNINGS'               !4 - variable Manning coefficient (friction.dat)
+        ibf = 4
+      endif
+    case('WV_BOTTOM_FRICTION_COEFF')
+      backspace(11)
+      read(11,*) aCard, bf
+    case('WV_FWD_REFLECTION_COEFF')
+      backspace(11)
+      read(11,*) aCard, ark               !limit 0.0 <= ark < 1.0
+      if (ark .le. '0.d0') then
+        iark = 0                                   !0 - no forward reflection
+      else
+        iark = 1                                   !1 - with forward reflection
+      endif
+    case('WV_BWD_REFLECTION_COEFF')
+      backspace(11)
+      read(11,*) aCard, arkr              !limit 0.0 <= arkr < 1.0
+      if (arkr .le. '0.d0') then
+        iarkr = 0                                  !0 - no backward reflection
+      else
+        iarkr = 1                                  !1 - with backward reflection
+      endif
+    case('WV_BREAKING_FORMULA')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'EXT_GODA') then             !0 - Extended Goda
+        iwvbk = 0
+      elseif (aVal == 'EXT_MICHE') then            !1 - Extended Miche
+        iwvbk = 1
+      elseif (aVal == 'BATTJES_JANSSEN_87') then   !2 - Battjes and Janssen (1987)
+        iwvbk = 2
+      elseif (aVal == 'CHAWLA_KIRBY') then         !3 - Chawla and Kirby
+        iwvbk = 3  
+      else           !'BATTJES_JANSSEN_07'         !4 - Battjes and Janssen (2007)
+        iwvbk = 4
+      endif
       
-!********************************************************************************      
-      subroutine getwavefilenames_inline(SimFile)
-!********************************************************************************
-      use cms_def, only: wavsimfile,wavepath,wavename 
-      implicit none
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,    &
-                         WaveFile, ObsFile, EngOutFile, NestFile,   &
-                         BreakFile, RadsFile, StrucFile, SurgeFile, &
-                         MudFile, FricFile, FrflFile, BrflFile,     &
-                         SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
-      CHARACTER*180 WaveFile,ObsFile,EngOutFile,BreakFile,RadsFile       
-! ... Input file variables
-      CHARACTER*180, intent(out) :: SimFile                        !meb 02/27/2013 - Pass the 'SimFile' back out so it is available by the calling subroutine.
-      CHARACTER*180  OptsFile, DepFile, CurrFile, EngInFile
-! ... Output/Input variable
-      CHARACTER*180 NestFile, StrucFile, SurgeFile
-      CHARACTER*180 MudFile, FricFile, FrflFile, BrflFile, WindFile
-      CHARACTER*180 SpecFile, XMDFFile, SetupFile, ShipFile
-      CHARACTER*180 SeaFile, SwellFile                                 !Mitch 3/22/2017
-      integer :: iloc
-      
-      SimFile = trim(wavepath) // WavSimFile
-      CALL STWfiles_inline (SimFile)
-      !OptsFile   = trim(wavepath) // OptsFile                      !meb 02/27/2013 - These instructions were just done in STWfiles, no need to do over.
-      !DepFile    = trim(wavepath) // DepFile
-      !CurrFile   = trim(wavepath) // CurrFile
-      !EngInFile  = trim(wavepath) // EngInFile
-      !EngOutFile = trim(wavepath) // EngOutFile
-      !WaveFile   = trim(wavepath) // WaveFile
-      !ObsFile    = trim(wavepath) // ObsFile
-      !NestFile   = trim(wavepath) // NestFile                                         
-      !BreakFile  = trim(wavepath) // BreakFile
-      !RadsFile   = trim(wavepath) // RadsFile
-      !StrucFile  = trim(wavepath) // StrucFile
-      !SurgeFile  = trim(wavepath) // SurgeFile
-      !MudFile    = trim(wavepath) // MudFile
-      !FricFile   = trim(wavepath) // FricFile
-      !FrflFile   = trim(wavepath) // FrflFile
-      !BrflFile   = trim(wavepath) // BrflFile
-      !WindFile   = trim(wavepath) // WindFile
-      !SpecFile   = trim(wavepath) // SpecFile
-      !SetupFile  = trim(wavepath) // SetupFile
-      !iloc=len_trim(WavSimFile) !Alex
-      !XMDFFile = WavSimFile(1:ILOC-4)//"_out.h5" !Alex
-      !XMDFFile = trim(wavepath) // XMDFFile      
-      
-      return
-      end subroutine
+    !Added to have user-specified Gamma for certain breaking formulae
+    case('WV_SET_GAMMA_BJ87')
+      backspace(11)
+      read(11,*) aCard, gamma_bj87     !initial restriction: 0.4 <= gamma_bj87 <= 0.8
+      if ((gamma_bj87 .lt. 0.4) .or. (gamma_bj87 .gt. 0.8)) then
+        call diag_print_warning('Outside normal range of 0.4 <= [value] <= 0.8')
+      else if ((gamma_bj87 .le. 0.0) .or. (gamma_bj87 .ge. 1.0)) then
+        call diag_print_error  ('Invalid value for this parameter')
+      endif
+        
+    case('WV_ENABLE_NONLINEAR_WAVES')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        nonln = 0
+      else       !'ON' 
+        nonln = 1
+      endif
+    case('WV_ENABLE_INFRAGRAVITY')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        igrav = 0
+      else       !'ON'
+        igrav = 1
+      endif
+    case('WV_ENABLE_RUNUP')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        irunup = 0
+      else       !'ON'
+        irunup = 1
+      endif
+    case('WV_ENABLE_MUDDY_BED')  !MORE NEEDED HERE FOR DATASET
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        imud = 0
+      else       !'ON'
+        imud = 1
+      endif
+    case('WV_ENABLE_WIND')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        iwnd = 0
+      else
+        iwnd = 1
+      endif
+    case('WV_DIFFRACTION_INTENSITY')
+      backspace(11)
+      read(11,*) aCard, akap
+    case('WV_MATRIX_SOLVER')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'GAUSS-SEIDEL') then
+        isolv = 0
+      else       !'ADI'
+        isolv = 1
+      endif
+    case('WV_OUTPUT_XMDF')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        ixmdf = 0              !ASCII OUTPUT ONLY
+      else       
+        ixmdf = 1              !XMDF OUTPUT ONLY
+      endif
+    case('WV_NUM_THREADS')
+      backspace(11)
+      read(11,*) aCard, iproc
+    case('WV_VIEW')
+      backspace(11)
+      read(11,*) aCard, iview
+    case('WV_ENABLE_ROLLER')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if (aVal == 'OFF') then
+        iroll = 0
+      else
+        iroll = 1
+      endif
+        
+    case default
+      foundcard = .false.
+
+    end select
+    
+    return
+    end subroutine cmswave_cards

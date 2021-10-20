@@ -1,3 +1,8 @@
+== Version 5.2.10 (10/19/2021) ==
+* Added new format for options file (.std) similar to how the Flow .cmcards file is written. 
+* Added a new variable for user-definable gamma for the BATTJES-JANSSEN breaking formulation.
+** WV_SET_GAMMA_BJ87 is the new card to specify that value and works only for BATTJES-JANSSEN 1987.
+
 == Version 5.2.9 (9/30/2021) == 
 * Max WSE Tool now works for ASCII file as well as XMDF
 

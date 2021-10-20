@@ -11,5 +11,8 @@ module global_inline
     integer, parameter :: IJPMX=IPMX*JPMX,IJGPX=IGPX*JGPX
     integer, parameter :: KOMX=20000, NOMX=80000
     
+    !added a few other changable parameters to share  MEB  10/19/2021
+    real :: gamma_bj87 = -1.0
+    
 end module global_inline
     
