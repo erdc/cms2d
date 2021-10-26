@@ -1508,8 +1508,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(iunit(i),*) 'isolv   ixmdf   iproc   iview   iroll'
         write(iunit(i),'(6(i3,5x))') isolv,ixmdf,iproc,iview,iroll
         write(iunit(i),*)
-        if (gamma_bj87 .gt. -1) then
-          write(iunit(i),'(A,F6.2)') ' User defined gamma value for Battjes-Janssen 1987: ', gamma_bj87
+        if (gamma_bj78 .gt. -1) then
+          write(iunit(i),'(A,F6.2)') ' User defined gamma value for Battjes-Janssen 1978: ', gamma_bj78
         endif
         write(iunit(i),*) ' '
       enddo
@@ -7034,7 +7034,7 @@ contains
 !    in subroutine veloc
 !---------------------------------------------------------------
       USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      USE global_inline, ONLY: gamma_bj87                    !added MEB 10/19/2021
+      USE global_inline, ONLY: gamma_bj78                    !added MEB 10/19/2021
       COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
       COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
       COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
@@ -7049,8 +7049,8 @@ contains
 	  slj=slf(jm)
       if(slj.ge.0.04) go to 10
       
-      if(gamma_bj87 .ne. -1) then
-        gama = gamma_bj87          !allow use of user-specified value if requested  MEB 10/19/2021
+      if(gamma_bj78 .ne. -1) then
+        gama = gamma_bj78          !allow use of user-specified value if requested  MEB 10/19/2021
       else
         gama=0.73                  !otherwise use default value.
       endif
@@ -10505,7 +10505,7 @@ contains
 ! written by Mitchell Brown, USACE-CHL  10/18/2021
 !***********************************************************************
     use diag_lib,      only: diag_print_warning, diag_print_error
-    use global_inline, only: gamma_bj87, KOMX, JGPX, IGPX
+    use global_inline, only: gamma_bj78, KOMX, JGPX, IGPX
     
     implicit integer (i-n), real (a-h,o-z)
     
@@ -10530,103 +10530,152 @@ contains
     case('WV_PROPAGATION_TYPE') 
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'WAVE_AND_SPECTRA') then         ! 0 - wave generation and spectra (use wind if provided)
+      if     (aVal == 'WIND_AND_SPECTRA') then        ! 0 - wave generation and spectra (use wind if provided)
         iprpp = 0
-      else if (aVal == 'SPECTRA_ONLY') then        ! 1 - propagation with spectra only (neglect wind input)
+      elseif (aVal == 'SPECTRA_ONLY') then            ! 1 - propagation with spectra only (neglect wind input)
         iprpp = 1
+      elseif (aVal == 'FAST-MODE') then               !-1 - fast-mode (wave generation and spectra)
+        iprpp = -1    
+      elseif (aVal == 'FAST-MODE_SPECTRA_ONLY') then  !-2 - fast-mode w/spectra only
+        iprpp = -2
       else
-        iprpp = -1    !'FAST_MODE'                 !-1 - fast-mode (wave generation and spectra)
+        call diag_print_error ('Bad selection for WV_PROPAGATION_TYPE')
+      endif
+    case('WV_PLANE_DEFINITION')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'HALF-PLANE') then
+        iview = 0
+      elseif (aVal == 'FULL-PLANE') then
+        iview = 1
+      elseif (aVal == 'FULL-PLANE_WITH_REVERSE_SPECTRA') then
+        iview = 2
+      else
+        call diag_print_error ('Bad selection for WV_PLANE_DEFINITION')
+      endif
+    case('WV_MATRIX_SOLVER')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'GAUSS-SEIDEL') then
+        isolv = 0
+      elseif (aVal == 'ADI') then
+        isolv = 1
+      else
+        call diag_print_error ('Bad selection for WV_MATRIX_SOLVER')
       endif
     case('WV_CURRENT_TYPE')       
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF' .or. aVal == 'NONE') then  !0 - no current
+      if      (aVal == 'OFF') then                 !0 - no current
         icur = 0
       else if (aVal == 'MULTIPLE') then            !1 - multiple currents in seq. order
         icur = 1
-      else            !'SINGLE'                    !2 - read only first current record
+      else if (aVal == 'SINGLE') then              !2 - read only first current record
         icur = 2
-      endif
-    case('WV_BREAKING_OUTPUT')    
-      backspace(11)
-      read(11,*) aCard, aVal
-      if (aVal == 'OFF' .or. aVal == 'NONE') then
-        ibreak = 0
-      elseif (aVal == 'BREAKING_INDICES') then
-        ibreak = 1
       else
-        ibreak = 2   !'DISSIPATION_VALUES'
+        call diag_print_error ('Bad selection for WV_CURRENT_TYPE')
       endif
-    case('WV_RAD_STRESS_OUTPUT')   
-      backspace(11)
-      read(11,*) aCard, aVal
-      if (aVal == 'OFF' .or. aVal == 'NONE') then  !0 - no rad output 
-        irs = 0
-      elseif (aVal == 'RAD_STRESS') then           !1 - output wave radiation stresses only (*.rad)
-        irs = 1
-      else
-        irs = 2      !'STRESS_SETUP'               !2 - output wave radiation stresses and setup/maximum water level
-      endif
-    case('WV_OBSERVATION_OUTPUT') 
-      backspace(11)
-      read(11,*) aCard, kout                       !0 - no obs output
-      if(kout.ge.1) then                           !n - output of spectra and parameters at 'n' selected cells
-        read (11,*) (ijsp(1,nn),ijsp(2,nn),nn=1,kout)
-      end if
-    case('WV_NESTING_CELLS') 
-      backspace(11)
-      read(text,*)nest                             !0 - no nest cells
-      if(nest.ge.1) then                           !n - list of nesting cells to read in  
-        read (11,*) (inest(nn),jnest(nn),nn=1,nest)
-      end if
     case('WV_BOUNDARY_NESTING')   
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF') then                      !0 - no nesting
+      if      (aVal == 'OFF') then                 !0 - no nesting
         ibnd = 0
       else if (aVal == 'LINEAR') then              !1 - linear interp for 'n' points
         ibnd = 1
-      else            !'MORPHIC'                   !2 - morphic interp for 'n' points
+      else if (aVal == 'MORPHIC') then             !2 - morphic interp for 'n' points
         ibnd = 2
+      else
+        call diag_print_error ('Bad selection for WV_BOUNDARY_NESTING')
+      endif
+    case('WV_BOTTOM_FRICTION')    
+      backspace(11)
+      read(11,*) aCard, aVal                       
+      if     (aVal == 'OFF') then                        !0 - no bottom friction
+        ibf = 0
+      elseif (aVal == 'CONSTANT_DARCY_WEISBACH') then    !1 - constant Darcy-Weisbach coefficient (=bf)
+        ibf = 1
+      elseif (aVal == 'VARIABLE_DARCY_WEISBACH') then    !2 - variable Darcy-Weisbach coefficient (friction.dat)
+        ibf = 2          
+      elseif (aVal == 'CONSTANT_MANNINGS') then          !3 - constant Manning coefficient (=bf)
+        ibf = 3
+      elseif (aVal == 'VARIABLE_MANNINGS') then          !4 - variable Manning coefficient (friction.dat)
+        ibf = 4
+      else
+        call diag_print_error ('Bad selection for WV_BOTTOM_FRICTION')
+      endif
+    case('WV_FWD_REFLECTION')     
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then      !0 - no forward reflection
+        iark = 0                                   
+      elseif (aVal == 'CONSTANT') then !1 - Use a constant coefficient with 'WV_FWD_REFLECTION_COEFF' card.
+        iark = 1                                   
+      elseif (aVal == 'VARIABLE') then !2 - Use a variable coefficient with values stored in '<project>.fref' file
+        iark = 2                                  
+      else
+        call diag_print_error ('Bad selection for WV_FWD_REFLECTION')
+      endif
+    case('WV_BWD_REFLECTION')     
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then      !0 - no backward reflection
+        iarkr = 0                                   
+      elseif (aVal == 'CONSTANT') then !1 - Use a constant coefficient with 'WV_BWD_REFLECTION_COEFF' card.
+        iarkr = 1                                   
+      elseif (aVal == 'VARIABLE') then !2 - Use a variable coefficient with values stored in '<project>.bref' file
+        iarkr = 2                                  
+      else
+        call diag_print_error ('Bad selection for WV_BWD_REFLECTION')
       endif
     case('WV_WETTING_DRYING')     
       backspace(11)
       read(11,*) aCard, aVal
-      iwet = 0                                     !0 - normal wetting/drying
-      if(aVal == 'OFF') iwet = 1                   !1 - no wetting/drying
-    case('WV_BOTTOM_FRICTION')    
-      backspace(11)
-      read(11,*) aCard, aVal                       
-      if(aVal == 'NONE' .or. aVal == 'OFF') then   !0 - no bottom friction
-        ibf = 0
-      elseif (aVal == 'CONST_DARCY_WEISBACH') then !1 - constant Darcy-Weisbach coefficient (=bf)
-        ibf = 1
-      elseif (aVal == 'VAR_DARCY_WEISBACH') then   !2 - variable Darcy-Weisbach coefficient (friction.dat)
-        ibf = 2          
-      elseif (aVal == 'CONST_MANNINGS') then       !3 - constant Manning coefficient (=bf)
-        ibf = 3
-      else           !'VAR_MANNINGS'               !4 - variable Manning coefficient (friction.dat)
-        ibf = 4
+      if     (aVal == 'ON') then                       ! 0 - normal wetting/drying
+        iwet = 0                                   
+      elseif (aVal == 'OFF') then                      ! 1 - no wetting/drying
+        iwet = 1                                   
+      elseif (aVal == 'ON_WITH_SEA-SWELL_FILES') then  !-1 - normal wet/dry, output swell and local sea files
+        iwet = -1                                  
+      else
+        call diag_print_error ('Bad selection for WV_WETTING_DRYING')
       endif
+    case('WV_DIFFRACTION_INTENSITY')
+      backspace(11)
+      read(11,*) aCard, akap
+    case('WV_NUM_THREADS')
+      backspace(11)
+      read(11,*) aCard, iproc
+      
+            
+    case('WV_NESTING_CELLS') 
+      backspace(11)
+      read(text,*)nest                             !0 - no nest cells
+      if(nest.ge.1) then                           !n - list of nesting cells to read in  
+        backspace(11)
+        read (11,'(A)') text
+        read (text,*) aCard, nest, (inest(nn),jnest(nn),nn=1,nest)   !This reads card, total, and all values from one line
+      end if
+    case('WV_OBSERVATION_CELLS') 
+      backspace(11)
+      read(11,*) aCard, kout                       !0 - no obs output
+      if(kout.ge.1) then                           !n - output of spectra and parameters at 'n' selected cells
+        backspace(11)
+        read (11,'(A)') text 
+        read (text,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)  !This reads card, total, and all values from one line
+      end if
+
+    
     case('WV_BOTTOM_FRICTION_COEFF')
       backspace(11)
       read(11,*) aCard, bf
     case('WV_FWD_REFLECTION_COEFF')
       backspace(11)
-      read(11,*) aCard, ark               !limit 0.0 <= ark < 1.0
-      if (ark .le. '0.d0') then
-        iark = 0                                   !0 - no forward reflection
-      else
-        iark = 1                                   !1 - with forward reflection
-      endif
+      read(11,*) aCard, ark                        !limit 0.0 <= ark < 1.0
     case('WV_BWD_REFLECTION_COEFF')
       backspace(11)
-      read(11,*) aCard, arkr              !limit 0.0 <= arkr < 1.0
-      if (arkr .le. '0.d0') then
-        iarkr = 0                                  !0 - no backward reflection
-      else
-        iarkr = 1                                  !1 - with backward reflection
-      endif
+      read(11,*) aCard, arkr                       !limit 0.0 <= arkr < 1.0
+      
+      
     case('WV_BREAKING_FORMULA')
       backspace(11)
       read(11,*) aCard, aVal
@@ -10634,97 +10683,125 @@ contains
         iwvbk = 0
       elseif (aVal == 'EXT_MICHE') then            !1 - Extended Miche
         iwvbk = 1
-      elseif (aVal == 'BATTJES_JANSSEN_87') then   !2 - Battjes and Janssen (1987)
+      elseif (aVal == 'BATTJES_JANSSEN_78') then   !2 - Battjes and Janssen (1978)
         iwvbk = 2
       elseif (aVal == 'CHAWLA_KIRBY') then         !3 - Chawla and Kirby
         iwvbk = 3  
-      else           !'BATTJES_JANSSEN_07'         !4 - Battjes and Janssen (2007)
+      elseif (aVal == 'BATTJES_JANSSEN_07') then   !4 - Battjes and Janssen (2007)
         iwvbk = 4
+      else
+        call diag_print_error ('Bad selection for WV_BREAKING_FORMULA')
       endif
-      
     !Added to have user-specified Gamma for certain breaking formulae
-    case('WV_SET_GAMMA_BJ87')
+    case('WV_SET_GAMMA_BJ78')
       backspace(11)
-      read(11,*) aCard, gamma_bj87     !initial restriction: 0.4 <= gamma_bj87 <= 0.8
-      if ((gamma_bj87 .lt. 0.4) .or. (gamma_bj87 .gt. 0.8)) then
-        call diag_print_warning('Outside normal range of 0.4 <= [value] <= 0.8')
-      else if ((gamma_bj87 .le. 0.0) .or. (gamma_bj87 .ge. 1.0)) then
-        call diag_print_error  ('Invalid value for this parameter')
+      read(11,*) aCard, gamma_bj78     !initial restriction: 0.4 <= gamma_bj78 <= 0.8
+      if ((gamma_bj78 .lt. 0.4) .or. (gamma_bj78 .gt. 0.8)) then
+        call diag_print_warning('WV_SET_GAMMA_BJ78 - Outside normal range of 0.4 <= [value] <= 0.8')
+      else if ((gamma_bj78 .le. 0.0) .or. (gamma_bj78 .ge. 1.0)) then
+        call diag_print_error  ('WV_SET_GAMMA_BJ78 - Invalid value')
       endif
         
-    case('WV_ENABLE_NONLINEAR_WAVES')
-      backspace(11)
-      read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
-        nonln = 0
-      else       !'ON' 
-        nonln = 1
-      endif
+
     case('WV_ENABLE_INFRAGRAVITY')
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
+      if     (aVal == 'OFF') then
         igrav = 0
-      else       !'ON'
+      elseif (aVal == 'ON') then
         igrav = 1
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_INFRAGRAVITY')
+      endif
+    case('WV_ENABLE_MUDDY_BED')  
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        imud = 1
+      elseif (aVal == 'ON') then
+        imud = 0                 !opposite to what seems natural
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_MUDDY_BED')
+      endif
+    case('WV_ENABLE_NONLINEAR_WAVES')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        nonln = 0
+      elseif (aVal == 'ON') then
+        nonln = 1                  
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_NONLINEAR_WAVES')
+      endif
+    case('WV_ENABLE_ROLLER')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        iroll = 0
+      elseif (aVal == 'ON') then
+        iroll = 1
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
       endif
     case('WV_ENABLE_RUNUP')
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
+      if     (aVal == 'OFF') then
         irunup = 0
-      else       !'ON'
+      elseif (aVal == 'REL_TO_ABS_DATUM') then
         irunup = 1
-      endif
-    case('WV_ENABLE_MUDDY_BED')  !MORE NEEDED HERE FOR DATASET
-      backspace(11)
-      read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
-        imud = 0
-      else       !'ON'
-        imud = 1
+      elseif (aVal == 'RED_TO_UPDATED_MWL') then
+        irunup = 2
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_RUNUP')
       endif
     case('WV_ENABLE_WIND')
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
-        iwnd = 0
-      else
+      if     (aVal == 'OFF') then
         iwnd = 1
+      elseif (aVal == 'ON') then
+        iwnd = 0                     !opposite to what seems natural
+      else
+        call diag_print_error ('Bad selection for WV_ENABLE_WIND')
       endif
-    case('WV_DIFFRACTION_INTENSITY')
-      backspace(11)
-      read(11,*) aCard, akap
-    case('WV_MATRIX_SOLVER')
+
+    
+    case('WV_BREAKING_OUTPUT')    
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'GAUSS-SEIDEL') then
-        isolv = 0
-      else       !'ADI'
-        isolv = 1
+      if     (aVal == 'OFF') then
+        ibreak = 0
+      elseif (aVal == 'BREAKING_INDICES') then
+        ibreak = 1
+      elseif (aVal == 'DISSIPATION_VALUES') then
+        ibreak = 2   
+      else
+        call diag_print_error ('Bad selection for WV_BREAKING_OUTPUT')
+      endif
+    case('WV_RAD_STRESS_OUTPUT')   
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then                  !0 - no rad output 
+        irs = 0
+      elseif (aVal == 'RAD_STRESS_FILE') then      !1 - output wave radiation stresses only (*.rad)
+        irs = 1
+      elseif (aVal == 'STRESS_SETUP_FILES') then   !2 - output wave radiation stresses and setup/maximum water level
+        irs = 2      
+      else
+        call diag_print_error ('Bad selection for WV_RAD_STRESS_OUTPUT')
       endif
     case('WV_OUTPUT_XMDF')
       backspace(11)
       read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
-        ixmdf = 0              !ASCII OUTPUT ONLY
-      else       
-        ixmdf = 1              !XMDF OUTPUT ONLY
-      endif
-    case('WV_NUM_THREADS')
-      backspace(11)
-      read(11,*) aCard, iproc
-    case('WV_VIEW')
-      backspace(11)
-      read(11,*) aCard, iview
-    case('WV_ENABLE_ROLLER')
-      backspace(11)
-      read(11,*) aCard, aVal
-      if (aVal == 'OFF') then
-        iroll = 0
+      if     (aVal == 'OFF') then
+        ixmdf = 0                                  !0 - ASCII OUTPUT ONLY
+      elseif (aVal == 'ON') then       
+        ixmdf = 1                                  !1 - XMDF OUTPUT ONLY
       else
-        iroll = 1
+        call diag_print_error ('Bad selection for WV_OUTPUT_XMDF')
       endif
+      
         
     case default
       foundcard = .false.
