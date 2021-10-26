@@ -427,6 +427,7 @@ subroutine sedcapac_cshore
           ! Asymettry related will be pos and return current related will be neg
           !QwsP(i,ks) = rhosed*(.0000001)*x(i) !Potential net onshore transport, kg/m/sec
           QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !only return-current transport here, kg/m/sec
+          !QwsP(i,ks) = (1-CSslp)*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !
           QwsP(i,ks) = QwsP(i,ks) + qb ! the addition of bedload
           !if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
           !if (i.eq.487)         write(*,*)'bdj i,x,y,us,QwsP(i,ks)',i,x(i),y(i),sqrt(us(i)**2.+vs(i)**2.),QwsP(i,ks)

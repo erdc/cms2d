@@ -48,23 +48,15 @@
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\source\main\CMS_cpp.h"/></Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-		<File RelativePath="..\source\logsheet.txt"/></Filter>
+		<File RelativePath="..\source\logsheet.txt"/>
+		<File RelativePath="..\source\readme.txt"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_def.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 		<File RelativePath="..\source\boundaries\boundaries.F90"/>
-		<File RelativePath="..\source\waves\CMS-Wave_v3-2W_01Dec2014.f90">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" OpenMP="OpenMPParallelCode" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\source\waves\CMS-Wave_v3.2_30Mar2018.f90">
+		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
 			<FileConfiguration Name="Release|x64">
 				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">

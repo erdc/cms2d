@@ -164,7 +164,7 @@
         
 !*************************************************************   
     subroutine flow_cards(cardname,foundcard,doPrint)
-! Reads wind data from Model Parameters file
+! Reads data from Model Parameters file
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************
     use diag_def

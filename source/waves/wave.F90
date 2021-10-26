@@ -105,7 +105,7 @@
         Wper1(ii)=Wper2(ii)            
         Wunitx1(ii)=Wunitx2(ii)
         Wunity1(ii)=Wunity2(ii)
-        waveibr1(ii)=waveibr2(ii)
+        !waveibr1(ii)=waveibr2(ii)
         wavediss1(ii)=wavediss2(ii) !Alex, Aug 3, 2009
         !Needed here to initialize time zero
         wavestrx(ii)=wavestrx2(ii)*ramp
@@ -114,7 +114,7 @@
         Wper(ii)=Wper2(ii)          
         Wunitx(ii)=Wunitx2(ii)
         Wunity(ii)=Wunity2(ii)
-        waveibr(ii)=waveibr2(ii)
+        !waveibr(ii)=waveibr2(ii)
         wavediss(ii)=wavediss2(ii)*ramp
       enddo
       !do ii=1,ncells3DD
@@ -142,9 +142,9 @@
         Wunitx1(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
         Wunity1(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
         wavediss1(i) = -rhow*wavediss1(i)  !Flip sign and convert units [N/m/s]
-        if(wavediss1(i)>wavedisstol)then
-          waveibr1(i) = 1.0
-        endif
+        !if(wavediss1(i)>wavedisstol)then
+        !  waveibr1(i) = 1.0
+        !endif
       enddo
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,wavestrx1,wavestry1)      
 !      call rotate_vector(ncellsD,ncellsD,azimuth_fl,Wunitx1,Wunity1) 
@@ -152,14 +152,14 @@
       tswave1 = min(tswave1,ctime)  
       
       !Smoothing
-      do i=1,nbrksm
-        where(iwet==0)
-          waveibr1 = 1.0 !Set all dry cells as breaking
-        endwhere  
-        call smooth_flowgrid_scal(waveibr1,1)
-      enddo
+      !do i=1,nbrksm
+      !  where(iwet==0)
+      !    waveibr1 = 1.0 !Set all dry cells as breaking
+      !  endwhere  
+      !  call smooth_flowgrid_scal(waveibr1,1)
+      !enddo
       if(ndissm>0) call smooth_flowgrid_scal(wavediss1,ndissm)
-      if(nradsm>0) call smooth_flowgrid_vec(wavestrx1,wavestry1,nradsm)
+      if(nradsm>0) call smooth_flowgrid_vec (wavestrx1,wavestry1,nradsm)
       if(npersm>0) call smooth_flowgrid_scal(Wper1,npersm) !Wave period smoothing
       do i=1,ncellsD
         if(wavediss1(i)<wavedisstol)then
@@ -170,8 +170,8 @@
         !else
         !  waveibr1(i) = 1.0
         endif
-        wavestrx1(i) = wavestrx1(i)*waveibr1(i) !Limit radiation stresses to breaking zone
-        wavestry1(i) = wavestry1(i)*waveibr1(i) !Limit radiation stresses to breaking zone
+        !wavestrx1(i) = wavestrx1(i)*waveibr1(i) !Limit radiation stresses to breaking zone
+        !wavestry1(i) = wavestry1(i)*waveibr1(i) !Limit radiation stresses to breaking zone
 #ifdef DIAG_MODE
         if(isnankind(wavestrx1(i)) .or. isnankind(wavestry1(i)))then
           continue
@@ -185,7 +185,7 @@
         wavestrx(i)=wavestrx1(i)*ramp
         wavestry(i)=wavestry1(i)*ramp
         wavediss(i)=wavediss1(i)*ramp
-        waveibr(i)=waveibr1(i)
+        !waveibr(i)=waveibr1(i)
       enddo
       
       nsteer=nsteer+1
@@ -201,7 +201,7 @@
           Whgt2(i)=Whgt1(i)
           Wper2(i)=Wper1(i)
           wavediss2(i)=wavediss1(i)
-          waveibr2(i)=waveibr1(i)
+          !waveibr2(i)=waveibr1(i)
           Wunitx2(i)=Wunitx1(i)
           Wunity2(i)=Wunity1(i)
         enddo  
@@ -216,22 +216,22 @@
           Wunitx2(i)=cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i)=sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and convert units [N/m/s]
-          if(wavediss2(i)>wavedisstol)then
-            waveibr2(i) = 1.0
-          endif
+          !if(wavediss2(i)>wavedisstol)then
+          !  waveibr2(i) = 1.0
+          !endif
         enddo 
 !        call rotate_vector(ncellsD,ncellsD,azimuth_fl,wavestrx2,wavestry2)   
 !        call rotate_vector(ncellsD,ncellsD,azimuth_fl,Wunitx2,Wunity2)   
         
         !Smoothing
-        do i=1,nbrksm
-          where(iwet==0)
-            waveibr2=1.0 !Set all dry cells as breaking
-          endwhere  
-          call smooth_flowgrid_scal(waveibr2,1)
-        enddo
+        !do i=1,nbrksm
+        !  where(iwet==0)
+        !    waveibr2=1.0 !Set all dry cells as breaking
+        !  endwhere  
+        !  call smooth_flowgrid_scal(waveibr2,1)
+        !enddo
         if(ndissm>0) call smooth_flowgrid_scal(wavediss2,ndissm)
-        if(nradsm>0) call smooth_flowgrid_vec(wavestrx2,wavestry2,nradsm)
+        if(nradsm>0) call smooth_flowgrid_vec (wavestrx2,wavestry2,nradsm)
         if(npersm>0) call smooth_flowgrid_scal(Wper2,npersm) !Wave period smoothing
         do i=1,ncellsD
           if(wavediss2(i)<wavedisstol)then
@@ -242,8 +242,8 @@
           !else
           !  waveibr2(i) = 1.0
           endif
-          wavestrx2(i) = wavestrx2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
-          wavestry2(i) = wavestry2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
+          !wavestrx2(i) = wavestrx2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
+          !wavestry2(i) = wavestry2(i)*waveibr2(i) !Limit radiation stresses to breaking zone
 #ifdef DIAG_MODE
           if(isnankind(wavestrx2(i)) .or. isnankind(wavestry2(i)))then
             continue
@@ -255,7 +255,7 @@
     endif
     
     return
-    endsubroutine wave_init
+    end subroutine wave_init
     
 !***************************************************************************
     subroutine wave_print()
@@ -282,352 +282,8 @@
     close(dgunit)
     
     return
-    endsubroutine wave_print
+    end subroutine wave_print
     
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    subroutine WVBRK2_alex(CAB,JBV,II,JM,JJ)
-!---------------------------------------------------------------
-!  energy dissipation term is Battjes and Janssen's(1978)
-!    bore model with a breaker parameter based on Miche's criterion of
-!    gama=0.73
-!  parameters used in this subroutine are calculated 
-!    in subroutine veloc
-!---------------------------------------------------------------
-    use global, only: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-    use wave_lib, only: wavebreak_bj78,wave_Hmax
-    implicit none
-
-    integer :: ii,jm,jj,jbv
-    real :: cab,Hrms,wnk,Hmax,fp,Qb
-    integer :: kdate,idate
-    real :: DX,DY,DXX,DMESH,DTH,depmax,depmax0 !,aslope !Removed variable (Alex Sanchez 12/02/14)
-    common /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0 !,aslope(ipmx) !Removed variable (Alex Sanchez 12/02/14)
-    integer :: IBK
-    real :: DBAR,WL0,WCC,HSB,HSG,DCD
-    common /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-    integer :: IWVBK,ibk3
-    real :: DEPM,DMNJ,SLF,wlmn,cmn,sigm
-    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                 sigm(jgpx),IWVBK,ibk3
-    integer :: imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
-    real :: PAI2,PAI,HPAI,RAD,akap,depmin0
-    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-    COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
-    integer :: IBR,KPEAK,IBACK,NBLOCK,IWIND
-    real :: H13S,diss,TP,PRD,IBND,VL,TIDE
-    common /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)             
-    integer :: ICK3,ICK4,ICHOICE,ibrij
-    real :: HS0,wd,ws,ph0,wdd,dissij
-    common /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd)
-
-    !Initialize
-    cab=0.0 
-    if(IBACK==0)then
-      diss(ii,jj)=0.0
-      ibr(ii,jj)=0    
-    endif 
-    
-! -- ibk=1 and jbv>=6 means no wave breaking
-    !if(IBK==1 .or. JBV>=6) return
-        
-    wnk=pai2/wlmn(jm)
-    if(wnk<1.0e-6) return        
-    
-    !Maximum waveheight
-    call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
-!!    Hmax = 0.78*depm(jm)    
-    
-    !Check incipient breaking
-    Hrms=HSB(JJ)/1.414213562    
-!    if(Hsb(jj)<=0.72*Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, for random waves
-!    if(Hrms<=Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, only for regular waves
-!    i=max(ii-1,1)
-!    j=max(jj-1,1)
-!    j2=min(jj+1,JGPX)
-!    if(Hrms<=0.95*Hmax .and. (ibr(i,jj)+ibr(i,j)+ibr(i,j2))==0) return  !Alex, only for regular waves
-!    if(Hrms<=Hmax) return  !Alex, only for regular waves
-!    if((ibr(i,jj)+ibr(i,j)+ibr(i,j2))==0) return  !Alex, only for regular waves
-    
-    !Calculate terms
-    fp=sigm(jm)/pai2 !Frequency, 1/s
-    call wavebreak_bj78(Hmax,Hrms,fp,Qb,dissij,ibrij,cab)
-    
-    if(IBACK==0)then
-      diss(ii,jj) = dissij
-      ibr(ii,jj) = ibrij
-    endif
-    
-    return
-    endsubroutine WVBRK2_alex
-
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-    subroutine WVBRK4_alex(CAB,JBV,II,JM,JJ)
-!---------------------------------------------------------------
-!  energy dissipation term is Battjes and Janssen's(1978)
-!    bore model with a breaker parameter based on Miche's criterion of
-!    gama=0.73
-!  parameters used in this subroutine are calculated 
-!    in subroutine veloc
-!---------------------------------------------------------------
-    use GLOBAL, only: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-    use wave_lib, only: wavebreak_jb07,wave_Hmax
-    implicit none
-    integer :: ii,jm,jj,jbv
-    real :: cab,Hrms,wnk,Hmax,fp,Qb
-    integer :: kdate,idate
-    real :: DX,DY,DXX,DMESH,DTH,depmax,depmax0,aslop !,aslope !Removed variable (Alex Sanchez 12/02/14)
-    common /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0 !,aslop(ipmx) !Removed variable (Alex Sanchez 12/02/14)
-    integer :: IBK
-    real :: DBAR,WL0,WCC,HSB,HSG,DCD
-    common /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-    integer :: IWVBK,ibk3
-    real :: DEPM,DMNJ,SLF,wlmn,cmn,sigm
-    common /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                 sigm(jgpx),IWVBK,ibk3
-    integer :: imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd
-    real :: PAI2,PAI,HPAI,RAD,akap,depmin0
-    COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-    COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND
-    integer :: IBR,IBND,KPEAK,IBACK,NBLOCK,IWIND
-    real :: H13S,diss,TP,PRD,VL,TIDE
-    common /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)             
-    integer :: ICK3,ICK4,ICHOICE,ibrij
-    real :: HS0,wd,ws,ph0,wdd,dissij
-    common /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd)
-    
-   !Initialize
-    cab=0.0 
-    if(IBACK==0)then
-      diss(ii,jj)=0.0
-      ibr(ii,jj)=0    
-    endif
-    
-! -- ibk=1 and jbv>=6 means no wave breaking
-    if(IBK==1 .or. JBV>=6) return
-        
-    wnk=pai2/wlmn(jm)
-    if(wnk<1.0e-6) return    
-            
-    !Maximum waveheight
-    call wave_Hmax(depm(jm),slf(jm),wnk,Hmax) !slj is the bed slope
-!!    Hmax = 0.78*depm(jm)    
-    
-    !Check incipient breaking    
-    Hrms=HSB(JJ)/1.414213562    
-!    if(Hsb(jj)<=0.7*Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, for random waves
-!    i=max(ii-1,1)
-!    j=max(jj-1,1)
-!    j2=min(jj+1,JGPX)
-!    ijbr=ibr(i,jj)+ibr(i,j)+ibr(i,j2)
-!    if(Hsb(jj)<=0.72*Hmax .and. ijbr==0) return  !Alex, for random waves
-!    if(Hsb(jj)<=Hmax .and. ijbr==0) return  !Alex, for regular waves
-!    if(Hsb(jj)<=0.7*Hmax .and. ijbr==0 .and. Hsb(jj)>=0.9*Hs0) return  !Alex, for random waves   
-!    if(Hrms<=Hmax .and. ibr(max(ii-1,1),jj)==0) return  !Alex, only for regular waves
-!    if(Hrms<=Hmax .and. ijbr==0) return  !Alex, only for regular waves
-!    if(Hrms<=0.95*Hmax .and. (ibr(i,jj)+ibr(i,j)+ibr(i,j2))==0) return  !Alex, only for regular waves
-!    if(Hrms<=Hmax) return  !Alex, only for regular waves
-!    if((ibr(i,jj)+ibr(i,j)+ibr(i,j2))==0) return  !Alex, only for regular waves
-    
-    !Calculate terms
-    fp=sigm(jm)/pai2 !Frequency, 1/s
-    call wavebreak_jb07(depm(jm),Hmax,Hrms,fp,Qb,dissij,ibrij,cab) 
-    
-    if(IBACK==0)then
-      diss(ii,jj) = dissij
-      ibr(ii,jj) = ibrij
-    endif
-!    if(jj==10)then
-!      write(*,*) II,JJ,depm(jm),slf(jm),Hmax,Hrms,fp
-!    endif  
-    
-    return
-    endsubroutine WVBRK4_alex
-    
-!****************************************************************    
-    function wave_diss(h,Hs,T,L) result(Dbr)
-!****************************************************************    
-    use const_def, only: twopi,pi,sqrttwo
-    use flow_def, only: rhow,grav
-    use prec_def
-    implicit none
-    real(ikind),intent(in) :: h,Hs,T,L
-    real(ikind) :: Hb,Hrms,kh,Hb2,Hrms2,Qb,val,Dbr
-    
-    kh=twopi*h/L
-    Hb=0.14*L*tanh(0.78*kh/0.88)
-    Hrms=Hs/sqrttwo
-    Hb2=Hb*Hb
-    Hrms2=Hrms*Hrms
-!    !Baldock
-!    Qb=exp(-Hb2/Hrms2)
-!    Dbr=0.25*Qb*rhow*grav/T*(Hb2+Hrms2)
-    !Battjes and Janssen
-    val=Hrms2/Hb2    
-    Qb=exp((0.9698*val-1.0)/(0.6574*val))    
-    if(Qb<0.5)then
-      Dbr=0.0
-      return
-    endif
-    Dbr=0.25*Qb*rhow*grav/T*Hb2  !N/m^2/s
-    
-    return
-    endfunction wave_diss
-
-!********************************************************************************
-    subroutine stokes_stress
-! Adds the Stokes stress term to the wave radiation stresses
-!
-! written by Alex Sanchez, USACE-CHL, May 2012
-!*********************************************************************************    
-    use flow_wavegrid_def, only: uwave,vwave,hwave
-    use wave_wavegrid_def, only: nwavei,nwavej,xwave,ywave,dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
-    use wave_flowgrid_def, only: wavestrx2,wavestry2
-    use rol_def, only: d2x,d2y
-    use flow_def, only: waveflux,rhow,hmin,grav
-    use const_def, only: twopi,pi,small
-    use prec_def
-    implicit none 
-
-    integer :: i,i1,i2,j,j1,j2
-    real(ikind) :: Sxx(nwavei,nwavej),Sxy(nwavei,nwavej),Syy(nwavei,nwavej)
-    real(ikind) :: E,wlength,c,hw !,hk,wavelength,val
-    real*4 :: q,d,uu,vv,om,cw,cg,sg,akk !,f,uvw !must be single 
-    
-    !Stokes velocities and stresses
-    do i=1,nwavei      
-      do j=1,nwavej        
-        hw=hwave(i,j)
-        if(hw<0.01 .or. wheight(i,j)<1.0e-4)then
-          Sxx(i,j)=0.0; Syy(i,j)=0.0; Sxy(i,j)=0.0
-          cycle
-        endif
-!        wlen=wavelength(wperiod(i,j),hw) !No wave-current interaction
-!        f = 1.0/wperiod(i,j)
-!        uvw = uwave(i,j)*wcos(i,j)+vwave(i,j)*wsin(i,j)
-!        call wkcgen(f,grav,pi,uvw,hw,iflag,akk) !STWAVE subroutine
-        q=atan2(wsin(i,j),wcos(i,j)); d=hw; uu=uwave(i,j); vv=vwave(i,j); om=twopi/wperiod(i,j)
-        call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !CMS-Wave subroutine
-        !call wccg3(q,d,uu,vv,om,cw,cg,sg,akk) !Alex's subroutine
-        wlength=twopi/akk
-        c=wlength/wperiod(i,j)
-        E=0.0625*rhow*grav*wheight(i,j)*wheight(i,j)        
-        uu=E*wcos(i,j)/(rhow*hw*c)
-        vv=E*wsin(i,j)/(rhow*hw*c)
-        Sxx(i,j)=hw*uu*uu
-        Sxy(i,j)=hw*uu*vv 
-        Syy(i,j)=hw*vv*vv        
-      enddo
-    enddo
-    
-    !Add stokes stress gradients to wave forcing
-   ! do i=1,nwavei
-      !i1=min(i+1,nwavei); i2=max(i-1,1)
-      !do j=1,nwavej
-      !  j1=min(j+1,nwavej); j2=max(j-1,1)        
-   !     wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)
-   !     wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j)
-   !     wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/d2y(j)
-   !     wyrs1(i,j)=wyrs1(i,j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i)
-   !   enddo
-   ! enddo
-   
-   ! do i=1,nwavei,nwavi-1
-      !i1=min(i+1,nwavei); i2=max(i-1,1)
-      !do j=1,nwavej,nwavej-1
-      !  j1=min(j+1,nwavej); j2=max(j-1,1)        
-   !     wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/delx(i)
-   !     wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/dely(j)
-   !     wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/dely(j)
-   !     wyrs1(i,j)=wyrs1(i,j)-(Sxy(i1,j)-Sxy(i2,j))/delx(i)
-   !   enddo
-   ! enddo
-   
-    do i=2,nwavei-1
-      i1=min(i+1,nwavei); i2=max(i-1,1)
-      i1=i+1; i2=i-1
-      do j=2,nwavej-1
-        j1=j+1; j2=j-1       
-        wxrs1(i,j)=wxrs1(i,j)-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)
-        wxrs1(i,j)=wxrs1(i,j)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j)
-        wyrs1(i,j)=wyrs1(i,j)-(Syy(i,j1)-Syy(i,j2))/d2y(j)
-        wyrs1(i,j)=wyrs1(i,j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i)
-      enddo
-    enddo
-    
-    return 
-    endsubroutine stokes_stress
-    
-!********************************************************************************
-    subroutine wave_rad_stress
-! Over-rides the wave radiation stresses and is calculated based 
-! on the wave energy by uncommenting lines below.
-!
-! written by Alex Sanchez, USACE-CHL, May 2012
-!*********************************************************************************    
-    use flow_wavegrid_def, only: uwave,vwave,hwave
-    use wave_wavegrid_def, only: nwavei,nwavej,xwave,ywave,dxwav,dywav,&
-         wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
-    use wave_flowgrid_def, only: wavestrx2,wavestry2
-    use rol_def, only: d2x,d2y
-    use flow_def, only: waveflux,rhow,hmin,grav
-    use const_def, only: twopi,pi,small
-    use prec_def
-    
-    implicit none 
-    integer :: i,i1,i2,j,j1,j2
-    real(ikind) :: Sxx(nwavei,nwavej),Sxy(nwavei,nwavej),Syy(nwavei,nwavej)
-    real(ikind) :: E,wlength,c,cn,hwkw,hw
-    real*4 :: q,d,uu,vv,om,cw,cg,sg,akk !must be single 
-    
-!$OMP PARALLEL DO PRIVATE(i,j,q,d,uu,vv,om,cw,cg,sg,akk,E,wlength,c,cn,hwkw,hw)
-    do i=1,nwavei      
-      do j=1,nwavej        
-        hw=hwave(i,j)
-        if(hw<0.01)then
-          Sxx(i,j)=0.0; Syy(i,j)=0.0; Sxy(i,j)=0.0
-          cycle
-        endif
-!        wlen=wavelength(wperiod(i,j),hw) !No wave-current interaction
-!        f = 1.0/wperiod(i,j)
-!        uvw = uwave(i,j)*wcos(i,j)+vwave(i,j)*wsin(i,j)
-!        call wkcgen(f,grav,pi,uvw,hw,iflag,akk) !STWAVE subroutine
-        q=atan2(wsin(i,j),wcos(i,j)); d=hw; uu=uwave(i,j); vv=vwave(i,j); om=twopi/wperiod(i,j)
-        call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !CMS-Wave subroutine
-        !call wccg3(q,d,uu,vv,om,cw,cg,sg,akk) !Alex's subroutine
-        wlength=twopi/akk
-        c=wlength/wperiod(i,j)
-        hwkw=twopi/wlength*hw
-        hwkw=min(hwkw,10.0)
-        cn=0.5+hwkw/sinh(2.0*hwkw)
-        E=0.0625*rhow*grav*wheight(i,j)*wheight(i,j)
-        !Radiation stresses        
-        Sxx(i,j)=E*(cn*(1.0+wcos(i,j)*wcos(i,j))-0.5)
-        Syy(i,j)=E*(cn*(1.0+wsin(i,j)*wsin(i,j))-0.5)
-        Sxy(i,j)=E*cn*wcos(i,j)*wsin(i,j)        
-      enddo
-    enddo
-!$OMP END PARALLEL DO
-
-    !Over-ride wave radiation stress gradients
-!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2)
-    do i=1,nwavei
-      i1=min(i+1,nwavei); i2=max(i-1,1)
-      do j=1,nwavej
-        j1=min(j+1,nwavej); j2=max(j-1,1)        
-        wxrs1(i,j)=(-(Sxx(i1,j)-Sxx(i2,j))/d2x(i)-(Sxy(i,j1)-Sxy(i,j2))/d2y(j))/rhow
-        wyrs1(i,j)=(-(Syy(i,j1)-Syy(i,j2))/d2y(j)-(Sxy(i1,j)-Sxy(i2,j))/d2x(i))/rhow
-      enddo
-    enddo   
-!$OMP END PARALLEL DO
-    
-    return 
-    endsubroutine wave_rad_stress
 
 !********************************************************************************
     subroutine wave_dissipation
@@ -642,7 +298,8 @@
 !*********************************************************************************    
     use flow_wavegrid_def, only: uwave,vwave,hwave
     use wave_wavegrid_def, only: nwavei,nwavej,xwave,ywave,dxwav,dywav,&
-          wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
+          !wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
+          wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1
     use wave_flowgrid_def, only: wavestrx2,wavestry2
     use rol_def, only: d2x,d2y
     use flow_def, only: waveflux,rhow,hmin,grav
@@ -668,7 +325,8 @@
 !        uvw = uwave(i,j)*wcos(i,j)+vwave(i,j)*wsin(i,j)
 !        call wkcgen(f,grav,pi,uvw,hw,iflag,akk) !STWAVE subroutine
         q=atan2(wsin(i,j),wcos(i,j)); d=hw; uu=uwave(i,j); vv=vwave(i,j); om=twopi/wperiod(i,j)
-        call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !CMS-Wave subroutine
+        !call wccg(q,d,uu,vv,om,cw,cg,sg,akk) !CMS-Wave subroutine
+        call wccg_inline(q,d,uu,vv,om,cw,cg,sg,akk) !CMS-Wave subroutine   !Lihwa  12/18/2020
         !call wccg3(q,d,uu,vv,om,cw,cg,sg,akk) !Alex's subroutine
         wlength=twopi/akk
         c=wlength/wperiod(i,j)
@@ -687,16 +345,16 @@
       do j=1,nwavej
         j1=min(j+1,nwavej); j2=max(j-1,1)        
         val=-(ECg(i1,j)-ECg(i2,j))/d2x(i)-(ECg(i,j1)-ECg(i,j2))/d2y(j) !Central difference
-        wdiss(i,j)=max(wdiss(i,j),abs(val))*wibr(i,j)
-        !wdiss(i,j)=max(wdiss(i,j),abs(val))
+        !wdiss(i,j)=max(wdiss(i,j),abs(val))*wibr(i,j)										 !
+        wdiss(i,j)=max(wdiss(i,j),abs(val))	  !Lihwa 12/18/2020
         !wdiss(i,j)=abs(val)*wibr(i,j)
-!        wdiss(i,j)=abs(val) !*wibr(i,j)
+        !wdiss(i,j)=abs(val) !*wibr(i,j)
       enddo
     enddo   
 !$OMP END PARALLEL DO
 
     return 
-    endsubroutine wave_dissipation
+    end subroutine wave_dissipation
 
 !******************************************************
     subroutine wavebreaking(whgt,wper,wdir,h,u,v,Qb,cbr)
@@ -733,7 +391,7 @@
     enddo
 
     return
-    endsubroutine wavebreaking
+    end subroutine wavebreaking
     
 !********************************************************
     subroutine wccg3(wd,h,u,v,wa,cw,cg,sig,wk)
@@ -804,8 +462,7 @@
         write(msg4,*) 'h=',h
         write(msg5,*) 'u=',u
         write(msg6,*) 'v=',v
-        call diag_print_warning('Wave blocking detected in wavenumber',&
-          msg2,msg3,msg4,msg5,msg6)
+        call diag_print_warning('Wave blocking detected in wavenumber',msg2,msg3,msg4,msg5,msg6)
         exit  
       elseif(isnansingle(wk))then
         wk = yi/h*2.5 !Use a small wave length (large wave number) to avoid divide by zeros
@@ -814,8 +471,7 @@
         write(msg4,*) 'h=',h
         write(msg5,*) 'u=',u
         write(msg6,*) 'v=',v
-        call diag_print_error('Calculated NaN value for wk in wavenumber',&
-          msg2,msg3,msg4,msg5,msg6)
+        call diag_print_error('Calculated NaN value for wk in wavenumber',msg2,msg3,msg4,msg5,msg6)
       endif    
       err = abs(wk-wki)
       if(err < tol) exit
@@ -828,7 +484,7 @@
     cg=cw*(0.5+wk*h/sinh(2.0*wkh))  !Group velocity [m/s]
 
     return
-    endsubroutine wccg3
+    end subroutine wccg3
 
 !***************************************************************
     subroutine brkwavratio(dep,Hrms,L,gamma,Qb)
@@ -845,7 +501,7 @@
     Qb = exp(-(Hb/Hrms)**2) !proportion of broken waves      
     
     return
-    endsubroutine brkwavratio    
+    end subroutine brkwavratio    
     
 !***********************************************************************    
     subroutine wave_const_init
@@ -882,7 +538,7 @@
     call wave_const_update
     
     return
-    endsubroutine wave_const_init
+    end subroutine wave_const_init
     
 !***********************************************************************   
     subroutine wave_const_update()
@@ -911,11 +567,12 @@
         wd = wavedir*deg2rad
         Wlen(i) = wavelength(wa,wd,h(i),u(i),v(i),tol)
         !Orbital velocities (includes ramp and wet/dry through Whgt)
-         Worb(i) = waveorb_linear(h(i),Whgt(i),Wper(i),Wlen(i))
-!!       Worbrep(i) = Worb(i)/sqrttwo !Old approach
-         Worbrep(i) = waveorbrep_ss87(grav,h(i),Whgt(i),Wper(i)) !More accurate  
+        Worb(i) = waveorb_linear(h(i),Whgt(i),Wper(i),Wlen(i))
+        !!Worbrep(i) = Worb(i)/sqrttwo !Old approach
+        Worbrep(i) = waveorbrep_ss87(grav,h(i),Whgt(i),Wper(i)) !More accurate  
       endif    
     enddo
         
     return
-    endsubroutine wave_const_update
+    end subroutine wave_const_update
+    

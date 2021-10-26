@@ -17,15 +17,18 @@
 
  The command line accepts multiple arguments, the following formats are valid:
     Wave model only: 
-        > CMS2D_V5p1.exe Wave.sim
+        > CMS2D_V5p2.exe Wave.sim
     Flow model only:
-        > CMS2D_V5p1.exe Flow.cmcards
+        > CMS2D_V5p2.exe Flow.cmcards
     Flow and Wave models in steering (w/default time interval of 3 hours)
-        > CMS2D_V5p1.exe Wave.sim Flow.cmcards
+        > CMS2D_V5p2.exe Wave.sim Flow.cmcards
    If there are both a Wave and Flow simulation specified, user may specify time interval as 4th argument.
 
     Flow and Wave models in steering (with specified time interval of 1 hour)
-        > CMS2D_V5p1.exe Wave.sim Flow.cmcards 1.0
+        > CMS2D_V5p2.exe Wave.sim Flow.cmcards 1.0
+
+ There are some tools you can use as well.  To access the tools, use the following format:
+   > CMS2D_V5p2.exe  tools           !Case doesn't matter
 
 
  Compiling in Microsoft Visual Studio (2010 or greater)
@@ -62,13 +65,8 @@
           Fortran | Preprocessor - Additional include directories => ..\source\main\
        Specific file Properties:
 	     for the following files:
-           - CMS-Wave_v3-2W_01Dec2014.f90.f90
-           - CMS-Wave_v3.2_30Mar2018.f90
-           - gctp.f
-           - spcs83_combined.F
+           - CMS-Wave_v3.2W_30Apr2020.f90
            Fortran | Diagnostics - Compile time diagnostics => Disable All (/warn:none) 
-         for utm2geo.F:
-           Fortran | Language - Fixed Form Line Length => 132 Columns (/extend_source:132)
      
  CMake Compiling (mainly for Linux)
    To build CMS On linux you must have CMAKE software above 3.4
