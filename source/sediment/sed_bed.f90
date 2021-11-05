@@ -290,7 +290,7 @@
     use size_def   
     use flow_def
     use const_def, only: small
-    use sed_def
+    use sed_def, only: db, db1, dzb, pbk, pbkstar, dbmax, dbmin, nlay
     use prec_def
     implicit none
     integer :: i

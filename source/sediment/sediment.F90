@@ -1373,8 +1373,7 @@ d1: do ii=1,30
           !  stop
           !endif          
           
-        case('INITIAL_THICKNESS_VALUE','INITIAL_THICKNESS',&
-           'THICKNESS_VALUE','THICKNESS','THICKNESS_CONSTANT')
+        case('INITIAL_THICKNESS_VALUE','INITIAL_THICKNESS','THICKNESS_VALUE','THICKNESS','THICKNESS_CONSTANT')
           call card_scalar(77,'m','m',bedlay(jlay)%dbconst,ierr)  
           bedlay(jlay)%idbinp = 1
         
@@ -1399,8 +1398,7 @@ d1: do ii=1,30
             endif
           enddo
         
-        case('SEDIMENT_STANDARD_DEVIATION','GEOMETRIC_STANDARD_DEVIATION',&
-             'GEO_STD_DEV','STANDARD_DEVIATION','SIGMA')
+        case('SEDIMENT_STANDARD_DEVIATION','GEOMETRIC_STANDARD_DEVIATION','GEO_STD_DEV','STANDARD_DEVIATION','SIGMA')
           call card_scalar(77,'mm','mm',bedlay(jlay)%geostddev,ierr)
           bedlay(jlay)%geostddev = max(bedlay(jlay)%geostddev,1.1)
           bedlay(jlay)%geostddev = min(bedlay(jlay)%geostddev,10.0)           
@@ -1728,7 +1726,7 @@ d1: do ii=1,30
           
         case(1)  !D50 and sigma
           OutPerDiam(ipd(35)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(90)) = .true.
-!          allocate(d50lay(ncellsD))
+          if(.not.allocated(d50lay)) allocate(d50lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
           call fileext(trim(file),aext)      
           select case (aext)

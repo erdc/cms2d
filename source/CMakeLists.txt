@@ -19,7 +19,7 @@ SET( CMS_SOURCE_FILES
   ./boundaries/nest_lib.f90
   ./boundaries/nest_par.f90
   ./boundaries/tide_lib.F90
-  ./boundaries/tide_fac.f
+  ./boundaries/tide_fac.f90
   ./derivatives/der_def.f90
   ./derivatives/der_lib.f90
   ./derivatives/derivatives.f90
@@ -194,8 +194,8 @@ SET( CMS_SOURCE_FILES
   ./waves/CMS-Wave_v3-2W_01Dec2014.f90
   ./waves/CMS-Wave_v3.2_30Mar2018.f90
   ./waves/wave_rad_stress_fl.f90
-  ../external_libraries/proj_conv/utm2geo.F
-  ../external_libraries/proj_conv/spcs83_combined.F
+  ../external_libraries/proj_conv/utm2geo.F90
+  ../external_libraries/proj_conv/spcs83_combined.F90
 )
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
