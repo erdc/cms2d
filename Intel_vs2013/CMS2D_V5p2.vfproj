@@ -54,20 +54,7 @@
 		<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 		<File RelativePath="..\source\boundaries\boundaries.F90"/>
-		<File RelativePath="..\source\waves\CMS-Wave_v3-2W_01Dec2014.f90">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" OpenMP="OpenMPParallelCode" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
-		<File RelativePath="..\source\waves\CMS-Wave_v3.2_30Mar2018.f90">
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90"/>
 		<File RelativePath="..\source\main\CMS2D_main.f90"/>
 		<File RelativePath="..\source\main\CMS_Flow.f90"/>
 		<File RelativePath="..\source\main\CMS_test.F90"/>
@@ -93,15 +80,6 @@
 		<File RelativePath="..\source\friction\fric_lib.f90"/>
 		<File RelativePath="..\source\friction\friction.F90"/>
 		<File RelativePath="..\source\solvers\gauss-seidel.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\gctp.f">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength72" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\geospatial\geo_def.f90"/>
 		<File RelativePath="..\source\geospatial\geo_lib.f90"/>
 		<File RelativePath="..\source\geospatial\geo_test.F90"/>
@@ -172,15 +150,7 @@
 		<File RelativePath="..\source\solvers\solv_def.f90"/>
 		<File RelativePath="..\source\solvers\solvers.f90"/>
 		<File RelativePath="..\source\solvers\sparse.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.F">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90"/>
 		<File RelativePath="..\source\statistics\stat_def.f90"/>
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
@@ -188,23 +158,13 @@
 		<File RelativePath="..\source\structures\struct_def.f90"/>
 		<File RelativePath="..\source\structures\struct_lib.f90"/>
 		<File RelativePath="..\source\structures\structures.f90"/>
-		<File RelativePath="..\source\boundaries\tide_fac.f">
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+		<File RelativePath="..\source\boundaries\tide_fac.f90"/>
 		<File RelativePath="..\source\boundaries\tide_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_test.F90"/>
 		<File RelativePath="..\source\utilities\tools.F90"/>
 		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
-		<File RelativePath="..\external_libraries\proj_conv\utm2geo.F">
-			<FileConfiguration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" FixedFormLineLength="fixedLength132"/></FileConfiguration></File>
+		<File RelativePath="..\external_libraries\proj_conv\utm2geo.f90"/>
 		<File RelativePath="..\source\vegetation\veg_def.f90"/>
 		<File RelativePath="..\source\vegetation\vegetation.F90"/>
 		<File RelativePath="..\source\utilities\watch_def.F90"/>
