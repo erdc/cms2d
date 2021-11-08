@@ -13,9 +13,7 @@ https://cirpwiki.info/wiki/CMS
 
 To build CMS On linux you must have CMAKE software above 3.4
 1) `cd source`
-
 2) `cmake .`
-
 3) `make`
 
 This will leave you with an executable named 'cms' in your local working directory 

@@ -191,8 +191,7 @@ SET( CMS_SOURCE_FILES
   ./waves/wave_def.f90
   ./waves/wave_lib.F90
   ./waves/wave.F90
-  ./waves/CMS-Wave_v3-2W_01Dec2014.f90
-  ./waves/CMS-Wave_v3.2_30Mar2018.f90
+  ./waves/CMS-Wave_v3.2W_30Apr2020.f90
   ./waves/wave_rad_stress_fl.f90
   ../external_libraries/proj_conv/utm2geo.F90
   ../external_libraries/proj_conv/spcs83_combined.F90
