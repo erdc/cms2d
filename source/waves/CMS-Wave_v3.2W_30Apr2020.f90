@@ -144,29 +144,28 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       kdate=0
       iidate=0
 !
-    if(noptset.ne.3)then
+      if(noptset.ne.3)then
 
 #ifdef MERGED_CODE
-      call diag_print_message(' ')
-      call diag_print_message('**********************************************')
-      call diag_print_message('CMS-Wave V-3.2 Inline, last update 19 Oct 2021')
-      call diag_print_message('**********************************************')
-      call diag_print_message('  Point of Contact:')
-      call diag_print_message('  Lihwa Lin, USACE ERDC')
-      call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')
-      call diag_print_message('**********************************************')
-      call diag_print_message(' ')
+        call diag_print_message(' ')
+        call diag_print_message('**********************************************')
+        call diag_print_message('CMS-Wave V-3.2 Inline, last update 19 Oct 2021')
+        call diag_print_message('**********************************************')
+        call diag_print_message('  Point of Contact:')
+        call diag_print_message('  Lihwa Lin, USACE ERDC')
+        call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')
+        call diag_print_message('**********************************************')
+        call diag_print_message(' ')
 #else
-      print*,'CMS-Wave V-3.2 Inline, last update 19 Oct 2021'
-      print*,'**********************************************'
-      print*,'  Point of Contact:'
-      print*,'  Lihwa Lin, USACE ERDC'
-      print*,'  mail to: Lihwa.Lin@usace.army.mil'
-      print*,'**********************************************'
-      print*,' '
+        print*,'CMS-Wave V-3.2 Inline, last update 19 Oct 2021'
+        print*,'**********************************************'
+        print*,'  Point of Contact:'
+        print*,'  Lihwa Lin, USACE ERDC'
+        print*,'  mail to: Lihwa.Lin@usace.army.mil'
+        print*,'**********************************************'
+        print*,' '
 #endif
-
-    endif
+      endif
 
 !Read filenames from .sim file and get correct paths set right.
       !call GetWaveFilenames_inline (SimFile)  !MEB 10/18/21 Removing this routine.  All it did was to make the next assignment to SimFile and then Call STWfiles_inline which is called here anyway.
@@ -243,33 +242,33 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 180   continue      
       if(iwind.eq.0) iwnd=1
 !
-        iwind1=0
-        inquire(file='wind1.dat',exist=getfile16)
-        if(getfile16.and.iwnd.eq.0) then
-          open(unit=7,file='wind1.dat',status='old')
-          read(7,*) iwind1
-          close(7)
+      iwind1=0
+      inquire(file='wind1.dat',exist=getfile16)
+      if(getfile16.and.iwnd.eq.0) then
+        open(unit=7,file='wind1.dat',status='old')
+        read(7,*) iwind1
+        close(7)
         do l=1,179
-        if(SimFile(l:l+1).eq.'  ') exit
+          if(SimFile(l:l+1).eq.'  ') exit
         end do
         if(l.lt.14) l=14
         if (SimFile(l-13:l-5).eq.'\1swsteer') then
-        iwind1=0
-        write(*,*) '*** Wind Steering No.1 Cycle ***'
+          iwind1=0
+          write(*,*) '*** Wind Steering No.1 Cycle ***'
         end if
-        end if
+      end if
 !        
-        if(getfile10.and.iwnd.eq.0) then
-          open(unit=7,file='wind1.dat',status='unknown')
-          write(7,*) iwind1+1
-          write(*,*) ' '
-          write(*,*) ' *** Please check Cycle Number ***'
-          write(*,*) '     You are in Cycle',iwind1+1
-          write(*,*) '     Check Cycle Number is correct not!!'
-          write(*,*) ' *** Modify wind1.dat for correct cycle?'
-          write(*,*) ' '
-          close(7)
-         end if 
+      if(getfile10.and.iwnd.eq.0) then
+        open(unit=7,file='wind1.dat',status='unknown')
+        write(7,*) iwind1+1
+        write(*,*) ' '
+        write(*,*) ' *** Please check Cycle Number ***'
+        write(*,*) '     You are in Cycle',iwind1+1
+        write(*,*) '     Check Cycle Number is correct not!!'
+        write(*,*) ' *** Modify wind1.dat for correct cycle?'
+        write(*,*) ' '
+        close(7)
+      end if 
 !
 !Set default values for parameters
       iprpp=1
@@ -439,13 +438,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iibreak=0
       inquire(file='std.dat',exist=getfile17)
       if(getfile17) then
-          open(unit=20,file='std.dat',status='old')
-          read(20,'(a150)') text
-          close(20)
-      read(text,*,end=133,err=133)icc, icc, iibreak, icc, icc1, icc,  &
-      iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
-      imud,iwnd,isolv,ixmdf,iproc,iview,iroll
-      kout=icc1
+        open(unit=20,file='std.dat',status='old')
+        read(20,'(a150)') text
+        close(20)
+        read(text,*,end=133,err=133)icc, icc, iibreak, icc, icc1, icc,  &
+          iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
+          imud,iwnd,isolv,ixmdf,iproc,iview,iroll
+        kout=icc1
       end if
 133   continue
 !
@@ -501,7 +500,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if (SimFile(l-11:l-5).eq.'swsteer') ixmdf=0
 !
       if(iabs(kout).ge.1.and.ixmdf.ne.2) then
-      if(kout.ge.1) open (10, file = EngOutFile, status = 'unknown')
+        if(kout.ge.1) open (10, file = EngOutFile, status = 'unknown')
         open (12, file = ObsFile,status='unknown',access='append')
       end if
 !
@@ -515,15 +514,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       read(text,*,end=330,err=330) ni,nj,dmesh,dindex
 330   continue
 !
-    if (ni.gt.ipmx .or. nj.gt.jpmx) then
-      print*,'****************************************************'
-      print*,'This version of CMS-Wave is statically dimensioned'
-      print*,'and has a limit of NI = 2500, NJ = 2500'
-      print*,'in the near future a dynamically dimensioned version'
-      print*,'will become available. '
-      print*,'****************************************************'
-      stop
-    endif
+      if (ni.gt.ipmx .or. nj.gt.jpmx) then
+        print*,'****************************************************'
+        print*,'This version of CMS-Wave is statically dimensioned'
+        print*,'and has a limit of NI = 2500, NJ = 2500'
+        print*,'in the near future a dynamically dimensioned version'
+        print*,'will become available. '
+        print*,'****************************************************'
+        stop
+      endif
 !
 !  read/write initial depths dep(i, j):
       depmax=0.
@@ -564,43 +563,40 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       igetfile4=0
 !
-    if(noptset.ne.3)then
-      inquire(file=SurgeFile,exist=getfile4)
-      if(getfile4) then
-      open (21,file=SurgeFile,status='old')
-      read(21,'(a30)',end=119,err=119) text1
+      if(noptset.ne.3)then
+        inquire(file=SurgeFile,exist=getfile4)
+        if(getfile4) then
+          open (21,file=SurgeFile,status='old')
+          read(21,'(a30)',end=119,err=119) text1
           read(21,'(a150)',end=119,err=119) text
           READ(text,*) ieta_date
 !
-      igetfile4=1
+          igetfile4=1
+          read (21,*,end=119,err=119) ((eta(i,j),i=1,ni),j=nj,1,-1)
 !
-!     do j = nj, 1, -1
-      read (21,*,end=119,err=119) ((eta(i,j),i=1,ni),j=nj,1,-1)
-!     end do
-!
-        do i=1,ni
-          do j=2,nj-1
-            if(abs(eta(i,j)).ge.900.) then
-              if(abs(eta(i,j+1)).lt.900..and.abs(eta(i,j-1)).lt.900.) then
-                eta(i,j)=(eta(i,j+1)+eta(i,j-1))/2.
-              end if
-            end if
-          end do
-      if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
-      if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
-        end do
-!
-        do j=1,nj
           do i=1,ni
-            if(abs(eta(i,j)).ge.900.) eta(i,j)=0.
-            dep0(i,j)=dep0(i,j)+eta(i,j)
-!           if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+            do j=2,nj-1
+              if(abs(eta(i,j)).ge.900.) then
+                if(abs(eta(i,j+1)).lt.900..and.abs(eta(i,j-1)).lt.900.) then
+                  eta(i,j)=(eta(i,j+1)+eta(i,j-1))/2.
+                end if
+              end if
+            end do
+            if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
+            if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
           end do
-        end do
 !
-119   continue
-      end if
-    endif 
+          do j=1,nj
+            do i=1,ni
+              if(abs(eta(i,j)).ge.900.) eta(i,j)=0.
+              dep0(i,j)=dep0(i,j)+eta(i,j)
+!             if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+            end do
+          end do
+!
+119       continue
+        end if
+      endif 
 !      
       do i=1,ni
         do j=1,nj
@@ -643,19 +639,19 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 338   continue
       close(15)
 !
-        dvarxxt=0.
-        do i=1,ni
-          disx(i)=dvarxxt
-          dvarxxt=dvarxxt+dvarxx(i)
-        end do
-          disx(i)=dvarxxt
+      dvarxxt=0.
+      do i=1,ni
+        disx(i)=dvarxxt
+        dvarxxt=dvarxxt+dvarxx(i)
+      end do
+      disx(i)=dvarxxt
 !
-        dvaryyt=0.
-        do j=1,nj
-          disy(j)=dvaryyt
-          dvaryyt=dvaryyt+dvaryy(j)
-        end do
-          disy(j)=dvaryyt
+      dvaryyt=0.
+      do j=1,nj
+        disy(j)=dvaryyt
+        dvaryyt=dvaryyt+dvaryy(j)
+      end do
+      disy(j)=dvaryyt
 !
       ijstruc1=0
       ijstruc3=0
@@ -685,10 +681,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
         if(kstruc.eq.3.or.kstruc.ge.6) then
           if(dummy.ge..05) then
-          if(kstruc.ge.6) then
-          cc=dep0(istruc,jstruc)
-          if(dummy.gt.dep0(istruc,jstruc)) dep0(istruc,jstruc)=dummy
-          end if
+            if(kstruc.ge.6) then
+              cc=dep0(istruc,jstruc)
+              if(dummy.gt.dep0(istruc,jstruc)) dep0(istruc,jstruc)=dummy
+            end if
             if(dep0(istruc,jstruc).ge.dummy) then
               ijstruc3=ijstruc3+1
               if(kstruc.ge.6) dstruc33(ijstruc3)=cc
@@ -702,7 +698,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !             dstruc3 is a normal permeable breakwater if k3=7
 !             where dstruc3 is nominal depth without breakwater
             end if
-        if(kstruc.ge.6) dep0(istruc,jstruc)=dep0(istruc,jstruc)+eta(istruc,jstruc)
+            if(kstruc.ge.6) dep0(istruc,jstruc)=dep0(istruc,jstruc)+eta(istruc,jstruc)
           end if
         end if
 !
@@ -721,70 +717,67 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       ijstruc2=0
       if(irunup.ge.1.and.depmin.lt.-.01) then
-          do j=1,nj
+        do j=1,nj
           do i=1,ni
             if(dep0(i,j).lt..05.and.dep0(i,j).ge.-3.) then
-            ijstruc2=ijstruc2+1
-            istruc2(ijstruc2)=i
-            jstruc2(ijstruc2)=j
-            dstruc2(ijstruc2)=-dep0(i,j)
-            if(ijstruc2.ge.149999) exit
+              ijstruc2=ijstruc2+1
+              istruc2(ijstruc2)=i
+              jstruc2(ijstruc2)=j
+              dstruc2(ijstruc2)=-dep0(i,j)
+              if(ijstruc2.ge.149999) exit
             end if
           end do
-          end do
-          if(ijstruc2.ge.149999) then
-        print*,' '
-        print*,'***************************************************'
-        print*,'************ WARNING  WARNING  WARNING ************'
-        print*,'***************************************************'
-        print*,'This version of CMS-Wave is statically dimensioned.'
-        print*,'It has a limit of total wave run-up cells  = 150000.'
-        print*,'The total wave runup cells found is over the limit.'
-        print*,'This Run-up setting covers only partial model area.'
-        print*,'Suggest switch to non-automatic mode, use *.struct.'
-        print*,'***************************************************'
-        print*,' '
-          end if
-        write(*,*) '*** Automatic Runup trigger ***'
-!
-      else
-!
-      read(23,*,IOSTAT=IOS) instruc
-      DO ijk=1,instruc
-        jstruc=0
-        kstruc=0
-        dummy=-1000.
-        read(23,'(a180)',IOSTAT=IOS) text
-        IF (IOS.NE.0) EXIT
-        read(text,*,IOSTAT=IOS) istruc,jstruc,kstruc,dummy
-!       IF (IOS.NE.0) CYCLE
-        if(jstruc.eq.0) CYCLE
-        if(kstruc.eq.2) then
-          ijstruc2=ijstruc2+1
-          if(ijstruc2.gt.149999) then
-        print*,' '
-        print*,'***************************************************'
-        print*,'This version of CMS-Wave is statically dimensioned.'
-        print*,'It has a limit of total wave run-up cells  = 150000.'
-        print*,'The input total wave run-up cells is over the limit'
-        print*,'Please revise the data in *.struct file and re-run.'
-        print*,'***************************************************'
-          stop
-          end if
-          istruc2(ijstruc2)=istruc
-          jstruc2(ijstruc2)=jstruc
-          if(dummy.ge.0.) then
-            dstruc2(ijstruc2)=dummy-eta(istruc,jstruc)
-            dep0(istruc,jstruc)=-dstruc2(ijstruc2)
-          else
-            dstruc2(ijstruc2)=-dep0(istruc,jstruc)
-          end if
+        end do
+        if(ijstruc2.ge.149999) then
+          print*,' '
+          print*,'***************************************************'
+          print*,'************ WARNING  WARNING  WARNING ************'
+          print*,'***************************************************'
+          print*,'This version of CMS-Wave is statically dimensioned.'
+          print*,'It has a limit of total wave run-up cells  = 150000.'
+          print*,'The total wave runup cells found is over the limit.'
+          print*,'This Run-up setting covers only partial model area.'
+          print*,'Suggest switch to non-automatic mode, use *.struct.'
+          print*,'***************************************************'
+          print*,' '
         end if
-      END DO      
-      close(23)
-!
+        write(*,*) '*** Automatic Runup trigger ***'
+      else
+        read(23,*,IOSTAT=IOS) instruc
+        DO ijk=1,instruc
+          jstruc=0
+          kstruc=0
+          dummy=-1000.
+          read(23,'(a180)',IOSTAT=IOS) text
+          IF (IOS.NE.0) EXIT
+          read(text,*,IOSTAT=IOS) istruc,jstruc,kstruc,dummy
+!         IF (IOS.NE.0) CYCLE
+          if(jstruc.eq.0) CYCLE
+          if(kstruc.eq.2) then
+            ijstruc2=ijstruc2+1
+            if(ijstruc2.gt.149999) then
+              print*,' '
+              print*,'***************************************************'
+              print*,'This version of CMS-Wave is statically dimensioned.'
+              print*,'It has a limit of total wave run-up cells  = 150000.'
+              print*,'The input total wave run-up cells is over the limit'
+              print*,'Please revise the data in *.struct file and re-run.'
+              print*,'***************************************************'
+              stop
+            end if
+            istruc2(ijstruc2)=istruc
+            jstruc2(ijstruc2)=jstruc
+            if(dummy.ge.0.) then
+              dstruc2(ijstruc2)=dummy-eta(istruc,jstruc)
+              dep0(istruc,jstruc)=-dstruc2(ijstruc2)
+            else
+              dstruc2(ijstruc2)=-dep0(istruc,jstruc)
+            end if
+          end if
+        END DO      
+        close(23)
       end if
-!
+
       if(ijstruc1.ge.1) then
         write(*,*) ' '
         write(*,*) '*** Land/reef/trench feature ***'
@@ -816,9 +809,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         endif 
         irs=2
       end if
-!
-!     write(*,*) 'ijstruc3 =',ijstruc3
-!
+
       if(ijstruc3.ge.1) then
         ic3=0
         ic6=0
@@ -828,11 +819,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if(k3(k).eq.6) ic6=ic6+1
           if(k3(k).eq.7) ic7=ic7+1
         end do
-!
-!     write(*,*) 'ic3 =',ic3
-!     write(*,*) 'ic6 =',ic6
-!     write(*,*) 'ic7 =',ic7
-!
+
         if(ic3.ge.1) then
           write(*,*) ' '
           write(*,*) '*** Floating Breakwater ***'
@@ -867,13 +854,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '    (need without-breakwater'
           write(*,*) '     depth & > 0.05 m)'
           write(*,*) 'Total Struc 7 Cell(s)=',ic7
-        if(noptset.eq.3)then
-          write(9,*) ' '
-          write(9,*) '*** Normal Permeable Breakwater ***'
-          write(9,*) '    (need without-breakwater'
-          write(9,*) '     depth & > 0.05 m)'
-          write(9,*) 'Total Struc 7 Cell(s)=',ic7
-        endif
+          if(noptset.eq.3)then
+            write(9,*) ' '
+            write(9,*) '*** Normal Permeable Breakwater ***'
+            write(9,*) '    (need without-breakwater'
+            write(9,*) '     depth & > 0.05 m)'
+            write(9,*) 'Total Struc 7 Cell(s)=',ic7
+          endif
         end if
       end if
       if(ijstruc4.ge.1) then
@@ -923,8 +910,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       endif
 !
       if(iarkr.eq.0) then
-          arkr = 0.0
-        elseif(iarkr.eq.2) then
+        arkr = 0.0
+      elseif(iarkr.eq.2) then
         inquire(file=BrflFile,exist=getfile2)
         if(getfile2) then
           write(*,*) ' *** BrflFile FOUND ***'
@@ -952,40 +939,40 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         else
           iarkr=1
         end if
-    endif
+      endif
 !
       inquire(file=MudFile,exist=getfile7)
-        if(getfile7.and.imud.le.0) then
-          write(*,*) ' '
-          write(*,*) ' *** MudFile Found ***'
-          write(*,*) ' '
+      if(getfile7.and.imud.le.0) then
+        write(*,*) ' '
+        write(*,*) ' *** MudFile Found ***'
+        write(*,*) ' '
+        if(noptset.eq.3)then
+          write(9,*) ' '
+          write(9,*) ' *** MudFile Found ***'
+          write(9,*) ' '
+        endif                   
+        open(unit=29,file=MudFile,status='old')
+        read(29,*,end=190,err=190) kbi,kbj,qmesh
+        if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
+          write(*,*) 'Wrong mud field file'
           if(noptset.eq.3)then
-            write(9,*) ' '
-            write(9,*) ' *** MudFile Found ***'
-            write(9,*) ' '
-          endif                   
-          open(unit=29,file=MudFile,status='old')
-          read(29,*,end=190,err=190) kbi,kbj,qmesh
-            if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-            write(*,*) 'Wrong mud field file'
-            if(noptset.eq.3)then
-              write(9,*) 'Wrong mud field file'
-            endif
-            close(29)
-            stop
-            end if
+            write(9,*) 'Wrong mud field file'
+          endif
           close(29)
-          go to 191
+          stop
         end if
-  190   imud=1
         close(29)
-  191   continue
+        go to 191
+      end if
+  190 imud=1
+      close(29)
+  191 continue
 !
       if(ibf.ne.0) then
         inquire(file=FricFile,exist=getfile8)
         if(getfile8) then
           write(*,*) ' '
-          write(*,*) ' *** FricFile FOUND ***'
+          write(*,*) ' *** Friction File FOUND ***'
           write(*,*) '     Read friction coef file'
           write(*,*) ' '
           open(unit=28,file=FricFile,status='old')
@@ -996,6 +983,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             stop
           end if
           close(28)
+        else
+          write(*,*) '' 
+          write(*,*) ' *** Friction File expected but NOT FOUND ***'
+          stop
         end if
       end if
 !
@@ -1018,7 +1009,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(nest.ne.0) open (13, file = NestFile, status = 'unknown')
 !     azimuth read from .sim file in Subroutine STWfiles
 
-109    continue
+109   continue
 !
       if(noptset.eq.3) then
         irs = 1
@@ -1049,26 +1040,25 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !     iwet=-3 for swell, sea, and total (3 files)
 !
       isteer=0
-        do l=1,179
+      do l=1,179
         if(SimFile(l:l+1).eq.'  ') exit
-        end do
-        if(l.lt.12) l=12
-        if (SimFile(l-11:l-5).eq.'swsteer') then
-          isteer=1
-          do ll=l-12,l-18,-1
+      end do
+      if(l.lt.12) l=12
+      if (SimFile(l-11:l-5).eq.'swsteer') then
+        isteer=1
+        do ll=l-12,l-18,-1
           if(SimFile(ll:ll).eq.'\') exit
-          end do
-          if(ll.le.0) ll=0
-          read(SimFile(ll+1:l-12),*) iidate
-        end if
+        end do
+        if(ll.le.0) ll=0
+        read(SimFile(ll+1:l-12),*) iidate
+      end if
 !
       if(iwet.lt.0) then
         if (isteer.eq.1) then
-!
           if(SimFile(l-13:l-12).eq.'\1') then
             if(iwet.ne.-1) then
-            open(95,file='totalFile',status='unknown')
-            write (95, *) ni, nj, dmesh
+              open(95,file='totalFile',status='unknown')
+              write (95, *) ni, nj, dmesh
             end if
             if(iwet.ne.-2) then
               open(96,file=SwellFile,status='unknown')                 !Mitch 03/22/2017
@@ -1078,7 +1068,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end if
           else
             if(iwet.ne.-1) then
-            open(95,file='totalFile',status='unknown',access='append')
+              open(95,file='totalFile',status='unknown',access='append')
             end if
             if(iwet.ne.-2) then
               open(96,file=SwellFile,status='unknown',access='append') !Mitch 03/22/2017
@@ -1086,41 +1076,41 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end if
           end if
         else
-        if(iwet.ne.-1) then
-        open(95,file='totalFile',status='unknown')
-        write (95, *) ni, nj, dmesh
-        end if
-        if(iwet.ne.-2) then
-          open(96,file=SwellFile,status='unknown')                     !Mitch 03/22/2017
-          open(97,file=SeaFile,status='unknown')                       !Mitch 03/22/2017
-        write (96, *) ni, nj, dmesh
-        write (97, *) ni, nj, dmesh
-        end if
+          if(iwet.ne.-1) then
+            open(95,file='totalFile',status='unknown')
+            write (95, *) ni, nj, dmesh
+          end if
+          if(iwet.ne.-2) then
+            open(96,file=SwellFile,status='unknown')                     !Mitch 03/22/2017
+            open(97,file=SeaFile,status='unknown')                       !Mitch 03/22/2017
+            write (96, *) ni, nj, dmesh
+            write (97, *) ni, nj, dmesh
+          end if
         end if
       end if
 !
       if(kout.ge.0) then
-      if(irs.ge.1.and.ixmdf.eq.0)then
-        open (18, file = RadsFile, status = 'unknown')
-        write (18, *) ni, nj, dmesh
-        if(irs.ge.2) then
-          if(iwet.ne.-2) then
-            open(98,file='setup.wav',status='unknown')
-            write(98,*) ni,nj,dmesh
-          else
-        open(98,file='setup.wav',status='unknown',access='append')
-            if(isteer.eq.0) then
+        if(irs.ge.1.and.ixmdf.eq.0)then
+          open (18, file = RadsFile, status = 'unknown')
+          write (18, *) ni, nj, dmesh
+          if(irs.ge.2) then
+            if(iwet.ne.-2) then
+              open(98,file='setup.wav',status='unknown')
               write(98,*) ni,nj,dmesh
             else
-              if(SimFile(l-13:l-12).eq.'\1') then
-                close(98)
-                open(98,file=SetupFile,status='unknown')
+              open(98,file='setup.wav',status='unknown',access='append')
+              if(isteer.eq.0) then
                 write(98,*) ni,nj,dmesh
+              else
+                if(SimFile(l-13:l-12).eq.'\1') then
+                  close(98)
+                  open(98,file=SetupFile,status='unknown')
+                  write(98,*) ni,nj,dmesh
+                end if
               end if
             end if
           end if
-        end if
-      endif
+        endif
       end if
 !
 ! ***
@@ -1140,10 +1130,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       nestin1=1
       nestin2=1
       if(iview.ge.1)then
-!
-!     write(*,*) 'ok1, iview=',iview
-! *** keep above line as new compiler will mess up iview without it
-!
+        ! *** keep above line as new compiler will mess up iview without it
         if(iview.eq.1) go to 280
         inquire(file=SpecFile,exist=getfile18)
         if(getfile18) then
@@ -1178,12 +1165,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
 !
         if(getfile18) then
-        do l=1,179
-        if(SimFile(l:l+1).eq.'  ') exit
-        end do
-        if(l.lt.14) l=14
-        if (SimFile(l-13:l-5).eq.'\2swsteer') iwave1=1
-        if (SimFile(l-11:l-5).ne.'swsteer') go to 350
+          do l=1,179
+            if(SimFile(l:l+1).eq.'  ') exit
+          end do
+          if(l.lt.14) l=14
+          if (SimFile(l-13:l-5).eq.'\2swsteer') iwave1=1
+          if (SimFile(l-11:l-5).ne.'swsteer') go to 350
           do i=1,iwave1
             do j=1,nestin2
               READ(24,*,err=410,end=410) icc
@@ -1191,15 +1178,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end do
           end do
 !
-            read(24,*,err=334,end=334) icc
-            backspace(24)
-            go to 335
-334         continue
-            rewind(24)
-            read(24,*) nff,mdd
-            read(24,*) (cc,nn=1,nff)
-            iwave1=0
-335         continue
+          read(24,*,err=334,end=334) icc
+          backspace(24)
+          go to 335
+334       continue
+          rewind(24)
+          read(24,*) nff,mdd
+          read(24,*) (cc,nn=1,nff)
+          iwave1=0
+335       continue
 !
           open(unit=25,file='wave1.dat',status='unknown')
           write(25,*) iwave1+1
@@ -1212,7 +1199,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           close(25)
         end if
 350     continue
-!
       end if
 !
       if(iprpp.eq.1.and.iwave.eq.0) iview=0
@@ -1245,14 +1231,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           open(unit=7,file='nest1.dat',status='old')
           read(7,*) inest1
           close(7)
-        do l=1,179
-        if(SimFile(l:l+1).eq.'  ') exit
-        end do
-        if(l.lt.14) l=14
-        if (SimFile(l-13:l-5).eq.'\1swsteer') then
-        inest1=0
-        write(*,*) '*** Start Steering No.1 Cycle ***'
-        end if
+          do l=1,179
+            if(SimFile(l:l+1).eq.'  ') exit
+          end do
+          if(l.lt.14) l=14
+          if (SimFile(l-13:l-5).eq.'\1swsteer') then
+            inest1=0
+            write(*,*) '*** Start Steering No.1 Cycle ***'
+          end if
         end if
 !
         if(getfile5) then
@@ -1269,10 +1255,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
         read(8,*) NFF,MDD,NESTIN1,azimnest
         if(azimuth.ge.330..and.abs(azimnest).le.10.) then
-        azimnest=azimnest+360.
+          azimnest=azimnest+360.
         end if
         if(abs(azimuth).le.10.and.azimnest.ge.330.) then
-        azimnest=azimnest-360.
+          azimnest=azimnest-360.
         end if
       end if
 !
@@ -1280,9 +1266,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       if(kout.ge.1.and.ixmdf.ne.2) then
         if(iarkr.eq.0) then
-        write (10, *) nff, mdd
+          write (10, *) nff, mdd
         else
-        write (10, *) nff, mdd*2
+          write (10, *) nff, mdd*2
         end if
         write (10, 9015) (ffcn(k), k = 1, nff)
 9015    format (5(E15.7))
@@ -1297,81 +1283,79 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) 'Skipping ',n,' spectra'        
         write(9,*) 'Skipping ',n,' spectra'
 !
-       if(ibnd.eq.0) then
-        do i=1,n
-          read(8,*,end=410) eDate,ws,wd,fp,Tide
+        if(ibnd.eq.0) then
+          do i=1,n
+            read(8,*,end=410) eDate,ws,wd,fp,Tide
+            idate = int(mod(edate,100000.))
+            kdate = int(edate/100000.)
+            if(edate.lt.99999999.) then
+              kdate=0
+              idate=int(edate)
+            end if
+            read(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
+          enddo
+        else
+          if(getfile5) then
+            do i=1,n
+              do j=1,nestin
+                read(8,'(a150)',err=1333,end=1333) test
+                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              end do
+            end do
+          else
+            do i=1,n
+              do j=1,nestin
+                read(8,*)
+                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              end do
+            end do
+          end if
+          go to 1343
+!
+1333      continue
+          keepi2=i-2
+          write(*,*) ' '
+          write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
+          write(*,*) ' '
+          if(keepi2.lt.0) keepi2=0
+          rewind(8)
+          READ(8,*)
+          READ(8,*) (FFCN(NN),NN=1,NFF)
+          do i=1,keepi2
+            do j=1,nestin
+              read(8,'(a150)',err=1333,end=1333) test
+              READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+            end do
+          end do
+!
+1343      continue
+          if(getfile5) then
+            read(8,'(a150)',err=1333,end=1333) text
+          else
+            read(8,'(a150)',end=420) text
+          end if
+          hs13(1)=0.
+          read(text,*,end=1421,err=1421) &
+          eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
+          if(abs(hs13(1)).gt.900.) hs13(1)=0.
           idate = int(mod(edate,100000.))
           kdate = int(edate/100000.)
           if(edate.lt.99999999.) then
             kdate=0
             idate=int(edate)
           end if
-          read(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
-        enddo
-       else
+1421      continue
 !
-      if(getfile5) then
-        do i=1,n
-          do j=1,nestin
-            read(8,'(a150)',err=1333,end=1333) test
-          READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
-          end do
-        end do
-      else
-        do i=1,n
-          do j=1,nestin
-            read(8,*)
-            READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
-          end do
-        end do
-      end if
-      go to 1343
+        end if
 !
-1333  continue
-      keepi2=i-2
-      write(*,*) ' '
-      write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
-      write(*,*) ' '
-      if(keepi2.lt.0) keepi2=0
-      rewind(8)
-      READ(8,*)
-      READ(8,*) (FFCN(NN),NN=1,NFF)
-      do i=1,keepi2
-        do j=1,nestin
-          read(8,'(a150)',err=1333,end=1333) test
-        READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
-        end do
-      end do
-!
-1343  continue
-      if(getfile5) then
-        read(8,'(a150)',err=1333,end=1333) text
-      else
-        read(8,'(a150)',end=420) text
-      end if
-      hs13(1)=0.
-      read(text,*,end=1421,err=1421) &
-      eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
-      if(abs(hs13(1)).gt.900.) hs13(1)=0.
-            idate = int(mod(edate,100000.))
-            kdate = int(edate/100000.)
-          if(edate.lt.99999999.) then
-          kdate=0
-          idate=int(edate)
-          end if
-1421    continue
-!
-       end if
-!
-       if(iview.eq.2) then
-        if(getfile18) then
-!
-          do i=1,n
-            do j=1,nestin2
-              READ(24,*,err=410,end=410) icc
-              READ(24,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
+        if(iview.eq.2) then
+          if(getfile18) then
+            do i=1,n
+              do j=1,nestin2
+                READ(24,*,err=410,end=410) icc
+                READ(24,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
+              end do
             end do
-          end do
 !
             read(24,*,err=1334,end=1334) icc
             backspace(24)
@@ -1381,44 +1365,42 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             read(24,*) nff,mdd
             read(24,*) (cc,nn=1,nff)
 1335        continue
-!
-        end if
-       endif
-
+          end if
+        endif
       endif
 !
       inst=0
       if(nest.ge.1) then
         write (13, *) nff, mdd, nest, azimuth
         write (13, 9015) (ffcn(k), k = 1, nff)
-            if(iview.ge.1) then
-            dummy=azimuth+180.
-            if(dummy.ge.360.) dummy=dummy-360.
-            inquire(file='wav.spc',exist=getfile9)
-              if(getfile9) then
-                do l=1,179
-                if(SimFile(l:l+1).eq.'  ') exit
-                end do
-                if(l.lt.14) l=14
-                if (SimFile(l-13:l-5).eq.'\1swsteer') then
-                    open(30,file='wav.spc',status='unknown')
-                    write (30, *) nff, mdd, nest, dummy
-                    write (30, 9015) (ffcn(k), k = 1, nff)
-                else
-                  if(SimFile(l-11:l-5).ne.'swsteer') then
-                    open(30,file='wav.spc',status='unknown')
-                    write (30, *) nff, mdd, nest, dummy
-                    write (30, 9015) (ffcn(k), k = 1, nff)
-                  else
-            open(30,file='wav.spc',status='unknown',access='append')
-                  end if
-                end if
-              else
+        if(iview.ge.1) then
+          dummy=azimuth+180.
+          if(dummy.ge.360.) dummy=dummy-360.
+          inquire(file='wav.spc',exist=getfile9)
+          if(getfile9) then
+            do l=1,179
+              if(SimFile(l:l+1).eq.'  ') exit
+            end do
+            if(l.lt.14) l=14
+            if (SimFile(l-13:l-5).eq.'\1swsteer') then
+              open(30,file='wav.spc',status='unknown')
+              write (30, *) nff, mdd, nest, dummy
+              write (30, 9015) (ffcn(k), k = 1, nff)
+            else
+              if(SimFile(l-11:l-5).ne.'swsteer') then
                 open(30,file='wav.spc',status='unknown')
                 write (30, *) nff, mdd, nest, dummy
                 write (30, 9015) (ffcn(k), k = 1, nff)
+              else
+                open(30,file='wav.spc',status='unknown',access='append')
               end if
             end if
+          else
+            open(30,file='wav.spc',status='unknown')
+            write (30, *) nff, mdd, nest, dummy
+            write (30, 9015) (ffcn(k), k = 1, nff)
+          end if
+        end if
         do l=1,179
           if(SimFile(l:l+1).eq.'  ') exit
         end do
@@ -1443,25 +1425,25 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       inquire(file=ShipFile,exist=getfile20)
       if(getfile20) then
-          write(*,*) ' '
-          write(*,*) ' *** ShipFile Found ***'
-          write(*,*) ' '
-          igetfile20=1
-          open(unit=39,file=ShipFile,status='old')
-          read(39,*) nship
-            if(nship.eq.0) then
-            write(*,*) 'Wrong Shiptrack file'
-!           call PressReturn('ERROR:')
-            close(39)
-            stop
-            end if
-          read(39,*) (shipL(n),shipB(n),shipD(n),shipS(n),n=1,nship)
+        write(*,*) ' '
+        write(*,*) ' *** ShipFile Found ***'
+        write(*,*) ' '
+        igetfile20=1
+        open(unit=39,file=ShipFile,status='old')
+        read(39,*) nship
+        if(nship.eq.0) then
+          write(*,*) 'Wrong Shiptrack file'
+!         call PressReturn('ERROR:')
+          close(39)
+          stop
+        end if
+        read(39,*) (shipL(n),shipB(n),shipD(n),shipS(n),n=1,nship)
       end if
 !
       if(iprpp.eq.1.or.iprpp.eq.-2) then
         if(iwind.ge.1) then
-        iwind=0
-        close(27)
+          iwind=0
+          close(27)
         end if
       end if
       if(iwnd.eq.1) then
@@ -1639,188 +1621,184 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
       end if
 !
-    if(noptset.ne.3)then
-      if(itms.ge.2) then
-        if(getfile4) then !Alex
-          read(21,'(a150)',end=219,err=219) text
-          READ(text,*) ieta_date
-          open (15,file=DepFile,status='old')
-          read (15,*)
-          do j=nj,1,-1
-            read (15,*) (dep0(i,j),i=1,ni)
-            read (21,*,end=219,err=219) (eta(i,j),i=1,ni)
-            do i=1,ni
-              if(dep0(i,j).lt.-20.) dep0(i,j)=-20.
-              if(iwet.eq.1.and.dep0(i,j).lt..01) dep0(i,j)=-10.
+      if(noptset.ne.3)then
+        if(itms.ge.2) then
+          if(getfile4) then !Alex
+            read(21,'(a150)',end=219,err=219) text
+            READ(text,*) ieta_date
+            open (15,file=DepFile,status='old')
+            read (15,*)
+            do j=nj,1,-1
+              read (15,*) (dep0(i,j),i=1,ni)
+              read (21,*,end=219,err=219) (eta(i,j),i=1,ni)
+              do i=1,ni
+                if(dep0(i,j).lt.-20.) dep0(i,j)=-20.
+                if(iwet.eq.1.and.dep0(i,j).lt..01) dep0(i,j)=-10.
+              end do
             end do
-          end do
-          close(15)
+            close(15)
 !
-          do i=1,ni
-            do j=2,nj-1
-              if(abs(eta(i,j)).ge.900.) then
-                if(abs(eta(i,j+1)).lt.900..and.abs(eta(i,j-1)).lt.900.) then
-                  eta(i,j)=(eta(i,j+1)+eta(i,j-1))/2.
+            do i=1,ni
+              do j=2,nj-1
+                if(abs(eta(i,j)).ge.900.) then
+                  if(abs(eta(i,j+1)).lt.900..and.abs(eta(i,j-1)).lt.900.) then
+                    eta(i,j)=(eta(i,j+1)+eta(i,j-1))/2.
+                  end if
                 end if
-              end if
+              end do
+              if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
+              if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
             end do
-            if(dep0(i,2).eq.dep0(i,1)) eta(i,1)=eta(i,2)
-            if(dep0(i,nj-1).eq.dep0(i,nj)) eta(i,nj)=eta(i,nj-1)
-          end do
 !
-          do j=1,nj
-            do i=1,ni
-              if(eta(i,j).lt.-900.0) eta(i,j)=0.0
-              dep0(i,j)=dep0(i,j)+eta(i,j)
-!             if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+            do j=1,nj
+              do i=1,ni
+                if(eta(i,j).lt.-900.0) eta(i,j)=0.0
+                dep0(i,j)=dep0(i,j)+eta(i,j)
+!               if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+              enddo
             enddo
-          enddo
 !          
-219       continue
-        else
-          eta=0.0
-!         do j=1,nj
-!           do i=1,ni
-!             if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+219         continue
+          else
+            eta=0.0
+!           do j=1,nj
+!             do i=1,ni
+!               if(dep0(i,j).lt.-0.1) dep0(i,j)=-0.1
+!             enddo
 !           enddo
-!         enddo
-        end if
-      end if
-!      
-    else
+          end if
+        end if   
+      else
 !
-      !Save depths and wse before updating the depth to include eta
-      do i=1,ni
-        do j=1,nj
-          dep0(i,j)=depin(i,j)          
-          eta(i,j)=etain(i,j)
-          if(abs(eta(i,j)).ge.900.) eta(i,j)=0.0
-          dep0(i,j)=dep0(i,j)+eta(i,j)
+        !Save depths and wse before updating the depth to include eta
+        do i=1,ni
+          do j=1,nj
+            dep0(i,j)=depin(i,j)          
+            eta(i,j)=etain(i,j)
+            if(abs(eta(i,j)).ge.900.) eta(i,j)=0.0
+            dep0(i,j)=dep0(i,j)+eta(i,j)
+          enddo
         enddo
-      enddo
-    endif
+      endif
+!!!
+      if(ibnd.eq.0) then
+        READ(8,*,end=420) eDate,ws,wd,fp,Tide
+        idate = int(mod(edate,100000.))
+        kdate = int(edate/100000.)
+        if(edate.lt.99999999.) then
+          kdate=0
+          idate=int(edate)
+        end if
+      else
+        if(getfile5) then
+          do i=1,inest1
+            do j=1,nestin
+              read(8,'(a150)',err=333,end=333) test
+              READ(8,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+            end do
+          end do
+        else
+          do i=1,inest1
+            do j=1,nestin
+              read(8,*)
+              READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+            end do
+          end do
+        end if
+        go to 343
 !
-    if(ibnd.eq.0) then
-      READ(8,*,end=420) eDate,ws,wd,fp,Tide
-      idate = int(mod(edate,100000.))
-      kdate = int(edate/100000.)
-      if(edate.lt.99999999.) then
-        kdate=0
-        idate=int(edate)
-      end if
-    else
-!
-      if(getfile5) then
-        do i=1,inest1
+333     continue
+        keepi2=i-2
+        write(*,*) ' '
+        write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
+        write(*,*) ' '
+        if(keepi2.lt.0) keepi2=0
+        rewind(8)
+        READ(8,*)
+        READ(8,*) (FFCN(NN),NN=1,NFF)
+        do i=1,keepi2
           do j=1,nestin
             read(8,'(a150)',err=333,end=333) test
             READ(8,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
           end do
         end do
-      else
-        do i=1,inest1
-          do j=1,nestin
-            read(8,*)
-            READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
-          end do
-        end do
-      end if
-      go to 343
 !
-333   continue
-      keepi2=i-2
-      write(*,*) ' '
-      write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
-      write(*,*) ' '
-      if(keepi2.lt.0) keepi2=0
-      rewind(8)
-      READ(8,*)
-      READ(8,*) (FFCN(NN),NN=1,NFF)
-      do i=1,keepi2
-        do j=1,nestin
-          read(8,'(a150)',err=333,end=333) test
-          READ(8,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
-        end do
-      end do
-!
-343   continue
-      if(getfile5) then
-        read(8,'(a150)',err=333,end=333) text
-      else
-        read(8,'(a150)',end=420) text
+343     continue
+        if(getfile5) then
+          read(8,'(a150)',err=333,end=333) text
+        else
+          read(8,'(a150)',end=420) text
+        end if
+        hs13(1)=0.
+        read(text,*,end=421,err=421) &
+        eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
+        if(abs(hs13(1)).gt.900.) hs13(1)=0.
+        idate = int(mod(edate,100000.))
+        kdate = int(edate/100000.)
+        if(edate.lt.99999999.) then
+          kdate=0
+          idate=int(edate)
+        end if
+421     continue
       end if
-      hs13(1)=0.
-      read(text,*,end=421,err=421) &
-      eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
-      if(abs(hs13(1)).gt.900.) hs13(1)=0.
-      idate = int(mod(edate,100000.))
-      kdate = int(edate/100000.)
-      if(edate.lt.99999999.) then
-        kdate=0
-        idate=int(edate)
-      end if
-421   continue
-    end if
 !    
-    if(iprp.eq.1.or.iprp.eq.-2) ws=0.
-!    write(*,*) 'Wave Input Index =',kdate,idate
-    if(kdate.gt.0) then
-      if(idate.le.9999) then
-        idate1=mod(kdate,10)*100000+idate
-        kdate1=kdate/10
-        write(*,'("Wave Input Index =",i7,i6)') kdate1,idate1
+      if(iprp.eq.1.or.iprp.eq.-2) ws=0.
+      if(kdate.gt.0) then
+        if(idate.le.9999) then
+          idate1=mod(kdate,10)*100000+idate
+          kdate1=kdate/10
+          write(*,'("Wave Input Index =",i7,i6)') kdate1,idate1
+        else
+          write(*,'("Wave Input Index =",i8,i5)') kdate,idate
+        end if
       else
-        write(*,'("Wave Input Index =",i8,i5)') kdate,idate
+        if(idate.lt.itms) idate=itms
+        if(idate.lt.iidate) idate=iidate
+        write(*,'("Wave Input Index =",i8)') idate
       end if
-    else
-      if(idate.lt.itms) idate=itms
-      if(idate.lt.iidate) idate=iidate
-      write(*,'("Wave Input Index =",i8)') idate
-    end if
-    write(*,*) ' '
+      write(*,*) ' '
 !
-    if(imod.eq.1.or.imod.eq.3) then
-      nc=ni
-      ni=nj
-      nj=nc
-    end if
-    imod=0
+      if(imod.eq.1.or.imod.eq.3) then
+        nc=ni
+        ni=nj
+        nj=nc
+      end if
+      imod=0
 !
-424 continue
+424   continue
 !
-    iengspc=8
-    if(iplane.eq.2) iengspc=24
-    READ(iengspc,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+      iengspc=8
+      if(iplane.eq.2) iengspc=24
+      READ(iengspc,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
 !
-    DTH = 180./float(MDD+1)
-    if(iview.ge.1) then
-      DTH = 180./float(MDD)
-      dsfd=dsfd*float(mdd)/float(mdd+1)
-    end if
-    DTH = DTH*RAD
+      DTH = 180./float(MDD+1)
+      if(iview.ge.1) then
+        DTH = 180./float(MDD)
+        dsfd=dsfd*float(mdd)/float(mdd+1)
+      end if
+      DTH = DTH*RAD
 ! 
-    if(wd.gt.270.) wd=wd-360.
-    if(wd.lt.-270.) wd=wd+360.
+      if(wd.gt.270.) wd=wd-360.
+      if(wd.lt.-270.) wd=wd+360.
 !
-    DO NN=2,NF-1
-      DF(NN)=0.5*(FFCN(NN+1)-FFCN(NN-1))
-    ENDDO
-!   DF(1)=0.5*(FFCN(2)+FFCN(1))
-    DF(1)=DF(2)
-    DF(NF)=DF(NF-1)
-    DFINP=DF
-!
-    sum=0.
-    do mm=1,mdd
-      do nn=1,nf
-        sum=sum+dsfd(nn,mm)*df(nn)
+      DO NN=2,NF-1
+        DF(NN)=0.5*(FFCN(NN+1)-FFCN(NN-1))
       ENDDO
-    ENDDO
-    hs0=4.*sqrt(sum*dth)
-!   write(*,*) ' tmp hs0 =', hs0
+!     DF(1)=0.5*(FFCN(2)+FFCN(1))
+      DF(1)=DF(2)
+      DF(NF)=DF(NF-1)
+      DFINP=DF
 !
+      sum=0.
+      do mm=1,mdd
+        do nn=1,nf
+          sum=sum+dsfd(nn,mm)*df(nn)
+        ENDDO
+      ENDDO
+      hs0=4.*sqrt(sum*dth)
+
 425   continue
-!
+
       if(hs0.lt..01.and.fp.gt.fcn(1)) fp=0.04
       if(ibnd.ge.1) go to 435
       if(hs0.lt..02.and.ws.ge..1) then
@@ -1848,57 +1826,50 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         DF(1)=DF(2)
         DF(NF)=DF(NF-1)
         DFINP=DF
-!
       end if
 !
 435   continue
 !
       if(iview.eq.1.and.iplane.eq.1) then
-      if(ws.lt.2..or.cos(wd*rad).gt..3) iplane=0
-!     write(*,*) 'iview,ws,wd=',iview,ws,wd
+        if(ws.lt.2..or.cos(wd*rad).gt..3) iplane=0
       end if
 !
       if(hs0.lt..01.and.abs(ws-.5).lt.0.49) ws=1.
       if(iview.ge.1.and.abs(ws-.5).lt.0.49) ws=1.
-!     if(ws.gt.10.) iprp=-1
-!!     if(depmax.ne.depmin.and.hs0.lt..005) then
-!!     if(cos(4.*wd*rad)+.5.lt..0.and.ws.gt.10.) iprp=-1
-!!     end if
-!     two above lines commented by Lihwa 04jun09
       if(iprp.le.-1.and.mdd.eq.35) then
         write(*,*) '********************** '
         write(*,*) '* FAST MODE SELECTED * '
         write(*,*) '********************** '
 !
-          md=5
-          if(ws.ge..1) md=7
-          immd=mdd/md
-          do mm=1,mdd
-            newmm=(mm-1)/immd+1
-            do nn=1,nf
-              if(mod(mm-1,immd).eq.0) then
-                dsfd(nn,newmm)=dsfd(nn,mm)
-              else
-                dsfd(nn,newmm)=dsfd(nn,newmm)+dsfd(nn,mm)
-              end if
-            end do
-          end do
-          dsfd=dsfd*float(md+1)/float(mdd+1)
-          DTH = 180./float(MD+1)
-            if(iview.ge.1) then
-              DTH = 180./float(MD)
-              dsfd=dsfd*float(md)/float(md+1)
+        md=5
+        if(ws.ge..1) md=7
+        immd=mdd/md
+        do mm=1,mdd
+          newmm=(mm-1)/immd+1
+          do nn=1,nf
+            if(mod(mm-1,immd).eq.0) then
+              dsfd(nn,newmm)=dsfd(nn,mm)
+            else
+              dsfd(nn,newmm)=dsfd(nn,newmm)+dsfd(nn,mm)
             end if
-          DTH = DTH*RAD
-          md2=(md+1)/2
-          ichoice=2
-          write(*,*) 'New Total Direction Bins =',md
+          end do
+        end do
+        dsfd=dsfd*float(md+1)/float(mdd+1)
+        DTH = 180./float(MD+1)
+        if(iview.ge.1) then
+          DTH = 180./float(MD)
+          dsfd=dsfd*float(md)/float(md+1)
         end if
+        DTH = DTH*RAD
+        md2=(md+1)/2
+        ichoice=2
+        write(*,*) 'New Total Direction Bins =',md
+      end if
 !
       cc=HPAI
       if(iview.ge.1) cc=cc+DTH/2.
       DO MM=1,MD
-! *** should above be mm=imd,md but no big deal (get what needed)
+!       *** should above be mm=imd,md but no big deal (get what needed)
         DCM(MM)=DTH*MM-cc
         cosa(mm)=cos(dcm(mm))
         sina(mm)=sin(dcm(mm))
@@ -1910,7 +1881,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           sum=sum+dsfd(nn,mm)
         ENDDO
       ENDDO
-!     write(*,*) 'you are here',nf,imd,md,sum
 !
       if(sum.lt..0001) then
         nnf=nf
@@ -1921,9 +1891,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end do
         dsfd(nnf,(imd+md)/2)=0.0001
       end if
-!
-!     if(iplane.eq.2) go to 426
-!     write(*,*) 'you are here',nnf,fcn(nnf)
 !
       if(ibnd.ge.1) then
         wc(1)=0.
@@ -1940,21 +1907,20 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         wdy=wcy
         wcd(1)=atan2(wcy,wcx)
         do kn=2,nestin
-        read(iengspc,'(a150)',end=420) text
+          read(iengspc,'(a150)',end=420) text
           hs13(kn)=0.
-      read(text,*,end=422,err=422) &
-      eDate,ws1,wd1,fp1,Tide1,xc(kn),yc(kn),hs13(kn)
-      if(abs(hs13(kn)).gt.900.) hs13(kn)=0.
-            idate = int(mod(edate,100000.))
-            kdate = int(edate/100000.)
+          read(text,*,end=422,err=422) eDate,ws1,wd1,fp1,Tide1,xc(kn),yc(kn),hs13(kn)
+          if(abs(hs13(kn)).gt.900.) hs13(kn)=0.
+          idate = int(mod(edate,100000.))
+          kdate = int(edate/100000.)
           if(edate.lt.99999999.) then
-          kdate=0
-          idate=int(edate)
+            kdate=0
+            idate=int(edate)
           end if
-      if(kdate.eq.0) then
-      if(idate.lt.itms) idate=itms
-      if(idate.lt.iidate) idate=iidate
-      end if
+          if(kdate.eq.0) then
+            if(idate.lt.itms) idate=itms
+            if(idate.lt.iidate) idate=iidate
+          end if
 !
 422       continue
           if(ws1.gt.ws) ws=ws1
@@ -2011,7 +1977,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         hs13n=sqrt(summ/float(nestin))
         do kn=1,nestin
           wc(kn)=wc(kn)/sum
-!       write(*,*) 'xc,yc,wc=',xc(kn),yc(kn),wc(kn),wcd(kn),hs13(kn)
         end do
 !
         ikn=nestin+1
@@ -2047,15 +2012,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
         end do
 !
-!       do kn=1,nestin+2
-!         write(*,*) 'kn,xc,yc,wc,wcd=',kn,xc(kn),yc(kn),wc(kn),wcd(kn)
-!       end do
-!
         ydis=dvaryy(1)/2.
         if(iplane.eq.2) ydis=dvaryy(nj)/2.
         x0p=x0+dvarxxt*cosaz-dvaryyt*sinaz
         y0p=y0+dvarxxt*sinaz+dvaryyt*cosaz
-!       if(iplane.eq.2) write(*,*) 'x0p,y0p=',x0p,y0p,dvaryyt,dvarxxt
         do j=1,nj
           if(iplane.le.1) then
             if(j.ge.2) ydis=ydis+dvaryy(j-1)
@@ -2136,7 +2096,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         ENDDO  ! 28 continue
    21   continue
       end if
-!
+!!!!
       big=0.
       ibig=1
       do mm=imd,md
@@ -2180,15 +2140,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iview.eq.1.and.iplane.eq.2) hs13n=hs13nn
 !
       if(hs13n.lt..0001) hs13n=hs0
-        if(ibnd.ge.1.or.hs0.gt.hs13n) then
-          cc=(hs13n/hs0)**2
-          hs0=hs13n
-          do mm=imd,md
-            do nn=1,nf
-              dsfd(nn,mm)=dsfd(nn,mm)*cc
-            end do
+      if(ibnd.ge.1.or.hs0.gt.hs13n) then
+        cc=(hs13n/hs0)**2
+        hs0=hs13n
+        do mm=imd,md
+          do nn=1,nf
+            dsfd(nn,mm)=dsfd(nn,mm)*cc
           end do
-        end if
+        end do
+      end if
 !
       if(iplane.eq.2) go to 426
 !
@@ -2203,41 +2163,42 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       if(iwind.ge.1) ws=1.
       if(ws.lt..1.and.isteer.eq.0) then
-      if(hs0.lt.hsmin) then
-      igmx=ni
-      jgmx=nj
-      d1=dep0+Tide
-      H13=0.01
-      T13=1.
-      DMN=0.
-      SOP=0.
-      H13R=0.
-      T13R=1.
-      DMNR=0.
+        if(hs0.lt.hsmin) then
+          igmx=ni
+          jgmx=nj
+          d1=dep0+Tide
+          H13=0.01
+          T13=1.
+          DMN=0.
+          SOP=0.
+          H13R=0.
+          T13R=1.
+          DMNR=0.
+
+          j1=ni/2
+        
+ 9999     format ('Column ', i0)
+ 9020     format('Average wave height = ',f10.4)
+          do iii=1,ni
+            write(*,9999) iii
+            write(*,9020) h13(iii,j1)
+          end do
 !
-      j1=ni/2
-      do iii=1,ni
-      write(*,9999) iii
- 9999 format ('Column ', i0)
-      write(*,9020) h13(iii,j1)
- 9020    format('Average wave height = ',f10.4)
-      end do
-!
-      go to 90
-      end if
+          go to 90
+        end if
       end if
 !
 426   continue
       if(iplane.eq.1) go to 427
       if(iplane.eq.2) then
-          write(*,*) ' '
-          write(*,*) '*** Set Local Upper-Right Corner as Origin'
-          imod=2
-          ! It is the easiest one: no need to change ni & nj numbers
-          ! define d1(1,1) is dep0(ni,nj), d1(2,1) is dep0(ni-1,nj),
-          ! d1(3,1) is dep0(ni-2,nj), d1(1,2) is dep0(ni,j1-1), etc.
-          hs1=hs0
-      go to 427
+        write(*,*) ' '
+        write(*,*) '*** Set Local Upper-Right Corner as Origin'
+        imod=2
+        ! It is the easiest one: no need to change ni & nj numbers
+        ! define d1(1,1) is dep0(ni,nj), d1(2,1) is dep0(ni-1,nj),
+        ! d1(3,1) is dep0(ni-2,nj), d1(1,2) is dep0(ni,j1-1), etc.
+        hs1=hs0
+        go to 427
       end if
 !
       if(ibnd.ge.1.and.hs0.lt..01) hs0=.02
@@ -2455,11 +2416,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end do
 !
       if(hs0.lt..005.and.ws.ge..1) then
-          do j=1,nj
+        do j=1,nj
           d1(1,j)=-100.
-          end do
-          prd=wd*rad
-          dbar=prd
+        end do
+        prd=wd*rad
+        dbar=prd
       end if
 !
       do j=1,nj
@@ -2490,8 +2451,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       do j=2,nj-1
         do i=2,ni
-      if(d1(i,j).ge..01.and.d1(i,j+1).le..0.and.d1(i,j-1).le..0) &
-      d1(i,j)=0.
+          if(d1(i,j).ge..01.and.d1(i,j+1).le..0.and.d1(i,j-1).le..0) &
+          d1(i,j)=0.
         end do
       end do
 !
@@ -2550,181 +2511,174 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if(bfricmax.lt.bfric(i,j)) bfricmax=bfric(i,j)
         end do
       end do
-!
+      
+!!!!! Mud
       if(getfile7.and.imud.le.0) then
         open(unit=29,file=MudFile,status='old')
         read(29,*) kbi,kbj
-          if(imod.eq.0) then
-            do j=nj,1,-1
-              read(29,*) (amud(i,j),i=1,ni)
-            enddo
-          elseif(imod.eq.2) then
-            do j=1,nj
-              read(29,*) (amud(i,j),i=ni,1,-1)
-            enddo
-          elseif(imod.eq.1) then
-            do i=ni,1,-1
-              read(29,*) (amud(i,j),j=nj,1,-1)
-            enddo
-          else
-            do i=1,ni
-              read(29,*) (amud(i,j),j=1,nj)
-            enddo
-          end if
+        if(imod.eq.0) then
+          do j=nj,1,-1
+            read(29,*) (amud(i,j),i=1,ni)
+          enddo
+        elseif(imod.eq.2) then
+          do j=1,nj
+            read(29,*) (amud(i,j),i=ni,1,-1)
+          enddo
+        elseif(imod.eq.1) then
+          do i=ni,1,-1
+            read(29,*) (amud(i,j),j=nj,1,-1)
+          enddo
+        else
+          do i=1,ni
+            read(29,*) (amud(i,j),j=1,nj)
+          enddo
+        end if
         close(29)
       end if
-!
-    if(noptset.ne.3)then
-      if (icur .ge. 1) then
-      if(iplane.eq.2) go to 428
-!
-        if(itms.eq.1.or.icur.ge.2) then
-          open (16, file = CurrFile, status = 'old')
-          read(16,*) nic, njc
-        end if
-        if(imod.eq.0.or.imod.eq.2) then
-          if ((nic .ne. ni) .or. (njc .ne. nj)) then
-            print *,' current field size does not match depth grid size'
-!           call PressReturn('ERROR:')
-            stop
+      
+!!!!!Currents
+      
+      if(noptset.ne.3)then
+        if (icur .ge. 1) then
+          if(iplane.eq.2) go to 428
+          if(itms.eq.1.or.icur.ge.2) then
+            open (16, file = CurrFile, status = 'old')
+            read(16,*) nic, njc
+          end if
+          if(imod.eq.0.or.imod.eq.2) then
+            if ((nic .ne. ni) .or. (njc .ne. nj)) then
+              print *,' Error: current field size does not match depth grid size'
+              stop
+            endif
+          else
+            if ((njc .ne. ni) .or. (nic .ne. nj)) then
+              print *,' Error: current field size does not match depth grid size'
+              stop
+            endif
           endif
-        else
-          if ((njc .ne. ni) .or. (nic .ne. nj)) then
-            print *,' current field size does not match depth grid size'
-!           call PressReturn('ERROR:')
-            stop
-          endif
-        endif
-        ! read constant current field
+          
+          ! read constant current field
           read(16,'(a150)') text
           READ(text,*) icur_date
-        write(*,*) 'Current Index =',icur_date
-        write(*,*) ' '
-        if(imod.eq.0) then
-          do j = nj, 1, -1
-            read (16, *) (u1(i, j), v1(i, j), i = 1, ni)
-          enddo
-        end if
-        if(imod.eq.2) then
-          do j = 1, nj
-            read (16, *) (u1(i, j), v1(i, j), i = ni, 1, -1)
-          enddo
-        end if
-        if(imod.eq.1) then
-          do i = ni, 1, -1
-            read (16, *) (v1(i, j), u1(i, j), j = nj, 1, -1)
-          enddo
-        end if
-        if(imod.eq.3) then
-          do i = 1, ni
-            read (16, *) (v1(i, j), u1(i, j), j = 1, nj)
-          enddo
-        end if
-!
-        if(igrav.ge.1) then
-        u1=u1*1.2
-        v1=v1*1.2
-        end if
-!
-!       if(icur.ge.1) then
+          write(*,*) 'Current Index =',icur_date
+          write(*,*) ' '
+          if(imod.eq.0) then
+            do j = nj, 1, -1
+              read (16, *) (u1(i, j), v1(i, j), i = 1, ni)
+            enddo
+          end if
+          if(imod.eq.2) then
+            do j = 1, nj
+              read (16, *) (u1(i, j), v1(i, j), i = ni, 1, -1)
+            enddo
+          end if
+          if(imod.eq.1) then
+            do i = ni, 1, -1
+              read (16, *) (v1(i, j), u1(i, j), j = nj, 1, -1)
+            enddo
+          end if
+          if(imod.eq.3) then
+            do i = 1, ni
+              read (16, *) (v1(i, j), u1(i, j), j = 1, nj)
+            enddo
+          end if
+
+          if(igrav.ge.1) then
+            u1=u1*1.2
+            v1=v1*1.2
+          end if
+
           read(16,'(a150)',end=161,err=165) text
           READ(text,*) icur_date
-        go to 162
-165     write(*,*) 'Current Input Index Error'
-        stop
-161     close(16)
-        icur=3
-        go to 163
-162     continue
-        backspace(unit=16)
-163     continue
-!       end if
+          go to 162
+165       write(*,*) 'Current Input Index Error'
+          stop
+161       close(16)
+          icur=3
+          go to 163
+162       continue
+          backspace(unit=16)
+163       continue
+
+428       continue
 !
-428     continue
+          if(imod.eq.2) then
+            u1=-u1
+            v1=-v1
+          end if
+          if(imod.eq.1) v1=-v1
+          if(imod.eq.3) u1=-u1
 !
-        if(imod.eq.2) then
+          do i=1,ni
+            if(abs(d1(i,1)-d1(i,2)).lt..01) then
+              if(abs(v1(i,1)-v1(i,2)).gt..01) v1(i,1)=v1(i,2)
+            end if
+            if(abs(d1(i,nj)-d1(i,nj-1)).lt..01) then
+              if(abs(v1(i,nj)-v1(i,nj-1)).gt..01) v1(i,nj)=v1(i,nj-1)
+            end if
+          end do
+!
+          if(hs0.lt..002) go to 303
+! ----- wave asymmetry effect
+          if(imod.eq.0.and.bfricmax.ge..01) then
+            do i=1,ni
+              do j=1,nj
+                if(abs(u1(i,j)).lt.abs(v1(i,j))) then
+                  u1(i,j)=-abs(v1(i,j))
+                end if
+              end do
+            end do
+          end if
+303       continue
+        endif
+      else
+        if(noptset.eq.3)then !Alex
+          if(imod.eq.0)then
+            do i=1,ni
+              do j=1,nj
+                u1(i,j) = uin(i,j)
+                v1(i,j) = vin(i,j)
+                if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
+                if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
+              enddo
+            enddo
+          elseif(imod.eq.1)then
+            do i=1,ni
+              do j=1,nj
+                u1(i,j) = uin(nj-j+1,i)
+                v1(i,j) = vin(nj-j+1,i)
+                if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
+                if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
+              enddo
+            enddo
+          elseif(imod.eq.2)then
+            do i=1,ni
+              do j=1,nj
+                u1(i,j) = uin(ni-i+1,nj-j+1)
+                v1(i,j) = vin(ni-i+1,nj-j+1)
+                if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
+                if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
+              enddo
+            enddo
+          elseif(imod.eq.3)then
+            do i=1,ni
+              do j=1,nj
+                u1(i,j) = uin(j,ni-i+1)
+                v1(i,j) = vin(j,ni-i+1)
+                if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
+                if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
+              enddo
+            enddo
+          endif
+        endif 
+        if(imod.eq.2)then
           u1=-u1
           v1=-v1
         end if
-        if(imod.eq.1) v1=-v1
-        if(imod.eq.3) u1=-u1
-!
-        do i=1,ni
-          if(abs(d1(i,1)-d1(i,2)).lt..01) then
-            if(abs(v1(i,1)-v1(i,2)).gt..01) v1(i,1)=v1(i,2)
-          end if
-          if(abs(d1(i,nj)-d1(i,nj-1)).lt..01) then
-            if(abs(v1(i,nj)-v1(i,nj-1)).gt..01) v1(i,nj)=v1(i,nj-1)
-          end if
-        end do
-!
-        if(hs0.lt..002) go to 303
-! ----- wave asymmetry effect
-        if(imod.eq.0.and.bfricmax.ge..01) then
-          do i=1,ni
-            do j=1,nj
-              if(abs(u1(i,j)).lt.abs(v1(i,j))) then
-                u1(i,j)=-abs(v1(i,j))
-              end if
-            end do
-          end do
-        end if
-303     continue
       endif
-!
-    else
-!
-      if(noptset.eq.3)then !Alex
-        if(imod.eq.0)then
-          do i=1,ni
-            do j=1,nj
-              u1(i,j) = uin(i,j)
-              v1(i,j) = vin(i,j)
-              if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
-              if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
-            enddo
-          enddo
-        elseif(imod.eq.1)then
-          do i=1,ni
-            do j=1,nj
-              u1(i,j) = uin(nj-j+1,i)
-              v1(i,j) = vin(nj-j+1,i)
-              if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
-              if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
-            enddo
-          enddo
-        elseif(imod.eq.2)then
-          do i=1,ni
-            do j=1,nj
-              u1(i,j) = uin(ni-i+1,nj-j+1)
-              v1(i,j) = vin(ni-i+1,nj-j+1)
-              if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
-              if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
-            enddo
-          enddo
-        elseif(imod.eq.3)then
-          do i=1,ni
-            do j=1,nj
-              u1(i,j) = uin(j,ni-i+1)
-              v1(i,j) = vin(j,ni-i+1)
-              if(abs(u1(i,j)).ge.900.) u1(i,j)=0.0
-              if(abs(v1(i,j)).ge.900.) v1(i,j)=0.0
-            enddo
-          enddo
-        endif
-      endif 
-      if(imod.eq.2)then
-        u1=-u1
-        v1=-v1
-      end if
-!      if(imod.eq.1) v1=-v1
-!      if(imod.eq.3) u1=-u1
-!      if(imod.eq.3) v1=-v1
-!      if(imod.eq.1) u1=-u1
-!      if(imod.eq.3) v1=-v1
-    endif
-!
-!     cc1=0.
+
+!!!!! Wind
+      
       if(iwind.ge.1) then
         if(iplane.eq.2) go to 429
         do k=1,iwind1
@@ -2748,16 +2702,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end do
           end if
         end do
-          read(27,'(a150)',err=268,end=268) text
-          READ(text,*,err=268,end=268) iwind_date
-          go to 269
-268       continue
-          rewind(unit=27)
-          read(27,'(a150)') text1
-          read(27,'(a150)') text
-          READ(text,*) iwind_date
-269       continue
-       write(*,*) 'Wind Index =',iwind_date
+        read(27,'(a150)',err=268,end=268) text
+        READ(text,*,err=268,end=268) iwind_date
+        go to 269
+268     continue
+        rewind(unit=27)
+        read(27,'(a150)') text1
+        read(27,'(a150)') text
+        READ(text,*) iwind_date
+269     continue
+        write(*,*) 'Wind Index =',iwind_date
         write(*,*) ' '
 !
         if(imod.eq.0) then
@@ -2791,42 +2745,31 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(imod.eq.1) v10=-v10
         if(imod.eq.3) u10=-u10
 !
-          ws=0.
-          do j=1,nj
-            do i=1,ni
-              cc2=sqrt(u10(i,j)**2+v10(i,j)**2)
-                if(cc2.gt.cc1) then
-                  cc1=cc2
-                  wd=atan2(v10(i,j),u10(i,j)+.0001)/rad
-                end if
-              ws=ws+cc2
-            end do
+        ws=0.
+        do j=1,nj
+          do i=1,ni
+            cc2=sqrt(u10(i,j)**2+v10(i,j)**2)
+              if(cc2.gt.cc1) then
+                cc1=cc2
+                wd=atan2(v10(i,j),u10(i,j)+.0001)/rad
+              end if
+            ws=ws+cc2
           end do
-          ws=ws/float(ni*nj*2)
-!
-      if(hs0.lt..005.and.ws.ge..1) then
+        end do
+        ws=ws/float(ni*nj*2)
+
+        if(hs0.lt..005.and.ws.ge..1) then
           do j=1,nj
-          d1(1,j)=-100.
+            d1(1,j)=-100.
           end do
           prd=wd*rad
           dbar=prd
-      end if
-!
+        end if
+
         write(*,*) 'Max internal-grid wind (m/sec, deg)=',cc1,wd
         write(*,*) ' '
-!
       end if
-!
-!         if(max(ws,cc1).gt.10.) then
-!         iwind=2
-!           do i=1,ni
-!           do j=1,nj
-!           if(d1(i,j).lt.-1.001) d1(i,j)=-1.001
-!           if(d1(i,j).lt.0.9995) d1(i,j)=0.9995
-!           end do
-!           end do
-!         end if
-!
+
 ! --- Note: STWAVE depth (dep0 and d1)is the center of
 !           a CMS-Wave cell - so CMS-Wave dep is one more
 !           row and one more column than STWAVE.
@@ -2837,116 +2780,107 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       do k=1,ijstruc2
         if(imod.eq.0) then
           i=istruc2(k)
-!         j=jstruc2(k)
         end if
         if(imod.eq.2) then
           i=imax-istruc2(k)
-!         j=jmax-jstruc2(k)
         end if
         if(imod.eq.1) then
           i=jstruc2(k)
-!         j=jmax-istruc2(k)
         end if
         if(imod.eq.3) then
           i=imax-jstruc2(k)
-!         j=istruc2(k)
         end if
         if(i.lt.ismall) ismall=i
       end do
-!
+
       do k=1,ijstruc3
         if(igetfile4.eq.0) then
-        if(k3(k).ge.6) dstruc33(k)=dstruc33(k)-tide0+tide
+          if(k3(k).ge.6) dstruc33(k)=dstruc33(k)-tide0+tide
         end if
-!
+
         if(imod.eq.0) then
           i=istruc3(k)
-!         j=jstruc3(k)
         end if
         if(imod.eq.2) then
           i=imax-istruc3(k)
-!         j=jmax-jstruc3(k)
         end if
         if(imod.eq.1) then
           i=jstruc3(k)
-!         j=jmax-istruc3(k)
         end if
         if(imod.eq.3) then
           i=imax-jstruc3(k)
-!         j=istruc3(k)
         end if
         if(i.lt.ismall) ismall=i
       end do
-!
-        tide0=tide
-!
+
+      tide0=tide
+
       do k=1,ijstruc4
-      if(imod.eq.0) then
-      i=istruc4(k)
-      j=jstruc4(k)
-      ii=istruc4(k)+1
-      if(ii.ge.ni) ii=ni
-      jj=jstruc4(k)
-      end if
-      if(imod.eq.2) then
-      i=imax-istruc4(k)
-      j=jmax-jstruc4(k)
-      ii=istruc4(k)-1
-      if(ii.lt.1) ii=1
-      jj=jstruc4(k)
-      end if
-      if(imod.eq.1) then
-      i=jstruc4(k)
-      j=jmax-istruc4(k)
-      ii=istruc4(k)
-      jj=jstruc4(k)+1
-      if(jj.gt.ni) jj=ni
-      end if
-      if(imod.eq.3) then
-      i=imax-jstruc4(k)
-      j=istruc4(k)
-      ii=istruc4(k)
-      jj=jstruc4(k)-1
-      if(jj.lt.1) jj=1
-      end if
-      dstruc4(k)=tide+eta(istruc4(k),jstruc4(k))-dstruc44(k)
-      cc=(eta(istruc4(k),jstruc4(k))-eta(ii,jj))/dvarx(i)
-      if(cc.gt.0.0) kstruc4(k)=1
-      d1(i,j)=dstruc4(k)
+        if(imod.eq.0) then
+          i=istruc4(k)
+          j=jstruc4(k)
+          ii=istruc4(k)+1
+          if(ii.ge.ni) ii=ni
+          jj=jstruc4(k)
+        end if
+        if(imod.eq.2) then
+          i=imax-istruc4(k)
+          j=jmax-jstruc4(k)
+          ii=istruc4(k)-1
+          if(ii.lt.1) ii=1
+          jj=jstruc4(k)
+        end if
+        if(imod.eq.1) then
+          i=jstruc4(k)
+          j=jmax-istruc4(k)
+          ii=istruc4(k)
+          jj=jstruc4(k)+1
+          if(jj.gt.ni) jj=ni
+        end if
+        if(imod.eq.3) then
+          i=imax-jstruc4(k)
+          j=istruc4(k)
+          ii=istruc4(k)
+          jj=jstruc4(k)-1
+          if(jj.lt.1) jj=1
+        end if
+        dstruc4(k)=tide+eta(istruc4(k),jstruc4(k))-dstruc44(k)
+        cc=(eta(istruc4(k),jstruc4(k))-eta(ii,jj))/dvarx(i)
+        if(cc.gt.0.0) kstruc4(k)=1
+        d1(i,j)=dstruc4(k)
 !
         isame=0
         do k2=1,ijstruc2
           if(imod.eq.0) then
-          i2=istruc2(k2)
-          j2=jstruc2(k2)
+            i2=istruc2(k2)
+            j2=jstruc2(k2)
           end if
           if(imod.eq.2) then
-          i2=imax-istruc2(k2)
-          j2=jmax-jstruc2(k2)
+            i2=imax-istruc2(k2)
+            j2=jmax-jstruc2(k2)
           end if
           if(imod.eq.1) then
-          i2=jstruc2(k2)
-          j2=jmax-istruc2(k2)
+            i2=jstruc2(k2)
+            j2=jmax-istruc2(k2)
           end if
           if(imod.eq.3) then
-          i2=imax-jstruc2(k2)
-          j2=istruc2(k2)
+            i2=imax-jstruc2(k2)
+            j2=istruc2(k2)
           end if
           if(i2.eq.i.and.j2.eq.j) then
-          isame=1
-          exit
+            isame=1
+            exit
           end if
         end do
 !
 ! --- the following cannot be true if it is also a runup cell
         if(isame.eq.0.and.d1(i,j).lt..01) d1(i,j)=.01
-!
-      if(i.lt.ismall) ismall=i
+        if(i.lt.ismall) ismall=i
       end do
       ismall=ismall-1
-!
-!     write(*,*) 'ismall=',ismall
-!
+
+!!!!!!
+      
       ix1=0
       ix2=0
       do 290 i=1,ni-1
@@ -2958,7 +2892,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end do
         dsum=dsum/float(nj)
         dsum1=dsum1/float(nj)
-!       write(*,*) 'i,dsum,dsum1=',i,dsum,dsum1
         do j=1,nj
           if(i+1.ge.ismall) then
             ix1(i)=1
@@ -2970,21 +2903,22 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             go to 291
           end if
         end do
+
         do j=1,nj
-        if(i+2.le.ni) then
-          if(abs(d1(i,j)+d1(i+1,j)+d1(i+2,j)-dsum1).gt..00001) then
-            ix2(i)=1
-            go to 290
+          if(i+2.le.ni) then
+            if(abs(d1(i,j)+d1(i+1,j)+d1(i+2,j)-dsum1).gt..00001) then
+              ix2(i)=1
+              go to 290
+            end if
           end if
-        end if
         end do
 290   continue
 291   continue
-        do i=2,ni
+      do i=2,ni
         if(ix1(i-1).eq.1) ix1(i)=1
         if(ix2(i-1).eq.1) ix2(i)=1
-        end do
-!
+      end do
+
       dep(1,1)=d1(1,1)
       dep(1,jmax)=d1(1,nj)
       keep=0
@@ -2993,12 +2927,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(dep(1,j).lt..01) dep(1,j)=.01
         if(dep(1,j).gt..01) keep=1
       ENDDO
-!
+
       do i=2,ni
         dep(i,1)=(d1(i-1,1)+d1(i,1))/2.
         dep(i,jmax)=(d1(i-1,nj)+d1(i,nj))/2.
         do j=2,nj
-        if(d1(i,j).lt.deps(i)) deps(i)=d1(i,j)
+          if(d1(i,j).lt.deps(i)) deps(i)=d1(i,j)
           dep(i,j)=(d1(i-1,j-1)+d1(i,j-1)+d1(i-1,j)+d1(i,j))/4.
           if(dep(i,j).lt..01) dep(i,j)=.01
         ENDDO
@@ -3045,7 +2979,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       ni1=ni-1
       nj1=nj-1
-    do j=1,nj
+      do j=1,nj
         do i=1,ni
           if(d1(i,j).le.0.) then
             ijb(i,j)=0
@@ -3054,7 +2988,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       enddo
 !
 !
-    do j=2,nj1
+      do j=2,nj1
         do i=2,ni
           j1=j+1
           ib=i-1
@@ -3074,16 +3008,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(d1(i,1).gt.0..and.d1(ib,1).le.0.) ijb(i,1)=9
         if(d1(i,nj).gt.0..and.d1(ib,nj).le.0.) ijb(i,nj)=9
       enddo
-!
-!     if(itms.eq.1) then
-!       open(unit=22,file='ijb2.dat',status='unknown')
-!       do j=nj,1,-1
-!         write(22,26) (ijb(i,j),i=1,ni)
-!26        format((200i1))
-!       enddo
-!       close(unit=22)
-!     end if
-!
+
       if(nblock.eq.1) then
         open(unit=19,file='block.dat',status='old')
         read(19,*) kblock
@@ -3098,15 +3023,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       ikap=1
       if(depmin0.gt.1.) then
-      do i=2,ni
-      do j=2,nj1
-      if(iabs(ijb(i,j)).ne.1.and.d1(i,j).lt.5.) go to 299
-      end do
-      ikap=i
-      end do
-299   continue
+        do i=2,ni
+          do j=2,nj1
+            if(iabs(ijb(i,j)).ne.1.and.d1(i,j).lt.5.) go to 299
+          end do
+          ikap=i
+        end do
+299     continue
       end if
-!
+
+!!!!! Forward reflection      
+      
       krmx=0
       do j=2,nj1
         do i=2,ni1
@@ -3134,23 +3061,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
               rk(krmx)=reflty(i,j)
               if(rk(krmx).gt.1.) rk(krmx)=ark
             end if
-        end if
+          end if
         enddo
       enddo
 5000  continue
-!
+
       if(iark.ge.1) then
         write(*,*) 'Total forward reflection cells  =',krmx
         if(krmx.gt.6*ipmx) then                                    !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
           write(*,*) 'Total forward reflection cells >',6*ipmx
           write(*,*) 'Need to increase total reflection cells'
           write(*,*) 'or turn off reflection calc -- Run Terminated'
-!         call PressReturn('ERROR:')
           stop
         end if
         write(*,*) ' '
       end if
-!
+
+!!!!! Backward reflection 
+      
       krf=0
       do j=1,nj
         do i=2,ni1
@@ -3192,7 +3120,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
               if(ijb(i,jb) .eq.0) xangl(krf)=30.
               if(ijb(ib,jb).eq.0) xangl(krf)=45.
             end if
-!           write(*,*) 'backward',i,j,xangl(krf)
           end if
         enddo
       enddo
@@ -3209,40 +3136,40 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
         write(*,*) ' '
       end if
-!
-    if(noptset.ne.3)then !Alex, Non inline model
-      if(icur.ge.1) then
-        u(1,1)=u1(1,1)
-        u(1,jmax)=u1(1,nj)
-        v(1,1)=v1(1,1)
-        v(1,jmax)=v1(1,nj)
-        do j=2,nj
-          u(1,j)=(u1(1,j-1)+u1(1,j))/2.
-          v(1,j)=(v1(1,j-1)+v1(1,j))/2.
-        enddo
-!
-        do i=2,ni
-          u(i,1)=(u1(i-1,1)+u1(i,1))/2.
-          u(i,jmax)=(u1(i-1,nj)+u1(i,nj))/2.
-          v(i,1)=(v1(i-1,1)+v1(i,1))/2.
-          v(i,jmax)=(v1(i-1,nj)+v1(i,nj))/2.
+      
+      if(noptset.ne.3)then !Alex, Non inline model
+        if(icur.ge.1) then
+          u(1,1)=u1(1,1)
+          u(1,jmax)=u1(1,nj)
+          v(1,1)=v1(1,1)
+          v(1,jmax)=v1(1,nj)
           do j=2,nj
-            u(i,j)=(u1(i-1,j-1)+u1(i,j-1)+u1(i-1,j)+u1(i,j))/4.
-            v(i,j)=(v1(i-1,j-1)+v1(i,j-1)+v1(i-1,j)+v1(i,j))/4.
+            u(1,j)=(u1(1,j-1)+u1(1,j))/2.
+            v(1,j)=(v1(1,j-1)+v1(1,j))/2.
           enddo
-        enddo
-!
-        u(imax,1)=u1(ni,1)
-        u(imax,jmax)=u1(ni,nj)
-        v(imax,1)=v1(ni,1)
-        v(imax,jmax)=v1(ni,nj)
-        do j=2,nj
-          u(imax,j)=(u1(ni,j-1)+u1(ni,j))/2.
-          v(imax,j)=(v1(ni,j-1)+v1(ni,j))/2.
-        enddo
-      end if
-    endif  
-!
+
+          do i=2,ni
+            u(i,1)=(u1(i-1,1)+u1(i,1))/2.
+            u(i,jmax)=(u1(i-1,nj)+u1(i,nj))/2.
+            v(i,1)=(v1(i-1,1)+v1(i,1))/2.
+            v(i,jmax)=(v1(i-1,nj)+v1(i,nj))/2.
+            do j=2,nj
+              u(i,j)=(u1(i-1,j-1)+u1(i,j-1)+u1(i-1,j)+u1(i,j))/4.
+              v(i,j)=(v1(i-1,j-1)+v1(i,j-1)+v1(i-1,j)+v1(i,j))/4.
+            enddo
+          enddo
+
+          u(imax,1)=u1(ni,1)
+          u(imax,jmax)=u1(ni,nj)
+          v(imax,1)=v1(ni,1)
+          v(imax,jmax)=v1(ni,nj)
+          do j=2,nj
+            u(imax,j)=(u1(ni,j-1)+u1(ni,j))/2.
+            v(imax,j)=(v1(ni,j-1)+v1(ni,j))/2.
+          enddo
+        end if
+      endif  
+
       if(hs0.lt..0001) then
         mwd=md2
         if(ws.ge..1) then
@@ -3255,7 +3182,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 !
       big=0.
-    ibig=nf
+      ibig=nf
       do nn=1,nf
         sum=0.
         do mm=imd,md
@@ -3279,9 +3206,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(9,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
         write(9,*) 'Peak Index=',ibig,fp,fcn(ibig)
       endif        
-!
-	if(fp.eq.0.) fp=fcn(ibig)
-!
+
+	  if(fp.eq.0.) fp=fcn(ibig)
+
       if(ws.gt.10.) iwvbk=2
       if(iwind.ge.1) iwvbk=2
 !
@@ -3290,19 +3217,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       wd=wd*rad
       if(ws.ge..1) then
         a1=0.0002
-!       cc=a1*g*8./3./pai
         cc=a1*g*8./pai
         ccc=a1*g*1.333/pai
         ph0=g/ws*.9
         if(ph0.gt.pai2) ph0=pai2
-!       if(ph0.lt..5) ph0=sqrt(2.*ph0)/2.
         cc1=wd+HPAI
         if(iview.ge.1) cc1=cc1+DTH/2.
         do mm=imd,md
           dd=(DTH*MM-cc1)/2.
           wdd(mm)=ccc*cos(dd)**4
         enddo
-!
+
         if(hs0.lt..05) then
           ph0hz=ph0/pai2*3.
           if(ph0hz.gt..33) ph0hz=.33
@@ -3312,13 +3237,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             om51=om**5*exp(0.74*min((ph0hz/fcn(nn))**4,10.))  &
                /dth/(fcn(nf)-fcn(nf-1))
             do mm=imd,md
-            dd=-hpai-dth/2.+dth*mm-wd/2.
-            if(abs(dd).lt.hpai) then
-!           wdc=cc*cos(dd)**40
-!             dsfd(nn,mm)=wdd(mm)/om51*g*30000.
-              dsfd(nn,mm)=wdd(mm)/om51*g*2000.
-!             dsfd(nn,mm)=wdc/om51*g*2000.
-            end if
+              dd=-hpai-dth/2.+dth*mm-wd/2.
+              if(abs(dd).lt.hpai) then
+                dsfd(nn,mm)=wdd(mm)/om51*g*2000.
+              end if
 ! --- wind wave calibration use above line and two ph0 calculation.
 !             if(fcn(nn).lt..2) dsfd(nn,mm)=   &
 !               dsfd(nn,mm)/exp((.2-fcn(nn))*100.)
@@ -3362,18 +3284,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       fsp(ibig)=big
 !
       ib0=ib-1
-!
+
       if(ie-ib0.lt.nf) then
         write(*,*) ' '
         write(*,*) 'Renew frequency bin =',ie-ib0
         write(*,*) 'Write frequency bin =',(fcn(nn),nn=ib,ie)
-!
         write(*,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=ib,ie)
-!
-!       write(*,*)
-!       write(*,*) (fsp(nn),nn=ib,ie)
         write(*,*) 'New Peak Index=',ibig-ib0,fcn(ibig)
-      if(ibnd.ge.1) fp=fcn(ibig)
+        if(ibnd.ge.1) fp=fcn(ibig)
         sum=0.
         do mm=imd,md
           do nn=ib,ie
@@ -3382,32 +3300,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         enddo
         hss=4.*sqrt(sum*dth)
         write(*,*) 'Truncated 4*sqrt(E) =',hss,'m'
-!       cc=(hs0/hss)**2
-!       sum=0.
-!       do 569 nn=ib,ie
-!       do 569 mm=imd,md
-!       dsfd(nn,mm)=dsfd(nn,mm)**cc
-!       sum=sum+dsfd(nn,mm)*df(nn)
-! 569   continue
-!       write(*,*) 'Revised 4*sqrt(E) =',4.*sqrt(sum*dth),'m'
       else
         write(*,*) 'NO CHANGE OF INPUT SPECTRUM'
         go to 661
       end if
-!
+
       nf=ie-ib0
       ibig=ibig-ib0
-!
+
       if(ib.eq.1) go to 661
-        do nn=ib,ie
-          ii=nn-ib0
-          fcn(ii)=fcn(nn)
-          df(ii)=df(nn)
-          fsp(ii)=fsp(nn)
-          do mm=imd,md
-            dsfd(ii,mm)=dsfd(nn,mm)
-          enddo
+      do nn=ib,ie
+        ii=nn-ib0
+        fcn(ii)=fcn(nn)
+        df(ii)=df(nn)
+        fsp(ii)=fsp(nn)
+        do mm=imd,md
+          dsfd(ii,mm)=dsfd(nn,mm)
         enddo
+      enddo
   661 continue
 !
       if(nf.ge.18.and.df(2).le.02) then
@@ -3469,8 +3379,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
 !
           do mm=imd,md
-      dsfd(ii,mm)=(dsfd(nn-1,mm)*c1+dsfd(nn,mm)*c2+dsfd(n1,mm)*c3)/cc
-!
+            dsfd(ii,mm)=(dsfd(nn-1,mm)*c1+dsfd(nn,mm)*c2+dsfd(n1,mm)*c3)/cc
           enddo
         enddo
 !
@@ -3486,16 +3395,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' '
         write(*,*) 'New group total frequency bin =',nf
         write(*,*) 'New group fixed frequency bin =',(fcn(nn),nn=1,nf)
-!
         write(*,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
-!
-!       write(*,*)
-!       write(*,*) (fsp(nn),nn=1,nf)
         write(*,*) 'New Peak Index=',ibig,fcn(ibig)
-      if(ibnd.ge.1) fp=fcn(ibig)
+        if(ibnd.ge.1) fp=fcn(ibig)
       end if
 !
-      if(ws.ge..1) then
+      if(ws .ge. 0.1) then
         do mm=imd,md
           dsfd(nf+1,mm)=dsfd(nf,mm)/2.
         enddo
@@ -3503,7 +3408,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         nf=nf+1
         fsp(nf)=fsp(nf-1)/2.
 !
-        if(ws.ge.25.) then
+        if(ws .ge. 25.) then
           f0=2.*fcn(1)-fcn(2)
           if(f0.gt..001.and.fcn(1).gt..1) then
             do nn=nf,1,-1
@@ -3525,11 +3430,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' '
         write(*,*) 'Final total frequency bin =',nf
         write(*,*) 'Final fixed frequency bin =',(fcn(nn),nn=1,nf)
-!
         write(*,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
-!
         write(*,*) 'New Peak Index=',ibig,fcn(ibig)
-      if(ibnd.ge.1) fp=fcn(ibig)
+        if(ibnd.ge.1) fp=fcn(ibig)
       end if
 !
 ! -- Convert STWAVE spectrum (density) to total energy
@@ -3542,10 +3445,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         DF(NN)=0.5*(FCN(NN+1)-FCN(NN-1))
       enddo
       fspsum=fspsum+fsp(nf)
-!     DF(1)=0.5*(FCN(2)+FCN(1))
       DF(1)=DF(2)
       DF(NF)=DF(NF-1)
-!
+
       sum=0.
       sumx=0.
       sumy=0.
@@ -3558,28 +3460,26 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         enddo
       enddo
       wdir=atan2(sumy,sumx)
-!
+
       hs0=4.*sqrt(sum)
       write(*,*) ' '
       write(*,*) 'Check 4*sqrt(E) =',hs0,'m'
-!     write(*,*) 'Check 4*sqrt(E) =',hs0,'m, wind speed,dirs =',ws,wd,wdir
       if(hs1.gt..01.and.ibnd.eq.0) then
         if(ws.ge.5. .and. iwnd.le.1) then
           if(ws.ge.50.) ws=50.
-        hsmax=ws**1.5/sqrt(fp*g)/17.8*cos(wd-wdir)**4*abs(sin(wd))
-! ----- 17.8 = (4.3)^1.5*2 where 2 is a correction factor (2.5 in reality?)
-        if(hsmax.ge.hs0*2.) hsmax=hs0*2.
+          hsmax=ws**1.5/sqrt(fp*g)/17.8*cos(wd-wdir)**4*abs(sin(wd))         ! ----- 17.8 = (4.3)^1.5*2 where 2 is a correction factor (2.5 in reality?)
+          if(hsmax.ge.hs0*2.) hsmax=hs0*2.
           if(hsmax.gt.hs0) then
-          write(*,*) 'Max Windwave(m) =',hsmax,'m'
-          write(*,*) '*** Inflat incident wave ***'
-          dsfd=dsfd*(hsmax/hs0)**2
-          hs0=hsmax
+            write(*,*) 'Max Windwave(m) =',hsmax,'m'
+            write(*,*) '*** Inflat incident wave ***'
+            dsfd=dsfd*(hsmax/hs0)**2
+            hs0=hsmax
             d1max=d1(1,1)
             do jj=1,nj
-            if(d1(1,jj).gt.d1max) d1max=d1(1,jj)
+              if(d1(1,jj).gt.d1max) d1max=d1(1,jj)
             end do
             do jj=1,nj
-            wcc(jj)=wcc(jj)*(abs(d1(1,jj))/d1max)**0.25
+              wcc(jj)=wcc(jj)*(abs(d1(1,jj))/d1max)**0.25
             end do
           end if
         end if
@@ -3587,24 +3487,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !
       flat=1.
       if(ws.lt..01.and.fspsum.gt..01) then
-      flat=1.+exp(-10.*(1.-fsp(ibig)/fspsum))
-      write(*,*)
-      write(*,*) 'Effect transition between Hs (H_mo) & Hrms (H_mono)'
-      write(*,*) 'Inflation of wave energy (in calculation) by', flat
-      write(*,*)
+        flat=1.+exp(-10.*(1.-fsp(ibig)/fspsum))
+        write(*,*)
+        write(*,*) 'Effect transition between Hs (H_mo) & Hrms (H_mono)'
+        write(*,*) 'Inflation of wave energy (in calculation) by', flat
+        write(*,*)
       end if
       cflat=sqrt(16./flat)
 !
       dsfd=dsfd*flat
 !
-        HSG=HS0
+      HSG=HS0
 !
       write(*,*) 'Wsmag =', wsmag
 !
       WRITE(*,*) ' '
       if(iplane.le.1.or.iwave.eq.1) then
-      WRITE(*,*) '*** Completion of Reading Spectrum ***'
-      WRITE(*,*) ' '
+        WRITE(*,*) '*** Completion of Reading Spectrum ***'
+        WRITE(*,*) ' '
       endif
 !
       eta=0.
@@ -3614,15 +3514,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       write(*,*) ' '
       WL0=1.56*TS*TS
 !
-          if(iplane.eq.2.and.hs0.lt..001) then
-!         write(*,*) 'iplane,ws,wd=',iplane,ws,wd
-            if(abs(wd).ge.2.1.or.ws.lt..1) then
-              h13=0.
-              t13=0.
-              dmn=0.
-              go to 80
-            end if
-          end if
+      if(iplane.eq.2.and.hs0.lt..001) then
+        if(abs(wd).ge.2.1.or.ws.lt..1) then
+          h13=0.
+          t13=0.
+          dmn=0.
+          go to 80
+        end if
+      end if
 !
       if(hs0.ge..001.and.imod.eq.0) then
 ! ----- wave asymmetry effect
@@ -3692,10 +3591,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if (ibreak.ge.2) call dfds_inline
       if (irs.ge.1.and.irs0.eq.0) call rstress_inline
 90    continue
-!--------------------------------
-!     if (ixmdf.ne.2) then
-        CALL OUTFILE_inline
-!     endif
+
+      
+      CALL OUTFILE_inline
+
 !----------------------
 !  end of calculation
 !----------------------
@@ -3728,7 +3627,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end do
           end do
         end if
-      go to 770
+        go to 770
       end if 
 !
 #ifdef XMDF_IO
@@ -10649,7 +10548,7 @@ contains
             
     case('WV_NESTING_CELLS') 
       backspace(11)
-      read(text,*)nest                             !0 - no nest cells
+      read(11,*) aCard, nest                       !0 - no nest cells
       if(nest.ge.1) then                           !n - list of nesting cells to read in  
         backspace(11)
         read (11,'(A)') text
