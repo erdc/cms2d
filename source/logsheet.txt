@@ -1,7 +1,7 @@
 == Version 5.2.11 (11/05/2021) == 
 * Minor: Repo fix for VS2013 GUI to make consistent
 * Minor: Updated 'CMakeLists.txt' file for Linux
-* Bug fix: Corrected an error reading in the WV_NESTING_CELLS card.
+* Bug fix: Corrected an error reading in the WV_NESTING_CELLS and WV_OBSERVATION_CELLS cards.
 
 == Version 5.2.10 (10/26/2021) ==
 * Added new CMS-Wave input format for options file (.std) similar to how the Flow .cmcards file is written. 
