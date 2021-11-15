@@ -39,7 +39,7 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.2           ! CMS version         !For interim version
-    revision = 11            ! Revision number
+    revision = 12            ! Revision number
     bugfix   = 0             ! Bugfix number
     rdate    = '11/15/2021'
 
