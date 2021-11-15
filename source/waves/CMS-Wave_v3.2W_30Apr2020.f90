@@ -966,9 +966,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
   190 imud=1
       close(29)
-  191 continue
+191   continue
 !
-      if(ibf.ne.0) then
+      if(ibf.eq.2 .or. ibf.eq.4) then          !Only try to read the files if a variable type has been chosen, otherwise keep moving.  MEB  11/15/2021
         inquire(file=FricFile,exist=getfile8)
         if(getfile8) then
           write(*,*) ' '
@@ -1335,8 +1335,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             read(8,'(a150)',end=420) text
           end if
           hs13(1)=0.
-          read(text,*,end=1421,err=1421) &
-          eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
+          read(text,*,end=1421,err=1421) eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
           if(abs(hs13(1)).gt.900.) hs13(1)=0.
           idate = int(mod(edate,100000.))
           kdate = int(edate/100000.)
@@ -7519,11 +7518,11 @@ contains
           xdis=0.
           ydis=0.
           do ki=1,i-1
-          xdis=xdis+dvarxx(ki)
+            xdis=xdis+dvarxx(ki)
           end do
           xdis=xdis+dvarxx(i)/2.
           do kj=1,j-1
-          ydis=ydis+dvaryy(kj)
+            ydis=ydis+dvaryy(kj)
           end do
           ydis=ydis+dvaryy(j)/2.
           xc=xdis*cosaz-ydis*sinaz+x0
@@ -7546,34 +7545,34 @@ contains
             h13ij=h13(igmx-j+1,i)
           end if
 !
+9013  format(i8,i5,2f8.2,f8.4,f8.2,2f15.2,f8.3)
+9014  format(5x,i8,2f8.2,f8.4,f8.2,2f15.2,f8.3)
+9023  format(i7,i6,2f8.2,f8.4,f8.2,2f15.2,f8.3)
           if(kdate.gt.0) then
-              if(idate.le.9999) then
+            if(idate.le.9999) then
               idate1=mod(kdate,10)*100000+idate
               kdate1=kdate/10
-            if(iplane.le.1) then
-            WRITE(13,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
-      if(inst.eq.1)WRITE(14,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
-            else
-                   WRITE(30,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
-            end if
-9023  format(i7,i6,2f8.2,f8.4,f8.2,2f15.2,f8.3)
+              if(iplane.le.1) then
+                WRITE(13,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
+                if(inst.eq.1)WRITE(14,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
               else
-            if(iplane.le.1) then
-            WRITE(13,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
-      if(inst.eq.1)WRITE(14,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
-            else
-                   WRITE(30,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
-            end if
-9013  format(i8,i5,2f8.2,f8.4,f8.2,2f15.2,f8.3)
+                WRITE(30,9023) kdate1,idate1,ws,wdrad,fpp,Tide,xc,yc,h13ij
               end if
+            else
+              if(iplane.le.1) then
+                WRITE(13,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+                if(inst.eq.1)WRITE(14,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+              else
+                WRITE(30,9013) kdate,idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+              end if
+            end if
           else
             if(iplane.le.1) then
-            WRITE(13,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
-      if(inst.eq.1)WRITE(14,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+              WRITE(13,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+              if(inst.eq.1)WRITE(14,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
             else
-                   WRITE(30,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
+              WRITE(30,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
             end if
-9014  format(5x,i8,2f8.2,f8.4,f8.2,2f15.2,f8.3)
           end if
 !
           n00=0
