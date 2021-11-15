@@ -10422,6 +10422,7 @@ contains
     logical,intent(out)            :: foundcard
     
     character*80  :: aVal
+    character*200 :: text
     
     foundcard = .true.
     
