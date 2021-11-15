@@ -298,18 +298,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iproc=1
       iview=0
       iroll=0
+      
 !Read parameters from OptsFile (.std)
       itxt=0
       read(11,'(a150)') text
-      read(text,*) cardname, itxt
-      
-      !MEB 10/18/21  Going to rework this to allow for CARDS first, then parameter just like the CMS Parameter file
-      !do k=1,80                        !Original method
-      !  if(text(k:k).eq.'!') then    
-      !    itxt=1  !this means to use different scheme to read parameters
-      !    exit
-      !  end if
-      !enddo
+      read(text,*) cardname, itxt      !This line should have the card 'CMS_WAVE_STD' followed by a 1 or 2.  If not, the original format will be read.
       
       select case (cardname)
       case('CMS_WAVE_STD')
@@ -327,7 +320,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
               write(*,*) 'Card in CMS-Wave options file not recognized: ',trim(cardname)
             endif
           enddo
-        else
+        else                           !Previous format - value(s), then card  MEB 10/18/21
           call diag_print_message('Reading Options File with Card Format Version 1',' ')
           backspace(11)
           do 
@@ -428,10 +421,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 139         continue
           enddo
         endif  
-      case default 
-        read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd, &
-        iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
-        imud,iwnd,isolv,ixmdf,iproc,iview,iroll
+      case default                     !Very first format - all parameters specified on one line
+        read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd,  &
+          iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
+          imud,iwnd,isolv,ixmdf,iproc,iview,iroll
       end select
 
 !
@@ -567,8 +560,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         inquire(file=SurgeFile,exist=getfile4)
         if(getfile4) then
           open (21,file=SurgeFile,status='old')
-          read(21,'(a30)',end=119,err=119) text1
-          read(21,'(a150)',end=119,err=119) text
+          read (21,'(a30)',end=119,err=119) text1
+          read (21,'(a150)',end=119,err=119) text
           READ(text,*) ieta_date
 !
           igetfile4=1
