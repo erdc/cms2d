@@ -1122,6 +1122,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iwave=0
       nestin1=1
       nestin2=1
+      getfile18=.false.       !Added to initialize a value for this variable and get past a usage below.  MEB  11/17/2021
       if(iview.ge.1)then
         ! *** keep above line as new compiler will mess up iview without it
         if(iview.eq.1) go to 280
@@ -1157,6 +1158,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
         end if
 !
+        !You can only use this after checking the existence of a file. The inquiry is skipped over in some cases.  Added an initialization statement above to correct.
         if(getfile18) then
           do l=1,179
             if(SimFile(l:l+1).eq.'  ') exit
