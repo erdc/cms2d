@@ -525,7 +525,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       dstruc33=0.
       tide0=0.
       do j = nj, 1, -1
-         read (15, *) (dep0(i, j), i = 1, ni)
+        read (15, *) (dep0(i, j), i = 1, ni)
         if(depmax0.lt.dep0(1,j)) depmax0=dep0(1,j)
         if(depmin0.gt.dep0(1,j)) depmin0=dep0(1,j)
         do i=1,ni
@@ -3549,8 +3549,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !   11. yes or no of output, detail region and wave reflection
 !   12. mesh number
 !   13. depth (just declare), 14. depth (from file)
-!   15. cell (just declare), 16. cell (from file)
-!   16'. current data from file
+!   15. cell  (just declare), 16. cell  (from file)
+!   16. current data from file
 !   20.-22. if ick3=1, positions of reflection in y direction
 !   23.-25. if ick4=1, positions of reflection in x direction
 !---------------------------------------------------------------
@@ -3717,31 +3717,31 @@ contains
       K=1; L=1   
       if (imod .eq. 0 .or. imod .eq. 2) then                  
         DO J=1,jgmx         
-        DO I=1,igmx 
-          depth(K)=depin(i,j)
-          surge(K)=etain(i,j)
-          currents(L)  =uin(i,j)*cosaz-vin(i,j)*sinaz
-          currents(L+1)=uin(i,j)*sinaz+vin(i,j)*cosaz
-          K=K+1
-          L=L+2
-        ENDDO              
+          DO I=1,igmx 
+            depth(K)=depin(i,j)
+            surge(K)=etain(i,j)
+            currents(L)  =uin(i,j)*cosaz-vin(i,j)*sinaz
+            currents(L+1)=uin(i,j)*sinaz+vin(i,j)*cosaz
+            K=K+1
+            L=L+2
+          ENDDO              
         ENDDO
       else
         DO J=1,igmx         
-        DO I=1,jgmx 
-          depth(K)=depin(i,j)
-          surge(K)=etain(i,j)
-          currents(L)  =uin(i,j)*cosaz-vin(i,j)*sinaz
-          currents(L+1)=uin(i,j)*sinaz+vin(i,j)*cosaz
-          K=K+1
-          L=L+2
-        ENDDO              
+          DO I=1,jgmx 
+            depth(K)=depin(i,j)
+            surge(K)=etain(i,j)
+            currents(L)  =uin(i,j)*cosaz-vin(i,j)*sinaz
+            currents(L+1)=uin(i,j)*sinaz+vin(i,j)*cosaz
+            K=K+1
+            L=L+2
+          ENDDO              
         ENDDO
       endif
       
-        NIJ=IGMX*JGMX
-        K=1
-        L=1
+      NIJ=IGMX*JGMX
+      K=1
+      L=1
       cosazz=cosaz
       sinazz=sinaz
       if (mod(imod,2).eq.0) then
@@ -3763,13 +3763,13 @@ contains
           sinazz=-sinaz
         endif                              
         DO J=jbeg,jend,jinc 
-            DO I=ibeg,iend,iinc
-              HEIGHT(K) = H13S(I,J)
-              PERIOD(K) = T13(I,J)
-              DIR(K) = DMN(I,J)+AZIMUTH
-              IF (DIR(K).LT.0) DIR(K)=DIR(K)+360.
-                WAVE(L)=HEIGHT(K)*COS(DIR(K)*RAD)
-                WAVE(L+1)=HEIGHT(K)*SIN(DIR(K)*RAD)
+          DO I=ibeg,iend,iinc
+            HEIGHT(K) = H13S(I,J)
+            PERIOD(K) = T13(I,J)
+            DIR(K) = DMN(I,J)+AZIMUTH
+            IF (DIR(K).LT.0) DIR(K)=DIR(K)+360.
+            WAVE(L)=HEIGHT(K)*COS(DIR(K)*RAD)
+            WAVE(L+1)=HEIGHT(K)*SIN(DIR(K)*RAD)
             IF (irs .gt. 0) THEN
               radstr(L)  =WXRS(I,J)*cosazz-WYRS(I,J)*sinazz
               radstr(L+1)=WXRS(I,J)*sinazz+WYRS(I,J)*cosazz
@@ -3804,15 +3804,15 @@ contains
           sinazz=-cosaz
         endif
 
-          DO I=ibeg, iend, iinc
-            DO J=jbeg, jend, jinc
-              surgew(K)=eta(i,j)
-              HEIGHT(K) = H13S(I,J)
-              PERIOD(K) = T13(I,J)
-              DIR(K) = DMN(I,J)+AZIMUTH
-              IF (DIR(K).LT.0) DIR(K)=DIR(K)+360.
-                WAVE(L)=HEIGHT(K)*COS(DIR(K)*RAD)
-                WAVE(L+1)=HEIGHT(K)*SIN(DIR(K)*RAD)
+        DO I=ibeg, iend, iinc
+          DO J=jbeg, jend, jinc
+            surgew(K)=eta(i,j)
+            HEIGHT(K) = H13S(I,J)
+            PERIOD(K) = T13(I,J)
+            DIR(K) = DMN(I,J)+AZIMUTH
+            IF (DIR(K).LT.0) DIR(K)=DIR(K)+360.
+            WAVE(L)=HEIGHT(K)*COS(DIR(K)*RAD)
+            WAVE(L+1)=HEIGHT(K)*SIN(DIR(K)*RAD)
             IF (irs .gt. 0) THEN
               radstr(L)  =WXRS(I,J)*cosazz-WYRS(I,J)*sinazz
               radstr(L+1)=WXRS(I,J)*sinazz+WYRS(I,J)*cosazz
@@ -4105,61 +4105,61 @@ contains
       DO 20 MM=imd,MD
       DO 20 NN=1,NF
       DO 20 JJ=1,JGMX
-!- si(jj,nn,mm) is initial input spectrum for calculation in first region
-      SI(JJ,NN,MM)=DSFD(NN,MM)*wcc(jj)
-      simax(jj,nn,mm)=si(jj,nn,mm)
-!- si(jj,nn,mm) is initial input spectrum for calculation in first region
+        !- si(jj,nn,mm) is initial input spectrum for calculation in first region
+        SI(JJ,NN,MM)=DSFD(NN,MM)*wcc(jj)
+        simax(jj,nn,mm)=si(jj,nn,mm)
    20 CONTINUE
 
       IF(IBND.EQ.2) THEN
-      do 22 jj=1,jgmx
-      if(abs(dcd(jj)).lt..01) go to 22
-      mmdcd=int(dcd(jj))
-      do 28 nn=1,nf
-      if(iabs(mmdcd).lt.1) go to 24
-      slf=0.
-      do 23 mm=imd,md
-      m1=mm+mmdcd
-      if(m1.lt.imd) m1=imd
-      if(m1.gt.md) m1=md
-      slf(m1)=slf(m1)+si(jj,nn,mm)
-   23 continue
-      do 25 mm=imd,md
-      si(jj,nn,mm)=slf(mm)
-   25 continue
-   24 continue
-      dcdmm=dcd(jj)-float(mmdcd)
-      if(abs(dcdmm).lt..01) go to 30
-      if(dcdmm.gt.0.) then
-      c1=1.-dcdmm
-      do 26 mm=imd+1,md
-      slf(mm)=si(jj,nn,mm)*c1+si(jj,nn,mm-1)*dcdmm
-   26 continue
-      slf(imd)=si(jj,nn,imd)*c1
-      else
-      dcdmm=-dcdmm
-      c1=1.-dcdmm
-      do 27 mm=imd,md-1
-      slf(mm)=si(jj,nn,mm)*c1+si(jj,nn,mm+1)*dcdmm
-   27 continue
-      slf(md)=si(jj,nn,md)*c1
-      end if
-      do 29 mm=imd,md
-      si(jj,nn,mm)=slf(mm)
-   29 continue
-   30 continue
-      do 31 mm=imd,md
-      simax(jj,nn,mm)=si(jj,nn,mm)
-   31 continue
-   28 continue
-   22 continue
+        do 22 jj=1,jgmx    
+          if(abs(dcd(jj)).lt..01) go to 22
+          mmdcd=int(dcd(jj))
+          do 28 nn=1,nf
+            if(iabs(mmdcd).lt.1) go to 24
+            slf=0.
+            do mm=imd,md           !23
+              m1=mm+mmdcd
+              if(m1.lt.imd) m1=imd
+              if(m1.gt.md) m1=md
+              slf(m1)=slf(m1)+si(jj,nn,mm)
+            enddo                  !23
+      
+            do mm=imd,md           !25
+              si(jj,nn,mm)=slf(mm)
+            enddo                  !25
+   24       continue
+            dcdmm=dcd(jj)-float(mmdcd)
+            if(abs(dcdmm).lt..01) go to 30
+            if(dcdmm.gt.0.) then
+              c1=1.-dcdmm
+              do mm=imd+1,md       !26
+                slf(mm)=si(jj,nn,mm)*c1+si(jj,nn,mm-1)*dcdmm
+              enddo                !26
+              slf(imd)=si(jj,nn,imd)*c1
+            else
+              dcdmm=-dcdmm
+              c1=1.-dcdmm
+              do mm=imd,md-1       !27
+                slf(mm)=si(jj,nn,mm)*c1+si(jj,nn,mm+1)*dcdmm
+              enddo                !27
+              slf(md)=si(jj,nn,md)*c1
+            end if
+            do mm=imd,md           !29
+              si(jj,nn,mm)=slf(mm)
+            enddo                  !29
+   30       continue
+            do mm=imd,md           !31
+              simax(jj,nn,mm)=si(jj,nn,mm)
+            enddo                  !31
+   28     continue
+   22   continue
       END IF
 
-      DO 21 JJ=1,JGMX
-      HSB(JJ)=HS0
-      DMNJ(JJ)=PRD
-      SJJ(JJ)=(HS0/cflat)**2
-   21 CONTINUE
+      DO JJ=1,JGMX                 !21
+        HSB(JJ)=HS0
+        DMNJ(JJ)=PRD
+        SJJ(JJ)=(HS0/cflat)**2
+      ENDDO                        !21
 
       RETURN
       END
@@ -4275,173 +4275,173 @@ contains
 !
       if(ii.ge.2.and.ws.ge.3.) then
         cc=1.02+abs(sin(wd))*ws*0.001
-          do 401 jj=2,jgmx
-            if(sin(dbig(jj)).le.0.) goto 401
+        do 401 jj=2,jgmx
+          if(sin(dbig(jj)).le.0.) goto 401
           if(sj(jj).lt..001) go to 401
           if(d1(ii,jj-1).lt.1.) go to 401
           if(sj(jj-1).lt..01) go to 401
 !         cc1=d1(ii,jj)-d1(ii,jj-1)
 !         if(cc1.gt.10.) go to 401
-            if(sj(jj)/sj(jj-1).gt.cc) then
+          if(sj(jj)/sj(jj-1).gt.cc) then
             sj(jj)=sj(jj-1)*cc
-              do l=imd,md
-               do k=1,nf
-                 si(jj,k,l)=si(jj-1,k,l)*cc
-               end do
-              end do
-            end if
-  401     continue
+            do l=imd,md
+             do k=1,nf
+               si(jj,k,l)=si(jj-1,k,l)*cc
+             end do
+            end do
+          end if
+  401   continue
 !
-          do 408 jj=jgmx-1,1,-1
-            if(sin(dbig(jj)).ge.0.) goto 408
+        do 408 jj=jgmx-1,1,-1
+          if(sin(dbig(jj)).ge.0.) goto 408
           if(sj(jj).lt..001) go to 408
           if(d1(ii,jj+1).lt.1.) go to 408
           if(sj(jj+1).lt..01) go to 408
 !         cc1=d1(ii,jj)-d1(ii,jj+1)
 !         if(cc1.gt.10.) go to 408
-            if(sj(jj)/sj(jj+1).gt.cc) then
+          if(sj(jj)/sj(jj+1).gt.cc) then
             sj(jj)=sj(jj+1)*cc
-              do l=imd,md
-               do k=1,nf
-                 si(jj,k,l)=si(jj+1,k,l)*cc
-               end do
-              end do
-            end if
-  408     continue
+            do l=imd,md
+             do k=1,nf
+               si(jj,k,l)=si(jj+1,k,l)*cc
+             end do
+            end do
+          end if
+  408   continue
 !
-          do 412 jj=1,jgmx
-            if(d1(ii-1,jj).lt..01) then
+        do 412 jj=1,jgmx
+          if(d1(ii-1,jj).lt..01) then
             if(d1(ii,jj).lt..1) goto 412
-          cc=sqrt(sj(jj))/d1(ii,jj)
+            cc=sqrt(sj(jj))/d1(ii,jj)
             if(cc.gt..1) then
-            sj(jj)=.01*d1(ii,jj)**2
+              sj(jj)=.01*d1(ii,jj)**2
               do l=imd,md
                do k=1,nf
                  si(jj,k,l)=si(jj+1,k,l)/cc**2*.01
                end do
               end do
             end if
-            end if
-  412     continue
+          end if
+  412   continue
       end if
   411 continue
 !
       if(leap.eq.1) then
-       if(ws.ge..1) then
-        if(ii.eq.1) then
-         if(ibnd.eq.0) then
-         do 405 jj=1,jgmx
-           if(d1(ii,jj).lt..01) go to 405
-           SS=SJ(JJ)
-           if(SS.lt.1.0E-15) SS=1.0E-15
-           hsi=cflat*sqrt(SS)
-           cc=hsi/hsg(jj)
-           if(cc.lt.1.2) go to 405
-           sj(jj)=(hsg(jj)/cflat)**2
-           do l=imd,md
-            do k=1,nf
-              si(jj,k,l)=si(jj,k,l)/cc**2
-            end do
-           end do
-  405    continue
-         end if
+        if(ws.ge..1) then
+          if(ii.eq.1) then
+            if(ibnd.eq.0) then
+              do 405 jj=1,jgmx
+                if(d1(ii,jj).lt..01) go to 405
+                SS=SJ(JJ)
+                if(SS.lt.1.0E-15) SS=1.0E-15
+                hsi=cflat*sqrt(SS)
+                cc=hsi/hsg(jj)
+                if(cc.lt.1.2) go to 405
+                sj(jj)=(hsg(jj)/cflat)**2
+                do l=imd,md
+                  do k=1,nf
+                    si(jj,k,l)=si(jj,k,l)/cc**2
+                  end do
+                end do
+  405         continue
+            end if
+          else
+            do 505 jj=1,jgmx
+              if(d1(ii,jj).lt..01) go to 505
+              SS=SJ(JJ)
+              if(SS.lt.1.0E-5) go to 505
+              hsi=cflat*sqrt(SS)
+              if(h13(ii-1,jj)/hsi.gt..85) go to 505
+              if(d1(ii-1,jj).lt..01) then
+                h0=0.5
+              else
+                h0=h13(ii-1,jj)
+                if(h0.lt..012.and.d1(ii,jj).ge..1) h0=.012
+                if(h0.lt..012) go to 505
+              end if
+              cc=hsi/h0
+              if(cc.lt.1.5) go to 505
+!             sj(jj)=h0**2/16.*2.
+              sj(jj)=(h0/cflat)**2*2.
+              do l=imd,md
+                do k=1,nf
+                  si(jj,k,l)=si(jj,k,l)/cc**2*2.
+                end do
+              end do
+  505       continue
+          end if
         else
-         do 505 jj=1,jgmx
-           if(d1(ii,jj).lt..01) go to 505
-           SS=SJ(JJ)
-           if(SS.lt.1.0E-5) go to 505
-           hsi=cflat*sqrt(SS)
-           if(h13(ii-1,jj)/hsi.gt..85) go to 505
-           if(d1(ii-1,jj).lt..01) then
-             h0=0.5
-           else
-             h0=h13(ii-1,jj)
-             if(h0.lt..012.and.d1(ii,jj).ge..1) h0=.012
-             if(h0.lt..012) go to 505
-           end if
-           cc=hsi/h0
-           if(cc.lt.1.5) go to 505
-!          sj(jj)=h0**2/16.*2.
-           sj(jj)=(h0/cflat)**2*2.
-           do l=imd,md
-            do k=1,nf
-              si(jj,k,l)=si(jj,k,l)/cc**2*2.
-            end do
-           end do
-  505    continue
+          if(ii.ge.2) then
+            do 605 jj=1,jgmx
+              if(d1(ii,jj).lt..01) go to 605
+              SS=SJ(JJ)
+              hsi=cflat*sqrt(SS)
+              if(hsi.lt..5) go to 605
+              h0=h13(ii-1,jj)
+              if(h0.lt..5) go to 605
+              cc=hsi/h0
+              if(cc.lt.1.15) go to 605
+!             sj(jj)=h0**2/16.*1.32
+              sj(jj)=(h0/cflat)**2*1.32
+              do l=imd,md
+                do k=1,nf
+                  si(jj,k,l)=si(jj,k,l)/cc**2*1.32
+                end do
+              end do
+  605       continue
+          end if
         end if
-       else
-        if(ii.ge.2) then
-         do 605 jj=1,jgmx
-           if(d1(ii,jj).lt..01) go to 605
-           SS=SJ(JJ)
-           hsi=cflat*sqrt(SS)
-           if(hsi.lt..5) go to 605
-           h0=h13(ii-1,jj)
-           if(h0.lt..5) go to 605
-           cc=hsi/h0
-           if(cc.lt.1.15) go to 605
-!          sj(jj)=h0**2/16.*1.32
-           sj(jj)=(h0/cflat)**2*1.32
-           do l=imd,md
-            do k=1,nf
-              si(jj,k,l)=si(jj,k,l)/cc**2*1.32
-            end do
-           end do
-  605    continue
-        end if
-       end if
       end if
 
       if(nblock.eq.1) then
-       do 509 jj=5,jgmx-4
-         if(ijb(ii,jj).eq.2) then
-          if(ijb(ii,jj+1).eq.0) then
-           do l=imd,md
-            do k=1,nf
-              si(jj,k,l)=si(jj-1,k,l)
-            end do
-           end do
-           sj(jj)=sj(jj-1)
+        do 509 jj=5,jgmx-4
+          if(ijb(ii,jj).eq.2) then
+            if(ijb(ii,jj+1).eq.0) then
+              do l=imd,md
+                do k=1,nf
+                  si(jj,k,l)=si(jj-1,k,l)
+                end do
+              end do
+              sj(jj)=sj(jj-1)
+            end if
+            if(ijb(ii,jj-1).eq.0) then
+              do l=imd,md
+                do k=1,nf
+                  si(jj,k,l)=si(jj+1,k,l)
+                end do
+              end do
+              sj(jj)=sj(jj+1)
+            end if
           end if
-          if(ijb(ii,jj-1).eq.0) then
-           do l=imd,md
-            do k=1,nf
-              si(jj,k,l)=si(jj+1,k,l)
-            end do
-           end do
-           sj(jj)=sj(jj+1)
-          end if
-         end if
-509    continue
+509     continue
       end if
 
       sum1=0.
       sum2=0.
       do 47 mm=imd,md
-       do 47 nn=1,nf
-         sum1=sum1+wk2(1,nn,mm)
-         sum2=sum2+wk2(2,nn,mm)
+        do 47 nn=1,nf
+          sum1=sum1+wk2(1,nn,mm)
+          sum2=sum2+wk2(2,nn,mm)
 47    continue
       sum1=sum1/float(nf*(md-imd+1))
       sum2=sum2/float(nf*(md-imd+1))
 
 !     itrack=0
       if(abs(sum1/sum2-1.).gt..05) then
-!      itrack=1
-       do 49 mm=imd,md
-        do 49 nn=1,nf
-          wk2(1,nn,mm)=wk2(2,nn,mm)
-49     continue
-       do l=imd,md
-        do k=1,nf
-          si(1,k,l)=si(2,k,l)
+!       itrack=1
+        do 49 mm=imd,md
+          do 49 nn=1,nf
+            wk2(1,nn,mm)=wk2(2,nn,mm)
+49      continue
+        do l=imd,md
+          do k=1,nf
+            si(1,k,l)=si(2,k,l)
+          end do
         end do
-       end do
-       sj(1)=sj(2)
+        sj(1)=sj(2)
       end if
 
-!       if(igrav.eq.3) then
+!     if(igrav.eq.3) then
 !       if(iview.eq.1.and.iplane.eq.2) then
 !     DO 404 JJ=1,JGMX
 ! --- Nonlinear wave-wave interactions for same direction
@@ -4461,476 +4461,477 @@ contains
 !       end if
 
       if(leap.gt.1) then
-      cc=float(leap)
-      DO 28 MM=imd,MD
-      DO 28 NN=1,NF
-      DO 28 JJ=1,JGMX
-      c1=(si(jj,nn,mm)-simax(jj,nn,mm))/cc
-      si(jj,nn,mm)=simax(jj,nn,mm)
-      simax(jj,nn,mm)=c1
-   28 CONTINUE
-      DO 29 JJ=1,JGMX
-      c1=(sj(jj)-sjj(jj))/cc
-      sj(jj)=sjj(jj)
-      sjj(jj)=c1
-   29 CONTINUE
+        cc=float(leap)
+        DO 28 MM=imd,MD
+        DO 28 NN=1,NF
+        DO 28 JJ=1,JGMX
+          c1=(si(jj,nn,mm)-simax(jj,nn,mm))/cc
+          si(jj,nn,mm)=simax(jj,nn,mm)
+          simax(jj,nn,mm)=c1
+   28   CONTINUE
+        DO 29 JJ=1,JGMX
+          c1=(sj(jj)-sjj(jj))/cc
+          sj(jj)=sjj(jj)
+          sjj(jj)=c1
+   29   CONTINUE
       end if
 
       do 339 iii=ii-leap+1,ii
-      if(leap.gt.1) then
-      DO 22 MM=imd,MD
-      DO 22 NN=1,NF
-      DO 22 JJ=1,JGMX
-      si(jj,nn,mm)=si(jj,nn,mm)+simax(jj,nn,mm)
-   22 CONTINUE
-      DO 23 JJ=1,JGMX
-      sj(jj)=sj(jj)+sjj(jj)
-   23 CONTINUE
-      end if
-
-      do 712 k=1,ijstruc3
-      if(imod.eq.0) then
-      IF(istruc3(k).NE.III) GOTO 712
-      JOP=jstruc3(k)
-      c3=dvarx(iii)
-      end if
-      if(imod.eq.2) then
-      IF(istruc3(k).NE.IGMX-III+1) GOTO 712
-      JOP=JGMX-jstruc3(k)+1
-      c3=dvarx(iii)
-      end if
-      if(imod.eq.1) then
-      IF(jstruc3(k).NE.III) GOTO 712
-      JOP=JGMX-istruc3(k)+1
-      c3=dvary(jop)
-      end if
-      if(imod.eq.3) then
-      IF(jstruc3(k).NE.IGMX-III+1) GOTO 712
-      JOP=istruc3(k)
-      c3=dvary(jop)
-      end if
-      if(k3(k).ge.6) then
-      cc=dstruc33(k)
-      if(cc.lt.0.) cc=0.
-      c1=0.64*(h13(iii-1,jop)/c3)**0.31+0.4*cc/(h13(iii-1,jop)+.01)
-!     tc=2.44*sqrt(c3/h13(iii-1,jop))
-      c2=cflat*sqrt(sj(jop))/(h13(iii-1,jop)+.01)
-!     write(*,*) iii,jop,c1,c2
-      if(c1.gt..99) c1=.99
-      if(c1.lt..01) c1=.01
-      tc=1/c1**2
-      if(k3(k).eq.6.and.c2.gt..9) tc=1.25*c2**2
-      if(k3(k).eq.7.and.c2.gt.1.01) tc=1.5*c2**2
-      else
-      ibk3=1
-      ipeak=int((dmnj(jop)+hpai-dth)/dth+1.5)
-      if (ipeak.lt.imd) ipeak=imd
-      if (ipeak.gt.md) ipeak=md
-        fp=1./TP
-        if(iii.gt.1) fp=1./t13(iii-1,jop)
-        small=1.
-        kkpeak=kpeak
-        do nn=1,nf
-        cc=abs(fp-fcn(nn))
-        if(cc.lt.small) then
-        kkpeak=nn
-        small=cc
+        if(leap.gt.1) then
+          DO 22 MM=imd,MD
+          DO 22 NN=1,NF
+          DO 22 JJ=1,JGMX
+            si(jj,nn,mm)=si(jj,nn,mm)+simax(jj,nn,mm)
+   22     CONTINUE
+          DO 23 JJ=1,JGMX
+            sj(jj)=sj(jj)+sjj(jj)
+   23     CONTINUE
         end if
-        end do
-      cc=abs(wk2(jop,kkpeak,ipeak))
-      c1=cc*d1(iii,jop)
-      c2=cc*abs(d1(iii,jop)-dstruc3(k))
-      tc=1.+(cc*c3*sinh(min(c1,10.))/cosh(min(c2,10.)))**2
-!     tc=(2.*c1+sinh(min(2*c1,10.)))/(2.*c2+sinh(min(2*c2,10.)))
-!     write(*,*) 'iii=',iii,jop,cc,tc
-      end if
-      sj(jop)=sj(jop)/tc
-      DO 713 MM=imd,MD
-      DO 713 NN=1,NF
-      SI(JOP,NN,MM)=SI(JOP,NN,MM)/tc
-  713 CONTINUE
-  712 continue
+
+        do 712 k=1,ijstruc3
+          if(imod.eq.0) then
+            IF(istruc3(k).NE.III) GOTO 712
+            JOP=jstruc3(k)
+            c3=dvarx(iii)
+          end if
+          if(imod.eq.2) then
+            IF(istruc3(k).NE.IGMX-III+1) GOTO 712
+            JOP=JGMX-jstruc3(k)+1
+            c3=dvarx(iii)
+          end if
+          if(imod.eq.1) then
+            IF(jstruc3(k).NE.III) GOTO 712
+            JOP=JGMX-istruc3(k)+1
+            c3=dvary(jop)
+          end if
+          if(imod.eq.3) then
+            IF(jstruc3(k).NE.IGMX-III+1) GOTO 712
+            JOP=istruc3(k)
+            c3=dvary(jop)
+          end if
+          if(k3(k).ge.6) then
+            cc=dstruc33(k)
+            if(cc.lt.0.) cc=0.
+            c1=0.64*(h13(iii-1,jop)/c3)**0.31+0.4*cc/(h13(iii-1,jop)+.01)
+!           tc=2.44*sqrt(c3/h13(iii-1,jop))
+            c2=cflat*sqrt(sj(jop))/(h13(iii-1,jop)+.01)
+!           write(*,*) iii,jop,c1,c2
+            if(c1.gt..99) c1=.99
+            if(c1.lt..01) c1=.01
+            tc=1/c1**2
+            if(k3(k).eq.6.and.c2.gt..9) tc=1.25*c2**2
+            if(k3(k).eq.7.and.c2.gt.1.01) tc=1.5*c2**2
+          else
+            ibk3=1
+            ipeak=int((dmnj(jop)+hpai-dth)/dth+1.5)
+            if (ipeak.lt.imd) ipeak=imd
+            if (ipeak.gt.md) ipeak=md
+            fp=1./TP
+            if(iii.gt.1) fp=1./t13(iii-1,jop)
+            small=1.
+            kkpeak=kpeak
+            do nn=1,nf
+              cc=abs(fp-fcn(nn))
+              if(cc.lt.small) then
+                kkpeak=nn
+                small=cc
+              end if
+            end do
+            cc=abs(wk2(jop,kkpeak,ipeak))
+            c1=cc*d1(iii,jop)
+            c2=cc*abs(d1(iii,jop)-dstruc3(k))
+            tc=1.+(cc*c3*sinh(min(c1,10.))/cosh(min(c2,10.)))**2
+!           tc=(2.*c1+sinh(min(2*c1,10.)))/(2.*c2+sinh(min(2*c2,10.)))
+!           write(*,*) 'iii=',iii,jop,cc,tc
+          end if
+          sj(jop)=sj(jop)/tc
+          DO 713 MM=imd,MD
+          DO 713 NN=1,NF
+            SI(JOP,NN,MM)=SI(JOP,NN,MM)/tc
+  713     CONTINUE
+  712   continue
 
 ! --* output of spectrum at prescribed positions
-      DO 20 K=1,KOUT
-      if(imod.eq.0) then
-      IF(IJSP(1,K).NE.III) GOTO 20
-      JOP=IJSP(2,K)
-      end if
-      if(imod.eq.2) then
-      IF(IJSP(1,K).NE.IGMX-III+1) GOTO 20
-      JOP=JGMX-IJSP(2,K)+1
-      end if
-      if(imod.eq.1) then
-      IF(IJSP(2,K).NE.III) GOTO 20
-      JOP=JGMX-IJSP(1,K)+1
-      end if
-      if(imod.eq.3) then
-      IF(IJSP(2,K).NE.IGMX-III+1) GOTO 20
-      JOP=IJSP(1,K)
-      end if
-      DO 30 MM=imd,MD
-      DO 30 NN=1,NF
-      SOP(K,NN,MM)=SI(JOP,NN,MM)/DF(NN)/DTH
-   30 CONTINUE
-   20 CONTINUE
+        DO 20 K=1,KOUT
+          if(imod.eq.0) then
+            IF(IJSP(1,K).NE.III) GOTO 20
+            JOP=IJSP(2,K)
+          end if
+          if(imod.eq.2) then
+            IF(IJSP(1,K).NE.IGMX-III+1) GOTO 20
+            JOP=JGMX-IJSP(2,K)+1
+          end if
+          if(imod.eq.1) then
+            IF(IJSP(2,K).NE.III) GOTO 20
+            JOP=JGMX-IJSP(1,K)+1
+          end if
+          if(imod.eq.3) then
+            IF(IJSP(2,K).NE.IGMX-III+1) GOTO 20
+            JOP=IJSP(1,K)
+          end if
+          DO 30 MM=imd,MD
+          DO 30 NN=1,NF
+            SOP(K,NN,MM)=SI(JOP,NN,MM)/DF(NN)/DTH
+   30     CONTINUE
+   20   CONTINUE
 ! --* no output of spectrum, just stores wave quantities
 
 ! --* output of spectrum at prescribed positions
-      DO 920 K=1,nest
-      if(imod.eq.0) then
-      IF(inest(K).NE.III) GOTO 920
-      JOP=jnest(K)
-      end if
-      if(imod.eq.2) then
-      IF(inest(K).NE.IGMX-III+1) GOTO 920
-      JOP=JGMX-jnest(K)+1
-      end if
-      if(imod.eq.1) then
-      IF(jnest(K).NE.III) GOTO 920
-      JOP=JGMX-inest(K)+1
-      end if
-      if(imod.eq.3) then
-      IF(jnest(K).NE.IGMX-III+1) GOTO 920
-      JOP=inest(K)
-      end if
-      DO 930 MM=imd,MD
-      DO 930 NN=1,NF
-      SOP(K+iabs(KOUT),NN,MM)=SI(JOP,NN,MM)/DF(NN)/DTH
-  930 CONTINUE
-  920 CONTINUE
+        DO 920 K=1,nest
+          if(imod.eq.0) then
+            IF(inest(K).NE.III) GOTO 920
+            JOP=jnest(K)
+          end if
+          if(imod.eq.2) then
+            IF(inest(K).NE.IGMX-III+1) GOTO 920
+            JOP=JGMX-jnest(K)+1
+          end if
+          if(imod.eq.1) then
+            IF(jnest(K).NE.III) GOTO 920
+            JOP=JGMX-inest(K)+1
+          end if
+          if(imod.eq.3) then
+            IF(jnest(K).NE.IGMX-III+1) GOTO 920
+            JOP=inest(K)
+          end if
+          DO 930 MM=imd,MD
+          DO 930 NN=1,NF
+            SOP(K+iabs(KOUT),NN,MM)=SI(JOP,NN,MM)/DF(NN)/DTH
+  930     CONTINUE
+  920   CONTINUE
 ! --* no output of spectrum, just stores wave quantities
 
-      write(*,9999) iii
- 9999 format ('Column ', i0)
-      if(mod(iii,10).eq.0) write(9,9999) iii
+        write(*,9999) iii
+ 9999   format ('Column ', i0)
+        if(mod(iii,10).eq.0) write(9,9999) iii
 !
-      j1=jgmx/2
-      ss=sj(1)
-      if(ss.lt.1.0E-15) ss=1.0E-15
-      hj1=0.
-      h13ave=0.
-      h13add=0.
-      DO 40 JJ=1,JGMX
+        j1=jgmx/2
+        ss=sj(1)
+        if(ss.lt.1.0E-15) ss=1.0E-15
+        hj1=0.
+        h13ave=0.
+        h13add=0.
+        DO 40 JJ=1,JGMX
 ! -- total energy at j position
-      if(d1(iii,jj).lt..01) go to 40
-      SS=SJ(JJ)
-!     IF(SS.LT.1.0E-15) GOTO 40
-      if(ss.lt.1.0E-15) ss=1.0E-15
-      HSI=cflat*SQRT(SS)
-      cc1=.3+.2*tanh(hsi)
-      if(iwvbk.ge.5) cc1=2.
-      cc2=.3+cc1
+          if(d1(iii,jj).lt..01) go to 40
+          SS=SJ(JJ)
+!         IF(SS.LT.1.0E-15) GOTO 40
+          if(ss.lt.1.0E-15) ss=1.0E-15
+          HSI=cflat*SQRT(SS)
+          cc1=.3+.2*tanh(hsi)
+          if(iwvbk.ge.5) cc1=2.
+          cc2=.3+cc1
 ! --- cc1=.31 & cc2=.64 in 1Jan2011 Version
-      edplim=cc2*d1(iii,jj)
-      edplim1=edplim
-      if(abs(dmnj(jj)).gt.hpai) dmnj(jj)=wd
-      if(iwvbk.eq.6) go to 490
-      i1=iii+1
-      if(iwvbk.le.4) then
-      dep11=dep(iii,jj)
-      dep12=dep(i1,jj)
-      dep21=dep(iii,jj+1)
-      dep22=dep(i1,jj+1)
-      slx=(dep11+dep21-dep12-dep22)/dvarx(iii)/2.
-      sly=(dep11+dep12-dep21-dep22)/dvary(jj)/2.
-      slj=slx*cos(dmnj(jj))+sly*sin(dmnj(jj))
-      if(slj.ge..04) edplim=d1(iii,jj)*(.6+.5*tanh((slj/.05)**2))
-      end if
+          edplim=cc2*d1(iii,jj)
+          edplim1=edplim
+          if(abs(dmnj(jj)).gt.hpai) dmnj(jj)=wd
+          if(iwvbk.eq.6) go to 490
+          i1=iii+1
+          if(iwvbk.le.4) then
+            dep11=dep(iii,jj)
+            dep12=dep(i1,jj)
+            dep21=dep(iii,jj+1)
+            dep22=dep(i1,jj+1)
+            slx=(dep11+dep21-dep12-dep22)/dvarx(iii)/2.
+            sly=(dep11+dep12-dep21-dep22)/dvary(jj)/2.
+            slj=slx*cos(dmnj(jj))+sly*sin(dmnj(jj))
+            if(slj.ge..04) edplim=d1(iii,jj)*(.6+.5*tanh((slj/.05)**2))
+          end if
 !
-      if(iii.ge.2) then 
-        if (ibr(iii-1,jj).eq.1) edplim=cc2*d1(iii,jj)
-      end if
-      edplim1=edplim
-      ipeak=int((dmnj(jj)+hpai-dth)/dth+1.5)
-      if (ipeak.lt.imd) ipeak=imd
-      if (ipeak.gt.md) ipeak=md
-        fp=1./TP
-        if(iii.gt.1) fp=1./t13(iii-1,jj)
-        small=1.
-        kkpeak=kpeak
-        do nn=1,nf
-        cc=abs(fp-fcn(nn))
-        if(cc.lt.small) then
-        kkpeak=nn
-        small=cc
-        end if
-        end do
-      wkpeak=abs(wk2(jj,kkpeak,ipeak))
-      cgp(iii,jj)=wkpeak
-      if(wkpeak.ne.0.) then
-      cc=cc1
-      if(d1(iii,jj).lt.hsi) cc=cc1*hsi/d1(iii,jj)
-      estlim=cc*pai/wkpeak*tanh(wkpeak*d1(iii,jj))
-      if(d1(iii,jj).lt.hs0) cc=cc1*(d1(iii,jj)+hs0)/hs0/2.
-      estlim1=cc*pai/wkpeak*tanh(wkpeak*d1(iii,jj))
-      edplim=min(edplim,estlim)
-      if(irs.le.1) edplim1=min(edplim,estlim1)
-      end if
+          if(iii.ge.2) then 
+            if (ibr(iii-1,jj).eq.1) edplim=cc2*d1(iii,jj)
+          end if
+          edplim1=edplim
+          ipeak=int((dmnj(jj)+hpai-dth)/dth+1.5)
+          if (ipeak.lt.imd) ipeak=imd
+          if (ipeak.gt.md) ipeak=md
+          fp=1./TP
+          if(iii.gt.1) fp=1./t13(iii-1,jj)
+          small=1.
+          kkpeak=kpeak
+          do nn=1,nf
+            cc=abs(fp-fcn(nn))
+            if(cc.lt.small) then
+              kkpeak=nn
+              small=cc
+            end if
+          end do
+          wkpeak=abs(wk2(jj,kkpeak,ipeak))
+          cgp(iii,jj)=wkpeak
+          if(wkpeak.ne.0.) then
+            cc=cc1
+            if(d1(iii,jj).lt.hsi) cc=cc1*hsi/d1(iii,jj)
+            estlim=cc*pai/wkpeak*tanh(wkpeak*d1(iii,jj))
+            if(d1(iii,jj).lt.hs0) cc=cc1*(d1(iii,jj)+hs0)/hs0/2.
+            estlim1=cc*pai/wkpeak*tanh(wkpeak*d1(iii,jj))
+            edplim=min(edplim,estlim)
+            if(irs.le.1) edplim1=min(edplim,estlim1)
+          end if
 !
-      if(hsi.gt.edplim) then
-      if(min(hsi,hs0/3.).gt.d1(iii,jj)*1.3*tanh(tp/8.)) ibr(iii,jj)=1
-      end if
+          if(hsi.gt.edplim) then
+            if(min(hsi,hs0/3.).gt.d1(iii,jj)*1.3*tanh(tp/8.)) ibr(iii,jj)=1
+          end if
 !
-      if(hsi.gt.edplim1) ibr(iii,jj)=1
+          if(hsi.gt.edplim1) ibr(iii,jj)=1
 !
-      cc=min(edplim,edplim1)
+          cc=min(edplim,edplim1)
 !
-      if(hsi.gt.cc) then
-         if(d1(iii,jj).ge..01) then
-         do l=imd,md
-         do k=1,nf
-         si(jj,k,l)=si(jj,k,l)*(cc/hsi)**2
-         end do
-         end do
-         end if
-         hsi=cc
-      end if
+          if(hsi.gt.cc) then
+            if(d1(iii,jj).ge..01) then
+              do l=imd,md
+                do k=1,nf
+                  si(jj,k,l)=si(jj,k,l)*(cc/hsi)**2
+                end do
+              end do
+            end if
+            hsi=cc
+          end if
 !
-490   continue
+490       continue
 !
-      if(ibr(iii,jj).eq.1) go to 410
-      m2=iii+3
-      if(m2.gt.igmx) m2=igmx
-      n1=jj-3
-      n2=jj+3
-      if(n1.lt.1) n1=1
-      if(n2.gt.jgmx) n2=jgmx
-      do 409 nn=n1,n2
-      do 409 mm=iii,m2
-      if(d1(mm,nn).lt..01.and.ijb(mm,nn).ne.-1) then
-      ic1=(mm-iii)**2+(nn-jj)**2
-      ic2=((mm-iii)*dvarx(iii))**2+((nn-jj)*dvary(jj))**2
-      if(ic1.le.2.or.ic2.le.10.*hsi**2) then
+          if(ibr(iii,jj).eq.1) go to 410
+          m2=iii+3
+          if(m2.gt.igmx) m2=igmx
+          n1=jj-3
+          n2=jj+3
+          if(n1.lt.1) n1=1
+          if(n2.gt.jgmx) n2=jgmx
+          do 409 nn=n1,n2
+          do 409 mm=iii,m2
+            if(d1(mm,nn).lt..01.and.ijb(mm,nn).ne.-1) then
+              ic1=(mm-iii)**2+(nn-jj)**2
+              ic2=((mm-iii)*dvarx(iii))**2+((nn-jj)*dvary(jj))**2
+              if(ic1.le.2.or.ic2.le.10.*hsi**2) then
 !     above line edited 25 May 2009 - Lihwa
-      ibr(iii,jj)=1
-      go to 410
-      end if
-      end if
-409   continue
-410   continue
+                ibr(iii,jj)=1
+                go to 410
+              end if
+            end if
+409       continue
+410       continue
 !
 ! -- calculated significant wave height
-      H13(III,JJ)=HSI
-      if(hsi.gt.hj1) then
-      j1=jj
-      hj1=hsi
-      end if
-      if(hsi.gt..005) then
-      h13ave=h13ave+hsi
-      h13add=h13add+1.
-      end if
+          H13(III,JJ)=HSI
+          if(hsi.gt.hj1) then
+            j1=jj
+            hj1=hsi
+          end if 
+          if(hsi.gt..005) then
+            h13ave=h13ave+hsi
+            h13add=h13add+1.
+          end if
 ! -- hsb(jj) is used in breaker index
-      HSB(JJ)=HSI
-   40 CONTINUE
+          HSB(JJ)=HSI
+   40   CONTINUE
 !
-      do 501 jj=1,jgmx
+        do 501 jj=1,jgmx
+          fjf(jj)=fcn(nf)
+          big=0.
+          nbig=nf
+          sum2=0.
+          do 502 nn=nf,1,-1
+            sjf(jj,nn)=0.
+            do 506 mm=imd,md
+              sjf(jj,nn)=sjf(jj,nn)+si(jj,nn,mm)
+  506       continue
+            if(fcn(nn).lt..04) go to 511
+            if(sjf(jj,nn).gt.big) then
+              big=sjf(jj,nn)
+              fjf(jj)=fcn(nn)
+              nbig=nn
+            end if
+  511       continue
+            if(irs.ge.2)then
+              sum2=sum2+fcn(nn)*sjf(jj,nn)**2/df(nn)
+            end if
+  502     continue
 !
-      fjf(jj)=fcn(nf)
-      big=0.
-      nbig=nf
-      sum2=0.
-      do 502 nn=nf,1,-1
-      sjf(jj,nn)=0.
-      do 506 mm=imd,md
-      sjf(jj,nn)=sjf(jj,nn)+si(jj,nn,mm)
-  506 continue
-      if(fcn(nn).lt..04) go to 511
-      if(sjf(jj,nn).gt.big) then
-      big=sjf(jj,nn)
-      fjf(jj)=fcn(nn)
-      nbig=nn
-      end if
-  511 continue
-      if(irs.ge.2)then
-        sum2=sum2+fcn(nn)*sjf(jj,nn)**2/df(nn)
-      end if
-  502 continue
-!
-      if(iwet.lt.0) then
-        if(fjf(jj).gt..09) then
-          do nn13=1,nf
-            nbig=nn13
-            if(fcn(nn13).gt..09) exit
-          end do
-          if(nbig.eq.1) nbig=0
-        else
-          if(nbig+1.lt.nf) then
-             if(fcn(nbig+1).le..11) nbig=nbig+1
-          end if
-        end if
-        sum=0.
-        ssum=0.
-        do nn13=1,nbig
-          sum=sum+sjf(jj,nn13)
-          ssum=ssum+sjf(jj,nn13)*fcn(nn13)
-        end do
-        sum1=0.
-        ssum1=0.
-        do nn13=nbig+1,nf
-          sum1=sum1+sjf(jj,nn13)
-          ssum1=ssum1+sjf(jj,nn13)*fcn(nn13)
-        end do
-        cc1=sum*cflat**2
-        cc2=sum1*cflat**2
+          if(iwet.lt.0) then
+            if(fjf(jj).gt..09) then
+              do nn13=1,nf
+                nbig=nn13
+                if(fcn(nn13).gt..09) exit
+              end do
+              if(nbig.eq.1) nbig=0
+            else
+              if(nbig+1.lt.nf) then
+                if(fcn(nbig+1).le..11) nbig=nbig+1
+              end if
+            end if
+            sum=0.
+            ssum=0.
+            do nn13=1,nbig
+              sum=sum+sjf(jj,nn13)
+              ssum=ssum+sjf(jj,nn13)*fcn(nn13)
+            end do
+            sum1=0.
+            ssum1=0.
+            do nn13=nbig+1,nf
+              sum1=sum1+sjf(jj,nn13)
+              ssum1=ssum1+sjf(jj,nn13)*fcn(nn13)
+            end do
+            cc1=sum*cflat**2
+            cc2=sum1*cflat**2
 
-        cc=h13(iii,jj)**2/(cc1+cc2+.0001)
-        if(cc.lt..99) then
-        cc1=cc1*cc
-        cc2=cc2*cc
-        end if
+            cc=h13(iii,jj)**2/(cc1+cc2+.0001)
+            if(cc.lt..99) then
+              cc1=cc1*cc
+              cc2=cc2*cc
+            end if
 
-        cc3=sw13(iii,jj)**2
-        cc4=sa13(iii,jj)**2
-        ctw13=10.
-        cta13=1.
-        if(sum.gt..0001) ctw13=sum/ssum
-        if(sum1.gt..0001) cta13=sum1/ssum1
-        if(iplane.le.1) then
-          tw13(iii,jj)=ctw13
-          ta13(iii,jj)=cta13
-        else
-          tw13(iii,jj)=(ctw13*cc1+tw13(iii,jj)*cc3)/(cc1+cc3+0.01)
-          ta13(iii,jj)=(cta13*cc2+ta13(iii,jj)*cc4)/(cc2+cc4+0.01)
-        end if
-        if(iplane.le.1) then
-          sw13(iii,jj)=sqrt(cc1)
-          sa13(iii,jj)=sqrt(cc2)
-        else
-          sw13(iii,jj)=sqrt(cc1+cc3)
-          sa13(iii,jj)=sqrt(cc2+cc4)
-        end if
-!        if(jj.eq.j1) write(*,*) 'sw13,sa13=',sw13(iii,jj),sa13(iii,jj)
-!        if(jj.eq.j1) write(*,*) 'tw13,ta13=',tw13(iii,jj),ta13(iii,jj)
-      end if
-!
-      if(irs.ge.2) then
-        IF(IBR(III,JJ).EQ.0.and.h13(iii,jj).gt..001) then
-          qp=2.*sum2/(h13(iii,jj)/cflat)**4
-          hsk(jj)=(h13(iii,jj)/sqrt(qp)+hsk(jj))/2.
-          if(abs(h13a(jj)-h13(iii,jj)).lt.h13a(jj)*.05) then
-            h13a(jj)=(h13(iii,jj)+h13a(jj))/2.
+            cc3=sw13(iii,jj)**2
+            cc4=sa13(iii,jj)**2
+            ctw13=10.
+            cta13=1.
+            if(sum.gt..0001) ctw13=sum/ssum
+            if(sum1.gt..0001) cta13=sum1/ssum1
+            if(iplane.le.1) then
+              tw13(iii,jj)=ctw13
+              ta13(iii,jj)=cta13
+            else
+              tw13(iii,jj)=(ctw13*cc1+tw13(iii,jj)*cc3)/(cc1+cc3+0.01)
+              ta13(iii,jj)=(cta13*cc2+ta13(iii,jj)*cc4)/(cc2+cc4+0.01)
+            end if
+            if(iplane.le.1) then
+              sw13(iii,jj)=sqrt(cc1)
+              sa13(iii,jj)=sqrt(cc2)
+            else
+              sw13(iii,jj)=sqrt(cc1+cc3)
+              sa13(iii,jj)=sqrt(cc2+cc4)
+            end if
+!           if(jj.eq.j1) write(*,*) 'sw13,sa13=',sw13(iii,jj),sa13(iii,jj)
+!           if(jj.eq.j1) write(*,*) 'tw13,ta13=',tw13(iii,jj),ta13(iii,jj)
           end if
-          h13b(jj)=h13(iii,jj)*.6666+h13b(jj)*.3333
-        END IF
-      end if
-      t13(iii,jj)=1./fjf(jj)
 !
-      if(ibk3.eq.0) then
-      if(hs0.lt..3.and.ws.gt..1) then
-        cc=(sqrt(h13(iii,jj)/.04)+t13min)/2.
-        if(cc.lt.1.) cc=1.
-        if(t13(iii,jj).gt.cc) t13(iii,jj)=cc
-        fjf(jj)=1./t13(iii,jj)
-      end if
-      end if
-!
-      sumx=0.
-      sumy=0.
-      sbig=0.
-      dbig(jj)=wd
-      do 507 mm=imd,md
-        scp(jj,mm)=0.
-        do 503 nn=1,nf
-          scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
-  503   continue
-          if(scp(jj,mm).gt.sbig) then
-          sbig=scp(jj,mm)
-          dbig(jj)=dcm(mm)
+          if(irs.ge.2) then
+            IF(IBR(III,JJ).EQ.0.and.h13(iii,jj).gt..001) then
+              qp=2.*sum2/(h13(iii,jj)/cflat)**4
+              hsk(jj)=(h13(iii,jj)/sqrt(qp)+hsk(jj))/2.
+              if(abs(h13a(jj)-h13(iii,jj)).lt.h13a(jj)*.05) then
+                h13a(jj)=(h13(iii,jj)+h13a(jj))/2.
+              end if
+              h13b(jj)=h13(iii,jj)*.6666+h13b(jj)*.3333
+            END IF
           end if
-        sumx=sumx+scp(jj,mm)*cosa(mm)
-        sumy=sumy+scp(jj,mm)*sina(mm)
-  507 continue
-      dmnj(jj)=atan2(sumy,sumx)
-      dmn(iii,jj)=dmnj(jj)/rad
+          t13(iii,jj)=1./fjf(jj)
 !
-      if(iwet.lt.0) then
-        sumx=0.
-        sumy=0.
-        do 1507 mm=imd,md
-          scp(jj,mm)=0.
-          do 1503 nn=1,nbig
-            scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
- 1503     continue
-          sumx=sumx+scp(jj,mm)*cosa(mm)
-          sumy=sumy+scp(jj,mm)*sina(mm)
- 1507   continue
-        cdw13=atan2(sumy,sumx)
-        sumx=0.
-        sumy=0.
-        do 2507 mm=imd,md
-          scp(jj,mm)=0.
-          do 2503 nn=nbig+1,nf
-            scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
- 2503     continue
-          sumx=sumx+scp(jj,mm)*cosa(mm)
-          sumy=sumy+scp(jj,mm)*sina(mm)
- 2507   continue
-        cda13=atan2(sumy,sumx)
+          if(ibk3.eq.0) then
+            if(hs0.lt..3.and.ws.gt..1) then
+              cc=(sqrt(h13(iii,jj)/.04)+t13min)/2.
+              if(cc.lt.1.) cc=1.
+              if(t13(iii,jj).gt.cc) t13(iii,jj)=cc
+              fjf(jj)=1./t13(iii,jj)
+            end if
+          end if
 !
-        if(iplane.le.1) then
-          dw13(iii,jj)=cdw13/rad
-          da13(iii,jj)=cda13/rad
-        else
-          cx=cc1*cos(cdw13)+cc3*cos(dw13(iii,jj)*rad+pai)
-          cy=cc1*sin(cdw13)+cc3*sin(dw13(iii,jj)*rad+pai)
-          dw13(iii,jj)=atan2(cy,cx)/rad
-          cx=cc2*cos(cda13)+cc4*cos(da13(iii,jj)*rad+pai)
-          cy=cc2*sin(cda13)+cc4*sin(da13(iii,jj)*rad+pai)
-          da13(iii,jj)=atan2(cy,cx)/rad
-        end if
-      end if
+          sumx=0.
+          sumy=0.
+          sbig=0.
+          dbig(jj)=wd
+          do 507 mm=imd,md
+            scp(jj,mm)=0.
+            do 503 nn=1,nf
+              scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
+  503       continue
+            if(scp(jj,mm).gt.sbig) then
+              sbig=scp(jj,mm)
+              dbig(jj)=dcm(mm)
+            end if
+            sumx=sumx+scp(jj,mm)*cosa(mm)
+            sumy=sumy+scp(jj,mm)*sina(mm)
+  507     continue
+          dmnj(jj)=atan2(sumy,sumx)
+          dmn(iii,jj)=dmnj(jj)/rad
 !
-      if(ICK4.eq.1) then
+          if(iwet.lt.0) then
+            sumx=0.
+            sumy=0.
+            do 1507 mm=imd,md
+              scp(jj,mm)=0.
+              do 1503 nn=1,nbig
+                scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
+ 1503         continue
+              sumx=sumx+scp(jj,mm)*cosa(mm)
+              sumy=sumy+scp(jj,mm)*sina(mm)
+ 1507       continue
+            cdw13=atan2(sumy,sumx)
+            sumx=0.
+            sumy=0.
+            do 2507 mm=imd,md
+              scp(jj,mm)=0.
+              do 2503 nn=nbig+1,nf
+                scp(jj,mm)=scp(jj,mm)+si(jj,nn,mm)
+ 2503         continue
+              sumx=sumx+scp(jj,mm)*cosa(mm)
+              sumy=sumy+scp(jj,mm)*sina(mm)
+ 2507       continue
+            cda13=atan2(sumy,sumx)
+!
+            if(iplane.le.1) then
+              dw13(iii,jj)=cdw13/rad
+              da13(iii,jj)=cda13/rad
+            else
+              cx=cc1*cos(cdw13)+cc3*cos(dw13(iii,jj)*rad+pai)
+              cy=cc1*sin(cdw13)+cc3*sin(dw13(iii,jj)*rad+pai)
+              dw13(iii,jj)=atan2(cy,cx)/rad
+              cx=cc2*cos(cda13)+cc4*cos(da13(iii,jj)*rad+pai)
+              cy=cc2*sin(cda13)+cc4*sin(da13(iii,jj)*rad+pai)
+              da13(iii,jj)=atan2(cy,cx)/rad
+            end if
+          end if
+!
+          if(ICK4.eq.1) then
 ! -- jbe is reflection points in x direction?
-      DO 80 K=1,KRF
-      IF(KCR(1,K).NE.III) GOTO 80
-      JK=KCR(2,K)
-      IF(JK.EQ.JJ) go to 70
-   80 CONTINUE
-      GOTO 501
-   70 CONTINUE
-      DO 609 NN=1,NF
-      DO 609 MM=imd,MD
-!     SR(K,NN,MM)=SI(JK,NN,MM)*cos(dmnj(jj)-xangl(k)*rad)**2
-      SR(K,NN,MM)=SI(JK,NN,MM)
-  609 CONTINUE
-      end if
+            DO 80 K=1,KRF
+              IF(KCR(1,K).NE.III) GOTO 80
+              JK=KCR(2,K)
+              IF(JK.EQ.JJ) go to 70
+   80       CONTINUE
+            GOTO 501
+            
+   70       CONTINUE
+
+            DO 609 NN=1,NF
+            DO 609 MM=imd,MD
+!             SR(K,NN,MM)=SI(JK,NN,MM)*cos(dmnj(jj)-xangl(k)*rad)**2
+              SR(K,NN,MM)=SI(JK,NN,MM)
+  609       CONTINUE
+          end if
 !
-  501 continue
+  501   continue
 !
-      if(ws.lt..1) go to 403
-      DO 400 jj=1,jgmx
-      hsgg(jj)=hsg(jj)
-      if(d1(iii,jj).gt.2.5) go to 400
-      d11=d1(iii,jj)
-      if(d11.lt..01) d11=.01
-      cc=5./(d11+2.5)
-      if(jj.eq.1) then
-      hsgg(jj)=hsg(2)/cc
-      go to 400
-      end if
-      if(jj.eq.jgmx) then
-      hsgg(jj)=hsg(jgmx-1)/cc
-      go to 400
-      end if
-      if(d1(iii,jj-1).lt..5.and.d1(iii,jj+1).lt..5) then
-      hsgg(jj)=0.
-      go to 400
-      end if
-      if(d1(iii,jj-1).lt.2.5.and.d1(iii,jj+1).lt.2.5) then
-      hsgg(jj)=(hsg(jj)+hsg(jj-1)+hsg(jj+1))/3./cc
-      go to 400
-      end if
-      if(d1(iii,jj+1).lt.2.5) hsgg(jj)=(hsg(jj)+hsg(jj+1))/2./cc
-      if(d1(iii,jj-1).lt.2.5) hsgg(jj)=(hsg(jj)+hsg(jj-1))/2./cc
-  400 CONTINUE
+        if(ws.lt..1) go to 403
+        DO 400 jj=1,jgmx
+          hsgg(jj)=hsg(jj)
+          if(d1(iii,jj).gt.2.5) go to 400
+          d11=d1(iii,jj)
+          if(d11.lt..01) d11=.01
+          cc=5./(d11+2.5)
+          if(jj.eq.1) then
+            hsgg(jj)=hsg(2)/cc
+            go to 400
+          end if
+          if(jj.eq.jgmx) then
+            hsgg(jj)=hsg(jgmx-1)/cc
+            go to 400
+          end if
+          if(d1(iii,jj-1).lt..5.and.d1(iii,jj+1).lt..5) then
+            hsgg(jj)=0.
+            go to 400
+          end if
+          if(d1(iii,jj-1).lt.2.5.and.d1(iii,jj+1).lt.2.5) then
+            hsgg(jj)=(hsg(jj)+hsg(jj-1)+hsg(jj+1))/3./cc
+            go to 400
+          end if
+          if(d1(iii,jj+1).lt.2.5) hsgg(jj)=(hsg(jj)+hsg(jj+1))/2./cc
+          if(d1(iii,jj-1).lt.2.5) hsgg(jj)=(hsg(jj)+hsg(jj-1))/2./cc
+  400   CONTINUE
 !
-      do 402 jc=2,jgmx-1
-      hsg(jc)=(hsgg(jc)+hsgg(jc-1)+hsgg(jc+1))/3.
-  402 continue
-      hsg(1)=(hsgg(1)+hsgg(2))/2.
-      hsg(jgmx)=(hsgg(jgmx)+hsgg(jgmx-1))/2.
+        do 402 jc=2,jgmx-1
+          hsg(jc)=(hsgg(jc)+hsgg(jc-1)+hsgg(jc+1))/3.
+  402   continue
+        hsg(1)=(hsgg(1)+hsgg(2))/2.
+        hsg(jgmx)=(hsgg(jgmx)+hsgg(jgmx-1))/2.
   403 continue
 !
       if(h13add.gt..5) h13ave=h13ave/h13add
@@ -7437,8 +7438,14 @@ contains
       REAL, ALLOCATABLE :: SPCT(:),SPCT1(:),dep0(:,:),dsss(:,:),tmp(:,:)
       REAL, ALLOCATABLE :: gxx1(:), gyy1(:)
 !     REAL, ALLOCATABLE :: gxr(:,:),gyr(:,:)
-      Dimension sp1(npf,mpd),aship(410,410),eship(410,410)
-      Dimension xship1(mpd),yship1(mpd),xship2(mpd),yship2(mpd)
+      
+      !Change the following variables to allocatable and then allocate later   MEB  11/16/21
+      real, allocatable :: sp1(:,:),aship(:,:),eship(:,:)
+      real, allocatable :: xship1(:),yship1(:),xship2(:),yship2(:)
+      !Dimension sp1(npf,mpd),aship(410,410),eship(410,410)
+      !Dimension xship1(mpd),yship1(mpd),xship2(mpd),yship2(mpd)
+      
+      
       COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -7494,11 +7501,16 @@ contains
       g=9.806
       ammd=float(mdd-1)/float(md-1)
 !
-        if(ick4.eq.0) then
-          mddd=mdd
-        else
-          mddd=mdd*2
-        end if
+      if(ick4.eq.0) then
+        mddd=mdd
+      else
+        mddd=mdd*2
+      end if
+        
+      allocate(sp1(npf,mddd))         !This variable normally is of dimension: npf, mpd.  That is too small in some cases with backward reflection.
+      allocate(aship(410,410),eship(410,410))
+      allocate(xship1(mpd),yship1(mpd),xship2(mpd),yship2(mpd))
+        
 !
       wdrad=wd
       if(iprp.ne.1) wdrad=wd/rad
@@ -7579,47 +7591,47 @@ contains
 !
 !          end if
           n00=n00+1
-          do mm=1,mdd
+          do mm=1,mddd           !changed this from mdd.   Size of mddd depends on if backward reflection is enabled.   MEB  11/16/2021
              sp1(n00,mm)=0.
           enddo
           go to 935
           end if
 !
           if(ffcn(n0).eq.fcn(1)) then
-          IF(ICHOICE.LE.1) THEN
-!           if(iplane.le.1) then
-!           WRITE(13,510) (SOP(Kn,1,MM),MM=1,MDD)
-!     if(inst.eq.1) WRITE(14,510) (SOP(Kn,1,MM),MM=1,MDD)
-!           else
-!                   WRITE(30,510) (SOP(Kn,1,MM),MM=1,MDD)
-!           end if
+            IF(ICHOICE.LE.1) THEN
+!             if(iplane.le.1) then
+!               WRITE(13,510) (SOP(Kn,1,MM),MM=1,MDD)
+!               if(inst.eq.1) WRITE(14,510) (SOP(Kn,1,MM),MM=1,MDD)
+!             else
+!               WRITE(30,510) (SOP(Kn,1,MM),MM=1,MDD)
+!             end if
               n00=n00+1
               do mm=1,mdd
                 sp1(n00,mm)=sop(kk,1,mm)
               enddo
-          ELSE
-            c0=float(mdd+1)/float(md+1)
-            DO mm=1,mdd
-            m1=int(float(mm-1)/ammd)+1
-            m2=m1+1
-            if(m2.gt.md) m2=md
-            c3=(float(m1)*ammd-float(mm-1))/ammd
-            c4=c0*(1.-c3)
-            c3=c0*c3
-            SPCT(MM)=SOP(Kn,1,M1)*c3+SOP(Kn,1,M2)*c4
-            END DO
+            ELSE
+              c0=float(mdd+1)/float(md+1)
+              DO mm=1,mdd
+                m1=int(float(mm-1)/ammd)+1
+                m2=m1+1
+                if(m2.gt.md) m2=md
+                c3=(float(m1)*ammd-float(mm-1))/ammd
+                c4=c0*(1.-c3)
+                c3=c0*c3
+                SPCT(MM)=SOP(Kn,1,M1)*c3+SOP(Kn,1,M2)*c4
+              END DO
 !             if(iplane.le.1) then
-!             WRITE(13,510) (SPCT(MM),MM=1,MDD)
-!         if(inst.eq.1) WRITE(14,510) (SPCT(MM),MM=1,MDD)
+!               WRITE(13,510) (SPCT(MM),MM=1,MDD)
+!               if(inst.eq.1) WRITE(14,510) (SPCT(MM),MM=1,MDD)
 !             else
-!                       WRITE(30,510) (SPCT(MM),MM=1,MDD)
+!               WRITE(30,510) (SPCT(MM),MM=1,MDD)
 !             end if
               n00=n00+1
               do mm=1,mdd
                 sp1(n00,mm)=spct(mm)
               enddo
-          END IF
-          go to 935
+            END IF
+            go to 935
           end if
 !
           if(ffcn(n0).gt.fcn(nf)) then
@@ -7776,14 +7788,14 @@ contains
           elseif(iplane.eq.2) then
             imax1=imax-i
             jmax1=jmax-j
-              cc1=h13s(i,j)**2
-              cc2=h13f(imax1,jmax1)**2
-              H13S(I,j)=SQRT(cc1+cc2)
-              cx=cc1*cos(dmn(i,j)*rad)+cc2*cos(dmnf(imax1,jmax1)+pai)
-              cy=cc1*sin(dmn(i,j)*rad)+cc2*sin(dmnf(imax1,jmax1)+pai)
-              dmn(i,j)=atan2(cy,cx)/rad
-          T13(i,j)=(T13(i,j)*cc1+T13f(imax1,jmax1)*cc2)/(cc1+cc2+1.e-10)
-            end if
+            cc1=h13s(i,j)**2
+            cc2=h13f(imax1,jmax1)**2
+            H13S(I,j)=SQRT(cc1+cc2)
+            cx=cc1*cos(dmn(i,j)*rad)+cc2*cos(dmnf(imax1,jmax1)+pai)
+            cy=cc1*sin(dmn(i,j)*rad)+cc2*sin(dmnf(imax1,jmax1)+pai)
+            dmn(i,j)=atan2(cy,cx)/rad
+            T13(i,j)=(T13(i,j)*cc1+T13f(imax1,jmax1)*cc2)/(cc1+cc2+1.e-10)
+          end if
 !
 !      if(iwind.eq.2.and.d1(i,j).eq..9995) then
 !      h13s(i,j)=0.
@@ -7817,19 +7829,19 @@ contains
       ksim=-1
 !
       do ii=1,igmx
-      if(ii.eq.1) then
-      gxx1(1)=dvarx(1)/2.
-      else
-      gxx1(ii)=gxx1(ii-1)+(dvarx(ii)+dvarx(ii-1))/2.
-      end if
+        if(ii.eq.1) then
+          gxx1(1)=dvarx(1)/2.
+        else
+          gxx1(ii)=gxx1(ii-1)+(dvarx(ii)+dvarx(ii-1))/2.
+        end if
       end do
 !
       do jj=1,jgmx
-      if(jj.eq.1) then
-      gyy1(1)=dvary(1)/2.
-      else
-      gyy1(jj)=gyy1(jj-1)+(dvary(jj)+dvary(jj-1))/2.
-      end if
+        if(jj.eq.1) then
+          gyy1(1)=dvary(1)/2.
+        else
+          gyy1(jj)=gyy1(jj-1)+(dvary(jj)+dvary(jj-1))/2.
+        end if
       end do
 !
       inquire(file='simgrid.dat',exist=getfile22)

@@ -1,8 +1,9 @@
-== Version 5.2.12 (11/15/2021) == 
+== Version 5.2.12 (11/16/2021) == 
 * Minor: Repo fix for VS2013 GUI to make consistent
 * Minor: Updated 'CMakeLists.txt' file for Linux
 * Bug fix: Corrected an error reading in the WV_NESTING_CELLS and WV_OBSERVATION_CELLS cards.
 * Bug fix: Wave code was still looking for a friction file when a constant was being specified.
+* Bug fix: Dimensioning of variables when backward reflection enables was sometimes not correct.
 
 == Version 5.2.11 (11/08/2021) ==
 * Bug fix: Corrected an error reading in the WV_NESTING_CELLS
