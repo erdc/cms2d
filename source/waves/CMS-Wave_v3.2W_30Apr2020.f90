@@ -10607,7 +10607,24 @@ contains
       else if ((gamma_bj78 .le. 0.0) .or. (gamma_bj78 .ge. 1.0)) then
         call diag_print_error  ('WV_SET_GAMMA_BJ78 - Invalid value')
       endif
-        
+      
+    case('WV_ROLLER_EFFECT')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        iroll = 0
+      elseif (aVal == '25_PERCENT') then
+        iroll = 1
+      elseif (aVal == '50_PERCENT') then
+        iroll = 2
+      elseif (aVal == '75_PERCENT') then
+        iroll = 3
+      elseif (aVal == '100_PERCENT') then
+        iroll = 4
+      else
+        call diag_print_error ('Bad selection for WV_ROLLER_EFFECT')
+      endif
+      
 
     case('WV_ENABLE_INFRAGRAVITY')
       backspace(11)
@@ -10639,16 +10656,16 @@ contains
       else
         call diag_print_error ('Bad selection for WV_ENABLE_NONLINEAR_WAVES')
       endif
-    case('WV_ENABLE_ROLLER')
-      backspace(11)
-      read(11,*) aCard, aVal
-      if     (aVal == 'OFF') then
-        iroll = 0
-      elseif (aVal == 'ON') then
-        iroll = 1
-      else
-        call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
-      endif
+    !case('WV_ENABLE_ROLLER')
+    !  backspace(11)
+    !  read(11,*) aCard, aVal
+    !  if     (aVal == 'OFF') then
+    !    iroll = 0
+    !  elseif (aVal == 'ON') then
+    !    iroll = 1
+    !  else
+    !    call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
+    !  endif
     case('WV_ENABLE_RUNUP')
       backspace(11)
       read(11,*) aCard, aVal

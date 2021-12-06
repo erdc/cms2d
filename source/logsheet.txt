@@ -1,3 +1,7 @@
+== Version 5.2.13 (12/03/2021) ==
+* Minor: Modification to new CMS-Wave .std format for use of Wave Roller
+** New card is WV_ROLLER_EFFECT and it takes the options: 'OFF', '25_PERCENT','50_PERCENT','75_PERCENT', and '100_PERCENT'
+
 == Version 5.2.12 (11/16/2021) == 
 * Minor: Repo fix for VS2013 GUI to make consistent
 * Minor: Updated 'CMakeLists.txt' file for Linux
@@ -23,7 +27,7 @@
 == Version 5.2.7 (09/20/2021) ==
 * Minor: Added more diagnostic output for various types of Derivative Calculation routines.
 * Added output option to tell CMS to output maximum WSE values over simulation period for each cell.
-*  - new card name for this option is "MAXIMUM_WATER_LEVEL_OUTPUT" and takes 'ON' or 'OFF' as arguments.
+** New card name for this option is "MAXIMUM_WATER_LEVEL_OUTPUT" and takes 'ON' or 'OFF' as arguments.
 
 == Version 5.2.6 (06/25/2021) == 
 * Bug fix: Fixed error if FALL_VELOCITY, CRITICAL_SHEAR, and COREY_SHAPE_FACTOR cards had no value.
