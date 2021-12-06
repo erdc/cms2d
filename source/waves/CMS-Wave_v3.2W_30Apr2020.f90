@@ -1122,6 +1122,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iwave=0
       nestin1=1
       nestin2=1
+      getfile18=.false.       !Added to initialize a value for this variable and get past a usage below.  MEB  11/17/2021
       if(iview.ge.1)then
         ! *** keep above line as new compiler will mess up iview without it
         if(iview.eq.1) go to 280
@@ -1157,6 +1158,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
         end if
 !
+        !You can only use this after checking the existence of a file. The inquiry is skipped over in some cases.  Added an initialization statement above to correct.
         if(getfile18) then
           do l=1,179
             if(SimFile(l:l+1).eq.'  ') exit
@@ -10605,7 +10607,24 @@ contains
       else if ((gamma_bj78 .le. 0.0) .or. (gamma_bj78 .ge. 1.0)) then
         call diag_print_error  ('WV_SET_GAMMA_BJ78 - Invalid value')
       endif
-        
+      
+    case('WV_ROLLER_EFFECT')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        iroll = 0
+      elseif (aVal == '25_PERCENT') then
+        iroll = 1
+      elseif (aVal == '50_PERCENT') then
+        iroll = 2
+      elseif (aVal == '75_PERCENT') then
+        iroll = 3
+      elseif (aVal == '100_PERCENT') then
+        iroll = 4
+      else
+        call diag_print_error ('Bad selection for WV_ROLLER_EFFECT')
+      endif
+      
 
     case('WV_ENABLE_INFRAGRAVITY')
       backspace(11)
@@ -10637,16 +10656,16 @@ contains
       else
         call diag_print_error ('Bad selection for WV_ENABLE_NONLINEAR_WAVES')
       endif
-    case('WV_ENABLE_ROLLER')
-      backspace(11)
-      read(11,*) aCard, aVal
-      if     (aVal == 'OFF') then
-        iroll = 0
-      elseif (aVal == 'ON') then
-        iroll = 1
-      else
-        call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
-      endif
+    !case('WV_ENABLE_ROLLER')
+    !  backspace(11)
+    !  read(11,*) aCard, aVal
+    !  if     (aVal == 'OFF') then
+    !    iroll = 0
+    !  elseif (aVal == 'ON') then
+    !    iroll = 1
+    !  else
+    !    call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
+    !  endif
     case('WV_ENABLE_RUNUP')
       backspace(11)
       read(11,*) aCard, aVal
