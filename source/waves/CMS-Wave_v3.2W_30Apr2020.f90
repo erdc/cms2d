@@ -311,7 +311,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           do  
             read(11,*,iostat=ierr) cardname
             if(ierr .ne. 0) exit
-            if(cardname(1:14)=='END_PARAMETERS') exit
+            if(cardname(1:14)=='END_PARAMETERS') then
+              if ((suppress_obs) .and. (kout .gt. 0)) then
+                kout = kout * -1     !added to suppress observation output  MEB  12/06/2021
+              endif
+              exit
+            endif
             if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
             call cmswave_cards(cardname,foundcard)
             if(foundcard) then
@@ -3465,7 +3470,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if(hsmax.ge.hs0*2.) hsmax=hs0*2.
           if(hsmax.gt.hs0) then
             write(*,*) 'Max Windwave(m) =',hsmax,'m'
-            write(*,*) '*** Inflat incident wave ***'
+            write(*,*) '*** Inflate incident wave ***'
             dsfd=dsfd*(hsmax/hs0)**2
             hs0=hsmax
             d1max=d1(1,1)
@@ -10410,7 +10415,7 @@ contains
 ! written by Mitchell Brown, USACE-CHL  10/18/2021
 !***********************************************************************
     use diag_lib,      only: diag_print_warning, diag_print_error
-    use global_inline, only: gamma_bj78, KOMX, JGPX, IGPX
+    use global_inline, only: gamma_bj78, KOMX, JGPX, IGPX, suppress_obs
     
     implicit integer (i-n), real (a-h,o-z)
     
@@ -10547,7 +10552,7 @@ contains
       endif
     case('WV_DIFFRACTION_INTENSITY')
       backspace(11)
-      read(11,*) aCard, akap
+      read(11,*) aCard, akap                       !limit 0.0 <= akap < 4.0
     case('WV_NUM_THREADS')
       backspace(11)
       read(11,*) aCard, iproc
@@ -10569,8 +10574,16 @@ contains
         read (11,'(A)') text 
         read (text,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)  !This reads card, total, and all values from one line
       end if
-
-    
+    case('WV_LIMIT_OBSERVATION_OUTPUT')
+      backspace(11)
+      read(11,*) aCard, aVal
+      if     (aVal == 'OFF') then
+        suppress_obs = .false.
+      elseif (aVal == 'ON') then
+        suppress_obs = .true.
+      else
+        call diag_print_error ('Bad selection for WV_LIMIT_OBSERVATION_OUTPUT')
+      endif
     case('WV_BOTTOM_FRICTION_COEFF')
       backspace(11)
       read(11,*) aCard, bf
@@ -10595,6 +10608,10 @@ contains
         iwvbk = 3  
       elseif (aVal == 'BATTJES_JANSSEN_07') then   !4 - Battjes and Janssen (2007)
         iwvbk = 4
+      elseif (aVal == 'MICHE_ORIGINAL') then       !5 - Miche (original)            !Added to this format type 12/06/2021  MEB
+        iwvbk = 5  
+      elseif (aVal == 'LIFTING_BREAKING') then     !6 - Lifting breaking            !Added to this format type 12/06/2021  MEB 
+        iwvbk = 6
       else
         call diag_print_error ('Bad selection for WV_BREAKING_FORMULA')
       endif
@@ -10607,8 +10624,8 @@ contains
       else if ((gamma_bj78 .le. 0.0) .or. (gamma_bj78 .ge. 1.0)) then
         call diag_print_error  ('WV_SET_GAMMA_BJ78 - Invalid value')
       endif
-      
-    case('WV_ROLLER_EFFECT')
+     
+    case('WV_ROLLER_EFFECT')                   !Changed from WV_ENABLE_ROLLER 0|1 to WV_ROLLER_EFFECT with 5 options   MEB  12/06/2021
       backspace(11)
       read(11,*) aCard, aVal
       if     (aVal == 'OFF') then
@@ -10683,8 +10700,10 @@ contains
       read(11,*) aCard, aVal
       if     (aVal == 'OFF') then
         iwnd = 1
-      elseif (aVal == 'ON') then
-        iwnd = 0                     !opposite to what seems natural
+      elseif (aVal == 'ON') then                       
+        iwnd = 0                     
+      elseif (aVal == 'ON-LIMIT_WAVE_INFLATION') then  !dismiss incident wave inflation under stronger wind forcing
+        iwnd = 2                                       
       else
         call diag_print_error ('Bad selection for WV_ENABLE_WIND')
       endif

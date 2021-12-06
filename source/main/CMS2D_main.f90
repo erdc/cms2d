@@ -940,7 +940,7 @@
         case(4)
           write(iunit(i),887) 'Wave Breaking Formula:','Battjes and Janssen (2007)'
         case(5)
-          write(iunit(i),887) 'Wave Breaking Formula:','Relaxing Breaking'
+          write(iunit(i),887) 'Wave Breaking Formula:','Miche (original)'
         case(6)
           write(iunit(i),887) 'Wave Breaking Formula:','Lifting Breaking'
       end select
