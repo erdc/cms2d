@@ -1,6 +1,9 @@
-== Version 5.2.13 (12/03/2021) ==
-* Minor: Modification to new CMS-Wave .std format for use of Wave Roller
-** New card is WV_ROLLER_EFFECT and it takes the options: 'OFF', '25_PERCENT','50_PERCENT','75_PERCENT', and '100_PERCENT'
+== Version 5.2.13 (12/06/2021) ==
+* Minor: Modification to new CMS-Wave .std format for a few cards
+** New card is 'WV_ROLLER_EFFECT' and it takes the options: 'OFF', '25_PERCENT','50_PERCENT','75_PERCENT', and '100_PERCENT'
+** New card is 'WV_LIMIT_OBSERVATION_OUTPUT' to turn off optional output files when observation cells are specified.
+** For card 'WV_ENABLE_WIND', a new option exists - 'ON-LIMIT_WAVE_INFLATION' 
+** For card 'WV_BREAKING_FORMULA', two new options exist - 'MICHE_ORIGINAL' and 'LIFTING_BREAKING'
 
 == Version 5.2.12 (11/16/2021) == 
 * Minor: Repo fix for VS2013 GUI to make consistent
