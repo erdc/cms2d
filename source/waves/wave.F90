@@ -38,7 +38,7 @@
       call card_scalar(77,'deg','deg',wavedir,ierr) 
       constant_waves = .true.
     
-    case('IGNORE_BREAKING_RESTRICTION')
+    case('IGNORE_BREAKING_RESTRICTION')               !Obsolete, but remains for backward compatability   MEB  12/07/2021
       call card_boolean(77,ignore_brk_restr,ierr)
 
     case default 

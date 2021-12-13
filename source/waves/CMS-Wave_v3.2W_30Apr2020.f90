@@ -10491,9 +10491,9 @@ contains
       read(11,*) aCard, aVal
       if      (aVal == 'OFF') then                 !0 - no nesting
         ibnd = 0
-      else if (aVal == 'LINEAR') then              !1 - linear interp for 'n' points
+      else if (aVal == 'AVERAGE_SPECTRA') then     !1 - average interp for 'n' points
         ibnd = 1
-      else if (aVal == 'MORPHIC') then             !2 - morphic interp for 'n' points
+      else if (aVal == 'INVERSE_DISTANCE') then    !2 - inverse distance weighted interp for 'n' points
         ibnd = 2
       else
         call diag_print_error ('Bad selection for WV_BOUNDARY_NESTING')
@@ -10563,16 +10563,14 @@ contains
       read(11,*) aCard, nest                       !0 - no nest cells
       if(nest.ge.1) then                           !n - list of nesting cells to read in  
         backspace(11)
-        read (11,'(A)') text
-        read (text,*) aCard, nest, (inest(nn),jnest(nn),nn=1,nest)   !This reads card, total, and all values from one line
+        read (11,*) aCard, nest, (inest(nn),jnest(nn),nn=1,nest)   !This reads card, total, and all values from one line
       end if
     case('WV_OBSERVATION_CELLS') 
       backspace(11)
       read(11,*) aCard, kout                       !0 - no obs output
       if(kout.ge.1) then                           !n - output of spectra and parameters at 'n' selected cells
         backspace(11)
-        read (11,'(A)') text 
-        read (text,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)  !This reads card, total, and all values from one line
+        read (11,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)  !This reads card, total, and all values from one line
       end if
     case('WV_LIMIT_OBSERVATION_OUTPUT')
       backspace(11)
@@ -10673,16 +10671,6 @@ contains
       else
         call diag_print_error ('Bad selection for WV_ENABLE_NONLINEAR_WAVES')
       endif
-    !case('WV_ENABLE_ROLLER')
-    !  backspace(11)
-    !  read(11,*) aCard, aVal
-    !  if     (aVal == 'OFF') then
-    !    iroll = 0
-    !  elseif (aVal == 'ON') then
-    !    iroll = 1
-    !  else
-    !    call diag_print_error ('Bad selection for WV_ENABLE_ROLLER')
-    !  endif
     case('WV_ENABLE_RUNUP')
       backspace(11)
       read(11,*) aCard, aVal
