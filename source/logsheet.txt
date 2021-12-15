@@ -4,8 +4,10 @@
 ** New card is 'WV_LIMIT_OBSERVATION_OUTPUT' to turn off optional output files when observation cells are specified.
 ** For card 'WV_ENABLE_WIND', a new option exists - 'ON-LIMIT_WAVE_INFLATION' 
 ** For card 'WV_BREAKING_FORMULA', two new options exist - 'MICHE_ORIGINAL' and 'LIFTING_BREAKING'
+** Added capability to handle 'HORIZONTAL_PROJECTION' and 'VERTICAL_PROJECTION' blocks (skip over all lines)
 ** Change options for WV_BOUNDARY_NESTING to "AVERAGE_SPECTRA" and "INVERSE_DISTANCE" instead of "LINEAR" and "MORPHIC"
 * Bug fix: Small fix for WV_NESTING_CELLS and WV_OBSERVATION_CELLS
+
 
 
 == Version 5.2.12 (11/16/2021) == 

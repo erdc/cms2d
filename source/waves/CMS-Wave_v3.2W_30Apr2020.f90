@@ -10434,6 +10434,7 @@ contains
     
     character*80  :: aVal
     character*200 :: text
+    logical       :: finished = .false.
     
     foundcard = .true.
     
@@ -10732,6 +10733,19 @@ contains
         call diag_print_error ('Bad selection for WV_OUTPUT_XMDF')
       endif
       
+    case('HORIZONTAL_PROJECTION_BEGIN')            !These are only written for SMS use when loading cases back in from native files.  MEB  12/15/2021
+      finished = .false.
+      do while (.not. finished)
+        read(11,*) aCard
+        if (aCard .eq. 'HORIZONTAL_PROJECTION_END') finished = .true.
+      enddo
+        
+    case('VERTICAL_PROJECTION_BEGIN')              !These are only written for SMS use when loading cases back in from native files.  MEB  12/15/2021
+      finished = .false.
+      do while (.not. finished)
+        read(11,*) aCard
+        if (aCard .eq. 'VERTICAL_PROJECTION_END') finished = .true.
+      enddo
         
     case default
       foundcard = .false.
