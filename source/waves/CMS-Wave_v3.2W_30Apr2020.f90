@@ -10434,6 +10434,7 @@ contains
     
     character*80  :: aVal
     character*200 :: text
+    logical       :: finished = .false.
     
     foundcard = .true.
     
@@ -10491,9 +10492,9 @@ contains
       read(11,*) aCard, aVal
       if      (aVal == 'OFF') then                 !0 - no nesting
         ibnd = 0
-      else if (aVal == 'LINEAR') then              !1 - linear interp for 'n' points
+      else if (aVal == 'AVERAGE_SPECTRA') then     !1 - average interp for 'n' points
         ibnd = 1
-      else if (aVal == 'MORPHIC') then             !2 - morphic interp for 'n' points
+      else if (aVal == 'INVERSE_DISTANCE') then    !2 - inverse distance weighted interp for 'n' points
         ibnd = 2
       else
         call diag_print_error ('Bad selection for WV_BOUNDARY_NESTING')
@@ -10732,6 +10733,19 @@ contains
         call diag_print_error ('Bad selection for WV_OUTPUT_XMDF')
       endif
       
+    case('HORIZONTAL_PROJECTION_BEGIN')            !These are only written for SMS use when loading cases back in from native files.  MEB  12/15/2021
+      finished = .false.
+      do while (.not. finished)
+        read(11,*) aCard
+        if (aCard .eq. 'HORIZONTAL_PROJECTION_END') finished = .true.
+      enddo
+        
+    case('VERTICAL_PROJECTION_BEGIN')              !These are only written for SMS use when loading cases back in from native files.  MEB  12/15/2021
+      finished = .false.
+      do while (.not. finished)
+        read(11,*) aCard
+        if (aCard .eq. 'VERTICAL_PROJECTION_END') finished = .true.
+      enddo
         
     case default
       foundcard = .false.
