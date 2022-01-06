@@ -126,8 +126,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       INTEGER      :: iunit(2)     
 !
       iunit = (/6,dgunit/)
-
-      if(noptset.eq.3.and.nsteer.gt.1) goto 70                              !Wu/Zhang
+      
+      iwbk = 0
+      if(noptset.eq.3.and.nsteer.gt.1) then        !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
+        iwbk = iwvbk
+        hs13nn = hs13n
+        goto 70                              !Wu/Zhang
+      endif
   
 !      ALLOCATE (fsp(npf),dep0(ipmx,jpmx),dvarxx(ipmx),dvaryy(jpmx))        !Wu/Zhang
 !      ALLOCATE (xc(komx),yc(komx),wc(komx),wcd(komx),hs13(komx))           !Wu/Zhang
@@ -1496,7 +1501,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       enddo
 !
       if(noptset.eq.3 .and. irs.eq.0) irs = 1   !Alex, always output radiation stress if in steering
-      if(noptset.eq.3 .and. ijstruct2.ge.1) irs = 2
+      if(noptset.eq.3 .and. ijstruc2.ge.1) irs = 2
 !      
       itms = itms + 1
       if(getfile5) then

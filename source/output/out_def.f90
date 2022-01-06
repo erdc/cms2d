@@ -77,24 +77,24 @@ module out_def
     logical :: write_maxwse       !Turns on or off the maximum WSE value output    !Added MEB 9/20/2021
     
     !Sediment transport
-    logical :: write_conc         !Turns on or off the total-load sediment concentration output
-    logical :: write_capac        !Turns on or off the total-load sediment capacity output
-    logical :: write_concsusp     !Turns on or off the suspended-load concentration output
-    !logical :: write_concbed      !Turns on or off the suspended-load concentration output
-    logical :: write_fracsusp     !Turns on or off the fraction of suspended transport output
-    logical :: write_concfrac     !Turns on or off the fracational sediment concenctrations
-    logical :: write_bedload      !Turns on or off the bed-load transport rate
-    logical :: write_suspload     !Turns on or off the suspended-load transport rate
-    logical :: write_sizefrac     !Turns on or off the fractional bed composition
-    logical :: write_thickness    !Turns on or off the bed layer thickness
-    logical :: write_morph        !Turns on or off the morphology change output
-    logical :: write_alphatot     !Turns on or off the adaptation coefficient for total-load
-    logical :: write_lengthtot    !Turns on or off the adaptation length for total-load
-    logical :: write_lengthsusp   !Turns on or off the adaptation length for suspended-load
-    logical :: write_lengthbed    !Turns on or off the adaptation length for bed-load
-    logical :: write_betatot      !Turns on or off the correction factor for suspended-load
-    logical :: write_betasusp     !Turns on or off the correction factor for bed-load
-    logical :: write_bedvel       !Turns on or off the bed-load velocity
+    logical :: write_conc           !Turns on or off the total-load sediment concentration output
+    logical :: write_capac          !Turns on or off the total-load sediment capacity output
+    logical :: write_concsusp       !Turns on or off the suspended-load concentration output
+    !logical :: write_concbed        !Turns on or off the suspended-load concentration output
+    logical :: write_fracsusp       !Turns on or off the fraction of suspended transport output
+    logical :: write_concfrac       !Turns on or off the fracational sediment concenctrations
+    logical :: write_bedload        !Turns on or off the bed-load transport rate
+    logical :: write_suspload       !Turns on or off the suspended-load transport rate
+    logical :: write_sizefrac       !Turns on or off the fractional bed composition
+    logical :: write_thickness      !Turns on or off the bed layer thickness
+    logical :: write_morph          !Turns on or off the morphology change output
+    logical :: write_alphatot       !Turns on or off the adaptation coefficient for total-load
+    logical :: write_lengthtot      !Turns on or off the adaptation length for total-load
+    logical :: write_lengthsusp     !Turns on or off the adaptation length for suspended-load
+    logical :: write_lengthbed      !Turns on or off the adaptation length for bed-load
+    logical :: write_betatot        !Turns on or off the correction factor for suspended-load
+    logical :: write_betasusp       !Turns on or off the correction factor for bed-load
+    logical :: write_bedvel         !Turns on or off the bed-load velocity
     
     !Waves
     logical :: write_wave_detail  !Turns on or off the wave detailed variables    

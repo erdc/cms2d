@@ -184,13 +184,20 @@ contains
     use prec_def
     implicit none
     real(ikind),intent(in) :: yp,y0
-    real(ikind) :: cwall,y0lim
+    real(ikind) :: cwall,y0lim,value
     
     y0lim = min(max(y0,1.0e-6),yp)
-    cwall = (0.4/log(yp/y0lim))**2
+    value = log(yp/y0lim)
+    
+    !Addressing an issue of the variables 'yp' and 'y0lim' having exactly the same value and therefore log(1) = 0 which causes a divide by zero.  MEB  01/07/2021
+    if (value .ne. 0.0) then 
+      cwall = (0.4/log(yp/y0lim))**2
+    else
+      cwall = (400,000)**2                !0.4/0.000001 = 400,000
+    endif
     
     return
-    endfunction wall_coef
+    end function wall_coef
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Wall Friction

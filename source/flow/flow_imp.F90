@@ -56,6 +56,7 @@
 !3   format('ntime=',i8,',  dt=',F8.3,', time=',1pe12.5)
 3   format('ntime=',i8,',  dt=',F8.3,', time=',1pe12.5,', Active Cells=',i0)
 4   format(1x,i8,3(3x,1pe12.4))
+5   format('Forcing ramp % = ',F6.2)
     
 #ifdef PROFILE
     call watch_start('flow_imp prep')
@@ -87,8 +88,14 @@
    
     !Print to screen
 !    write(msg,3) ntime,dtime,ctime
+
     write(msg,3) ntime,dtime,ctime,number_wet_cells()
-    call diag_print_message(' ',msg,' Flow: iter    p_res          U_res          V_res')
+    if (ramp.lt.1) then
+      write(msg2,5) ramp*100    
+      call diag_print_message(' ',msg2,msg,' Flow: iter    p_res          U_res          V_res')
+    else
+      call diag_print_message(' ',msg,' Flow: iter    p_res          U_res          V_res')
+    endif
     
 #ifdef PROFILE
     call watch_start('flow_srcsnk_static')
