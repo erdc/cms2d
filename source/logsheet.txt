@@ -1,3 +1,10 @@
+== Version 5.2.14 (01/07/2021) ==
+* Minor: Added extra line of output to screen and diagnostic output while Ramp is in effect with the percentage being applied.
+* Minor: Added extra code to ensure the acceptance of various versions of horizontal projection
+** i.e., NAD83, NAD_1983, NAD1983, NAD_1983_PA11, and so forth.
+* Bug fix: Added a few extra initialization steps to Wave code
+* Bug fix: Divide by zero when calculating wall friction coefficient.
+
 == Version 5.2.13 (12/06/2021) ==
 * Minor: Modification to new CMS-Wave .std format for a few cards
 ** New card is 'WV_ROLLER_EFFECT' and it takes the options: 'OFF', '25_PERCENT','50_PERCENT','75_PERCENT', and '100_PERCENT'
@@ -7,8 +14,6 @@
 ** Added capability to handle 'HORIZONTAL_PROJECTION' and 'VERTICAL_PROJECTION' blocks (skip over all lines)
 ** Change options for WV_BOUNDARY_NESTING to "AVERAGE_SPECTRA" and "INVERSE_DISTANCE" instead of "LINEAR" and "MORPHIC"
 * Bug fix: Small fix for WV_NESTING_CELLS and WV_OBSERVATION_CELLS
-
-
 
 == Version 5.2.12 (11/16/2021) == 
 * Minor: Repo fix for VS2013 GUI to make consistent

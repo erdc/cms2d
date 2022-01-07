@@ -91,7 +91,7 @@
     write_atmpresgrad = .false.  !Atmospheric pressure gradient [Pa/m]
     
     !Roughness
-    write_meanbedshear = .false.
+    write_meanbedshear = .false. !Bed shear stress [Pa]
     write_normrough = .false.
     write_normapprough = .false.
     

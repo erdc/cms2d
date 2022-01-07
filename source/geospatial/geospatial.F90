@@ -2471,7 +2471,7 @@ di: do i=1,ncellsD
     type(projection),intent(inout) :: proj
     !Internal
     integer :: i,k,ierr,ilen1,ilen2
-    integer :: i27=0,i83=0
+    integer :: i27=0, i83=0, inad=0
     character(len=37) :: cardname
     character(len=200) :: aline,dtype,azone
     logical :: foundcard,matched
@@ -2482,6 +2482,9 @@ d1: do k=1,10
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
       selectcase(cardname)  
+      case('HORIZONTAL_PROJECTION_END','HORIZ_PROJ_END','END')
+        exit d1        
+      
       case('COORDINATE_DATUM','HORIZONTAL_DATUM','DATUM')
         backspace(kunit)
         read(kunit,'(A200)') aline
@@ -2496,21 +2499,24 @@ d1: do k=1,10
           endif
         enddo
         if(.not.matched)then
-          i27=index(dtype,'27')
-          i83=index(dtype,'83')
-          if (i27) then
-            proj%iHorizDatum = 0
-            matched=.true.
-          elseif (i83) then
-            proj%iHorizDatum = 1
-            matched=.true.
-          else
-            write(*,*)  
-            write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
-            write(*,*) trim(aline)
-            write(*,*) '- Will run as LOCAL Datum'
-            write(*,*)
-            proj%iHorizDatum = 2
+          inad = index(dtype,'NAD')  
+          i27  = index(dtype,'27')
+          i83  = index(dtype,'83')
+          if (inad .gt. 0) then
+            if (i27) then
+              proj%iHorizDatum = 0
+              matched=.true.
+            elseif (i83) then
+              proj%iHorizDatum = 1
+              matched=.true.
+            else
+              write(*,*)  
+              write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
+              write(*,*) trim(aline)
+              write(*,*) '- Will run as LOCAL Datum'
+              write(*,*)
+              proj%iHorizDatum = 2
+            endif
           endif
         endif
        
@@ -2569,9 +2575,6 @@ d1: do k=1,10
           !endif
         enddo
         
-      case('HORIZONTAL_PROJECTION_END','HORIZ_PROJ_END','END')
-        exit d1        
-      
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
         call diag_print_error('Found a horizontal projection block within another ',&
           '  horizontal projection block')
