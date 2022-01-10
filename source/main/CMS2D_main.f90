@@ -41,7 +41,7 @@
     version  = 5.2           ! CMS version         !For interim version
     revision = 14            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '01/07/2021'
+    rdate    = '01/10/2021'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
