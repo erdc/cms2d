@@ -1,3 +1,8 @@
+== Version 5.2.15 (01/12/2021) ==
+* Bug fix - Error while using Thickness datasets for bed layers 
+* Bug fix - Variables not allocated when Tecplot output enabled.
+* Bug fix - Divide by zero in some situations during Bottom Friction routines.
+
 == Version 5.2.14 (01/07/2021) ==
 * Minor: Added extra line of output to screen and diagnostic output while Ramp is in effect with the percentage being applied.
 * Minor: Added extra code to ensure the acceptance of various versions of horizontal projection
