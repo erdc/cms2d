@@ -42,9 +42,11 @@
         zap=fric_normapprough(uelwc(i),uv(i),cfrict(i)) !Normalized apparent roughness
         !zap=z0(i)/h(i)  !Only for no waves
         cnp=0.05*d50(i)**0.16666667                !Manning corresponding to grain roughness
-        !tauc=rhow*cfrict(i)*uv(i)**2
-        !taup=tauc*min(cnp/coefman(i),1.0)**1.5  !Grain shear stress, min is used in case cn is less than cnp  
-        taup=bsxy(i)*min(cnp/coefman(i),1.0)**1.5  !Grain shear stress, min is used in case cn is less than cnp        
+        if (coefman(i) .eq. 0) then
+          taup=bsxy(i)*min(cnp/1.0e-6,1.0)**1.5      !If coefman(i) is zero, use very small number instead   MEB 01/12/2022
+        else
+          taup=bsxy(i)*min(cnp/coefman(i),1.0)**1.5  !Grain shear stress, min is used in case cn is less than cnp
+        endif          
         do ks=1,nsed
           !phip=wsfall(ks)*h(i)/(vis(i)/schmidt) 
           phip=wsfall(ks)*h(i)/max(epsvk(i,ks),1.0e-6) !More correct
@@ -94,7 +96,11 @@
         zap=fric_normapprough(uelwc(i),uv(i),cfrict(i)) !Normalized apparent roughness
         !zap=z0(i)/h(i)  !Only for no waves
         cnp=0.05*d50(i)**0.16666667            !Manning corresponding to grain roughness 0.05=1/20
-        taup=bsxy(i)*min(cnp/coefman(i),1.0)**1.5 !Grain shear stress, min is used in case cn is less than cnp  
+        if (coefman(i) .eq. 0) then
+          taup=bsxy(i)*min(cnp/1.0e-6,1.0)**1.5      !If coefman(i) is zero, use very small number instead   MEB 01/12/2022
+        else
+          taup=bsxy(i)*min(cnp/coefman(i),1.0)**1.5  !Grain shear stress, min is used in case cn is less than cnp
+        endif          
         Qc=uv(i)*h(i)
         do ks=1,nsed
           r=wsfall(ks)/(0.4*bsvel(i))  !Rouse number
