@@ -550,7 +550,7 @@ d1: do ii=1,4
     implicit none       
             
     !Wind speed and shear stresses
-    if(windvar .or. windsta)then      
+    if(windvar .or. windsta .or. windconst)then      
       allocate(uwind(ncellsD),vwind(ncellsD))
       uwind=0.0;  vwind=0.0
       if(iwndlagr==0)then

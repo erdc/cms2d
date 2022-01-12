@@ -429,11 +429,10 @@
       call card_scalar(77,'deg','deg',a_repose,ierr)
       if(a_repose+1.0e-5>=90.0)then
         do_aval = .false.
+        call diag_print_warning('Avalanching bed-slope angle is too large. Turning off Avalanching')
       elseif(a_repose<=5.0)then
         write(msg2,*)   'Repose angle: ', a_repose
         call diag_print_warning('Small input avalanching bed-slope angle:',msg2)
-      else            
-        do_aval = .true.
       endif        
         
     case('AVALANCHE_MAXIMUM_ITERATIONS','AVALANCHE_MAX_ITERATIONS','AVALANCHING_MAX_ITERATIONS')
@@ -3030,7 +3029,7 @@ d1: do ii=1,30
       write(iunit(ii),*) 'v(i) =',v(i)
       if(noptset>=3)then
         write(iunit(ii),*) 'Whgt(i) =',Whgt(i)
-        write(iunit(ii),*) 'Worb(i) ',Worb(i)
+        write(iunit(ii),*) 'Worb(i) =',Worb(i)
         write(iunit(ii),*) 'Worbrep(i) =',Worbrep(i)
         write(iunit(ii),*) 'Wang(i) =',Wang(i)
         write(iunit(ii),*) 'Wper(i) =',Wper(i)    

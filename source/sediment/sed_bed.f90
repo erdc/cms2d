@@ -494,7 +494,7 @@
     
 !*******************************************************************************
     subroutine mixing_layer
-! Estimate mixing layer thichness based on the ripple dimensions and grain size
+! Estimate mixing layer thickness based on the ripple dimensions and grain size
 ! modified from Lund-CIRP subroutine written by Magnus Larson 
 ! written by Alex Sanchez, USACE-ERDC-CHL 
 !*******************************************************************************       
@@ -520,10 +520,12 @@
     else 
       !Note that D50 use here is from previous time step
       if(noptset>=3)then
+        if(.not.allocated(Worb)) call wave_flgrid_init
+        
         !$omp parallel do private(i,riph,pw,ripwh,Aw)  
         do i=1,ncells
           riph=142.8571429*d50(i)             !Current ripple height, 142.8571429=1000.0/7.0   
-          pw=Worb(i)*Worb(i)/(s1grav*d50(i)+small) !Wave mobility parameter
+          pw=Worb(i)*Worb(i)/(s1grav*d50(i)+small)  !Wave mobility parameter
           if(pw<=10.0)then
             Aw=Worb(i)*Wper(i)/twopi          !amplitude of near-bed wave exursion
             ripwh=0.220*Aw                    !Wave ripple height

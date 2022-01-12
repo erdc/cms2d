@@ -328,22 +328,29 @@
     implicit none
     integer :: ii
         
-    !allocate(xflwav(ncellsD),yflwav(ncellsD))                        !Flow grid on wave coordinate system
-    allocate(Whgt(ncellsD),Whgt1(ncellsD),Whgt2(ncellsD))             !Significant wave height [m]
-    allocate(Wper(ncellsD),Wper1(ncellsD),Wper2(ncellsD))             !Peak wave period [s]
-    allocate(Wang(ncellsD))                                           !Wave angle [rad]
-    !allocate(waveibr(ncellsD),waveibr1(ncellsD),waveibr2(ncellsD))    !Wave breaking index [-]
-    allocate(wavediss(ncellsD),wavediss1(ncellsD),wavediss2(ncellsD)) !Wave breaking dissipation                 
-    allocate(Wlen(ncellsD))                                           !Wave length [m]
-    allocate(Worb(ncellsD))                                           !Wave bottom orbital velocity based on Whgt and Wper [m/s]
-    allocate(Worbrep(ncellsD))                                        !Representative bottom orbital velocity [m/s]
-    allocate(wavestrx(ncellsD),wavestry(ncellsD))                     !Wave forcing
-    allocate(wavestrx1(ncellsD),wavestry1(ncellsD))
-    allocate(wavestrx2(ncellsD),wavestry2(ncellsD))
-    allocate(ijwavcell(2,ncellsD),coefintp_wavfl(4,ncellsD))          !Interpolation indeces and coefficients
-    allocate(Wunitx(ncellsD),Wunitx1(ncellsD),Wunitx2(ncellsD))       !Wave unit vectors [-]
-    allocate(Wunity(ncellsD),Wunity1(ncellsD),Wunity2(ncellsD))       !Wave unit vectors [-]
-    allocate(ueff(ncellsD),veff(ncellsD))
+    !test for allocation, do not reallocate if already allocated
+    if(.not.allocated(Whgt)) then
+      !allocate(xflwav(ncellsD),yflwav(ncellsD))                        !Flow grid on wave coordinate system
+      allocate(Whgt(ncellsD),Whgt1(ncellsD),Whgt2(ncellsD))             !Significant wave height [m]
+      allocate(Wper(ncellsD),Wper1(ncellsD),Wper2(ncellsD))             !Peak wave period [s]
+      allocate(Wang(ncellsD))                                           !Wave angle [rad]
+      !allocate(waveibr(ncellsD),waveibr1(ncellsD),waveibr2(ncellsD))    !Wave breaking index [-]
+      allocate(wavediss(ncellsD),wavediss1(ncellsD),wavediss2(ncellsD)) !Wave breaking dissipation                 
+      allocate(Wlen(ncellsD))                                           !Wave length [m]
+      allocate(Worb(ncellsD))                                           !Wave bottom orbital velocity based on Whgt and Wper [m/s]
+      allocate(Worbrep(ncellsD))                                        !Representative bottom orbital velocity [m/s]
+      allocate(wavestrx(ncellsD),wavestry(ncellsD))                     !Wave forcing
+      allocate(wavestrx1(ncellsD),wavestry1(ncellsD))
+      allocate(wavestrx2(ncellsD),wavestry2(ncellsD))
+      allocate(ijwavcell(2,ncellsD),coefintp_wavfl(4,ncellsD))          !Interpolation indeces and coefficients
+      allocate(Wunitx(ncellsD),Wunitx1(ncellsD),Wunitx2(ncellsD))       !Wave unit vectors [-]
+      allocate(Wunity(ncellsD),Wunity1(ncellsD),Wunity2(ncellsD))       !Wave unit vectors [-]
+      allocate(ueff(ncellsD),veff(ncellsD))
+
+      !Moved from below  MEB
+      allocate(wetsteer(ncellsD))  
+      allocate(Ssr(ncellsD))       !Surface roller energy
+    endif
 
     !Initialize variables, Alex, Sep. 1, 2009, needed for plotting purposes
     Wang  = 0.0; !Wang1 = 0.0; Wang2 = 0.0
@@ -359,7 +366,7 @@
     Wunity = 0.0; Wunity1 = 0.0; Wunity2 = 0.0         
     ueff = 0.0; veff = 0.0
     
-    allocate(wetsteer(ncellsD)) 
+    !Moving allocate(wetsteer) into group above  MEB  01/12/2022
     wetsteer = 0.0
     do ii=1,ncells
       if(-zb(ii)>hdry)then !wet
@@ -367,12 +374,8 @@
       endif
     enddo  
           
-    allocate(Ssr(ncellsD))  !Surface roller energy
+    !Moving allocate(Ssr) into group above  MEB  01/12/2022
     Ssr = 0.0
-    
-    !!For testing
-    !allocate(wavstrx(ncellsD),wavstry(ncellsD))
-    !wavstrx = 0.0; wavstry = 0.0
     
     return
     endsubroutine wave_flgrid_init
@@ -1182,15 +1185,19 @@
     write(*,'(A)') ' Starting wave-to-flow interpolation'
     write(*,'(A,I3)') '  imod=', imod
     
-    idatewave = idate
+!    idatewave = idate
+    idatewave = kdate*1000
+    idatewave = idatewave + (idate/100)
+
+100 FORMAT ('  Wave date = ',I4,2('-',I2.2),1x,I2.2,':',I2.2,'.',I2.2,' UTC')
     
     call index2calendar(idatewave,&
       iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav,ierr)
     call calendar2julian(iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav,tjulwav) 
     
     if(iyrwav .ge. 2000 .or. idatewave .gt. 10000000)then !Otherwise it is not a date
-      write(*,'(A,I4,5(1x,I2))') '  Wave date = ',&
-        iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
+      write(*,100) iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
+      !write(*,'(A,I4,2(1X,I2.2))') '  Wave date = ',iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
     else
       write(*,'(A,I10)') '  Wave index = ',idatewave
     endif
