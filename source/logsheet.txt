@@ -2,11 +2,8 @@
 * Bug fix - Error while using Thickness datasets for bed layers 
 * Bug fix - Variables not allocated when Tecplot output enabled.
 * Bug fix - Divide by zero in some situations during Bottom Friction routines.
-<<<<<<< HEAD
 * Bug fix - Wave Date output in screen/diagnostic output. Changed to 'YYYY-MM-DD HH:MM:ss UTC' format
 * Minor - added better diagnostic output for Avalanching repose angles too large.
-=======
->>>>>>> master
 
 == Version 5.2.14 (01/07/2021) ==
 * Minor: Added extra line of output to screen and diagnostic output while Ramp is in effect with the percentage being applied.
