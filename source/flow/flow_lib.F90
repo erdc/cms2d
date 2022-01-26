@@ -47,7 +47,7 @@ contains
 !   yref = sum(y(1:ncells))/real(ncells,kind=ikind)
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************    
-    use size_def, only: ncellsD
+!    use size_def, only: ncellsD                         !ncellsD was never used, so commented out  MEB  01/26/2022
     use const_def, only: deg2rad,omega,earthRadius
     use prec_def
     implicit none

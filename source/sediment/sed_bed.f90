@@ -752,19 +752,23 @@
 #endif   
     use in_lib, only: readscalTxt
     use prec_def
+    use geo_def, only: mapid                 !MEB  01/19/2022
     
     implicit none
     
     !Input/Output
     integer,intent(in) :: j  !Bed layer id
+    
     !Internal variables
     integer :: i,ii,ks,ierr,istart
-    real(ikind) :: plim(nsed+1),sumpbk,fac
     integer :: idpr(nperdiam)
+    real(ikind) :: plim(nsed+1),sumpbk,fac
     real(ikind) :: per(nperdiam),dper(nperdiam)
     real(ikind) :: dtemp(ncellsD)
+    
+    integer :: nfrac, frac_array(ncellsD)    !MEB  01/19/2022
     character(len=200) :: file,path
-    character(len=10) :: aext
+    character(len=10)  :: aext
     
     interface
       function Int2Str (k)
@@ -805,6 +809,7 @@
     
     !Calculate fractional bed composition
     per=0; dper=0.0 !Initialize
+    nfrac = 0; frac_array = 0
     do i=1,ncells
       !Collect percentiles and diameters
       do ii=1,nperinp
@@ -839,12 +844,25 @@
 !        pbk(i,ks,1) = max(pbk(i,ks,1),1.0e-10) !To avoid divide by zero  !HLI 01/13/2017
       enddo
       sumpbk=sum(max(pbk(i,:,j),1.0e-20))                                  !HLI 01/13/2017
-      msg2 = ' for cellID '// Int2Str(i)
       if(sumpbk<0.8)then
-        call diag_print_warning('Sum of fractions is less than 0.8',msg2)
+        nfrac = nfrac + 1
+        frac_array(nfrac) = i
       endif
       pbk(i,:,j) = pbk(i,:,j)/sumpbk
     enddo
+
+    !Added this section to consolidate all of the messages for warnings of this type     MEB  01/19/2022
+99  format(15(i0,x))
+100 format('Sum of fractions is less than 0.8 for ',i0,' cells.')   
+101 format('Cell IDs written to file: "fraction_warning.txt"')
+    if(nfrac .gt. 0) then
+      write(msg2,100) nfrac
+      write(msg3,101) 
+      call diag_print_warning(msg2,msg3,'')
+      open(200,file='fraction_warning.txt',status='unknown') 
+      write(200,99) (mapid(frac_array(i)),i=1,nfrac)  !changed to the ID of the cell as in SMS.  
+      close(200)
+    endif
     
     return
     endsubroutine bed_perdiam    

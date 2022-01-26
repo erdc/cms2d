@@ -203,7 +203,7 @@ contains
       if(present(msg9)) write(iunit(i),111) trim(msg9)
     enddo
     close(dgunit)  
-    write(*,*) '  Press any key to continue.'
+    write(*,111) 'Press any key to continue.'
     read(*,*)
     stop
     

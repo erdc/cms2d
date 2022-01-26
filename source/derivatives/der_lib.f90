@@ -87,7 +87,7 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************    
     use size_def
-    use geo_def, only: idcelljoint
+    !use geo_def, only: idcelljoint          never used, commented out   MEB  01/26/2022
     use der_def
     implicit none
     type(der_go_type) :: go  !Gradient Operator    
@@ -156,7 +156,7 @@ contains
     use der_def
     use flow_def, only: iwet
     use geo_def, only: ncface,cell2cell,x,y
-    use interp_def, only: fintp
+    !use interp_def, only: fintp                       !never used, commented out   MEB  01/26/2022
     use diag_def
     use diag_lib
     use prec_def
@@ -675,8 +675,8 @@ contains
 !***********************************************************************
     subroutine screen_weights(nt,wxt,wyt,ixt,iyt,ns,nx,ny,ix,iy,wx,wy)
 !***********************************************************************
-    use size_def, only: ncellsD,ndmaxfaces,nmaxfaces
-    use geo_def, only: ncface,cell2cell
+    !use size_def, only: ncellsD,ndmaxfaces,nmaxfaces            ! never used, commented out   MEB  01/26/2022
+    !use geo_def, only: ncface,cell2cell                         ! never used, commented out   MEB  01/26/2022
     use prec_def
     implicit none
     !Input
@@ -725,7 +725,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint,cell2cell,ncface
+    use geo_def, only: idcelljoint                               !ncface,cell2cell   never used, commented out   MEB  01/26/2022
     use der_def    
     use prec_def
     implicit none
@@ -843,8 +843,8 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
-    use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint,cell2cell,ncface
+    use size_def, only: ncellsD,ncelljoint,ncellpoly         !ncells             never used, commented out   MEB  01/26/2022
+    use geo_def, only: idcelljoint                           !ncface,cell2cell   never used, commented out   MEB  01/26/2022
     use der_def    
     use prec_def
     implicit none
@@ -934,7 +934,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint,cell2cell,ncface
+    use geo_def, only: idcelljoint                          !ncface, cell2cell   never used, commented out   MEB  01/26/2022
     use der_def
     use prec_def
     implicit none
@@ -1049,7 +1049,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !******************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint,cell2cell,ncface
+    use geo_def, only: idcelljoint                              !ncface, cell2cell   never used, commented out   MEB  01/26/2022
     use der_def    
     use prec_def
     implicit none
@@ -1235,7 +1235,7 @@ contains
 ! written by Alex Sanchez, USACE
 !******************************************************************
     use size_def
-    use geo_def, only: cell2cell,llec2llec,ncface,dn,rpx,rpy
+    use geo_def, only: cell2cell,llec2llec,dn,rpx,rpy          !ncface   never used, commented out   MEB  01/26/2022
     use prec_def
     implicit none
     integer :: i,k,j,n
@@ -2211,7 +2211,7 @@ contains
     integer :: i,ii,idk,k,nck,ncn,nce,ncs,ncw
     real(ikind) :: r,unb(nmaxfaces),vnb(nmaxfaces)
     !real(ikind) :: snb(nmaxfaces),s2
-    logical :: isnankind
+    !logical :: isnankind                            !never used, commented out   MEB  01/26/2022
 
     interface
       function funslopelim(r) result(psi)

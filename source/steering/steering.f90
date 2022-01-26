@@ -59,7 +59,8 @@
         backspace(77)
         read(77,*) cardname,astr
         call fileparts(astr,Wavepath,wavename,aext)           
-        WavSimFile = trim(wavename) // '.sim'     
+        !WavSimFile = trim(wavename) // '.sim'     
+        WavSimFile = trim(wavename) // '.' // trim(aext)
         cmswave = .true.   
         noptset = 3
 
@@ -328,7 +329,7 @@
     implicit none
     integer :: ii
         
-    !test for allocation, do not reallocate if already allocated
+    !test for allocation, do not reallocate if already allocated        MEB  01/12/2022
     if(.not.allocated(Whgt)) then
       !allocate(xflwav(ncellsD),yflwav(ncellsD))                        !Flow grid on wave coordinate system
       allocate(Whgt(ncellsD),Whgt1(ncellsD),Whgt2(ncellsD))             !Significant wave height [m]
@@ -1185,9 +1186,10 @@
     write(*,'(A)') ' Starting wave-to-flow interpolation'
     write(*,'(A,I3)') '  imod=', imod
     
-!    idatewave = idate
+ !This was giving the incorrect date.  Modified  MEB  01/12/2022
+    !idatewave = idate
     idatewave = kdate*1000
-    idatewave = idatewave + (idate/100)
+    idatewave = idatewave + (idate/100)     !idatewave limited to 10 digits, dropped the seconds off the end
 
 100 FORMAT ('  Wave date = ',I4,2('-',I2.2),1x,I2.2,':',I2.2,'.',I2.2,' UTC')
     
@@ -1196,8 +1198,7 @@
     call calendar2julian(iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav,tjulwav) 
     
     if(iyrwav .ge. 2000 .or. idatewave .gt. 10000000)then !Otherwise it is not a date
-      write(*,100) iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
-      !write(*,'(A,I4,2(1X,I2.2))') '  Wave date = ',iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav
+      write(*,100) iyrwav,imowav,idaywav,ihrwav,iminwav,isecwav       !Modified format  MEB  01/12/2022
     else
       write(*,'(A,I10)') '  Wave index = ',idatewave
     endif

@@ -684,13 +684,13 @@ contains
 !
 ! Author: Alex Sanchez, USACE-CHL
 !****************************************************
-  use flow_def, only: hmin,grav
+    use flow_def, only: grav                  !hmin  is never used, commented out   MEB  01/26/2022
     implicit none
-  !Input
+    !Input
     real(ikind),intent(in) :: hl,hr,el,er,ul,ur,vl,vr,cn,sn
-  !Output
-  real(ikind),intent(out) :: F(3)
-  !Internal
+    !Output
+    real(ikind),intent(out) :: F(3)
+    !Internal
     real(ikind) :: duml,dumr,cl,cr,hhat,uhat,vhat
     real(ikind) :: chat,uperp,de,du,dv,dupar,duperp,uperpl,uperpr
     real(ikind) :: al1,al3,ar1,ar3,da1,da3,a1,a3
@@ -738,6 +738,6 @@ contains
     F=0.5*(FL + FR - matmul(B,dW))
 
     return
-    endsubroutine roe    
+    end subroutine roe    
 
-endmodule comp_lib
+end module comp_lib

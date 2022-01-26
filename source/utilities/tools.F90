@@ -750,11 +750,15 @@
     implicit none
     integer, intent(in) :: k
     
-    write (Int2Str, *) k
-    Int2Str = adjustl(Int2Str)
+    character(len=20) :: str
+    
+    write (str, '(i20)') k
+    Int2Str = adjustl(str)
     
     end function Int2Str
     
+    
+!***********************************************************************************************************************    
     module tool_def
       implicit none
   

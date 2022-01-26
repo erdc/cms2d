@@ -186,7 +186,7 @@ contains
     real(ikind),intent(in) :: yp,y0
     real(ikind) :: cwall,y0lim
     
-    !Addressing an issue of the variables 'yp' and 'y0lim' having exactly the same value and therefore log(1) = 0 which causes a divide by zero.  MEB  01/10/2021
+    !Addressing an issue of the variables 'yp' and 'y0lim' having exactly the same value and therefore log(1) = 0 which causes a divide by zero.  MEB  01/10/2022
     y0lim = min(max(y0,1.0e-6),yp*0.9999)      
     cwall = (0.4/log(yp/y0lim))**2
     
