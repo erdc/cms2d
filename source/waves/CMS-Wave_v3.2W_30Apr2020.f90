@@ -26,7 +26,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
       use hot_def, only: coldstart
       use comvarbl, only: ctime
-      use diag_lib, only: diag_print_message
+      use diag_lib, only: diag_print_message, diag_print_error
       use diag_def, only: dgunit
 !$include "omp_lib.h"
 !      dimension dep0(ipmx,jpmx)
@@ -179,19 +179,22 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       inquire(file=OptsFile,exist=foundfile) 
       if(.not.foundfile)then
-        write(*,*) 'ERROR: Could not find file: ',trim(OptsFile)
+        call diag_print_error('Could not find file: '//trim(OptsFile))   !If the file wasn't found, it still tried to open.  MEB  01/26/2022
       endif
       open (11, file = OptsFile,  status = 'old')
+      
       inquire(file=EngInFile,exist=foundfile) 
       if(.not.foundfile)then
-        write(*,*) 'ERROR: Could not find file: ',trim(EngInFile)
+        call diag_print_error('Could not find file: '//trim(EngInFile))
       endif
       open (8,  file = EngInFile, status = 'old')
+      
       inquire(file=DepFile,exist=foundfile) 
       if(.not.foundfile)then
-        write(*,*) 'ERROR: Could not find file: ',trim(DepFile)
+        call diag_print_error('Could not find file: '//trim(DepFile))
       endif
       open (15, file = DepFile,   status = 'old')
+      
       open (23, file = StrucFile, status = 'unknown')
       read(23,'(a180)',end=339,err=339) text
       backspace(23)
@@ -9379,8 +9382,9 @@ contains
       SUBROUTINE STWfiles_inline (SimFile)
 !---STWfiles---------------------------------------------------------S
 ! PURPOSE Reads the names of the STWAVE data files from the sim file
-! ARGUMENT DEFINITIONS
-!     SimFile  - Name of the simulation file.
+! VARIABLES IN OTHER MODULES TO USE
+      USE diag_lib, only: diag_print_error
+      USE diag_def, only: msg, msg2, msg3
 ! ARGUMENT DECLARATIONS
       CHARACTER     SimFile*180
       CHARACTER     Name*180
@@ -9410,6 +9414,16 @@ contains
       COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
       common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
+!
+      character(len=100) :: apath,aname,aext
+      character :: delimeter
+      
+#ifdef _WIN32
+    delimeter='\'
+#else
+    delimeter='/'
+#endif
+      
 
 ! Fill in names with defaults in case card does not exist
       OptsFile   = 'options.std'
@@ -9437,8 +9451,18 @@ contains
       SwellFile  = 'swell.wav'
 !
       IF (SimFile(1:4) .NE. 'none') THEN
+        !Adding some extra diagnostic checks and better output than just waiting for a bad application error.  MEB  01/18/2022
+        call fileparts(SimFile,apath,aname,aext)           !Split the path and files out before conditional to use later.  MEB  01/26/2022
+        INQUIRE(FILE = SimFile, EXIST=ExistFile)
+        if (.not.ExistFile) then
+          msg  = 'Simulation file does not exist at path location specified'
+          msg2 = '- Path = '//trim(apath)
+          msg3 = '- File = '//trim(aname)//'.'//trim(aext)
+          call diag_print_error (msg,msg2,msg3)
+        endif
+        
         OPEN (41, FILE = SimFile, STATUS = 'OLD')
-! Make sure the file is an STWAVE sim file
+! Make sure the file is an STWAVE, WABED, or CMS-WAVE sim file
         READ (41, '(A10,A80)',END = 200) text1, text2
         READ (text1,'(A6)') CARD
         READ (text2,*,end=200,err=200) x0,y0,azimuth
@@ -9450,7 +9474,7 @@ contains
 10        READ (41, '(2A)', END = 100) CARD, FileName
           FileName = ADJUSTL(FileName)
           IF (CARD(1:4).EQ.'OPTS') THEN
-             OptsFile   = FileName
+             OptsFile  = FileName
           ELSEIF (CARD(1:3).EQ.'DEP') THEN
             DepFile    = FileName
           ELSEIF (CARD(1:4).EQ.'CURR') THEN
@@ -9492,49 +9516,49 @@ contains
           ENDIF
           GO TO 10
 100     ENDIF
-        ILOC=INDEX(SimFile,'/',BACK=.TRUE.)
-        ThePath=NAME(1:ILOC)
-        ILOC=INDEX(OptsFile,'/',BACK=.TRUE.)
-        OptsFile=trim(ThePath)//OptsFile(ILOC+1:)//'                   '
-        ILOC=INDEX(DepFile,'/',BACK=.TRUE.)
-        DepFile=trim(ThePath)//DepFile(ILOC+1:)//'                     '
-        ILOC=INDEX(CurrFile,'/',BACK=.TRUE.)
-        CurrFile=trim(ThePath)//CurrFile(ILOC+1:)//'                   '
-        ILOC=INDEX(EngInFile,'/',BACK=.TRUE.)
-        EngInFile=trim(ThePath)//EngInFile(ILOC+1:)//'                 '
-        ILOC=INDEX(WaveFile,'/',BACK=.TRUE.)
-        WaveFile=trim(ThePath)//WaveFile(ILOC+1:)//'                   '
-        ILOC=INDEX(EngOutFile,'/',BACK=.TRUE.)
-        EngOutFile=trim(ThePath)//EngOutFile(ILOC+1:)//'               '
-        ILOC=INDEX(NestFile,'/',BACK=.TRUE.)
-        NestFile=trim(ThePath)//NestFile(ILOC+1:)//'                   '
-        ILOC=INDEX(BreakFile,'/',BACK=.TRUE.)
-        BreakFile=trim(ThePath)//BreakFile(ILOC+1:)//'                 '
-        ILOC=INDEX(RadsFile,'/',BACK=.TRUE.)
-        RadsFile=trim(ThePath)//RadsFile(ILOC+1:)//'                   '
-        ILOC=INDEX(StrucFile,'/',BACK=.TRUE.)
-        StrucFile=trim(ThePath)//StrucFile(ILOC+1:)//'                 '
-        ILOC=INDEX(MudFile,'/',BACK=.TRUE.)
-        MudFile=trim(ThePath)//MudFile(ILOC+1:)//'                     '
-        ILOC=INDEX(FricFile,'/',BACK=.TRUE.)
-        FricFile=trim(ThePath)//FricFile(ILOC+1:)//'                   '
-        ILOC=INDEX(FrflFile,'/',BACK=.TRUE.)
-        FrflFile=trim(ThePath)//FrflFile(ILOC+1:)//'                   '
-        ILOC=INDEX(BrflFile,'/',BACK=.TRUE.)
-        BrflFile=trim(ThePath)//BrflFile(ILOC+1:)//'                   '
-        ILOC=INDEX(WindFile,'/',BACK=.TRUE.)
-        WindFile=trim(ThePath)//WindFile(ILOC+1:)//'                   '
-        ILOC=INDEX(SpecFile,'/',BACK=.TRUE.)
-        SpecFile=trim(ThePath)//SpecFile(ILOC+1:)//'                   '
-        ILOC=INDEX(ObsFile,'/',BACK=.TRUE.)
-        ObsFile=trim(ThePath)//ObsFile(ILOC+1:)//'                     '
-        ILOC=INDEX(ShipFile,'/',BACK=.TRUE.)
-        ShipFile=trim(ThePath)//ShipFile(ILOC+1:)//'                   '
-        ILOC=INDEX(XMDFFile,'/',BACK=.TRUE.)
-        XMDFFile=trim(ThePath)//XMDFFile(ILOC+1:)//'                   '
-        ILOC=INDEX(SurgeFile,'/',BACK=.TRUE.)
-        SurgeFile=trim(ThePath)//SurgeFile(ILOC+1:)  &
-                              //'                   '
+!        ILOC=INDEX(SimFile,'\',BACK=.TRUE.)
+!        ThePath=Filename(1:ILOC)
+        ThePath    = trim(aPath)
+        ILOC       = INDEX(OptsFile, delimeter ,BACK=.TRUE.)
+        OptsFile   = trim(ThePath)//OptsFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(DepFile, delimeter ,BACK=.TRUE.)
+        DepFile    = trim(ThePath)//DepFile(ILOC+1:)//'                     '
+        ILOC       = INDEX(CurrFile, delimeter ,BACK=.TRUE.)
+        CurrFile   = trim(ThePath)//CurrFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(EngInFile, delimeter ,BACK=.TRUE.)
+        EngInFile  = trim(ThePath)//EngInFile(ILOC+1:)//'                   '
+        ILOC       = INDEX(WaveFile, delimeter ,BACK=.TRUE.)
+        WaveFile   = trim(ThePath)//WaveFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(EngOutFile, delimeter ,BACK=.TRUE.)
+        EngOutFile = trim(ThePath)//EngOutFile(ILOC+1:)//'                  '
+        ILOC       = INDEX(NestFile, delimeter ,BACK=.TRUE.)
+        NestFile   = trim(ThePath)//NestFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(BreakFile, delimeter ,BACK=.TRUE.)
+        BreakFile  = trim(ThePath)//BreakFile(ILOC+1:)//'                   '
+        ILOC       = INDEX(RadsFile, delimeter ,BACK=.TRUE.)
+        RadsFile   = trim(ThePath)//RadsFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(StrucFile, delimeter ,BACK=.TRUE.)
+        StrucFile  = trim(ThePath)//StrucFile(ILOC+1:)//'                   '
+        ILOC       = INDEX(MudFile, delimeter ,BACK=.TRUE.)
+        MudFile    = trim(ThePath)//MudFile(ILOC+1:)//'                     '
+        ILOC       = INDEX(FricFile, delimeter ,BACK=.TRUE.)
+        FricFile   = trim(ThePath)//FricFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(FrflFile, delimeter ,BACK=.TRUE.)
+        FrflFile   = trim(ThePath)//FrflFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(BrflFile, delimeter ,BACK=.TRUE.)
+        BrflFile   = trim(ThePath)//BrflFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(WindFile, delimeter ,BACK=.TRUE.)
+        WindFile   = trim(ThePath)//WindFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(SpecFile, delimeter ,BACK=.TRUE.)
+        SpecFile   = trim(ThePath)//SpecFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(ObsFile, delimeter ,BACK=.TRUE.)
+        ObsFile    = trim(ThePath)//ObsFile(ILOC+1:)//'                     '
+        ILOC       = INDEX(ShipFile, delimeter ,BACK=.TRUE.)
+        ShipFile   = trim(ThePath)//ShipFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(XMDFFile, delimeter ,BACK=.TRUE.)
+        XMDFFile   = trim(ThePath)//XMDFFile(ILOC+1:)//'                    '
+        ILOC       = INDEX(SurgeFile, delimeter ,BACK=.TRUE.)
+        SurgeFile  = trim(ThePath)//SurgeFile(ILOC+1:)//'                   '
 200     CLOSE (41)
       ENDIF
       END SUBROUTINE

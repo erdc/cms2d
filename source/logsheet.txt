@@ -1,11 +1,15 @@
-== Version 5.2.15 (01/12/2021) ==
+== Version 5.2.16 (01/26/2022) == 
+* Bug fix - Path was not being prepended to the wave file names, so if they weren't in the same directory, it failed.
+
+== Version 5.2.15 (01/21/2022) ==
 * Bug fix - Error while using Thickness datasets for bed layers 
 * Bug fix - Variables not allocated when Tecplot output enabled.
 * Bug fix - Divide by zero in some situations during Bottom Friction routines.
 * Bug fix - Wave Date output in screen/diagnostic output. Changed to 'YYYY-MM-DD HH:MM:ss UTC' format
 * Minor - added better diagnostic output for Avalanching repose angles too large.
+* Minor - added better diagnostic output when error on reading Wave simulation file.
 
-== Version 5.2.14 (01/07/2021) ==
+== Version 5.2.14 (01/07/2022) ==
 * Minor: Added extra line of output to screen and diagnostic output while Ramp is in effect with the percentage being applied.
 * Minor: Added extra code to ensure the acceptance of various versions of horizontal projection
 ** i.e., NAD83, NAD_1983, NAD1983, NAD_1983_PA11, and so forth.

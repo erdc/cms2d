@@ -2,17 +2,17 @@
 ! Flow (hydrodynamic) routines
 ! 
 ! Contains the following routines:
-!   flow_default - Sets the default parameters for flow variables
-!   flow_cards   - Reads the flow cards and overrides the default settings
-!   flow_init    - Initializes the flow variables
-!   flow_print   - Prints the flow parameters to the diagnostic file and screen
-!   flow_alloc - Allocation of flow variables
-!   flow_cleanup  - Deallcoates flow variables
+!   flow_default   - Sets the default parameters for flow variables
+!   flow_cards     - Reads the flow cards and overrides the default settings
+!   flow_init      - Initializes the flow variables
+!   flow_print     - Prints the flow parameters to the diagnostic file and screen
+!   flow_alloc     - Allocation of flow variables
+!   flow_cleanup   - Deallcoates flow variables
 !   flow_step_stat - Calculates flow time step statistics and prints them to 
 !                    the screen and diagnostic file
-!   flow_wetdry   - Wetting and drying algorithm
-!   flow_pond     - Judges imponding and dead water
-!   flow_convflux      - Initialising volume fluxes based on cell-center velocities
+!   flow_wetdry    - Wetting and drying algorithm
+!   flow_pond      - Judges imponding and dead water
+!   flow_convflux  - Initializing volume fluxes based on cell-center velocities
 !
 ! written by Weiming Wu, NCCHE and Alex Sanchez, USACE-CHL
 !===============================================================================
@@ -842,7 +842,7 @@
     allocate(p(ncellsD),p1(ncellsD),pk(nmaxfaces,ncellsD))
     allocate(dpx(ncellsD),dpy(ncellsD))
     allocate(eta(ncellsD),uv(ncellsD))
-    allocate(maxeta(ncellsD))         !added MEB 9/20/2021
+    allocate(maxeta(ncellsD))                               !added MEB 9/20/2021
     allocate(h(ncellsD),h1(ncellsD)) 
     allocate(hk(nmaxfaces,ncellsD))
     allocate(u(ncellsD),u1(ncellsD),dux(ncellsD),duy(ncellsD))    

@@ -204,7 +204,7 @@
 
       real (kind=8)  a, b, f, e, e2, e4, e6
       real (kind=8)  phi, lambda, lambda0, phi0, k0
-      real (kind=8)  t, rho, m, x, y, k, mm, mm0
+      real (kind=8)  t, rho, x, y, mm, mm0                !m, k   Never used, so commented out from declaration  MEB  01/26/2022
       real (kind=8)  aa, aa2, aa3, aa4, aa5, aa6
       real (kind=8)  ep2, nn, tt, cc
 

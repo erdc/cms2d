@@ -1117,8 +1117,8 @@
 !
 ! Author: Alex Sanchez, USACE-CHL
 !*************************************************************
-    use geo_def, only: grdfile
-    use comvarbl, only: rampdur
+    !use geo_def, only: grdfile                            !never used, commented out   MEB  01/26/2022
+    !use comvarbl, only: rampdur                           !never used, commented out   MEB  01/26/2022
     use sed_def
     use diag_lib
     use prec_def
@@ -1321,7 +1321,7 @@ d1: do ii=1,10
     
     implicit none
     integer :: i,ii,ks,ierr,jlay,ipr,nsedchk
-    real    :: value
+    !real    :: value                                    !never used, commented out   MEB  01/26/2022
     character(len=37) :: cardname,cdum
     character(len=200) :: file,path
     logical :: foundcard
@@ -1555,10 +1555,10 @@ d1: do ii=1,30
 !***************************************************************************    
 #include "CMS_cpp.h"
     use size_def, only: ncells,ncellsD
-    use geo_def, only: zb,zb0,x,y
+    use geo_def, only: zb,zb0                                
     use flow_def, only: rhow,viscos,grav,gravinv
     use comvarbl, only: ntsch
-    use hot_def, only: coldstart
+    !use hot_def, only: coldstart                            !never used, commented out   MEB  01/26/2022
     use sed_def
     use beta_lib, only: bs_init
     use sed_lib
@@ -1574,7 +1574,7 @@ d1: do ii=1,30
     use prec_def
     
     implicit none
-    integer :: i,j,jj,ks,ierr,k
+    integer :: i,j,jj,ks,ierr
     real(ikind), allocatable :: d16lay(:),d35lay(:),d50lay(:),d84lay(:),d90lay(:)
     character(len=200) :: file,path
     character(len=100) :: msg2
@@ -2301,7 +2301,7 @@ d1: do ii=1,30
     use prec_def
     use tool_def,  only: vstrlz
     implicit none
-    integer :: i,ii,j,jj,ks,iunit(2),ierr
+    integer :: i,ii,j,jj,ks,iunit(2)
     real(ikind) :: pbklow(nsed,nlay),pbkhigh(nsed,nlay),pbkmean(nsed,nlay)
 
     if(.not.singlesize)then
@@ -2646,7 +2646,7 @@ d1: do ii=1,30
 ! written by Alex Sanchez, USACE-CHL
 !***********************************************************************   
 #include "CMS_cpp.h"
-    use size_def, only: ncells,ncellsD,ncellsfull
+    use size_def, only: ncells,ncellsD
     use geo_def
     use comvarbl
     use sed_def
@@ -2656,13 +2656,12 @@ d1: do ii=1,30
 #endif
     use in_lib, only: readscalTxt
     use diag_lib
-    use diag_def, only: dgunit,dgfile
     use prec_def
     
     implicit none
     integer :: i,ih,ierr,idhardtemp(ncellsD)
     integer :: hbwarn(ncellsD), nhbwarn
-    character(len=100) :: msg2,msg3,msg4,msg5
+    character(len=100) :: msg2,msg3
     character(len=10) :: aext
 
     call fileext(trim(hbfile),aext)      

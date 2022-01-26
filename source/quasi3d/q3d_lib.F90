@@ -888,7 +888,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************    
     use q3d_def, only: cvisvv,cvisvhc,visvcon
-    use flow_def, only: viscos,grav
+    use flow_def, only: grav                          !viscos   never used, commented out   MEB  01/26/2022
     use prec_def
     implicit none
     real(ikind),intent(in) :: hc,ustarb,ustars
@@ -915,8 +915,8 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !*********************************************************************************    
-    use q3d_def, only: cvisvv,cvisvhc,visvslp0,cvisvslpmu
-    use flow_def, only: viscos,grav
+    use q3d_def,  only: visvslp0,cvisvslpmu            !cvisvv, cvisvhc  are never used, commented out   MEB  01/26/2022
+    use flow_def, only: grav,viscos
     use prec_def
     implicit none
     real(ikind),intent(in) :: hc,Hsig,visvm
@@ -925,10 +925,10 @@ contains
     
     gam = 0.7071*Hsig/hc
     visvslp = visvslp0 + cvisvslpmu*sqrt(grav*hc)/gam !Based on Steetzel
-    visvslpmax = 2.0*(visvm-viscos)/hc !Maximum slope value
-    visvslp = min(visvslp,visvslpmax)  !Slope (limited to avoid negative values)
-    visv0 = visvm-visvslp*hc/2.0   !Bottom viscosity
-    visv0 = max(visv0,1.0e-6) !Avoid divide by zero
+    visvslpmax = 2.0*(visvm-viscos)/hc                !Maximum slope value
+    visvslp = min(visvslp,visvslpmax)                 !Slope (limited to avoid negative values)
+    visv0 = visvm-visvslp*hc/2.0                      !Bottom viscosity
+    visv0 = max(visv0,1.0e-6)                         !Avoid divide by zero
     
     return
     endsubroutine q3d_eddyvert_bottom_slope
