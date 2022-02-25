@@ -41,7 +41,7 @@
     version  = 5.2           ! CMS version         !For interim version
     revision = 16            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '01/26/2022'
+    rdate    = '02/23/2022'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -60,18 +60,16 @@
     release = .true.
 #endif
     
-    !n2Dor3D=2    !=2 for 2D; =3 for 3D    
-    
 #ifdef UNIT_TEST
     call CMS_test_run
     stop
 #else
     call steering_default 
 
-    call print_header     !screen and debug file header  
+    call print_header     !screen and debug file header 
     call get_com_arg      !get command line arguments
 
-    if(noptset==1) then   !CMS-Wave only, use Stand alone code unless INLINE card present   MEB  10/15/2018
+    if(noptset==1) then   !CMS-Wave only
       call sim_start_print  !start timer here
 
       !Might check to see if dtsteer already set
@@ -80,12 +78,14 @@
       coldstart=.true.
 
       open(dgunit,file=dgfile,access='append') !Note: Needs to be open for CMS-Wave
-      if (inlinewave) then
-        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
-      else
-        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
-!       call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
-      endif
+
+      ! Lihwa fixed issues requiring two separate wave models (inline and stand-alone).  Only calling 'inline' option now.
+      call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
+!      if (inlinewave) then
+!        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
+!      else
+!        call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
+!      endif
       
       close(dgunit)
 
@@ -114,8 +114,8 @@
       !endif
     endif
 #endif
-   
-    endprogram CMS2D
+
+    end program CMS2D
     
     
 !*************************************
@@ -149,20 +149,12 @@
       end function
     end interface    
       
-!!    narg = iargc() !Not supported by PGI
     narg = command_argument_count()
-!    if(narg==2) then  
-!       write(*,*) 'WARNING: No steering interval specified'
-!       write(*,*) '         Using default value of ',dtsteer/3600.0, ' hours'
-!       write(*,*)        
-!    endif      
     
     do i=0,min(narg,2)
-      if(i==0 .and. narg==0)then
-!CMS was called with no arguments
+      if(i==0 .and. narg==0)then      !CMS was called with no arguments
         write(*,*) ' '
-        write(*,*) 'Type name of CMS-Flow Card File or '
-        write(*,*) '  CMS-Wave Sim File and Press <RETURN>'
+        write(*,*) 'Enter CMS-Flow Card File, CMS-Wave Sim File, or "Tools" and Press <RETURN>'
         write(*,*) ' '
         read(*,*) astr
       elseif(i==0 .and. narg>0)then

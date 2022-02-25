@@ -23,6 +23,8 @@
     use out_def
     use comvarbl, only: casename,flowpath!,input_ver
     implicit none
+	
+	integer :: i
     
     obs_cell = .false.           !Observation cells
     save_point = .false.         !Save point cells specified
@@ -183,7 +185,11 @@
     allocate(savept(5)%names(2),savept(5)%ounit(2),savept(5)%vals(2))
     savept(5)%names(1) = 'depth' ; savept(1)%ounit(1) = 'm' ; savept(5)%vals(1) = 1
     savept(5)%names(2) = 'morph' ; savept(2)%ounit(2) = 'm' ; savept(5)%vals(2) = 1
-    
+	
+    do i=1,noutputs
+      aoutput_lengths(i) = len_trim(aoutputs(i))
+    enddo
+	   
     return
     endsubroutine out_default
 
