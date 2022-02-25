@@ -16,6 +16,80 @@ module out_def
     character(len=200) :: dgoutfile  !Diagnostic global output file _diag.h5 (for model crashes)
     character(len=200) :: outpath    !Path directory for output files
     character(len=200) :: outprefix  !Prefix of output files including path
+	
+	integer			   :: noutputs = 74, aoutput_lengths(74)
+    character(len=30)  :: aoutputs(74)
+    data aoutputs  /'Water_Elevation',&                          !Water Surface Elevation (1-15)
+                    'Pres_Norm_Res',&      
+                    'Pressure','Pressure1',&      
+                    'Total_Water_Depth',&      
+                    'Pred_Water_Depth',&      
+                    'Pred_Water_Elevation',&      
+                    'detax','detay',&      
+                    'dpx','dpy',&      
+                    'Pressure_Correction',&      
+                    'dppx','dppy',&      
+                    'Vol_Per_Err',&    
+		
+                    'Current_Magnitude',&					     !Current Velocity (16-31)
+                    'Current_Velocity',&    
+                    'Total_Flux_Velocity',&    
+                    'Total_Flux_Velocity_Magnitude',&    
+                    'Predicted_Current_Velocity',&    
+                    'dux','duy','dvx','dvy',&    
+                    'd2udx2','d2udy2','d2vdx2','d2vdy2',&    
+                    'Streamwise_Curvature',&    
+                    'Vx_Norm_Res','Vy_Norm_Res',&    
+		
+                    'Eddy_Viscosity',&                           !Eddy Viscosity (32)
+		
+                    'Concentration',&                            !Sediment Transport and Morphology (33-42)
+                    'Capacity',&    
+                    'Total_Sediment_Transport',&    
+                    'Fraction_Suspended',&    
+                    'Conc_Res',&    
+                    'alphat',&    
+                    'Wave_Sed_Trans_Onshore',&    
+                    'Wave_Sed_Trans',&    
+                    'Depth',&    
+                    'Morphology_Change',&    
+		
+                    'Salinity',&                                 !Salinity (43)
+		
+                    'Temperature',&                              !Temperature (44)
+		
+                    'Wave_Height',&                              !Wave (45-57)
+                    'Wave_Period',&    
+                    'Wave_Height_Vec',&    
+                    'Wave_Dissipation',&    
+                    'Wave_Rad_Str',&    
+                    'Wave_Rad_Str_Mag',&    
+                    'Wave_Bot_Orb_Vel',&    
+                    'Wave_Length',&    
+                    'Wave_Flux_Velocity',&    
+                    'Wave_Flux_Velocity_Magnitude',&    
+                    'Roller_Energy',&    
+                    'Roller_Stress',&    
+                    'Roller_Dissipation',&   
+		
+                    'Wind_Velocity',&                            !Meteorological (58-64)
+                    'Wind_Magnitude',&    
+                    'Wind_Stress',&    
+                    'Wind_Stress_Magnitude',&    
+                    'Atm_Pressure',&    
+                    'Atm_Pressure_GradX',&    
+                    'Atm_Pressure_GradY',&  
+		
+                    'Bed_Shear_Stress_Mean',&					 !Roughness (65-74)
+                    'Norm_App_Rough',&    
+                    'Norm_Rough',&    
+                    'Roughness_Height_Total',&    
+                    'Roughness_Height_Ripple',&    
+                    'Roughness_Height_Megaripple',&    
+                    'Roughness_Height_Dune',&    
+                    'Roughness_Height_Grain',&    
+                    'Roughness_Height_Transport_Current',&    
+                    'Mannings_Coefficient'/ 
     
 !--- Output Times List ---------------------------------   
    type output_time_list

@@ -4,19 +4,20 @@
 ! written by Mitchell Brown, USACE-CHL
 ! 1 and 2 - 04/14/2021
 ! 3 - 9/30/2021
+! 4 - 2/09/2022
 !******************************************************    
     use diag_lib, only: diag_print_message
     implicit none
     integer :: ichoice 
     
-50  continue
+50	continue
     
-    write(*,*) ''
     write(*,*) '*****************************************************************'
     write(*,*) 'Make a choice from the following CMS Tools'
     write(*,*) '1 - Print RT_JULIAN/REFTIME corresponding to actual date'
     write(*,*) '2 - Print actual date corresponding to RT_JULIAN/REFTIME'
     write(*,*) '3 - Read WSE Dataset and output a Max WSE dataset for all times'
+    write(*,*) '4 - Take multiple solution datasets and merge into one file'
     write(*,*) '9 - Exit'
     write(*,*) '*****************************************************************'
     write(*,*) ''
@@ -31,6 +32,9 @@
       call clear_screen
     case (3)
       call CMS_MaxWSE
+      call clear_screen
+    case (4)                  !Added 02/09/2022  MEB
+      call MultiDatasets_toOne
       call clear_screen
     case (9)
       STOP
@@ -53,9 +57,203 @@
 #endif
 
       return
-      end subroutine clear_screen
+	  end subroutine clear_screen
+	  
+!******************************************************
+      subroutine find_in_output_strings (a_str, member)
+	    use out_def, only: noutputs, aoutputs
+	    implicit none
+		character(len=*), intent(in) :: a_str
+		integer, intent(out)         :: member
+		
+		integer  :: i,iloc
+		logical  :: found = .false.
+		
+		do i=1, noutputs
+		  iloc = index(a_str,trim(aoutputs(i)))
+		  if (iloc .gt. 0) then
+			found = .true.
+			exit
+		  endif
+		enddo
+		if (found) then
+		  member = i
+		else
+		  member = -1
+		endif
+		
+		return
+	  end subroutine find_in_output_strings
+		  
+		
       
+!******************************************************
+! Read input from the keyboard to choose number of files/datasets to merge from individual files into a common file
+! - needed by Honghai for combining newer solutions into one file for PTM.
+! written by Mitchell Brown, USACE-CHL  2/09/2022
+!****************************************************** 
+	  subroutine MultiDatasets_toOne
+        use diag_lib, only: diag_print_message
+        use out_lib,  only: OPEN_CREATE_DATASET   
+		use out_def,  only: noutputs, aoutputs, aoutput_lengths, simlabel
+        use comvarbl, only: reftime
+        use EXP_Global_def, only: RROUND
+        use xmdf
+        
+        implicit none
+        integer   :: numFiles, i, j, k, ierr, fid, gid, nfid, ndid, ncells, a_NumTimes
+        integer   :: a_Number, nDsets, sMaxPathLength, vMaxPathLength, nDim
+        integer   :: nSDsets, nVDsets, complete, iloc, member
+        real(4)   :: Num
+        logical   :: exists
 
+        integer,allocatable :: Dims(:), lengths(:)
+        real(4),allocatable :: SValues(:), VValues(:,:)
+        real(8),allocatable :: Times(:)
+        character(len=100),allocatable :: filenames(:), dsets(:)
+        character(len=100),allocatable :: paths(:)
+        character(len=100) :: a_Path, newFile, units, which
+        character(len=500) :: sPath(1),vPath(1)
+
+        !Determine output lengths
+		do k=1,noutputs
+          aoutput_lengths(k) = len_trim(aoutputs(k))
+        enddo
+
+        write(*,*)' '
+        write(*,'(A)',advance='no') 'How many solution datasets to merge into one file? '
+        read(*,*) numFiles
+        allocate(filenames(numFiles),dsets(numFiles),Dims(numFiles))
+        
+        !Loop through individual files, reading all datasets included in each
+		i = 1
+        do
+          which = 'first'
+          if (i .ne. 1) which = 'next'
+          write(*,*)' '
+          write(*,'(A)',advance='no') 'Enter '//trim(which)//' filename which holds a dataset to merge: '
+          read(*,*) filenames(i)
+          inquire(FILE=trim(filenames(i)),EXIST=exists)
+          if (.not.exists) then
+            write(*,'(A)') 'File not found, try again'
+            cycle
+		  endif
+		  
+          call XF_OPEN_FILE(trim(filenames(i)),READONLY,fid,ierr)
+          call XF_GET_SCALAR_DATASETS_INFO (fid, nSDsets, sMaxPathLength, ierr)
+          call XF_GET_VECTOR_DATASETS_INFO (fid, nVDsets, vMaxPathLength, ierr)
+          nDsets = nSDsets + nVDsets
+          allocate(Paths(nDsets),lengths(nDsets))
+          Paths=' '; sPath = ' '; vPath = ' ';
+          
+          !Get paths
+          call XF_GET_SCALAR_DATASET_PATHS (fid, nSDsets, sMaxPathLength, sPath, ierr)
+          call XF_GET_VECTOR_DATASET_PATHS (fid, nVDsets, vMaxPathLength, vPath, ierr)
+		  
+		  !Find simlabel in path to help determine which dataset and what the proper length is
+		  iloc = index(sPath(1),'/',.false.)
+		  simlabel = sPath(1)(1:iloc)
+		  
+          !List scalar datasets in file
+          write(*,*) ' '
+          write(*,*) ' Datasets contained in '//trim(filenames(i))//': '
+		  k = 1
+          do j=1,nSDsets
+			call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)           !Pass in the string to determine which of the output dataset names it is.
+			lengths(j) = aoutput_lengths(member) + len_trim(simlabel) - 1                !Set the proper length (there is a lot of garbage characters in the array of paths)
+            Paths(j) = sPath(1)(k:k+lengths(j))
+            write(*,'(2x,i2,A)') j,' - '//trim(Paths(j))
+			k = k + sMaxPathLength														 !Have to parse through multiple paths in one long string to find each.
+          enddo
+		  k = 1
+          do j=1,nVDsets
+			call find_in_output_strings (vPath(1)(k:k+vMaxPathLength), member)
+			lengths(j+nSDsets) = aoutput_lengths(member) + len_trim(simlabel) - 1
+            Paths(j+nSDsets) = vPath(1)(k:k+lengths(j+nSDsets))
+            write(*,'(2x,i2,A)') j+nSDsets,' - '//trim(Paths(j+nSDsets))
+			k = k + vMaxPathLength
+          enddo
+          write(*,*) ' '
+          write(*,'(A)',advance='no') 'Enter number of the dataset to merge: '
+          read(*,*) a_Number
+          
+		  !Add proper path name to the list of datasets to merge.  Also set the number of dimensions based on the type.
+          dsets(i) = Paths(a_Number)
+          if (a_Number .le. nSDsets) then 
+            Dims(i)= 1
+          else
+            Dims(i)= 2
+          endif
+          
+          deallocate(Paths,lengths)
+
+          i = i + 1                        !Move on to next file
+          if (i .gt. numFiles) then
+            exit
+          endif
+        enddo
+        
+        !Now open datasets and copy to new file
+        write(*,*)' '
+        write(*,'(A)',advance='no') 'Enter name of new file to create with merged datasets: '
+        read(*,*) newFile
+        inquire(FILE=trim(newFile),EXIST=exists)
+        if (exists) then
+          open (11,file=newFile)
+          close (11,status='delete')
+        endif
+        call XF_CREATE_FILE(trim(newFile),readwrite,nfid,ierr)
+        call XF_CLOSE_FILE(nfid,ierr)
+        
+        do i=1,numFiles
+          call XF_OPEN_FILE (trim(newFile),readwrite,nfid,ierr)
+          call XF_OPEN_FILE (trim(filenames(i)),READONLY,fid,ierr)
+          call XF_OPEN_GROUP(fid,trim(dsets(i)),gid,ierr)
+          
+          call XF_READ_REFTIME(gid,Reftime,ierr)
+          call XF_GET_DATASET_NUM_TIMES(gid, a_NumTimes, ierr)
+          if(.not.allocated(Times)) allocate(Times(a_NumTimes))
+          Times = 0.0
+          
+          call XF_GET_DATASET_TIMES(gid, a_NumTimes, Times, ierr)
+          call XF_GET_DATASET_NUMVALS(gid, nCells, ierr)
+          if(.not.allocated(Svalues)) allocate (Svalues(nCells),Vvalues(2,nCells))
+          Svalues = 0.0; Vvalues = 0.0
+          nDim = Dims(i)
+          call OPEN_CREATE_DATASET(nfid,trim(dsets(i)),ndid,nDim,'',ierr)
+
+          complete = 0
+          write(*,*) ' '
+          write(*,'(A)') ' Copying dataset: '//trim(dsets(i))
+          do j=1,a_NumTimes
+            if(nDim == 1) then
+              call XF_READ_SCALAR_VALUES_TIMESTEP(gid, j, nCells, Svalues, ierr)
+              call XF_WRITE_SCALAR_TIMESTEP(ndid,Times(j),nCells, Svalues, ierr)
+            else
+              call XF_READ_VECTOR_VALUES_TIMESTEP(gid, j, nCells, nDim, VValues, ierr)
+              call XF_WRITE_VECTOR_TIMESTEP(ndid,Times(j),nCells, nDim, VValues, ierr)
+            endif
+            num = real(j)/real(a_NumTimes)*100
+            if (num .ge. complete) then
+              write(*,'(2x,I3,x,A)') complete, 'Percent Complete'
+              complete = complete + 10
+            endif
+          enddo
+          call XF_CLOSE_GROUP(ndid, ierr) !Close new group
+          call XF_CLOSE_FILE (nfid, ierr) !Close new file
+          call XF_CLOSE_GROUP(gid, ierr)  !Close old group
+          call XF_CLOSE_FILE (fid, ierr)  !Close old file
+        enddo
+
+        write(*,*) 'Saved file: '//trim(newFile)
+        write(*,*) ' '
+        write(*,*) 'Press the Enter key to continue'
+        read(*,*) 
+        
+      return
+      end subroutine MultiDatasets_toOne
+      
+      
 !******************************************************
       subroutine CMS_MaxWSE
         use diag_lib, only: diag_print_message
