@@ -182,7 +182,7 @@
       endif
     case(1); call read_tel       !Read telescoping grid from ASCII file        
     case(2); call read_2dm       !Read unstructured 2d mesh  
-    !case(3); call read_curv     !Not implimented yet
+    !case(3); call read_curv     !Not implemented yet
     case default
       call diag_print_error('Unsupported Input Grid Type')
     endselect
