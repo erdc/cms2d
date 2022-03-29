@@ -294,78 +294,86 @@
     character*200 file,path
     logical :: foundcard
     
-    if (write_dredge_diag) then 
-      open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
-      write(2056,*)'IN placement block num areas = ',num_place_areas
-    endif
-    
-    num_place_areas = num_place_areas + 1
-    dredge_operations(ndredge_operations)%NumPlacementAreas = num_place_areas
-    call placement_area_increment()
-    
-    if (write_dredge_diag) then
-      write(2056,*)'and updated to num areas = ',num_place_areas   
-      write(2056,*)'num ar set to: ', dredge_operations(ndredge_operations)%NumPlacementAreas
-    endif  
-     
-    do kk=1,20
-      foundcard = .true.  
-      read(77,*,iostat=ierr) cardname
-      if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
-      selectcase(cardname) 
-
-      case('AREA','AREA_DATASET')
-        call card_dataset(77,grdfile,flowpath,File,Path,1) 
-        !backspace(77)
-        !read(77,*)cardname,File,Path             
-        dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas) = trim(File)
-        dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas) = trim(Path)
+    read(77,*) cardname
+    if (cardname(1:13) .ne. 'PLACEMENT_END') then
+      backspace(77)  !back up and continue reading block
       
-      case('START_METHOD','PLACEMENT_METHOD')   
-        backspace(77)
-        read(77,*)cardname,METHOD
-        selectcase(trim(METHOD))
-        case('UNIFORM')
-          dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=1
-        
-        case('CELL','SPECIFIED CELL')                !meb added 'SPECIFIED CELL' 6/5/2019 to be consistent between interface and CMS input
-          dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=2      
+      if (write_dredge_diag) then 
+        open(unit=2056,file='dredge_module_diagnostics.txt',status='OLD')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+        write(2056,*)'IN placement block num areas = ',num_place_areas
+      endif
+    
+      num_place_areas = num_place_areas + 1
+      dredge_operations(ndredge_operations)%NumPlacementAreas = num_place_areas
+      call placement_area_increment()
+    
+      if (write_dredge_diag) then
+        write(2056,*)'and updated to num areas = ',num_place_areas   
+        write(2056,*)'num ar set to: ', dredge_operations(ndredge_operations)%NumPlacementAreas
+      endif  
+      
+      do kk=1,20
+        foundcard = .true.  
+        read(77,*,iostat=ierr) cardname
+        if(ierr/=0) exit
+        if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
+        selectcase(cardname) 
+  
+        case('AREA','AREA_DATASET')
+          call card_dataset(77,grdfile,flowpath,File,Path,1) 
+          !backspace(77)
+          !read(77,*)cardname,File,Path             
+          dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas) = trim(File)
+          dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas) = trim(Path)
+      
+        case('START_METHOD','PLACEMENT_METHOD')   
+          backspace(77)
+          read(77,*)cardname,METHOD
+          selectcase(trim(METHOD))
+          case('UNIFORM')
+            dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=1
           
+          case('CELL','SPECIFIED CELL')                !meb added 'SPECIFIED CELL' 6/5/2019 to be consistent between interface and CMS input
+            dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=2      
+            
+          case default
+            write(*,*)'PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED'
+            STOP
+          endselect  
+         
+        case('DISTRIBUTION_PERCENTAGE')         
+          backspace(77)
+          !write(*,*)"DP2",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
+          read(77,*)cardname,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
+          !write(*,*)"DP3",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
+         
+        case('START_CELL')         
+          backspace(77)          
+          read(77,*)cardname, dredge_operations(ndredge_operations)%Placement_Start_Cell(num_place_areas)  
+        
+        case('THICKNESS_LIMIT')
+          call card_scalar(77,'m','m',scalar,ierr) 
+          dredge_operations(ndredge_operations)%Placement_Thickness(num_place_areas) = scalar
+        
+        case('DEPTH_LIMIT')
+          call card_scalar(77,'m','m',scalar,ierr) 
+          dredge_operations(ndredge_operations)%Placement_Depth(num_place_areas) = scalar
+        
+        case('PLACEMENT_END')
+          return
+            
         case default
-          write(*,*)'PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED'
-          STOP
-        endselect  
-       
-      case('DISTRIBUTION_PERCENTAGE')         
-        backspace(77)
-        !write(*,*)"DP2",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
-        read(77,*)cardname,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
-        !write(*,*)"DP3",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
-       
-      case('START_CELL')         
-        backspace(77)          
-        read(77,*)cardname, dredge_operations(ndredge_operations)%Placement_Start_Cell(num_place_areas)  
-      
-      case('THICKNESS_LIMIT')
-        call card_scalar(77,'m','m',scalar,ierr) 
-        dredge_operations(ndredge_operations)%Placement_Thickness(num_place_areas) = scalar
-      
-      case('DEPTH_LIMIT')
-        call card_scalar(77,'m','m',scalar,ierr) 
-        dredge_operations(ndredge_operations)%Placement_Depth(num_place_areas) = scalar
-      
-      case('PLACEMENT_END')
-        return
+          foundcard = .false.
+          write(*,*)trim(cardname)," not recognized"
           
-      case default
-        foundcard = .false.
-        write(*,*)trim(cardname)," not recognized"
-        
-      endselect
-    enddo
+        end select
+      enddo
+
+      if (write_dredge_diag) close(2056)
     
-    if (write_dredge_diag) close(2056)
+    else                     !NO CARDS INSIDE THE PLACEMENT_BEGIN/END BLOCK   MEB  03/29/2022
+      continue     !DO NOTHING
+    endif
     
     return
     endsubroutine placement_block   
@@ -721,7 +729,7 @@
       datafile = dredge_operations(k)%DredgeSourceAreaFile
       inquire(file=datafile,exist=found)
       if(.not.found)then
-        msg='File not found: '//trim(datafile)
+        msg='Source Area File not found: '//trim(datafile)
         call diag_print_error(msg)
       endif
       
@@ -784,7 +792,7 @@
         datafile = dredge_operations(k)%DredgePlaceAreaFile(j)        
         inquire(file=datafile,exist=found)
         if(.not.found)then
-          msg='File not found: '//trim(datafile)
+          msg='Placement Area File not found: '//trim(datafile)
           call diag_print_error(msg)
         endif
         datapath = dredge_operations(k)%DredgePlaceAreaPath(j)
