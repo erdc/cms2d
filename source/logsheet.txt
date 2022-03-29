@@ -1,3 +1,7 @@
+== Version 5.2.17 (03/29/2022) ==
+* Bug fix for Wave structures
+* Bug fix for Dredge/Placement where no cards exist between PLACEMENT_BEGIN and PLACEMENT_END statements.
+
 == Version 5.2.16 (02/23/2022) == 
 * Bug fix - Path was not being prepended to the wave file names, so if they weren't in the same directory, it failed.
 * Added new option to 'Tools' menu for merging datasets from multiple files into one solution file (XMDF).

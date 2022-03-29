@@ -18,6 +18,7 @@
     write(*,*) '2 - Print actual date corresponding to RT_JULIAN/REFTIME'
     write(*,*) '3 - Read WSE Dataset and output a Max WSE dataset for all times'
     write(*,*) '4 - Take multiple solution datasets and merge into one file'
+    write(*,*) '5 - Extract data for one cell from mult. datasets to text file'
     write(*,*) '9 - Exit'
     write(*,*) '*****************************************************************'
     write(*,*) ''
@@ -35,6 +36,9 @@
       call clear_screen
     case (4)                  !Added 02/09/2022  MEB
       call MultiDatasets_toOne
+      call clear_screen
+    case (5)                  !Added 03/16/2022  MEB
+      call ExtractMultiDatasets_toText
       call clear_screen
     case (9)
       STOP
@@ -83,9 +87,238 @@
 		endif
 		
 		return
-	  end subroutine find_in_output_strings
+      end subroutine find_in_output_strings
 		  
 		
+!******************************************************
+! Read input from the keyboard to choose number of files/datasets to extract data for one cell ID into a text file
+! written by Mitchell Brown, USACE-CHL  3/16/2022
+!****************************************************** 
+      subroutine ExtractMultiDatasets_toText
+        use diag_lib,  only: diag_print_message
+        use geo_def,   only: mapid,idmap
+        use out_lib,   only: OPEN_CREATE_DATASET   
+		use out_def,   only: noutputs, aoutputs, aoutput_lengths, simlabel
+        use const_def, only: rad2deg
+        use EXP_Global_def, only: RROUND
+        use xmdf
+        
+        implicit none        
+        integer            :: cellID, a_Number, nDsets, sMaxPathLength, vMaxPathLength
+        integer            :: numFiles, i, j, k, ierr, fid, gid, nfid, ndid, ncells, a_NumTimes
+        integer            :: nSDsets, nVDsets, complete, iloc, member, nDim, labelLength
+        real(4)            :: num, wDir, wAbs, uVal, vVal
+        logical            :: exists
+        character(len=100) :: newFile, a_Path, cardfile
+        character(len=500) :: sPath(1),vPath(1), cardname
+        character(len=5)   :: which
+        character          :: achoice
+        
+        character(len=100), allocatable :: filenames(:), dsets(:), paths(:)
+        integer, allocatable :: Dims(:), lengths(:)
+        real(4),allocatable  :: SValues(:), VValues(:,:)
+        real(8),allocatable  :: Times(:)
+        
+       !Determine output lengths
+		do k=1,noutputs
+          aoutput_lengths(k) = len_trim(aoutputs(k))
+        enddo
+      
+        !Read card file to get geometry information to map ID correctly.
+10      write(*,*)' '
+        write(*,'(A)',advance='no') 'Enter name of grid file: '
+        read(*,*) cardfile
+        inquire(FILE=trim(cardfile),EXIST=exists)
+        if (.not. exists) then
+          call diag_print_message('File not found, try again',' ')
+          goto 10
+        endif
+        open(77,file=cardfile,status='unknown')
+        do
+          read(77,*) cardname
+          if (trim(cardname)=='GRID_FILE') exit
+        enddo
+        call geo_cards(cardname, exists, .false.)
+        do 
+          read(77,*) cardname
+          if (trim(cardname)=='BATHYMETRY_DATASET') exit
+        enddo
+        call geo_cards(cardname, exists, .false.)
+        do 
+          read(77,*) cardname
+          if (trim(cardname)=='GRID_CELL_TYPES') exit
+        enddo
+        call geo_cards(cardname, exists, .false.)
+        call read_grid_xmdf
+        close(77)
+        
+        write(*,*)' '
+        write(*,'(A)',advance='no') 'Enter Cell ID for which to extract data: '
+        read(*,*) cellID
+        !map SMS ID to internal ID
+        cellID = mapid(cellID)
+        
+        write(*,*)' '
+        write(*,'(A)',advance='no') 'How many datasets to extract information for? '
+        read(*,*) numFiles
+        allocate(filenames(numFiles),dsets(numFiles),Dims(numFiles))
+        
+        !Loop through individual files, reading all datasets included in each
+		i = 1
+        do
+          which = 'first'
+          if (i .ne. 1) which = 'next'
+          write(*,*)' '
+          write(*,'(A)',advance='no') 'Enter '//trim(which)//' filename which holds a dataset to merge: '
+          read(*,*) filenames(i)
+          inquire(FILE=trim(filenames(i)),EXIST=exists)
+          if (.not.exists) then
+            write(*,'(A)') 'File not found, try again'
+            cycle
+		  endif
+		  
+          call XF_OPEN_FILE(trim(filenames(i)),READONLY,fid,ierr)
+          call XF_GET_SCALAR_DATASETS_INFO (fid, nSDsets, sMaxPathLength, ierr)
+          call XF_GET_VECTOR_DATASETS_INFO (fid, nVDsets, vMaxPathLength, ierr)
+          nDsets = nSDsets + nVDsets
+          allocate(Paths(nDsets),lengths(nDsets))
+          Paths=' '; sPath = ' '; vPath = ' ';
+          
+          !Get paths
+          call XF_GET_SCALAR_DATASET_PATHS (fid, nSDsets, sMaxPathLength, sPath, ierr)
+          call XF_GET_VECTOR_DATASET_PATHS (fid, nVDsets, vMaxPathLength, vPath, ierr)
+		  
+		  !Find simlabel in path to help determine which dataset and what the proper length is
+		  iloc = index(sPath(1),'/',.false.)
+		  simlabel = sPath(1)(1:iloc)
+          labelLength = len_trim(simlabel)
+		  
+          !List scalar datasets in file
+          write(*,*) ' '
+          write(*,*) ' Datasets contained in '//trim(filenames(i))//': '
+		  k = 1
+          do j=1,nSDsets
+			call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)           !Pass in the string to determine which of the output dataset names it is.
+			lengths(j) = aoutput_lengths(member) + labelLength - 1                !Set the proper length (there is a lot of garbage characters in the array of paths)
+            Paths(j) = sPath(1)(k:k+lengths(j))
+            write(*,'(2x,i2,A)') j,' - '//trim(Paths(j))
+			k = k + sMaxPathLength														 !Have to parse through multiple paths in one long string to find each.
+          enddo
+		  k = 1
+          do j=1,nVDsets
+			call find_in_output_strings (vPath(1)(k:k+vMaxPathLength), member)
+			lengths(j+nSDsets) = aoutput_lengths(member) + labelLength - 1
+            Paths(j+nSDsets) = vPath(1)(k:k+lengths(j+nSDsets))
+            write(*,'(2x,i2,A)') j+nSDsets,' - '//trim(Paths(j+nSDsets))
+			k = k + vMaxPathLength
+          enddo
+          write(*,*) ' '
+          write(*,'(A)',advance='no') 'Enter number of the dataset to merge: '
+          read(*,*) a_Number
+          
+		  !Add proper path name to the list of datasets to merge.  Also set the number of dimensions based on the type.
+          dsets(i) = Paths(a_Number)
+          if (a_Number .le. nSDsets) then 
+            Dims(i) = 1
+          else
+            write(*,'(A)',advance='no') '  Do you want to compute direction from U/V components? Y/n: '
+            read(*,*) achoice
+            if (achoice == 'N' .or. achoice == 'n') then
+              Dims(i) = 2
+            else
+              Dims(i) = 3
+            endif
+          endif
+          deallocate(Paths,lengths)
+
+          i = i + 1                        !Move on to next file
+          if (i .gt. numFiles) then
+            exit
+          endif
+        enddo
+        
+        !Now open datasets and copy to new file
+        write(*,*)' '
+        write(*,'(A)',advance='no') 'Enter name of text file to export information to: '
+        read(*,*) newFile
+        inquire(FILE=trim(newFile),EXIST=exists)
+        if (exists) then               !If it exists, delete and write over it
+          open (11,file=newFile)
+          close (11,status='delete')
+        endif
+        open(11, file=newfile)
+        write(11,'(i0)') numFiles
+        close(11)
+        
+        !Iterate through the files to extract the data from XMDF files and then write information to the text file.
+        do i=1,numFiles
+          call XF_OPEN_FILE (trim(filenames(i)),READONLY,fid,ierr)
+          call XF_OPEN_GROUP(fid,trim(dsets(i)),gid,ierr)
+          
+          call XF_GET_DATASET_NUM_TIMES(gid, a_NumTimes, ierr)
+          if(allocated(Times)) deallocate(Times)
+          allocate(Times(a_NumTimes))
+          Times = 0.0
+          
+          open(11, file=newfile, ACCESS='APPEND')
+          select case (Dims(i))
+          case (1)
+            write(11,'(2(i0,2x),A)') i, a_NumTimes, trim(dsets(i))
+          case (2)
+            write(11,'(2(i0,2x),"U and V",3x,A)') i, a_NumTimes, trim(dsets(i))
+          case default
+            write(11,'(2(i0,2x),"U, V, and Dir",3x,A)') i, a_NumTimes, trim(dsets(i))
+          end select
+          
+          call XF_GET_DATASET_TIMES(gid, a_NumTimes, Times, ierr)
+          call XF_GET_DATASET_NUMVALS(gid, nCells, ierr)
+          if(.not.allocated(Svalues)) allocate (Svalues(nCells),Vvalues(2,nCells))
+          Svalues = 0.0; Vvalues = 0.0
+          nDim = Dims(i)
+
+          complete = 0
+          write(*,*) ' '
+          write(*,'(A,i0,A)') 'Extracting ',a_NumTimes, ' times from dataset: '//trim(dsets(i))
+          do j=1,a_NumTimes
+            select case (nDim)
+            case (1)
+              call XF_READ_SCALAR_VALUES_TIMESTEP(gid, j, nCells, Svalues, ierr)
+              write(11,'(F13.3,2x,F13.8)') Times(j), Svalues(cellID)
+            case (2) 
+              call XF_READ_VECTOR_VALUES_TIMESTEP(gid, j, nCells, 2, VValues, ierr)
+              write(11,'(F13.3,2(2x,F13.8))') Times(j), Vvalues(1,cellID), Vvalues(2,cellID)
+            case default
+              call XF_READ_VECTOR_VALUES_TIMESTEP(gid, j, nCells, 2, VValues, ierr)
+              uVal = Vvalues(1,cellID) ; vVal = Vvalues(2,cellID)
+              wAbs = uVal*uVal + vVal*vVal
+              if (wAbs .ne. 0.0) then
+                wDir = atan2(uVal/wAbs, vVal/wAbs)
+                wDir = wDir * rad2deg
+              else 
+                wDir = 0
+              endif
+              write(11,'(F13.3,3(2x,F13.8))') Times(j), Vvalues(1,cellID), Vvalues(2,cellID), wDir
+            end select
+            
+            num = real(j)/real(a_NumTimes)*100
+            if (num .ge. complete) then
+              write(*,'(2x,I3,x,A)') complete, 'Percent Complete'
+              complete = complete + 5
+            endif
+          enddo
+          call XF_CLOSE_GROUP(gid, ierr)  !Close old group
+          call XF_CLOSE_FILE (fid, ierr)  !Close old file
+          close(11)
+        enddo
+
+        write(*,*) 'Saved file: '//trim(newFile)
+        write(*,*) ' '
+        write(*,*) 'Press the Enter key to continue'
+        read(*,*) 
+        
+
+      return
+      end subroutine ExtractMultiDatasets_toText
       
 !******************************************************
 ! Read input from the keyboard to choose number of files/datasets to merge from individual files into a common file

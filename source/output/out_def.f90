@@ -58,24 +58,24 @@ module out_def
 		
                     'Temperature',&                              !Temperature (44)
 		
-                    'Wave_Height',&                              !Wave (45-57)
+                    'Wave_Height_Vec',&                          !Wave (45-57)
+                    'Wave_Height',&                              
                     'Wave_Period',&    
-                    'Wave_Height_Vec',&    
                     'Wave_Dissipation',&    
                     'Wave_Rad_Str',&    
                     'Wave_Rad_Str_Mag',&    
                     'Wave_Bot_Orb_Vel',&    
                     'Wave_Length',&    
-                    'Wave_Flux_Velocity',&    
                     'Wave_Flux_Velocity_Magnitude',&    
+                    'Wave_Flux_Velocity',&    
                     'Roller_Energy',&    
                     'Roller_Stress',&    
                     'Roller_Dissipation',&   
 		
                     'Wind_Velocity',&                            !Meteorological (58-64)
                     'Wind_Magnitude',&    
-                    'Wind_Stress',&    
                     'Wind_Stress_Magnitude',&    
+                    'Wind_Stress',&    
                     'Atm_Pressure',&    
                     'Atm_Pressure_GradX',&    
                     'Atm_Pressure_GradY',&  

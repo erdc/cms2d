@@ -787,31 +787,35 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(ijstruc1.ge.1) then
         write(*,*) ' '
         write(*,*) '*** Land/reef/trench feature ***'
-        write(*,*) '   (need feature depth info,'
-        write(*,*) '    can be negative for land)'
-        write(*,*) 'Total Struc 1 Cell(s)=',ijstruc1
+        write(*,*) '   (need feature depth info, can be negative for land)'
+        write(*,'(A,I0)') ' Total Struc 1 Cell(s): ',ijstruc1
+        write(*,*) '********************************'
+        write(*,*) ' '
         if(noptset.eq.3)then
           write(9,*) ' '
           write(9,*) '*** Land/reef/trench feature ***'
-          write(9,*) '   (need feature depth info,'
-          write(9,*) '    can be negative for land)'
-          write(9,*) 'Total Struc 1 Cell(s)=',ijstruc1
+          write(9,*) '   (need feature depth info, can be negative for land)'
+          write(9,'(A,I0)') ' Total Struc 1 Cell(s): ',ijstruc1
+          write(*,*) '********************************'
+          write(*,*) ' '
         endif  
       end if
       if(ijstruc2.ge.1) then
         write(*,*) ' '
         write(*,*) '*** Wave run-up calculation ***'
-        write(*,*) '    (input max beach height,'
-        write(*,*) '     or top structure elev.,'
+        write(*,*) '    (input max beach height or top structure elev.,'
         write(*,*) '     no effect if elev < 0 m)'
-        write(*,*) 'Total Struc 2 Cell(s)=  ',ijstruc2
+        write(*,'(A,I0)') ' Total Struc 2 Cell(s):  ',ijstruc2
+        write(*,*) '*******************************'
+        write(*,*) ' '
         if(noptset.eq.3)then
           write(9,*) ' '
           write(9,*) '*** Wave run-up calculation ***'
-          write(9,*) '    (input max beach height,'
-          write(9,*) '     or top structure elev.,'
+          write(9,*) '    (input max beach height or top structure elev.,'
           write(9,*) '     no effect if elev < 0 m)'
-          write(9,*) 'Total Struc 2 Cell(s)=',ijstruc2
+          write(9,'(A,I0)') ' Total Struc 2 Cell(s): ',ijstruc2
+          write(*,*) '*******************************'
+          write(*,*) ' '
         endif 
         irs=2
       end if
@@ -829,58 +833,65 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(ic3.ge.1) then
           write(*,*) ' '
           write(*,*) '*** Floating Breakwater ***'
-          write(*,*) '    (need average draft'
-          write(*,*) '     < depth & > 0.05 m)'
-          write(*,*) 'Total Struc 3 Cell(s)=',ic3
+          write(*,*) '    (need average draft < depth & > 0.05 m)'
+          write(*,'(A,I0)') ' Total Struc 3 Cell(s): ',ic3
+          write(*,*) '***************************'
+          write(*,*) ' '
           if(noptset.eq.3)then
             write(9,*) ' '
             write(9,*) '*** Floating Breakwater ***'
-            write(9,*) '    (need average draft'
-            write(9,*) '     < depth & > 0.05 m)'
-            write(9,*) 'Total Struc 3 Cell(s)=',ic3
+            write(9,*) '    (need average draft < depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 3 Cell(s): ',ic3
+            write(*,*) '***************************'
+            write(*,*) ' '
           endif
         end if
         if(ic6.ge.1) then
           write(*,*) ' '
           write(*,*) '*** Flexible Porous Breakwater ***'
-          write(*,*) '    (need without-breakwater'
-          write(*,*) '     depth & > 0.05 m)'
-          write(*,*) 'Total Struc 6 Cell(s)=',ic6      
+          write(*,*) '    (need without-breakwater depth & > 0.05 m)'
+          write(*,'(A,I0)') ' Total Struc 6 Cell(s): ',ic6      
+          write(*,*) '**********************************'
+          write(*,*) ' '
           if(noptset.eq.3)then
             write(9,*) ' '
             write(9,*) '*** Flexible Porous Breakwater ***'
-            write(9,*) '    (need without-breakwater'
-            write(9,*) '     depth & > 0.05 m)'
-            write(9,*) 'Total Struc 6 Cell(s)=',ic6
+            write(9,*) '    (need without-breakwater depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 6 Cell(s): ',ic6
+            write(*,*) '**********************************'
+            write(*,*) ' '
           endif       
         end if
         if(ic7.ge.1) then
           write(*,*) ' '
           write(*,*) '*** Normal Permeable Breakwater ***'
-          write(*,*) '    (need without-breakwater'
-          write(*,*) '     depth & > 0.05 m)'
-          write(*,*) 'Total Struc 7 Cell(s)=',ic7
+          write(*,*) '    (need without-breakwater depth & > 0.05 m)'
+          write(*,'(A,I0)') ' Total Struc 7 Cell(s): ',ic7
+          write(*,*) '***********************************'
+          write(*,*) ' '
           if(noptset.eq.3)then
             write(9,*) ' '
             write(9,*) '*** Normal Permeable Breakwater ***'
-            write(9,*) '    (need without-breakwater'
-            write(9,*) '     depth & > 0.05 m)'
-            write(9,*) 'Total Struc 7 Cell(s)=',ic7
+            write(9,*) '    (need without-breakwater depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 7 Cell(s): ',ic7
+            write(*,*) '***********************************'
+            write(*,*) ' '
           endif
         end if
       end if
       if(ijstruc4.ge.1) then
         write(*,*) ' '
         write(*,*) '*** Bottom-mound Breakwater ***'
-        write(*,*) '    (input crest elevation,'
-        write(*,*) '     can be submerged < 0 m)' 
-        write(*,*) 'Total Struc 4/5 Cell(s)=',ijstruc4
+        write(*,*) '    (input crest elevation can be submerged < 0 m)' 
+        write(*,'(A,I0)') ' Total Struc 4/5 Cell(s)=',ijstruc4
+        write(*,*) '*******************************'
+        write(*,*) ' '
         if(noptset.eq.3)then
           write(9,*) ' '
           write(9,*) '*** Bottom-mound Breakwater ***'
-          write(9,*) '    (input crest elevation,'
-          write(9,*) '     can be submerged < 0 m)'
-          write(9,*) 'Total Struc 4/5 Cell(s)=',ijstruc4
+          write(9,*) '    (input crest elevation can be submerged < 0 m)'
+          write(9,'(A,I0)') ' Total Struc 4/5 Cell(s): ',ijstruc4
+          write(*,*) '*******************************'
           write(*,*) ' '
         endif
       end if
