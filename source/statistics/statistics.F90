@@ -435,16 +435,18 @@
       subroutine stat_print_group(iuniti,groupname,tgroupstat)
 !---------------------------------------------------------------------
       use prec_def
+      use tool_def
       implicit none
       integer          :: iuniti,ierr
       real(ikind)      :: tgroupstat(3)
       character(len=*) :: groupname
     
+354   format(' ',A,T40,A,A)    !Added for vstrlz function results
 451   format(' ',A,T40,F0.2,A)
 888   format(' ',A,T40,A)
       write(iuniti,*)    
       write(iuniti,888) trim(groupname)//' Statistics:','ON'
-      write(iuniti,451) '  Starting at:',tgroupstat(1)/3600.0,' hrs'
+      write(iuniti,354) '  Starting at:',trim(vstrlz(tgroupstat(1)/3600.0,'(f0.3)')),' hrs'
       write(iuniti,451) '  Ending at:',tgroupstat(2)/3600.0,' hrs'
       write(iuniti,451) '  Duration:',(tgroupstat(2)-tgroupstat(1))/3600.0,' hrs'
       write(iuniti,451) '  Update Interval:',tgroupstat(3)/3600.0,' hrs'

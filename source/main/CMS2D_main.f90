@@ -641,7 +641,11 @@
         write(iunit(i),342)  'CMS Input Version:',first,second    
         
         call split_real_to_integers(SMS_ver,2,first,second)
-        write(iunit(i),342)  'SMS Version used:',first,second
+        if (SMS_ver == -1) then
+          write(iunit(i),887)  'SMS Version used:','Unknown (13.0 or previous)'
+        else  
+          write(iunit(i),342)  'SMS Version used:',first,second
+        endif
       endif
       if (read_adv) then
         call fileparts(advfile,apath,aname,aext)

@@ -2358,7 +2358,7 @@ d1: do ii=1,30
       endif  
       
       write(iunit(i),445)       '  Sediment Properties'
-      write(iunit(i),354)       '    Density:',trim(vstrlz(rhosed,'(f0.2)')),' kg/m^3'      
+      write(iunit(i),354)       '    Density:',trim(vstrlz(rhosed,'(f0.2)')),' kg/m^3'    
       write(iunit(i),354)       '    Porosity:',trim(vstrlz(poros,'(f0.2)'))
     
       if(singlesize)then !Single-size

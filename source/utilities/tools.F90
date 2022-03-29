@@ -1192,11 +1192,15 @@
 !***********************************************************************************************************************    
     module tool_def
       implicit none
+      
+      interface vstrlz                        !Overload the function so that it works for both real(4) and real(8) variables  MEB  03/29/2022
+        module procedure vstrlz4, vstrlz8
+      end interface
   
       contains
 !************************************************************
-      function vstrlz(flt,gfmt) result(gbuf)
-! This function will take a float variable and a format declaration, then convert it to a string. 
+      function vstrlz4(flt,gfmt) result(gbuf)
+! This function will take a float (4-bit) variable and a format declaration, then convert it to a string. 
 ! The string will add a leading 0, +0, or -0 if necessary.  Also, it will remove a leading space from the PE format
       character(len=20)                      :: gbuf
       real, intent(in)                       :: flt
@@ -1227,6 +1231,41 @@
       endif
       
       return
-      end function vstrlz
+      end function vstrlz4
+
+!************************************************************
+      function vstrlz8(flt,gfmt) result(gbuf)
+! This function will take a float (8-bit) variable and a format declaration, then convert it to a string. 
+! The string will add a leading 0, +0, or -0 if necessary.  Also, it will remove a leading space from the PE format
+      character(len=20)                      :: gbuf
+      real(8), intent(in)                    :: flt
+      character(len=*), optional, intent(in) :: gfmt
+      character(len=40)                      :: gtmp
+      integer                                :: istat
+
+      gtmp = ''
+      if(present(gfmt) ) then   ! specified format
+        write(gtmp, gfmt, iostat=istat ) flt  
+      else                      ! generic format
+        write(gtmp, '(g0)', iostat=istat) flt  
+      endif
+      
+      if( istat /= 0 ) then
+        gbuf='****'
+        return
+      endif
+      
+      if    (gtmp(1:1) == '.' ) then
+        gbuf = '0'//trim(gtmp)
+      elseif(gtmp(1:2) == '-.' ) then
+        gbuf = '-0.'//trim(gtmp(3:))
+      elseif(gtmp(1:2) == '+.' ) then ! S format adds a +
+        gbuf = '+0.'//trim(gtmp(3:))
+      else
+        gbuf = trim(adjustl(gtmp))
+      endif
+      
+      return
+      end function vstrlz8
 !************************************************************
     end module tool_def      

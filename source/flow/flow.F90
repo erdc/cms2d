@@ -1069,7 +1069,7 @@
       write(iunit(i),111)       '  Water Properties:'
       write(iunit(i),342)       '    Temperature:',watertemp,' deg C'
       if(idensit>0 .or. iviscos==2)then
-        write(iunit(i),342)     '    Salinity:',watersalt,' ppt'
+        write(iunit(i),354)     '    Salinity:',trim(vstrlz(watersalt,'(f0.3)')),' ppt'
       endif
       write(iunit(i),342)       '    Density:',rhow,' kg/m^3'
       write(iunit(i),354)       '    Kinematic Viscosity: ',trim(vstrlz(viscos,'(1pe10.3)')),' m^2/s'
