@@ -123,7 +123,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       
       logical :: foundfile, foundcard
 ! ... Output file variables
-      INTEGER      :: iunit(2)     
+      INTEGER      :: iunit(2)
+      
+      SAVE dvarxxt, dvaryyt                        !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
 !
       iunit = (/6,dgunit/)
       

@@ -178,12 +178,14 @@
       case('START_CELL')
         backspace(77)          
         read(77,*)cardname, dredge_operations(ndredge_operations)%dredge_start_cell  
-        !write(*,*)'for dredge oepartion number ',ndredge_operations
+        !write(*,*)'for dredge operation number ',ndredge_operations
         !write(*,*)'start cell = ',dredge_operations(ndredge_operations)%dredge_start_cell
           
-      case('DREDGE_RATE')
-        backspace(77)          
-        read(77,*)cardname, dredge_operations(ndredge_operations)%rate  
+      case('DREDGE_RATE')               !This was not reading units and converting.  Modified to read both value and units (if exists) and convert as needed.  MEB  04/05/2022
+        !backspace(77)          
+        !read(77,*)cardname, dredge_operations(ndredge_operations)%rate  
+        call card_scalar(77,'m^3/day','m^3/day',scalar,ierr)   !Default read-in units if not specified - cu. m per day, convert to units - cu. m per day
+        dredge_operations(ndredge_operations)%rate = scalar      !This is later converted to m^3/sec in the 'dredge_init' subroutine for use in the code.
       
       case('TRIGGER_METHOD')
       !only used to check that proper trigger info is supplied
@@ -567,11 +569,11 @@
     use dredge_def
     use prec_def
     use diag_def, only: dgunit,dgfile
-    use tool_def, only: vstrlz
+    use tool_def, only: vstrlz, rround
     implicit none
 
     integer i,j,k,m, iunit(2)
-    real(ikind) :: sum
+    real(ikind) :: sum, scalar
 
 222 format(' ',A,T40,A)    
 133 format(' ',A,T40,F0.2)
@@ -601,7 +603,9 @@
         sum=sum/dredge_operations(j)%NumDredgeAreaCells
 
         write(iunit(i),354)     '    Average dredge depth:',trim(vstrlz(sum,'(f0.2)'))
-        write(iunit(i),354)     '    Dredge rate (m^3/sec):',trim(vstrlz(dredge_operations(j)%Rate,'(f0.4)'))
+        scalar = rround(dredge_operations(j)%Rate*3600*24,2)
+        write(iunit(i),354)     '    Dredge rate (m^3/day):',trim(vstrlz(scalar,'(f0.2)'))
+        write(iunit(i),354)     '                (m^3/sec):',trim(vstrlz(dredge_operations(j)%Rate,'(f0.4)'))
          
         if(dredge_operations(j)%dredge_approach == 2) then
           write(iunit(i),222)   '    Dredge Start method:','SPECIFIED CELL'          !Previously this was 'CELL'.  I changed to make terminology consistent between interface and CMS input.
@@ -944,6 +948,7 @@
         
       !processing for trigger approach 3  (convert trigger_percentage form percent to fraction)
       !if(dredge_operations(k)%dredge_approach == 3) dredge_operations(k)%trigger_percentage = dredge_operations(k)%trigger_percentage/100.0
+      
       !convert dredge rate for each operation from m3/day to m3/sec
       dredge_operations(k)%rate =  dredge_operations(k)%rate / (3600*24)
       

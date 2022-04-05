@@ -100,7 +100,6 @@
         use out_lib,   only: OPEN_CREATE_DATASET   
 		use out_def,   only: noutputs, aoutputs, aoutput_lengths, simlabel
         use const_def, only: rad2deg
-        use EXP_Global_def, only: RROUND
         use xmdf
         
         implicit none        
@@ -330,7 +329,6 @@
         use out_lib,  only: OPEN_CREATE_DATASET   
 		use out_def,  only: noutputs, aoutputs, aoutput_lengths, simlabel
         use comvarbl, only: reftime
-        use EXP_Global_def, only: RROUND
         use xmdf
         
         implicit none
@@ -591,7 +589,6 @@
       subroutine CMS_MaxWSE_h5 (filename)
         use XMDF
         use out_lib, only: OPEN_CREATE_DATASET
-        use EXP_Global_def, only: RROUND
         use comvarbl, only: reftime
         use diag_lib, only: diag_print_error
         
@@ -1196,6 +1193,10 @@
       interface vstrlz                        !Overload the function so that it works for both real(4) and real(8) variables  MEB  03/29/2022
         module procedure vstrlz4, vstrlz8
       end interface
+
+      interface rround                        
+        module procedure rround4, rround8
+      end interface
   
       contains
 !************************************************************
@@ -1267,5 +1268,43 @@
       
       return
       end function vstrlz8
+      
+    !****************************************************
+    ! double precision rounding function - 12/06/07 meb
+    !   two inputs - value, and #digits to round off to
+    !   returns - rounded value to specified prec_def
+    !****************************************************
+    double precision function rround8 (X,P)    
+    use prec_def
+    implicit none
+    real(8) X    !double precision value passed in
+    integer K,P   !digits of prec_def
+    real(8) PR,R
+    
+    PR=10.d0**P      
+    K = NINT(PR*(X-AINT(X))) 
+    R = AINT(X) + K/PR
+    RROUND8 = R
+    
+    end function
+  
+    !****************************************************
+    ! single prec_def rounding function - 12/06/07 meb
+    !   two inputs - value, and #digits to round off to
+    !   returns - rounded value to specified prec_def
+    !****************************************************
+    real function rround4 (X,P)
+    implicit none
+    real(4) X    !real value passed in
+    integer K,P   !digits of prec_def
+    real(4) PR,R
+    
+    PR=10.0**P      
+    K = NINT(PR*(X-AINT(X))) 
+    R = AINT(X) + K/PR
+    RROUND4 = R
+    
+    end function
+
 !************************************************************
     end module tool_def      
