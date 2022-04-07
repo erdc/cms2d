@@ -1,5 +1,6 @@
 == Version 5.2.18 (04/05/2022) ==
 * Bug fix for DREDGE_RATE card in the dredging module. Was not reading units as it should according to documentation.
+* Bug fix for divide by zero in WVBRK_Inline - rewrote using conditionals instead of GOTOs and also correcting the possibility of a divide by zero.
 * Minor - added better diagnostic output for Dredge Rate showing both daily and per second rates.
 
 == Version 5.2.17 (03/29/2022) ==
