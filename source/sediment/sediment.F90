@@ -2321,6 +2321,7 @@ d1: do ii=1,30
     endif
 
 111 format(' ',A,T40,A)
+112 format(' ',A,T40,A,2x,A) !Added for better looking output in this section  MEB 04/22/22
 233 format(' ',A,T40,I0)
 354 format(' ',A,T40,A,A)    !Added for vstrlz function results
 445 format(' ',A,T40,F0.2,A)
@@ -2529,18 +2530,19 @@ d1: do ii=1,30
             write(iunit(i),453) '   Bed Layers: ',j,' - ',jj-1
           endif
           write(iunit(i),111)   '    Layer Thickness Method:',trim(adbinp(bedlay(j)%idbinp))
+          
           selectcase(bedlay(j)%idbinp)
           case(0,1,2)
             write(iunit(i),354) '    Layer Thickness:',trim(vstrlz(bedlay(j)%dbconst,'(f0.2)')),' m'
           case(3)
-            write(iunit(i),111) '    Layer Thickness Dataset File:',trim(bedlay(j)%dbfile)
-            write(iunit(i),111) '    ----------------------- Path:',trim(bedlay(j)%dbpath)
+            write(iunit(i),112) '    Layer Thickness Dset File/Path:',trim(bedlay(j)%dbfile),trim(bedlay(j)%dbpath)                       !MEB 04/22/22
           endselect
+          
           write(iunit(i),111)   '    Composition Method:',trim(apbkinp(bedlay(j)%ipbkinp))
+          
           selectcase(bedlay(j)%ipbkinp)
           case(1) !D50_SIGMA
-            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
+            write(iunit(i),112) '    D50 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(50))%file),trim(bedlay(j)%perdiam(ipd(50))%path)  !MEB 04/22/22
             if (bedlay(j)%geostddev .ge. 0.0) then
               write(iunit(i),354) '    Geometric standard deviation:',trim(vstrlz(bedlay(j)%geostddev,'(f0.3)')),' mm'    
             endif
@@ -2548,36 +2550,27 @@ d1: do ii=1,30
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
             do ks=1,nsed
-              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,&
-                 diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
+              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
           case(2) !D16_D50_D84
-            write(iunit(i),111) '    D16 Dataset File:',trim(bedlay(j)%perdiam(ipd(16))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(16))%path)            
-            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
-            write(iunit(i),111) '    D84 Dataset File:',trim(bedlay(j)%perdiam(ipd(84))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(84))%path)
+            write(iunit(i),112) '    D16 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(16))%file),trim(bedlay(j)%perdiam(ipd(16))%path)  !MEB 04/22/22
+            write(iunit(i),112) '    D50 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(50))%file),trim(bedlay(j)%perdiam(ipd(50))%path)  !MEB 04/22/22
+            write(iunit(i),112) '    D84 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(84))%file),trim(bedlay(j)%perdiam(ipd(84))%path)  !MEB 04/22/22
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
             do ks=1,nsed
-              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,&
-                 diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
+              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
           case(3) !D35_D50_D90
-            write(iunit(i),111) '    D35 Dataset File:',trim(bedlay(j)%perdiam(ipd(35))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(35))%path)
-            write(iunit(i),111) '    D50 Dataset File:',trim(bedlay(j)%perdiam(ipd(50))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(50))%path)
-            write(iunit(i),111) '    D90 Dataset File:',trim(bedlay(j)%perdiam(ipd(90))%file)
-            write(iunit(i),111) '    ----------- Path:',trim(bedlay(j)%perdiam(ipd(90))%path)
+            write(iunit(i),112) '    D35 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(35))%file),trim(bedlay(j)%perdiam(ipd(35))%path)  !MEB 04/22/22
+            write(iunit(i),112) '    D50 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(50))%file),trim(bedlay(j)%perdiam(ipd(50))%path)  !MEB 04/22/22
+            write(iunit(i),112) '    D90 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(90))%file),trim(bedlay(j)%perdiam(ipd(90))%path)  !MEB 04/22/22
             write(iunit(i),111) '    Layer grain size distribution summary (all cells)'
             write(iunit(i),111) '            Lower     Upper  Characteristic   Minimum    Maximum     Mean'  
             write(iunit(i),111) '    Class  bound,mm  bound,mm  diameter,mm   fraction,% fraction,% fraction,%' 
             do ks=1,nsed
-              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,&
-                 diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
+              write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
           case(4) !SIZE_CLASS_FRACTIONS
             write(iunit(i),111) '            Lower     Upper  Characteristic  Size Class'

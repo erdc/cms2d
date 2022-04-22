@@ -2211,7 +2211,6 @@ contains
     integer :: i,ii,idk,k,nck,ncn,nce,ncs,ncw
     real(ikind) :: r,unb(nmaxfaces),vnb(nmaxfaces)
     !real(ikind) :: snb(nmaxfaces),s2
-    !logical :: isnankind                            !never used, commented out   MEB  01/26/2022
 
     interface
       function funslopelim(r) result(psi)
