@@ -211,7 +211,7 @@
     endif
 
     return
-    endsubroutine sed_default
+    end subroutine sed_default
     
 !************************************************************
     subroutine sed_cards(cardname,foundcard)
@@ -1101,7 +1101,7 @@
     endselect               
     
     return
-    endsubroutine sed_cards
+    end subroutine sed_cards
     
 !*************************************************************
     subroutine sedclass_block()
@@ -1258,7 +1258,7 @@ d1: do ii=1,10
     deallocate(sedclasstemp,diamtemp)
     
     return
-    endsubroutine sedclass_block
+    end subroutine sedclass_block
     
 !**************************************************    
     subroutine sedclass_resize()
@@ -1305,7 +1305,7 @@ d1: do ii=1,10
     enddo
     
     return
-    endsubroutine sedclass_resize
+    end subroutine sedclass_resize
     
 !**************************************************
     subroutine bedlay_block()
@@ -1493,7 +1493,7 @@ d1: do ii=1,30
     !endselect
     
     return
-    endsubroutine bedlay_block
+    end subroutine bedlay_block
     
 !**************************************************************    
     subroutine bedlay_resize()
@@ -1545,7 +1545,7 @@ d1: do ii=1,30
     enddo
     
     return
-    endsubroutine bedlay_resize
+    end subroutine bedlay_resize
     
 !***************************************************************************   
     subroutine sed_init()
@@ -2282,7 +2282,7 @@ d1: do ii=1,30
     Cteqmax = min(Cteqmax,(1.0-poros)*rhosed)
     
     return
-    endsubroutine sed_init    
+    end subroutine sed_init    
         
 !**************************************************
     subroutine sed_print()
@@ -2738,7 +2738,7 @@ d1: do ii=1,30
     endif
     
     return
-    endsubroutine hardbottom_read
+    end subroutine hardbottom_read
     
 !******************************************************************
     subroutine sed_step_stat
@@ -2827,7 +2827,7 @@ d1: do ii=1,30
     !call diag_print_message(msg)
     
     return
-    endsubroutine sed_step_stat
+    end subroutine sed_step_stat
 
 !************************************************************************
     subroutine sed_total
@@ -2924,7 +2924,7 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO
       
     return
-    endsubroutine sed_total
+    end subroutine sed_total
     
     subroutine prob_bedload(sigT,Tp,CSsg,d50,u,v,CSPb)
 ! calculates the probability of bedload transport, Pb
@@ -2971,7 +2971,7 @@ d1: do ii=1,30
     ! write(*,*)'bdj in prob_bedload',sigT,Tp,CSPb    
 
     return
-    endsubroutine prob_bedload
+    end subroutine prob_bedload
 
     
 !***********************************************************************   
@@ -3031,7 +3031,7 @@ d1: do ii=1,30
     close(dgunit)
     
     return
-    endsubroutine print_sedvar
+    end subroutine print_sedvar
     
 !***********************************************************************   
     subroutine update_const_wave
@@ -3069,7 +3069,7 @@ d1: do ii=1,30
     enddo
         
     return
-    endsubroutine
+    end subroutine
     
 !***********************************************************************
     subroutine sed_wave
@@ -3182,7 +3182,7 @@ d1: do ii=1,30
     enddo !ks 
 
     return
-    endsubroutine
+    end subroutine
 
 !*******************************************************************************
     subroutine sed_balance()
@@ -3368,7 +3368,7 @@ d1: do ii=1,30
     close(dgunit)
       
     return
-    endsubroutine sed_balance
+    end subroutine sed_balance
     
 !!***************************************
 !    subroutine fallvel_cohsed
@@ -3425,7 +3425,7 @@ d1: do ii=1,30
 !    enddo
 !
 !    return
-!    endsubroutine 
+!    end subroutine 
 
 !*******************************************************************    
     subroutine sed_concdepthchange
@@ -3451,4 +3451,4 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine sed_concdepthchange
+    end subroutine sed_concdepthchange

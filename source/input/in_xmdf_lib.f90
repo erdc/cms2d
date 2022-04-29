@@ -62,7 +62,7 @@ contains
     deallocate(ftemp)  
     
     return
-    endsubroutine read_dataseth5
+    end subroutine read_dataseth5
     
 
 !************************************************************************
@@ -119,7 +119,7 @@ contains
     endif
       
     return
-    endsubroutine readscalh5
+    end subroutine readscalh5
       
 !************************************************************************
     subroutine readscalsteph5(afile,apath,itsind,thrs,var,ierr)
@@ -194,7 +194,7 @@ contains
     endif
       
     return
-    endsubroutine readscalsteph5
+    end subroutine readscalsteph5
 
 !************************************************************************
     subroutine readscallasth5(afile,apath,ntimes,var,reftimed,thrs,ierr)
@@ -285,7 +285,7 @@ contains
     endif
       
     return
-    endsubroutine readscallasth5
+    end subroutine readscallasth5
     
 !************************************************************************
     subroutine readscaltimeh5(afile,apath,thrs,var,reftimed,ierr)
@@ -395,7 +395,7 @@ contains
     endif
       
     return
-    endsubroutine readscaltimeh5  
+    end subroutine readscaltimeh5  
 
 !************************************************************************
     subroutine readvech5(afile,apath,vecx,vecy,ierr)
@@ -450,7 +450,7 @@ contains
     endif    
       
     return
-    endsubroutine readvech5   
+    end subroutine readvech5   
      
 !************************************************************************
     subroutine readvecsteph5(afile,apath,itsind,thrs,vecx,vecy,ierr)
@@ -526,7 +526,7 @@ contains
     endif
       
     return
-    endsubroutine readvecsteph5
+    end subroutine readvecsteph5
 
 !********************************************************************************
       subroutine readveclasth5(afile,apath,ntimes,vecx,vecy,reftimed,thrs,ierr)
@@ -623,7 +623,7 @@ contains
     endif
       
     return
-    endsubroutine readveclasth5
+    end subroutine readveclasth5
 
 !********************************************************************************
       subroutine readvectimeh5(afile,apath,thrs,vecx,vecy,reftimed,ierr)
@@ -737,7 +737,7 @@ contains
     endif
       
     return
-    endsubroutine readvectimeh5
+    end subroutine readvectimeh5
 #endif     
 
 end module

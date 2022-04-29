@@ -1905,7 +1905,7 @@ contains
     enddo
     
     return
-    endsubroutine tidal_data
+    end subroutine tidal_data
     
 !******************************************************************************
     subroutine tide_adcirc(tdbname,tdbpath,npts,xpts,ypts,&
@@ -2023,7 +2023,7 @@ contains
     if(present(vtpha)) deallocate(uamp,upha,vamp,vpha)    
     
     return
-    endsubroutine tide_adcirc
+    end subroutine tide_adcirc
     
 !**************************************************************
     subroutine tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,&
@@ -2167,7 +2167,7 @@ contains
     close(105)
     
     return
-    endsubroutine tdb_adcirc_read
+    end subroutine tdb_adcirc_read
         
 !******************************************************************************
     subroutine tide_fes(tdbname,tdbpath,npts,xpts,ypts,&
@@ -2256,7 +2256,7 @@ contains
     call FES_interp(tdbpath,tdbname,npts,xpts,ypts,ntc,name,etamp,etpha)
     
     return
-    endsubroutine tide_fes
+    end subroutine tide_fes
           
 !**********************************************************************
       subroutine FES_interp(fespath,fesname,npts,xlon,ylat,&
@@ -2467,7 +2467,7 @@ contains
     enddo !k
 
     return
-    endsubroutine FES_interp
+    end subroutine FES_interp
                     
 !******************************************************************************
     subroutine tdb_interp_tri(npts,intp,cntp,nns,ntc,eamp,epha,etamp,etpha,&
@@ -2544,7 +2544,7 @@ contains
     enddo
     
     return
-    endsubroutine tdb_interp_tri
+    end subroutine tdb_interp_tri
            
-endmodule tide_lib
+end module tide_lib
           

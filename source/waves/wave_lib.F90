@@ -33,7 +33,7 @@ contains
 !!   uw = pi*H/(max(T,2.0)*sinh(kh))  
 
     return
-    endfunction waveorb_linear   
+    end function waveorb_linear   
 
 !******************************************************************************    
     subroutine waveorbrep_jonswap(Hs,Tp,wd,gam,h,u,v,ubr,Tbr)
@@ -101,7 +101,7 @@ contains
     endif
     
     return
-    endsubroutine waveorbrep_jonswap
+    end subroutine waveorbrep_jonswap
     
 !****************************************************************************** 
     function waveorbrep_ss87(g,h,Hs,Tp) result(Ubr)
@@ -144,7 +144,7 @@ contains
     Ubr = 0.19_ikind*(1.0_ikind+tanh(-7.76_ikind*Tn/Tp+1.34_ikind))*Hs/Tn
     
     return
-    endfunction waveorbrep_ss87
+    end function waveorbrep_ss87
 
 !******************************************************************
     function wavelength(wa,wd,h,u,v,tolinp) result(wlen)
@@ -200,7 +200,7 @@ contains
     wlen = twopi/wk
 
     return
-    endfunction wavelength
+    end function wavelength
 
 !**************************************************
     subroutine wave_Hmax(d,s,wk,Hmax)
@@ -244,7 +244,7 @@ contains
     !Hmax=max(Hmax,0.64*d)
     
     return
-    endsubroutine wave_Hmax
+    end subroutine wave_Hmax
 
 !*********************************************************************
       subroutine wavebreak_bj78(Hmax,Hrms,fp,Qb,Db,ib,cab)
@@ -289,7 +289,7 @@ contains
       endif  
     
       return
-    endsubroutine wavebreak_bj78
+    end subroutine wavebreak_bj78
     
 !**********************************************************************    
       subroutine wavebreak_jb07(d,Hmax,Hrms,fp,Qb,Db,ib,cab) 
@@ -330,7 +330,7 @@ contains
       endif
     
       return
-      endsubroutine wavebreak_jb07
+      end subroutine wavebreak_jb07
     
 !***********************************************************    
     function wavenumber(wa,wd,h,u,v,tolinp) result(wk)
@@ -433,7 +433,7 @@ contains
     enddo
 
     return
-    endfunction wavenumber
+    end function wavenumber
 
 !********************************************************************
     subroutine cnoidal_sol(Hgt,h,T,Ur,L,c,B)
@@ -514,6 +514,6 @@ contains
     B = min(B,0.125) !Deep water limit
 
     return
-    endsubroutine cnoidal_sol
+    end subroutine cnoidal_sol
     
-endmodule wave_lib
+end module wave_lib

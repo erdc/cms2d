@@ -159,7 +159,7 @@ contains
     enddo
     
     return
-    endsubroutine polyvar
+    end subroutine polyvar
     
 !********************************************************
     function intriangle(xi,yi,xt,yt,at) result(in)
@@ -215,7 +215,7 @@ contains
     endif
     
     return
-    endfunction intriangle
+    end function intriangle
     
 !*************************************************
     function triangle_area(xt,yt) result(at)
@@ -237,7 +237,7 @@ contains
            +xn(3)*(yn(1)-yn(2)))
        
     return
-    endfunction triangle_area
+    end function triangle_area
     
 !****************************************************
     function inquad(xi,yi,xq,yq,aq) result(isin)
@@ -299,7 +299,7 @@ contains
     endif
     
     return
-    endfunction inquad
+    end function inquad
     
 !**********************************************
     function quad_area(xq,yq) result(aq)
@@ -323,7 +323,7 @@ contains
     aq = 0.5*abs(aq)
     
     return
-    endfunction quad_area
+    end function quad_area
     
 !***************************************************  
     function poly_area(ns,np,xp,yp) result(ap)
@@ -358,7 +358,7 @@ contains
     ap = 0.5*abs(ap)
 
     return    
-    endfunction poly_area
+    end function poly_area
 
 !*********************************************************
     function inpolyold(xi,yi,ns,np,xp,yp,ap) result(isin)
@@ -419,7 +419,7 @@ contains
     endif
 
     return
-    endfunction inpolyold
+    end function inpolyold
 
 !********************************************************
     function inpoly(xi,yi,ns,np,xp,yp) result(isin) 
@@ -466,7 +466,7 @@ contains
     enddo
     
     return 
-    endfunction inpoly
+    end function inpoly
     
 !********************************************************************************    
     subroutine poly_sort(ns,np,xp,yp)
@@ -496,7 +496,7 @@ contains
     yp(1:np) = yp(ind)
     
     return
-    endsubroutine poly_sort
+    end subroutine poly_sort
     
 !******************************************************************************    
     subroutine line_line_intercept(x1,y1,x2,y2,x3,y3,x4,y4,px,py,ierr)
@@ -535,7 +535,7 @@ contains
     endif
 
     return
-    endsubroutine line_line_intercept
+    end subroutine line_line_intercept
 
 !********************************************************************************
     subroutine read_grid14(grd14file,numelems,numnodes,xn,yn,zn,elem2node)
@@ -580,7 +580,7 @@ contains
     close(14)
     
     return
-    endsubroutine read_grid14
+    end subroutine read_grid14
     
 !********************************************************************
     subroutine write_grid14(grdfile,grdname,ne,nn,xn,yn,zn,e2n)
@@ -614,7 +614,7 @@ contains
     close(144)
     
     return
-    endsubroutine write_grid14
+    end subroutine write_grid14
 
 !********************************************************************    
     subroutine trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,&
@@ -719,7 +719,7 @@ contains
     deallocate(ies,ins,jes,jns)
     
     return
-    endsubroutine trisubrect
+    end subroutine trisubrect
     
 !***********************************************************************
     subroutine proj_default(proj)
@@ -739,7 +739,7 @@ contains
     proj%VertOffset = 0.0        !Vertical Offset from Datum
     
     return
-    endsubroutine proj_default
+    end subroutine proj_default
 
 !***********************************************************************
     subroutine proj_undef(iundef,proj)
@@ -760,7 +760,7 @@ contains
     proj%VertOffset = real(iundef)    !Vertical Offset from Datum
     
     return
-    endsubroutine proj_undef
+    end subroutine proj_undef
 
 !************************************************************************
     subroutine proj_horiz_conv(projfrom,projto,ncalc,xpts,ypts)
@@ -807,7 +807,7 @@ contains
 #endif
 
     return
-    endsubroutine proj_horiz_conv
+    end subroutine proj_horiz_conv
 
 #ifdef PROJ_CONV
 !************************************************************************
@@ -853,7 +853,7 @@ contains
     enddo
     
     return
-    endsubroutine reproject27
+    end subroutine reproject27
     
 !*************************************************************************
     subroutine reproject83(projfrom,projto,ncalc,xpts,ypts)
@@ -954,7 +954,7 @@ contains
       aHorizCoordSystem(projfrom%iHorizCoordSystem),' to ',&
       aHorizCoordSystem(projto%iHorizCoordSystem))
     
-    endsubroutine reproject83
+    end subroutine reproject83
 #endif
     
 !***********************************************************    
@@ -988,7 +988,7 @@ contains
     nzones = 0
     
     return
-    endsubroutine zone2fip
+    end subroutine zone2fip
     
 !***********************************************************    
     subroutine zones_create
@@ -1509,7 +1509,7 @@ contains
     zones(127)%utm = '12' 
 
     return
-    endsubroutine zones_create
+    end subroutine zones_create
     
     
-endmodule geo_lib
+end module geo_lib

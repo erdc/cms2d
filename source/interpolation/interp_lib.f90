@@ -78,7 +78,7 @@ contains
     yi=(1.0-fac)*yp(1)+fac*yp(2)
     
     return
-    endfunction interp1dlin
+    end function interp1dlin
     
 !*********************************************************   
     subroutine interp_linear_fit(m,x,xi,inc,fac1,fac2)
@@ -132,7 +132,7 @@ contains
     fac1 = 1.0-fac2
     
     return
-    endsubroutine interp_linear_fit
+    end subroutine interp_linear_fit
 
 !******************************************************   
     function interp1dquad(xp,yp,xi) result(yi)
@@ -158,7 +158,7 @@ contains
     yi=yp(1)+b1*(xi-xp(1))+b2*(xi-xp(1))*(xi-xp(2))  !b0=yp(1)
     
     return
-    endfunction interp1dquad
+    end function interp1dquad
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End 1D interpolations
@@ -223,7 +223,7 @@ contains
     endif
 
     return
-    endsubroutine interp_coef_tri
+    end subroutine interp_coef_tri
     
 !**************************************************************************** 
     subroutine interp_coef_quad(xi,yi,xq,yq,w)
@@ -280,7 +280,7 @@ contains
     endif    
 
     return
-    endsubroutine interp_coef_quad
+    end subroutine interp_coef_quad
     
 !**************************************************************************** 
     subroutine interp_coef_poly(xi,yi,ns,np,xp,yp,w)
@@ -360,7 +360,7 @@ contains
     endif
     
     return
-    endsubroutine interp_coef_poly 
+    end subroutine interp_coef_poly 
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End element interpolations
@@ -648,7 +648,7 @@ dj:   do j=1,nj
     write(*,'(A,F6.2)') '  Percent complete: ',100.0
     
     return
-    endsubroutine interp_coef_tel2cart
+    end subroutine interp_coef_tel2cart
                    
 !***********************************************************************
     subroutine interp_scal_tel2cart(nD,vartel,iwettel, &
@@ -721,7 +721,7 @@ dj:   do j=1,nj
 !$OMP END PARALLEL DO   
 
     return 
-    endsubroutine interp_scal_tel2cart  
+    end subroutine interp_scal_tel2cart  
                    
 !***********************************************************************
     subroutine interp_vec_tel2cart(nD,vecxtel,vecytel,iwettel, &
@@ -809,7 +809,7 @@ dj:   do j=1,nj
 !$OMP END PARALLEL DO   
 
     return 
-    endsubroutine interp_vec_tel2cart                    
+    end subroutine interp_vec_tel2cart                    
     
 !******************************************************************************    
     subroutine interp_coef_cart2tel(ni,nj,x0cart,y0cart,azthcart,xi,yj,dxwav,dywav,&
@@ -952,7 +952,7 @@ d1: do ii=1,nc
     write(*,'(A,F6.2)') '  Percent complete: ',100.0
     
     return
-    endsubroutine interp_coef_cart2tel
+    end subroutine interp_coef_cart2tel
      
 !******************************************************************************    
     subroutine interp_scal_cart2tel(ni,nj,varcart,iwetcart,intp,cntp,&
@@ -1039,7 +1039,7 @@ d1: do ii=1,nc
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine interp_scal_cart2tel
+    end subroutine interp_scal_cart2tel
     
 !******************************************************************************    
     subroutine interp_vec_cart2tel(ni,nj,vecxcart,vecycart,iwetcart,intp,cntp,&
@@ -1137,7 +1137,7 @@ d1: do ii=1,nc
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine interp_vec_cart2tel    
+    end subroutine interp_vec_cart2tel    
     
 !******************************************************************************    
     subroutine interp_coef_cart2pts(ni,nj,x0cart,y0cart,azthcart,xi,yj,dxwav,dywav,&
@@ -1275,7 +1275,7 @@ d1: do ii=1,nintp
     enddo d1 !ii  
     
     return
-    endsubroutine interp_coef_cart2pts                   
+    end subroutine interp_coef_cart2pts                   
     
 !**********************************************************************    
     subroutine interp_coef_tel2tel(nc,nD,mf,x0tel,y0tel,azthtel, &
@@ -1484,7 +1484,7 @@ d1: do j=1,nintrpcells
     enddo d1
     
     return
-    endsubroutine interp_coef_tel2tel
+    end subroutine interp_coef_tel2tel
                   
 !**********************************************************************    
     subroutine interp_coef_tel2pts(nc,nD,mf,x0tel,y0tel,azthtel, &
@@ -1681,7 +1681,7 @@ d1: do i=1,npts
     enddo d1
     
     return
-    endsubroutine interp_coef_tel2pts
+    end subroutine interp_coef_tel2pts
 
 !*******************************************************************************    
     subroutine interp_coef_tri2tel(ne,nn,xn,yn,e2n, &
@@ -1763,7 +1763,7 @@ d1: do j=1,nintrpcells !Cells
     enddo d1
     
     return
-    endsubroutine interp_coef_tri2tel
+    end subroutine interp_coef_tri2tel
     
 !**********************************************************************    
     subroutine interp_coef_tri2pts(ne,nn,xn,yn,e2n, &            
@@ -1829,7 +1829,7 @@ d1: do i=1,npts !Points
     enddo d1
     
     return
-    endsubroutine interp_coef_tri2pts
+    end subroutine interp_coef_tri2pts
 
 !!**********************************************************************
 !    subroutine interp_coef_hybridnode2pts(ne,nn,xn,yn,c2n,ncf, &
@@ -1926,7 +1926,7 @@ d1: do i=1,npts !Points
 !    enddo !j-tri
 !    
 !    return
-!    endsubroutine interp_coef_hybridnode2pts
+!    end subroutine interp_coef_hybridnode2pts
 
 !!**********************************************************************    
 !    subroutine interp_coef_poly2pts(nc,nD,mf,nn,xn,yn,c2n,ncf, &            
@@ -2011,7 +2011,7 @@ d1: do i=1,npts !Points
 !    enddo !j-tri
 !    
 !    return
-!    endsubroutine interp_coef_poly2pts
+!    end subroutine interp_coef_poly2pts
                 
 !**********************************************************************    
     subroutine interp_coef_poly2cart(nc,nD,mf,xc,yc,ncf,c2cf, &
@@ -2196,7 +2196,7 @@ d2:   do j=1,nj
     close(224) 
     
     return
-    endsubroutine interp_coef_poly2cart           
+    end subroutine interp_coef_poly2cart           
                 
 !*************************************************************   
     subroutine interp_coef_curv2tel(ni,nj,xcurv,ycurv, &            
@@ -2320,7 +2320,7 @@ d2:   do j=1,nj
     enddo  !end of all CMS cells
     
     return
-    endsubroutine interp_coef_curv2tel
+    end subroutine interp_coef_curv2tel
 
 !*******************************************************************************   
     subroutine interp_coef_curv2pts(ni,nj,xcurv,ycurv,np,nintp,xp,yp,ijntp,cntp)
@@ -2441,7 +2441,7 @@ d2:   do j=1,nj
     enddo  !end of all CMS cells
     
     return
-    endsubroutine interp_coef_curv2pts
+    end subroutine interp_coef_curv2pts
 
 !**********************************************************************  
     subroutine interp_scal_curv2tel(ni,nj,nD,nc,ijntp,cntp,&
@@ -2502,7 +2502,7 @@ d2:   do j=1,nj
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine interp_scal_curv2tel    
+    end subroutine interp_scal_curv2tel    
     
 !**********************************************************************  
     subroutine interp_vec_curv2tel(ni,nj,nD,nc,ijntp,cntp,&
@@ -2572,7 +2572,7 @@ d2:   do j=1,nj
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine interp_vec_curv2tel
+    end subroutine interp_vec_curv2tel
                  
 !**********************************************************************  
     subroutine interp_curv2pts(ni,nj,npts,ijntp,cntp,&
@@ -2680,7 +2680,7 @@ d2:   do j=1,nj
     endif
     
     return
-    endsubroutine interp_curv2pts                
+    end subroutine interp_curv2pts                
        
 !************************************************************    
     function xtrapfunc(dist,xtrapdist)
@@ -2695,7 +2695,7 @@ d2:   do j=1,nj
     xtrapfunc = 0.5+0.5*cos(pi*min(dist,xtrapdist)/xtrapdist)
     
     return
-    endfunction xtrapfunc
+    end function xtrapfunc
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End grid-to-grid interpolations
@@ -2761,7 +2761,7 @@ d2:   do j=1,nj
     enddo
     
     return
-    endsubroutine interp_coef_cell2face
+    end subroutine interp_coef_cell2face
 
 !********************************************************************
     subroutine interp_scal_cell2face(phi,ibc,phik,dphix,dphiy)
@@ -2943,7 +2943,7 @@ d2:   do j=1,nj
 !!$OMP END PARALLEL
     
     return
-    endsubroutine interp_scal_cell2face 
+    end subroutine interp_scal_cell2face 
         
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End cell-to-face interpolations
@@ -2987,7 +2987,7 @@ d2:   do j=1,nj
     enddo !j
     
     return
-    endsubroutine interp_coef_cell2node_invarea
+    end subroutine interp_coef_cell2node_invarea
 
 !*************************************************************************************    
     subroutine interp_coef_cell2node_invdist(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,pow,wc2n)
@@ -3025,7 +3025,7 @@ d2:   do j=1,nj
     enddo !j
     
     return
-    endsubroutine interp_coef_cell2node_invdist
+    end subroutine interp_coef_cell2node_invdist
 
 !*********************************************************************************    
     subroutine interp_coef_cell2node_lstsqrs(nn,nnc,nmnc,n2c,xn,yn,nc,nD,xc,yc,wc2n)
@@ -3088,7 +3088,7 @@ d2:   do j=1,nj
     enddo !j
     
     return
-    endsubroutine interp_coef_cell2node_lstsqrs           
+    end subroutine interp_coef_cell2node_lstsqrs           
         
 !********************************************************    
     subroutine interp_scal_cell2node(var,scalout,iwritedry)
@@ -3133,7 +3133,7 @@ d2:   do j=1,nj
     endif
     
     return
-    endsubroutine interp_scal_cell2node 
+    end subroutine interp_scal_cell2node 
     
 !*************************************************************    
     subroutine interp_vec_cell2node(varx,vary,vecout,iwritedry)
@@ -3182,7 +3182,7 @@ d2:   do j=1,nj
     endif
     
     return
-    endsubroutine interp_vec_cell2node
+    end subroutine interp_vec_cell2node
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End cell-to-node interpolations
@@ -3222,7 +3222,7 @@ d2:   do j=1,nj
     enddo !i
     
     return
-    endsubroutine interp_scal_node2cell
+    end subroutine interp_scal_node2cell
     
 !********************************************************    
     subroutine interp_scal_node2face(vtemp,vark)
@@ -3258,7 +3258,7 @@ d2:   do j=1,nj
     enddo !i
     
     return
-    endsubroutine interp_scal_node2face
+    end subroutine interp_scal_node2face
     
 !********************************************************    
     subroutine interp_vec_node2cell(vtemp,varx,vary)
@@ -3299,7 +3299,7 @@ d2:   do j=1,nj
     enddo !i
     
     return
-    endsubroutine interp_vec_node2cell
+    end subroutine interp_vec_node2cell
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End cell-to-node interpolations
@@ -3336,7 +3336,7 @@ d2:   do j=1,nj
     b = matmul(AI,py)
 
     return
-    endsubroutine interp_quad_mapping
+    end subroutine interp_quad_mapping
 
 !*****************************************************************
     subroutine interp_quad_bilinear_coef(a,b,x,y,w)
@@ -3383,6 +3383,6 @@ d2:   do j=1,nj
     endif
     
     return
-    endsubroutine interp_quad_bilinear_coef
+    end subroutine interp_quad_bilinear_coef
     
-endmodule interp_lib
+end module interp_lib

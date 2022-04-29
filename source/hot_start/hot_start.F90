@@ -40,18 +40,20 @@
     autohotpath = 'Datasets/'
     hotpath     = 'Datasets/'    
 
-    icfile  = 'Initial_Cond_File.h5'
-    icpath      = 'Datasets/'    
-    ictime  = -999.0  !hrs
-    npath   = len_trim(flowpath)
+    icfile = 'Initial_Cond_File.h5'
+    icpath = 'Datasets/'    
+    ictime = -999.0  !hrs
+    npath  = len_trim(flowpath)
     icpres = .false.
     icwse  = .false.
     icvel  = .false.
     icwet  = .false.
     icflux = .false.
     
+    add_duration_HS = .false.  !MEB  04/29/2022
+    
     return
-    endsubroutine hot_default
+    end subroutine hot_default
     
 !*************************************************************   
     subroutine hot_cards(cardname,foundcard)
@@ -96,6 +98,9 @@
         call calendar2julian(iyrhot,imohot,idayhot,ihrhot,iminhot,isechot,tjuldayhot)
         ictime = (tjuldayhot - tjulday0)*24 !hours
         
+      case('EXTEND_DURATION_RUN_FOR_HOTSTART')
+        call card_boolean(77,add_duration_HS,ierr)
+        
       !--- Hot Start (Output) -------------------------------------------  
       case('HOT_START_OUTPUT_FILE','HOT_START_FILE')
         backspace(77)
@@ -123,7 +128,7 @@
     endselect
     
     return
-    endsubroutine hot_cards
+    end subroutine hot_cards
 
 !******************************************************************    
     subroutine hot_read()
@@ -163,7 +168,7 @@
     end select
 
     return
-    endsubroutine hot_read
+    end subroutine hot_read
     
 !********************************************************************
     subroutine hot_read_sup(supfile)
@@ -735,7 +740,7 @@
     enddo
     
     return
-    endsubroutine hot_read_dat
+    end subroutine hot_read_dat
 
 !******************************************************************    
     subroutine hot_read_xmdf()
@@ -835,7 +840,7 @@
       write(msg,'(A,A)') 'Read water level: ',trim(apath)
       call diag_print_message(msg)
       p = eta*grav
-      ictime = temphr !Start time in hours 
+      !ictime = temphr !Start time in hours 
     endif
     if(ntimes>1)then
       write(msg,'(A,A)') 'Found multiple time steps in: ',trim(icfile)
@@ -1158,11 +1163,14 @@ loopj:  do j=1,nlay
 !--- Get Last Output Time ----------------------------------
 755 format(1x,A,F12.3,A)  
     timeout = -1.0
+    
+!Test to see if file exists in current working directory
     call XF_OPEN_FILE(trim(outlist(1)%afile),READONLY,fid,ierr)             
-    if(ierr<0)then
-      call diag_print_message(' Solution file is missing',&
-        '  Will create new solution file')
-    else
+    
+    if (ierr<0)then        !No solution file exists in the current, so use the time from the initial condition.
+      call diag_print_message('','Hot Start: Previous solution file(s) not found. New solution file(s) will be created.')
+      timeout = ictime
+    else                   !Otherwise a solution file was found, obtain the last time from that file.
       nn=len_trim(simlabel)
       apath = simlabel(1:nn)//'/Water_Elevation'
       call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)  
@@ -1194,7 +1202,7 @@ loopj:  do j=1,nlay
 
 #endif    
     return
-    endsubroutine hot_read_xmdf
+    end subroutine hot_read_xmdf
     
 !******************************************************************    
     subroutine hot_init()
@@ -1464,7 +1472,7 @@ loopj:  do j=1,nlay
     call diag_print_message('*** Hot Start Initialization Complete ***')   
     
     return
-    endsubroutine hot_init
+    end subroutine hot_init
     
 !******************************************************************
     subroutine hot_write
@@ -1525,7 +1533,7 @@ loopj:  do j=1,nlay
     endif
 
     return
-    endsubroutine hot_write
+    end subroutine hot_write
 
 !***********************************************************************    
     subroutine hotstart_file_init
@@ -1756,7 +1764,7 @@ loopj:  do j=1,nlay
 #endif
 
     return
-    endsubroutine hot_write_xmdf
+    end subroutine hot_write_xmdf
 
 !***********************************************************************    
     subroutine write_hotstart_sup (hotdirpath, aname)
@@ -1872,7 +1880,7 @@ loopj:  do j=1,nlay
     endif    
 
     return
-    endsubroutine write_hotstart_sup
+    end subroutine write_hotstart_sup
 
 
 !!******************************************************************
@@ -1880,7 +1888,7 @@ loopj:  do j=1,nlay
 !!******************************************************************
 !    
 !    return
-!    endsubroutine hot_write_bin
+!    end subroutine hot_write_bin
     
 !***********************************************************************    
     subroutine hot_print()
@@ -1895,19 +1903,22 @@ loopj:  do j=1,nlay
     
 645 format(' ',A,T40,F0.2,A)
 222 format(' ',A,T40,A,A)
+223 format(' ',A)
     
     iunit = (/6, dgunit/)
     
     open(dgunit,file=dgfile,access='append') 
     do i=1,2    
       write(iunit(i),*)
+
       if(coldstart)then
         write(iunit(i),222)   'Start Mode:','COLD'
       else
         write(iunit(i),222)   'Start Mode:','HOT'
         write(iunit(i),222)   '  Initial Conditions File:',trim(icfile)
       endif
-        if(hot_out)then
+
+      if(hot_out)then
         if(hot_timehr)then 
           write(iunit(i),222) 'Single Hot Start Output: '
           write(iunit(i),222) '  File:',trim(hotfile)
@@ -1918,10 +1929,14 @@ loopj:  do j=1,nlay
           write(iunit(i),222) '  File:',trim(autohotfile)
           write(iunit(i),222) '  Recurring Interval:',trim(vstrlz(hotdt,'(f0.2)')),' hrs'
         endif
+        if(add_duration_HS)then
+          write(iunit(i),222) 'Extend DURATION_RUN with IC Time:','ON'
+          write(iunit(i),223) '  - Total time of simulation will be extended by the Time value found in the IC file.' 
+        endif
       endif
     enddo
     close(dgunit)
 
     return
-    endsubroutine hot_print
+    end subroutine hot_print
     

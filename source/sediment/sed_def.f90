@@ -401,5 +401,5 @@ module sed_def
     real(ikind), allocatable :: tconsolid(:,:),tconsolid0(:)
     real(ikind) :: coherodcratrho0,coherodcrtau,rhobedcohercr0,coherodcrn
     
-    endmodule sed_def
+    end module sed_def
     

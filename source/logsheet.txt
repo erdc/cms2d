@@ -1,6 +1,8 @@
-== Version 5.2.18 (04/07/2022) ==
+== Version 5.2.18 (04/29/2022) ==
 * Bug fix for DREDGE_RATE card in the dredging module. Was not reading units as it should according to documentation.
 * Bug fix for divide by zero in WVBRK_Inline - rewrote using conditionals instead of GOTOs and also correcting the possibility of a divide by zero.
+* Bug fix for using Initial Condition file outside the current working directory.
+* New card 'EXTEND_DURATION_RUN_FOR_HOTSTART' with value 'ON'|'OFF' has been added. This will extend the selected DURATION_RUN by the time written in the IC File.
 * Minor - force user to associate datasets with their choice of Friction type (Manning's, BF, or Roughness Height)
 * Minor - added better diagnostic output for Dredge Rate showing both daily and per second rates.
 

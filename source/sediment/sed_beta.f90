@@ -64,7 +64,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine btklogexp
+    end subroutine btklogexp
 
 !***************************************************************************   
     subroutine btklogrouse
@@ -120,4 +120,4 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine btklogrouse
+    end subroutine btklogrouse

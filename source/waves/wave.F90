@@ -11,7 +11,7 @@
     wavedir = 0.0
     
     return
-    endsubroutine wave_default
+    end subroutine wave_default
     
 !***********************************************************************    
     subroutine wave_cards(cardname,foundcard)
@@ -47,7 +47,7 @@
     endselect
     
     return
-    endsubroutine wave_cards
+    end subroutine wave_cards
     
 !***********************************************************************
     subroutine wave_init()

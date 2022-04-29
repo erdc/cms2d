@@ -67,7 +67,7 @@
     call matrix_pointer_cr !iaa
 
     return
-    endsubroutine indexm
+    end subroutine indexm
 
 !**********************************************************************
     subroutine diagonal_pointer_cr 
@@ -88,7 +88,7 @@
     enddo
     
     return
-    endsubroutine
+    end subroutine
 
 !*********************************************************************** 
     subroutine matrix_pointer_cr
@@ -119,7 +119,7 @@
     enddo
 
     return
-    endsubroutine    
+    end subroutine    
 
 !*********************************************************************** 
     subroutine coef2csr(acoef,ap)
@@ -150,7 +150,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine    
+    end subroutine    
     
 !*********************************************************************** 
     subroutine ilu_cr(acoef,ap)
@@ -181,7 +181,7 @@
     enddo
 
     return
-    endsubroutine
+    end subroutine
       
 !*****************************************************************************
     subroutine qsplit(a,ind,n,ncut)
@@ -231,7 +231,7 @@
     endif
     goto 1
 
-    endsubroutine qsplit
+    end subroutine qsplit
 
 !*****************************************************************************
     subroutine lusol(n, y, x)
@@ -261,7 +261,7 @@
     enddo
     
     return
-    endsubroutine lusol    
+    end subroutine lusol    
 
 !*****************************************************************************
     subroutine ceaambk(n,aa,ja,ia,b,c)
@@ -298,5 +298,5 @@
 !$OMP END PARALLEL DO 
 
     return
-    endsubroutine ceaambk
+    end subroutine ceaambk
     

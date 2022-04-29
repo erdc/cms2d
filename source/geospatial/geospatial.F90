@@ -137,7 +137,7 @@
     projfl%VertOffset = 0.0  !Vertical offset from datum
     
     return
-    endsubroutine geo_default
+    end subroutine geo_default
 
 !*************************************************************
     subroutine geo_cards(cardname,foundcard,doPrint)
@@ -233,7 +233,7 @@
     endselect
     
     return
-    endsubroutine geo_cards
+    end subroutine geo_cards
 
 !**************************************************
     subroutine geo_print()
@@ -314,7 +314,7 @@
     endif
     
     return
-    endsubroutine geo_print
+    end subroutine geo_print
      
 !*************************************************************
     subroutine read_grid_xmdf()
@@ -618,7 +618,7 @@
 !    enddo 
 
     return
-    endsubroutine read_grid_xmdf
+    end subroutine read_grid_xmdf
     
 !**************************************************************************
     subroutine read_tel()
@@ -1016,7 +1016,7 @@
     deallocate( isolated )
     
     return
-    endsubroutine read_tel    
+    end subroutine read_tel    
     
 !*************************************************************
     subroutine read_2dm()
@@ -1164,7 +1164,7 @@
     !!enddo
     
     return
-    endsubroutine read_2dm
+    end subroutine read_2dm
     
 !****************************************************    
     subroutine assigned_bnd
@@ -1189,7 +1189,7 @@
     enddo
     
     return
-    endsubroutine assigned_bnd
+    end subroutine assigned_bnd
     
 !****************************************************    
     subroutine connect_node_to_cell
@@ -1236,7 +1236,7 @@
     endif
     
     return
-    endsubroutine connect_node_to_cell
+    end subroutine connect_node_to_cell
 
 !***************************************************
     subroutine forward_cell_to_cell
@@ -1285,7 +1285,7 @@ loopj: do j=1,numnode  !number of faces
     enddo !i
     
     return
-    endsubroutine forward_cell_to_cell
+    end subroutine forward_cell_to_cell
 
 !***************************************************************************
     subroutine unassigned_bnd
@@ -1366,7 +1366,7 @@ loopj: do j=1,numnode  !number of faces
     endif
     
     return
-    endsubroutine unassigned_bnd
+    end subroutine unassigned_bnd
 
 !***********************************************************
     subroutine backwards_cell_to_cell
@@ -1400,7 +1400,7 @@ loopj: do j=1,numnode  !number of faces
     enddo
     
     return
-    endsubroutine backwards_cell_to_cell
+    end subroutine backwards_cell_to_cell
     
 !*************************************************************
     subroutine geo_init()
@@ -1425,7 +1425,7 @@ loopj: do j=1,numnode  !number of faces
     if(bathydata%ison) call geo_init_bathydata
     
     return
-    endsubroutine geo_init
+    end subroutine geo_init
 
 !*********************************************************************
     subroutine geo_init_bathydata()
@@ -1480,7 +1480,7 @@ loopj: do j=1,numnode  !number of faces
     call geo_bathy_update(zb,-1)
     
     return
-    endsubroutine geo_init_bathydata
+    end subroutine geo_init_bathydata
     
 !************************************************************
     subroutine geo_bathy_update(zbed,msignbed)
@@ -1575,7 +1575,7 @@ loopj: do j=1,numnode  !number of faces
     enddo
 
     return
-    endsubroutine geo_bathy_update
+    end subroutine geo_bathy_update
     
 !***********************************************************
     subroutine geo_flowdepth_update
@@ -1618,7 +1618,7 @@ loopj: do j=1,numnode  !number of faces
     enddo
 
     return
-    endsubroutine geo_flowdepth_update
+    end subroutine geo_flowdepth_update
     
 !*************************************************************     
     subroutine geo_init_cart()
@@ -2056,7 +2056,7 @@ loopj: do j=1,numnode  !number of faces
     deallocate(indictface,isjoint)
     
     return
-    endsubroutine geo_init_cart
+    end subroutine geo_init_cart
     
 !***************************************************************************************
     subroutine geo_init_poly()
@@ -2292,7 +2292,7 @@ di: do i=1,ncellsD
     endif
     
     return
-    endsubroutine geo_init_poly
+    end subroutine geo_init_poly
 
 !*************************************************************
     subroutine map_cell_full2active(nstrcells,cells)
@@ -2322,7 +2322,7 @@ di: do i=1,ncellsD
     enddo
     
     return
-    endsubroutine map_cell_full2active
+    end subroutine map_cell_full2active
     
 !********************************************************    
     subroutine map_scal_active2full(var,scalout,iwritedry)
@@ -2361,7 +2361,7 @@ di: do i=1,ncellsD
     endif
     
     return
-    endsubroutine map_scal_active2full
+    end subroutine map_scal_active2full
 
 !********************************************************    
     subroutine map_vec_active2full(varx,vary,vecout,iwritedry)
@@ -2403,7 +2403,7 @@ di: do i=1,ncellsD
     endif 
     
     return
-    endsubroutine map_vec_active2full    
+    end subroutine map_vec_active2full    
     
 !********************************************************    
     subroutine map_scal_full2active(vtemp,var)
@@ -2427,7 +2427,7 @@ di: do i=1,ncellsD
     enddo
 
     return
-    endsubroutine map_scal_full2active
+    end subroutine map_scal_full2active
     
 !********************************************************    
     subroutine map_vec_full2active(vtemp,vecx,vecy)
@@ -2453,7 +2453,7 @@ di: do i=1,ncellsD
     enddo
 
     return
-    endsubroutine map_vec_full2active
+    end subroutine map_vec_full2active
         
 !**************************************************    
     subroutine proj_horiz_block(kunit,proj)
@@ -2591,7 +2591,7 @@ d1: do k=1,10
     endif
     
     return
-    endsubroutine proj_horiz_block
+    end subroutine proj_horiz_block
 
 !**************************************************    
     subroutine proj_vert_block(kunit,proj)
@@ -2668,7 +2668,7 @@ d1: do k=1,10
     enddo d1
     
     return
-    endsubroutine proj_vert_block
+    end subroutine proj_vert_block
 
 !**********************************************************************
     subroutine get_coord_info
@@ -2787,7 +2787,7 @@ d1: do k=1,10
 
 #endif
     return
-    endsubroutine get_coord_info
+    end subroutine get_coord_info
     
 !***************************************************************************************
     subroutine grid_cart_write_ascii()
@@ -2907,7 +2907,7 @@ d1: do k=1,10
     close(kunit)
     
     return
-    endsubroutine grid_cart_write_ascii
+    end subroutine grid_cart_write_ascii
     
 !***********************************************************************************    
     subroutine read_grid_cart()
@@ -3061,7 +3061,7 @@ d1: do k=1,10
     call geo_cart
     
     return
-    endsubroutine read_grid_cart
+    end subroutine read_grid_cart
     
 !*******************************************************************    
     subroutine geo_cart
@@ -3315,4 +3315,4 @@ d1: do k=1,10
     enddo
     
     return
-    endsubroutine geo_cart
+    end subroutine geo_cart

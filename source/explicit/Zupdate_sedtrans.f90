@@ -94,7 +94,7 @@
         endif
       endif
       
-      endsubroutine update_sedtrans
+      end subroutine update_sedtrans
       
       !*************************************************************
       !Maps explicit variable to implicit variable for output for
@@ -147,7 +147,7 @@
         enddo
       endif
       
-      endsubroutine ADSS_prep_for_output
+      end subroutine ADSS_prep_for_output
       
       !*************************************************************
       !Maps explicit variable to implicit variable for output for
@@ -163,5 +163,5 @@
       qtx = qsx
       qty = qsy
       
-      endsubroutine TL_prep_for_output
+      end subroutine TL_prep_for_output
       

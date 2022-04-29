@@ -74,7 +74,7 @@
     nParSim = 0
     
     return
-    endsubroutine bnd_default
+    end subroutine bnd_default
 
 !***************************************************************************   
     subroutine bnd_cards(cardname,foundcard)
@@ -191,7 +191,7 @@
     endselect
 
     return
-    endsubroutine bnd_cards
+    end subroutine bnd_cards
 
 !****************************************************************    
     subroutine xshore_alloc
@@ -219,7 +219,7 @@
     endif
       
     return
-    endsubroutine xshore_alloc
+    end subroutine xshore_alloc
       
 !**********************************************************    
     subroutine flux_alloc
@@ -269,7 +269,7 @@
     Q_str(nQstr)%nstages = 0 !Stage-Flow curve
     
     return
-    endsubroutine flux_alloc
+    end subroutine flux_alloc
     
 !**************************************************************************************    
     subroutine flux_block(ibndtype,ifluxmode,fluxfile,fluxpath,qfluxconst,ifluxunits,&
@@ -389,7 +389,7 @@
     endselect
     
     return
-    endsubroutine flux_block
+    end subroutine flux_block
 
 !**************************************************************************    
     subroutine wse_block(ibndtype,istidal,wsefile,wsepath,wseconst,&
@@ -556,7 +556,7 @@
     enddo
     
     return
-    endsubroutine wse_block
+    end subroutine wse_block
 
 !********************************************************************    
     subroutine vel_block(ibndtype,velfile,velpath,nti,nsi,nsw,&
@@ -652,7 +652,7 @@
     enddo
     
     return
-    endsubroutine vel_block
+    end subroutine vel_block
      
 !************************************************************************
     subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,&
@@ -783,7 +783,7 @@
     enddo
     
     return
-    endsubroutine tidal_block
+    end subroutine tidal_block
     
 !************************************************************************
     subroutine harmonic_block(ibndtype,ntc,amp,phase,speed,angle_wave)
@@ -877,7 +877,7 @@
     enddo
     
     return
-    endsubroutine harmonic_block
+    end subroutine harmonic_block
 
 !*************************************************************************************
     subroutine tsta_block(ibndtype,station,ntc,name,amp,phase,speed,f,vu,angle_wave)
@@ -1078,7 +1078,7 @@
       enddo
     
     return
-    endsubroutine tsta_block
+    end subroutine tsta_block
     
 !*****************************************************************************    
     subroutine parent_block(ctlfilepar,grdfilepar,projpar,&
@@ -1179,7 +1179,7 @@
     enddo
     
     return
-    endsubroutine parent_block    
+    end subroutine parent_block    
 
 !********************************************************************    
     subroutine tdb_block(ntcin,namein,tdbname,tdbpath,&
@@ -1255,7 +1255,7 @@
     enddo
     
     return
-    endsubroutine tdb_block
+    end subroutine tdb_block
     
 !**********************************************************    
     subroutine tidal_alloc
@@ -1309,7 +1309,7 @@
     TH_str(nTHstr)%station = ''
     
     return
-    endsubroutine tidal_alloc
+    end subroutine tidal_alloc
     
 !*************************************************************    
     subroutine singlewse_alloc
@@ -1360,7 +1360,7 @@
     !H_str(nHstr)%minterp    !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
     
     return
-    endsubroutine singlewse_alloc
+    end subroutine singlewse_alloc
 
 !****************************************************************    
     subroutine multiwse_alloc
@@ -1403,7 +1403,7 @@
     MH_str(nMHstr)%nssw = 0 !Spatial smoothing width
     
     return
-    endsubroutine multiwse_alloc
+    end subroutine multiwse_alloc
 
 !**********************************************************    
     subroutine multiwsevel_alloc
@@ -1459,7 +1459,7 @@
     MHV_str(nMHVstr)%nsswvel = 0 !Spatial smoothing width
     
     return
-    endsubroutine multiwsevel_alloc
+    end subroutine multiwsevel_alloc
 
 !****************************************************************
     subroutine read_tidal_const()
@@ -1531,7 +1531,7 @@ d2:   do k=1,ntf
     write(*,*) 'Tidal Constituents read'  
     
     return
-    endsubroutine read_tidal_const    
+    end subroutine read_tidal_const    
     
 !****************************************************************
     subroutine read_harmonics
@@ -1593,7 +1593,7 @@ d1: do i=1,ntf
     write(*,*) 'Harmonic components read'  
     
     return
-    endsubroutine read_harmonics
+    end subroutine read_harmonics
     
 !********************************************************************************
     subroutine bnd_init()
@@ -2404,9 +2404,9 @@ d1: do i=1,ntf
     bnd_str(ibnd)%idnum = idnum
     
     return
-    endsubroutine copy2bnd
+    end subroutine copy2bnd
     
-    endsubroutine bnd_init
+    end subroutine bnd_init
         
 !*****************************************************************************************
     subroutine bnd_print()
@@ -2920,7 +2920,7 @@ d1: do i=1,ntf
     endif
     
     return
-    endsubroutine bnd_print
+    end subroutine bnd_print
 
 !****************************************************
     subroutine write_wind_to_ascii()
@@ -3388,7 +3388,7 @@ d1: do i=1,ntf
     call struct_uv
 
     return
-    endsubroutine bound_uv
+    end subroutine bound_uv
 
 !***********************************************************************
     subroutine bound_pp()
@@ -3577,7 +3577,7 @@ d1: do i=1,ntf
     call struct_pp
 
     return
-    endsubroutine bound_pp
+    end subroutine bound_pp
     
 !***********************************************************************
     subroutine bound_p()
@@ -3766,7 +3766,7 @@ d1: do i=1,ntf
     !call struct_pp
 
     return
-    endsubroutine bound_p    
+    end subroutine bound_p    
     
 !***********************************************************************
     subroutine bound_wse()
@@ -3955,7 +3955,7 @@ d1: do i=1,ntf
     !call struct_p
 
     return
-    endsubroutine bound_wse  
+    end subroutine bound_wse  
     
 !*******************************************************************
     function wsesetupx(i,i1)
@@ -3975,13 +3975,13 @@ d1: do i=1,ntf
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcex
-      endfunction
+      end function
     endinterface
     
     wsesetupx=(x(i)-x(i1))*(forcex(i)+forcex(i1))/(h(i)+h(i1))*gravinv
     
     return
-    endfunction wsesetupx
+    end function wsesetupx
     
 !*******************************************************************
     function wsesetupy(i,i1)
@@ -4000,13 +4000,13 @@ d1: do i=1,ntf
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcey
-      endfunction
+      end function
     endinterface
     
     wsesetupy=(y(i)-y(i1))*(forcey(i)+forcey(i1))/(h(i)+h(i1))*gravinv
        
     return
-    endfunction wsesetupy
+    end function wsesetupy
     
 !*******************************************************************
     function forcex(i) result(fx)
@@ -4066,7 +4066,7 @@ d1: do i=1,ntf
     
     
     return
-    endfunction forcex
+    end function forcex
     
 !*******************************************************************
     function forcey(i) result(fy)
@@ -4127,7 +4127,7 @@ d1: do i=1,ntf
     if(presvar) fy = fy - pressatmdy(i)*h(i)/rhow
     
     return
-    endfunction forcey
+    end function forcey
 
 !***********************************************************************
     subroutine bnd_eval()
@@ -4341,7 +4341,7 @@ d1: do i=1,ntf
     enddo    
 
     return
-    endsubroutine bnd_eval
+    end subroutine bnd_eval
     
 !***********************************************************************
     subroutine bndriver_vel()
@@ -4442,7 +4442,7 @@ d1: do i=1,ntf
 #endif
 
     return
-    endsubroutine bndriver_vel
+    end subroutine bndriver_vel
     
 !***********************************************************************
     subroutine bndflux
@@ -4549,7 +4549,7 @@ d1: do i=1,ntf
 #endif
 
     return
-    endsubroutine bndflux
+    end subroutine bndflux
     
 !**********************************************************************
     subroutine bndcopy2ghost(val)
@@ -4572,7 +4572,7 @@ d1: do i=1,ntf
     enddo  
 
     return
-    endsubroutine bndcopy2ghost
+    end subroutine bndcopy2ghost
 
 !**********************************************************************
     subroutine xshore_uv
@@ -4719,7 +4719,7 @@ d1: do i=1,ntf
     enddo !icsh
        
     return
-    endsubroutine xshore_uv
+    end subroutine xshore_uv
         
 !****************************************************************          
     subroutine xshore_wse
@@ -4761,7 +4761,7 @@ d1: do i=1,ntf
     enddo
     
     return
-    endsubroutine xshore_wse
+    end subroutine xshore_wse
     
 !*********************************************************************
     subroutine bnd_wse_adjust(nbndcells,icells,kfaces,wsebnd,wseadj)
@@ -4788,7 +4788,7 @@ d1: do i=1,ntf
         use prec_def
         integer,intent(in) :: i,i1
         real(ikind) :: wsesetupx
-      endfunction
+      end function
     endinterface
     
     interface
@@ -4796,7 +4796,7 @@ d1: do i=1,ntf
         use prec_def
         integer,intent(in) :: i,i1
         real(ikind) :: wsesetupy
-      endfunction
+      end function
     endinterface
     
     im0=nbndcells/2 !Center cell, starting or reference point
@@ -4830,7 +4830,7 @@ d1: do i=1,ntf
     wseadj = wsebnd + wsesetup
     
     return
-    endsubroutine bnd_wse_adjust
+    end subroutine bnd_wse_adjust
     
 !*********************************************************
     subroutine bndpath2id(apath,id)
@@ -4881,7 +4881,7 @@ d1: do i=1,ntf
     enddo
     
     return
-    endsubroutine bndpath2id
+    end subroutine bndpath2id
 
 !**************************************************************************
     subroutine fluxbnd(nbndcells,icells,kfaces)
@@ -4908,7 +4908,7 @@ d1: do i=1,ntf
     enddo
     
     return
-    endsubroutine fluxbnd    
+    end subroutine fluxbnd    
     
 !**************************************************************************
     subroutine bnd_pp(nbndcells,icells,kfaces,wsebnd)
@@ -4992,7 +4992,7 @@ d1: do i=1,ntf
     !endif 
     
     return
-    endsubroutine bnd_pp
+    end subroutine bnd_pp
     
 !**************************************************************************
     subroutine bnd_p(nbndcells,icells,kfaces,wsebnd)
@@ -5025,7 +5025,7 @@ d1: do i=1,ntf
     enddo !j
     
     return
-    endsubroutine bnd_p    
+    end subroutine bnd_p    
     
 !**************************************************************************
     subroutine bnd_wse(nbndcells,icells,kfaces,wsebnd)
@@ -5057,7 +5057,7 @@ d1: do i=1,ntf
     enddo !j
     
     return
-    endsubroutine bnd_wse
+    end subroutine bnd_wse
     
 !********************************************************    
     subroutine bndvelxtrap(nbndcells,icells,kfaces)
@@ -5084,7 +5084,7 @@ d1: do i=1,ntf
     enddo
     
     return
-    endsubroutine bndvelxtrap
+    end subroutine bndvelxtrap
 
 !********************************************************    
     subroutine bndpresdepxtrap(nbndcells,icells,kfaces)
@@ -5113,5 +5113,5 @@ d1: do i=1,ntf
     enddo
     
     return
-    endsubroutine bndpresdepxtrap
+    end subroutine bndpresdepxtrap
     

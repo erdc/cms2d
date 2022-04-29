@@ -89,4 +89,4 @@ module stat_def
     real(ikind), allocatable :: ursellmax(:) !Maximum Ursell number Ur = H*L^2/h^3 < 100 for linear waves
     real(ikind), allocatable :: wdissmax(:)   !Maximum wave dissipation 
     
-endmodule stat_def
+end module stat_def

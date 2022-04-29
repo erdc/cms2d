@@ -811,7 +811,7 @@
     enddo          
 
     return
-    endsubroutine fileparts
+    end subroutine fileparts
     
 !!******************************************************
 !    subroutine fileparts(astr,apath,aname,aext)    
@@ -850,7 +850,7 @@
 !    enddo          
 !
 !    return
-!    endsubroutine fileparts
+!    end subroutine fileparts
     
 !******************************************************
     subroutine filepath(astr,apath)  
@@ -874,7 +874,7 @@
     enddo       
 
     return
-    endsubroutine filepath
+    end subroutine filepath
     
 !******************************************************
     subroutine fileext(astr,aext)  
@@ -901,7 +901,7 @@
     enddo    
     
     return
-    endsubroutine fileext
+    end subroutine fileext
     
 !******************************************************
     subroutine remove_underscores(astr)    
@@ -918,7 +918,7 @@
     enddo    
     
     return
-    endsubroutine remove_underscores
+    end subroutine remove_underscores
 
 !********************************************************
     subroutine uppercase(str)
@@ -935,7 +935,7 @@
     enddo
 
     return
-    endsubroutine uppercase
+    end subroutine uppercase
     
 !********************************************************
     function toUpper(str) result(aString)
@@ -973,7 +973,7 @@
     enddo
 
     return
-    endsubroutine lowercase
+    end subroutine lowercase
 
 !********************************************************
     function toLower(str) result(aString)
@@ -1010,7 +1010,7 @@
     trimspace = nn      
     
     return
-    endfunction trimspace
+    end function trimspace
 
 !*****************************************************************
     subroutine removequotes(string)
@@ -1032,7 +1032,7 @@
     enddo
 
     return
-    endsubroutine removequotes
+    end subroutine removequotes
     
 !*****************************************************************
     subroutine countquotes(string,count)
@@ -1051,7 +1051,7 @@
     enddo
 
     return
-    endsubroutine countquotes
+    end subroutine countquotes
 
 !!***********************************************************************    
 !    subroutine copy_file_to_temp(file,tempfile)
@@ -1095,7 +1095,7 @@
 !    endif
 !    
 !    return
-!    endsubroutine copy_file_to_temp
+!    end subroutine copy_file_to_temp
     
 !************************************************************
     subroutine delete_file(file)
@@ -1115,7 +1115,7 @@
     endif    
     
     return
-    endsubroutine delete_file
+    end subroutine delete_file
     
 !-----------------------------------------------------------------------
 !   converts a real*4 value with n significant digits to a character 

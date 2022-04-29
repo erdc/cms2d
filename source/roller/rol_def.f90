@@ -17,4 +17,4 @@ module rol_def
     real(ikind),allocatable :: rxrs(:,:),ryrs(:,:)  !Roller stress gradients
     real(ikind),allocatable :: roldiss(:,:) !Roller dissipation (N/m/s)
     
-endmodule rol_def
+end module rol_def

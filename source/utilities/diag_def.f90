@@ -11,5 +11,5 @@ module diag_def
     
     character(len=200) :: msg,msg2,msg3,msg4,msg5,msg6,msg7,msg8
     
-endmodule diag_def    
+end module diag_def    
     

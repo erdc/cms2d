@@ -87,7 +87,7 @@
    20   CONTINUE
 
       RETURN
-      ENDSUBROUTINE
+      end subroutine
 
 !*********************************************************************
       SUBROUTINE NFACS(YR,DAYJ,HR)

@@ -33,10 +33,10 @@ contains
     read(*,*)
     
     return
-    endsubroutine CMS_test_run
+    end subroutine CMS_test_run
 #endif
 
-endmodule CMS_test    
+end module CMS_test    
     
     
     

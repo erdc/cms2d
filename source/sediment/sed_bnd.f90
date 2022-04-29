@@ -345,7 +345,7 @@
 #endif
     
     return
-    endsubroutine sedbnd_init
+    end subroutine sedbnd_init
     
 !***********************************************************************
     subroutine sedbnd_eval
@@ -491,7 +491,7 @@
     enddo !ised
 
     return
-    endsubroutine sedbnd_eval
+    end subroutine sedbnd_eval
     
 !***********************************************************************
     subroutine bndzb
@@ -522,4 +522,4 @@
     enddo
 
     return
-    endsubroutine bndzb
+    end subroutine bndzb

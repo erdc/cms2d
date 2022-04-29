@@ -97,7 +97,7 @@
     endselect
     
     return
-    endsubroutine adaptcoef  
+    end subroutine adaptcoef  
 
 !***************************************************        
     subroutine adaptlenbed
@@ -146,7 +146,7 @@
     endselect
     
     return
-    endsubroutine adaptlenbed
+    end subroutine adaptlenbed
     
 !***************************************************        
     subroutine adaptlensus(wf)
@@ -239,4 +239,4 @@
     endselect
     
     return
-    endsubroutine adaptlensus
+    end subroutine adaptlensus

@@ -46,7 +46,7 @@
     heatpath = "PROPERTIES/Model Params/TemperatureParameters"
     
     return
-    endsubroutine heat_default
+    end subroutine heat_default
 
 !**************************************************************
     subroutine heat_cards(cardname,foundcard)
@@ -141,7 +141,7 @@
     endselect
     
     return
-    endsubroutine heat_cards
+    end subroutine heat_cards
     
 !*******************************************    
     subroutine heat_bnd_block
@@ -189,7 +189,7 @@ d1: do k=1,10
     enddo d1
       
     return
-    endsubroutine heat_bnd_block
+    end subroutine heat_bnd_block
     
 !!**********************************************************    
 !    subroutine heat_block(iheattype,heatfile,heatpath,heatbnd)
@@ -232,7 +232,7 @@ d1: do k=1,10
 !    enddo d1
 !      
 !    return
-!    endsubroutine heat_block
+!    end subroutine heat_block
     
 !************************************************************    
     subroutine heatstr_resize
@@ -268,7 +268,7 @@ d1: do k=1,10
     heat_str(nheatstr)%inc = 1
   
     return
-    endsubroutine heatstr_resize
+    end subroutine heatstr_resize
     
 !****************************************************************************    
     subroutine heat_print()
@@ -307,7 +307,7 @@ d1: do k=1,10
     close(dgunit)
     
     return
-    endsubroutine heat_print
+    end subroutine heat_print
 
 !**************************************************************
     subroutine heat_init
@@ -393,7 +393,7 @@ d1: do k=1,10
 #endif
 
     return
-    endsubroutine heat_init
+    end subroutine heat_init
 
 !**************************************************************
     subroutine heat_laplace
@@ -513,7 +513,7 @@ d1: do k=1,10
     call bndcopy2ghost(heat)
     
     return
-    endsubroutine heat_laplace
+    end subroutine heat_laplace
 
 !**************************************************************
     subroutine heat_imp
@@ -613,7 +613,7 @@ d1: do k=1,10
     call heat_step_stat
     
     return
-    endsubroutine heat_imp
+    end subroutine heat_imp
     
 !**************************************************************
     subroutine coeffinitheat
@@ -637,7 +637,7 @@ d1: do k=1,10
     enddo        
     
     return
-    endsubroutine coeffinitheat
+    end subroutine coeffinitheat
 
 !***********************************************************************
     subroutine boundinit_heat
@@ -694,7 +694,7 @@ d1: do k=1,10
     enddo
     
     return
-    endsubroutine boundinit_heat
+    end subroutine boundinit_heat
     
 !*************************************************************************
     subroutine coeffsourcesink_heat(schmcoef)
@@ -718,7 +718,7 @@ d1: do k=1,10
         implicit none
         real(ikind),intent(in) :: dk,fk
         real(ikind) :: schmcoef
-      endfunction
+      end function
     endinterface    
 
     dtimeinv=1.0/dtime
@@ -752,7 +752,7 @@ d1: do k=1,10
     endif
     
     return
-    endsubroutine coeffsourcesink_heat
+    end subroutine coeffsourcesink_heat
     
 !******************************************************************
     subroutine heat_step_stat
@@ -817,5 +817,5 @@ d1: do k=1,10
     close(dgunit)      
     
     return
-    endsubroutine heat_step_stat    
+    end subroutine heat_step_stat    
     

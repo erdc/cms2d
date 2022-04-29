@@ -11,4 +11,4 @@ module veg_def
     real(ikind), allocatable :: nv(:)   
     character(len=200) :: vegdensfile, vegdenspath  
     
-endmodule veg_def
+end module veg_def

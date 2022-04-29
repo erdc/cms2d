@@ -18,7 +18,7 @@
     nlim = 0            !Slope limiter    
     
     return
-    endsubroutine der_default
+    end subroutine der_default
     
 !***********************************************************************
     subroutine der_cards(cardname,foundcard)
@@ -80,7 +80,7 @@
     endselect
     
     return
-    endsubroutine der_cards
+    end subroutine der_cards
 
 !***********************************************************************
     subroutine der_init
@@ -196,7 +196,7 @@
     enddo
     
     return
-    endsubroutine der_init
+    end subroutine der_init
     
 !***********************************************************************
     subroutine der_update()
@@ -290,5 +290,5 @@
     endselect
     
     return    
-    endsubroutine der_update    
+    end subroutine der_update    
     

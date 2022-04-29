@@ -56,7 +56,7 @@ contains
     betas=min(max(betas,0.1),1.0)
     
     return
-    endfunction bslogexp
+    end function bslogexp
     
 !*********************************************************
     function bslogexp_table(zap,phip) result(betas)
@@ -86,7 +86,7 @@ contains
                 (betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
     
     return            
-    endfunction bslogexp_table
+    end function bslogexp_table
     
 !*********************************************************
     function bslogrouse_table(zap,r) result(betas)
@@ -116,7 +116,7 @@ contains
                 (betas_table(i,j+1)*(1.0-fi) + betas_table(i+1,j+1)*fi)*fj
             
     return            
-    endfunction bslogrouse_table    
+    end function bslogrouse_table    
     
 !**********************************************
     subroutine bs_init
@@ -3770,6 +3770,6 @@ contains
     endif
     
     return
-    endsubroutine bs_init
+    end subroutine bs_init
 
-endmodule beta_lib    
+end module beta_lib    

@@ -41,7 +41,7 @@
     version  = 5.2           ! CMS version         !For interim version
     revision = 18            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '04/07/2022'
+    rdate    = '04/29/2022'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -395,7 +395,7 @@
     endif
     
     return
-    endsubroutine get_com_arg
+    end subroutine get_com_arg
         
 !************************************************************************    
     subroutine print_header
@@ -470,7 +470,7 @@
     close(dgunit)        
     
     return
-    endsubroutine print_header
+    end subroutine print_header
 
 !*************************************************************
     subroutine sim_start_print
@@ -521,7 +521,7 @@
 #endif
 
     return
-    endsubroutine sim_start_print
+    end subroutine sim_start_print
         
 !************************************************************************
     subroutine sim_end_print
@@ -548,7 +548,7 @@
 740 format(2x,I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)    
 840 format('  - Clock time: ',I0,' min, ',F7.4,' s')
 841 format('  - Clock time: ',I0,' hrs, ',I0,' min, ',F7.4,' s')     
-940 format('  - Computational Speed: ',F8.2)
+940 format('  - Computational Speed: ',F0.2)
 720 format('  - CPU time:   ',I0,' min, ',F7.4,' s')
 721 format('  - CPU time:   ',I0,' hrs, ',I0,' min, ',F7.4,' s')   
     
@@ -569,7 +569,7 @@
     call time_cal2str(datetimestr,ita(1),ita(2),ita(3),ita(5),ita(6),ita(7))
     
     !Speed 
-    speed = dble(stimet)/time_dur
+    speed = dble(stimet)/max(time_dur,0.00001) 
     
     !CPU time
     time_dur = time_cpu() - timebegin
@@ -597,7 +597,7 @@
 #endif   
     
     return
-    endsubroutine sim_end_print
+    end subroutine sim_end_print
 
 !********************************************************************************
     subroutine cms_print
@@ -713,7 +713,7 @@
     close(dgunit)
     
     return
-    endsubroutine cms_print
+    end subroutine cms_print
     
 !********************************************************************************
     subroutine wave_only_print (simfile,iprpp,icur,ibreak,irs,kout,ibnd,  &

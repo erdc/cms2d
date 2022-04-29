@@ -63,7 +63,7 @@ contains
     endif    
     
     return
-    endfunction wind_drag_hsu
+    end function wind_drag_hsu
 
 !*********************************************************    
     function wind_drag_teeter(W,dep) result(Cd)
@@ -88,7 +88,7 @@ contains
        - 2.48*log(max(W,0.01))))**2
     
     return
-    endfunction wind_drag_teeter    
+    end function wind_drag_teeter    
     
 !********************************************************************    
     function wind_drag_coeff_smith_banke(W,WA,WB,CdA,CdB) result(Cd)
@@ -126,7 +126,7 @@ contains
     endif 
     
     return
-    endfunction wind_drag_coeff_smith_banke    
+    end function wind_drag_coeff_smith_banke    
     
 !******************************************************************** 
     function wind_drag_garratt(W) result(Cd)
@@ -169,7 +169,7 @@ contains
     Cd = min(max(Cd,0.75e-3),2.64e-3)
 
     return
-    endfunction wind_drag_garratt 
+    end function wind_drag_garratt 
     
 !********************************************************************     
     function wind_drag_large_pond(W) result(Cd)
@@ -213,7 +213,7 @@ contains
     Cd = min(max(Cd,0.75e-3),2.64e-3)
 
     return
-    endfunction wind_drag_large_pond
+    end function wind_drag_large_pond
     
 !*****************************************************************
     function wind_normrough(wx,wy) result(zwp)
@@ -233,7 +233,7 @@ contains
     zwp = exp(1.0_ikind - 0.4_ikind/sqrt(Cd))
     
     return
-    endfunction wind_normrough    
+    end function wind_normrough    
     
 !*****************************************************************************   
     function wind_heightcorr(wndhgt,wndhgtrefin,alphain) result(fac)
@@ -287,7 +287,7 @@ contains
     fac = (wndhgtref/max(wndhgt,wndhgtmin))**alpha
     
     return
-    endfunction wind_heightcorr
+    end function wind_heightcorr
     
 !***********************************************************************
     subroutine read_stdmetfile(aname,apath,tjs,tje,nt,t,wspd,wdir,pres)
@@ -412,7 +412,7 @@ contains
     endif  
     
     return
-    endsubroutine read_stdmetfile
+    end subroutine read_stdmetfile
 
 !*********************************************************************************
     subroutine read_wind_owi(wunit,nwindi,nwindj,windhr2,wndspdx2,wndspdy2,ierr)
@@ -470,7 +470,7 @@ contains
     ierr = 0 !Finished successfully
     
     return
-    endsubroutine read_wind_owi
+    end subroutine read_wind_owi
     
 !************************************************************************
     subroutine read_pres_owi(punit,nwindi,nwindj,preshr2,atmpres2,ierr)
@@ -521,7 +521,7 @@ contains
     ierr = 0 !Finished successfully
     
     return
-    endsubroutine read_pres_owi
+    end subroutine read_pres_owi
     
 !**************************************************************************
     subroutine read_blended_winds(wunit,thrs,uw,vw,ierr)
@@ -561,7 +561,7 @@ contains
     ierr = 0    
     
     return
-    endsubroutine read_blended_winds
+    end subroutine read_blended_winds
     
 !*******************************************************************
     subroutine read_met_uvp(wunit,nwindi,nwindj,windhr2,&
@@ -610,7 +610,7 @@ di: do i=1,nwindi
     endif
     
     return
-    endsubroutine read_met_uvp
+    end subroutine read_met_uvp
                 
 !*******************************************************************
     subroutine read_met_spddir(wunit,nwindi,nwindj,windhr2,&
@@ -672,6 +672,6 @@ d2:   do i=1,nwindi
     endif
     
     return
-    endsubroutine read_met_spddir    
+    end subroutine read_met_spddir    
 
-endmodule met_lib
+end module met_lib

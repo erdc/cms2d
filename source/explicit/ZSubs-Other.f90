@@ -1281,4 +1281,4 @@
     ramp = ramp_func(timehrs,rampdur)
 
     return
-    endsubroutine exp_timing        
+    end subroutine exp_timing        

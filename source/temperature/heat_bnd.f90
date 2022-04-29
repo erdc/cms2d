@@ -82,7 +82,7 @@
     endif
     
     return
-    endsubroutine heat_bc_init
+    end subroutine heat_bc_init
     
 !************************************************************************
     subroutine heat_bnd_chk(bidfile,bidpath,nbndcells,icells,kfaces,iheat)
@@ -133,7 +133,7 @@
 #endif
 
     return
-    endsubroutine heat_bnd_chk
+    end subroutine heat_bnd_chk
     
 !**************************************************************
     subroutine bndheateval
@@ -201,7 +201,7 @@
 !    enddo      
     
     return
-    endsubroutine bndheateval
+    end subroutine bndheateval
     
 !***********************************************************************
     subroutine bound_heat
@@ -321,5 +321,5 @@
 !    call struct_heat
     
     return
-    endsubroutine bound_heat
+    end subroutine bound_heat
     

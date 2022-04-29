@@ -169,7 +169,7 @@ contains
     close(dgunit)
     
     return
-    endsubroutine diag_print_var 
+    end subroutine diag_print_var 
 
 !******************************************************************************    
     subroutine diag_print_error(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9)
@@ -208,7 +208,7 @@ contains
     stop
     
     return
-    endsubroutine diag_print_error
+    end subroutine diag_print_error
     
 !******************************************************************************    
     subroutine diag_print_warning(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8)
@@ -245,7 +245,7 @@ contains
     if(.not.dgopen) close(dgunit)
     
     return
-    endsubroutine diag_print_warning   
+    end subroutine diag_print_warning   
     
 !******************************************************************************    
     subroutine diag_print_message(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8)
@@ -278,7 +278,7 @@ contains
     if(.not.dgopen) close(dgunit)  
     
     return
-    endsubroutine diag_print_message      
+    end subroutine diag_print_message      
     
-endmodule diag_lib
+end module diag_lib
     

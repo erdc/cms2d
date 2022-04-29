@@ -19,7 +19,7 @@ contains
     y = y*exp(-0.5*((log(x)-mu)/sigma)**2)
     
     return
-    endfunction lognpdf
+    end function lognpdf
     
 !************************************************************************       
     function erfinv(x) result(y)
@@ -39,7 +39,7 @@ contains
     y = x/abs(x)*sqrt(sqrt((b+c/2.0)**2-c/a)-(b+c/2.0))
     
     return    
-    endfunction erfinv
+    end function erfinv
         
 !*******************************************       
     function logninv(p,mu,sigma) result(x)
@@ -54,7 +54,7 @@ contains
     x = exp(sigma*logx0 + mu)
     
     return    
-    endfunction logninv
+    end function logninv
     
 !********************************************************************     
     function erf(x) result(y)
@@ -88,7 +88,7 @@ contains
     if(y>1.0) y = 1.0
     
     return
-    endfunction erf
+    end function erf
     
 !***************************************************    
     function ei(x) result(y)
@@ -124,7 +124,7 @@ contains
     endif
     
     return
-    endfunction ei
+    end function ei
     
 !****************************************************    
     function beta(z,w)
@@ -138,7 +138,7 @@ contains
     beta=exp(gammln(z)+gammln(w)-gammln(z+w))
     
     return
-    endfunction beta
+    end function beta
 
 !****************************************************       
     function gammln(xx)
@@ -165,7 +165,7 @@ contains
     gammln=tmp+log(stp*ser/x)
     
     return
-    endfunction gammln
+    end function gammln
     
 !***************************************************************    
     function e1x(x)
@@ -182,7 +182,7 @@ contains
     e1x = real(ce1,kind=ikind)
     
     return
-    endfunction e1x
+    end function e1x
     
 !***************************************************************    
     subroutine e1z(z, ce1)
@@ -223,7 +223,7 @@ contains
     endif
     
     return
-    endsubroutine e1z    
+    end subroutine e1z    
     
 !***************************************************************  
     subroutine sortup(n,x,ind)
@@ -260,7 +260,7 @@ contains
     if(present(ind)) ind = iord
     
     return
-    endsubroutine sortup
+    end subroutine sortup
     
 !***************************************************************  
     function avgval(n,x)
@@ -275,6 +275,6 @@ contains
     avgval = sum(x(1:n))/real(n,kind=ikind)
         
     return
-    endfunction avgval
+    end function avgval
     
-endmodule math_lib    
+end module math_lib    

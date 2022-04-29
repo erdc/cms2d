@@ -62,7 +62,7 @@
     biodegradhalflife = 50.0*3600.0 !Biodegradation half-life [sec]
     
     return
-    endsubroutine fric_default
+    end subroutine fric_default
 
 !*************************************************************   
     subroutine fric_cards(cardname,foundcard)
@@ -274,7 +274,7 @@
     endselect
     
     return
-    endsubroutine fric_cards
+    end subroutine fric_cards
 
 !***********************************************************************
     subroutine fric_init()
@@ -425,7 +425,7 @@
     endif
     
     return
-    endsubroutine fric_init
+    end subroutine fric_init
     
 !**************************************************    
     subroutine rough_read_error_msg(afile,apath)
@@ -442,7 +442,7 @@
       '  Check input files and restart')
     
     stop         
-    endsubroutine
+    end subroutine
 
 !**************************************************    
     subroutine rough_read_error_msg2(afile)
@@ -457,7 +457,7 @@
       '  Check input files and restart')
     
     stop         
-    endsubroutine
+    end subroutine
 
 !**************************************************
     subroutine fric_print()
@@ -559,7 +559,7 @@
     close(dgunit)            
 
     return        
-    endsubroutine fric_print
+    end subroutine fric_print
     
 !***********************************************************************
     function fric_bed(hi,Cd,z0i,ui,vi,usi,vsi,Uws,Uwr,Twr,Dw) result(cbu)
@@ -596,7 +596,7 @@
     cbu=Cd*Uwc
     
     return
-    endfunction fric_bed
+    end function fric_bed
     
 !***********************************************************************
     subroutine fric_eval()
@@ -781,7 +781,7 @@
     !!bsvel=0.0
     
     return
-    endsubroutine fric_eval
+    end subroutine fric_eval
     
 !*******************************************************************************
     subroutine fric_rough_eval
@@ -822,7 +822,7 @@
     enddo
     
     return
-    endsubroutine fric_rough_eval
+    end subroutine fric_rough_eval
         
 !*******************************************************************************
     subroutine fric_roughness( &
@@ -922,5 +922,5 @@
     !rksc = max(rksc,1.0e-4)
         
     return
-    endsubroutine fric_roughness
+    end subroutine fric_roughness
     

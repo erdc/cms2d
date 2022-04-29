@@ -336,7 +336,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             endif
           enddo
         else                           !Previous format - value(s), then card  MEB 10/18/21
-          call diag_print_message('Reading Options File with Card Format Version 1',' ')
+          call diag_print_message('','Waves: Reading Options File with Card Format Version 1')
           backspace(11)
           do 
             read(11,'(a80)',iostat=ierr) text
@@ -631,11 +631,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' '
         read(15,*,end=332,err=332) (dvarxx(i),i=1,ni)
         read(15,*,err=332) (dvaryy(j),j=1,nj)
-        write(*,*) ' *** Variable dx and dy arrays ***'
+        write(*,*) '*** Variable dx & dy arrays ***'
         if(noptset.eq.3)then
           write(9,*) ' '
-        write(*,*) '*** Variable dx & dy arrays ***'
-        write(*,*) ' '
+          write(9,*) '*** Variable dx & dy arrays ***'
+          write(9,*) ' '
         endif
         go to 338
 332     continue

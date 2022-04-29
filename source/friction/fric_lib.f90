@@ -156,7 +156,7 @@ contains
     enddo
     
     return
-    endsubroutine wall_gamma
+    end subroutine wall_gamma
     
 !**********************************************************
     function wall_coef(yp,y0) result(cwall)
@@ -307,7 +307,7 @@ contains
     endselect
     
     return
-    endsubroutine fric_wavcur_init
+    end subroutine fric_wavcur_init
 
 !****************************************************************
     function fric_wavfricfac_intp(z0,Uw,Tw) result(fw)
@@ -329,7 +329,7 @@ contains
     fw = min(fw,0.3)
     
     return
-    endfunction fric_wavfricfac_intp
+    end function fric_wavfricfac_intp
 
 !**********************************************************************
     function fric_curdragcoef_intp(h,z0) result(Cd)
@@ -349,7 +349,7 @@ contains
     Cd = exp(fac*logCd(i-1)+(1.0-fac)*logCd(i))
     
     return
-    endfunction fric_curdragcoef_intp
+    end function fric_curdragcoef_intp
 
 !**************************************************************************
     function fric_wavcurmax_soulsby(taub,tauw,phi) result(taumax)
@@ -373,7 +373,7 @@ contains
     taumax = sqrt((taub+tauw*cos(phi))**2+(tauw*sin(phi))**2) !Soulsby 1997
     
     return
-    endfunction fric_wavcurmax_soulsby
+    end function fric_wavcurmax_soulsby
     
 !**************************************************************************
     function fric_wavcurmean_fac(tauc,tauw,Cd,fw,phi) result(fac)
@@ -426,7 +426,7 @@ contains
     fac = 1.0+b*(xval**p)*(1.0-xval)**q !enhancement factor
     
     return
-    endfunction fric_wavcurmean_fac
+    end function fric_wavcurmean_fac
     
 !********************************************************************
     function fric_wavcurmax(tauc,tauw,Cd,fw,phi) result(taubmax)
@@ -467,7 +467,7 @@ contains
     taubmax = (1.0+a*(xval**cm)*(1.0-xval)**cn)*(tauc+tauw)
     
     return
-    endfunction fric_wavcurmax
+    end function fric_wavcurmax
 
 !****************************************************************************
     subroutine fric_wavcurmean_data2(rhow,Cd,z0,Vx,Vy,us,vs,Uw,Tw,Um,Uwc,taum)
@@ -528,7 +528,7 @@ contains
     endif
     
     return
-    endsubroutine fric_wavcurmean_data2
+    end subroutine fric_wavcurmean_data2
           
 !********************************************************************************
     subroutine fric_wavcurmean_data13(rhow,Cd,z0,Vx,Vy,us,vs,Uw,Tw,Dw,Um,Uwc,taum)
@@ -591,7 +591,7 @@ contains
     endif
     
     return
-    endsubroutine fric_wavcurmean_data13
+    end subroutine fric_wavcurmean_data13
 
 !*************************************************************************
     subroutine fric_wavcurmean_F84(rhow,Cd,z0,Vx,Vy,us,vs,Uw,Tw,Dw,Um,Uwc,taum)
@@ -650,7 +650,7 @@ contains
     endif
     
     return
-    endsubroutine fric_wavcurmean_F84
+    end subroutine fric_wavcurmean_F84
     
 !******************************************************************************
     subroutine fric_wavcurmean_HT91(rhow,h,z0,Vx,Vy,us,vs,Uw,Tw,Dw,Um,Uwc,taum)
@@ -714,7 +714,7 @@ contains
     endif    
     
     return
-    endsubroutine fric_wavcurmean_HT91
+    end subroutine fric_wavcurmean_HT91
 
 !********************************************************************************
     subroutine fric_wavcurmean_DSK88(rhow,Cd,z0,Vx,Vy,us,vs,Uw,Tw,Dw,Um,Uwc,taum)
@@ -774,7 +774,7 @@ contains
     endif
     
     return
-    endsubroutine fric_wavcurmean_DSK88
+    end subroutine fric_wavcurmean_DSK88
 
 !******************************************************************************
     subroutine fric_wavcurmean_GM79(rhow,Cd,z0,Vx,Vy,us,vs,Uw,Tw,Dw,Um,Uwc,taum)
@@ -834,7 +834,7 @@ contains
     endif
     
     return
-    endsubroutine fric_wavcurmean_GM79
+    end subroutine fric_wavcurmean_GM79
 
 !*********************************************************************
     subroutine fric_wavcurmean_quad(rhow,Cd,Vx,Vy,us,vs,Uw,Um,Uwc,taum,ustar)
@@ -871,7 +871,7 @@ contains
     ustar = sqrt(taum/rhow+1.0e-15)
     
     return
-    endsubroutine fric_wavcurmean_quad
+    end subroutine fric_wavcurmean_quad
 
 !*********************************************************************
     subroutine fric_curmean_quad(rhow,Cd,Ux,Uy,Um,Uwc,taum,ustar)
@@ -902,7 +902,7 @@ contains
     ustar = sqrt(taum/rhow+1.0e-15)
     
     return
-    endsubroutine fric_curmean_quad
+    end subroutine fric_curmean_quad
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Wave-current Bottom Friction    
@@ -938,7 +938,7 @@ contains
     cman = sqrt(Cd*((min(hmax,h))**0.3333)/g)
     
     return
-    endfunction fric_conv_drag2man
+    end function fric_conv_drag2man
     
 !***************************************************************
     function fric_conv_man2drag(g,cman,h,hmax) result(Cd)
@@ -966,7 +966,7 @@ contains
     Cd = g*cman*cman/(hh**0.3333)
     
     return
-    endfunction fric_conv_man2drag
+    end function fric_conv_man2drag
     
 !*****************************************************    
     function fric_conv_drag2length(Cd,h) result(z0)
@@ -993,7 +993,7 @@ contains
     z0=max(z0,1.0e-6) 
     
     return
-    endfunction fric_conv_drag2length
+    end function fric_conv_drag2length
     
 !*****************************************************    
     function fric_conv_length2drag(z0,h) result(Cd)
@@ -1020,7 +1020,7 @@ contains
     Cd=(0.4/(log(h/z0lim)-1.0))**2
     
     return
-    endfunction fric_conv_length2drag
+    end function fric_conv_length2drag
     
 !********************************************************    
     function fric_conv_length2man(z0,h) result(cman)
@@ -1047,7 +1047,7 @@ contains
     cman = h**0.166666667/(18.0*log(0.4*h/z0lim)) !0.4=12/30
     
     return
-    endfunction fric_conv_length2man    
+    end function fric_conv_length2man    
     
 !*****************************************************************
     function fric_normapprough(uwc,umag,cb) result(zap)
@@ -1064,7 +1064,7 @@ contains
     zap=min(zap,0.01) !Limit
     
     return
-    endfunction fric_normapprough
+    end function fric_normapprough
 
 !*****************************************************************    
     function fric_conv_nlength2pow(zap) result(cm)
@@ -1090,7 +1090,7 @@ contains
     cm = -2.0*log10(zap)
     
     return
-    endfunction fric_conv_nlength2pow    
+    end function fric_conv_nlength2pow    
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Bottom Roughness Conversions      
@@ -1144,7 +1144,7 @@ contains
     fwr = 0.237*max(r,0.3)**(-0.52) !rough turbulent flow friction factor = 1.39*(z0/A)**0.52
     
     return
-    endfunction fric_wavefac_soulsby
+    end function fric_wavefac_soulsby
     
 !****************************************************************    
     function fric_wavefac_swart(r) result(fwr)
@@ -1180,7 +1180,7 @@ contains
     fwr = min(fwr,0.3)
 
     return
-    endfunction fric_wavefac_swart
+    end function fric_wavefac_swart
     
 !********************************************************************
     function fric_wavefac_nielson(r) result(fwr)
@@ -1226,7 +1226,7 @@ contains
     fwr = min(fwr,0.3)
 
     return
-    endfunction fric_wavefac_nielson
+    end function fric_wavefac_nielson
     
 !********************************************************************
     function fric_wav_fac_huynhthanh_temperville(r) result(fwr)
@@ -1270,7 +1270,7 @@ contains
     !fwr = min(fwr,0.3)
 
     return
-    endfunction fric_wav_fac_huynhthanh_temperville
+    end function fric_wav_fac_huynhthanh_temperville
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Wave Friction Factors 
@@ -1318,7 +1318,7 @@ contains
     dhgt = max(dhgt,0.0) !for approximately (Ts<0 .and. Ts>26)
 
     return
-    endsubroutine fric_dune_vanrijn
+    end subroutine fric_dune_vanrijn
 
 !************************************************************************************
     subroutine fric_ripple_soulsbywhitehouse(g,s,d50,dstar,thetacr,&
@@ -1460,7 +1460,7 @@ contains
     ripdir = ripdir + (ripdireq - ripdir)*(1.0-exp(-betalen/Te*dt)) !Note: Uses length rate of change parameter
     
     return
-    endsubroutine fric_ripple_soulsbywhitehouse
+    end subroutine fric_ripple_soulsbywhitehouse
     
 !************************************************************************************
     subroutine fric_ripple_current_soulsbywhitehouse(g,s,d50,dstar,thetacr,&   !Sediment
@@ -1561,7 +1561,7 @@ contains
     riplenc = riplenc + (riplenceq - riplenc)*(1.0-exp(-betalen/Te*dt))     
       
     return
-    endsubroutine fric_ripple_current_soulsbywhitehouse
+    end subroutine fric_ripple_current_soulsbywhitehouse
 
 !************************************************************************************
     subroutine fric_ripple_wave_soulsbywhitehouse(g,s,d50,dstar,thetacr,&   !Sediment
@@ -1658,7 +1658,7 @@ contains
     riplenw = riplenw + (riplenweq - riplenw)*(1.0-exp(-betaw/Tw*dt))   
       
     return
-    endsubroutine fric_ripple_wave_soulsbywhitehouse
+    end subroutine fric_ripple_wave_soulsbywhitehouse
        
 !*****************************************************************************    
     subroutine fric_ripple_wave_vanrijn(g,s,d50,Uw,Tw,riphgtw,riplenw)
@@ -1716,7 +1716,7 @@ contains
     endif
 
     return
-    endsubroutine fric_ripple_wave_vanrijn
+    end subroutine fric_ripple_wave_vanrijn
     
 !*****************************************************************************
     subroutine fric_ripple_current_soulsby(d50,riplenc,riphgtc)
@@ -1732,7 +1732,7 @@ contains
     riphgtc = riplenc/7.0
     
     return
-    endsubroutine fric_ripple_current_soulsby
+    end subroutine fric_ripple_current_soulsby
     
 !***************************************************************************
     subroutine fric_ripple_current_raudkivi(d50,riphgtc,riplenc)
@@ -1764,7 +1764,7 @@ contains
     !riphgtc = 0.074*riplenc/(d50*1000.0)**0.253
     
     return
-    endsubroutine fric_ripple_current_raudkivi
+    end subroutine fric_ripple_current_raudkivi
   
 !******************************************************************
     subroutine fric_megaripple(h,Uc,Uw,megariphgt,megariplen)
@@ -1797,7 +1797,7 @@ contains
     megariplen = max(min(1.0*h,5.0),0.3)
     
     return
-    endsubroutine fric_megaripple
+    end subroutine fric_megaripple
     
 !!******************************************************************
 !    subroutine ripple_C09(s,d50,Uw,Tw,Uc,riphgt,riplen)
@@ -1860,7 +1860,7 @@ contains
 !    riphgt = riphgteq*fac
 !    
 !    return
-!    endsubroutine ripple_C09
+!    end subroutine ripple_C09
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Beforms
@@ -1895,7 +1895,7 @@ contains
     rksr = 8.01*riphgt*riphgt/max(riplen,riphgt,1.0e-4) !8.01 = 0.267*30 as recommended by Soulsby (1997)
     
     return
-    endfunction fric_rough_ripple
+    end function fric_rough_ripple
     
 !******************************************************************
     function fric_rough_dune(dhgt,dlen) result(rksd)
@@ -1922,7 +1922,7 @@ contains
     rksd = 1.1*dhgt*(1.0-exp(-25.0*dhgt/dlen))
     
     return
-    endfunction fric_rough_dune    
+    end function fric_rough_dune    
     
 !***************************************************************************
     function fric_rough_grain(d90) result(rksg)
@@ -1953,7 +1953,7 @@ contains
     rksg = 3.0*d90  !3.0 is based on van Rijn (1984)
     
     return
-    endfunction fric_rough_grain
+    end function fric_rough_grain
     
 !*****************************************************************************
     function fric_rough_trans_nielson(d50,thetap,thetacr) result(rkst)
@@ -1989,7 +1989,7 @@ contains
     endif
     
     return
-    endfunction fric_rough_trans_nielson    
+    end function fric_rough_trans_nielson    
     
 !*********************************************************************************
     function fric_rough_trans_wiberg(d50,Ts) result(rkst)
@@ -2025,7 +2025,7 @@ contains
     rkst = 0.0038*d50*(Ts/(1.0+a2*Ts))  !0.0038 = a*a1
     
     return
-    endfunction fric_rough_trans_wiberg
+    end function fric_rough_trans_wiberg
     
 !***************************************************************************
     function fric_rough_trans_wilsonlog(g,rhow,rhos,Uc,dep) result(rkstc)
@@ -2075,7 +2075,7 @@ contains
     endif
     
     return
-    endfunction fric_rough_trans_wilsonlog
+    end function fric_rough_trans_wilsonlog
 
 !***************************************************************************
     function fric_rough_trans_wilsonswart(g,rhow,rhos,Uw,T) result(rkstw)
@@ -2128,7 +2128,7 @@ contains
     endif      
       
     return
-    endfunction fric_rough_trans_wilsonswart
+    end function fric_rough_trans_wilsonswart
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Roughness Estimates
@@ -2155,7 +2155,7 @@ contains
     tausfmax = tausfavg*(1.0+8.0*riphgt/riplen)
     
     return
-    endsubroutine fric_skin
+    end subroutine fric_skin
     
 !******************************************************************************
     subroutine bed_current_wave_stress(taub,vx,vy,usx,usy,ux,uy,um,taubx,tauby)
@@ -2186,7 +2186,7 @@ contains
     tauby = taub*uy/um
     
     return
-    endsubroutine bed_current_wave_stress        
+    end subroutine bed_current_wave_stress        
 
 !**************************************************************
     function fric_streaming_stress(rhow,z0,uw,Tw,wlen) result(taustr)
@@ -2250,7 +2250,7 @@ contains
     taustr = 0.0637*rhow*fw*uw**3*wlen/Tw !(2*pi)/(10*pi^2)=0.0637
     
     return
-    endfunction fric_streaming_stress
+    end function fric_streaming_stress
     
 !**********************************************************    
     function fric_relroughwave(z0,Uw,Tw) result(r)
@@ -2283,7 +2283,7 @@ contains
     r = Aw/rks       !relative roughness
     
     return
-    endfunction fric_relroughwave
+    end function fric_relroughwave
     
 !********************************************************
     function fric_wavereynolds(mu,Uw,Tw) result(Rew)
@@ -2311,7 +2311,7 @@ contains
     Rew = Uw*Aw/max(mu,1.0e-20) !Wave Reynolds number [-]
 
     return
-    endfunction fric_wavereynolds
+    end function fric_wavereynolds
     
-endmodule fric_lib
+end module fric_lib
 

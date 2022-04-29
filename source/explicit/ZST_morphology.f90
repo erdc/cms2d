@@ -63,4 +63,4 @@
 !$OMP END PARALLEL DO        
       endif     
           
-      endsubroutine ST_morphology
+      end subroutine ST_morphology

@@ -166,7 +166,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine flow_imp_flux_skew
+    end subroutine flow_imp_flux_skew
     
 !***********************************************************************
     subroutine flow_imp_flux_skew_rc
@@ -355,7 +355,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine flow_imp_flux_skew_rc    
+    end subroutine flow_imp_flux_skew_rc    
     
 !***********************************************************************
     subroutine flow_imp_flux_noskew
@@ -406,7 +406,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine flow_imp_flux_noskew
+    end subroutine flow_imp_flux_noskew
     
 !***********************************************************************
     subroutine flow_imp_flux_noskew_rc
@@ -459,4 +459,4 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine flow_imp_flux_noskew_rc    
+    end subroutine flow_imp_flux_noskew_rc    

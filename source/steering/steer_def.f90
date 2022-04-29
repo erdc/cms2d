@@ -17,7 +17,7 @@ module flow_wavegrid_def
     integer,    allocatable:: iiflcell(:,:,:)         !Interpolation indeces from flow to wave grid        
     character(len=200) :: flwav_intpcoef_file
     
-endmodule flow_wavegrid_def 
+end module flow_wavegrid_def 
 
 !===================================================================
 module wave_wavegrid_def
@@ -42,7 +42,7 @@ module wave_wavegrid_def
     real(ikind),allocatable:: wdiss(:,:)              !Wave dissipation [N/m/s]
     real(ikind),allocatable:: wcos(:,:),wsin(:,:)     !Wave unit vectors [-]
     
-endmodule wave_wavegrid_def
+end module wave_wavegrid_def
 
 !===================================================================
 module wave_flowgrid_def
@@ -82,4 +82,4 @@ module wave_flowgrid_def
     logical :: constant_waves
     real(ikind) :: waveheight, waveperiod, wavedir 
     
-endmodule wave_flowgrid_def 
+end module wave_flowgrid_def 

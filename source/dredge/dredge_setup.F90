@@ -33,7 +33,7 @@
     ENDIF
     
     return
-    endsubroutine dredge_default
+    end subroutine dredge_default
 
 !**************************************************************
     subroutine dredge_cards(cardname,foundcard)
@@ -78,7 +78,7 @@
     endselect
     
     return
-    endsubroutine dredge_cards        
+    end subroutine dredge_cards        
         
     
 !********************************************************************    
@@ -123,7 +123,7 @@
     enddo
     
     return
-    endsubroutine dredge_op_block    
+    end subroutine dredge_op_block    
     
 
 !********************************************************************    
@@ -284,7 +284,7 @@
     enddo
     
     return
-    endsubroutine dredge_source_block            
+    end subroutine dredge_source_block            
     
 !********************************************************************    
     subroutine placement_block()
@@ -385,7 +385,7 @@
     endif
     
     return
-    endsubroutine placement_block   
+    end subroutine placement_block   
     
 !**************************************************************
     subroutine dredge_operation_increment()
@@ -466,7 +466,7 @@
     if (write_dredge_diag) close(2056)
     
     return
-    endsubroutine dredge_operation_increment    
+    end subroutine dredge_operation_increment    
 
 !**************************************************************
     subroutine placement_area_increment()
@@ -557,7 +557,7 @@
     endif
            
     return
-    endsubroutine placement_area_increment        
+    end subroutine placement_area_increment        
     
     
     
@@ -663,7 +663,7 @@
     close(dgunit)
     
     return
-    endsubroutine dredge_print  
+    end subroutine dredge_print  
 
 !**************************************************************
     subroutine dredge_init
