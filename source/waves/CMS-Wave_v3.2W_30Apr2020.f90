@@ -123,7 +123,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       
       logical :: foundfile, foundcard
 ! ... Output file variables
-      INTEGER      :: iunit(2)     
+      INTEGER      :: iunit(2)
+      
+      SAVE dvarxxt, dvaryyt                        !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
 !
       iunit = (/6,dgunit/)
       
@@ -334,7 +336,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             endif
           enddo
         else                           !Previous format - value(s), then card  MEB 10/18/21
-          call diag_print_message('Reading Options File with Card Format Version 1',' ')
+          call diag_print_message('','Waves: Reading Options File with Card Format Version 1')
           backspace(11)
           do 
             read(11,'(a80)',iostat=ierr) text
@@ -629,11 +631,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' '
         read(15,*,end=332,err=332) (dvarxx(i),i=1,ni)
         read(15,*,err=332) (dvaryy(j),j=1,nj)
-        write(*,*) ' *** Variable dx and dy arrays ***'
+        write(*,*) '*** Variable dx & dy arrays ***'
         if(noptset.eq.3)then
           write(9,*) ' '
-        write(*,*) '*** Variable dx & dy arrays ***'
-        write(*,*) ' '
+          write(9,*) '*** Variable dx & dy arrays ***'
+          write(9,*) ' '
         endif
         go to 338
 332     continue
@@ -7123,65 +7125,85 @@ contains
       ced=1.0
       slj=slf(jm)
 !
-      if(slj.ge.0.04) go to 10
-      if(slj.le.0.00) go to 10
-!
-      ALF=1.6
-      g=9.806
-!     dmean=dmnj(jj)
-!     ujm=um*cos(dmean)+vm*sin(dmean)
-!     if(ujm.lt.0.0) then
-!     qjm=(-ujm)*depm(jm)
-!     qstar=qjm/(g*g*TP**3)
-!     ed=qstar*slj**(0.25)/(depm(jm)/wL0)
-      if(um.lt.0.) then
-        qstar=sqrt(um**2+vm**2)/g**2/TP**3
-        ed=qstar*slj**.25*WL0
-	    if    (ed.lt.0.0005) then
-          ced=1.0
-        elseif(ed.gt.0.0024) then
-          ced=0.506
-	    else
-          ced=1.13-260.0*ed
-        endif
+      if(slj .ge. 0.04 .or. slj .le. 0.00) then
+        CAB = 0.0
       else
-        ced=1.0
+        ALF=1.6
+        g=9.806
+        if(um.lt.0.) then
+          qstar=sqrt(um**2+vm**2)/g**2/TP**3
+          ed=qstar*slj**.25*WL0
+	      if (ed.lt.0.0005) then
+            ced=1.0
+          elseif(ed.gt.0.0024) then
+            ced=0.506
+	      else
+            ced=1.13-260.0*ed
+          endif
+        else
+          ced=1.0
+        endif
+      
+        !Rewriting this section to eliminate all these GOTO statements  MEB  04/06/2022                                 
+        !   IF(IBK.EQ.1) GOTO 10
+        !   IF(JBV.GE.6) GOTO 10
+        !
+        !   SL43 = SLJ**1.333333
+        !   TANB = 1.0+15.0*SL43
+        !   EXD = EXP(-4.712389*DEPM(JM)*TANB/WL0)
+        !   HB = A*WL0*(1.0-EXD)*ced               
+        !   DLHB = A*0.75*PAI*DXX*TANB*SLJ*EXD*ced
+        !   H13 = HSB(JJ)
+        !   X1 = (ALF*(HB+DLHB)/H13)**2
+        !   X2 = (ALF*(HB-DLHB)/H13)**2
+        !   IF(X1.GT.25.) GOTO 30
+        !   PX1=.7853982*X1
+        !   PR1=(1.0+PX1)/EXP(PX1)
+        !   GOTO 40
+        !30 PR1=0.0
+        !40 IF(X2.GT.25.) GOTO 50
+        !   PX2=.7853982*X2
+        !   PR2=(1.0+PX2)/EXP(PX2)
+        !   GOTO 60
+        !50 PR2=0.0
+        !60 CAB=(PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
+        !   GOTO 20
+        !10 CAB=0.0
+        !20 continue
+      
+        if(IBK .EQ. 1 .or. JBV .GE. 6) then
+          CAB = 0.0
+        else
+          SL43 = SLJ**1.333333
+          TANB = 1.0+15.0*SL43
+          EXD  = EXP(-4.712389*DEPM(JM)*TANB/WL0)
+          HB   = A*WL0*(1.0-EXD)*ced               
+          DLHB = A*0.75*PAI*DXX*TANB*SLJ*EXD*ced
+          H13  = HSB(JJ)
+          X1   = (ALF*(HB+DLHB)/H13)**2
+          X2   = (ALF*(HB-DLHB)/H13)**2
+          if (X1 .GT. 25.0) then
+            PR1 = 0.0
+          else
+            PX1 = 0.7853982*X1
+            PR1 = (1.0+PX1)/EXP(PX1)
+          endif
+          if (X2 .GT. 25.0) then
+            PR2 = 0.0
+          else
+            PX2 = 0.7853982*X2
+            PR2 = (1.0+PX2)/EXP(PX2)
+          endif
+        
+          !CAB = (PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
+          if ((PR1 .ne. 1.0) .and. (DXX .ne. 0.0)) then
+            CAB = (PR2-PR1)*CMN(JM) / ((1.0-PR1)*DXX)
+          else
+            CAB = 0.0
+          endif
+        endif
       endif
-!
-      IF(IBK.EQ.1) GOTO 10
-      IF(JBV.GE.6) GOTO 10
-!
-!     SL43=SLJ**(4.0/3.0)
-      SL43=SLJ**1.333333
-      TANB=1.0+15.0*SL43
-!     EXD=EXP(-1.5*PAI*DEPM(JM)*TANB/WL0)
-      EXD=EXP(-4.712389*DEPM(JM)*TANB/WL0)
-      HB=A*WL0*(1.0-EXD)*ced               
-!     DLHB=A*1.5*PAI*DXX*TANB*SLJ*EXD*ced/2.0
-      DLHB=A*0.75*PAI*DXX*TANB*SLJ*EXD*ced
-      H13=HSB(JJ)
-      X1=(ALF*(HB+DLHB)/H13)**2
-      X2=(ALF*(HB-DLHB)/H13)**2
-      IF(X1.GT.25.) GOTO 30
-!     PX1=PAI*X1/4.0
-      PX1=.7853982*X1
-      PR1=(1.0+PX1)/EXP(PX1)
-      GOTO 40
-   30 PR1=0.0
-   40 IF(X2.GT.25.) GOTO 50
-!     PX2=PAI*X2/4.0
-      PX2=.7853982*X2
-      PR2=(1.0+PX2)/EXP(PX2)
-      GOTO 60
-   50 PR2=0.0
-!  60 CAB=CAM*(PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
-   60 CAB=(PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
-!  60 CAB=(PR2-PR1)/(1.-PR1)*fc
-      GOTO 20
 
-   10 CAB=0.0
-
-   20 continue
       RETURN
       END SUBROUTINE WVBRK_inline
 

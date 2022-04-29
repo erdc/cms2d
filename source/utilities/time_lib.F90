@@ -37,7 +37,7 @@ contains
     call cpu_time(t)
    
     return
-    endfunction time_cpu
+    end function time_cpu
     
 !*******************************************************************
     function time_clock() result(t)
@@ -53,7 +53,7 @@ contains
     t = dble(clock_count)/dble(clock_rate)
    
     return
-    endfunction time_clock   
+    end function time_clock   
     
 !************************************************************************    
     function time_jul(itain) result(t)
@@ -76,7 +76,7 @@ contains
            + dble(ita(6))*60.0d0 + dble(ita(7)) + 0.001d0*dble(ita(8))  !julian seconds  
     
     return
-    endfunction time_jul
+    end function time_jul
 
 !************************************************************************      
     function julday(iyr,imo,iday)
@@ -92,10 +92,10 @@ contains
     julday=iday-32075+1461*(iyr+4800+(imo-14)/12)/4 &
            +367*(imo-2-(imo-14)/12*12)/12 &
            -3*((iyr+4900+(imo-14)/12)/100)/4         
-    julday = julday - 2415019  !ADDED TO MAKE CONSISTENT WITH EXCELL JULIAN DATE
+    julday = julday - 2415019  !ADDED TO MAKE CONSISTENT WITH EXCEL JULIAN DATE
     
     return
-    endfunction julday
+    end function julday
       
 !************************************************************************       
     subroutine gregdate(jday,iyr,imo,iday)
@@ -120,7 +120,7 @@ contains
     iyr=100*(n-49)+iyr+h      
     
     return
-    endsubroutine gregdate
+    end subroutine gregdate
 
 !************************************************************************       
     subroutine julian2calendar(tjul,iyr,imo,iday,ihr,imin,isec)
@@ -146,7 +146,7 @@ contains
     isec = int(sec)
     
     return
-    endsubroutine julian2calendar
+    end subroutine julian2calendar
     
 !************************************************************************       
     subroutine calendar2julian(iyr,imo,iday,ihr,imin,isec,tjul)
@@ -165,7 +165,7 @@ contains
          + real(isec,kind=ikind)/86400.0 !julian days
     
     return
-    endsubroutine calendar2julian
+    end subroutine calendar2julian
 
 !*****************************************************************************
     subroutine julianday2calendarmonthday(iyr,jday,imo,iday)
@@ -228,7 +228,7 @@ contains
     endif    
     
     return
-    endsubroutine julianday2calendarmonthday
+    end subroutine julianday2calendarmonthday
     
 !**************************************************************************
     function ramp_func(timehrs,rampdur) result(ramp)
@@ -253,7 +253,7 @@ contains
     ramp = 0.5-0.5*cos(pi*min(timehrs,rampdur)/rampdur)
     
     return
-    endfunction ramp_func
+    end function ramp_func
 
 !********************************************************************
     subroutine index2calendar(index,iyr,imo,iday,ihr,imin,isec,ierr)
@@ -302,7 +302,7 @@ contains
     endif
     
     return
-    endsubroutine index2calendar
+    end subroutine index2calendar
     
 !**************************************************************************
     subroutine time_cal2str(str,iyr,imo,iday,ihr,imin,isec,imilsec)
@@ -337,7 +337,7 @@ contains
     endif
     
     return
-    endsubroutine time_cal2str
+    end subroutine time_cal2str
     
 !**************************************************************************
     subroutine time_sec2str(timesec,str,flag)
@@ -466,7 +466,7 @@ contains
     imilsec = nint((sec-dble(isec))*1000.d0)    
     
     return
-    endsubroutine time_s2dhs
+    end subroutine time_s2dhs
     
-endmodule time_lib
+end module time_lib
 

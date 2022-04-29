@@ -83,7 +83,7 @@ contains
     by = fac*tauby
     
     return
-    endsubroutine q3d_flow_coef_surfquad
+    end subroutine q3d_flow_coef_surfquad
 
 !********************************************************************
     subroutine q3d_flow_coef_surflog(hc,tausx,tausy,taubx,tauby,&
@@ -125,7 +125,7 @@ contains
     dy = ay*0.5+by*fac       
     
     return
-    endsubroutine q3d_flow_coef_surflog
+    end subroutine q3d_flow_coef_surflog
       
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Profile Coefficients
@@ -164,7 +164,7 @@ contains
     fyy = hc*(ay*ay*aa + (2.0*ay*by+by*by)*cc)
     
     return
-    endsubroutine q3d_flow_disp_surfquad 
+    end subroutine q3d_flow_disp_surfquad 
     
 !********************************************************************************
     subroutine q3d_flow_disp_surflog(hc,ax,ay,bx,by,dx,dy,c,fxx,fxy,fyy)
@@ -204,7 +204,7 @@ contains
         + by*by*cbb + 2.0*by*dy*cbd)
     
     return
-    endsubroutine q3d_flow_disp_surflog
+    end subroutine q3d_flow_disp_surflog
     
 !************************************************************************
     subroutine q3d_flow_disp_logloglin(hc,ucx,ucy,unx,uny,zap,&
@@ -258,7 +258,7 @@ contains
         + uny*ucy/c + uny*wry/s + uny*uny/3.0)
     
     return
-    endsubroutine q3d_flow_disp_logloglin
+    end subroutine q3d_flow_disp_logloglin
 
 !**********************************************************************************************
     subroutine q3d_flow_disp_powpowlin(hc,ucx,ucy,unx,uny,cm,wx,wy,cn,fxx,fxy,fyy)
@@ -312,7 +312,7 @@ contains
         + 2.0*(ucy*wy*bb + uny*ucy/dd + uny*wry/ee) + uny*uny/3.0)
     
     return
-    endsubroutine q3d_flow_disp_powpowlin
+    end subroutine q3d_flow_disp_powpowlin
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End Flow Dispersion
@@ -360,7 +360,7 @@ contains
     syk = cak*em*(ay*f1+by*f2)
     
     return
-    endsubroutine q3d_sed_surfquad    
+    end subroutine q3d_sed_surfquad    
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End Sediment Dispersion
@@ -400,7 +400,7 @@ contains
     vzp = ucy + ay*(zp*zp-0.333333333) + by*(zp-0.5)
     
     return
-    endsubroutine q3d_velpro_surfquad
+    end subroutine q3d_velpro_surfquad
 
 !*****************************************************************************
     subroutine q3d_velpro_surflog(nzp,zp,ucx,ucy,ax,ay,bx,by,dx,dy,c,uzp,vzp)
@@ -437,7 +437,7 @@ contains
     vzp = ucy + ay*zp + by*lnczp1 - dy
     
     return
-    endsubroutine q3d_velpro_surflog
+    end subroutine q3d_velpro_surflog
 
 !****************************************************************************
     subroutine q3d_velpro_logloglin(nzp,zp,ucx,ucy,unx,uny,zap,wx,wy,zwp,uzp,vzp)
@@ -480,7 +480,7 @@ contains
     vzp = ucy + ucy*pro + r*wy*prow + uny*pron
     
     return
-    endsubroutine q3d_velpro_logloglin
+    end subroutine q3d_velpro_logloglin
     
 !****************************************************************************
     subroutine q3d_velpro_powpowlin(nzp,zp,ucx,ucy,unx,uny,cm,wx,wy,cn,uzp,vzp)
@@ -523,7 +523,7 @@ contains
     vzp = ucy + unx*pro + r*wy*prow + uny*pron
     
     return
-    endsubroutine q3d_velpro_powpowlin
+    end subroutine q3d_velpro_powpowlin
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End Current Velocity Profiles 
@@ -559,7 +559,7 @@ contains
     udsy = ay*0.6666666667 + by*0.5
     
     return
-    endsubroutine q3d_flow_uds_surfquad 
+    end subroutine q3d_flow_uds_surfquad 
 
 !********************************************************************************
     subroutine q3d_flow_uds_surflog(ax,ay,bx,by,dx,dy,c,udsx,udsy)
@@ -591,7 +591,7 @@ contains
     udsy = ay + by*lncp1 - dy
     
     return
-    endsubroutine q3d_flow_uds_surflog
+    end subroutine q3d_flow_uds_surflog
     
 !************************************************************************
     subroutine q3d_flow_uds_logloglin(ucx,ucy,unx,uny,zap,wx,wy,zwp,udsx,udsy)
@@ -632,7 +632,7 @@ contains
     udsy = ucy*proc + r*wy*prow + uny
     
     return
-    endsubroutine q3d_flow_uds_logloglin    
+    end subroutine q3d_flow_uds_logloglin    
        
 !**********************************************************************************************
     subroutine q3d_flow_uds_powpowlin(ucx,ucy,unx,uny,cm,wx,wy,udsx,udsy)
@@ -666,7 +666,7 @@ contains
     udsy = ucy/cm + r*wy + uny
     
     return
-    endsubroutine q3d_flow_uds_powpowlin       
+    end subroutine q3d_flow_uds_powpowlin       
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Current Velocity Deviation at Surface
@@ -708,7 +708,7 @@ contains
     udey = ay*2.66666667 + by*0.5 - (2.0*ay*cosh2kh+by*(cosh2kh-1.0))/twokhsinh2kh
     
     return
-    endsubroutine q3d_flow_ude_surfquad 
+    end subroutine q3d_flow_ude_surfquad 
     
 !********************************************************************************
     subroutine q3d_flow_ude_surflog(hc,ax,ay,bx,by,dx,dy,c,kw,udex,udey)
@@ -749,7 +749,7 @@ contains
          - (ay+2.0*by*cc0)*cc2 + (2.0*by*c*c+2.0)/(c+2.0)**2*cc3
     
     return
-    endsubroutine q3d_flow_ude_surflog
+    end subroutine q3d_flow_ude_surflog
     
 !********************************************************************************
     subroutine q3d_flow_ude_logloglin(hc,ucx,ucy,unx,uny,zap,&
@@ -792,7 +792,7 @@ contains
     udey = ucy*cc1 + wy*cc2 + uny*cc3
     
     return
-    endsubroutine q3d_flow_ude_logloglin       
+    end subroutine q3d_flow_ude_logloglin       
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Wave Weighted Effective Current Velocity Deviation
@@ -829,7 +829,7 @@ contains
     fyy = fyy - facwci*hc*2.0*usy*udsy
     
     return
-    endsubroutine q3d_flow_wavcur 
+    end subroutine q3d_flow_wavcur 
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Wave-current Interaction Term 
@@ -862,7 +862,7 @@ contains
     uny = (-sign(1.0,uc)*fcor*0.5 - abs(uc)*Kc)*hc*bs
     
     return
-    endsubroutine q3d_flow_normal
+    end subroutine q3d_flow_normal
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End Secondary Flow    
@@ -897,7 +897,7 @@ contains
     visvm = visvcon + cvisvv*(ustarb+ustars)*hc + cvisvhc*hc*sqrt(grav*hc)
     
     return
-    endfunction q3d_eddyvert_mean
+    end function q3d_eddyvert_mean
     
 !*********************************************************************************
     subroutine q3d_eddyvert_bottom_slope(hc,Hsig,visvm,visv0,visvslp)
@@ -931,10 +931,10 @@ contains
     visv0 = max(visv0,1.0e-6)                         !Avoid divide by zero
     
     return
-    endsubroutine q3d_eddyvert_bottom_slope
+    end subroutine q3d_eddyvert_bottom_slope
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !  End Vertical Eddy Viscosity
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
 
-endmodule q3d_lib
+end module q3d_lib

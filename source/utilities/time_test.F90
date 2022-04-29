@@ -57,9 +57,9 @@ contains
     call diag_print_message('','call time_sec2str(timesec,msg) ',msg)
     
     return
-    endsubroutine time_test_all
+    end subroutine time_test_all
 #endif
 
-endmodule time_test
+end module time_test
 
 !call waveorbrms_jonswap(3.0,10.2480,10.0,ubr)

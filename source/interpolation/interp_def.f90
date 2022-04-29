@@ -13,4 +13,4 @@ module interp_def
     integer :: nnintp !Method 0-None Specified, 1-Inverse Area, 2-Inverse Distance, 3-Least-Squares
     real(ikind), allocatable :: wc2n(:,:)
 
-endmodule interp_def
+end module interp_def

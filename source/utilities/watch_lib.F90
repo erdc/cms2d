@@ -44,7 +44,7 @@ contains
     watchdef%clock%split = 0.0d0
     
     return
-    endsubroutine watch_default
+    end subroutine watch_default
 
 !**********************************************************
     subroutine watch_init
@@ -62,7 +62,7 @@ contains
     enddo
     
     return
-    endsubroutine watch_init
+    end subroutine watch_init
     
 !**********************************************************
     subroutine watch_print() 
@@ -85,7 +85,7 @@ contains
     enddo
     
     return
-    endsubroutine watch_print    
+    end subroutine watch_print    
    
 !**********************************************************
     subroutine watch_start(watch_name,watch_index)
@@ -125,7 +125,7 @@ contains
     watch(iw)%running =  .true.   
     
     return
-    endsubroutine watch_start
+    end subroutine watch_start
 
 !********************************************************************************
     subroutine watch_stop(watch_name,watch_index)
@@ -177,7 +177,7 @@ contains
     watch(iw)%running = .false.
 
     return
-    endsubroutine watch_stop
+    end subroutine watch_stop
     
 !***********************************************************
     function watch_name2index(watch_namein) result(iw)
@@ -215,7 +215,7 @@ contains
     watch(iw)%name = watch_name
     
     return        
-    endfunction watch_name2index    
+    end function watch_name2index    
     
 !**********************************************************
     subroutine watch_output() 
@@ -239,7 +239,7 @@ contains
     enddo
     
     return
-    endsubroutine watch_output    
+    end subroutine watch_output    
     
 !**********************************************************
     subroutine watch_destroy()
@@ -254,6 +254,6 @@ contains
     nwatches = 0
     
     return
-    endsubroutine watch_destroy  
+    end subroutine watch_destroy  
    
-endmodule watch_lib
+end module watch_lib

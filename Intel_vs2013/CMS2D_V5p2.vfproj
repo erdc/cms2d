@@ -48,6 +48,9 @@
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\source\main\CMS_cpp.h"/></Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<File RelativePath="..\source\CMakeLists.txt"/>
+		<File RelativePath="..\source\logsheet.txt"/>
+		<File RelativePath="..\source\readme.txt"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_def.f90"/>
@@ -195,6 +198,7 @@
 		<File RelativePath="..\source\boundaries\tide_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_test.F90"/>
+		<File RelativePath="..\source\utilities\tool_def.f90"/>
 		<File RelativePath="..\source\utilities\tools.F90"/>
 		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
 		<File RelativePath="..\external_libraries\proj_conv\utm2geo.f90"/>

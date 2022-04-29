@@ -161,4 +161,4 @@
     !write(*,*) 'niter=',niter,',resn= ',resn,' resm= ',resm !'res0= ',res0,
 
     return
-    endsubroutine iccgstab5
+    end subroutine iccgstab5

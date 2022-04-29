@@ -63,7 +63,7 @@
     nzplay = 3  !Layers (normally usefull to output bottom, middle, and surface layers)
     
     return
-    endsubroutine q3d_default
+    end subroutine q3d_default
 
 !*********************************************************************************
     subroutine q3d_cards(cardname,foundcard)
@@ -194,7 +194,7 @@
     endselect
     
     return
-    endsubroutine q3d_cards
+    end subroutine q3d_cards
 
 !*********************************************************************************
     subroutine q3d_init
@@ -261,7 +261,7 @@
     uzplay = 0.0; vzplay = 0.0
     
     return
-    endsubroutine q3d_init
+    end subroutine q3d_init
     
 !*********************************************************************************
     subroutine q3d_print()
@@ -313,7 +313,7 @@
     close(dgunit)
     
     return
-    endsubroutine q3d_print  
+    end subroutine q3d_print  
     
 !*********************************************************************************
     subroutine q3d_flow
@@ -435,7 +435,7 @@
     enddo    
     
     return
-    endsubroutine q3d_flow
+    end subroutine q3d_flow
     
 !****************************************************************************************************
     subroutine q3d_velpro(i,nzp,zp,iprofile,ucx,ucy,unx,uny,wx,wy,zap,zwp,Kc,visvm,visv0,visvslp,uzp,vzp)
@@ -563,7 +563,7 @@
     endif
 
     return
-    endsubroutine q3d_velpro
+    end subroutine q3d_velpro
 
 !*********************************************************************************
     subroutine q3d_sed
@@ -637,7 +637,7 @@
     enddo
     
     return
-    endsubroutine q3d_sed
+    end subroutine q3d_sed
 
 !******************************************************************
     subroutine surface_windwave_stress(i,tausx,tausy,ustars)
@@ -704,7 +704,7 @@
     ustars = sqrt(val/rhow) !Surface friction velocity
     
     return
-    endsubroutine surface_windwave_stress
+    end subroutine surface_windwave_stress
     
 !******************************************************************    
     subroutine q3d_flow_vel_surface(ueff,veff)
@@ -799,7 +799,7 @@
     enddo
     
     return
-    endsubroutine q3d_flow_vel_surface
+    end subroutine q3d_flow_vel_surface
     
 !******************************************************************    
     subroutine q3d_flow_vel_weighted(ueff,veff)
@@ -890,7 +890,7 @@
     enddo
     
     return
-    endsubroutine q3d_flow_vel_weighted 
+    end subroutine q3d_flow_vel_weighted 
     
 !********************************************************************************   
     subroutine q3d_vel_lay
@@ -912,4 +912,4 @@
     enddo
     
     return
-    endsubroutine q3d_vel_lay  
+    end subroutine q3d_vel_lay  

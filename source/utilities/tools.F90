@@ -100,7 +100,6 @@
         use out_lib,   only: OPEN_CREATE_DATASET   
 		use out_def,   only: noutputs, aoutputs, aoutput_lengths, simlabel
         use const_def, only: rad2deg
-        use EXP_Global_def, only: RROUND
         use xmdf
         
         implicit none        
@@ -330,7 +329,6 @@
         use out_lib,  only: OPEN_CREATE_DATASET   
 		use out_def,  only: noutputs, aoutputs, aoutput_lengths, simlabel
         use comvarbl, only: reftime
-        use EXP_Global_def, only: RROUND
         use xmdf
         
         implicit none
@@ -591,7 +589,6 @@
       subroutine CMS_MaxWSE_h5 (filename)
         use XMDF
         use out_lib, only: OPEN_CREATE_DATASET
-        use EXP_Global_def, only: RROUND
         use comvarbl, only: reftime
         use diag_lib, only: diag_print_error
         
@@ -814,7 +811,7 @@
     enddo          
 
     return
-    endsubroutine fileparts
+    end subroutine fileparts
     
 !!******************************************************
 !    subroutine fileparts(astr,apath,aname,aext)    
@@ -853,7 +850,7 @@
 !    enddo          
 !
 !    return
-!    endsubroutine fileparts
+!    end subroutine fileparts
     
 !******************************************************
     subroutine filepath(astr,apath)  
@@ -877,7 +874,7 @@
     enddo       
 
     return
-    endsubroutine filepath
+    end subroutine filepath
     
 !******************************************************
     subroutine fileext(astr,aext)  
@@ -904,7 +901,7 @@
     enddo    
     
     return
-    endsubroutine fileext
+    end subroutine fileext
     
 !******************************************************
     subroutine remove_underscores(astr)    
@@ -921,7 +918,7 @@
     enddo    
     
     return
-    endsubroutine remove_underscores
+    end subroutine remove_underscores
 
 !********************************************************
     subroutine uppercase(str)
@@ -938,7 +935,7 @@
     enddo
 
     return
-    endsubroutine uppercase
+    end subroutine uppercase
     
 !********************************************************
     function toUpper(str) result(aString)
@@ -976,7 +973,7 @@
     enddo
 
     return
-    endsubroutine lowercase
+    end subroutine lowercase
 
 !********************************************************
     function toLower(str) result(aString)
@@ -1013,7 +1010,7 @@
     trimspace = nn      
     
     return
-    endfunction trimspace
+    end function trimspace
 
 !*****************************************************************
     subroutine removequotes(string)
@@ -1035,7 +1032,7 @@
     enddo
 
     return
-    endsubroutine removequotes
+    end subroutine removequotes
     
 !*****************************************************************
     subroutine countquotes(string,count)
@@ -1054,7 +1051,7 @@
     enddo
 
     return
-    endsubroutine countquotes
+    end subroutine countquotes
 
 !!***********************************************************************    
 !    subroutine copy_file_to_temp(file,tempfile)
@@ -1098,7 +1095,7 @@
 !    endif
 !    
 !    return
-!    endsubroutine copy_file_to_temp
+!    end subroutine copy_file_to_temp
     
 !************************************************************
     subroutine delete_file(file)
@@ -1118,7 +1115,7 @@
     endif    
     
     return
-    endsubroutine delete_file
+    end subroutine delete_file
     
 !-----------------------------------------------------------------------
 !   converts a real*4 value with n significant digits to a character 
@@ -1189,44 +1186,3 @@
     end function Int2Str
     
     
-!***********************************************************************************************************************    
-    module tool_def
-      implicit none
-  
-      contains
-!************************************************************
-      function vstrlz(flt,gfmt) result(gbuf)
-! This function will take a float variable and a format declaration, then convert it to a string. 
-! The string will add a leading 0, +0, or -0 if necessary.  Also, it will remove a leading space from the PE format
-      character(len=20)                      :: gbuf
-      real, intent(in)                       :: flt
-      character(len=*), optional, intent(in) :: gfmt
-      character(len=40)                      :: gtmp
-      integer                                :: istat
-
-      gtmp = ''
-      if(present(gfmt) ) then   ! specified format
-        write(gtmp, gfmt, iostat=istat ) flt  
-      else                      ! generic format
-        write(gtmp, '(g0)', iostat=istat) flt  
-      endif
-      
-      if( istat /= 0 ) then
-        gbuf='****'
-        return
-      endif
-      
-      if    (gtmp(1:1) == '.' ) then
-        gbuf = '0'//trim(gtmp)
-      elseif(gtmp(1:2) == '-.' ) then
-        gbuf = '-0.'//trim(gtmp(3:))
-      elseif(gtmp(1:2) == '+.' ) then ! S format adds a +
-        gbuf = '+0.'//trim(gtmp(3:))
-      else
-        gbuf = trim(adjustl(gtmp))
-      endif
-      
-      return
-      end function vstrlz
-!************************************************************
-    end module tool_def      

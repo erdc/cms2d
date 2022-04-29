@@ -96,7 +96,7 @@ contains
     close(454)
     
     return
-    endsubroutine write_tsd
+    end subroutine write_tsd
     
 !**************************************************************************
     subroutine open_tsd(afile,aname,atype,ndat,nt,tstart)
@@ -125,7 +125,7 @@ contains
     close(454)
     
     return
-    endsubroutine open_tsd
+    end subroutine open_tsd
     
 !**************************************************************************
     subroutine append_tsd(afile,ndat,t,dat)
@@ -156,7 +156,7 @@ contains
     close(454)
     
     return
-    endsubroutine append_tsd
+    end subroutine append_tsd
 
 !***********************************************************************
     subroutine write_sup_file(aname)
@@ -187,7 +187,7 @@ contains
     close(nunit)
     
     return
-    endsubroutine write_sup_file
+    end subroutine write_sup_file
 
 !***********************************************************************
     subroutine write_xy_file(aname,acase)
@@ -246,7 +246,7 @@ contains
     close(nunit)
     
     return
-    endsubroutine write_xy_file
+    end subroutine write_xy_file
 
 !***********************************************************************
     subroutine write_scal_dat_file(aname,avarname,asuffix,var)
@@ -373,7 +373,7 @@ contains
     close(nunit)    
     
     return
-    endsubroutine write_scal_dat_file
+    end subroutine write_scal_dat_file
     
 !***********************************************************************
     subroutine sms_write_dat_scal(aprefix,asuffix,aname, RT_Julian,time,atimeunits,nd,nc,ns,var,stat)
@@ -475,7 +475,7 @@ contains
     close(nunit)    
     
     return
-    endsubroutine sms_write_dat_scal
+    end subroutine sms_write_dat_scal
 
 !***********************************************************************
     subroutine write_vec_dat_file(aname,avarname,asuffix,varx,vary)
@@ -602,7 +602,7 @@ contains
     close(nunit) 
     
     return
-    endsubroutine write_vec_dat_file
+    end subroutine write_vec_dat_file
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! SMS End
@@ -814,7 +814,7 @@ contains
     call XF_CLOSE_FILE(fid,ierr)   !Close XMDF file
     
     return
-    endsubroutine writescalh5
+    end subroutine writescalh5
     
     
 !**************************************************************************
@@ -856,7 +856,7 @@ contains
     call XF_CLOSE_FILE(pid,ierr) !Close XMDF file      
           
     return
-    endsubroutine writevech5
+    end subroutine writevech5
     
 !**************************************************************************
     SUBROUTINE OPEN_CREATE_DATASET(OCID,STRING1,OCDID,DIM,OUNITS,OCERR)
@@ -1002,7 +1002,7 @@ contains
     close(ictec)
 
     return
-    endsubroutine write_tecplot_dat
+    end subroutine write_tecplot_dat
     
 !***********************************************************************
     subroutine write_tecplot_his
@@ -1070,10 +1070,10 @@ contains
     if(presvar) write (ictec,*) (pressatm(i),i=1,ncellsD)
 
     return
-    endsubroutine write_tecplot_his
+    end subroutine write_tecplot_his
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Tecplot End
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
 
-endmodule out_lib    
+end module out_lib    

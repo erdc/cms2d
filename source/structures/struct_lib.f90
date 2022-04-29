@@ -47,7 +47,7 @@ contains
     b = 0.194*d**(-1.265)*p**(-1.14)
                 
     return
-    endsubroutine rubble_sidiropoulou
+    end subroutine rubble_sidiropoulou
     
 !**************************************************************
     subroutine rubble_kadlec(mu,g,d,p,a,b)
@@ -79,6 +79,6 @@ contains
     b = 2.0*(1.0-p)/(g*p**3*d)
                 
     return
-    endsubroutine rubble_kadlec
+    end subroutine rubble_kadlec
     
-endmodule struct_lib
+end module struct_lib

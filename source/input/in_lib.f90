@@ -62,7 +62,7 @@ contains
     !write(*,*) afile,' read successfully'
     
     return
-    endsubroutine read_xys
+    end subroutine read_xys
     
 !************************************************************************
     subroutine readscalTxt(afile,var,ierr)
@@ -116,7 +116,7 @@ contains
     endif
        
     return
-    endsubroutine readscalTxt
+    end subroutine readscalTxt
     
 !************************************************************************
     subroutine readvecTxt(afile,vecx,vecy,ierr)
@@ -174,7 +174,7 @@ contains
     endif    
        
     return
-    endsubroutine readvecTxt   
+    end subroutine readvecTxt   
     
 !**************************************************************************
     subroutine read_tsd(afile,aname,atype,ndat,nt,tjuldaybeg,t,dat)
@@ -270,7 +270,7 @@ contains
     !write(*,*) trim(afile),' read successfully'
     
     return
-    endsubroutine read_tsd
+    end subroutine read_tsd
     
 !Note: Other useful routines usages would be something like this
 !  call read_dat(afile,nscal=ns,scaldat=sdat,name='Water_Elevation',step='Last')  
@@ -334,7 +334,7 @@ contains
     close(iunit)
     
     return
-    endsubroutine read_dat 
+    end subroutine read_dat 
 
 !*************************************************************    
     subroutine read_datnew(afile,ndat,dat)
@@ -385,7 +385,7 @@ contains
     close(iunit)
     
     return
-    endsubroutine read_datnew 
+    end subroutine read_datnew 
 
 !**************************************************************************
     subroutine read_scalvec(iunit,ndim,ndat,dat)
@@ -549,7 +549,7 @@ contains
     endif        
 
     return
-    endsubroutine read_scalvec     
+    end subroutine read_scalvec     
     
 !**************************************************************************
     subroutine read_scal(iunit,nscal,scaldat)
@@ -706,7 +706,7 @@ contains
     endif        
 
     return
-    endsubroutine read_scal 
+    end subroutine read_scal 
     
 !*************************************************************
     subroutine read_vec(iunit,nvec,vecdat) !name,time,step
@@ -868,7 +868,7 @@ contains
     endif  
 
     return
-    endsubroutine read_vec    
+    end subroutine read_vec    
     
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>      
@@ -905,7 +905,7 @@ contains
     endif
     
     return
-    endsubroutine readstep63
+    end subroutine readstep63
     
 !********************************************************************    
     subroutine readstep64(nnodes,timesec,un,vn,ierr)
@@ -954,6 +954,6 @@ contains
     enddo
     
     return
-    endsubroutine readstep64      
+    end subroutine readstep64      
       
-endmodule in_lib
+end module in_lib

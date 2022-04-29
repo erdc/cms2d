@@ -63,4 +63,4 @@ module in_def
       character(len=10) :: units
     endtype vecdattype    
 
-endmodule in_def
+end module in_def

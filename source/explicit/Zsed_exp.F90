@@ -383,7 +383,7 @@
     call Zbndzb_exp
         
     return
-    endsubroutine sed_exp
+    end subroutine sed_exp
     
 !***********************************************************************
     subroutine Zsedbnd_eval_exp
@@ -826,7 +826,7 @@
 1000 continue    
     
     return
-    endsubroutine Zsedbnd_eval_EXP
+    end subroutine Zsedbnd_eval_EXP
     
 !***********************************************************************
     subroutine Zbndzb_exp
@@ -925,4 +925,4 @@
       endif  !H_multi        
     
     return
-    endsubroutine Zbndzb_EXP
+    end subroutine Zbndzb_EXP

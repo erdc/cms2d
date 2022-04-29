@@ -52,7 +52,7 @@ contains
     call watch_destroy
     
     return
-    endsubroutine watch_test_all  
+    end subroutine watch_test_all  
 #endif
 
-endmodule watch_test    
+end module watch_test    

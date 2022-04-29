@@ -11,7 +11,7 @@
     alphac = 0.75
     
     return
-    endsubroutine veg_default
+    end subroutine veg_default
 
 !***********************************************************************    
     subroutine veg_cards(cardname,foundcard)
@@ -46,7 +46,7 @@
     endselect
     
     return
-    endsubroutine veg_cards
+    end subroutine veg_cards
     
 !***********************************************************************
     subroutine veg_init
@@ -71,7 +71,7 @@
 #endif
     
     return
-    endsubroutine veg_init
+    end subroutine veg_init
     
 !***********************************************************************
     subroutine veg_print()
@@ -97,7 +97,7 @@
     close(dgunit)
     
     return
-    endsubroutine veg_print    
+    end subroutine veg_print    
     
 !***********************************************************************
     subroutine veg_drag
@@ -118,7 +118,7 @@
     enddo
     
     return
-    endsubroutine veg_drag
+    end subroutine veg_drag
     
 !    if(veg)then !Vegetation drag
 !       cdx(i)=cdx(i)+alphac*0.5*Cdv*nv(i)*Dv*(min(hv,Have)**2)/Have

@@ -57,7 +57,7 @@
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine bedchange
+    end subroutine bedchange
     
 !**************************************************************************
     subroutine check_hardbottom
@@ -88,7 +88,7 @@
     enddo !ih
    
     return
-    endsubroutine check_hardbottom
+    end subroutine check_hardbottom
     
 !*************************************************************************************
     subroutine bedchangesort()
@@ -181,7 +181,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine bedchangesort
+    end subroutine bedchangesort
 
 !    !**************************************************************************
 !    subroutine bedchangesort_consolid
@@ -280,7 +280,7 @@
 !    call check_hardbottom
 !
 !    return
-!    endsubroutine bedchangesort_consolid
+!    end subroutine bedchangesort_consolid
     
 !**************************************************************************
     subroutine bedgrad()
@@ -376,7 +376,7 @@
 !    endif
     
     return
-    endsubroutine bedgrad
+    end subroutine bedgrad
     
 !!**************************************************************************
 !    subroutine bedgrad_consolid
@@ -490,7 +490,7 @@
 !    enddo
 !
 !    return
-!    endsubroutine bedgrad_consolid
+!    end subroutine bedgrad_consolid
     
 !*******************************************************************************
     subroutine mixing_layer
@@ -551,7 +551,7 @@
     endif    
     
     return
-    endsubroutine mixing_layer    
+    end subroutine mixing_layer    
 
 !********************************************************
     subroutine d50sigma2diamlim(nd,d50lay,stdlay,dlim)
@@ -598,7 +598,7 @@
     enddo            
 
     return
-    endsubroutine d50sigma2diamlim
+    end subroutine d50sigma2diamlim
 
 !***************************************************************************
     subroutine bed_d50sigma(nd,d,dlim,d50lay,stdlay,pbklay)
@@ -647,7 +647,7 @@
     enddo            
 
     return
-    endsubroutine bed_d50sigma
+    end subroutine bed_d50sigma
 
 !**************************************************************************
     subroutine bed_d16d50d84(nd,d,dlim,d16lay,d50lay,d84lay,pbklay)
@@ -690,7 +690,7 @@
     enddo
 
     return
-    endsubroutine bed_d16d50d84
+    end subroutine bed_d16d50d84
     
 !***************************************************************************  
     subroutine bed_d35d50d90(nd,d,dlim,d35lay,d50lay,d90lay,pbklay)
@@ -733,7 +733,7 @@
     enddo
 
     return
-    endsubroutine bed_d35d50d90
+    end subroutine bed_d35d50d90
     
 !************************************************************************
     subroutine bed_perdiam(j)
@@ -865,7 +865,7 @@
     endif
     
     return
-    endsubroutine bed_perdiam    
+    end subroutine bed_perdiam    
    
 !**************************************************************************
     subroutine sedpercentile(iper,dper)
@@ -921,7 +921,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine sedpercentile
+    end subroutine sedpercentile
     
 !*******************************************************************************
     subroutine dper_read_error_msg(afile,apath)
@@ -944,7 +944,7 @@
     read(*,*)
     
     stop
-    endsubroutine dper_read_error_msg
+    end subroutine dper_read_error_msg
     
 !*******************************************************************************
     subroutine read_pbk(j,pbkfilelay,pbkpathlay)
@@ -1009,5 +1009,5 @@
     enddo
     
     return
-    endsubroutine read_pbk    
+    end subroutine read_pbk    
     

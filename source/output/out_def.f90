@@ -251,4 +251,4 @@ module out_def
     integer, parameter :: ngroups = 5
     type(save_pt_group) :: savept(ngroups) !Groups  1=Hydro, 2=Sediment, 3=Salinity, 4=Waves, 5=Morphology
 
-endmodule out_def
+end module out_def

@@ -42,7 +42,7 @@
     endif
     
     return
-    endsubroutine interp_init
+    end subroutine interp_init
 
 !From Chris' files - 10/26/2015
 !*************************************************    
@@ -93,5 +93,5 @@
 !$OMP END PARALLEL DO   
     
     return
-    endsubroutine interp2facegrad
+    end subroutine interp2facegrad
 

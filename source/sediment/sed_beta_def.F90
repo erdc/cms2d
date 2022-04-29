@@ -21,4 +21,4 @@ module beta_def
     !Suspended load correction factor
     real(ikind),allocatable :: betas_table(:,:)
 
-endmodule beta_def
+end module beta_def

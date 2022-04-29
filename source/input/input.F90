@@ -45,7 +45,7 @@
     call unitconv_scal(fromunits,tounits,scalar)
     
     return
-    endsubroutine card_scalar
+    end subroutine card_scalar
 
 !*****************************************************************
     subroutine card_boolean(inunit,bool,ierr)
@@ -80,7 +80,7 @@
     endif
         
     return
-    endsubroutine card_boolean
+    end subroutine card_boolean
     
 !!*****************************************************************************
 !    subroutine card_file(inunit,defaultfile,defaultpath,filename)
@@ -116,7 +116,7 @@
 !    endif
 !    
 !    return
-!    endsubroutine card_file
+!    end subroutine card_file
     
 !*****************************************************************************
     subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim)
@@ -379,7 +379,7 @@
     endif
         
     return
-    endsubroutine card_datetime
+    end subroutine card_datetime
     
 !*****************************************************************    
     subroutine card_bid(defpath,bidfile,bidpath,idnum)
@@ -440,4 +440,4 @@
     endselect
     
     return
-    endsubroutine card_bid    
+    end subroutine card_bid    

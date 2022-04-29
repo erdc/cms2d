@@ -392,7 +392,7 @@
     call bndzb
         
     return
-    endsubroutine sed_imp
+    end subroutine sed_imp
 
 !****************************************************************************
     subroutine coeffsourcesink_c(schmcoef,ks)
@@ -429,7 +429,7 @@
         implicit none
         real(ikind),intent(in) :: dk,fk
         real(ikind) :: ak
-      endfunction
+      end function
     endinterface  
 
 !.....Temporal terms
@@ -557,7 +557,7 @@
 !#endif
     
     return
-    endsubroutine coeffsourcesink_c
+    end subroutine coeffsourcesink_c
 
 !***********************************************************************
     subroutine bound_c(ks)
@@ -599,4 +599,4 @@
     call struct_Ctk(ks) !Structures
 
     return
-    endsubroutine bound_c    
+    end subroutine bound_c    

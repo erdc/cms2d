@@ -17,7 +17,7 @@
     msg8 = ''
     
     return
-    endsubroutine diag_default
+    end subroutine diag_default
     
 !*************************************************************   
     subroutine diag_cards(cardname,foundcard)
@@ -49,7 +49,7 @@
     endselect
     
     return
-    endsubroutine diag_cards
+    end subroutine diag_cards
     
  !********************************************************************************
     subroutine diag_print
@@ -71,4 +71,4 @@
     close(dgunit)
     
     return
-    endsubroutine diag_print
+    end subroutine diag_print

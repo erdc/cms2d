@@ -115,7 +115,7 @@
     evap = 0.0
     
     return
-    endsubroutine met_default
+    end subroutine met_default
     
 !*************************************************************   
     subroutine met_cards(cardname,foundcard)
@@ -322,7 +322,7 @@
     endselect
     
     return        
-    endsubroutine met_cards
+    end subroutine met_cards
 
 !************************************************************    
     subroutine windcurve_block
@@ -405,7 +405,7 @@ d1: do ii=1,15
     endif
     
     return        
-    endsubroutine windcurve_block
+    end subroutine windcurve_block
     
 !************************************************************
     subroutine oceanweather_block
@@ -461,7 +461,7 @@ d1: do ii=1,4
     endif
     
     return
-    endsubroutine oceanweather_block
+    end subroutine oceanweather_block
     
 !************************************************************
     subroutine windpresfield_block
@@ -535,7 +535,7 @@ d1: do ii=1,4
     enddo d1
 
     return
-    endsubroutine windpresfield_block
+    end subroutine windpresfield_block
     
 !*************************************************************   
     subroutine met_init()
@@ -605,7 +605,7 @@ d1: do ii=1,4
     endif
     
     return        
-    endsubroutine met_init
+    end subroutine met_init
 
 !*************************************************************   
     subroutine windcurve_init
@@ -703,7 +703,7 @@ d1: do ii=1,4
     enddo
     
     return
-    endsubroutine windcurve_init
+    end subroutine windcurve_init
     
 !*************************************************************   
     subroutine prescurve_init()
@@ -752,7 +752,7 @@ d1: do ii=1,4
     !!presvals=presvals*100.0 !convert from mbar to Pa ***** IMPORTANT *****
     
     return
-    endsubroutine prescurve_init
+    end subroutine prescurve_init
     
 !*************************************************************    
     subroutine windpres_init
@@ -837,7 +837,7 @@ d1: do ii=1,4
     call windpresfield_eval
     
     return        
-    endsubroutine windpres_init
+    end subroutine windpres_init
 
 !**************************************************   
     subroutine met_print()
@@ -982,7 +982,7 @@ d1: do ii=1,4
     close(dgunit)
     
     return
-    endsubroutine met_print
+    end subroutine met_print
     
 !*************************************************************   
     subroutine windcurve_eval()
@@ -1024,7 +1024,7 @@ d1: do ii=1,4
     !  during the iterative loop of the implicit scheme 
     
     return
-    endsubroutine windcurve_eval
+    end subroutine windcurve_eval
     
 !*********************************************************    
     subroutine wind_lagrangian_update
@@ -1068,7 +1068,7 @@ d1: do ii=1,4
     endif
 
     return
-    endsubroutine wind_lagrangian_update
+    end subroutine wind_lagrangian_update
     
 !******************************************************************   
     subroutine prescurve_eval
@@ -1111,7 +1111,7 @@ d1: do ii=1,4
     enddo ! end of each cell string        
     
     return
-    endsubroutine prescurve_eval             
+    end subroutine prescurve_eval             
 
 !*************************************************************   
     subroutine windpres_grid
@@ -1253,7 +1253,7 @@ d1: do ii=1,4
     endif
     
     return
-    endsubroutine windpres_grid
+    end subroutine windpres_grid
 
 !*************************************************************   
     subroutine interp_coef_windpres2fl
@@ -1360,7 +1360,7 @@ d1: do ii=1,4
  !   close(93) 
     
     return
-    endsubroutine interp_coef_windpres2fl
+    end subroutine interp_coef_windpres2fl
     
 !*************************************************************   
     subroutine windpresfield_eval
@@ -1395,7 +1395,7 @@ d1: do ii=1,4
         real(ikind),intent(out) :: a(nD)
         real(ikind),intent(in),optional :: b1(nD),b2(nD)
         real(ikind),intent(out),optional :: b(nD)
-      endsubroutine
+      end subroutine
     endinterface
     
     !Read Files
@@ -1539,7 +1539,7 @@ d1: do ii=1,4
     call smooth_flowgrid_vec(pressatmdx,pressatmdy,nsmoothpres) !Atm Pressure assumed to vary at scales much larger than the grid
     
     return
-    endsubroutine windpresfield_eval
+    end subroutine windpresfield_eval
 
 !*************************************************************  
     subroutine interp_met2hr(t,t1,t2,ramp,nD,nc,a,a1,a2,b,b1,b2)
@@ -1612,7 +1612,7 @@ d1: do ii=1,4
     endif
     
     return
-    endsubroutine interp_met2hr
+    end subroutine interp_met2hr
     
 !***********************************************************************************    
     subroutine metsta_block
@@ -1792,7 +1792,7 @@ d1: do ii=1,20
 984 close(445)
     call diag_print_error('Error Reading Meteorological file: ',metsta(nMetSta)%file)
 
-    endsubroutine metsta_block
+    end subroutine metsta_block
     
 !***********************************************************************    
     subroutine metsta_init
@@ -1948,7 +1948,7 @@ d1: do ii=1,20
     enddo    
     
     return
-    endsubroutine metsta_init
+    end subroutine metsta_init
     
 !***********************************************************************    
     subroutine metsta_eval
@@ -2005,5 +2005,5 @@ d1: do ii=1,20
 !$OMP END PARALLEL
 
     return
-    endsubroutine metsta_eval
+    end subroutine metsta_eval
         

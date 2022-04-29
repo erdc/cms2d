@@ -46,7 +46,7 @@
     schmidtsal = 1.0 !Schmidt number for salinity
     
     return
-    endsubroutine sal_default
+    end subroutine sal_default
 
 !**************************************************************
     subroutine sal_cards(cardname,foundcard)
@@ -135,7 +135,7 @@
     endselect
     
     return
-    endsubroutine sal_cards
+    end subroutine sal_cards
     
 !*******************************************    
     subroutine sal_bnd_block
@@ -173,7 +173,7 @@ d1: do k=1,10
     enddo d1
       
     return
-    endsubroutine sal_bnd_block
+    end subroutine sal_bnd_block
     
 !**********************************************************    
     subroutine sal_block(isaltype,salfile,salpath,salbnd)
@@ -216,7 +216,7 @@ d1: do k=1,10
     enddo d1
       
     return
-    endsubroutine sal_block
+    end subroutine sal_block
     
 !************************************************************    
     subroutine salstr_resize
@@ -252,7 +252,7 @@ d1: do k=1,10
     sal_str(nsalstr)%inc = 1
   
     return
-    endsubroutine salstr_resize
+    end subroutine salstr_resize
     
 !****************************************************************************    
     subroutine sal_print()
@@ -291,7 +291,7 @@ d1: do k=1,10
     close(dgunit)
     
     return
-    endsubroutine sal_print
+    end subroutine sal_print
 
 !**************************************************************
     subroutine sal_init
@@ -370,7 +370,7 @@ d1: do k=1,10
     enddo
     
     return
-    endsubroutine sal_init
+    end subroutine sal_init
 
 !**************************************************************
     subroutine sal_laplace
@@ -490,7 +490,7 @@ d1: do k=1,10
     call bndcopy2ghost(sal)
     
     return
-    endsubroutine sal_laplace
+    end subroutine sal_laplace
 
 !**************************************************************
     subroutine sal_imp
@@ -600,7 +600,7 @@ d1: do k=1,10
     call sal_step_stat
     
     return
-    endsubroutine sal_imp
+    end subroutine sal_imp
     
 !**************************************************************
     subroutine coeffinitsal
@@ -624,7 +624,7 @@ d1: do k=1,10
     enddo        
     
     return
-    endsubroutine coeffinitsal
+    end subroutine coeffinitsal
 
 !***********************************************************************
     subroutine boundinit_sal
@@ -681,7 +681,7 @@ d1: do k=1,10
     enddo
     
     return
-    endsubroutine boundinit_sal
+    end subroutine boundinit_sal
     
 !*************************************************************************
     subroutine coeffsourcesink_sal(schmcoef)
@@ -705,7 +705,7 @@ d1: do k=1,10
         implicit none
         real(ikind),intent(in) :: dk,fk
         real(ikind) :: schmcoef
-      endfunction
+      end function
     endinterface    
 
     dtimeinv=1.0/dtime
@@ -739,7 +739,7 @@ d1: do k=1,10
     endif
     
     return
-    endsubroutine coeffsourcesink_sal
+    end subroutine coeffsourcesink_sal
 
     
 !******************************************************************
@@ -805,5 +805,5 @@ d1: do k=1,10
     close(dgunit)      
     
     return
-    endsubroutine sal_step_stat    
+    end subroutine sal_step_stat    
     

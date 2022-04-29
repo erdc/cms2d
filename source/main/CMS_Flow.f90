@@ -101,7 +101,7 @@
     call cleanup
     
     return
-    endsubroutine CMS_Flow
+    end subroutine CMS_Flow
     
 !*****************************************************************       
     subroutine timing
@@ -234,7 +234,7 @@
     endif
     
     return
-    endsubroutine timing    
+    end subroutine timing    
     
 !*************************************************
     subroutine flow_update
@@ -404,7 +404,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine flow_update
+    end subroutine flow_update
    
  !*****************************************************
     subroutine makeflow1D
@@ -444,7 +444,7 @@
     endif
      
     return
-    endsubroutine
+    end subroutine
 
 !***************************************************    
     subroutine cleanup
@@ -457,5 +457,5 @@
     !call sal_cleanup
     
     return
-    endsubroutine cleanup
+    end subroutine cleanup
     

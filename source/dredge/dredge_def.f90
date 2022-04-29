@@ -16,8 +16,8 @@ module dredge_def
     real(ikind), allocatable :: trigger_start(:),trigger_finish(:)
     real(ikind), allocatable :: bed_change(:)
     real(ikind), allocatable :: dredge_mat_gradation(:)
-    character(len=32) :: METHOD
-    
+    character(len=32)  :: METHOD
+    character(len=100) :: dredge_diag_file = 'dredge_module_diagnostics.txt'
     
     type dredge_operations_type
       logical :: active
@@ -57,9 +57,7 @@ module dredge_def
       real(ikind), allocatable :: total_placed_by_area(:),placed_vol_by_area(:)
       real(4), allocatable :: start(:),finish(:)
 
-    endtype dredge_operations_type
-    
-    
+    end type dredge_operations_type
     type(dredge_operations_type), allocatable :: dredge_operations(:)      
     
-    endmodule dredge_def
+    end module dredge_def

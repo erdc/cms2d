@@ -48,7 +48,7 @@
     NH_str(nNHstr)%wsefile = ''
 
     return
-    endsubroutine nestwse_init
+    end subroutine nestwse_init
        
 !*********************************************************************
     subroutine nestwsevel_init
@@ -88,7 +88,7 @@
     NHV_str(nNHVstr)%velfile = ''
     
     return
-    endsubroutine nestwsevel_init    
+    end subroutine nestwsevel_init    
 
 !*********************************************************************
     subroutine parsim_init
@@ -134,7 +134,7 @@
     call proj_default(ParSim(nParSim)%projpar)
     
     return
-    endsubroutine parsim_init     
+    end subroutine parsim_init     
     
 !*********************************************************************
     subroutine tidalwse_init
@@ -188,7 +188,7 @@
     call proj_default(NTH_str(nNTHstr)%projtdb)
     
     return
-    endsubroutine tidalwse_init
+    end subroutine tidalwse_init
     
 !*********************************************************************
     subroutine tidalwsevel_init
@@ -242,7 +242,7 @@
     call proj_default(NTHV_str(nNTHVstr)%projtdb)
     
     return
-    endsubroutine tidalwsevel_init
+    end subroutine tidalwsevel_init
         
 !***********************************************************************    
     subroutine error_invalid_dataset(afile,apath,adataset)
@@ -255,7 +255,7 @@
       '   File: ',afile,' Path: ',apath)
 
     return
-    endsubroutine error_invalid_dataset 
+    end subroutine error_invalid_dataset 
     
 
         

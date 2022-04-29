@@ -53,7 +53,7 @@ contains
     call diag_print_message(msg)
     
     return
-    endsubroutine math_test_all
+    end subroutine math_test_all
 #endif
 
-endmodule math_test
+end module math_test

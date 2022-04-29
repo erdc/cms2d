@@ -29,7 +29,7 @@
     enddo    
 
     return
-    endsubroutine bnd_vel_flux
+    end subroutine bnd_vel_flux
     
 !**************************************************************************
     subroutine bnd_vel_openwse(nbndcells,icells,kfaces)
@@ -55,7 +55,7 @@
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcex
-      endfunction
+      end function
     endinterface
     
     interface
@@ -63,7 +63,7 @@
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcey
-      endfunction
+      end function
     endinterface
     
     do j=1,nbndcells
@@ -95,7 +95,7 @@
     enddo
     
     return
-    endsubroutine bnd_vel_openwse
+    end subroutine bnd_vel_openwse
 
 !**************************************************************************
     subroutine bnd_vel_openwsevel(nbndcells,icells,kfaces,ubnd,vbnd)
@@ -140,7 +140,7 @@
     enddo    
     
     return
-    endsubroutine bnd_vel_openwsevel    
+    end subroutine bnd_vel_openwsevel    
     
 !**************************************************************************
     subroutine bnd_vel_openwse_test(nbndcells,icells,kfaces)
@@ -171,7 +171,7 @@
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcex
-      endfunction
+      end function
     endinterface
     
     interface
@@ -179,7 +179,7 @@
         use prec_def
         integer,intent(in) :: i
         real(ikind) :: forcey
-      endfunction
+      end function
     endinterface
     
     if(ncellpoly==0)then
@@ -247,4 +247,4 @@
     endif
     
     return
-    endsubroutine bnd_vel_openwse_test    
+    end subroutine bnd_vel_openwse_test    

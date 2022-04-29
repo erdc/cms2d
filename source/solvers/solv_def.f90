@@ -45,4 +45,4 @@ module solv_def
     real(ikind):: droptol
     real(ikind):: permtol
     
-endmodule solv_def
+end module solv_def

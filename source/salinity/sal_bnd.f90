@@ -83,7 +83,7 @@
     endif
     
     return
-    endsubroutine sal_bc_init
+    end subroutine sal_bc_init
     
 !************************************************************************
     subroutine sal_bnd_chk(bidfile,bidpath,nbndcells,icells,kfaces,isal)
@@ -156,7 +156,7 @@
     sal_str(isal)%faces = kfaces
     
     return
-    endsubroutine sal_bnd_chk
+    end subroutine sal_bnd_chk
     
 !**************************************************************
     subroutine bndsaleval
@@ -189,7 +189,7 @@
     enddo
     
     return
-    endsubroutine bndsaleval
+    end subroutine bndsaleval
     
 !***********************************************************************
     subroutine bound_sal
@@ -263,5 +263,5 @@
     call struct_sal
     
     return
-    endsubroutine bound_sal
+    end subroutine bound_sal
     

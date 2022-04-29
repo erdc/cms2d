@@ -82,5 +82,5 @@ module fric_def
     real(ikind), allocatable :: megariphgt(:) !Megaripple height [m]
     real(ikind) :: biodegradhalflife  !Biodegradation half-life
     
-endmodule fric_def
+end module fric_def
 

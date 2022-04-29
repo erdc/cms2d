@@ -441,7 +441,7 @@
     call Zbndzb_exp_tel
         
     return
-    endsubroutine sed_exp_tel
+    end subroutine sed_exp_tel
     
    !***********************************************************************
     subroutine Zsedbnd_eval_exp_tel
@@ -1087,7 +1087,7 @@
 1000    continue    
     
     return
-    endsubroutine Zsedbnd_eval_EXP_tel
+    end subroutine Zsedbnd_eval_EXP_tel
     
    !***********************************************************************
     subroutine Zbndzb_exp_tel
@@ -1187,4 +1187,4 @@
       endif  !H_multi        
     
     return
-    endsubroutine Zbndzb_EXP_tel
+    end subroutine Zbndzb_EXP_tel

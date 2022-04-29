@@ -41,7 +41,7 @@ contains
     write(msg2,*) 'Correct:    px = ',1.0909,', py = ',1.0909,' ierr = ',1
     
     return
-    endsubroutine geo_test_all
+    end subroutine geo_test_all
 #endif
 
-endmodule geo_test
+end module geo_test

@@ -79,7 +79,7 @@ contains
     call der_lim_alloc
     
     return
-    endsubroutine der_alloc   
+    end subroutine der_alloc   
 
 !********************************************************************
     subroutine der_grad_alloc(go)
@@ -118,7 +118,7 @@ contains
     endif
     
     return
-    endsubroutine der_grad_alloc
+    end subroutine der_grad_alloc
     
 !********************************************************************
     subroutine der_lim_alloc
@@ -139,7 +139,7 @@ contains
     endif
     
     return
-    endsubroutine der_lim_alloc    
+    end subroutine der_lim_alloc    
 
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! BEGIN Coefficient Calculation routines
@@ -264,7 +264,7 @@ contains
     enddo
     
     return
-    endsubroutine der_grad_cbfd
+    end subroutine der_grad_cbfd
 
 !********************************************************************
     subroutine der_grad_cbgg(go,ns,nc,idlist)
@@ -372,7 +372,7 @@ contains
     enddo
     
     return
-    endsubroutine der_grad_cbgg
+    end subroutine der_grad_cbgg
     
 !*******************************************************************************
     subroutine der_grad_cbggcr(go,ns,nc,idlist)
@@ -497,7 +497,7 @@ contains
     endif
     
     return
-    endsubroutine der_grad_cbggcr
+    end subroutine der_grad_cbggcr
     
 !*************************************************************************
     subroutine der_grad_cbwlsfs(go,ns,nc,idlist)
@@ -670,7 +670,7 @@ contains
     enddo
     
     return
-    endsubroutine der_grad_cbwlsfs    
+    end subroutine der_grad_cbwlsfs    
 
 !***********************************************************************
     subroutine screen_weights(nt,wxt,wyt,ixt,iyt,ns,nx,ny,ix,iy,wx,wy)
@@ -708,7 +708,7 @@ contains
     enddo   
       
     return
-    endsubroutine screen_weights    
+    end subroutine screen_weights    
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! END Coefficient Calculation routines    
@@ -832,7 +832,7 @@ contains
     if(ilim>0) call slopelim(var,ilim,dvarx,dvary)
 
     return
-    endsubroutine der_grad_eval
+    end subroutine der_grad_eval
 
 !*******************************************************
     subroutine der_grad_eval_recon(go,ilim,var,dvarx,dvary)
@@ -925,7 +925,7 @@ contains
 !$OMP END PARALLEL
 
     return
-    endsubroutine der_grad_eval_recon    
+    end subroutine der_grad_eval_recon    
 
 !*****************************************************************************
     subroutine der_gradvec_eval(go,ilim,u,v,dux,duy,dvx,dvy)
@@ -1040,7 +1040,7 @@ contains
     if(ilim>0) call slopelimvec(u,v,ilim,dux,duy,dvx,dvy)
     
     return
-    endsubroutine der_gradvec_eval    
+    end subroutine der_gradvec_eval    
 
 !******************************************************************
     subroutine der_gradvec_eval_recon(go,ilim,u,v,dux,duy,dvx,dvy)
@@ -1153,7 +1153,7 @@ contains
     if(ilim>0) call slopelimvec(u,v,ilim,dux,duy,dvx,dvy)
 
     return
-    endsubroutine der_gradvec_eval_recon    
+    end subroutine der_gradvec_eval_recon    
     
 !**********************************************************************
     subroutine dxy2d(go,i,var,dvarx,dvary)
@@ -1178,7 +1178,7 @@ contains
     dvary = sum(go%wcy(1:go%ncy(i),i)*var(go%icy(1:go%ncy(i),i)))
     
     return
-    endsubroutine dxy2d
+    end subroutine dxy2d
   
 !**********************************************************************
     subroutine dx2d(go,i,var,dvarx) 
@@ -1202,7 +1202,7 @@ contains
     dvarx = sum(go%wcx(1:go%ncx(i),i)*var(go%icx(1:go%ncx(i),i)))
     
     return
-    endsubroutine dx2d
+    end subroutine dx2d
       
 !**********************************************************************
     subroutine dy2d(go,i,var,dvary) 
@@ -1226,7 +1226,7 @@ contains
     dvary = sum(go%wcy(1:go%ncy(i),i)*var(go%icy(1:go%ncy(i),i)))
     
     return
-    endsubroutine dy2d
+    end subroutine dy2d
     
 !******************************************************************    
     function dk2d(i,k,phi,dphix,dphiy) result(gradk)
@@ -1251,7 +1251,7 @@ contains
     endif
     
     return
-    endfunction dk2d   
+    end function dk2d   
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
 ! END Gradient operator routines
@@ -1286,7 +1286,7 @@ contains
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine curvxy      
+    end subroutine curvxy      
     
 !*****************************************************************    
     subroutine d2xy2d(go,i,dvarx,dvary,d2varix2,d2variy2) 
@@ -1308,7 +1308,7 @@ contains
     call dy2d(go,i,dvary,d2variy2)
     
     return
-    endsubroutine d2xy2d
+    end subroutine d2xy2d
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! END Curvature Operators
@@ -1342,7 +1342,7 @@ contains
     endselect
     
     return
-    endsubroutine slopelim
+    end subroutine slopelim
     
 !*****************************************************************
     subroutine slopelimvec(u,v,ilim,dux,duy,dvx,dvy)
@@ -1366,7 +1366,7 @@ contains
     endselect
     
     return
-    endsubroutine slopelimvec
+    end subroutine slopelimvec
     
 !*****************************************************************
     function vanleerslopelim(r) result(phi)
@@ -1384,7 +1384,7 @@ contains
     rr = max(r,0.0)
     phi = 4.0*rr/(rr+1.0)**2
     
-    endfunction vanleerslopelim
+    end function vanleerslopelim
 
 !*****************************************************************
     function vanalbadaslopelim(r) result(phi)
@@ -1403,7 +1403,7 @@ contains
     rr = max(r,0.0)
     phi = 2.0*rr/(rr**2+1.0)
     
-    endfunction vanalbadaslopelim
+    end function vanalbadaslopelim
 
 !*****************************************************************
     function musclslopelim(r) result(phi)
@@ -1418,7 +1418,7 @@ contains
     b = 4.0/(rr+1.0)
     phi = min(rr*b,b,1.0)
     
-    endfunction musclslopelim
+    end function musclslopelim
 
 !*****************************************************************
     function minmodslopelim(r) result(phi)
@@ -1433,7 +1433,7 @@ contains
     b = 2.0/(rr+1.0)
     phi = min(rr*b,b)
     
-    endfunction minmodslopelim    
+    end function minmodslopelim    
     
 !*****************************************************************
     function minmodfun(r) result(psi)
@@ -1448,7 +1448,7 @@ contains
     
     psi=max(0.0,min(1.0,r))
     
-    endfunction minmodfun    
+    end function minmodfun    
     
 !*****************************************************************
     function venkatakrishnan(r) result(psi)
@@ -1465,7 +1465,7 @@ contains
     
     psi = max(0.0,(r*r+2.0*r+e2)/(r*r+r+2+e2))
     
-    endfunction venkatakrishnan
+    end function venkatakrishnan
         
 !**********************************************************************    
     subroutine bjlim(func,phi,dphix,dphiy)
@@ -1498,7 +1498,7 @@ contains
         use prec_def
         real(ikind),intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -1609,7 +1609,7 @@ contains
 !$OMP END PARALLEL
 
     return    
-    endsubroutine bjlim
+    end subroutine bjlim
 
 !**********************************************************************    
     subroutine bjlimvec(func,u,v,dux,duy,dvx,dvy)
@@ -1644,7 +1644,7 @@ contains
         use prec_def
         real(ikind),intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
     
 !$OMP PARALLEL
@@ -1805,7 +1805,7 @@ contains
 !$OMP END PARALLEL
 
     return    
-    endsubroutine bjlimvec
+    end subroutine bjlimvec
 
 !************************************************************    
     subroutine lcdlim(func,phi,dphix,dphiy)
@@ -1840,7 +1840,7 @@ contains
         use prec_def
         real(ikind),intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -1929,7 +1929,7 @@ contains
 !$OMP END PARALLEL
 
     return    
-    endsubroutine lcdlim
+    end subroutine lcdlim
 
 !************************************************************    
     subroutine lcdlimvec(func,u,v,dux,duy,dvx,dvy)
@@ -1963,7 +1963,7 @@ contains
         use prec_def
         real(ikind),intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
     
 !$OMP PARALLEL
@@ -2106,7 +2106,7 @@ contains
 !$OMP END PARALLEL
 
     return    
-    endsubroutine lcdlimvec
+    end subroutine lcdlimvec
 
 !***********************************************************************    
     subroutine limitslope(funslopelim,phi,dphix,dphiy)
@@ -2131,7 +2131,7 @@ contains
         use prec_def
         real(ikind), intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -2188,7 +2188,7 @@ contains
 !$OMP END PARALLEL
 
     return
-    endsubroutine limitslope
+    end subroutine limitslope
 
 !***********************************************************************    
     subroutine limitslopevec(funslopelim,u,v,dux,duy,dvx,dvy)
@@ -2211,14 +2211,13 @@ contains
     integer :: i,ii,idk,k,nck,ncn,nce,ncs,ncw
     real(ikind) :: r,unb(nmaxfaces),vnb(nmaxfaces)
     !real(ikind) :: snb(nmaxfaces),s2
-    !logical :: isnankind                            !never used, commented out   MEB  01/26/2022
 
     interface
       function funslopelim(r) result(psi)
         use prec_def
         real(ikind), intent(in) :: r
         real(ikind) :: psi
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -2303,6 +2302,6 @@ contains
 !$OMP END PARALLEL
 
     return
-    endsubroutine limitslopevec
+    end subroutine limitslopevec
         
-endmodule der_lib
+end module der_lib
