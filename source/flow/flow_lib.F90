@@ -38,7 +38,7 @@ contains
     fc = 2.0*omega*sin(latref*deg2rad)
     
     return
-    endfunction coriolis_fplane
+    end function coriolis_fplane
     
 !*****************************************************************************    
     subroutine coriolis_betaplane(ynor,yref,latref,fc)
@@ -63,7 +63,7 @@ contains
     fc(:) = fref + betaref*(ynor(:)-yref)   !Beta-plane approximation
     
     return
-    endsubroutine coriolis_betaplane    
+    end subroutine coriolis_betaplane    
 
 !*****************************************************************************    
     function water_viscosity_kinematic(t) result(vk)
@@ -97,7 +97,7 @@ contains
     vk = (1.793 - 0.06149*t + 0.001519*t2 - 2.436e-5*t3 + 1.773e-7*t3*t)*1.0e-6 !forth order fit
     
     return
-    endfunction water_viscosity_kinematic
+    end function water_viscosity_kinematic
     
 !************************************************************
     function water_viscosity_dynamic(t,s) result(vd)
@@ -134,7 +134,7 @@ contains
      - 1.35576e-8*t**3 + 2.15123e-6*s + 3.59406e-11*s**2
     
     return
-    endfunction water_viscosity_dynamic
+    end function water_viscosity_dynamic
 
 !*******************************************************************
     function water_density_crowley(t,s) result(rho)
@@ -161,7 +161,7 @@ contains
     rho = 1028.14 - 0.0735*t - 0.00469*t*t + (0.802 - 0.002*t)*(s - 35.0)
     
     return
-    endfunction water_density_crowley    
+    end function water_density_crowley    
     
 !*******************************************************************
     function water_density_fofonoff(t,s) result(rho)
@@ -200,7 +200,7 @@ contains
         + 4.8314e-4*s**2
     
     return
-    endfunction water_density_fofonoff
+    end function water_density_fofonoff
     
 !*******************************************************
     function water_density_ekart(t,s) result(rho)
@@ -223,7 +223,7 @@ contains
     rho = 1000.0*P0/(lambda + a0*P0)
     
     return
-    endfunction water_density_ekart
+    end function water_density_ekart
     
 !*********************************************************    
     function water_density_UNESCO(t,s) result(rho)
@@ -250,7 +250,7 @@ contains
     rho = rho0 + A*s + B*s**1.5 + C*s**2
     
     return
-    endfunction water_density_UNESCO
+    end function water_density_UNESCO
     
 !********************************************************************************
     function streamwise_curvature(ux,vy,uvm,dudx,dudy,dvdx,dvdy) result(Kc)
@@ -273,7 +273,7 @@ contains
     Kc = (ux*ux*dvdx-vy*vy*dudy+ux*vy*(dvdy-dudx))/max(uvm,1.e-6)**1.5
     
     return
-    endfunction streamwise_curvature
+    end function streamwise_curvature
     
 !*******************************************************
     integer function number_wet_cells()
@@ -299,4 +299,4 @@ contains
     
 
 
-endmodule flow_lib
+end module flow_lib

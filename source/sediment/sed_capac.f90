@@ -136,7 +136,7 @@ subroutine sedcapac_lundcirp
   endif
 
   return
-endsubroutine sedcapac_lundcirp
+end subroutine sedcapac_lundcirp
 
 !****************************************************************************
 subroutine sedcapac_soulsby
@@ -210,7 +210,7 @@ subroutine sedcapac_soulsby
   endif
 
   return
-endsubroutine sedcapac_soulsby
+end subroutine sedcapac_soulsby
 
 !*****************************************************************************  
 subroutine sedcapac_vanrijn
@@ -278,7 +278,7 @@ subroutine sedcapac_vanrijn
   endif
 
   return
-endsubroutine sedcapac_vanrijn
+end subroutine sedcapac_vanrijn
 
 !*****************************************************************************  
 subroutine sedcapac_watanabe
@@ -361,7 +361,7 @@ subroutine sedcapac_watanabe
   endif
 
   return
-endsubroutine sedcapac_watanabe
+end subroutine sedcapac_watanabe
 
 !********************************************************************
 subroutine sedcapac_cshore
@@ -442,7 +442,7 @@ subroutine sedcapac_cshore
 !  !!$OMP END PARALLEL DO  
 
   return
-endsubroutine sedcapac_cshore
+end subroutine sedcapac_cshore
 
 subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
   ! calculates the probability of sediment suspention, Ps
@@ -474,7 +474,7 @@ subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
   enddo
   !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSPs',u,v,sigT,alpha,Tp,CSwf,CSPs
   return
-endsubroutine prob_susload
+end subroutine prob_susload
 
 subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
   ! calculates the energy dissipation in the BBL
@@ -505,4 +505,4 @@ subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
 
   !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSDf',u,v,sigT,alpha,Tp,CSwf,CSDf
   return
-endsubroutine get_CSDf
+end subroutine get_CSDf

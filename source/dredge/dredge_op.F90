@@ -65,7 +65,7 @@
     ENDDO
 
     return
-    endsubroutine dredge_op
+    end subroutine dredge_op
 
 !**************************************************************
     subroutine trigger_it(k)
@@ -120,7 +120,7 @@
     endselect
         
     return
-    endsubroutine trigger_it    
+    end subroutine trigger_it    
 
 !**************************************************************
     subroutine cancel_it(k)
@@ -146,7 +146,7 @@
    if(timehrs >= dredge_operations(k)%Trigger_Finish(dredge_operations(k)%num_trigger_intervals)) dredge_operations(k)%active = .false.            
         
    return
-   endsubroutine cancel_it       
+   end subroutine cancel_it       
     
     
 !**************************************************************
@@ -336,7 +336,7 @@
     
     
     return
-    endsubroutine dredge_it
+    end subroutine dredge_it
     
 !**************************************************************
     subroutine Placement_allocation(k)
@@ -427,7 +427,7 @@
     ENDIF
      
     return
-    endsubroutine Placement_allocation        
+    end subroutine Placement_allocation        
         
     
 !**************************************************************
@@ -604,7 +604,7 @@
     if(.not. singlesize) call place_bed_sort(ncnt,cells)    
 
     return
-    endsubroutine place_it    
+    end subroutine place_it    
     
 !**************************************************************
   subroutine dredge_implicit_update
@@ -656,7 +656,7 @@
     call bndzb
 
     return
-    endsubroutine dredge_implicit_update
+    end subroutine dredge_implicit_update
     
 !**************************************************************
    subroutine WriteDredgeTS(k)
@@ -685,7 +685,7 @@
     DredgeTS_Vars(k,:) = 0.0
     
     return
-    endsubroutine WriteDredgeTS
+    end subroutine WriteDredgeTS
     
 !**************************************************************
    subroutine Dredge_hardbottom
@@ -710,7 +710,7 @@
     enddo
     
     return
-    endsubroutine Dredge_hardbottom
+    end subroutine Dredge_hardbottom
     
 !*********************************************************************
 ! sorts x, y follows, x is real, y is integer
@@ -812,7 +812,7 @@
     endif
     
     return
-    endsubroutine dredge_eval
+    end subroutine dredge_eval
     
 !****************************************************    
     subroutine dredge_bed_sort(ncnt,cells)
@@ -923,7 +923,7 @@
     !write(*,*)'dregmatgrad: ',dredge_mat_gradation(:)
 
     return
-    endsubroutine dredge_bed_sort
+    end subroutine dredge_bed_sort
     
 !****************************************************    
     subroutine place_bed_sort(ncnt,cells)
@@ -977,7 +977,7 @@
     ENDDO
      
     return
-    endsubroutine place_bed_sort   
+    end subroutine place_bed_sort   
     
     
 !**************************************************************************
@@ -1034,4 +1034,4 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine sedpercentile_bedlayer
+    end subroutine sedpercentile_bedlayer

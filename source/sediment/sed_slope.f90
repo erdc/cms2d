@@ -110,7 +110,7 @@
     enddo !ks
     
     return
-    endsubroutine bedslope    
+    end subroutine bedslope    
     
 !**************************************************************    
     subroutine bedslopecor_dey
@@ -156,7 +156,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine bedslopecor_dey
+    end subroutine bedslopecor_dey
     
 !***************************************************************    
     subroutine bedslopecor_bailard
@@ -217,4 +217,4 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine bedslopecor_bailard    
+    end subroutine bedslopecor_bailard    

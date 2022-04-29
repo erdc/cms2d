@@ -79,7 +79,7 @@ contains
     scalar = scalar*fac + con !General 
     
     return
-    endsubroutine unitconv_scal
+    end subroutine unitconv_scal
     
 !*********************************************************************    
     subroutine unitconv_vec(fromunits,tounits,n,v)
@@ -122,7 +122,7 @@ contains
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine unitconv_vec
+    end subroutine unitconv_vec
     
 !*********************************************************************    
     function unitconv_fac(fromunits,tounits) result(fac)
@@ -147,7 +147,7 @@ contains
     call unitconv_var(fromunits,tounits,fac)
     
     return
-    endfunction unitconv_fac
+    end function unitconv_fac
     
 !*********************************************************************    
     subroutine unitconv_var(fromunits,tounits,fac,con)
@@ -611,7 +611,7 @@ contains
     endselect 
     
     return
-    endsubroutine unitcodes    
-    endsubroutine unitconv_var
+    end subroutine unitcodes    
+    end subroutine unitconv_var
 
-endmodule unitconv_lib    
+end module unitconv_lib    

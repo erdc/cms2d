@@ -135,7 +135,7 @@ contains
     lb = lb/sum(lb(1:np+1))
     
     return
-    endsubroutine plagr_fit
+    end subroutine plagr_fit
     
 !************************************************************************    
     function plagr_eval(m,y,nb,lb,np,k) result(yi)
@@ -186,6 +186,6 @@ contains
     yi = sum(lb(1:np+1)*y(k:k+np))
     
     return
-    endfunction plagr_eval
+    end function plagr_eval
     
-endmodule plagr_lib    
+end module plagr_lib    

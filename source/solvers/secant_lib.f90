@@ -49,7 +49,7 @@ contains
         implicit none
         real(ikind),intent(in) :: c,x
         real(ikind) :: fvar
-      endfunction
+      end function
     endinterface
 
     f(1) = var - fvar(c,x(1))
@@ -70,6 +70,6 @@ contains
     tol = f(2)
     
     return
-    endsubroutine secant
+    end subroutine secant
 
-endmodule secant_lib    
+end module secant_lib    

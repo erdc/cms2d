@@ -308,7 +308,7 @@
 #endif   
     
     return
-    endsubroutine flow_imp
+    end subroutine flow_imp
     
 
 !*******************************************************
@@ -401,7 +401,7 @@
 !$OMP END PARALLEL
 
     return        
-    endsubroutine flow_srcsnk_static
+    end subroutine flow_srcsnk_static
     
 !***********************************************************************
     subroutine coeffsourcesink_uv(schmcoef)
@@ -439,7 +439,7 @@
         implicit none
         real(ikind),intent(in) :: dk,fk
         real(ikind) :: schmcoef
-      endfunction
+      end function
     endinterface
     
 !$OMP PARALLEL
@@ -572,7 +572,7 @@
 !#endif    
 
     return
-    endsubroutine coeffsourcesink_uv
+    end subroutine coeffsourcesink_uv
 
 !***********************************************************************
     subroutine coefsourcesink_pp()
@@ -793,7 +793,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine coefsourcesink_pp
+    end subroutine coefsourcesink_pp
     
 !***********************************************************************
     subroutine pvfc()
@@ -1071,7 +1071,7 @@
 #endif
 
     return
-    endsubroutine pvfc
+    end subroutine pvfc
     
 !*******************************************************
     subroutine flow_grad_interp()
@@ -1129,7 +1129,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine flow_grad_interp
+    end subroutine flow_grad_interp
     
 !***********************************************************************
     subroutine flow_recalculate()
@@ -1241,7 +1241,7 @@
     call flow_eddyvis
     
     return
-    endsubroutine flow_recalculate
+    end subroutine flow_recalculate
 
 !***********************************************************************
     subroutine velface_eta()
@@ -1572,7 +1572,7 @@ di:   do i=1,ncells
     call struct_velbnd
 
     return
-    endsubroutine velface_eta
+    end subroutine velface_eta
 
 !******************************************************************      
     subroutine check_conv()
@@ -1746,7 +1746,7 @@ di:   do i=1,ncells
     rmom1=rmom
     
     return
-    endsubroutine check_conv
+    end subroutine check_conv
     
 !**************************************************************************
     subroutine flow_pred
@@ -2040,7 +2040,7 @@ di:   do i=1,ncells
 
 #endif
     return
-    endsubroutine flow_pred
+    end subroutine flow_pred
 
 !***************************************************
     subroutine check_momentum
@@ -2103,7 +2103,7 @@ di:   do i=1,ncells
     endif
     
     return
-    endsubroutine check_momentum    
+    end subroutine check_momentum    
     
 !***************************************************
     subroutine check_variables(neq)
@@ -2149,7 +2149,7 @@ di:   do i=1,ncells
     enddo !i    
 
     return
-    endsubroutine check_variables
+    end subroutine check_variables
     
 !****************************************************    
     subroutine flow_crossdiff
@@ -2213,7 +2213,7 @@ di:   do i=1,ncells
 !$OMP END PARALLEL
 
     return
-    endsubroutine flow_crossdiff
+    end subroutine flow_crossdiff
     
 !******************************************************************************    
     subroutine flow_volres(volerr)
@@ -2259,7 +2259,7 @@ di:   do i=1,ncells
     endif
     
     return
-    endsubroutine flow_volres
+    end subroutine flow_volres
     
 !******************************************************************************    
     subroutine flow_balance()
@@ -2374,7 +2374,7 @@ di:   do i=1,ncells
     call diag_print_message(' ',msg2,msg3,msg4,msg5,msg6,msg7) 
     
     return
-    endsubroutine flow_balance    
+    end subroutine flow_balance    
         
 !****************************************************    
     subroutine flow_rainevap()
@@ -2442,4 +2442,4 @@ di:   do i=1,ncells
     endif    
     
     return
-    endsubroutine flow_rainevap
+    end subroutine flow_rainevap

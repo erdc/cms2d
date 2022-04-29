@@ -5,7 +5,7 @@ module prec_def
     implicit none
     save
     integer, parameter :: ikind=4  !Alex, 4-single, 8-double  
-endmodule prec_def
+end module prec_def
     
 !===================================================================
 module cms_def
@@ -81,7 +81,7 @@ module const_def
     real(ikind),parameter :: omega = twopi/86400.0_ikind   !Earth's rotation speed, 7.2722e-5 rad/s
     real(ikind),parameter :: earthRadius = 6371000.0_ikind !Earth's radius, m
     
-endmodule const_def
+end module const_def
 
 !===================================================================
 module comvarbl
@@ -182,4 +182,4 @@ module comvarbl
     !Strings
     character(len=200) :: casename
     
-endmodule comvarbl
+end module comvarbl

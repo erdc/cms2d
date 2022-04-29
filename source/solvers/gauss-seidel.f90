@@ -33,7 +33,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine gauss_seidel
+    end subroutine gauss_seidel
 
 !***********************************************************************
     subroutine gauss_seidel_SOR(nmaxiter,relaxsor,acoef,ap,su,phi)
@@ -72,7 +72,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine gauss_seidel_SOR
+    end subroutine gauss_seidel_SOR
 
 !********************************************************************************
     subroutine solv_gs(nmaxiter,acoef,ap,su,phi)
@@ -124,7 +124,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine solv_gs
+    end subroutine solv_gs
     
 !***********************************************************************
     subroutine solv_sor(nmaxiter,relaxsor,acoef,ap,su,phi)
@@ -178,7 +178,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine solv_sor
+    end subroutine solv_sor
 
 !***********************************************************************
     subroutine solv_sgs(nmaxiter,acoef,ap,su,phi)
@@ -216,7 +216,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine solv_sgs 
+    end subroutine solv_sgs 
     
 !***********************************************************************
     subroutine solv_ssor(nmaxiter,relaxsor,acoef,ap,su,phi)
@@ -257,7 +257,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine solv_ssor
+    end subroutine solv_ssor
     
 !***********************************************************************
     subroutine solv_ssorac(nmaxiter,acoef,ap,su,phi)
@@ -298,4 +298,4 @@
     enddo
 !$OMP END PARALLEL
     return
-    endsubroutine solv_ssorac
+    end subroutine solv_ssorac

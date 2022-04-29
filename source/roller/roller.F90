@@ -40,7 +40,7 @@
     rol_courant = 0.5
    
     return
-    endsubroutine rol_default
+    end subroutine rol_default
    
 !*************************************************************   
     subroutine rol_cards(cardname,foundcard)
@@ -92,7 +92,7 @@
     endselect
 
     return
-    endsubroutine rol_cards
+    end subroutine rol_cards
 
 !****************************************************************
     subroutine rol_init
@@ -143,7 +143,7 @@
     roldiss=0.0
     
     return
-    endsubroutine rol_init
+    end subroutine rol_init
     
 !****************************************************************
     subroutine rol_print()
@@ -188,7 +188,7 @@
     close(dgunit)
     
     return
-    endsubroutine rol_print        
+    end subroutine rol_print        
 
 !****************************************************************
     subroutine rol_solve
@@ -484,7 +484,7 @@
     call diag_print_message('*** Roller Finished ****',' ')
     
     return
-    endsubroutine rol_solve
+    end subroutine rol_solve
        
 !*****************************************************************************
     subroutine rol_write
@@ -646,4 +646,4 @@
 #endif
       
       return
-      endsubroutine rol_write
+      end subroutine rol_write

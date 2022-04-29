@@ -12,7 +12,7 @@
     numrubmound = 0 !Rubble Mounds
 
     return
-    endsubroutine struct_default
+    end subroutine struct_default
     
 !***************************************************************************   
     subroutine struct_cards(cardname,foundcard)
@@ -208,7 +208,7 @@
     endselect
 
     return
-    endsubroutine struct_cards
+    end subroutine struct_cards
 
 !*****************************************************************
     subroutine weir_alloc
@@ -360,7 +360,7 @@
     enddo
     
     return
-    endsubroutine new_weir_block
+    end subroutine new_weir_block
     
     
 !************************************************************************************
@@ -465,7 +465,7 @@
     enddo
     
     return
-    endsubroutine weir_block
+    end subroutine weir_block
     
 !************************************************************************************
     subroutine culvert_block()
@@ -626,7 +626,7 @@
     enddo
     
     return
-    endsubroutine culvert_block
+    end subroutine culvert_block
 
 !************************************************************************************
     subroutine tide_gate_block
@@ -735,7 +735,7 @@
     enddo
     
     return
-    endsubroutine tide_gate_block
+    end subroutine tide_gate_block
 
 !************************************************************************************
     subroutine tg_schedule_block
@@ -828,7 +828,7 @@
     enddo
     
     return
-    endsubroutine tg_schedule_block
+    end subroutine tg_schedule_block
     
 !*****************************************************************
     subroutine rubble_mound_alloc
@@ -956,7 +956,7 @@
           foundcard = .false.
         endselect              
       enddo
-    endsubroutine     
+    end subroutine     
     
 !****************************************************    
     subroutine weir_init
@@ -1285,7 +1285,7 @@
     enddo
     
     return
-    endsubroutine struct_init
+    end subroutine struct_init
     
 !*****************************************************************************************
     subroutine struct_print()
@@ -1349,7 +1349,7 @@
     close(dgunit)
     
     return
-    endsubroutine struct_print
+    end subroutine struct_print
     
 !***********************************************************************
     subroutine struct_wetdry
@@ -1461,7 +1461,7 @@
     enddo
     
     return
-    endsubroutine struct_wetdry
+    end subroutine struct_wetdry
     
 !***************************************************************************
     subroutine struct_uv
@@ -1719,7 +1719,7 @@
     enddo
     
     return
-    endsubroutine struct_uv
+    end subroutine struct_uv
 
 !**********************************************************************************    
     subroutine struct_pp
@@ -1819,7 +1819,7 @@
     enddo 
     
     return
-    endsubroutine struct_pp
+    end subroutine struct_pp
     
 !*******************************************************************************************    
     subroutine struct_flux
@@ -2210,7 +2210,7 @@
 !!$OMP END SECTIONS
         
     return
-    endsubroutine struct_flux
+    end subroutine struct_flux
     
 !***********************************************************************
     subroutine fluxthrustructure
@@ -2300,7 +2300,7 @@
     enddo
       
     return
-    endsubroutine fluxthrustructure
+    end subroutine fluxthrustructure
 
 !**************************************************    
     subroutine struct_pond(iwet,ipond)
@@ -2348,7 +2348,7 @@
     enddo
     
     return
-    endsubroutine struct_pond
+    end subroutine struct_pond
 
 !**************************************************    
     subroutine struct_velbnd
@@ -2422,7 +2422,7 @@
     enddo
     
     return
-    endsubroutine struct_velbnd
+    end subroutine struct_velbnd
     
 !**************************************************    
     subroutine struct_vis
@@ -2446,7 +2446,7 @@
     enddo   
 
     return
-    endsubroutine struct_vis
+    end subroutine struct_vis
     
 !**************************************************    
     subroutine struct_dzb
@@ -2482,7 +2482,7 @@
     enddo
     
     return
-    endsubroutine struct_dzb
+    end subroutine struct_dzb
     
 !***********************************************************************
     subroutine struct_Ctk(ks)
@@ -2615,7 +2615,7 @@
     enddo
     
     return
-    endsubroutine struct_Ctk
+    end subroutine struct_Ctk
     
 !***********************************************************************
     subroutine struct_hardzb
@@ -2634,7 +2634,7 @@
     enddo
     
     return
-    endsubroutine struct_hardzb
+    end subroutine struct_hardzb
 
 !*****************************************************************    
     subroutine struct_sal
@@ -2755,4 +2755,4 @@
     enddo
     
     return
-    endsubroutine struct_sal
+    end subroutine struct_sal

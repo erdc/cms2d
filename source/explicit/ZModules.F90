@@ -82,46 +82,7 @@ integer iadv,imix
 integer isedform
 !integer i,j   !Commented by Alex. Considered dangerous
 real(ikind) thetac
-         
-CONTAINS 
-
-    !****************************************************
-    ! double precision rounding function - 12/06/07 meb
-    !   two inputs - value, and #digits to round off to
-    !   returns - rounded value to specified prec_def
-    !****************************************************
-    real*8 function rround8 (X,P)    
-    use prec_def
-    implicit none
-    real(ikind) X    !real value passed in
-    integer K,P   !digits of prec_def
-    real*8 PR,R
-    
-    PR=10.d0**P      
-    K = NINT(PR*(X-AINT(X))) 
-    R = AINT(X) + K/PR
-    RROUND8 = R
-    
-    end function
-  
-    !****************************************************
-    ! single prec_def rounding function - 12/06/07 meb
-    !   two inputs - value, and #digits to round off to
-    !   returns - rounded value to specified prec_def
-    !****************************************************
-    real function rround (X,P)
-    implicit none
-    real X    !real value passed in
-    integer K,P   !digits of prec_def
-    real PR,R
-    
-    PR=10.0**P      
-    K = NINT(PR*(X-AINT(X))) 
-    R = AINT(X) + K/PR
-    RROUND = R
-    
-    end function
-
+     
 END MODULE EXP_Global_def 
 !********************************************************************************
 

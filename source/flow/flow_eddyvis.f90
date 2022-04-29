@@ -223,7 +223,7 @@
     call struct_vis !Structures
 
     return
-    endsubroutine flow_eddyvis
+    end subroutine flow_eddyvis
 
 !***************************************************************
     subroutine distance2wall(diswall)
@@ -259,5 +259,5 @@
     enddo
     
     return
-    endsubroutine distance2wall
+    end subroutine distance2wall
           

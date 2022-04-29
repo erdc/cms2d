@@ -81,7 +81,7 @@
     enddo      
     
     return
-    endsubroutine par_wse_eval
+    end subroutine par_wse_eval
     
 !*******************************************************************************************************
     subroutine par_vel_eval(velfilepar,velpathpar,nptspar,t2hrs,timehrst,nti,inc,timevelhrs,upar,vpar)
@@ -176,4 +176,4 @@
     enddo
     
     return
-    endsubroutine par_vel_eval
+    end subroutine par_vel_eval

@@ -49,7 +49,7 @@ contains
     rdum=fk
     acoefik=0.0
     
-    endfunction zerocoef
+    end function zerocoef
 
 !**************************************************
     function upwindcoef(dk,fk) result(acoefik)
@@ -62,7 +62,7 @@ contains
     
     acoefik=dk+max(0.0,-fk)
     
-    endfunction upwindcoef
+    end function upwindcoef
    
 !**************************************************
     function hybridcoef(dk,fk) result(acoefik)
@@ -76,7 +76,7 @@ contains
     peck=abs(fk)/max(dk,1.0e-6)
     acoefik=dk*max(0.0,1.0-0.5*peck)+max(0.0,-fk)
     
-    endfunction hybridcoef
+    end function hybridcoef
 
 !*****************************************************
     function powerlawcoef(dk,fk) result(acoefik)
@@ -91,7 +91,7 @@ contains
     peck=absfk/max(dk,absfk,1.0e-6)  
     acoefik=dk*(1.0-peck**5)+max(0.0,-fk)
     
-    endfunction powerlawcoef
+    end function powerlawcoef
     
 !********************************************************
     function exponentialcoef(dk,fk) result(acoefik)
@@ -107,7 +107,7 @@ contains
     peck=absfk/max(max(dk,1.e-6),absfk)
     acoefik=dk*peck/max(exp(peck)-1.0,1.0e-6)+max(0.0,-fk)
     
-    endfunction exponentialcoef
+    end function exponentialcoef
 
 !*************************************************************
     function gammadefcor(phin) result(gamma)
@@ -130,7 +130,7 @@ contains
       gamma=0.0
     endif
     
-    endfunction gammadefcor
+    end function gammadefcor
 
 !**********************************************************
     function cubistadefcor(phin) result(gamma)
@@ -155,7 +155,7 @@ contains
       gamma=0.0
     endif
     
-    endfunction cubistadefcor
+    end function cubistadefcor
 
 !**************************************************
     function alvsmartdefcor(phin) result(gamma)
@@ -180,7 +180,7 @@ contains
       gamma=0.0
     endif
     
-    endfunction alvsmartdefcor
+    end function alvsmartdefcor
 
 !********************************************************************
     function hoabdefcor(phin) result(gamma)
@@ -206,7 +206,7 @@ contains
       gamma=0.0
     endif
     
-    endfunction hoabdefcor
+    end function hoabdefcor
     
 !*****************************************************************
     function superbeefluxlim(r) result(phi)
@@ -221,7 +221,7 @@ contains
     
     phi=max(0.0,min(1.0,2.0*r),min(2.0,r))
     
-    endfunction superbeefluxlim
+    end function superbeefluxlim
     
 !*****************************************************************
     function minmodfluxlim(r) result(psi)
@@ -236,7 +236,7 @@ contains
     
     psi=max(0.0,min(1.0,r))
     
-    endfunction minmodfluxlim
+    end function minmodfluxlim
     
 !*****************************************************************
     function osherfluxlim(r) result(psi)
@@ -252,7 +252,7 @@ contains
     
     psi=max(0.0,min(2.0,r))
     
-    endfunction osherfluxlim
+    end function osherfluxlim
     
 !*********************************************************************
     function musclfluxlim(r) result(psi)
@@ -269,7 +269,7 @@ contains
     absr=abs(r)
     psi=(r+absr)/(1.0+absr)
     
-    endfunction musclfluxlim
+    end function musclfluxlim
     
 !*************************************************************************
     function charmfluxlim(r) result(psi)
@@ -289,7 +289,7 @@ contains
       psi=0.0
     endif
     
-    endfunction charmfluxlim
+    end function charmfluxlim
 
 !********************************************************************************
     function hcusfluxlim(r) result(psi)
@@ -303,7 +303,7 @@ contains
     
     psi=1.5*(r+abs(r))/(r+2.0)
     
-    endfunction hcusfluxlim        
+    end function hcusfluxlim        
 
 !********************************************************************************
     function hquickfluxlim(r) result(psi)
@@ -317,7 +317,7 @@ contains
     
     psi=2.0*(r+abs(r))/(r+3.0)
     
-    endfunction hquickfluxlim
+    end function hquickfluxlim
     
 !********************************************************************************
     function osprefluxlim(r) result(psi)
@@ -331,7 +331,7 @@ contains
     
     psi=1.5*(r*r+r)/(r*r+r+1.0)
     
-    endfunction osprefluxlim
+    end function osprefluxlim
     
 !************************************************************************************
     function korenfluxlim(r) result(psi)
@@ -346,7 +346,7 @@ contains
     
     psi=max(0.0,min(2.0*r,0.6666667+r*0.3333333,2.0))
     
-    endfunction korenfluxlim
+    end function korenfluxlim
     
 !************************************************************************************
     function vanalbadafluxlim(r) result(psi)
@@ -360,7 +360,7 @@ contains
     
     psi=(r*r+r)/(r*r+1.0)
     
-    endfunction vanalbadafluxlim
+    end function vanalbadafluxlim
 
 !*************************************************************************
     function smartfluxlim(r) result(psi)
@@ -375,7 +375,7 @@ contains
     
     psi=max(0.0,min(2.0*r,0.25+0.75*r,4.0))
     
-    endfunction smartfluxlim
+    end function smartfluxlim
     
 !*************************************************************************
     function mimodslope(s1,s2) result(s)
@@ -391,7 +391,7 @@ contains
       s=sign(1.0,s1)*min(abs(s1),abs(s2))
     endif
     
-    endfunction mimodslope    
+    end function mimodslope    
 
 !!*************************************************************************
 !    function superbeeslope(s1,s2) result(s)
@@ -409,7 +409,7 @@ contains
 !      s=sign(1.0,s1)*min(max(a,b),nbeta*min(a,b))
 !    endif 
 !    
-!    endfunction superbeeslope       
+!    end function superbeeslope       
     
 !*************************************************************************
     function frommslope(s1,s2) result(s)
@@ -421,7 +421,7 @@ contains
     
     s=0.5*(s1+s2)
     
-    endfunction frommslope       
+    end function frommslope       
     
 !*************************************************************************
     function vanleerslope(s1,s2) result(s)
@@ -437,7 +437,7 @@ contains
       s=2*s1*s2/(s1+s2)
     endif
     
-    endfunction vanleerslope      
+    end function vanleerslope      
       
 !*************************************************************************
     function vanalbadaslope(s1,s2) result(s)
@@ -450,7 +450,7 @@ contains
         
     s=(s1*(s2*s2+eps)+s2*(s1*s1+eps))/(s1*s1+s2*s2+2*eps)
     
-    endfunction vanalbadaslope       
+    end function vanalbadaslope       
 
 !*************************************************************************
     function dbleminmodslope(s1,s2) result(s)
@@ -467,7 +467,7 @@ contains
       s=sign(1.0,s1)*min(2*a,2*b,c)
     endif
     
-    endfunction dbleminmodslope     
+    end function dbleminmodslope     
     
 !*************************************************************
     subroutine hll(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
@@ -567,7 +567,7 @@ contains
     endif    
 
     return
-    endsubroutine hll
+    end subroutine hll
     
 !********************************************************
     subroutine hllc(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)
@@ -671,7 +671,7 @@ contains
     endif
 
     return
-    endsubroutine hllc
+    end subroutine hllc
     
 !****************************************************
     subroutine roe(hl,hr,el,er,ul,ur,vl,vr,cn,sn,F)

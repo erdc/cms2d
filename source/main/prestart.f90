@@ -243,13 +243,19 @@
     call watch_print
 #endif
 
+    write(*,*) ' '
     write(*,*) '**********************************************************'  !blank line after all diagnostic printing
     write(*,*) ' '
 
 !--- Read Hot Start --------------------------------------------
     if(.not.coldstart)then !Hot Start
       call hot_read        !Overwrites initialized variables      
-      
+      if (add_duration_HS) then     !If the user set this variable to true, then the DURATION_RUN value is added to the time found in the Initial Condition  MEB  04/29/2022
+        write(msg,'(A,F0.3,A)') 'Hot Start: Total Simulation time extended by ',timeout, ' hours'
+        stimet = stimet + timeout*3600
+        call diag_print_message(msg)
+      endif
+            
       ctime = timeout*3600.0  !Added 02/13/2019 meb  !Must know ctime for waves to update 
       
       !call hot_init        !Initializes any missing variables such as Ctk, pbk                
@@ -323,7 +329,7 @@
 !!*********** TEMPORARY ************************************************
 
     return
-    endsubroutine prestart
+    end subroutine prestart
 
 !******************************************
     subroutine read_latlon_dataset(dset,string)
@@ -414,7 +420,7 @@
     enddo
     
     return
-    endsubroutine read_latlon_dataset
+    end subroutine read_latlon_dataset
 
 !*****************************************************       
     subroutine ignr_cards(cardname,foundcard)
@@ -452,4 +458,4 @@
     endselect
 
     return    
-    endsubroutine ignr_cards 
+    end subroutine ignr_cards 

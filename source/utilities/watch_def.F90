@@ -30,4 +30,4 @@
     type(watchtype), allocatable, dimension(:) :: watch
     type(watchtype) :: watchdef
    
-endmodule watch_def
+end module watch_def

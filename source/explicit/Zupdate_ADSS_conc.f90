@@ -208,4 +208,4 @@
         enddo ! end of each cell string
       endif  !nHstr strings       
 
-      endsubroutine adeq_conc_bc
+      end subroutine adeq_conc_bc

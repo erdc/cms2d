@@ -142,7 +142,7 @@
         integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
         integer,         intent(out)   :: nti                   !(hli,10/04/17)
         real(ikind),     intent(inout) :: wseoffset             !(hli,10/04/17)
-      endsubroutine
+      end subroutine
     endinterface
     
     interface
@@ -159,7 +159,7 @@
         real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
         real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
         character(len=6), pointer :: name(:) !Tidal Consitituent names (constituent)    
-      endsubroutine
+      end subroutine
     endinterface
     
     interface
@@ -172,7 +172,7 @@
         real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
         real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
         real(ikind), pointer :: speed(:)    !Speed [rad/hrs] (constituent)
-      endsubroutine
+      end subroutine
     endinterface
     
     interface
@@ -188,7 +188,7 @@
         type(projection),intent(inout) :: projtdb !Parent grid projection
         integer,intent(inout) :: nssi      !Smoothing iterations (along string)
         integer,intent(inout) :: nssw     !Smoothing window width (along string)
-      endsubroutine 
+      end subroutine 
     endinterface
     
     !--- Initialize -----
@@ -717,7 +717,7 @@
     !endselect
     
     return
-    endsubroutine bnd_block
+    end subroutine bnd_block
         
 !*******************************************************************************    
     subroutine check_parent_files(grdfilepar,ctlfilepar)
@@ -781,4 +781,4 @@
     endif
       
     return
-    endsubroutine check_parent_files
+    end subroutine check_parent_files

@@ -191,7 +191,7 @@
     enddo
 	   
     return
-    endsubroutine out_default
+    end subroutine out_default
 
 !***************************************************************************   
     subroutine out_cards(cardname,foundcard)
@@ -851,7 +851,7 @@
         enddo
         
         return
-        endsubroutine savept_add
+        end subroutine savept_add
         
     !-------------------------------------------------------------
         subroutine savept_block
@@ -905,7 +905,7 @@
         call savept_add(ptname,cell,xsave,ysave,ngroups,group)
         
         return
-        endsubroutine savept_block
+        end subroutine savept_block
         
     !-------------------------------------------------------------
         subroutine savept_add_group(igroup,name,cell,x,y)
@@ -956,7 +956,7 @@
         endif
         
         return
-        endsubroutine savept_add_group
+        end subroutine savept_add_group
         
     !------------------------------------------------------------  
         function savept_group(group) result(idum)
@@ -980,9 +980,9 @@
         end select
         
         return
-        endfunction savept_group
+        end function savept_group
 
-    endsubroutine out_cards
+    end subroutine out_cards
 
 !*************************************************************     
     subroutine out_init()
@@ -1369,7 +1369,7 @@
 !978 call diag_print_error('Could not access output file ')
 !    return
 
-    endsubroutine out_init
+    end subroutine out_init
     
 !*******************************************************************
     subroutine out_print()
@@ -1509,7 +1509,7 @@
     close(dgunit)
     
     return
-    endsubroutine out_print
+    end subroutine out_print
 
 !**********************************************************************    
     subroutine write_output()
@@ -1535,7 +1535,7 @@
     if(save_point) call write_save_point !Save point cells, Mitch 5/8/2012
     
     return
-    endsubroutine write_output
+    end subroutine write_output
     
 !***********************************************************************    
     subroutine write_output_tecplot
@@ -1552,7 +1552,7 @@
     if(mod(ntime,12)==0) call write_tecplot_his  !History/animation file    
       
     return
-    endsubroutine write_output_tecplot
+    end subroutine write_output_tecplot
     
 !***********************************************************************    
     subroutine write_output_xmdf(header)
@@ -2500,7 +2500,7 @@ implicit none
     !endif
     
     return
-    endsubroutine write_output_sup
+    end subroutine write_output_sup
     
 !***********************************************************************    
     logical function check_time_list(id)
@@ -2515,28 +2515,37 @@ implicit none
     integer :: id
     real :: listtime
     real(ikind) :: toltime 
+    logical :: endOfList = .false.
   
     check_time_list = .false.    
     if(.not.outlist(id)%write_dat) return
 
     if(nfsch==0)then  !STACK:
       toltime = dtime/(3600.0*3.0)  !implicit
-    else           !STACK:
+    else
       toltime = dtime/(3600.0*2.0)  !explicit
-    endif          !STACK:   
+    endif
 
     do while(timehrs>(outlist(id)%times(outlist(id)%inc))+toltime)
-      outlist(id)%inc = outlist(id)%inc + 1        
+      if(outlist(id)%inc+1 .gt. outlist(id)%ntimes) then
+        endOfList = .true.
+        exit
+      else
+        outlist(id)%inc = outlist(id)%inc + 1
+      endif
     enddo
-    listtime = outlist(id)%times(outlist(id)%inc)
-    if(abs(timehrs-listtime)<toltime)then !write time     
-      timehrs = listtime
-      ctime = listtime*3600.0
-      check_time_list = .true.
-    endif    
+    
+    if (.not.endOfList) then
+      listtime = outlist(id)%times(outlist(id)%inc)
+      if(abs(timehrs-listtime)<toltime)then !write time     
+        timehrs = listtime
+        ctime = listtime*3600.0
+        check_time_list = .true.
+      endif
+    endif
    
     return
-    endfunction check_time_list
+    end function check_time_list
 
 !**********************************************************************    
     subroutine print_output_header(header)
@@ -2573,7 +2582,7 @@ implicit none
     endif
     
     return
-    endsubroutine print_output_header
+    end subroutine print_output_header
 
 !**********************************************************************    
     subroutine write_debug
@@ -2593,7 +2602,7 @@ implicit none
     endif
     
     return
-    endsubroutine write_debug
+    end subroutine write_debug
         
 !**********************************************************************    
     subroutine write_debug_xmdf
@@ -2726,7 +2735,7 @@ implicit none
 #endif
 
     return
-    endsubroutine write_debug_xmdf
+    end subroutine write_debug_xmdf
 
 !**********************************************************************    
     subroutine write_debug_sup
@@ -2768,7 +2777,7 @@ implicit none
     call write_scal_dat_file(aname,'Pres_Norm_Res','rsp',rsp)     
     
     return
-    endsubroutine write_debug_sup        
+    end subroutine write_debug_sup        
 
 !**********************************************    
     subroutine read_time_list(n)
@@ -2867,7 +2876,7 @@ implicit none
     deallocate(temp)
     
     return
-    endsubroutine read_time_list
+    end subroutine read_time_list
     
 !**********************************************    
     subroutine read_obs_cells(i)
@@ -2900,7 +2909,7 @@ implicit none
     enddo
     
     return
-    endsubroutine read_obs_cells
+    end subroutine read_obs_cells
     
 !********************************************************************************
     subroutine obs_cell_init()
@@ -2992,7 +3001,7 @@ implicit none
     enddo
     
     return
-    endsubroutine obs_cell_init
+    end subroutine obs_cell_init
     
 !********************************************************************************
     subroutine write_obs_cell
@@ -3062,7 +3071,7 @@ implicit none
     endif
     
     return
-    endsubroutine write_obs_cell
+    end subroutine write_obs_cell
         
 !********************************************************************************   
     subroutine write_obs_var(i,j,var)
@@ -3083,7 +3092,7 @@ implicit none
     close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
     
     return
-    endsubroutine write_obs_var
+    end subroutine write_obs_var
     
 !********************************************************************************   
     subroutine write_obs_velpro
@@ -3115,7 +3124,7 @@ implicit none
     close(obs(1)%units(4)) !closing the file is useful for viewing the results during the simulation
     
     return
-    endsubroutine write_obs_velpro
+    end subroutine write_obs_velpro
     
 !!********************************************************************************   
 !    subroutine write_obs_suspro
@@ -3147,7 +3156,7 @@ implicit none
 !    close(obs(1)%units(4)) !closing the file is useful for viewing the results during the simulation
 !    
 !    return
-!    endsubroutine write_obs_suspro    
+!    end subroutine write_obs_suspro    
 
 !***********************************************************************
     subroutine save_point_init
@@ -3309,7 +3318,7 @@ implicit none
       enddo
       
       return
-      endsubroutine cleanup_savept_files
+      end subroutine cleanup_savept_files
       
 !**********************************************************************     
       subroutine write_savept_header(iunit,npts,i,j)
@@ -3365,8 +3374,8 @@ implicit none
       !after this comes the actual data in the same order as POINT_NAMES above.
 
       return
-      endsubroutine write_savept_header
-    endsubroutine save_point_init
+      end subroutine write_savept_header
+    end subroutine save_point_init
     
 !***********************************************************************
     subroutine save_point_close
@@ -3391,7 +3400,7 @@ implicit none
     enddo
     
     return
-    endsubroutine save_point_close
+    end subroutine save_point_close
     
 !***********************************************************************
     subroutine write_save_point
@@ -3481,7 +3490,7 @@ implicit none
     endif
       
     return
-    endsubroutine write_save_point
+    end subroutine write_save_point
     
 !********************************************************************************   
     subroutine write_savept_scalar(i,j,var)
@@ -3508,7 +3517,7 @@ implicit none
     close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation
     
     return
-    endsubroutine write_savept_scalar
+    end subroutine write_savept_scalar
 
 !********************************************************************************   
     subroutine write_savept_vector(i,j,var1,var2)
@@ -3537,7 +3546,7 @@ implicit none
     close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation
     
     return
-    endsubroutine write_savept_vector
+    end subroutine write_savept_vector
 
 !!********************************************************************************   
 !    subroutine write_savept_velpro(i,j)
@@ -3564,7 +3573,7 @@ implicit none
 !    close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation
     !
     !return
-    !endsubroutine write_savept_velpro
+    !end subroutine write_savept_velpro
 
     
     
@@ -3609,7 +3618,7 @@ implicit none
 !    call XF_CLOSE_FILE(fid,ierr)   !Close XMDF file
 !    
 !    return
-!    endsubroutine writescalnc
+!    end subroutine writescalnc
 !
 !!**************************************************************************
 !    SUBROUTINE OPEN_CREATE_NCDATASET(OCID,STRING1,OCDID,DIM,OUNITS,OCERR)

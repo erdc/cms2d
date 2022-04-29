@@ -111,7 +111,7 @@ contains
     dstar = d*((s-1)*g/mu**2)**(1.0_ikind/3.0_ikind) 
     
     return
-    endfunction diam2dstar    
+    end function diam2dstar    
     
 !************************************************    
     subroutine diam2diamlim(nd,d,dlim)
@@ -128,7 +128,7 @@ contains
     dlim(nd+1)=d(nd)*d(nd)/dlim(nd)
     
     return
-    endsubroutine diam2diamlim
+    end subroutine diam2diamlim
 
 !************************************************    
     subroutine diamlim2diam(nd,dlim,d)
@@ -143,7 +143,7 @@ contains
     d(1:nd)=sqrt(dlim(1:nd)*dlim(2:nd+1))
     
     return
-    endsubroutine diamlim2diam
+    end subroutine diamlim2diam
     
 !********************************************************  
     subroutine sed_dper(n,d,dlim,logdlim,pb,per,dper)    
@@ -212,7 +212,7 @@ contains
     dper = exp((1.0-fac)*logdlim(ks2)+fac*logdlim(ks0)) !Interpolation in log-space
 
     return
-    endsubroutine sed_dper    
+    end subroutine sed_dper    
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Miscelaneous
@@ -249,7 +249,7 @@ contains
     ws=mu/d*(sqrt(107.3296+1.049*(1.0-cv)**4.7*ds**3)-10.36) !107.3296=10.36^2
     
     return
-    endfunction fallvel_soulsby
+    end function fallvel_soulsby
 
 !**************************************************
     function fallvel_vanrijn(g,mu,s,d) result(ws)
@@ -287,7 +287,7 @@ contains
     endif
     
     return
-    endfunction fallvel_vanrijn
+    end function fallvel_vanrijn
 
 !*********************************************************
     function fallvel_wu_wang(mu,sp,d,ds) result(ws)
@@ -321,7 +321,7 @@ contains
     ws=a/d*(sqrt(0.25+(b*ds**3)**(1.0/en))-0.5)**en
     
     return
-    endfunction fallvel_wu_wang
+    end function fallvel_wu_wang
     
 !*****************************************************
     function fallvel_zhang(g,mu,s,d) result(ws)
@@ -347,7 +347,7 @@ contains
     ws = sqrt((13.95*mu/d)**2+1.09*(s-1)*g*d)-13.95*mu/d 
     
     return
-    endfunction fallvel_zhang
+    end function fallvel_zhang
     
 !*************************************************************
     function fallvel_ruby(g,mu,s,d) result(ws)
@@ -380,7 +380,7 @@ contains
     ws = f*sqrt((s-1.0)*g*d)
 
     return
-    endfunction fallvel_ruby
+    end function fallvel_ruby
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Sediment Fall Velocity Formulas
@@ -413,7 +413,7 @@ contains
     p = 0.13 + 0.21/((diam50 + 0.002)**0.21)
     
     return
-    endfunction sed_poro_wu_wang
+    end function sed_poro_wu_wang
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>    
 ! End Bed Porosity Formulas
@@ -456,7 +456,7 @@ contains
     val = (1.0+sl/sr)**0.75*(1.0-abs(st)/sr)**0.37 !Note: repose angle always positive
     
     return
-    endfunction critslpcor_dey
+    end function critslpcor_dey
 
 !*********************************************************************
     function effshear_wu(slp,angrep,taubp,tauc) result(taube)
@@ -492,7 +492,7 @@ contains
     endif
     
     return
-    endfunction effshear_wu
+    end function effshear_wu
 
 !*****************************************************************    
     function shields_soulsby(dstar) result(thcr)
@@ -524,7 +524,7 @@ contains
     thcr = 0.3/(1.0+1.2*dstar)+0.055*(1.0-exp(-0.02*dstar))
     
     return
-    endfunction shields_soulsby
+    end function shields_soulsby
     
 !*******************************************************************************    
     function critvel_soulsby(g,h,s,d,dstar) result(Ucr)
@@ -552,7 +552,7 @@ contains
     Ucr = 7.0*((h/d)**0.1428571429)*sqrt((s-1)*g*d*thcr) !0.1428571429=1/7
     
     return
-    endfunction critvel_soulsby
+    end function critvel_soulsby
     
 !*******************************************************************************    
     function critvel_vanrijn(h,d50,d90) result(Ucrc)
@@ -585,7 +585,7 @@ contains
     endif 
     
     return
-    endfunction critvel_vanrijn
+    end function critvel_vanrijn
     
 !*******************************************************************************    
     function critvel_komar_miller(g,Tp,s,d50) result(Ucrw)
@@ -620,7 +620,7 @@ contains
     endif
     
     return
-    endfunction critvel_komar_miller
+    end function critvel_komar_miller
     
 !*****************************************************************    
     function shields_wuwang(dstar) result(thcr)
@@ -653,7 +653,7 @@ contains
     endif
     
     return
-    endfunction shields_wuwang
+    end function shields_wuwang
 
 !!************************************************************    
 !    subroutine sedscalefac(sx,sy,ux,uy,um,fcr,fb,fs)
@@ -692,7 +692,7 @@ contains
 !    enddo
 !    
 !    return
-!    endsubroutine sedscalefac
+!    end subroutine sedscalefac
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Incipient Motion Formulas
@@ -762,7 +762,7 @@ contains
     Qs = 0.012*val*d50*dstar**(-0.6) !Note: eq. the same as for Van Rijn
     
     return
-    endsubroutine sedtrans_wavcur_soulsby
+    end subroutine sedtrans_wavcur_soulsby
     
 !***************************************************************************    
     subroutine sedtrans_cur_soulsby(g,h,Uc,s,d50,d90,dstar,fcr,Qb,Qs)
@@ -810,7 +810,7 @@ contains
     Qs = 0.012*val*d50*dstar**(-0.6)
     
     return
-    endsubroutine sedtrans_cur_soulsby
+    end subroutine sedtrans_cur_soulsby
 
 !*********************************************************************************    
     subroutine sedtrans_wavcur_vanrijn(g,h,Uc,Uw,Tp,s,d50,d90,dstar,fcr,Qb,Qs)
@@ -873,7 +873,7 @@ contains
     Qs = 0.012*Uc*Me**2.4*d50*dstar**(-0.6) !L^2/T, Van Rijn (2007) II, Eq. 17 (Note: eq. the same as Soulsby-van Rijn)
     
     return
-    endsubroutine sedtrans_wavcur_vanrijn
+    end subroutine sedtrans_wavcur_vanrijn
 
 !****************************************************************************    
     subroutine sedtrans_cur_vanrijn(g,h,Uc,s,d50,d90,dstar,fcr,Qb,Qs)
@@ -929,7 +929,7 @@ contains
     Qs = 0.012*Uc*Me**2.4*d50*(dstar**(-0.6)) !L^2/T, Van Rijn (2007) II, Eq. 17, Eq. same as in Soulsby-van Rijn
     
     return
-    endsubroutine sedtrans_cur_vanrijn
+    end subroutine sedtrans_cur_vanrijn
     
 !******************************************************************  
     subroutine shearwatanabecw(rhow,d50,taub,phi,uw,Tp,taumax)
@@ -952,7 +952,7 @@ contains
     taumax = fric_wavcurmax_soulsby(taub,tauw,phi)
     
     return
-    endsubroutine shearwatanabecw
+    end subroutine shearwatanabecw
         
 !******************************************************************  
     subroutine sedtrans_wavcur_watanabe(Uc,taumax,taucr,fcr,Qtot)
@@ -967,7 +967,7 @@ contains
     Qtot = Awidg*max(0.0,taumax-fcr*taucr)*Uc
 
     return
-    endsubroutine sedtrans_wavcur_watanabe
+    end subroutine sedtrans_wavcur_watanabe
     
 !******************************************************************  
     function sedtrans_ackers_white(g,rho,h,U,ustar,s,dstar,d,p,etak) result(qtk)
@@ -1032,7 +1032,7 @@ contains
     qtk = rho*g*h*U*X
 
     return
-    endfunction sedtrans_ackers_white
+    end function sedtrans_ackers_white
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Sediment Transport Formula
@@ -1068,7 +1068,7 @@ contains
     
     psi = (1.278753/log10(19.0*dk/dm))**2 !log10(19)=1.2788
     
-    endfunction hidexp_egiazaroff
+    end function hidexp_egiazaroff
 
 !***********************************************************
     function hidexp_ashida_michiue(dk,dm) result(psi)
@@ -1096,7 +1096,7 @@ contains
     psi = dk/dm
     if(psi>=0.4) psi = (0.90309/log10(19.0*psi))**2 !log10(8)=0.90309
     
-    endfunction hidexp_ashida_michiue
+    end function hidexp_ashida_michiue
     
 !***********************************************************
     function hidexp_hayashi(dk,dm) result(psi)
@@ -1124,7 +1124,7 @@ contains
     psi = dk/dm
     if(psi>=1.0) psi = (0.90309/log10(8.0*psi))**2 !log10(8)=0.90309
     
-    endfunction hidexp_hayashi
+    end function hidexp_hayashi
 
 !***********************************************************
     function hidexp_parker(dk,d50m,cm) result(psi)
@@ -1147,7 +1147,7 @@ contains
     
     psi = (d50m/dk)**cm !Note mhe is positive
     
-    endfunction hidexp_parker
+    end function hidexp_parker
 
 !***************************************************************************
     function hidexp_wu(ns,d,k,pbm,cm) result(psi)
@@ -1188,7 +1188,7 @@ contains
     psi = (ph/pe)**cm  !Note mhe is positive
 
     return
-    endfunction hidexp_wu
+    end function hidexp_wu
     
 !***************************************************************************
     function hidexp_day(d16,d50,d84,d) result(etak)
@@ -1220,7 +1220,7 @@ contains
     etak = 1.0/(0.4*(d/dA)**(-0.5)+0.6)
 
     return
-    endfunction hidexp_day
+    end function hidexp_day
     
 !***************************************************************************    
     function hidexp_proffitt_sutherland(theta,d50,d) result(etak)
@@ -1264,7 +1264,7 @@ contains
     endif
 
     return
-    endfunction hidexp_proffitt_sutherland
+    end function hidexp_proffitt_sutherland
 
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Hiding and Exposure Formula
@@ -1312,7 +1312,7 @@ contains
     alphas = max(min(alphas,30.0),0.1) !Limit values
     
     return
-    endfunction adaptsusp_armanini_disilvio
+    end function adaptsusp_armanini_disilvio
     
 !!******************************************************************************
 !    function armanini_disilvio_test(hi,z0i,wsi,ustar) result(alphas)
@@ -1332,7 +1332,7 @@ contains
 !    alphas = max(min(alphas,30.0),0.1)
 !    
 !    return
-!    endfunction armanini_disilvio_test
+!    end function armanini_disilvio_test
     
 !******************************************************************* 
     function adaptsusp_lin(ws,ustar) result(alphas)
@@ -1361,7 +1361,7 @@ contains
     alphas = max(min(alphas,30.0),0.1)  !Limit values
     
     return
-    endfunction adaptsusp_lin 
+    end function adaptsusp_lin 
     
 !*******************************************************************
     function adaptsusp_gallappatti(hi,uvi,wsi,ustar) result(Ts)
@@ -1382,7 +1382,7 @@ contains
     Ts = max(Ts,0.2) !Lower limit proposed by Xbeach
     
     return
-    endfunction adaptsusp_gallappatti
+    end function adaptsusp_gallappatti
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Adaptation Coefficients
@@ -1426,7 +1426,7 @@ contains
     ub = 1.5*sqrt((s-1.0)*g*d)*stage**0.6 !Van Rijn (1984)
     
     return
-    endfunction bedvel_vanrijn
+    end function bedvel_vanrijn
 
 !*********************************************************************
     function bedvel_vanrijn_wu(g,taubp,taucr,s,d) result(ub)
@@ -1467,7 +1467,7 @@ contains
     ub = 1.64*sqrt((s-1.0)*g*d*stage)
     
     return
-    endfunction bedvel_vanrijn_wu
+    end function bedvel_vanrijn_wu
     
 !********************************************************************
     function bedvel_fredsoe(rhow,taubp,taucr,taumaxp) result(ub)
@@ -1505,7 +1505,7 @@ contains
     endif
     
     return
-    endfunction bedvel_fredsoe
+    end function bedvel_fredsoe
     
 !******************************************************************
     function bedvel_greimann(g,thetap,thetaref,s,d) result(ub)
@@ -1545,10 +1545,10 @@ contains
     ub = 1.1*sqrt((s-1.0)*g*d)*phi**0.67*(1.0-exp(-5.0*phi))
     
     return
-    endfunction bedvel_greimann
+    end function bedvel_greimann
     
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ! End Sediment Velocities
 !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-endmodule sed_lib
+end module sed_lib

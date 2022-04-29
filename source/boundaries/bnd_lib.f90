@@ -90,7 +90,7 @@ contains
     endif
     
     return
-    endsubroutine read_bndstr    
+    end subroutine read_bndstr    
     
 #ifdef XMDF_IO
 !*****************************************************************************
@@ -132,7 +132,7 @@ contains
     deallocate(idtemp)
         
     return
-    endsubroutine read_cellstr_h5
+    end subroutine read_cellstr_h5
 #endif
 
 !*****************************************************************************
@@ -177,7 +177,7 @@ contains
     call diag_print_error('Could not read Boundary ID File: ',bidfile)
     
     return
-    endsubroutine bnd_read_str_bid
+    end subroutine bnd_read_str_bid
     
 !*****************************************************************************
     subroutine bnd_read_nodestr_2dm(idbnd,nstrnodes,jnodes)   
@@ -211,7 +211,7 @@ contains
     jnodes=bc_str(idbnd)%nodes
     
     return
-    endsubroutine bnd_read_nodestr_2dm
+    end subroutine bnd_read_nodestr_2dm
     
 !*************************************************************
     subroutine cellstr_bnd(nstrcells,icells,kfaces)
@@ -315,7 +315,7 @@ contains
     kfaces(1:nstrcells) = kfacetemp(1:nstrcells)
     
     return
-    endsubroutine cellstr_bnd 
+    end subroutine cellstr_bnd 
     
 !*************************************************************
     subroutine cellstr_bnd_old(nstrcells,icells,kfaces)
@@ -377,7 +377,7 @@ contains
     kfaces(1:nstrcells) = kfacetemp(1:nstrcells)
     
     return
-    endsubroutine cellstr_bnd_old
+    end subroutine cellstr_bnd_old
     
 !*****************************************************************************
     subroutine nodestr_bnd(nstrnodes,jnodes,nstrcells,icells,kfaces)   
@@ -429,7 +429,7 @@ contains
     enddo !j node pair
     
     return
-    endsubroutine nodestr_bnd
+    end subroutine nodestr_bnd
 
 !*************************************************************************
     subroutine read_fluxdata(datfile,datpath,ntimes,times,fluxes)
@@ -478,7 +478,7 @@ contains
     endif 
 
     return
-    endsubroutine read_fluxdata
+    end subroutine read_fluxdata
 
 !*****************************************************************************
     subroutine read_offsetwsedata(datfile,datpath,ntimes,times,wseoffset)
@@ -528,7 +528,7 @@ contains
     endif
     
     return
-    endsubroutine read_offsetwsedata
+    end subroutine read_offsetwsedata
 
 !*****************************************************************************
     subroutine read_snglwsedata(datfile,datpath,ntimes,times,wse)
@@ -576,7 +576,7 @@ contains
     endif
     
     return
-    endsubroutine read_snglwsedata
+    end subroutine read_snglwsedata
 
 !***************************************************************************************
     subroutine read_multiwsedata(datfile,datpath,nstrcells,icells,ntimes,times,wsedata)
@@ -621,7 +621,7 @@ contains
     endif
     
     return
-    endsubroutine read_multiwsedata
+    end subroutine read_multiwsedata
 
 !********************************************************************************************
     subroutine read_multiveldata(datfile,datpath,nstrcells,icells,ntimes,times,udata,vdata)
@@ -679,7 +679,7 @@ contains
     endif    
       
     return
-    endsubroutine read_multiveldata
+    end subroutine read_multiveldata
     
 #ifdef XMDF_IO
 !**********************************************************************************
@@ -726,7 +726,7 @@ contains
     deallocate(ftemp)
 
     return
-    endsubroutine read_multiwseh5
+    end subroutine read_multiwseh5
  
 !************************************************************************************************
     subroutine read_multivelh5(datfile,datpath,nstrcells,icells,ntimes,times,udata,vdata)
@@ -795,7 +795,7 @@ contains
     deallocate(ftemp,ftemp2)
      
     return
-    endsubroutine read_multivelh5
+    end subroutine read_multivelh5
   
 !************************************************************************************************
     subroutine read_multiwsevelh5(datfile,datpath,nstrcells,icells,ntimes,times,wsevel)
@@ -873,7 +873,7 @@ contains
     deallocate(ftemp,ftemp2)
      
     return
-    endsubroutine read_multiwsevelh5
+    end subroutine read_multiwsevelh5
 #endif
 
-endmodule bnd_lib
+end module bnd_lib

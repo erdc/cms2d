@@ -83,4 +83,4 @@ module struct_def
     character(len=200) :: astructmethfile,astructmethpath
     character(len=34)  :: methrm           !hli(12/11/12)
 
-endmodule struct_def
+end module struct_def

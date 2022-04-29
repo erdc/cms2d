@@ -37,4 +37,4 @@ module sal_def
     endtype sal_driver
     type(sal_driver), allocatable :: sal_str(:)
     
-endmodule sal_def
+end module sal_def

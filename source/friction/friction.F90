@@ -62,7 +62,7 @@
     biodegradhalflife = 50.0*3600.0 !Biodegradation half-life [sec]
     
     return
-    endsubroutine fric_default
+    end subroutine fric_default
 
 !*************************************************************   
     subroutine fric_cards(cardname,foundcard)
@@ -175,7 +175,7 @@
       backspace(77)
       read(77,*) cardname,roughscaleripple
       
-    case('DUNE_ROUGHNESS_SCALE_FACTOR','DUEN_ROUGHNESS_SCALING_FACTOR',&
+    case('DUNE_ROUGHNESS_SCALE_FACTOR','DUNE_ROUGHNESS_SCALING_FACTOR',&
          'DUNE_ROUGH_SCALE_FACTOR')  
       backspace(77)
       read(77,*) cardname,roughscaledune
@@ -191,6 +191,7 @@
       
     case('MANNINGS_N_DATASET','MANNING_N_DATASET','MANNINGS_DATASET','MANNNING_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
+      if (fricfile .eq. '') call diag_print_error("User did not associate a Manning's N dataset. Please correct and restart.")  !MEB  04/07/2022
       mbedfric = 2     
       constbotfric = .false.
     
@@ -202,6 +203,7 @@
           
     case('BOTTOM_FRICTION_COEF_DATASET','BOTTOM_FRICTION_DATASET','FRICTION_COEFFICIENT_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
+      if (fricfile .eq. '') call diag_print_error("User did not associate a Bottom Friction Coefficient dataset. Please correct and restart.")  !MEB  04/07/2022
       mbedfric = 1 
       constbotfric = .false.
         
@@ -220,6 +222,7 @@
           
     case('ROUGHNESS_HEIGHT_DATASET','ROUGHNESS_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
+      if (fricfile .eq. '') call diag_print_error("User did not associate a Roughness Height dataset. Please correct and restart.")  !MEB  04/07/2022
       mbedfric = 3    
       constbotfric = .false.
         
@@ -271,7 +274,7 @@
     endselect
     
     return
-    endsubroutine fric_cards
+    end subroutine fric_cards
 
 !***********************************************************************
     subroutine fric_init()
@@ -422,7 +425,7 @@
     endif
     
     return
-    endsubroutine fric_init
+    end subroutine fric_init
     
 !**************************************************    
     subroutine rough_read_error_msg(afile,apath)
@@ -439,7 +442,7 @@
       '  Check input files and restart')
     
     stop         
-    endsubroutine
+    end subroutine
 
 !**************************************************    
     subroutine rough_read_error_msg2(afile)
@@ -454,7 +457,7 @@
       '  Check input files and restart')
     
     stop         
-    endsubroutine
+    end subroutine
 
 !**************************************************
     subroutine fric_print()
@@ -556,7 +559,7 @@
     close(dgunit)            
 
     return        
-    endsubroutine fric_print
+    end subroutine fric_print
     
 !***********************************************************************
     function fric_bed(hi,Cd,z0i,ui,vi,usi,vsi,Uws,Uwr,Twr,Dw) result(cbu)
@@ -593,7 +596,7 @@
     cbu=Cd*Uwc
     
     return
-    endfunction fric_bed
+    end function fric_bed
     
 !***********************************************************************
     subroutine fric_eval()
@@ -778,7 +781,7 @@
     !!bsvel=0.0
     
     return
-    endsubroutine fric_eval
+    end subroutine fric_eval
     
 !*******************************************************************************
     subroutine fric_rough_eval
@@ -819,7 +822,7 @@
     enddo
     
     return
-    endsubroutine fric_rough_eval
+    end subroutine fric_rough_eval
         
 !*******************************************************************************
     subroutine fric_roughness( &
@@ -919,5 +922,5 @@
     !rksc = max(rksc,1.0e-4)
         
     return
-    endsubroutine fric_roughness
+    end subroutine fric_roughness
     

@@ -30,7 +30,7 @@
     statfile = trim(flowpath) // trim(casename) // '_stat.h5'    
     
     return
-    endsubroutine stat_default
+    end subroutine stat_default
     
 !***************************************************************************   
     subroutine stat_cards(cardname,foundcard)
@@ -91,7 +91,7 @@
     endselect
     
     return
-    endsubroutine stat_cards
+    end subroutine stat_cards
     
 !***********************************************************    
     subroutine stat_init
@@ -166,7 +166,7 @@
     if(wavestats) call stat_init_wave        
     
     return
-    endsubroutine stat_init
+    end subroutine stat_init
 
 !*********************************************************************************
     subroutine stat_init_flow
@@ -317,7 +317,7 @@
     !qareachg=temp
     
     return
-    endsubroutine stat_init_flow
+    end subroutine stat_init_flow
   
 !*********************************************************************
     subroutine stat_init_sed
@@ -350,7 +350,7 @@
     rsCtm = 0.0
     
     return
-    endsubroutine stat_init_sed
+    end subroutine stat_init_sed
 
 !************************************************************
     subroutine stat_init_sal
@@ -383,7 +383,7 @@
     rsSalm = 0.0
     
     return
-    endsubroutine stat_init_sal
+    end subroutine stat_init_sal
     
 !************************************************************************
     subroutine stat_init_wave
@@ -407,7 +407,7 @@
     wdissmax = 0.0
       
     return
-    endsubroutine stat_init_wave
+    end subroutine stat_init_wave
     
 !***********************************************************    
     subroutine stat_print()
@@ -435,23 +435,25 @@
       subroutine stat_print_group(iuniti,groupname,tgroupstat)
 !---------------------------------------------------------------------
       use prec_def
+      use tool_def
       implicit none
       integer          :: iuniti,ierr
       real(ikind)      :: tgroupstat(3)
       character(len=*) :: groupname
     
+354   format(' ',A,T40,A,A)    !Added for vstrlz function results
 451   format(' ',A,T40,F0.2,A)
 888   format(' ',A,T40,A)
       write(iuniti,*)    
       write(iuniti,888) trim(groupname)//' Statistics:','ON'
-      write(iuniti,451) '  Starting at:',tgroupstat(1)/3600.0,' hrs'
+      write(iuniti,354) '  Starting at:',trim(vstrlz(tgroupstat(1)/3600.0,'(f0.3)')),' hrs'
       write(iuniti,451) '  Ending at:',tgroupstat(2)/3600.0,' hrs'
       write(iuniti,451) '  Duration:',(tgroupstat(2)-tgroupstat(1))/3600.0,' hrs'
       write(iuniti,451) '  Update Interval:',tgroupstat(3)/3600.0,' hrs'
     
       return
-      endsubroutine stat_print_group 
-    endsubroutine stat_print
+      end subroutine stat_print_group 
+    end subroutine stat_print
     
 !***************************************************************************
     subroutine stat_update()
@@ -468,7 +470,7 @@
     if(wavestats) call stat_update_wave  !Wave statistics
     
     return
-    endsubroutine stat_update
+    end subroutine stat_update
     
 !***************************************************************************
     subroutine stat_update_flow()
@@ -752,7 +754,7 @@
     endif
     
     return
-    endsubroutine stat_update_flow
+    end subroutine stat_update_flow
     
 !***********************************************************    
     subroutine stat_update_sed()
@@ -853,7 +855,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine stat_update_sed
+    end subroutine stat_update_sed
     
 !***********************************************************    
     subroutine stat_update_sal()
@@ -918,7 +920,7 @@
 !$OMP END PARALLEL DO
     
     return
-    endsubroutine stat_update_sal
+    end subroutine stat_update_sal
     
 !***********************************************************    
     subroutine stat_update_wave
@@ -994,7 +996,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine stat_update_wave    
+    end subroutine stat_update_wave    
     
 !*****************************************************************************************
     subroutine stat_write_flow()
@@ -1147,7 +1149,7 @@
     end select
     
     return
-    endsubroutine stat_write_flow
+    end subroutine stat_write_flow
     
 !********************************************************************************************
     subroutine stat_write_sed()
@@ -1216,7 +1218,7 @@
     end select
     
     return
-    endsubroutine stat_write_sed
+    end subroutine stat_write_sed
     
 !****************************************************************************************
     subroutine stat_write_sal()
@@ -1272,7 +1274,7 @@
       endif
     end select 
     return
-    endsubroutine stat_write_sal
+    end subroutine stat_write_sal
     
 !*****************************************************************************************    
     subroutine stat_write_wave()
@@ -1334,7 +1336,7 @@
     end select
 
     return
-    endsubroutine stat_write_wave
+    end subroutine stat_write_wave
     
 !***********************************************************    
     subroutine stat_read()
@@ -1439,4 +1441,4 @@
       end select   
     
     return
-    endsubroutine stat_read
+    end subroutine stat_read

@@ -209,7 +209,7 @@ contains
     endif
     
     return
-    endsubroutine read_parent_cmcards
+    end subroutine read_parent_cmcards
 
 !**************************************************************************    
     subroutine read_parent_grid_tel(grdfilepar,ncellspar,ncellsfullpar,&
@@ -275,7 +275,7 @@ contains
     ncellspar = sum(activepar)
     
     return
-    endsubroutine read_parent_grid_tel
+    end subroutine read_parent_grid_tel
     
 #ifdef XMDF_IO
 !****************************************************************************************    
@@ -361,7 +361,7 @@ contains
     deallocate(dxxpar,dyypar)
     
     return
-    endsubroutine read_parent_grid_xmdf
+    end subroutine read_parent_grid_xmdf
 
 !********************************************************************************
     subroutine readparscalsteph5(afile,apath,nptspar,inc,thrs,var,ierr)
@@ -412,7 +412,7 @@ contains
     call XF_CLOSE_FILE(fid,ierr)
       
     return
-    endsubroutine readparscalsteph5
+    end subroutine readparscalsteph5
 
 !********************************************************************************
     subroutine readparvecsteph5(afile,apath,inc,nptspar,thrs,vecx,vecy,ierr)
@@ -467,7 +467,7 @@ contains
     call XF_CLOSE_FILE(fid,ierr)
       
     return
-    endsubroutine readparvecsteph5
+    end subroutine readparvecsteph5
 #endif
     
 !******************************************************************************************
@@ -566,7 +566,7 @@ contains
     !endif
     
     return
-    endsubroutine nestParentCMS_init
+    end subroutine nestParentCMS_init
     
 !***********************************************************************************
     subroutine nestParentADCIRC_init(grdfilepar,nnodesfullpar,projpar,&
@@ -672,7 +672,7 @@ contains
     if(present(angvel)) angvel = azimuth_fl*deg2rad
     
     return
-    endsubroutine nestParentADCIRC_init
+    end subroutine nestParentADCIRC_init
        
 !**********************************************************************************
     subroutine tdb_init(tdbname,tdbpath,projtdb,nbnd,xbnd,ybnd,niter,mwin,&
@@ -854,7 +854,7 @@ contains
     enddo
     
     return
-    endsubroutine tdb_init
+    end subroutine tdb_init
         
 !***************************************************************************
     subroutine interp_nest(nptspar,nbnd,mntp,intp,cntp,valdry,varpar,varnest)
@@ -898,7 +898,7 @@ contains
     enddo
     
     return
-    endsubroutine interp_nest
+    end subroutine interp_nest
     
 !************************************************************************************
     subroutine nest_wse_eval(ntipar,timewsehrspar,nptspar,wsepar,&
@@ -1040,7 +1040,7 @@ contains
     !endif
 
     return
-    endsubroutine nest_wse_eval
+    end subroutine nest_wse_eval
     
 !*************************************************************************************
     subroutine nest_vel_eval(ntipar,timevelhrspar,nptspar,upar,vpar,&
@@ -1232,7 +1232,7 @@ contains
     enddo
     
     return
-    endsubroutine nest_vel_eval
+    end subroutine nest_vel_eval
 
 !***************************************************    
     subroutine interp_gap(n,igap,a)
@@ -1282,6 +1282,6 @@ contains
     enddo !index loop
     
     return
-    endsubroutine interp_gap
+    end subroutine interp_gap
 
-endmodule nest_lib
+end module nest_lib

@@ -45,7 +45,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine hidexpEgiazaroff
+    end subroutine hidexpEgiazaroff
     
 !************************************************************************
     subroutine HidExpAshidaMichiue
@@ -78,7 +78,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine HidExpAshidaMichiue    
+    end subroutine HidExpAshidaMichiue    
 
 !************************************************************************
     subroutine HidExpHayashi
@@ -111,7 +111,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine HidExpHayashi      
+    end subroutine HidExpHayashi      
     
 !************************************************************************
     subroutine HidExpParker
@@ -136,7 +136,7 @@
 !$OMP END PARALLEL DO
 
     return     
-    endsubroutine hidexpparker    
+    end subroutine hidexpparker    
     
 !************************************************************************
     subroutine HidExpWu
@@ -162,4 +162,4 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine HidExpWu
+    end subroutine HidExpWu

@@ -32,7 +32,7 @@
     waveradfac = 0.0
     
     return
-    endsubroutine steering_default
+    end subroutine steering_default
     
 !**************************************************************
     subroutine steering_cards(cardname)    
@@ -187,7 +187,7 @@
     endselect    
 
     return
-    endsubroutine steering_cards
+    end subroutine steering_cards
 
 !*******************************************************************
     subroutine steer_init()
@@ -311,7 +311,7 @@
 !    enddo
     
     return
-    endsubroutine steer_init
+    end subroutine steer_init
 
 !*******************************************************************
     subroutine wave_flgrid_init
@@ -379,7 +379,7 @@
     Ssr = 0.0
     
     return
-    endsubroutine wave_flgrid_init
+    end subroutine wave_flgrid_init
     
 !***********************************************************************
     subroutine flow_wavegrid_init
@@ -404,7 +404,7 @@
     iiflcell = 0; coefintp_flwav = 0.0
     
     return
-    endsubroutine flow_wavegrid_init
+    end subroutine flow_wavegrid_init
 
 !***********************************************************************
     subroutine wave_wavegrid_init
@@ -428,7 +428,7 @@
     wcos=0.0; wsin=0.0
     
     return
-    endsubroutine wave_wavegrid_init
+    end subroutine wave_wavegrid_init
     
 !***********************************************************************
     subroutine interp_coef_flwav()
@@ -582,7 +582,7 @@
     !close(4234)
 
     return 
-    endsubroutine interp_coef_flwav
+    end subroutine interp_coef_flwav
     
 !***********************************************************************
     subroutine interp_coef_wavfl()
@@ -694,7 +694,7 @@
     !!close(91) 
               
     return 
-    endsubroutine interp_coef_wavfl    
+    end subroutine interp_coef_wavfl    
 
 !***********************************************************************
     subroutine interp_scal_flwav(varflow,varwave,iextrap)
@@ -725,7 +725,7 @@
            varwave,valdry,iextrap)
 
     return 
-    endsubroutine interp_scal_flwav   
+    end subroutine interp_scal_flwav   
     
 !***********************************************************************
     subroutine interp_vec_flwav(vecxflow,vecyflow,&
@@ -757,7 +757,7 @@
            vecxwave,vecywave,valdry,iextrap)
 
     return 
-    endsubroutine interp_vec_flwav    
+    end subroutine interp_vec_flwav    
 
 !***********************************************************************
     subroutine setwave()
@@ -1067,7 +1067,7 @@
 !    close(254)
              
     return
-    endsubroutine setwave
+    end subroutine setwave
 
 !***********************************************************************
     subroutine interp_scal_wavfl(varwave,varflow)
@@ -1097,7 +1097,7 @@
            ncellsD,ncellsD,varflow,valdry,iextrap) !Note: Ghost cells are also interpolated
 
     return 
-    endsubroutine interp_scal_wavfl
+    end subroutine interp_scal_wavfl
     
 !***********************************************************************
     subroutine interp_vec_wavfl(vecxwave,vecywave,vecxflow,vecyflow)
@@ -1127,7 +1127,7 @@
            ncellsD,ncellsD,vecxflow,vecyflow,valdry,iextrap) !Note: Ghost cells are also interpolated
 
     return 
-    endsubroutine interp_vec_wavfl    
+    end subroutine interp_vec_wavfl    
             
 !***********************************************************************
     subroutine getwave()
@@ -1360,7 +1360,7 @@
     write(*,'(A)') ' Wave-to-flow interpolation complete'
 
     return 
-    endsubroutine getwave
+    end subroutine getwave
 
 !**********************************************************************
     subroutine check_wave_var(ni,nj,val,name,ierr)
@@ -1393,7 +1393,7 @@
     close(dgunit)
     
     return 
-    endsubroutine check_wave_var
+    end subroutine check_wave_var
 
 !**********************************************************************
     subroutine smooth_wavegrid_scal(val,niter,ibc)
@@ -1491,7 +1491,7 @@
     endselect
     
     return
-    endsubroutine smooth_wavegrid_scal
+    end subroutine smooth_wavegrid_scal
     
 !**********************************************************************
     subroutine smooth_wavegrid_vec(vecx,vecy,niter)
@@ -1558,7 +1558,7 @@
     enddo    
     
     return
-    endsubroutine smooth_wavegrid_vec    
+    end subroutine smooth_wavegrid_vec    
     
 !**********************************************************************
     subroutine smooth_flowgrid_scal(val,niter)
@@ -1604,7 +1604,7 @@
     enddo
     
     return 
-    endsubroutine smooth_flowgrid_scal
+    end subroutine smooth_flowgrid_scal
     
 !**********************************************************************
     subroutine smooth_flowgrid_vec(vecx,vecy,niter)
@@ -1654,7 +1654,7 @@
     enddo
     
     return 
-    endsubroutine smooth_flowgrid_vec    
+    end subroutine smooth_flowgrid_vec    
 
 !***********************************************************************
     subroutine wave_eval()
@@ -1879,7 +1879,7 @@
 !$OMP END PARALLEL
 
     return 
-    endsubroutine wave_eval
+    end subroutine wave_eval
     
 !***********************************************************************
     subroutine wave_wetdry()
@@ -1978,7 +1978,7 @@
     endif
     
     return
-    endsubroutine wave_wetdry
+    end subroutine wave_wetdry
 
 !***********************************************************************
     subroutine tidevalue(tswave2,tide2)
@@ -2096,7 +2096,7 @@
     tide2 = tide2/max(real(ibnd,kind=ikind),1.0)
     
     return
-    endsubroutine tidevalue
+    end subroutine tidevalue
     
 !****************************************    
     subroutine freememory_fl_wav
@@ -2112,4 +2112,4 @@
     deallocate(dxwav,dywav)    
     
     return
-    endsubroutine freememory_fl_wav
+    end subroutine freememory_fl_wav

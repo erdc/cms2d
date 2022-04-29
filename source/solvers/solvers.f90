@@ -30,7 +30,7 @@
     iconv = 1
     
     return
-    endsubroutine solv_default
+    end subroutine solv_default
     
 !*************************************************************   
     subroutine solv_block(kunit,xsolv)
@@ -87,7 +87,7 @@ d1: do k=1,10
     enddo d1
     
     return
-    endsubroutine solv_block
+    end subroutine solv_block
     
 !***********************************************************************
     subroutine solv_init
@@ -199,7 +199,7 @@ d1: do k=1,10
     endif
     
     return
-    endsubroutine solv_init    
+    end subroutine solv_init    
     
 !*******************************************************************************
     subroutine solve(acoef,ss,sp,res,phi,n)
@@ -303,5 +303,5 @@ d1: do k=1,10
     endif
     
     return
-    endsubroutine solve
+    end subroutine solve
     

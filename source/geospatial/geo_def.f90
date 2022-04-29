@@ -16,7 +16,7 @@ module size_def
     integer:: ndmaxfaces   !Maximum # of faces per dimension per cell
     integer:: nmaxcells    !Maximum # of cells per node
     integer:: nmaxextcells !Maximum # of cells in extended stencil
-endmodule size_def
+end module size_def
 
 !===================================================================
 module geo_def
@@ -146,5 +146,5 @@ module geo_def
     type(zonetype), allocatable :: zones(:)
     character(len=200) :: HProj,VProj     !added to keep track on projection
     
-endmodule geo_def 
+end module geo_def 
 

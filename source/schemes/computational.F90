@@ -34,7 +34,7 @@
     call defcorparagrad(dphix,dphiy,ssphi)    
     
     return
-    endsubroutine defcorpara
+    end subroutine defcorpara
     
 !***************************************************************************
     subroutine defcorparagrad(dphix,dphiy,ssphi)
@@ -142,7 +142,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine defcorparagrad
+    end subroutine defcorparagrad
 
 !***************************************************************************
     subroutine defcorparagradvec(dudx,dudy,dvdx,dvdy,ssu,ssv)
@@ -259,7 +259,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine defcorparagradvec
+    end subroutine defcorparagradvec
     
 !***********************************************************************
     subroutine defcorhlpa(phi,ssphi)
@@ -328,7 +328,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine defcorhlpa
+    end subroutine defcorhlpa
     
 !***********************************************************************
     subroutine defcorhlpavec(u,v,ssu,ssv)
@@ -407,7 +407,7 @@
 !$OMP END PARALLEL
 
     return
-    endsubroutine defcorhlpavec
+    end subroutine defcorhlpavec
     
 !***********************************************************************
     subroutine defcorgamma(schmdefcor,phi,ssphi)
@@ -439,7 +439,7 @@
         implicit none
         real(ikind),intent(in) :: phin
         real(ikind) :: schmdefcor
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -484,7 +484,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine defcorgamma
+    end subroutine defcorgamma
     
 !***********************************************************************
     subroutine defcorgammavec(schmdefcor,u,v,ssu,ssv)
@@ -517,7 +517,7 @@
         implicit none
         real(ikind),intent(in) :: phin
         real(ikind) :: schmdefcor
-      endfunction
+      end function
     endinterface
 
 !$OMP PARALLEL
@@ -572,7 +572,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine defcorgammavec    
+    end subroutine defcorgammavec    
     
 !***********************************************************************
     subroutine defcorhlpagrad(phi,dphix,dphiy,ssphi)
@@ -767,7 +767,7 @@
 !$OMP END PARALLEL  
 
     return
-    endsubroutine defcorhlpagrad
+    end subroutine defcorhlpagrad
 
 !***********************************************************************
     subroutine defcorgammagrad(schmdefcor,phi,dphix,dphiy,ssphi)
@@ -797,7 +797,7 @@
         implicit none
         real(ikind),intent(in) :: phin
         real(ikind) :: schmdefcor
-      endfunction
+      end function
     endinterface
 
 !--- All other types of grids ------------------------
@@ -972,7 +972,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine defcorgammagrad
+    end subroutine defcorgammagrad
     
 !***********************************************************************
     subroutine defcorhlpagradvecnew(u,v,dudx,dudy,dvdx,dvdy,ssu,ssv)
@@ -1091,7 +1091,7 @@
 !$OMP END PARALLEL  
 
     return
-    endsubroutine defcorhlpagradvecnew    
+    end subroutine defcorhlpagradvecnew    
     
 !***********************************************************************
     subroutine defcorhlpagradvec(u,v,dudx,dudy,dvdx,dvdy,ssu,ssv)
@@ -1359,7 +1359,7 @@
 !$OMP END PARALLEL  
 
     return
-    endsubroutine defcorhlpagradvec
+    end subroutine defcorhlpagradvec
 
 !****************************************************************************
     subroutine defcorgammagradvec(schmdefcor,u,v,dudx,dudy,dvdx,dvdy,ssu,ssv)
@@ -1391,7 +1391,7 @@
         implicit none
         real(ikind),intent(in) :: phin
         real(ikind) :: schmdefcor
-      endfunction
+      end function
     endinterface
 
 !--- All other types of grids ------------------------
@@ -1650,7 +1650,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine defcorgammagradvec
+    end subroutine defcorgammagradvec
     
 !******************************************************************************
     subroutine defcorgammagradvecold(schmdefcor,u,v,dudx,dudy,dvdx,dvdy,ssu,ssv)
@@ -1681,7 +1681,7 @@
         implicit none
         real(ikind),intent(in) :: phin
         real(ikind) :: schmdefcor
-      endfunction
+      end function
     endinterface
  
 !--- All other types of grids ------------------------
@@ -1912,7 +1912,7 @@
 !$OMP END PARALLEL
     
     return
-    endsubroutine defcorgammagradvecold
+    end subroutine defcorgammagradvecold
 
 !**************************************************    
     function isnankind(a) result(nan)
@@ -1929,7 +1929,7 @@
       nan = .false. 
     endif 
     
-    endfunction isnankind
+    end function isnankind
     
 !**************************************************    
     function isnansingle(a) result(nan)
@@ -1945,7 +1945,7 @@
       nan = .false. 
     endif 
     
-    endfunction isnansingle
+    end function isnansingle
     
 !**************************************************    
     function isnandouble(a) result(nan)
@@ -1961,7 +1961,7 @@
       nan = .false. 
     endif 
     
-    endfunction isnandouble    
+    end function isnandouble    
         
 !*****************************************************************************    
     function adbk(n,a,b) result(res)
@@ -2002,7 +2002,7 @@
     res = temp
 
     return
-    endfunction adbk
+    end function adbk
     
 !*****************************************************************************    
     function adak(n,a) result(res)
@@ -2044,7 +2044,7 @@
     res = temp
 
     return
-    endfunction adak
+    end function adak
         
 !*****************************************************************************
     subroutine aesmbpak(n,s,b,a)
@@ -2085,7 +2085,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine aesmbpak
+    end subroutine aesmbpak
     
 !*****************************************************************************
     subroutine ceambk(n,a,b,c)
@@ -2128,7 +2128,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine ceambk
+    end subroutine ceambk
     
 !*****************************************************************************
     subroutine aeambk(n,a,b)
@@ -2170,7 +2170,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine aeambk
+    end subroutine aeambk
 
 !*****************************************************************************
     subroutine aeapbk(n,a,b)
@@ -2212,7 +2212,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine aeapbk
+    end subroutine aeapbk
         
 !*****************************************************************************
     subroutine aesmak(n,s,a)
@@ -2262,7 +2262,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine aesmak
+    end subroutine aesmak
 
 !*****************************************************************************
     subroutine aesmbk(n,s,b,a)
@@ -2313,7 +2313,7 @@
 !$OMP END PARALLEL DO
 
     return
-    endsubroutine aesmbk
+    end subroutine aesmbk
     
 !*****************************************************************************
     function sumabsk(n,a) result(res)
@@ -2360,7 +2360,7 @@
     res = temp
 
     return
-    endfunction sumabsk
+    end function sumabsk
         
 !*****************************************************************************
     subroutine aesumbmck(n,n2,b,c,a)
@@ -2390,7 +2390,7 @@
     enddo
     
     return
-    endsubroutine aesumbmck
+    end subroutine aesumbmck
         
 !***********************************************
     subroutine smooth1d(niter,m,n,x)
@@ -2418,7 +2418,7 @@
     enddo  
     
     return
-    endsubroutine smooth1d
+    end subroutine smooth1d
     
 !***********************************************
     subroutine smoothampdir(numiter,m,n,a,d)
@@ -2456,7 +2456,7 @@
     enddo
 
     return
-    endsubroutine smoothampdir
+    end subroutine smoothampdir
 
 !***********************************************
     subroutine avgampdir(n,a,d,aavg,davg)
@@ -2494,7 +2494,7 @@
     endif
 
     return
-    endsubroutine avgampdir
+    end subroutine avgampdir
     
 !***********************************************
     subroutine conv1d(m,w,n,x)
@@ -2539,7 +2539,7 @@
     enddo
     
     return
-    endsubroutine conv1d
+    end subroutine conv1d
 
 !***********************************************
     subroutine moving_average(niter,m,n,x)
@@ -2580,7 +2580,7 @@
     enddo    
     
     return
-    endsubroutine moving_average
+    end subroutine moving_average
        
 !**********************************************************************
     subroutine rotate_vector(nsize,ncalc,theta,vecx,vecy)
@@ -2611,7 +2611,7 @@
 !$OMP END PARALLEL DO
 
     return 
-    endsubroutine rotate_vector
+    end subroutine rotate_vector
     
 !**********************************************************************
     subroutine pca(nsize,ncalc,vx,vy,ap,am,s11,s22,Rxy)
@@ -2650,4 +2650,4 @@
     !s12 = 0 %principle covariance is always zero
 
     return 
-    endsubroutine pca    
+    end subroutine pca    
