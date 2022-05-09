@@ -29,7 +29,7 @@ contains
     
     do j=1,2
       write(junit(j),*)
-      selectcase(neq)
+      select case(neq)
         case(1)
           write(junit(j),*) 'ERROR in solving the pressure equation'
         case(2)
@@ -42,7 +42,7 @@ contains
           write(junit(j),*) 'ERROR in solving the salinity transport equation'      
         case(6)
           write(junit(j),*) 'ERROR in solving the temperature transfer equation'
-      endselect
+      end select
       write(junit(j),*) 'Flow Iteration:',niter
       if(allocated(mapid))then
         write(junit(j),*) 'Cell ID:',mapid(i)

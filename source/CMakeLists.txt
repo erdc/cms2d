@@ -181,6 +181,7 @@ SET( CMS_SOURCE_FILES
   ./utilities/math_test.F90
   ./utilities/time_lib.F90
   ./utilities/time_test.F90
+  ./utilities/tool_def.f90
   ./utilities/tools.F90
   ./utilities/unitconv_lib.F90
   ./utilities/watch_def.F90

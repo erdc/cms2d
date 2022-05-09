@@ -116,16 +116,16 @@
       call watch_start('flow_imp outer uv')
       call watch_start('flow_imp outer uv assem')
 #endif
-      selectcase(ndsch) !coefficients, sources, and sinks
+      select case(ndsch) !coefficients, sources, and sinks
       case(0); call coeffsourcesink_uv(zerocoef)
       case(2); call coeffsourcesink_uv(hybridcoef)              !Chris' code has 1
       case(3); call coeffsourcesink_uv(powerlawcoef)          !Chris' code has 2
       case(4); call coeffsourcesink_uv(exponentialcoef)          !Chris' code has 3
       case default; call coeffsourcesink_uv(upwindcoef)
-      endselect
+      end select
       !Deferred anti-diffusion corrections
       if(ncellsimple<ncells)then !Not a simple Cartesian grid
-        selectcase(ndsch) 
+        select case(ndsch) 
         case(0); !Do nothing. No deferred correction for this case    
         case(5); call defcorhlpagradvec(u,v,dux,duy,dvx,dvy,su,sv)                    !Chris' code has 4
         !case(5); call defcorhlpagradvecnew(u,v,dux,duy,dvx,dvy,su,sv)
@@ -134,16 +134,16 @@
         case(8); call defcorgammagradvec(alvsmartdefcor,u,v,dux,duy,dvx,dvy,su,sv)  !Chris' code has 7 
         case(9); call defcorgammagradvec(hoabdefcor,u,v,dux,duy,dvx,dvy,su,sv)        !Chris' code has 8
         case default; call defcorparagradvec(dux,duy,dvx,dvy,su,sv) !Only deferred skewness corrections
-        endselect
+        end select
       else !Simple Cartesian grid
-        selectcase(ndsch)
+        select case(ndsch)
         case(0); !Do nothing. No deferred correction for this case    
         case(5); call defcorhlpavec(u,v,su,sv)
         case(6); call defcorgammavec(gammadefcor,u,v,su,sv)
         case(7); call defcorgammavec(cubistadefcor,u,v,su,sv)
         case(8); call defcorgammavec(alvsmartdefcor,u,v,su,sv)
         case(9); call defcorgammavec(hoabdefcor,u,v,su,sv)
-        endselect
+        end select
       endif
       !if(debug_mode) call check_momentum !Check Variables
       call bound_uv !Boundary Conditions
@@ -1934,7 +1934,7 @@ di:   do i=1,ncells
 !$OMP END PARALLEL
 
     !Deferred Corrections
-    selectcase(ndsch) !Anti-diffusion corrections
+    select case(ndsch) !Anti-diffusion corrections
     case(5)                                                      !Chris 4
       call defcorhlpagrad(u,dux,duy,su)
       call defcorhlpagrad(v,dvx,dvy,sv)
@@ -1950,7 +1950,7 @@ di:   do i=1,ncells
     case(9)                                                      !Chris 8
       call defcorgammagrad(hoabdefcor,u,dux,duy,su)
       call defcorgammagrad(hoabdefcor,v,dvx,dvy,sv)
-    endselect  
+    end select  
     if(skewcor)then !Skewness corrections
       call defcorparagradvec(dux,duy,dvx,dvy,su,sv)
     endif

@@ -292,7 +292,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=="*") cycle  
-      selectcase(cardname)
+      select case(cardname)
       case('BOUNDARY_END','END')
         exit
           
@@ -383,7 +383,7 @@
       case default
         foundcard = .false.
         call diag_print_warning('Unrecognized Card: '//trim(cardname))
-      endselect
+      end select
     enddo
     
     if(len_trim(bidfile)==0)then
@@ -451,7 +451,7 @@
     endif
     
     !Flow boundary type
-    selectcase(ibndtype)
+    select case(ibndtype)
     case(1) !Q - Flux
       call flux_alloc 
       Q_str(nQstr)%bidfile = bidfile
@@ -679,10 +679,10 @@
       
     case default !Cross-shore boundary condition
           
-    endselect
+    end select
     
     !Salinity boundary type
-    selectcase(isaltype)
+    select case(isaltype)
     case(1) !Constant along boundary
       call salstr_resize
       sal_str(nsalstr)%bidfile = bidfile
@@ -697,10 +697,10 @@
       sal_str(nsalstr)%salpath = salpath
       
     !case(2) !Nested (not implimented yet)
-    endselect
+    end select
     
     !!Sediment boundary type
-    !selectcase(isedtype)
+    !select case(isedtype)
     !case(1) !Constant along boundary
     !  call sedstr_resize
     !  sed_str(nsedstr)%bidfile = bidfile
@@ -714,7 +714,7 @@
     !  sed_str(nsedstr)%sedfile = sedfile
     !  sed_str(nsedstr)%sedpath = sedpath
     !!case(2) !Nested (not implimented yet)
-    !endselect
+    !end select
     
     return
     end subroutine bnd_block

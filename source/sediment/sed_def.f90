@@ -91,20 +91,22 @@ module sed_def
     
     !Transport Variables
     real(ikind) :: Awatan,Awidg
-    real(ikind) :: CSeffb,CSblp,CSslp     !CSHORE variables - added 6/7/2019 bdj
+    real(ikind) :: CSeffb,CSblp,CSslp     !C2SHORE variables - added 6/7/2019 bdj
     integer :: icapac
     character(len=10) :: acapac(6)
-    data acapac / 'LUND-CIRP',& !1
-                  'VAN_RIJN',&  !2
-                  'WATANABE',&  !3
-                  'SOULSBY',&   !4
-                  'WU',&        !5
-                  'CSHORE'/     !6 bdj
+    data acapac / 'LUND-CIRP',&  !1
+                  'VAN_RIJN',&   !2
+                  'WATANABE',&   !3
+                  'SOULSBY',&    !4
+                  'WU',&         !5
+                  'C2SHORE'/     !6 bdj
+    logical :: c2shore = .false. !meb 05/09/22
+    
     !Mixing    
     logical :: sedconstmix
     real(ikind) :: schmidt,cmixsed,cmixbedload
     
-    !Concetnration profile
+    !Concentration profile
     integer :: iconcprof
     character(len=20) :: aconcprof(4)
     data aconcprof /'EXPONENTIAL',& !1

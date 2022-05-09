@@ -53,7 +53,7 @@ d1: do k=1,10
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)    
+      select case(cardname)    
       case('MATRIX_SOLVER','SOLVER_TYPE')
         backspace(77)
         read(77,*) cardname, cdum
@@ -83,7 +83,7 @@ d1: do k=1,10
       case default
           foundcard = .false.  
                           
-      endselect
+      end select
     enddo d1
     
     return
@@ -102,7 +102,7 @@ d1: do k=1,10
 !    if(ncelljoint>0 .and. (nsolv==6 .or. nsolv==7))then
 !      nsolv = 4
 !    endif
-!    selectcase(nsolv)
+!    select case(nsolv)
 !    case(0) !ADI
 !      if(nswp0(1)==0) nswp(1)=40        
 !      if(nswp0(2)==0) nswp(2)=10
@@ -172,7 +172,7 @@ d1: do k=1,10
 !    !  nswp(4)=3
 !    !  nswp(5)=3
 !    !  if(maxit0==0) maxit=20+ncells/10000      
-!    endselect      
+!    end select      
 !    nswp0=nswp      
 !    maxit0=maxit      
 !    rmom0=1.e10
@@ -239,7 +239,7 @@ d1: do k=1,10
 !$OMP END PARALLEL DO
     rmom(n)=sqrt(adak(ncells,res)/real(ncells,kind=ikind))   !RMS of normalized residuals   
     
-    selectcase(nsolv)
+    select case(nsolv)
 !!      case(0)
 !!        call tdma2d(phi,ap,n)
       case(1)
@@ -288,7 +288,7 @@ d1: do k=1,10
           call iccgstab5(nswp(n),acoef,ap,ss,phi) !Still under testing
           !call sip5(nswp(n),acoef,ap,ss,phi)
         endif
-    endselect
+    end select
 
     iconv = 1
     if(debug_mode)then

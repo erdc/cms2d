@@ -162,7 +162,7 @@
     character(len=37) :: cdum
     
     foundcard = .true.
-    selectcase(cardname)        
+    select case(cardname)        
       case('GRID_MODIFICATION_NUMBER')
         backspace(77)
         read(77,*) cardname, nflowgrd
@@ -230,7 +230,7 @@
       case default
           foundcard = .false.  
                           
-    endselect
+    end select
     
     return
     end subroutine geo_cards
@@ -1048,7 +1048,7 @@
     do
       read(85,*,iostat=ierr) crd
       if(ierr/=0) exit
-      selectcase(crd)
+      select case(crd)
         case('E4Q') !Quads are treated as general polygons
           ncellpoly = ncellpoly + 1 
           nmaxfaces = max(nmaxfaces,4)
@@ -1102,7 +1102,7 @@
           !bc_str(nbcstr)%idnum = nbcstr
           nbn = nbn + nns    !Total number of boundary nodes
           nbc = nbc + ncs    !Total number of boundary cells
-      endselect  
+      end select  
     enddo
     close(85)
     
@@ -1121,7 +1121,7 @@
     do
       read(85,*,iostat=ierr) crd
       if(ierr/=0) exit
-      selectcase(crd)
+      select case(crd)
         case('E4Q')
           backspace(85)
           read(85,*,iostat=ierr) crd,id,(cell2node(j,id),j=1,4)
@@ -1142,7 +1142,7 @@
             write(*,*) id, nd 
             read(*,*) 
           endif
-      endselect  
+      end select  
     enddo
     close(85)
     
@@ -1798,7 +1798,7 @@ loopj: do j=1,numnode  !number of faces
     do i=1,ncells
       do k=1,ncface(i)
         nck=cell2cell(k,i)
-        selectcase(idirface(k,i))
+        select case(idirface(k,i))
           case(1) !North
             fnx(k,i)= 0.0
             fny(k,i)= 1.0 
@@ -1825,7 +1825,7 @@ loopj: do j=1,numnode  !number of faces
             ry(k,i)=y(nck)-y(i)
           case default
             call diag_print_error('Problem calculating unit vectors for Cartesian grid')
-        endselect
+        end select
       enddo  
     enddo
     
@@ -2481,7 +2481,7 @@ d1: do k=1,10
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('HORIZONTAL_PROJECTION_END','HORIZ_PROJ_END','END')
         exit d1        
       
@@ -2582,7 +2582,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo d1
 
     if(proj%iHorizCoordSystem==2 .and. proj%iHorizZone==0)then
@@ -2617,7 +2617,7 @@ d1: do k=1,10
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('DATUM','VERTICAL_DATUM')
         backspace(kunit)
         read(kunit,*) cardname, aline
@@ -2664,7 +2664,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo d1
     
     return
@@ -2702,7 +2702,7 @@ d1: do k=1,10
       VUNITS = "m"
     else        
       call XF_GET_HORIZ_UNITS(CID,HunitsNo,ierr)  !0 = US Feet, 1 = Intl. Feet, 2 = meters
-      selectcase(HUNITSNO)
+      select case(HUNITSNO)
         case(0)
           HUNITS="US ft"
           projfl%iHorizUnits=1
@@ -2712,10 +2712,10 @@ d1: do k=1,10
         case default !(2)
           HUNITS="m"  
           projfl%iHorizUnits=2
-      endselect
+      end select
     
       call XF_GET_VERT_UNITS(CID,VunitsNo,ierr)   !2 = meters
-      selectcase(VunitsNo)
+      select case(VunitsNo)
         case(0)
           VUNITS="US ft"
           projfl%iVertUnits=1
@@ -2725,10 +2725,10 @@ d1: do k=1,10
         case(2)
           VUNITS="m"  
           projfl%iVertUnits=2
-      endselect
+      end select
       
       call XF_GET_VERT_DATUM(CID,VdatumNo,ierr)   !0 = Local, 1 = NGVD29, 2 = NAVD88
-      selectcase(VdatumNo)
+      select case(VdatumNo)
         case(0)
           VDATUM="Local"
           projfl%iVertDatum=9
@@ -2738,7 +2738,7 @@ d1: do k=1,10
         case(2)
           VDATUM="NAVD88"  
           projfl%iVertDatum=7
-      endselect
+      end select
       
       !call XF_GET_HORIZ_DATUM(CID,coordVersion,ierr)
       coordVersion = 1
@@ -2767,14 +2767,14 @@ d1: do k=1,10
         ISTART = INDEX(WKT,'DATUM')
         IEND = INDEX(WKT,'SPHEROID')
         HDatum = WKT(ISTART+7:IEND-3)
-        selectcase(HDatum)
+        select case(HDatum)
           case('NAD83','D_NORTH_AMERICAN_1983')
             projfl%iHorizDatum=1
             HDatum='NAD83'          
           case('NAD27','D_NORTH_AMERICAN_1927')
             projfl%iHorizDatum=0
             HDatum='NAD27'  
-        endselect
+        end select
       else
         call diag_print_error('Error reading WKT_STRING_SIZE')
       endif
@@ -2945,16 +2945,16 @@ d1: do k=1,10
       read(kunit,*,iostat=ierr) cardname
       if(ierr/=0) exit
       foundcard = .true.
-      selectcase(cardname)
+      select case(cardname)
       case('GRID_TYPE')
         backspace(kunit)
         read(kunit,*) cardname,cdum
-        selectcase(cdum)
+        select case(cdum)
         case('RECTILINEAR')
           icart = 2
         case('REGULAR')
           icart = 1  
-        endselect
+        end select
         
       case('GRID_MODIFICATION_NUMBER')
         backspace(kunit)
@@ -3043,7 +3043,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo
     
     ncellsfull = maxcol*maxrow

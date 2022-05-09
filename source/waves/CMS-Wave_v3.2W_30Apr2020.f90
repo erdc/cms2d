@@ -1320,14 +1320,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             do i=1,n
               do j=1,nestin
                 read(8,'(a150)',err=1333,end=1333) test
-                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+                !READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)   NF was zero.  MEB 05/04/2022
+                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           else
             do i=1,n
-              do j=1,nestin
-                read(8,*)
-                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              do j=1,nestin1   !was 'nestin' which returned zero.
+                read(8,'(a150)',err=1333,end=1333) test  !skip over edate, ws, wd, fp, Tide
+                read(8,*)                                !skip over 3 values
+                !READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)             NF was zero.  MEB 05/04/2022
+                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           end if

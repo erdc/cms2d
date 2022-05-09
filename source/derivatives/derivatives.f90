@@ -32,12 +32,12 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('SPATIAL_DERIVATIVE_METHOD','SPATIAL_DERIVATIVE_SCHEME',&
        'SPATIAL_DERIVATIVE','SPATIAL_DERIVATIVES')
       backspace(77)
       read(77,*) cardname, cdum
-      selectcase(cdum)
+      select case(cdum)
       case('CBGG','CELL-BASED_GREEN-GAUSS','CELL_BASED_GREEN_GAUSS')
         nder = 1  !Cell-based Green-Gauss (1st order for skewed cells)
       case('CBGGCR','CELL-BASED_GREEN-GAUSS_CELL-RECON')
@@ -58,7 +58,7 @@
         write(*,*) 'ERROR: Invalid spatial derivative method or scheme'             
         read(*,*)
         stop
-      endselect
+      end select
       
     case('INVERSE_DISTANCE_POWER')
       backspace(77)  
@@ -77,7 +77,7 @@
     
     case default
       foundcard = .false.     
-    endselect
+    end select
     
     return
     end subroutine der_cards
@@ -184,12 +184,12 @@
     do ii=1,ncelljoint
       i=idcelljoint(ii)
       do k=1,ncface(i)
-        selectcase(idirface(k,i))
+        select case(idirface(k,i))
         case(1); ncn=cell2cell(k,i)
         case(2); nce=cell2cell(k,i)
         case(3); ncs=cell2cell(k,i)
         case(4); ncw=cell2cell(k,i)
-        endselect
+        end select
       enddo
       rgx(i)=(x(i)-x(ncw))/(x(nce)-x(i))
       rgy(i)=(y(i)-y(ncs))/(y(ncn)-y(i))
@@ -269,7 +269,7 @@
 
     if(nlistcw==0 .and. nlistgw==0) return !Early exit if no changes are needed
     
-    selectcase(nder)
+    select case(nder)
     case(1) !Cell-basd-Green-Gauss (first order)
       call der_grad_cbgg(gow,ncellsD,nlistcw,ilistcw) !Output
     case(2) !Cell-basd-Green-Gauss with cell-recontruction
@@ -287,7 +287,7 @@
     !  call cbwlsns_init !CBWLSNS   
     case(8) !Cell-based Finite-Difference (second order)
       call der_grad_cbfd(gow,ncellsD,nlistcw,ilistcw) !Output
-    endselect
+    end select
     
     return    
     end subroutine der_update    

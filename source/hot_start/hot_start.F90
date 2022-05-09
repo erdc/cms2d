@@ -72,7 +72,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
       !----- Initial Condition (Input) ----------------------------------------
       case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE')     !If another is added to the list, modify the appropriate line in 'input.F90' for subroutine 'card_dataset'
         call card_dataset(77,icfile,flowpath,icfile,icpath,1)
@@ -125,7 +125,7 @@
       case default
         foundcard = .false.           
         
-    endselect
+    end select
     
     return
     end subroutine hot_cards
@@ -673,7 +673,7 @@
     
     !--- Water Levels -----
     do i=1,nscal
-      selectcase(scaldat(i)%name)
+      select case(scaldat(i)%name)
       case('Water_Elevation','Water_Surface_Elevation','Water_Level','wse','WSE')
         if(scaldat(i)%nd/=ncellsfull)then
           call diag_print_error('Invalid initial conditions size',&
@@ -700,12 +700,12 @@
         timehrs = scaldat(i)%time(scaldat(i)%nt)  !Start time
         call unitconv_scal(scaldat(i)%time_units,'hrs',timehrs)
         exit
-      endselect
+      end select
     enddo
     
     !--- Current Velocities -----
     do i=1,nvec
-      selectcase(vecdat(i)%name)
+      select case(vecdat(i)%name)
       case('Current_Velocity','Water_Velocity','Depth-Averaged_Current_Velocity','Depth-Averaged_Velocity')
         if(vecdat(i)%nd/=ncellsfull)then
           call diag_print_error('Invalid initial conditions size',&
@@ -736,7 +736,7 @@
         timehrs = vecdat(i)%time(vecdat(i)%nt)     !Start time
         call unitconv_scal(vecdat(i)%time_units,'hrs',timehrs)
         exit
-      endselect
+      end select
     enddo
     
     return
@@ -1358,23 +1358,23 @@ loopj:  do j=1,nlay
     !-- Set concentration to equilibrium concentrations ----
     if(setconc2eq)then
       !Hiding and Exposure
-      selectcase(iHidExpForm) !varsigma(i,k)
+      select case(iHidExpForm) !varsigma(i,k)
       case(1); call HidExpEgiazaroff    !Egiazaroff (1965)
       case(2); call HidExpParker        !Parker et al. (1982) and others
       case(3); call HidExpWu            !Wu et al. (2000)
       case(4); call HidExpAshidaMichiue !Ashida and Michiue 1980
       case(5); call HidExpHayashi       !Hayashi et al. 1980
-      endselect
+      end select
       
         !Transport Capacity
-      selectcase(icapac)  
+      select case(icapac)  
       case(1); call sedcapac_lundcirp !Lund-CIRP          
       case(2); call sedcapac_vanrijn  !Van Rijn           
       case(3); call sedcapac_watanabe !Watanabe  
       case(4); call sedcapac_soulsby  !Soulsby (1997)
       case(5); call wucapac           !Wu et al. 2000 (under testing)
-      case(6); call sedcapac_cshore   !CSHORE (bdj)
-      endselect   
+      case(6); call sedcapac_c2shore   !C2SHORE (bdj)
+      end select   
 !!      CtstarP = 0.0
       !Concentrations
       Ctkstar = CtstarP*pbk(:,:,1)

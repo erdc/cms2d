@@ -61,11 +61,11 @@
     icapac = 1             !Transport capacity formula    
     Awatan = 0.5           !Watanabe coefficient
 
-    !--- CSHORE Defaults ------------------------------ added 6/7/2019 bdj
-    !CSeffb = 0.03          !CSHORE coefficient  !updated to 0.003 from Brad's Branch  05/15/2020
-    CSeffb = 0.003         !CSHORE coefficient
-    CSblp  = 0.002         !CSHORE coefficient
-    CSslp  = 0.3           !CSHORE coefficient        
+    !--- C2SHORE Defaults ------------------------------ added 6/7/2019 bdj
+    !CSeffb = 0.03         !C2SHORE coefficient  !updated to 0.003 from Brad's Branch  05/15/2020
+    CSeffb = 0.003         !C2SHORE coefficient
+    CSblp  = 0.002         !C2SHORE coefficient
+    CSslp  = 0.3           !C2SHORE coefficient        
     
     !--- Horizontal Mixing -------------------------
     schmidt = 1.0          !Schmidt number ***************************************    
@@ -230,11 +230,11 @@
     character(len=200) :: afile,apath
     character(len=120), allocatable :: temppath(:)
     real(ikind),allocatable :: temp(:)
-    logical :: foundcard
+    logical :: foundcard, found           !meb 05/09/22   added 'found'
     character(len=100) :: msg2
     
     foundcard = .true.
-    selectcase(cardname)              
+    select case(cardname)              
     !----- On Switch -----------------
     case('CALC_SEDIMENT_TRANSPORT')
       call card_boolean(77,sedtrans,ierr)
@@ -296,16 +296,18 @@
       backspace(77)
       read(77,*) cardname, Awatan  
 
-    case('CSHORE_EFFB','CSHORE_EFFICIENCY')  !added 6/7/2019 bdj
+    case('CSHORE_EFFB','SUSPENSION_EFFICIENCY_WAVE_BREAKING', &     !Older card names kept for backward compatibility.     added 6/7/2019 bdj
+         'C2SHORE_EFFICIENCY')                                      !New card name to be used with SMS 13.2+
       backspace(77)
       read(77,*) cardname, CSeffb
-      !write(*,*)'bdj reading sed cards CSeffb',CSeffb
 
-    case('CSHORE_BLP','CSHORE_BED_LOAD')     !added 6/7/2019 bdj
+    case('CSHORE_BLP','BEDLOAD_PARAMETER', &                        !Older card names kept for backward compatibility.     added 6/7/2019 bdj 
+         'C2SHORE_BED_LOAD')                                        !New card name to be used with SMS 13.2+
       backspace(77)
       read(77,*) cardname, CSblp
 
-    case('CSHORE_SLP','CSHORE_SUSP_LOAD')    !added 6/7/2019 bdj
+    case('CSHORE_SLP','SUSPENDED_LOAD_PARAMETER', &                 !Older card names kept for backward compatibility.     added 6/7/2019 bdj 
+         'C2SHORE_SUSP_LOAD')                                       !New card name to be used with SMS 13.2+
       backspace(77)
       read(77,*) cardname, CSslp
       
@@ -339,15 +341,21 @@
     !---- Transport Formula ---------------------
     case('NET_TRANSPORT_CAPACITY','TRANSPORT_FORMULA')
       backspace(77)
-      read(77,*) cardname, cdum           
+      read(77,*) cardname, cdum   
+      found = .false.         !meb 05/09/22
       do i=1,size(acapac)
         cardname=acapac(i)
         if(cdum(1:2)==cardname(1:2))then
           icapac = i
-          !write(*,*)'bdj in sedimnet.F90, cdum, icapac = ',cdum,icapac                                                                       
+          found = .true.      !meb 05/09/22
           exit
         endif
       enddo
+      if (found) then         !meb 05/09/22
+        if (acapac(i) == 'C2SHORE') c2shore = .true.
+      else
+        call diag_print_error('TRANSPORT_FORMULA option, "'//trim(cdum)//'", not found. Cannot continue.')
+      endif        
       
     case('CONCENTRATION_CAPACITY_MAX','CONCENTRATION_CAPACITY_MAX_TOTAL','CAPACITY_MAX_TOTAL')
       backspace(77)
@@ -524,7 +532,7 @@
     case('SEDIMENT_INFLOW_BC')
       backspace(77)
       read(77,*) cardname, cdum
-      selectcase(cdum)
+      select case(cdum)
       case('CLEAR_WATER')
         isedinflowbc = 1
         facQtotin = 0.0
@@ -532,7 +540,7 @@
         isedinflowbc = 2
       case('CAPACITY')
         isedinflowbc = 1  
-      endselect  
+      end select  
       
 !    case('SEDIMENT_CONC_CELLSTRING')             
       
@@ -1098,7 +1106,7 @@
         foundcard = .false.
       endif
         
-    endselect               
+    end select               
     
     return
     end subroutine sed_cards
@@ -1138,7 +1146,7 @@ d1: do ii=1,10
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit d1
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('SEDIMENT_SIZE_CLASS_END','END')
           exit d1
           
@@ -1234,7 +1242,7 @@ d1: do ii=1,10
           call diag_print_warning('Invalid Card: ',cardname,&
             '  Found in block: ','    SEDIMENT_SIZE_CLASS_BEGIN')
         
-      endselect
+      end select
     enddo d1
     
     if(sedclass(nsed)%diam<0.0)then
@@ -1351,7 +1359,7 @@ d1: do ii=1,30
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit d1
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('BED_LAYER_END','END')
           exit d1
           
@@ -1446,7 +1454,7 @@ d1: do ii=1,30
             write(msg4,*) '  BED_LAYER_BEGIN'
             call diag_print_warning('WARNING: Invalid Card: ',msg2,msg3,msg4)
           endif
-      endselect
+      end select
     enddo d1
 
     !Read in bed layer
@@ -1467,7 +1475,7 @@ d1: do ii=1,30
     !  endif
     !enddo
     !!Set input composition mode
-    !selectcase(nperinp)
+    !select case(nperinp)
     !case(0)
     !   bedlay(jlay)%ipbkinp = 4 !SIZE_CLASS_FRACTIONS
     !case(1)
@@ -1490,7 +1498,7 @@ d1: do ii=1,30
     !  endif
     !case default
     !  bedlay(jlay)%ipbkinp = 6  !PERCENTILES   
-    !endselect
+    !end select
     
     return
     end subroutine bedlay_block
@@ -1611,7 +1619,7 @@ d1: do ii=1,30
       allocate(diam(nsed),diamlim(nsed+1))
       !Calculate grain sizes if none specified
       if(sum(sedclass(:)%idiam)==0)then !No diameters specified 
-        selectcase(bedlay(1)%ipbkinp)  !use surface layer
+        select case(bedlay(1)%ipbkinp)  !use surface layer
         case(1)
           call d50sigma2diamlim(nsed,d50lay,bedlay(1)%geostddev,diamlim) !Calculates grain size distribution from D50 and geometric standard deviation
           call diamlim2diam(nsed,diamlim,diam)         
@@ -1627,11 +1635,11 @@ d1: do ii=1,30
           call diamlim2diam(nsed,diamlim,diam)    
         case default
           call diag_print_error('Cannot determine sediment size class diameters')
-        endselect
+        end select
       endif      
       !Use input mode
       do ks=1,nsed
-        selectcase(sedclass(ks)%idiam) 
+        select case(sedclass(ks)%idiam) 
         case(1)    
           diam(ks) = sedclass(ks)%diam !Characteristic diameter
         case(2)
@@ -1639,33 +1647,33 @@ d1: do ii=1,30
         case default
           write(msg2,*) '  Size class: ',ks
           call diag_print_error('Missing grain size for ',msg2)  
-        endselect
+        end select
       enddo
       
       !--- Sediment size class limits -----------------
       do ks=2,nsed
-        selectcase(sedclass(ks)%idiam) 
+        select case(sedclass(ks)%idiam) 
         case(1)
           diamlim(ks)=sqrt(diam(ks)*diam(ks-1))
         case(2)
           diamlim(ks) = sedclass(ks)%diamlim(1)
           diamlim(ks+1) = sedclass(ks)%diamlim(2)
-        endselect
+        end select
       enddo
-      selectcase(sedclass(1)%idiam) 
+      select case(sedclass(1)%idiam) 
       case(1)
         diamlim(1) = diam(1)*diam(1)/diamlim(2)
       case(2)
         diamlim(1) = sedclass(1)%diamlim(1)
         diamlim(2) = sedclass(1)%diamlim(2)
-      endselect
-      selectcase(sedclass(nsed)%idiam) 
+      end select
+      select case(sedclass(nsed)%idiam) 
       case(1)
         diamlim(nsed+1) = diam(nsed)*diam(nsed)/diamlim(nsed)
       case(2)
         diamlim(nsed) = sedclass(nsed)%diamlim(1)
         diamlim(nsed+1) = sedclass(nsed)%diamlim(2)
-      endselect
+      end select
       
       !--- Bedchange for ks sediment size ------------
       allocate(dzbk(ncellsD,nsed))  !Only allocate for multiple grain sizes
@@ -1686,7 +1694,7 @@ d1: do ii=1,30
             endif
           enddo
           !Set input composition mode
-          selectcase(nperinp)
+          select case(nperinp)
           case(0)
             if(allocated(bedlay(j)%pbconst))then
               bedlay(j)%ipbkinp = 4 !SIZE_CLASS_FRACTIONS
@@ -1714,10 +1722,10 @@ d1: do ii=1,30
             endif
           case default
             bedlay(j)%ipbkinp = 6 !PERCENTILES   
-          endselect  
+          end select  
         endif
         
-        selectcase(bedlay(j)%ipbkinp)
+        select case(bedlay(j)%ipbkinp)
         case(0) !None
           if(j==1)then
             call diag_print_error('Bed composition for first layer must be specified')
@@ -1861,7 +1869,7 @@ d1: do ii=1,30
             if(bedlay(j)%perdiam(i)%inp) OutPerDiam(i) = .true.
           enddo        
           
-        endselect
+        end select
       enddo
       
       !--- Copy composition to unspecified layers from above downwards -------
@@ -1899,7 +1907,7 @@ d1: do ii=1,30
       !Bed layer thickness
       allocate(db(ncellsD,nlay),db1(ncellsD,nlay))
       do j=1,nlay
-        selectcase(bedlay(j)%idbinp)
+        select case(bedlay(j)%idbinp)
         case(0) !None specified
           if(j==1)then !If first layer, use maximum thickness
             db(:,j) = dbmax
@@ -1937,7 +1945,7 @@ d1: do ii=1,30
           if(ierr/=0)then
             call diag_print_error('Problem reading bed layer thickness dataset')
           endif
-        endselect
+        end select
       enddo
       
       db1 = db !Previous iteration bed layer thickness
@@ -2037,19 +2045,19 @@ d1: do ii=1,30
       !Corey shape factor
       coreyshape(ks) = sedclass(ks)%shape
       !Fall Velocity
-      selectcase(sedclass(ks)%iws)
+      select case(sedclass(ks)%iws)
       case(1) !User-specified    
         wsfall(ks) = sedclass(ks)%wsfall  !Fall velocity [m/s]      
       case(3) !Wu-Wang (2006)
         wsfall(ks) = fallvel_wu_wang(viscos,coreyshape(ks),diam(ks),dstar(ks))
       case default !(0,2) !None or Soulsby (1997)
         wsfall(ks) = fallvel_soulsby(viscos,diam(ks),dstar(ks),0.0_ikind) !Concentration not included  
-      endselect
+      end select
       if(wsfall(ks)<0.0)then
         call diag_print_error('Problem specifying sediment fall velocity')
       endif
       !Incipient Motion, Critical shields parameter and shear stress
-      selectcase(sedclass(ks)%icr)
+      select case(sedclass(ks)%icr)
       case(1) !User-specified shields parameter
         thetacr(ks) = sedclass(ks)%thetacr 
         taucr(ks) = thetacr(ks)*(rhosed-rhow)*grav*diam(ks) !Critical shear stress
@@ -2062,7 +2070,7 @@ d1: do ii=1,30
       case default !(0,3) !None or Soulsby (1997)
         thetacr(ks) = shields_soulsby(dstar(ks))
         taucr(ks) = thetacr(ks)*(rhosed-rhow)*grav*diam(ks) !Critical shear stress
-      endselect
+      end select
       if(thetacr(ks).lt.0.0 .or. taucr(ks).lt.0.0)then
         call diag_print_error('Problem specifying incipient motion')
       endif
@@ -2143,11 +2151,11 @@ d1: do ii=1,30
     Sb = 0.0       !Bed-slope term
     if(ibedslope<0) ibedslope = 0 !if not specified use none
     !if(ibedslope<0)then !Not specified
-    !  selectcase(icapac)
+    !  select case(icapac)
     !  case(1);     ibedslope = 2 !for Lund-CIRP use Dey (2001) which modifies the transport rate directly
     !  case(2,3,4); ibedslope = 1 !for Van Rijn, Watanabe, and Soulbsy-Van Rijn use Bailard (1981) which modifies the critical shear
     !  case(5);     ibedslope = 3 !for Wu et al. (2000) use Wu (2004) which add a shar the grain shear stress
-    !  endselect  
+    !  end select  
     !endif
     
     !Bedload transport
@@ -2171,14 +2179,14 @@ d1: do ii=1,30
       varsigma = 1.0  !Hiding and exposure correction factor
     endif
     if(mhe<0.0)then !Not specified so use transport formula specific default value
-      selectcase(icapac)
+      select case(icapac)
       case(1); mhe = 1.0 !Lund-CIRP based on report by Wu 2011
       case(2); mhe = 0.3 !Van Rijn
       case(3); mhe = 0.5 !Watanabe
       case(4); mhe = 0.3 !Soulbsy-Van Rijn      
       case(5); mhe = 0.6 !Wu
       case(6); mhe = 1.0 !Temporary matching (1) until guidance from BDJ
-      endselect
+      end select
     endif
     
     !Hard-bottom cells
@@ -2349,7 +2357,17 @@ d1: do ii=1,30
       if(isedmodel==1)then
         write(iunit(i),354)     '  Max Total-load Conc. Capacity:',trim(vstrlz(Cteqmax,'(f0.2)')),' kg/m^3'
       endif
+      
       write(iunit(i),111)       '  Transport Capacity Formula:',trim(acapac(icapac))
+      select case (icapac)  !Added extra output  05/10/2022  MEB
+      case(3)  !Watanabe
+        write(iunit(i),111)     '    Watanabe Transport Coefficient:',trim(vstrlz(Awatan,'(f0.2)'))
+      case(6)  !C2Shore
+        write(iunit(i),111)     '    C2SHORE Breaking Efficiency Coef.:',trim(vstrlz(CSeffb,'(f0.2)'))
+        write(iunit(i),111)     '    C2SHORE Bed Load Coefficient:',trim(vstrlz(CSblp,'(f0.2)'))
+        write(iunit(i),111)     '    C2SHORE Susp. Load Coefficient:',trim(vstrlz(CSslp,'(f0.2)'))
+      end select
+      
       write(iunit(i),445)       '  Timing'
       write(iunit(i),354)       '    Transport Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'
       write(iunit(i),354)       '    Morphologic Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'   
@@ -2400,7 +2418,7 @@ d1: do ii=1,30
       !Total load adaptation length
       write(iunit(i),111)       '  Total-load Adaptation Coefficient'
       write(iunit(i),111)       '    Method:',trim(atotm(iadapttot))
-      selectcase(iadapttot)
+      select case(iadapttot)
       case(1)
         write(iunit(i),354)     '    Adaptation length:',trim(vstrlz(Ltot,'(f0.2)')),' m'
       case(2)
@@ -2414,25 +2432,25 @@ d1: do ii=1,30
       case(5,6)
         write(iunit(i),111)     '  Bed-load Adaptation Coefficient'
         write(iunit(i),111)     '    Method:',trim(abedm(iadaptbed))
-        selectcase(iadaptbed)
+        select case(iadaptbed)
         case(1)
           write(iunit(i),354)   '    Adaptation length:',trim(vstrlz(Lbed,'(f0.2)')),' m'
         case(2)
           write(iunit(i),354)   '    Adaptation time:',trim(vstrlz(Tbed,'(f0.2)')),' sec'  
         case(5)
           write(iunit(i),354)   '    Depth dependant factor:',trim(vstrlz(fbed,'(f0.2)'))
-        endselect !iadaptbed 
+        end select !iadaptbed 
         write(iunit(i),111)     '  Suspended-load Adaptation Coefficient '
         write(iunit(i),111)     '    Method:',trim(asusm(iadaptsus))
-        selectcase(iadaptsus)
+        select case(iadaptsus)
         case(1)
           write(iunit(i),354)   '    Adaptation length:',trim(vstrlz(Lsus,'(f0.2)')), ' m'
         case(2)
           write(iunit(i),354)   '    Adaptation time:',trim(vstrlz(Tsus,'(f0.2)')),' sec'         
         case(3)
           write(iunit(i),354)   '    Adaptation coefficient:',trim(vstrlz(alphasus,'(f0.2)'))
-        endselect !iadaptsus
-      endselect !iadapttot      
+        end select !iadaptsus
+      end select !iadapttot      
     
       !Hardbottom
       if(hardbottom)then
@@ -2489,14 +2507,14 @@ d1: do ii=1,30
      
       write(iunit(i),354)       '  Inflow Loading Factor:',trim(vstrlz(facQtotin,'(f0.2)'))  
       if(isedmodel<=2)then
-        selectcase(ibt)
+        select case(ibt)
         case(0)
           write(iunit(i),354)   '  Constant Total Load Correction Factor: ',trim(vstrlz(betatot,'(f0.2)'))
         case(1)
           write(iunit(i),111)   '  Concentration profile:','EXPONENTIAL    (Used for Total Load Correction Factor)'
         case default
           write(iunit(i),111)   '  Concentration profile:','ROUSE    (Used for Total Load Correction Factor)'
-        endselect 
+        end select 
       endif    
     
       !Bed Composition and layering
@@ -2531,16 +2549,16 @@ d1: do ii=1,30
           endif
           write(iunit(i),111)   '    Layer Thickness Method:',trim(adbinp(bedlay(j)%idbinp))
           
-          selectcase(bedlay(j)%idbinp)
+          select case(bedlay(j)%idbinp)
           case(0,1,2)
             write(iunit(i),354) '    Layer Thickness:',trim(vstrlz(bedlay(j)%dbconst,'(f0.2)')),' m'
           case(3)
             write(iunit(i),112) '    Layer Thickness Dset File/Path:',trim(bedlay(j)%dbfile),trim(bedlay(j)%dbpath)                       !MEB 04/22/22
-          endselect
+          end select
           
           write(iunit(i),111)   '    Composition Method:',trim(apbkinp(bedlay(j)%ipbkinp))
           
-          selectcase(bedlay(j)%ipbkinp)
+          select case(bedlay(j)%ipbkinp)
           case(1) !D50_SIGMA
             write(iunit(i),112) '    D50 Dataset File/Path:',trim(bedlay(j)%perdiam(ipd(50))%file),trim(bedlay(j)%perdiam(ipd(50))%path)  !MEB 04/22/22
             if (bedlay(j)%geostddev .ge. 0.0) then
@@ -2592,7 +2610,7 @@ d1: do ii=1,30
               write(iunit(i),246) ks, diamlim(ks)*1000.0,diamlim(ks+1)*1000.0,&
                  diam(ks)*1000.0,pbklow(ks,j),pbkhigh(ks,j),pbkmean(ks,j)
             enddo !ks
-          endselect          
+          end select          
         enddo !j layer        
       endif
       
@@ -2879,7 +2897,7 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO    
     endif
     
-    ! bdj some heavy-handed cshore mods
+    ! bdj some heavy-handed c2shore mods
     if (icapac.eq.6) then
       !CSslp = 0.5            !commented 6/7/2019 bdj
       !CSblp = 0.001          !commented 6/7/2019 bdj 
@@ -2915,7 +2933,7 @@ d1: do ii=1,30
 !$OMP END PARALLEL DO   
     endif
 
-! bdj end some heavy-handed cshore mods
+! bdj end some heavy-handed c2shore mods
 !$OMP PARALLEL DO PRIVATE(i)          
     do i=1,ncells
       qtx(i)=iwet(i)*qtx(i)  !kg/m/s

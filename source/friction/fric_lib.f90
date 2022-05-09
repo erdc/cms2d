@@ -214,7 +214,7 @@ contains
     use fric_def
     implicit none                                
         
-    selectcase(mwavcurint)
+    select case(mwavcurint)
       case(3) !DATA13
         !Mean shear stess coefficients
         bwc = (/ 0.47, 0.69,-0.09,-0.08/)
@@ -304,7 +304,7 @@ contains
         qwc = (/ 1.04,-0.56, 0.34,-0.27/)
         cjwc = 0.5
     
-    endselect
+    end select
     
     return
     end subroutine fric_wavcur_init

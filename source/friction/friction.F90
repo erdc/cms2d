@@ -80,7 +80,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)    
+    select case(cardname)    
     !=== Wall friction ======================
     case('USE_WALL_FRICTION_TERMS','USE_WALL_FRICTION')
       call card_boolean(77,wallfric,ierr)
@@ -100,7 +100,7 @@
     case('BOTTOM_ROUGHNESS_METHOD')
       backspace(77)
       read(77,*) cardname,cdum
-      selectcase(cdum)
+      select case(cdum)
       case('DYNAMIC','AUTOMATIC')
         mbedfric = 0
       case('COEFFICIENT','FRICTION_COEFFICIENT')
@@ -113,12 +113,12 @@
         mbedfric = 4
       case default
         call diag_print_error('Invalid bottom roughness method')
-      endselect
+      end select
     
     case('RIPPLE_METHOD')     !Changed from RIPPPLE_METHOD which looked like a typo.
       backspace(77)
       read(77,*) cardname,cdum
-      selectcase(cdum)
+      select case(cdum)
       case('SOULSBY')
         mripple = 1
       case('RAUDKIVI')
@@ -129,12 +129,12 @@
         mripple = 4
       case default
         call diag_print_error('Invalid wave ripple method')
-      endselect
+      end select
       
     case('TRANSPORT_ROUGHNESS_METHOD')
       backspace(77)
       read(77,*) cardname,cdum
-      selectcase(cdum)
+      select case(cdum)
       case('SOULSBY')
         mripple = 1
       case('RAUDKIVI')
@@ -143,32 +143,32 @@
         mripple = 2
       case default
         call diag_print_error('Invalid wave ripple method')
-      endselect
+      end select
          
          
     !case('WAVE_RIPPPLE_METHOD','RIPPLE_WAVE_METHOD')  
     !  backspace(77)
     !  read(77,*) cardname,cdum
-    !  selectcase(cdum)
+    !  select case(cdum)
     !  case('VAN_RIJN','VANRIJN','VAN-RIJN')
     !    mripplewave = 1
     !  case('SOULSBY_WHITEHOUSE','SOULSBY-WHITEHOUSE')
     !    mripplewave = 2
     !  case default
     !    call diag_print_error('Invalid wave ripple method')
-    !  endselect
+    !  end select
     
     !case('CURRENT_RIPPPLE_METHOD','RIPPLE_CURRENT_METHOD')  
     !  backspace(77)
     !  read(77,*) cardname,cdum
-    !  selectcase(cdum)
+    !  select case(cdum)
     !  case('SOULSBY')
     !    mripplecurrent = 1
     !  case('SOULSBY_WHITEHOUSE','SOULSBY-WHITEHOUSE')
     !    mripplecurrent = 2
     !  case default
     !    call diag_print_error('Invalid current ripple method')
-    !  endselect
+    !  end select
     
     case('RIPPLE_ROUGHNESS_SCALE_FACTOR','RIPPLE_ROUGHNESS_SCALING_FACTOR',&
         'RIPPLE_ROUGH_SCALE_FACTOR')  
@@ -271,7 +271,7 @@
     case default
       foundcard = .false.  
                           
-    endselect
+    end select
     
     return
     end subroutine fric_cards
@@ -326,17 +326,17 @@
     
     
     if(constbotfric)then !Constant value
-      selectcase(mbedfric)
+      select case(mbedfric)
       case(1); cfrict = fricscale*cbotfric
       case(2); coefman = fricscale*cbotfric
       case(3); z0 = fricscale*cbotfric/30.0 !Convert from physical roughness height to hydraulic roughness length *********
-      endselect  
+      end select  
     else                 !User-defined Dataset
       select case (aext)    !Added case to accept ASCII input of grid-specific datasets - meb 022118
 
       case('h5')
 #ifdef XMDF_IO
-      selectcase(mbedfric)
+      select case(mbedfric)
       case(1) !Friction coefficient
         call readscalh5(fricfile,fricpath,cfrict,ierr)
         if(ierr<0) call rough_read_error_msg(fricfile,fricpath)  
@@ -353,10 +353,10 @@
         where(z0<1.0e-5) z0=1.0e-5
         z0 = z0/30.0 !Convert from physical roughness height to hydraulic roughness length *********
         z0 = fricscale*z0
-      endselect      
+      end select      
 #endif
       case('txt') 
-        selectcase(mbedfric)
+        select case(mbedfric)
         case(1) !Friction coefficient
           call readscalTxt(fricfile,cfrict,ierr)
           if(ierr<0) call rough_read_error_msg2(fricfile)  
@@ -373,8 +373,8 @@
           where(z0<1.0e-5) z0=1.0e-5
           z0 = z0/30.0 !Convert from physical roughness height to hydraulic roughness length *********
           z0 = fricscale*z0
-        endselect      
-      endselect  
+        end select      
+      end select  
     endif
 
     !Bed slope friction factor
@@ -488,7 +488,7 @@
       if(i==2) open(dgunit,file=dgfile,access='append')   
       write(iunit(i),*)
       write(iunit(i),787)       '  Bottom and Wall Friction'
-      selectcase(mbedfric)
+      select case(mbedfric)
         case(0)
           write(iunit(i),787)   '    Dynamic bottom friction:','ON'
           if(mripplewave==1)then
@@ -534,7 +534,7 @@
             write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'          
             stop
           endif    
-      endselect    
+      end select    
       if(wallfric)then
         write(iunit(i),787)     '    Wall Friction:','ON'
         write(iunit(i),354)     '    Wall Friction Factor:',trim(vstrlz(wallfac,'(F0.3)'))
@@ -576,7 +576,7 @@
     real(ikind),intent(in) :: hi,Cd,z0i,ui,vi,usi,vsi,Uws,Uwr,Twr,Dw
     real(ikind) :: Uc2,Uc,Uwc,taum,cbu
     
-    selectcase(mwavcurint) 
+    select case(mwavcurint) 
     case(1) !Quad
       Uc2=(ui-usi)**2+(vi-vsi)**2 !Eulerian velocity squared  
       Uwc=sqrt(Uc2+cfricwav*Uws*Uws)      
@@ -592,7 +592,7 @@
       call fric_wavcurmean_DSK88(rhow,Cd,z0i,ui,vi,usi,vsi,Uwr,Twr,Dw,Uc,Uwc,taum)
     case default !(7)
       call fric_wavcurmean_GM79(rhow,Cd,z0i,ui,vi,usi,vsi,Uwr,Twr,Dw,Uc,Uwc,taum)
-    endselect   
+    end select   
     cbu=Cd*Uwc
     
     return
@@ -622,7 +622,7 @@
     !real(ikind) :: hold,fac
     logical :: isnankind
 
-    selectcase(mbedfric) ! user specified  C_b
+    select case(mbedfric) ! user specified  C_b
     case(1)
 !$OMP PARALLEL DO PRIVATE(i)            
       do i=1,ncells
@@ -673,7 +673,7 @@
       enddo
 !$OMP END PARALLEL DO
 
-    endselect
+    end select
       
     !Update bottom slope friction coefficient
     if(fricbedslope .and. calcmorph)then !Only recalculate if morphology change is on
@@ -702,7 +702,7 @@
 ! The bottom orbital velocity is specified here based on the significant
 ! wave height and not the root-mean-squared wave like like Delft-3D
     if(noptset>=3)then
-      selectcase(mwavcurint) 
+      select case(mwavcurint) 
       case(1) !Wu 2009
 !$OMP PARALLEL DO PRIVATE(i)                 
         do i=1,ncells
@@ -765,7 +765,7 @@
         enddo
 !$OMP END PARALLEL DO   
 
-      endselect
+      end select
          
     else    !No waves   
 !$OMP PARALLEL DO PRIVATE(i)    

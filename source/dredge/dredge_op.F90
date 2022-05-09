@@ -79,7 +79,7 @@
     integer i,k
     real(ikind) sum_area,sum_area_exceed,area,sum_vol,ratio
     
-    selectcase(dredge_operations(k)%trigger_approach)        
+    select case(dredge_operations(k)%trigger_approach)        
     case(1)  !any cell above trigger depth
       do i=1,dredge_operations(k)%NumDredgeAreaCells
         if(zb(dredge_operations(k)%DredgeAreaCells(i)) > -dredge_operations(k)%Trigger_Depth) dredge_operations(k)%active = .true.
@@ -117,7 +117,7 @@
       write(*,*)'Approach specified for triggering dredging is not recognized'
       write(*,*)'Approach specified is: ',dredge_operations(k)%trigger_approach
         
-    endselect
+    end select
         
     return
     end subroutine trigger_it    
@@ -181,7 +181,7 @@
     ! write(777,*)'vol_tot = ',vol_tot
     
     !remove volume from cells based on selected approach
-    selectcase(dredge_operations(k)%dredge_approach)
+    select case(dredge_operations(k)%dredge_approach)
         
     case(1) !remove from shallowest cells first
       !calculate potential dredge volume
@@ -330,7 +330,7 @@
       write(*,*)'Approach specified for dredging source area is not recognized'
       write(*,*)'Approach specified is: ',dredge_operations(k)%dredge_approach
         
-    endselect   
+    end select   
        
     if(.not. singlesize) call dredge_bed_sort(ncnt,cells)   
     
@@ -458,7 +458,7 @@
       enddo     
     
     !remove volume from cells based on selected approach
-    selectcase(dredge_operations(k)%placement_approach(j))
+    select case(dredge_operations(k)%placement_approach(j))
         
     case(1) !place evenly accross bed, but do not exceed water depth limit
         
@@ -599,7 +599,7 @@
       write(*,*)'Approach specified for dredge material placement is not recognized'
       write(*,*)'Approach specified is: ',dredge_operations(k)%placement_approach
         
-    endselect
+    end select
 
     if(.not. singlesize) call place_bed_sort(ncnt,cells)    
 

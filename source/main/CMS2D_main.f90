@@ -39,9 +39,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.2           ! CMS version         !For interim version
-    revision = 18            ! Revision number
+    revision = 19            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '04/29/2022'
+    rdate    = '05/09/2022'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -167,7 +167,7 @@
       astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
       if (astr == 'inline' .or. astr == 'tools') laext=astr
-      selectcase(laext)
+      select case(laext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
           flowpath = apath
@@ -230,7 +230,7 @@
           write(*,*) 'Press any key to continue.'
           read(*,*)
           stop
-      endselect      
+      end select      
     enddo
 
 !CMS was called with no arguments but user entered Flow parameter filename, also ask for Wave info
@@ -668,7 +668,7 @@
         write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Extrapolation: '
         write(iunit(i),887)    '    Water Level: '
-        selectcase(noptwse)
+        select case(noptwse)
         case(0)
           write(iunit(i),887)  '      wse(wave_time,wave_grid) = 0.0'     
         case(1)
@@ -678,16 +678,16 @@
         case(3)
           write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid) '
           write(iunit(i),887)  '             + tide(wave_time) - tide(flow_time)'
-        endselect 
+        end select 
         write(iunit(i),887)    '    Current Velocities:'
-        selectcase(noptvel)
+        select case(noptvel)
         case(0)
           write(iunit(i),887)  '      vel(wave_time,wave_grid) = 0.0'     
         case(1)
           write(iunit(i),887)  '      vel(wave_time,wave_grid) = vel(flow_time,flow_grid)'
-        endselect
+        end select
         write(iunit(i),887)    '    Bed Elevation: '
-        selectcase(noptzb)
+        select case(noptzb)
         case(0)
           write(iunit(i),887)  '      zb(wave_grid) = zb(wave_grid)'    
         case(1)
@@ -695,7 +695,7 @@
         case(2)
           write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(start_time,wave_grid) '    
           write(iunit(i),887)  '           + zb(flow_time,flow_grid) - zb(start_time,flow_grid)'    
-        endselect
+        end select
         !write(iunit(i),764)    '  Extrapolation Distance:   ',xtrpdistfl,' m'        
       elseif(noptset==4)then    
         write(iunit(i),*) ' '

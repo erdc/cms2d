@@ -25,7 +25,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('CONSTANT_WAVE_HEIGHT','WAVE_HEIGHT_CONSTANT','SIGNIFICANT_WAVE_HEIGHT_CONSTANT')
       call card_scalar(77,'m','m',waveheight,ierr)
       constant_waves = .true.
@@ -44,7 +44,7 @@
     case default 
       foundcard = .false.
       
-    endselect
+    end select
     
     return
     end subroutine wave_cards

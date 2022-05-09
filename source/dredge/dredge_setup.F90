@@ -52,7 +52,7 @@
     integer :: ierr
         
     foundcard = .true.
-    selectcase(cardname)    
+    select case(cardname)    
     case('DREDGE_UPDATE_INTERVAL')         
       !backspace(77)
       !read(77,*)cardname,dredge_interval
@@ -75,7 +75,7 @@
       foundcard = .false.
 !      write(*,*)trim(cardname)," not recognized"
        
-    endselect
+    end select
     
     return
     end subroutine dredge_cards        
@@ -98,7 +98,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
-      selectcase(cardname)
+      select case(cardname)
       case('NAME')    
         backspace(77)
         read(77,*)cardname,operation_name
@@ -119,7 +119,7 @@
       case default
         foundcard = .false.
         write(*,*)trim(cardname)," not recognized"          
-      endselect
+      end select
     enddo
     
     return
@@ -151,7 +151,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
-      selectcase(cardname)
+      select case(cardname)
       case('DEPTH_DATASET')
         call card_dataset(77,grdfile,flowpath,File,Path,1) 
         !backspace(77)
@@ -165,7 +165,7 @@
       case('START_METHOD')
         backspace(77)          
         read(77,*)cardname,METHOD 
-        selectcase(trim(METHOD))
+        select case(trim(METHOD))
         case('CELL', 'SPECIFIED CELL')               !meb added 'SPECIFIED CELL' 6/5/2019 to be consistent between interface and CMS input
           dredge_operations(ndredge_operations)%Dredge_Approach = 2
         case('SHALLOW')
@@ -173,7 +173,7 @@
         case default
           write(msg,*)'Incorrect value entered for Start method ',TRIM(METHOD)
           call diag_print_error(msg)
-        endselect
+        end select
       
       case('START_CELL')
         backspace(77)          
@@ -262,7 +262,7 @@
       case('DISTRIBUTION')
         backspace(77)          
         read(77,*)cardname,METHOD           
-        selectcase(trim(METHOD))
+        select case(trim(METHOD))
         case('SEQUENTIAL')
           dredge_operations(ndredge_operations)%PAmethod = 1    
         case('PERCENT')
@@ -270,7 +270,7 @@
         case default
           write(msg2,*)'DISTRIBUTION CARD INPUT NOT RECOGNIZED'
           call diag_print_error(msg2)
-        endselect  
+        end select  
       
       case('DREDGE_END')
         return
@@ -280,7 +280,7 @@
         write(msg2,*) trim(cardname)," not recognized"
         call diag_print_warning(msg2)
         
-      endselect
+      end select
     enddo
     
     return
@@ -326,7 +326,7 @@
         read(77,*,iostat=ierr) cardname
         if(ierr/=0) exit
         if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
-        selectcase(cardname) 
+        select case(cardname) 
   
         case('AREA','AREA_DATASET')
           call card_dataset(77,grdfile,flowpath,File,Path,1) 
@@ -338,7 +338,7 @@
         case('START_METHOD','PLACEMENT_METHOD')   
           backspace(77)
           read(77,*)cardname,METHOD
-          selectcase(trim(METHOD))
+          select case(trim(METHOD))
           case('UNIFORM')
             dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=1
           
@@ -348,7 +348,7 @@
           case default
             write(*,*)'PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED'
             STOP
-          endselect  
+          end select  
          
         case('DISTRIBUTION_PERCENTAGE')         
           backspace(77)

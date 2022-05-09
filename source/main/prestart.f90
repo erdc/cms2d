@@ -146,6 +146,8 @@
         call diag_print_message('  '//trim(cardList(i)%cardname))
       enddo
     endif
+    
+    if (c2shore .and. .not. cmswave) call diag_print_error ('The C2SHORE Transport option requires both Waves and Flow to be active')   !meb 05/09/22
 
     if(coldstart .and. hot_out)then
       if(hot_timehr) then
@@ -168,7 +170,7 @@
     write(*,*) 'Reading Grid'
     inquire(file=telfile,exist=foundfile)
     if(foundfile) igridtype = 1
-    selectcase(igridtype)
+    select case(igridtype)
     case(0)
       call fileext(grdfile,aext) 
       if(aext(1:2)=='h5')then
@@ -185,7 +187,7 @@
     !case(3); call read_curv     !Not implemented yet
     case default
       call diag_print_error('Unsupported Input Grid Type')
-    endselect
+    end select
 
 !--- Initialize -------------------------------
     write(*,*) 'Initializing Modules'
@@ -431,7 +433,7 @@
     logical :: foundcard
 
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
       case('CMS_VERSION')
       case('CMS-WAVE_SIM_FILE','CMS_WAVE_SIM_FILE','CMSWAVE_SIM_FILE','WAVE_SIM_FILE')
       case('STEERING_INTERVAL','CMS-STEERING_INTERVAL')
@@ -455,7 +457,7 @@
       case('BOUND_ADVECTION_EXTRAP_COEFFICIENT')
       case default
         foundcard = .false.
-    endselect
+    end select
 
     return    
     end subroutine ignr_cards 

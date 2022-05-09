@@ -49,7 +49,7 @@
     fromunits = 'hrs'
     tounits = 'sec'
     foundcard = .true.
-    selectcase(cardname)  
+    select case(cardname)  
       case('GLOBAL_STATISTICS')
         backspace(77)
         read(77,'(A)') aline
@@ -88,7 +88,7 @@
       case default
         foundcard = .false.
         
-    endselect
+    end select
     
     return
     end subroutine stat_cards

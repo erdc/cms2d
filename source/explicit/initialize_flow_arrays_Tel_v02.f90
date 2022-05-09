@@ -88,7 +88,7 @@
       w_cnt = 0
      
       do j=1,nmaxfaces
-        selectcase(idirface(j,i))
+        select case(idirface(j,i))
         case(1)
           n_cnt=N_cnt+1
         case(2)
@@ -97,7 +97,7 @@
           s_cnt=s_cnt+1
         case(4)
           w_cnt=w_cnt+1
-        endselect
+        end select
       enddo
     
       if(n_cnt .eq. 1) then

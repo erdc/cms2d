@@ -22,7 +22,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase (cardname)          
+    select case (cardname)          
       case('INCLUDE_VEGETATION') !Alex
         backspace(77)
         read(77,*) cardname, cdum
@@ -43,7 +43,7 @@
       case default
         foundcard = .false.  
 
-    endselect
+    end select
     
     return
     end subroutine veg_cards

@@ -192,7 +192,7 @@
     character(len=10) :: aext
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('SMS_VERSION')                !added MEB 03/19/2020 to assist with knowing which version of SMS output the CMCARDS file being used.
       backspace(77)
       read(77,*) cardname, SMS_ver
@@ -349,7 +349,7 @@
     case('TURBULENCE_MODEL')
       backspace(77)
       read(77,*) cardname, cdum
-      selectcase(cdum)
+      select case(cdum)
       case('CONSTANT')
         mturbul = 0
       case('FALCONER')
@@ -366,7 +366,7 @@
         if(doPrint) call diag_print_warning('Invalid turbulence model',&
           '  Check CMS-Flow Card File','  Using Subgrid model')
         mturbul = 5
-      endselect
+      end select
          
     case('EDDY_VISCOSITY_CONSTANT')
       backspace(77)
@@ -530,12 +530,12 @@
     case('TEMPORAL_SCHEME','IMPLICIT_SCHEME')
       backspace(77)
       read(77,*) cardname, cdum  
-      selectcase(cdum)
+      select case(cdum)
       case('THREE-LEVEL')
         wtsch = 1.0
       case default !('TWO-LEVEL')
         wtsch = 0.0
-      endselect  
+      end select  
           
     case('IMPLICIT_WEIGHTING_FACTOR')
       backspace(77)
@@ -566,7 +566,7 @@
     case default
       foundcard = .false.  
                           
-    endselect
+    end select
     
     return
     end subroutine flow_cards
@@ -599,7 +599,7 @@
     sqrtgrav = sqrt(grav)
       
     !Water density
-    selectcase(idensit) 
+    select case(idensit) 
       case(0) !User-specified
         !Solve for salinity based on input temperature and density
         epssal = 0.001  !iterative change in salinity
@@ -612,14 +612,14 @@
       case(1); rhow = water_density_ekart(watertemp,watersalt)
       case(2); rhow = water_density_UNESCO(watertemp,watersalt)
       case(3); rhow = water_density_fofonoff(watertemp,watersalt)    
-    endselect
+    end select
     
     !Kinematic viscosity, m^2/s
-    selectcase(iviscos) 
+    select case(iviscos) 
       !case(0); User-specified
       case(1); viscos = water_viscosity_kinematic(watertemp)  !Temperature only
       case(2); viscos = water_viscosity_dynamic(watertemp,watersalt)/rhow !Temperature and salinity
-    endselect
+    end select
       
     !Timing variables  
 !added meb 03/11/2019
@@ -731,7 +731,7 @@
     if(ncelljoint>0 .and. (nsolv==6 .or. nsolv==7))then
       nsolv = 4
     endif
-    selectcase(nsolv)
+    select case(nsolv)
     case(0) !ADI
       if(nswp0(1)==0) nswp(1)=40        
       if(nswp0(2)==0) nswp(2)=10
@@ -801,7 +801,7 @@
       if(nswp0(4)==0) nswp(4)=5
       if(nswp0(5)==0) nswp(5)=5
       if(maxit0==0)   maxit=20+ncells/10000      
-    endselect      
+    end select      
     nswp0=nswp      
     maxit0=maxit      
     rmom0=1.e10

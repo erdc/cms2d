@@ -46,7 +46,7 @@ contains
     integer, pointer :: jnodes(:)
     
     call fileext(bidfile,aext)
-    selectcase(aext)
+    select case(aext)
     case('h5')        
       !Only cellstrings stored in h5 file
       if(iBndStrType==2)then
@@ -69,7 +69,7 @@ contains
       endif
       if(idbnd==0) read(bidpath,*) idbnd
       call bnd_read_nodestr_2dm(idbnd,nstrnodes,jnodes) 
-    endselect
+    end select
     
     if(nstrcells==0)then
       msg='No cells found for cellstring: '//trim(bidpath)

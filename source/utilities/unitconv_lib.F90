@@ -215,7 +215,7 @@ contains
     !Creat Unit Conversion Table
     factable = 0.0 !Initialize
     contable = 0.0 !Initialize
-    selectcase(ifromtype)    
+    select case(ifromtype)    
     case(1) !Angles
     !from               rad                deg
     factable(1,1:2) = (/1.0               ,0.017453292519943/) !to rad
@@ -359,7 +359,7 @@ contains
     factable(1,1:2) = (/1.0        , 4.882427636/) !kg/m^2/s^2
     factable(2,1:2) = (/0.204816144, 1.0        /) !lb/ft^2/s^2
       
-    endselect
+    end select
     
     fac = factable(itounits,ifromunits)
     if(present(con)) con = contable(itounits,ifromunits)
@@ -381,7 +381,7 @@ contains
     ierr = 0
     aunitstemp = aunits
     call lowercase(aunitstemp)
-    selectcase(aunitstemp)
+    select case(aunitstemp)
     !--- None ----------------------
     case(' ','!','#','-')
       iunittype = 0; iunitid = 0
@@ -608,7 +608,7 @@ contains
     case default
       iunittype = 0; iunitid = 0; ierr = -1
       
-    endselect 
+    end select 
     
     return
     end subroutine unitcodes    

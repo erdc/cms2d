@@ -41,7 +41,7 @@
       endif
     endif
     
-    selectcase(iadapttot)
+    select case(iadapttot)
     case(1) !Constant length
       !$omp parallel do private(i)
       do i=1,ncells
@@ -94,7 +94,7 @@
       enddo
       !$omp end parallel do
       
-    endselect
+    end select
     
     return
     end subroutine adaptcoef  
@@ -114,7 +114,7 @@
     real(ikind) :: Lbedmin
     
     Lbedmin = 5.0*hdry
-    selectcase(iadaptbed)
+    select case(iadaptbed)
     case(2) !Adapatation time
       !$omp parallel do private(i)
       do i=1,ncells
@@ -143,7 +143,7 @@
       enddo  
       !$omp end parallel do   
         
-    endselect
+    end select
     
     return
     end subroutine adaptlenbed
@@ -170,7 +170,7 @@
     
     kt = max(nsed/2,1)
     vLsusmin = 5.0*hdry
-    selectcase(iadaptsus)              
+    select case(iadaptsus)              
       case(2) !Constant Time
         !$omp parallel do private(i)  
         do i=1,ncells  
@@ -236,7 +236,7 @@
         enddo   
         !$omp end parallel do 
         
-    endselect
+    end select
     
     return
     end subroutine adaptlensus
