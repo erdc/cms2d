@@ -194,8 +194,8 @@ SET( CMS_SOURCE_FILES
   ./waves/wave.F90
   ./waves/CMS-Wave_v3.2W_30Apr2020.f90
   ./waves/wave_rad_stress_fl.f90
-  ../external_libraries/proj_conv/utm2geo.F90
-  ../external_libraries/proj_conv/spcs83_combined.F90
+  ../external_libraries/proj_conv/utm2geo.f90
+  ../external_libraries/proj_conv/spcs83_combined.f90
 )
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")

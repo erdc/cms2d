@@ -2503,10 +2503,10 @@ d1: do k=1,10
           i27  = index(dtype,'27')
           i83  = index(dtype,'83')
           if (inad .gt. 0) then
-            if (i27) then
+            if (i27 > 0) then
               proj%iHorizDatum = 0
               matched=.true.
-            elseif (i83) then
+            elseif (i83 > 0) then
               proj%iHorizDatum = 1
               matched=.true.
             else

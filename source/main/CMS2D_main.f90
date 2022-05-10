@@ -22,7 +22,7 @@
 #endif
     use cms_def
     use diag_def
-    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine,major_version, minor_version, bugfix
+    use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version, minor_version, bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -41,7 +41,7 @@
     version  = 5.2           ! CMS version         !For interim version
     revision = 19            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '05/09/2022'
+    rdate    = '05/11/2022'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -55,10 +55,12 @@
 #endif
     
 #ifdef DEV_MODE
-    release  = .false.
+    release = .false.
 #else
     release = .true.
 #endif
+
+developmental = .false.      !Change this to .false. for truly RELEASE code   meb  05/11/2022
     
 #ifdef UNIT_TEST
     call CMS_test_run
@@ -400,12 +402,12 @@
 !************************************************************************    
     subroutine print_header
 !************************************************************************        
-    use comvarbl, only: version,revision,release,rdate,machine,major_version,minor_version,bugfix
+    use comvarbl, only: version,revision,release,developmental,rdate,machine,major_version,minor_version,bugfix
     use diag_def
     
     implicit none
     integer      :: iunit(2),i
-    character*12 :: string
+    character*22 :: string
 
 7009  format(' **********************************************************')
 7011  format('              U.S. Army Corps of Engineers                 ')
@@ -418,6 +420,7 @@
 7016  format('               Last updated - ',A10)
 7017  format('       For the latest version of CMS please visit          ')
 7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
+      
 9001  format('      By using this software the user has agreed to the    ')
 9002  format('      terms and conditions of CMS license agreement.       ') 
 9003  format('      A copy of the license can be obtained from the       ')
@@ -439,7 +442,10 @@
       write(iunit(i),7011)
       write(iunit(i),7012)
       write(iunit(i),7013)
-      if(.not.release)then      !BETA
+      if(developmental) then    !DEVELOPMENTAL - this overrides the 'release' setting.
+        string='DEVELOPMENTAL for'
+        write(iunit(i),7114)
+      elseif(.not.release)then  !BETA
         string='BETA for'
         write(iunit(i),7114)
       else                      !RELEASE

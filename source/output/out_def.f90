@@ -18,7 +18,7 @@ module out_def
     character(len=200) :: outprefix  !Prefix of output files including path
 	
 	integer			   :: noutputs = 74, aoutput_lengths(74)
-    character(len=30)  :: aoutputs(74)
+    character(len=35)  :: aoutputs(74)
     data aoutputs  /'Water_Elevation',&                          !Water Surface Elevation (1-15)
                     'Pres_Norm_Res',&      
                     'Pressure','Pressure1',&      

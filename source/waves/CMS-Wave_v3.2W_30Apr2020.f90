@@ -118,7 +118,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180 NestFile, StrucFile, SurgeFile
       CHARACTER*180 MudFile,  FricFile,  FrflFile,  BrflFile, WindFile
       CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
-      CHARACTER*180 SeaFile,  SwellFile                                 !Mitch 03/22/2017
+      CHARACTER*180 SeaFile,  SwellFile, TotalFile                      !Mitch 03/22/2017
       CHARACTER*80 :: cardname                                          !Mitch 10/18/2021
       
       logical :: foundfile, foundcard
@@ -323,7 +323,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             if(ierr .ne. 0) exit
             if(cardname(1:14)=='END_PARAMETERS') then
               if ((suppress_obs) .and. (kout .gt. 0)) then
-                kout = kout * -1     !added to suppress observation output  MEB  12/06/2021
+                kout = kout * (-1)     !added to suppress observation output  MEB  12/06/2021
               endif
               exit
             endif
@@ -8582,12 +8582,12 @@ contains
 !
         if(igetfile20.eq.1) then
 !
-        read(39,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-        read(39,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+        read(39,*) tship1,(xship1(n),yship1(n),n=1,nship)
+        read(39,*) tship2,(xship2(n),yship2(n),n=1,nship)
         backspace(39)
 !
-!         write(*,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-          write(*,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+!         write(*,*) tship1,(xship1(n),yship1(n),n=1,nship)
+          write(*,*) tship2,(xship2(n),yship2(n),n=1,nship)
 !
           do 299 n=1,nship
 
