@@ -30,7 +30,7 @@
     logical :: foundcard    
     
     foundcard = .true.
-    selectcase (cardname)        
+    select case (cardname)        
       !=== Tidal Gates ====================================            
       case('TIDE_GATE')         !Wu
         backspace(77)
@@ -205,7 +205,7 @@
       case default
         foundcard = .false.
         
-    endselect
+    end select
 
     return
     end subroutine struct_cards
@@ -272,7 +272,7 @@
     
     do i=1,30
       read(77,*,iostat=ierr) cardname
-      selectcase(cardname)
+      select case(cardname)
         case('WEIR_STRUCT_END','END')
           exit
           
@@ -378,7 +378,7 @@
     foundcard = .true.
     do i=1,30
       read(77,*,iostat=ierr) cardname
-      selectcase(cardname)
+      select case(cardname)
         case('NUMBER_WEIRS','NUMBER_WEIR')
           backspace(77)
           read(77,*) cardname,numweir
@@ -461,7 +461,7 @@
         read(*,*)
         foundcard = .false.
          
-      endselect
+      end select
     enddo
     
     return
@@ -484,7 +484,7 @@
       read(77,*,iostat=ierr) cardname      
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('NUMBER_CULVERTS')
           backspace(77)
           read(77,*) cardname,numculvert
@@ -622,7 +622,7 @@
           !write(*,*) 'Press any key to continue.'
           !read(*,*)
           
-      endselect
+      end select
     enddo
     
     return
@@ -643,7 +643,7 @@
     foundcard = .true.
     do i=1,30
       read(77,*,iostat=ierr) cardname
-      selectcase(cardname)
+      select case(cardname)
         case('NUMBER_TIDE_GATE')
           backspace(77)
           read(77,*) cardname,numtidegate
@@ -731,7 +731,7 @@
         read(*,*)
         foundcard = .false.
          
-    endselect
+    end select
     enddo
     
     return
@@ -756,7 +756,7 @@
 
     do i=1,30
       read(77,*,iostat=ierr) cardname
-      selectcase(cardname)
+      select case(cardname)
         case('OPERATION_TYPE')
           backspace(77)
           read(77,*,iostat=ierr) cardname,(operation_type(ii),ii=1,numtidegate)
@@ -824,7 +824,7 @@
         read(*,*)
         foundcard = .false.
          
-    endselect
+    end select
     enddo
     
     return
@@ -890,7 +890,7 @@
       read(77,*) cardname
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       
-      selectcase (cardname) 
+      select case (cardname) 
         case('RUBBLE_MOUND_END','END')
           exit
           
@@ -954,7 +954,7 @@
           
         case default
           foundcard = .false.
-        endselect              
+        end select              
       enddo
     end subroutine     
     

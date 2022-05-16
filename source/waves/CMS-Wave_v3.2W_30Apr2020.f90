@@ -118,7 +118,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180 NestFile, StrucFile, SurgeFile
       CHARACTER*180 MudFile,  FricFile,  FrflFile,  BrflFile, WindFile
       CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
-      CHARACTER*180 SeaFile,  SwellFile                                 !Mitch 03/22/2017
+      CHARACTER*180 SeaFile,  SwellFile, TotalFile                      !Mitch 03/22/2017
       CHARACTER*80 :: cardname                                          !Mitch 10/18/2021
       
       logical :: foundfile, foundcard
@@ -323,7 +323,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             if(ierr .ne. 0) exit
             if(cardname(1:14)=='END_PARAMETERS') then
               if ((suppress_obs) .and. (kout .gt. 0)) then
-                kout = kout * -1     !added to suppress observation output  MEB  12/06/2021
+                kout = kout * (-1)     !added to suppress observation output  MEB  12/06/2021
               endif
               exit
             endif
@@ -1320,14 +1320,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             do i=1,n
               do j=1,nestin
                 read(8,'(a150)',err=1333,end=1333) test
-                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+                !READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)   NF was zero.  MEB 05/04/2022
+                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           else
             do i=1,n
-              do j=1,nestin
-                read(8,*)
-                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              do j=1,nestin1   !was 'nestin' which returned zero.
+                read(8,'(a150)',err=1333,end=1333) test  !skip over edate, ws, wd, fp, Tide
+                read(8,*)                                !skip over 3 values
+                !READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)             NF was zero.  MEB 05/04/2022
+                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           end if
@@ -8579,12 +8582,12 @@ contains
 !
         if(igetfile20.eq.1) then
 !
-        read(39,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-        read(39,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+        read(39,*) tship1,(xship1(n),yship1(n),n=1,nship)
+        read(39,*) tship2,(xship2(n),yship2(n),n=1,nship)
         backspace(39)
 !
-!         write(*,*) tship1,((xship1(n),yship1(n)),n=1,nship)
-          write(*,*) tship2,((xship2(n),yship2(n)),n=1,nship)
+!         write(*,*) tship1,(xship1(n),yship1(n),n=1,nship)
+          write(*,*) tship2,(xship2(n),yship2(n),n=1,nship)
 !
           do 299 n=1,nship
 

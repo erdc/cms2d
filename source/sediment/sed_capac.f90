@@ -2,14 +2,14 @@
 ! CMS Sediment Transport Capacity/Formulas
 !
 ! Contains the following:
-!     sedcapac_soulsby - Calculates the concentration capacity using the 
-!                    Soulsby-van Rijn transport equations
-!     sedcapac_vanrijn - Calculates the concentration capacity using the 
-!                    Van Rijn transport equations
-!     sedcapac_watanabe - Calculates the concentration capacity using the 
-!                    Watanabe transport equation
+!     sedcapac_soulsby  - Calculates the concentration capacity using the Soulsby-van Rijn transport equations
+!     sedcapac_vanrijn  - Calculates the concentration capacity using the Van Rijn transport equations
+!     sedcapac_watanabe - Calculates the concentration capacity using the Watanabe transport equation
+!     sedcapac_lundcirp - Calculates the transport capacity based on the Lund-CIRP equations      
+!     sedcapac_c2shore  - Calculates the transport capacity based on the C2SHORE model                           bdj 2019
 !
-! written by Alex Sanchez, USACE-CHL
+! written by Alex Sanchez, USACE-CHL 
+! written by Brad Johnson, USACE-CHL
 !========================================================================
 
 !********************************************************************
@@ -364,8 +364,8 @@ subroutine sedcapac_watanabe
 end subroutine sedcapac_watanabe
 
 !********************************************************************
-subroutine sedcapac_cshore
-  ! Calculates the transport capacity based on the CSHORE model
+subroutine sedcapac_c2shore
+  ! Calculates the transport capacity based on the C2SHORE model
   ! written by Brad Johnson, USACE-CHL
   !********************************************************************    
   use size_def
@@ -386,7 +386,7 @@ subroutine sedcapac_cshore
   real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSwf,CSsg,CSVs,qb
   !real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs      !CSeffb now defined in sed_def and initialized in sed_default - bdj 6/7/19
 
-  !write(*,*)'bdj in sedcapac_cshore , noptset = ',noptset
+  !write(*,*)'bdj in sedcapac_c2shore , noptset = ',noptset
   iripple = 1               
   gamma = 0.78      
   !Parallel statements added 6/20/2018 - meb  
@@ -412,14 +412,16 @@ subroutine sedcapac_cshore
         call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
         qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
         CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
-        CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing CSHORE convention of depth integrated 
-        ! if (i.eq.487)         write(*,*)'i,CSPs,CSDf,CSDb,CSVs,CSwf',i,CSPs,CSDf,CSDb,CSVs,CSwf
-        ! if (i.eq.487)         write(*,*)'x(cell2cell(4,i)),x(cell2cell(2,i))',x(cell2cell(4,i)),x(cell2cell(2,i))
-        ! if (i.eq.487)         write(*,*)'h(cell2cell(4,i)),h(i),h(cell2cell(2,i))',h(cell2cell(4,i)),h(i),h(cell2cell(2,i))
-        ! if (i.eq.487)         write(*,*)'Hs(cell2cell(4,i)),Hs(i),Hs(cell2cell(2,i))',Whgt(cell2cell(4,i)),Whgt(i),Whgt(cell2cell(2,i))
-        ! if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
-        ! if (i.eq.487)         write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
-        ! volumentric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
+        CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing C2SHORE convention of depth integrated 
+        ! if (i.eq.487) then
+        !   write(*,*)'i,CSPs,CSDf,CSDb,CSVs,CSwf',i,CSPs,CSDf,CSDb,CSVs,CSwf
+        !   write(*,*)'x(cell2cell(4,i)),x(cell2cell(2,i))',x(cell2cell(4,i)),x(cell2cell(2,i))
+        !   write(*,*)'h(cell2cell(4,i)),h(i),h(cell2cell(2,i))',h(cell2cell(4,i)),h(i),h(cell2cell(2,i))
+        !   write(*,*)'Hs(cell2cell(4,i)),Hs(i),Hs(cell2cell(2,i))',Whgt(cell2cell(4,i)),Whgt(i),Whgt(cell2cell(2,i))
+        !   write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
+        !   write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
+        ! endif
+    ! volumetric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
         ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
         ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
         if(wavesedtrans)then
@@ -434,15 +436,15 @@ subroutine sedcapac_cshore
           !QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*1 !commented 2021-01-08
 
           !QwsP(i,ks) = -rhosed*(csslp)*us(i) !Potential net onshore transport, kg/m/sec
-          ! if (i.eq.487) write(*,*)'in sedcapac_cshore, now setting QwsP(487,ks)',QwsP(i,ks)
-          ! if (i.eq.487) write(*,*)'in sedcapac_cshore, u(487),us(487),vs(487)',u(487),us(487),vs(487)
+          ! if (i.eq.487) write(*,*)'in sedcapac_c2shore, now setting QwsP(487,ks)',QwsP(i,ks)
+          ! if (i.eq.487) write(*,*)'in sedcapac_c2shore, u(487),us(487),vs(487)',u(487),us(487),vs(487)
         endif
      enddo
    enddo
 !  !!$OMP END PARALLEL DO  
 
   return
-end subroutine sedcapac_cshore
+end subroutine sedcapac_c2shore
 
 subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
   ! calculates the probability of sediment suspention, Ps

@@ -77,7 +77,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)          
+    select case(cardname)          
     case('QUASI3D_MODE','Q3D_MODE')
       call card_boolean(77,q3d,ierr)
       
@@ -191,7 +191,7 @@
     case default
       foundcard = .false.  
                
-    endselect
+    end select
     
     return
     end subroutine q3d_cards

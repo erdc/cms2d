@@ -428,7 +428,7 @@
     endif  
     
     call lowercase(aext)
-    selectcase(aext)
+    select case(aext)
     case('h5')
       call bndpath2id(bidpath,idnum)
     case('2dm','bid')
@@ -437,7 +437,7 @@
     case default
       call diag_print_error('Unsupported Boundary ID File type: ',bidpath,&
         '  File must be *.h5, *.2dm, or *.bid')
-    endselect
+    end select
     
     return
     end subroutine card_bid    

@@ -31,7 +31,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('DEBUG_MODE','DIAGNOSTIC_MODE')
       call card_boolean(77,debug_mode,ierr)
      
@@ -46,7 +46,7 @@
     case default
       foundcard = .false.        
       
-    endselect
+    end select
     
     return
     end subroutine diag_cards

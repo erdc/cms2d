@@ -68,7 +68,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('WATER_HEAT')                              !Not implemented
       call card_scalar(77,'c','c',heatic,ierr)
       watertemp = heatic
@@ -138,7 +138,7 @@
     case default
       foundcard = .false.
           
-    endselect
+    end select
     
     return
     end subroutine heat_cards
@@ -162,7 +162,7 @@ d1: do k=1,10
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('HEAT_CURVE', 'TEMPERATURE_CURVE')
         call card_dataset(77,mpfile,flowpath,heat_str(nheatstr)%heatfile,heat_str(nheatstr)%heatpath,1)
         
@@ -185,7 +185,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo d1
       
     return
@@ -212,7 +212,7 @@ d1: do k=1,10
 !      read(77,*,iostat=ierr) cardname
 !      if(ierr/=0) exit
 !      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-!      selectcase(cardname)  
+!      select case(cardname)  
 !      case('HEAT_CURVE')
 !        call card_dataset(77,mpfile,flowpath,heatfile,heatpath)
 !        iheattype = 2
@@ -228,7 +228,7 @@ d1: do k=1,10
 !      case default
 !        foundcard = .false.
 !        
-!      endselect
+!      end select
 !    enddo d1
 !      
 !    return
@@ -540,12 +540,12 @@ d1: do k=1,10
     call heatdatainterpol  ! Determine solar radiation at current time step
     
     !Compute matrix coefficients and source/sink terms
-    selectcase(ndsch) 
+    select case(ndsch) 
     case(2);      call coeffsourcesink_heat(hybridcoef)
     case(3);      call coeffsourcesink_heat(powerlawcoef)
     case(4);      call coeffsourcesink_heat(exponentialcoef)
     case default; call coeffsourcesink_heat(upwindcoef)
-    endselect
+    end select
 
     call heatfluxsrc
     
@@ -564,23 +564,23 @@ d1: do k=1,10
       su=suheat0
       !Compute deferred corrections
       if(ncellsimple==ncells)then !No gradients required
-        selectcase(ndsch) !Anti-diffusion corrections
+        select case(ndsch) !Anti-diffusion corrections
         case(5); call defcorhlpa(heat,su)
         case(6); call defcorgamma(gammadefcor,heat,su)
         case(7); call defcorgamma(cubistadefcor,heat,su)
         case(8); call defcorgamma(alvsmartdefcor,heat,su)
         case(9); call defcorgamma(hoabdefcor,heat,su)
-        endselect
+        end select
       else 
         call der_grad_eval(gow,nlim,heat,dheatx,dheaty)
-        selectcase(ndsch) !Anti-diffusion corrections
+        select case(ndsch) !Anti-diffusion corrections
         case(5); call defcorhlpagrad(heat,dheatx,dheaty,su)
         case(6); call defcorgammagrad(gammadefcor,heat,dheatx,dheaty,su)
         case(7); call defcorgammagrad(cubistadefcor,heat,dheatx,dheaty,su)
         case(8); call defcorgammagrad(alvsmartdefcor,heat,dheatx,dheaty,su)
         case(9); call defcorgammagrad(hoabdefcor,heat,dheatx,dheaty,su)
         case default; if(skewcor) call defcorparagrad(dheatx,dheaty,su) !Skewness correction 
-        endselect
+        end select
       endif
       !Solve matrix for heat
       call solve(acoef,su,sp,rsheat,heat,5)

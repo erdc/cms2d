@@ -58,7 +58,7 @@ contains
     do
       read(88,*,iostat=ierr) cardname
       if(ierr/=0) exit
-      selectcase(cardname)
+      select case(cardname)
         case('SIMULATION_LABEL')
           backspace(88)
           read(88,*) cardname, simlabelpar
@@ -160,7 +160,7 @@ contains
             endif
           endif
           
-      endselect
+      end select
     enddo
 741 close(88)
     
@@ -256,12 +256,12 @@ contains
           ncfpar(i) = ncfpar(i) + 1
           kk=ncfpar(i)
           c2cpar(i,kk) = loctemp(k)
-          selectcase(k)
+          select case(k)
             case(1,2); idfpar(i,kk)=1
             case(3,4); idfpar(i,kk)=2
             case(5,6); idfpar(i,kk)=3
             case(7,8); idfpar(i,kk)=4
-          endselect
+          end select
         endif        
       enddo
       if(abs(ztemp+999.0)>1.0e-4)then

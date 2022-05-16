@@ -54,7 +54,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase (cardname)      
+    select case (cardname)      
     case('CALC_ROLLER','SURFACE_ROLLER','ROLLER')
       call card_boolean(77,roller,ierr)  
         
@@ -89,7 +89,7 @@
     case default
       foundcard = .false.
           
-    endselect
+    end select
 
     return
     end subroutine rol_cards
@@ -272,7 +272,7 @@
 !!          continue
 !!        endif    
         if(irxy(i,j)==0) cycle
-        selectcase(irolscheme)
+        select case(irolscheme)
           case(1) !First Order Upwind scheme
             if(j>1 .and. cy(i,j)>0.0)then
               cySrdy=(cy(i,j)*Sr(i,j)-cy(i,j-1)*Sr(i,j-1))/dely(j)      
@@ -350,7 +350,7 @@
           else
             cxSrdx=0.0  
           endif                         
-        endselect      
+        end select      
         roldiss(i,j)=grav*br*Sr(i,j)/c(i,j)                     !Stive and De Vriend, Note: Sr=2*Er
         val=dtrol*(-cxSrdx-cySrdy-roldiss(i,j)+ceff*wdiss(i,j)) !Wave dissipation units should be N/m/s=kg/s^3
         Sr(i,j)=Sr(i,j)+val  

@@ -23,8 +23,11 @@
 #endif    
 !! Added MEB  9/20/2021
     use flow_def, only: maxeta
-    use out_lib, only: writescalh5, write_scal_dat_file
-    
+    use out_lib,  only: write_scal_dat_file
+#ifdef XMDF_IO
+    use out_lib, only: writescalh5
+#endif
+
     implicit none
     character(len=200) :: apath, aname
     

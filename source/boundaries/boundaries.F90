@@ -94,7 +94,7 @@
     logical :: foundcard    
     
     foundcard = .true.
-    selectcase (cardname)
+    select case (cardname)
     case('BOUNDARY_VELOCITY_DAMPING','VELOCITY_DAMPING')
       backspace(77)  
       read(77,*) cardname,veldamp
@@ -188,7 +188,7 @@
     case default
       foundcard = .false.
         
-    endselect
+    end select
 
     return
     end subroutine bnd_cards
@@ -305,7 +305,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)
+      select case(cardname)
       case('RATING_CURVE','STAGE_FLOW_CURVE','STAGE_FLUX_CURVE')
         call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1)
         ibndtype = 1 !Q-1
@@ -364,14 +364,14 @@
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     if(ibndtype==0)then
       call diag_print_error('Input flux data must be specified for flux block')
     endif
     
-    selectcase(qunits) !0-m^3/s/cell,1-m^3/s,2-ft^3/s
+    select case(qunits) !0-m^3/s/cell,1-m^3/s,2-ft^3/s
     case('m^3/s/cell','m^3/sec/cell','CUBIC_METERS_PER_SECOND_PER_CELL','!','#')     !Default
       ifluxunits = 0
     case('m^3/s','m^3/s/boundary','m^3/sec','m^3/sec/boundary','CUBIC_METERS_PER_SECOND_PER_BOUNDARY')
@@ -386,7 +386,7 @@
         '  CUBIC_METERS_PER_SECOND_PER_CELL',&
         '  CUBIC_METERS_PER_SECOND_PER_BOUNDARY',&
         '  CUBIC_FEET_PER_SECOND_PER_BOUNDARY')
-    endselect
+    end select
     
     return
     end subroutine flux_block
@@ -430,7 +430,7 @@
       !if(foundcard) cycle 
       !call bnd_space_smooth_cards(cardname,nssi,nssw,foundcard)
       !if(foundcard) cycle 
-      selectcase(cardname)    
+      select case(cardname)    
       case('WSE_BOUNDARY_END','WSE_END','WSE_FORCING_END','END')
         exit
           
@@ -465,14 +465,14 @@
       case('INTERPOLATION_METHOD')  
         backspace(77)
         read(77,*) cardname,cdum
-        selectcase(cdum)
+        select case(cdum)
         case('PIECEWISE_POLYNOMIAL','PWP')    
           minterp = 1
         case('CUBIC_SPLINE','CS')
           minterp = 2
         case default
           minterp = 1
-        endselect
+        end select
         
       case('TIME_INTERP_ORDER')
         backspace(77)
@@ -532,7 +532,7 @@
       case('WSE_CONSTITUENTS')
         backspace(77)
         read(77,*) cardname,cdum
-        selectcase(cdum)
+        select case(cdum)
         case('TIDAL_CONSTITUENTS','TIDAL')    
           ibndtype = 2  !2=TH 
           istidal = .true.
@@ -547,12 +547,12 @@
             '    TIDAL_CONSTITUENTS',&
             '    HARMONIC_CONSTITUENTS',&
             '    TIDAL_DATABASE')
-        endselect
+        end select
         
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     return
@@ -587,7 +587,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)        
+      select case(cardname)        
       case('VEL_BOUNDARY_END','VEL_END','VEL_FORCING_END','END')
         exit
           
@@ -636,19 +636,19 @@
       case('VEL_CONSTITUENTS','CONSTITUENTS','VELOCITY_CONSTITUENTS')
         backspace(77)
         read(77,*) cardname,cdum
-        selectcase(cdum)
+        select case(cdum)
         case('TIDAL_DATABASE')
           ibndtype = 9  !9=NTH 
           
         case default
           call diag_print_error('Invalid value for card VEL_CONSTITUENTS',&
             '  Only valid options is:','    TIDAL_DATABASE')
-        endselect
+        end select
         
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     return
@@ -709,7 +709,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)
+      select case(cardname)
       case('TIDAL_CONSTITUENTS_END','TIDAL_END','END')
         exit
           
@@ -763,7 +763,7 @@
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     call unitconv_var(ampunits,'m',ampfac)
@@ -824,7 +824,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)
+      select case(cardname)
       case('HARMONIC_CONSTITUENTS_END','HARMONIC_END','END')
         exit
           
@@ -862,7 +862,7 @@
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     call unitconv_var(ampunits,'m',ampfac)
@@ -935,7 +935,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('TIDAL_STATION_END','STATION_END','END')
         exit
         
@@ -988,7 +988,7 @@
       case default
         foundcard = .false.
             
-      endselect
+      end select
     enddo
     
     tstafile = trim(tstapath) // trim(tstaname)
@@ -1115,7 +1115,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)        
+      select case(cardname)        
       case('PARENT_END','PARENT_SIMULATION_END','END')
         exit
           
@@ -1175,7 +1175,7 @@
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     return
@@ -1210,7 +1210,7 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)
+      select case(cardname)
       case('TIDAL_DATABASE_END','DATABASE_END','END')
         exit
           
@@ -1251,7 +1251,7 @@
       case default
         foundcard = .false.
           
-      endselect
+      end select
     enddo
     
     return
@@ -1557,7 +1557,7 @@ d1: do i=1,ntf
       backspace(77)
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      selectcase(cardname)
+      select case(cardname)
       case('HARMONIC_END','HARMONICS_END','HARMONIC_COMPONENTS_END','END')  
         exit  
       case default      
@@ -1576,7 +1576,7 @@ d1: do i=1,ntf
             exit
           endif  
         endif  
-      endselect
+      end select
     enddo d1        
     if(.not.Tread)then
       call tidal_alloc
@@ -4860,7 +4860,7 @@ d1: do i=1,ntf
     endif
         
     do i=nn,1,-1
-      selectcase(apath(i:i))
+      select case(apath(i:i))
       case('#')        
         read(apath(i+1:nn),*) id
         return
@@ -4877,7 +4877,7 @@ d1: do i=1,ntf
         id = 1
         return
 
-      endselect  
+      end select  
     enddo
     
     return

@@ -67,7 +67,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)
+    select case(cardname)
     case('WATER_SALINITY')
       call card_scalar(77,'ppt','ppt',salic,ierr)
       watersalt = salic
@@ -132,7 +132,7 @@
     case default
       foundcard = .false.
           
-    endselect
+    end select
     
     return
     end subroutine sal_cards
@@ -155,7 +155,7 @@ d1: do k=1,10
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('SALINITY_CURVE')
         call card_dataset(77,mpfile,flowpath,sal_str(nsalstr)%salfile,sal_str(nsalstr)%salpath,1)
         
@@ -169,7 +169,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo d1
       
     return
@@ -196,7 +196,7 @@ d1: do k=1,10
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)  
+      select case(cardname)  
       case('SALINITY_CURVE')
         call card_dataset(77,mpfile,flowpath,salfile,salpath,1)
         isaltype = 2
@@ -212,7 +212,7 @@ d1: do k=1,10
       case default
         foundcard = .false.
         
-      endselect
+      end select
     enddo d1
       
     return
@@ -530,12 +530,12 @@ d1: do k=1,10
     !Evaluate salinity boundary conditions
     call bndsaleval         
     !Compute matrix coefficients and source/sink terms
-    selectcase(ndsch) 
+    select case(ndsch) 
     case(2); call coeffsourcesink_sal(hybridcoef)
     case(3); call coeffsourcesink_sal(powerlawcoef)
     case(4); call coeffsourcesink_sal(exponentialcoef)
     case default; call coeffsourcesink_sal(upwindcoef)
-    endselect
+    end select
     !Apply boundary conditions
     call bound_sal  
     !Check matrix and source terms
@@ -551,23 +551,23 @@ d1: do k=1,10
       su=susal0
       !Compute deferred corrections
       if(ncellsimple==ncells)then !No gradients required
-        selectcase(ndsch) !Anti-diffusion corrections
+        select case(ndsch) !Anti-diffusion corrections
         case(5); call defcorhlpa(sal,su)
         case(6); call defcorgamma(gammadefcor,sal,su)
         case(7); call defcorgamma(cubistadefcor,sal,su)
         case(8); call defcorgamma(alvsmartdefcor,sal,su)
         case(9); call defcorgamma(hoabdefcor,sal,su)
-        endselect
+        end select
       else 
         call der_grad_eval(gow,nlim,sal,dsalx,dsaly)
-        selectcase(ndsch) !Anti-diffusion corrections
+        select case(ndsch) !Anti-diffusion corrections
         case(5); call defcorhlpagrad(sal,dsalx,dsaly,su)
         case(6); call defcorgammagrad(gammadefcor,sal,dsalx,dsaly,su)
         case(7); call defcorgammagrad(cubistadefcor,sal,dsalx,dsaly,su)
         case(8); call defcorgammagrad(alvsmartdefcor,sal,dsalx,dsaly,su)
         case(9); call defcorgammagrad(hoabdefcor,sal,dsalx,dsaly,su)
         case default; if(skewcor) call defcorparagrad(dsalx,dsaly,su) !Skewness correction 
-        endselect
+        end select
       endif
       !Solve matrix for salinity
       call solve(acoef,su,sp,rssal,sal,5)

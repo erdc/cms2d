@@ -22,7 +22,7 @@
 #endif
     use cms_def
     use diag_def
-    use comvarbl,   only: ctime,Version,Revision,release,rdate,nfsch,machine,major_version, minor_version, bugfix
+    use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version, minor_version, bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -38,10 +38,10 @@
 
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
-    version  = 5.2           ! CMS version         !For interim version
-    revision = 18            ! Revision number
+    version  = 5.3           ! CMS version         !For interim version
+    revision = 0            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '04/29/2022'
+    rdate    = '05/16/2022'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -55,10 +55,12 @@
 #endif
     
 #ifdef DEV_MODE
-    release  = .false.
+    release = .false.
 #else
     release = .true.
 #endif
+
+developmental = .false.      !Change this to .false. for truly RELEASE code   meb  05/11/2022
     
 #ifdef UNIT_TEST
     call CMS_test_run
@@ -167,7 +169,7 @@
       astr = toLower(trim(astr))              !moved below previous line to retain the exact filename - meb 05/15/2020
       laext = toLower(trim(aext))             !needed to compare the lower-case version of the extension but retain the original case - meb 05/21/2020
       if (astr == 'inline' .or. astr == 'tools') laext=astr
-      selectcase(laext)
+      select case(laext)
         case('cmcards') !Flow model
           ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
           flowpath = apath
@@ -230,7 +232,7 @@
           write(*,*) 'Press any key to continue.'
           read(*,*)
           stop
-      endselect      
+      end select      
     enddo
 
 !CMS was called with no arguments but user entered Flow parameter filename, also ask for Wave info
@@ -400,12 +402,12 @@
 !************************************************************************    
     subroutine print_header
 !************************************************************************        
-    use comvarbl, only: version,revision,release,rdate,machine,major_version,minor_version,bugfix
+    use comvarbl, only: version,revision,release,developmental,rdate,machine,major_version,minor_version,bugfix
     use diag_def
     
     implicit none
     integer      :: iunit(2),i
-    character*12 :: string
+    character*22 :: string
 
 7009  format(' **********************************************************')
 7011  format('              U.S. Army Corps of Engineers                 ')
@@ -418,6 +420,7 @@
 7016  format('               Last updated - ',A10)
 7017  format('       For the latest version of CMS please visit          ')
 7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
+      
 9001  format('      By using this software the user has agreed to the    ')
 9002  format('      terms and conditions of CMS license agreement.       ') 
 9003  format('      A copy of the license can be obtained from the       ')
@@ -439,7 +442,10 @@
       write(iunit(i),7011)
       write(iunit(i),7012)
       write(iunit(i),7013)
-      if(.not.release)then      !BETA
+      if(developmental) then    !DEVELOPMENTAL - this overrides the 'release' setting.
+        string='DEVELOPMENTAL for'
+        write(iunit(i),7114)
+      elseif(.not.release)then  !BETA
         string='BETA for'
         write(iunit(i),7114)
       else                      !RELEASE
@@ -668,7 +674,7 @@
         write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Extrapolation: '
         write(iunit(i),887)    '    Water Level: '
-        selectcase(noptwse)
+        select case(noptwse)
         case(0)
           write(iunit(i),887)  '      wse(wave_time,wave_grid) = 0.0'     
         case(1)
@@ -678,16 +684,16 @@
         case(3)
           write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid) '
           write(iunit(i),887)  '             + tide(wave_time) - tide(flow_time)'
-        endselect 
+        end select 
         write(iunit(i),887)    '    Current Velocities:'
-        selectcase(noptvel)
+        select case(noptvel)
         case(0)
           write(iunit(i),887)  '      vel(wave_time,wave_grid) = 0.0'     
         case(1)
           write(iunit(i),887)  '      vel(wave_time,wave_grid) = vel(flow_time,flow_grid)'
-        endselect
+        end select
         write(iunit(i),887)    '    Bed Elevation: '
-        selectcase(noptzb)
+        select case(noptzb)
         case(0)
           write(iunit(i),887)  '      zb(wave_grid) = zb(wave_grid)'    
         case(1)
@@ -695,7 +701,7 @@
         case(2)
           write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(start_time,wave_grid) '    
           write(iunit(i),887)  '           + zb(flow_time,flow_grid) - zb(start_time,flow_grid)'    
-        endselect
+        end select
         !write(iunit(i),764)    '  Extrapolation Distance:   ',xtrpdistfl,' m'        
       elseif(noptset==4)then    
         write(iunit(i),*) ' '

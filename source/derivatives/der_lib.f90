@@ -1330,7 +1330,7 @@ contains
     real(ikind),intent(in),dimension(ncellsD) :: var
     real(ikind),intent(inout),dimension(ncellsD) :: dvarx,dvary
     
-    selectcase(ilim)
+    select case(ilim)
     case(1); call limitslope(minmodslopelim,var,dvarx,dvary)
     case(2); call limitslope(vanleerslopelim,var,dvarx,dvary)
     case(3); call limitslope(vanalbadaslopelim,var,dvarx,dvary)
@@ -1339,7 +1339,7 @@ contains
     case(6); call bjlim(venkatakrishnan,var,dvarx,dvary)
     case(7); call lcdlim(minmodfun,var,dvarx,dvary)
     case(8); call lcdlim(venkatakrishnan,var,dvarx,dvary)
-    endselect
+    end select
     
     return
     end subroutine slopelim
@@ -1356,14 +1356,14 @@ contains
     real(ikind),intent(in),dimension(ncellsD) :: u,v
     real(ikind),intent(inout),dimension(ncellsD) ::dux,duy,dvx,dvy
     
-    selectcase(ilim)
+    select case(ilim)
     case(1); call limitslopevec(minmodslopelim,u,v,dux,duy,dvx,dvy)
     case(2); call limitslopevec(vanleerslopelim,u,v,dux,duy,dvx,dvy)
     case(3); call limitslopevec(vanalbadaslopelim,u,v,dux,duy,dvx,dvy)
     case(4); call limitslopevec(musclslopelim,u,v,dux,duy,dvx,dvy)
     case(5); call bjlimvec(minmodfun,u,v,dux,duy,dvx,dvy)
     case(6); call bjlimvec(venkatakrishnan,u,v,dux,duy,dvx,dvy)
-    endselect
+    end select
     
     return
     end subroutine slopelimvec

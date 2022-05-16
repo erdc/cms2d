@@ -131,7 +131,7 @@
     logical :: foundcard
     
     foundcard = .true.
-    selectcase(cardname)            
+    select case(cardname)            
       case('WIND_OUT_TIMES_LIST')
         backspace(77)
         read(77,*) cardname, outlist(8)%ilist   
@@ -319,7 +319,7 @@
       case default
         foundcard = .false.
           
-    endselect
+    end select
     
     return        
     end subroutine met_cards
@@ -345,7 +345,7 @@ d1: do ii=1,15
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('WIND_FILE')  
           call card_dataset(77,mpfile,flowpath,windfile,windpath,1)
           if(len_trim(windfile)==0)then
@@ -397,7 +397,7 @@ d1: do ii=1,15
           
         case default
           foundcard = .false.
-      endselect
+      end select
     enddo d1
 
     if(len_trim(windpath)==0)then
@@ -428,7 +428,7 @@ d1: do ii=1,4
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('WIND_FILE')
           backspace(77)
           read(77,*) cardname,windfile
@@ -450,7 +450,7 @@ d1: do ii=1,4
           
         case default
           foundcard = .false.
-      endselect
+      end select
     enddo d1
 
     if(.not.projblock)then !Set to geographic, degrees
@@ -485,7 +485,7 @@ d1: do ii=1,4
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('WIND_PRESSURE_SINGLE_END','WIND_PRESSURE_END','END')
           exit d1
           
@@ -531,7 +531,7 @@ d1: do ii=1,4
   
         case default
           foundcard = .false.
-      endselect
+      end select
     enddo d1
 
     return
@@ -1400,7 +1400,7 @@ d1: do ii=1,4
     
     !Read Files
     fac = wndfac*wind_heightcorr(wndht) !Temporal and vertical coordinate factors
-    selectcase(windformat)
+    select case(windformat)
     case(0) !OceanWeather, Inc.
       ierr = 0  
       do while(timehrs+1.0e-5>windhr2 .and. ierr==0)
@@ -1491,7 +1491,7 @@ d1: do ii=1,4
         call rotate_vector(ncellsD,ncells,azimuth_fl,uwind2,vwind2)        
       enddo
       
-    endselect          
+    end select          
     
     !Wind temporal interpolation
     call interp_met2hr(timehrs,windhr1,windhr2,ramp,ncellsD,ncellsD,&
@@ -1669,7 +1669,7 @@ d1: do ii=1,20
       foundcard = .true.
       read(77,*,err=171) cardname
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      selectcase(cardname)
+      select case(cardname)
         case('NAME','STATION_NAME')
           backspace(77)
           read(77,*) cardname,metsta(nMetSta)%name
@@ -1779,7 +1779,7 @@ d1: do ii=1,20
           
         case default
           foundcard = .false.
-      endselect
+      end select
     enddo d1
 171 continue    
     

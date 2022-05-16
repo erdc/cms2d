@@ -221,7 +221,7 @@
       group(i) = ''
     enddo
     foundcard = .true.
-    selectcase(cardname)    
+    select case(cardname)    
       case('SIMULATION_LABEL')
         backspace(77)
         read(77,*) cardname, simlabel    
@@ -821,7 +821,7 @@
       case default 
         foundcard = .false.   
         
-    endselect
+    end select
     
     return
     contains        
@@ -873,7 +873,7 @@
           read(77,*,iostat=ierr) cardname
           if(ierr/=0) exit
           if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle      
-          selectcase(cardname)
+          select case(cardname)
           case('NAME','LABEL')
             backspace(77)
             read(77,*) cardname,ptname 
@@ -899,7 +899,7 @@
             write(*,*) 'WARNING: Card ',cardname,' not found in save point block'
             write(*,*) '  Check input CMS Card File. Skipping card.'
           
-          endselect
+          end select
         enddo
         
         call savept_add(ptname,cell,xsave,ysave,ngroups,group)
@@ -964,7 +964,7 @@
         character(len=*) :: group
         integer ::      idum
         
-        selectcase(group)
+        select case(group)
         case('HYDRO','FLOW')
           idum = 1
         case('SEDIMENT','SED')
@@ -3432,7 +3432,7 @@ implicit none
       theta = azimuth_fl*deg2rad  !For local -> global conversion
       do i=1,ngroups
         if(savept(i)%active .and. abs(mod(timesecs,savept(i)%time_inc))<0.5)then
-          selectcase(i)
+          select case(i)
           case(1)    !Hydro
             call write_savept_scalar(1,1,eta)
             Ug = (u-us)*cos(theta)  - (v-vs)*sin(theta) !Convert to global  

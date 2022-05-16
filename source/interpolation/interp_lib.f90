@@ -703,14 +703,14 @@ dj:   do j=1,nj
         elseif(intp(0,i,j)==0 .and. iextrap>0)then !intp(1,i,j)==0 -> Extrapolation point
           ii = intp(1,i,j)
           if(iwettel(ii)==1)then !Wet  
-            selectcase(iextrap)
+            select case(iextrap)
             case(1) !Extrapolate to zero   
               varcart(i,j) = vartel(ii)*cntp(1,i,j)  
             case(2) !Extrapolate to original
               varcart(i,j) = (1.0-cntp(1,i,j))*varcart(i,j) + vartel(ii)*cntp(1,i,j) 
             case(3) !Extrapolate out infinitly using neighest values
               varcart(i,j) = vartel(ii)
-            endselect  
+            end select  
           else
             varcart(i,j) = valdry  
           endif   
@@ -787,7 +787,7 @@ dj:   do j=1,nj
         elseif(intp(0,i,j)==0 .and. iextrap>0)then !intp(1,i,j)==0 -> Extrapolation point
           ii = intp(1,i,j)
           if(iwettel(ii)==1)then !Wet  
-            selectcase(iextrap)
+            select case(iextrap)
             case(1) !Extrapolate to zero   
               vecxcart(i,j) = vecxtel(ii)*cntp(1,i,j)  
               vecycart(i,j) = vecytel(ii)*cntp(1,i,j)  
@@ -797,7 +797,7 @@ dj:   do j=1,nj
             case(3) !Extrapolate out infinitly using neighest values
               vecxcart(i,j) = vecxtel(ii)
               vecycart(i,j) = vecytel(ii)
-            endselect  
+            end select  
           else
             vecxcart(i,j) = valdry  
             vecycart(i,j) = valdry
@@ -1022,14 +1022,14 @@ d1: do ii=1,nc
       elseif(i<1 .and. j<1 .and. iextrap>0)then !Extrapolation
         i1 = -i; j1 = -j
         if(iwetcart(i1,j1)==1)then !wet
-          selectcase(iextrap)
+          select case(iextrap)
           case(1) !Extrapolate to zero   
             vartel(ii) = varcart(i1,j1)*cntp(1,ii)
           case(2) !Extrapolate to original
             vartel(ii) = (1.0-cntp(1,ii))*vartel(ii) + varcart(i1,j1)*cntp(1,ii)  
           case(3) !Extrapolate out infinitly using neighest values
             vartel(ii) = varcart(i1,j1)
-          endselect  
+          end select  
         else
           vartel(ii) = valdry
         endif
@@ -1116,7 +1116,7 @@ d1: do ii=1,nc
       elseif(i<1 .and. j<1 .and. iextrap>0)then !Extrapolation
         i1 = -i; j1 = -j
         if(iwetcart(i1,j1)==1)then !wet
-          selectcase(iextrap)
+          select case(iextrap)
           case(1) !Extrapolate to zero   
             vecxtel(ii) = vecxcart(i1,j1)*cntp(1,ii)
             vecytel(ii) = vecycart(i1,j1)*cntp(1,ii)
@@ -1126,7 +1126,7 @@ d1: do ii=1,nc
           case(3) !Extrapolate out infinitly using neighest values
             vecxtel(ii) = vecxcart(i1,j1)
             vecytel(ii) = vecycart(i1,j1)
-          endselect  
+          end select  
         else
           vecxtel(ii) = valdry
           vecytel(ii) = valdry
@@ -2787,7 +2787,7 @@ d2:   do j=1,nj
     !logical :: isnankind
     
 !--- First-Second Order Interpolation ----------------------
-    selectcase(ibc)        
+    select case(ibc)        
     case(-1) !Modified Zero-gradient at wet/dry faces
 !$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
       do i=1,ncells
@@ -2887,7 +2887,7 @@ d2:   do j=1,nj
       enddo !i   
 !$OMP END PARALLEL DO   
         
-    endselect
+    end select
 
 !--- Skewness correction ----------------------------------------
     if(skewcor .and. present(dphiy))then 

@@ -27,7 +27,7 @@
       allocate(wc2n(nmaxcells,nnodes))
       wc2n=0.0
       nnintp = 1 !************ HARD CODED for now *****************
-      selectcase(nnintp)
+      select case(nnintp)
       case(1) !Inverse area
         call interp_coef_cell2node_invarea(nnodes,nncell,nmaxcells,&
            node2cell,ncells,ncellsD,areap,wc2n)
@@ -38,7 +38,7 @@
       case(3) !Least-squares
         call interp_coef_cell2node_lstsqrs(nnodes,nncell,nmaxcells,&
           node2cell,xn,yn,ncells,ncellsD,x,y,wc2n) !Note: xc=x, yc=y for unstructured meshes
-      endselect
+      end select
     endif
     
     return

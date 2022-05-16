@@ -47,13 +47,13 @@
 359 format(5x,I9,1x,1pe13.4,1x)
       
     !=== Hiding and exposure function ====
-    selectcase(iHidExpForm) !varsigma(i,k)
+    select case(iHidExpForm) !varsigma(i,k)
     case(1); call HidExpEgiazaroff    !Egiazaroff (1965)
     case(2); call HidExpParker        !Parker et al. (1982) and others
     case(3); call HidExpWu            !Wu et al. (2000)
     case(4); call HidExpAshidaMichiue !Ashida and Michiue 1980
     case(5); call HidExpHayashi       !Hayashi et al. 1980
-    endselect
+    end select
     
     !=== Incipient Motion Correction for Bedslop ======
     if(ibedslope==1) call bedslopecor_dey
@@ -61,14 +61,14 @@
     !write(*,*)'bdj in sed_imp,ready to go to sedcapac, icapac=',icapac
     
     !=== Transport Capacity =====
-    selectcase(icapac)  !CtstarP(i,ks),rs(i,ks)
+    select case(icapac)  !CtstarP(i,ks),rs(i,ks)
     case(1); call sedcapac_lundcirp !Lund-CIRP
     case(2); call sedcapac_vanrijn  !Van Rijn
     case(3); call sedcapac_watanabe !Watanabe
     case(4); call sedcapac_soulsby  !Soulsby (1997)
     case(5); call wucapac           !Wu et al. (2000) (under testing)
-    case(6); call sedcapac_cshore   !bdj                                        
-    endselect
+    case(6); call sedcapac_c2shore   !bdj                                        
+    end select
     
     !if(cohesivesed) call cohsedentrain !Cohesive sediment   !Wu 
     
@@ -168,10 +168,10 @@
     !endif
     
     !=== Total load correction factor ========
-    selectcase(ibt) !btk(i,ks)
+    select case(ibt) !btk(i,ks)
     case(1); call btklogexp  
     case(2); call btklogrouse 
-    endselect
+    end select
     
     !=== Mixing Layer Thickness ===========
     if(nsed>1) call mixing_layer !db(i,1)
@@ -198,29 +198,29 @@
        rsCtkmax = 0.0
        do ks=1,nsed
          !=== Coefficients and solve for Ctk =======
-         selectcase(ndsch) 
+         select case(ndsch) 
          case(2); call coeffsourcesink_c(hybridcoef,ks)
          case(3); call coeffsourcesink_c(powerlawcoef,ks)
          case(4); call coeffsourcesink_c(exponentialcoef,ks)
          case default; call coeffsourcesink_c(upwindcoef,ks)
-         endselect
+         end select
          if(ncellsimple==ncells)then !No gradients required
-           selectcase(ndsch) !Anti-diffusion corrections
+           select case(ndsch) !Anti-diffusion corrections
            case(5); call defcorhlpa(Ctk(:,ks),su)
            case(6); call defcorgamma(gammadefcor,Ctk(:,ks),su)
            case(7); call defcorgamma(cubistadefcor,Ctk(:,ks),su)
            case(8); call defcorgamma(alvsmartdefcor,Ctk(:,ks),su)
            case(9); call defcorgamma(hoabdefcor,Ctk(:,ks),su)
-           endselect
+           end select
          else
-           selectcase(ndsch) !Anti-diffusion corrections
+           select case(ndsch) !Anti-diffusion corrections
            case(5); call defcorhlpagrad(Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
            case(6); call defcorgammagrad(gammadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
            case(7); call defcorgammagrad(cubistadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
            case(8); call defcorgammagrad(alvsmartdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
            case(9); call defcorgammagrad(hoabdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
            case default; if(skewcor) call defcorparagrad(dCtkx(:,ks),dCtky(:,ks),su) !Skewness correction      
-           endselect
+           end select
          endif
          call bound_c(ks)
          if(debug_mode) call check_variables(4)

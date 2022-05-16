@@ -53,7 +53,7 @@
     character(len=100) :: cdum
     character(len=200) :: astr
     
-    selectcase(cardname)                
+    select case(cardname)                
       case('CMS-WAVE_SIM_FILE','CMS_WAVE_SIM_FILE',&
            'CMSWAVE_SIM_FILE','WAVE_SIM_FILE')
         backspace(77)
@@ -184,7 +184,7 @@
         read(77,*) cardname, npersm
         npersm = min(max(npersm,0),10)    
         
-    endselect    
+    end select    
 
     return
     end subroutine steering_cards
@@ -835,7 +835,7 @@
     !--- Still Water Depths ----------------------------
     !(bathymetry only updated in wave model for wet cells)
     !If bathymetry if being passed from flow to wave model
-    selectcase(noptzb)
+    select case(noptzb)
     case(1) !Last bed elevation
 !$OMP PARALLEL 
 !$OMP DO PRIVATE(i,j) COLLAPSE(2)    
@@ -888,10 +888,10 @@
       call geo_bathy_update(varflow,1)
       call interp_scal_flwav(varflow,depwave,2) !Extrapolate to original values in depwave0
       
-    endselect
+    end select
     
     !---Water levels ------------
-    selectcase(noptwse)
+    select case(noptwse)
     case(0) !None
       call diag_print_message('   wse(wave_time,wave_grid) = 0.0 m')
       !Convert p to eta and check dry cells        
@@ -940,10 +940,10 @@
         enddo           
       enddo
 !$OMP END PARALLEL DO      
-    endselect  
+    end select  
     
     !---Current Velocities ------------
-    selectcase(noptvel)  
+    select case(noptvel)  
     case(0) !None
       call diag_print_message('   vel(wave_time,wave_grid)=0.0')
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)        
@@ -958,7 +958,7 @@
     case(1) !Last  
       call diag_print_message('   vel(wave_time,wave_grid)=vel(flow_time,flow_grid)')
 #ifdef DEV_MODE
-      selectcase(ivelwav)   
+      select case(ivelwav)   
       case(1) !Mean
 #endif
 !$OMP PARALLEL DO PRIVATE(i)  
@@ -972,7 +972,7 @@
         call q3d_flow_vel_surface(ueff,veff)
       case(3) !Weighted
         !call q3d_flow_vel_weighted!(ueff,veff)
-      endselect
+      end select
 #endif
       call interp_vec_flwav(ueff,veff,uwave,vwave,1) !Extrapolated to zero
       theta=(azimuth_fl-azimuth)*deg2rad
@@ -989,7 +989,7 @@
         enddo
       enddo
 !$OMP END PARALLEL DO        
-    endselect
+    end select
       
     !--- Water depths and wetting and drying ------
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)     
@@ -1161,8 +1161,8 @@
     common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
     common /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
     common /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
-                   ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,    &
+                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     integer :: i,j,iwave,jwave !,ierr
     real(ikind) :: thetadgr, g
     !real :: sfac(nwavei,nwavej),svar(nwavei,nwavej)
@@ -1416,7 +1416,7 @@
     integer :: i,i1,i2,j,j1,j2,k
     real(ikind) :: val2(nwavei,nwavej)
 
-    selectcase(ibc)
+    select case(ibc)
     case(0)
     do k=1,niter
 !$OMP PARALLEL        
@@ -1488,7 +1488,7 @@
 !$OMP END PARALLEL
     enddo  
     
-    endselect
+    end select
     
     return
     end subroutine smooth_wavegrid_scal

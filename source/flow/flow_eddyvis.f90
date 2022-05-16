@@ -21,7 +21,7 @@
     real(ikind) :: ss12,stens,cidrym,vissum
 
 !$OMP PARALLEL    
-    selectcase(mturbul)
+    select case(mturbul)
     case(0)
 !$OMP DO PRIVATE(i)          
       do i=1,ncells
@@ -159,7 +159,7 @@
         enddo 
 !$OMP END DO
       endif
-    endselect
+    end select
 
 !--- Copy to ghost cells at all forcing BC's -----------
     call bndcopy2ghost(vis)

@@ -315,7 +315,7 @@ contains
     do while(ierr==0)
       read(iunit,*,iostat=ierr) cardname
       if(ierr==-1) exit !End of File
-      selectcase(cardname)           
+      select case(cardname)           
       case('DATASET')
         founddataset = .true.
       
@@ -329,7 +329,7 @@ contains
         backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,objtype
         
-      endselect    
+      end select    
     enddo
     close(iunit)
     
@@ -366,7 +366,7 @@ contains
     do while(ierr==0)
       read(iunit,*,iostat=ierr) cardname
       if(ierr==-1) exit !End of File
-      selectcase(cardname)           
+      select case(cardname)           
       case('DATASET')
         founddataset = .true.
       
@@ -380,7 +380,7 @@ contains
         backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,objtype
         
-      endselect    
+      end select    
     enddo
     close(iunit)
     
@@ -460,7 +460,7 @@ contains
     ierr = 0
     do while(ierr==0)
       read(iunit,*,iostat=ierr) cardname      
-      selectcase(cardname)        
+      select case(cardname)        
       case('OBJTYPE')
         backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,dat(ndat)%id
@@ -541,7 +541,7 @@ contains
       case('ENDDS')
         exit
         
-      endselect    
+      end select    
     enddo
     
     if(ierr/=0)then
@@ -620,7 +620,7 @@ contains
     ierr = 0
     do while(ierr==0)
       read(iunit,*,iostat=ierr) cardname      
-      selectcase(cardname)        
+      select case(cardname)        
       case('OBJTYPE')
         backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,scaldat(nscal)%id
@@ -698,7 +698,7 @@ contains
       case('ENDDS')
         exit
         
-      endselect    
+      end select    
     enddo
     
     if(ierr/=0)then
@@ -779,7 +779,7 @@ contains
     ierr = 0
     do while(ierr==0)
       read(iunit,*,iostat=ierr) cardname      
-      selectcase(cardname)        
+      select case(cardname)        
       case('OBJTYPE')
         backspace(iunit)
         read(iunit,*,iostat=ierr) cardname,vecdat(nvec)%id
@@ -860,7 +860,7 @@ contains
       case('ENDDS')
         exit
         
-      endselect    
+      end select    
     enddo
     
     if(ierr/=0)then
