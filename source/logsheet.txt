@@ -1,4 +1,5 @@
-== Version 5.2.19 (05/09/2022) == 
+== Version 5.3.0 (05/16/2022) == 
+* Initial version of CMS to be released with SMS version 13.2
 * Change cardnames and documentation from 'CSHORE' to 'C2SHORE'.  Upcoming SMS 13.2 interface will reference 'C2SHORE_xxx' cards.
 ** C2SHORE is a new option for Cross-shore sediment transport.  It requires the CMS to be run with both waves and flow. CMS will fail if both waves and flow are not specified.
 
