@@ -4977,6 +4977,7 @@ contains
       end if
 
       i3=iii+1
+      iddd=0
 
       if(irs.ge.1) then
         call sxycalc_inline(iii)
@@ -4997,10 +4998,10 @@ contains
                 if(c3.gt..001) c3=.001
                 eta(iii,jj)=eta(i1,jj)-c3
                 if(ibr(iii,jj).eq.1)then
-                eta(iii,jj)=eta(i1,jj)+(d1(i1,jj)-d1(iii,jj))/5.
-                if(eta(iii,jj).lt..0) eta(iii,jj)=0.
+                  eta(iii,jj)=eta(i1,jj)+(d1(i1,jj)-d1(iii,jj))/5.
+                  if(eta(iii,jj).lt..0) eta(iii,jj)=0.
                 end if
-            if(d1(iii,jj).gt.2..and.eta(iii,jj).gt..01) eta(iii,jj)=.01
+                if(d1(iii,jj).gt.2..and.eta(iii,jj).gt..01) eta(iii,jj)=.01
               end if
             end do
             do jj=2,jgmx-1
@@ -5023,9 +5024,9 @@ contains
             iddd=0
 
             do jj=1,jgmx
-                if(d1(i3,jj).gt..05.and.eta(iii,jj).gt.0.01) then
+              if(d1(i3,jj).gt..05.and.eta(iii,jj).gt.0.01) then
                 eta(iii,jj)=eta(iii,jj)/2.+0.005
-                end if
+              end if
               if(d1(iii,jj).gt..001.and.d1(i3,jj).le.h13(iii,jj)/2.)then
                 do 811 k=1,ijstruc2
                   if(imod.eq.0) then
@@ -5049,9 +5050,9 @@ contains
                   cc2=(d1(i1,jj)-d1(iii,jj))/dvarx(iii)
                   if(d1(i3,jj).le..001.and.aslop(jj).eq.1.) then
                     if(cc2.lt.0.25.and.cc2.gt.0.0) then
-                    aslop(jj)=.299+cc2**2.8*34
+                      aslop(jj)=.299+cc2**2.8*34
                     else
-                    aslop(jj)=.99999
+                      aslop(jj)=.99999
                     end if
                   end if
 !             if(iabs(iii-190).le.1.and.jj.eq.143) then
@@ -5060,29 +5061,29 @@ contains
 !             end if
                   eta(iii,jj)=eta(i1,jj)+cc1
 !
-             if(d1(i1,jj).lt..01) go to 813
-             cc=h13(iii,jj)/h13(i1,jj)
-             if(cc.lt.1.05) go to 813
-             h13(iii,jj)=h13(iii,jj)*1.1/cc
-             eta(iii,jj)=eta(iii,jj)*1.1/cc
-             sj(jj)=sj(jj)/cc**2
-             do l=imd,md
-               do kk=1,nf
-               si(jj,kk,l)=si(jj,kk,l)/cc**2
-             end do
-             end do
-  813        continue
+                  if(d1(i1,jj).lt..01) go to 813
+                  cc=h13(iii,jj)/h13(i1,jj)
+                  if(cc.lt.1.05) go to 813
+                  h13(iii,jj)=h13(iii,jj)*1.1/cc
+                  eta(iii,jj)=eta(iii,jj)*1.1/cc
+                  sj(jj)=sj(jj)/cc**2
+                  do l=imd,md
+                    do kk=1,nf
+                      si(jj,kk,l)=si(jj,kk,l)/cc**2
+                    end do
+                  end do
+  813             continue
 !
-         iddd=1
-         if(d1(iii,jj).ge.d1(i1,jj)*2.) eta(iii,jj)=eta(i1,jj)-cc1
+                  iddd=1
+                  if(d1(iii,jj).ge.d1(i1,jj)*2.) eta(iii,jj)=eta(i1,jj)-cc1
                   dd=2.3*hsk(jj)
                   if(tp.gt.3.) dd=dd*(1.+1.5*tanh(tp-3.))
-         if(dd.gt.h13b(jj)*1.5) dd=h13b(jj)*1.5
-         if(dd.lt.h13a(jj)) dd=h13a(jj)
+                  if(dd.gt.h13b(jj)*1.5) dd=h13b(jj)*1.5
+                  if(dd.lt.h13a(jj)) dd=h13a(jj)
                   if(eta(iii,jj).gt.dd*aslop(jj)) then
-                  eta(iii,jj)=(eta(iii,jj)+eta(i1,jj))/2.
-!                 if(cc1/dvarx(iii).lt..25) eta(iii,jj)=eta(i1,jj)/2.
-                  goto 811
+                    eta(iii,jj)=(eta(iii,jj)+eta(i1,jj))/2.
+!                   if(cc1/dvarx(iii).lt..25) eta(iii,jj)=eta(i1,jj)/2.
+                    goto 811
                   end if
                   ! --- The 2% upswash is assumed identical to wave setup,
                   !     so the total wave runup is twice the wave setup.
@@ -5093,68 +5094,68 @@ contains
                   ijb(i3,jj)=1
                   cc0=d1(i3,jj)
                   if(eta(iii,jj).gt.dstruc2(k)-tide) then
-                  d1(i3,jj)=eta(iii,jj)-dstruc2(k)+tide
-                  if(d1(i3,jj).lt..01) d1(i3,jj)=.01
-                  if(jj-1.ge.1) then
-                  dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj-1))/3.
+                    d1(i3,jj)=eta(iii,jj)-dstruc2(k)+tide
+                    if(d1(i3,jj).lt..01) d1(i3,jj)=.01
+                    if(jj-1.ge.1) then
+                      dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj-1))/3.
+                    else
+                      dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
+                    end if
+                    if(jj+1.le.jgmx) then
+                      dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj+1))/3.
+                    else
+                      dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
+                    end if
                   else
-                  dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
-                  end if
-                  if(jj+1.le.jgmx) then
-                  dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj+1))/3.
-                  else
-                  dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
-                  end if
-                  else
-                  d1(i3,jj)=(cc+d1(iii,jj))/2.
-                  if(d1(i3,jj).lt..01) d1(i3,jj)=.01
-                  if(jj-1.ge.1) then
-                  dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj-1))/3.
-                  else
-                  dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
-                  end if
-                  if(jj+1.le.jgmx) then
-                  dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj+1))/3.
-                  else
-                  dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
-                  end if
-                  go to 811
+                    d1(i3,jj)=(cc+d1(iii,jj))/2.
+                    if(d1(i3,jj).lt..01) d1(i3,jj)=.01
+                    if(jj-1.ge.1) then
+                      dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj-1))/3.
+                    else
+                      dep(i3,jj)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
+                    end if
+                    if(jj+1.le.jgmx) then
+                      dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj+1))/3.
+                    else
+                      dep(i3,jj+1)=(d1(i3,jj)+d1(iii,jj)+d1(iii,jj))/3.
+                    end if
+                    go to 811
                   end if
 
-        do iadd=i3+1,i3+30
-          if(iadd.gt.igmx) go to 811
-          if(cc0.eq.-2.0002) go to 811
-          if(d1(iadd,jj).eq.cc0) then
-          ijb(iadd,jj)=1
-          if(iadd.eq.i3+1) eta(iii,jj)=eta(iii,jj)/2.
-          d1(iadd,jj)=d1(i3,jj)
-          dep(iadd,jj)=d1(i3,jj)
-          dep(iadd,jj+1)=d1(i3,jj)
-          else
-          go to 811
-          end if
-        end do
+                  do iadd=i3+1,i3+30
+                  if(iadd.gt.igmx) go to 811
+                  if(cc0.eq.-2.0002) go to 811
+                  if(d1(iadd,jj).eq.cc0) then
+                    ijb(iadd,jj)=1
+                    if(iadd.eq.i3+1) eta(iii,jj)=eta(iii,jj)/2.
+                    d1(iadd,jj)=d1(i3,jj)
+                    dep(iadd,jj)=d1(i3,jj)
+                    dep(iadd,jj+1)=d1(i3,jj)
+                  else
+                    go to 811
+                  end if
+                end do
   811           continue
               end if
             end do
           end if
 
-           if(iddd.eq.1) then
+          if(iddd.eq.1) then
             do jj=2,jgmx-1
-            if(ijb(i3,jj).ge.4) then
-            if(ijb(i3,jj+1).ge.1.and.ijb(i3,jj-1).ge.1.) then
-            ijb(i3,jj)=1
-            end if
-            end if
-            hsgg(jj)=(eta(iii,jj-1)+eta(iii,jj+1)+eta(iii,jj))/3.
-            if(d1(iii,jj).gt..001) then
-            if(d1(iii,jj-1).le..001.and.d1(iii,jj+1).le..001)  &
-            hsgg(jj)=eta(iii,jj)
-      if(d1(iii,jj-1).le..001) hsgg(jj)=(eta(iii,jj)+eta(iii,jj+1))/2.
+              if(ijb(i3,jj).ge.4) then
+                if(ijb(i3,jj+1).ge.1.and.ijb(i3,jj-1).ge.1.) then
+                  ijb(i3,jj)=1
+                end if
+              end if
+              hsgg(jj)=(eta(iii,jj-1)+eta(iii,jj+1)+eta(iii,jj))/3.
+              if(d1(iii,jj).gt..001) then
+                if(d1(iii,jj-1).le..001.and.d1(iii,jj+1).le..001)  &
+                    hsgg(jj)=eta(iii,jj)
+                if(d1(iii,jj-1).le..001) hsgg(jj)=(eta(iii,jj)+eta(iii,jj+1))/2.
 !
-      if(d1(iii,jj+1).le..001) hsgg(jj)=(eta(iii,jj)+eta(iii,jj-1))/2.
+                if(d1(iii,jj+1).le..001) hsgg(jj)=(eta(iii,jj)+eta(iii,jj-1))/2.
 !
-            end if
+              end if
             end do
             hsgg(1)=hsgg(2)
             hsgg(jgmx)=hsgg(jgmx-1)
@@ -5167,15 +5168,15 @@ contains
             dd11(jgmx)=dd11(jgmx-1)
             do jj=1,jgmx
               if(d1(iii,jj).gt..001)then
-              eta(iii,jj)=hsgg(jj)
+                eta(iii,jj)=hsgg(jj)
               else
-              if(jj.eq.1) then
-              eta(iii,1)=(hsgg(1)+hsgg(2))/2.
-              elseif(jj.eq.jgmx) then
-              eta(iii,jgmx)=(hsgg(jgmx)+hsgg(jgmx-1))/2.
-              else
-              eta(iii,jj)=(hsgg(jj+1)+hsgg(jj)+hsgg(jj-1))/3.
-              end if
+                if(jj.eq.1) then
+                  eta(iii,1)=(hsgg(1)+hsgg(2))/2.
+                elseif(jj.eq.jgmx) then
+                  eta(iii,jgmx)=(hsgg(jgmx)+hsgg(jgmx-1))/2.
+                else
+                  eta(iii,jj)=(hsgg(jj+1)+hsgg(jj)+hsgg(jj-1))/3.
+                end if
               end if
 
 !             do 815 k=1,ijstruc2
@@ -5207,14 +5208,14 @@ contains
               if(jj.eq.1) jjc1=2
               if(jj.eq.jgmx) jja1=jgmx-1
               if(d1(i3,jja1).gt..001.or.d1(i3,jjc1).gt..001) then
-              if(d1(i3,jj).lt.dd11(jj)) then
-              d1(i3,jj)=dd11(jj)
-              dep(i3,jj)=(dd11(jj)+d1(iii,jj))/2.
-              dep(i3,jj+1)=dep(i3,jj)
-              end if
+                if(d1(i3,jj).lt.dd11(jj)) then
+                  d1(i3,jj)=dd11(jj)
+                  dep(i3,jj)=(dd11(jj)+d1(iii,jj))/2.
+                  dep(i3,jj+1)=dep(i3,jj)
+                end if
               end if
             end do
-            end if
+          end if
 
           if(iii.eq.igmx) then
             do jj=1,jgmx
@@ -5243,26 +5244,26 @@ contains
           JOP=istruc4(k)
         end if
 
-          if(d1(i3,jop).eq..01) then
+        if(d1(i3,jop).eq..01) then
           cc=dstruc4(k)+eta(iii,jop)
-        if(k4(k).eq.4)d1(i3,jop)=cc+h13(iii,jop)*.89
-        if(k4(k).eq.5)d1(i3,jop)=cc+h13(iii,jop)*.73
-        if(d1(i3,jop).lt..01) then
-        d1(i3,jop)=.01
-        c1=abs(cc)/(h13(iii,jop)+.01)
-        if(k4(k).eq.4.and.c1.gt..5) d1(i3,jop)=h13(iii,jop)/5./c1
-        if(k4(k).eq.5.and.c1.gt..5) d1(i3,jop)=h13(iii,jop)/20./c1
-        end if
-          else
+          if(k4(k).eq.4)d1(i3,jop)=cc+h13(iii,jop)*.89
+          if(k4(k).eq.5)d1(i3,jop)=cc+h13(iii,jop)*.73
+          if(d1(i3,jop).lt..01) then
+            d1(i3,jop)=.01
+            c1=abs(cc)/(h13(iii,jop)+.01)
+            if(k4(k).eq.4.and.c1.gt..5) d1(i3,jop)=h13(iii,jop)/5./c1
+            if(k4(k).eq.5.and.c1.gt..5) d1(i3,jop)=h13(iii,jop)/20./c1
+          end if
+        else
           cc=1.
           c1=h13(iii,jop)/2.
           if(d1(i3,jop).gt.c1) cc=c1/d1(i3,jop)
-        d1(i3,jop)=d1(i3,jop)+c1*cc
+          d1(i3,jop)=d1(i3,jop)+c1*cc
 !       the following line may not be the best
-!       if(d1(i3+1,jop).le.d1(i3,jop))d1(i3+1,jop)=(d1(i3,jop)+d1(i3+1,jop))/2.
-        if(d1(i3+1,jop).le.d1(i3,jop).and.kstruc4(k).eq.0) &
-        d1(i3+1,jop)=d1(i3,jop)
-          end if
+!         if(d1(i3+1,jop).le.d1(i3,jop))d1(i3+1,jop)=(d1(i3,jop)+d1(i3+1,jop))/2.
+          if(d1(i3+1,jop).le.d1(i3,jop).and.kstruc4(k).eq.0) &
+          d1(i3+1,jop)=d1(i3,jop)
+        end if
 
 !       if(dep(i3,jop).lt.d1(i3,jop)) then
         dep(i3,jop)=(d1(i3,jop)+d1(i3+1,jop))/2.
@@ -5278,9 +5279,9 @@ contains
         do iadd=i3+1,i3+30
           if(iadd.gt.igmx) go to 812
           if(d1(iadd,jop).eq..01) then
-          if(k4(k).eq.4)d1(iadd,jop)=h13(iii,jop)*.38
-          if(k4(k).eq.5)d1(iadd,jop)=h13(iii,jop)*.27
-          if(d1(iadd,jop).gt.d1(i3,jop)) d1(iadd,jop)=d1(i3,jop)
+            if(k4(k).eq.4)d1(iadd,jop)=h13(iii,jop)*.38
+            if(k4(k).eq.5)d1(iadd,jop)=h13(iii,jop)*.27
+            if(d1(iadd,jop).gt.d1(i3,jop)) d1(iadd,jop)=d1(i3,jop)
           else
             go to 812
           end if
@@ -5297,8 +5298,8 @@ contains
 339   continue
 
 !     if(leap.gt.1) THEN 
-        simax=si
-        sjj=sj
+      simax=si
+      sjj=sj
 !     end if
       if(h13(ii,j1).lt.1.0E-15.and.ii.ge.igmx/2) goto 50
       IF(II.GE.IGMX) GOTO 50
@@ -5311,52 +5312,52 @@ contains
       do 336 jj=2,jgmx-1
       if(ijb(ii,jj).eq.-1) go to 336
       if(d1(ii,jj).lt..01.or.ibr(ii,jj).eq.1) then
-      island=1
-      go to 337
+        island=1
+        go to 337
       end if
 336   continue
 
       do 333 ic=ii+2,igmx
-      if(ic.ge.ismall) go to 331
-      do 335 jj=2,jgmx-1
-      cc=d1(ic,jj)
-      if(ijb(ic,jj).eq.-1) cc=10.
-      if(cc.lt.25.) go to 331
-335   continue
-      leap=leap+1
+        if(ic.ge.ismall) go to 331
+        do 335 jj=2,jgmx-1
+          cc=d1(ic,jj)
+          if(ijb(ic,jj).eq.-1) cc=10.
+          if(cc.lt.25.) go to 331
+335     continue
+        leap=leap+1
 333   continue
 331   continue
       if(leap.gt.10.and.ws.ge..1) leap=10
       if(ws.ge.10.) then
-      if(leap.gt.3) leap=3
-      if(deps(ii).lt.30.) leap=2
-      if(deps(ii).lt.20.) leap=1
-      if(ii.lt.20) leap=1
+        if(leap.gt.3) leap=3
+        if(deps(ii).lt.30.) leap=2
+        if(deps(ii).lt.20.) leap=1
+        if(ii.lt.20) leap=1
       end if
 
 337   continue
       if(ii+leap.gt.igmx) leap=igmx-ii
 
       do kk=ii,ii+leap-1
-      dxx=dxx+dvarx(kk)
-      if(dxx.gt.250..and.leap.ge.2) then
-      dxx=dxx-dvarx(kk)
-      leap=kk-ii
-      if(leap.lt.1) then
-      leap=1
-      dxx=dxx+dvarx(kk)
-      end if
-      goto 601
-      end if
+        dxx=dxx+dvarx(kk)
+        if(dxx.gt.250..and.leap.ge.2) then
+          dxx=dxx-dvarx(kk)
+          leap=kk-ii
+          if(leap.lt.1) then
+            leap=1
+            dxx=dxx+dvarx(kk)
+          end if
+          goto 601
+        end if
       end do
 601   continue
 
       II=II+leap
 
       if(leap.gt.1) then
-      do 508 jj=1,jgmx
-      t13(ii-1,jj)=t13(ii-leap,jj)
-508   continue
+        do 508 jj=1,jgmx
+          t13(ii-1,jj)=t13(ii-leap,jj)
+508     continue
       end if
 
       GOTO 60
