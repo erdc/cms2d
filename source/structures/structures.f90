@@ -261,7 +261,7 @@
     implicit none
     
     integer :: i,iwr,ierr,maxweir
-    integer :: ival
+    integer :: ival,numids
     real    :: rval
     character(len=34) :: cardname
     logical :: foundcard
@@ -307,6 +307,14 @@
           read(77,*,iostat=ierr) cardname, (WR_struct(iweir)%cells(iwr),iwr=1,ival)
           if(ierr/=0) call diag_print_error('Must specify the number of cells for each weir')            !MEB 06/21  better descriptive output without application error
 
+        case('CELL_IDS')
+          backspace(77)
+          read(77,*) cardname,numids    !No. of IDs
+          WR_struct(iweir)%ncells = numids
+          allocate(WR_struct(iweir)%cells(numids))
+          backspace(77)
+          read(77,*) cardname,numids,(WR_struct(iweir)%cells(iwr),iwr=1,numids)
+          
         case('DISTRIBUTION_COEFFICIENT')
           backspace(77)
           read(77,*) cardname, WR_struct(iweir)%coefweirlateral
