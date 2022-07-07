@@ -1,3 +1,8 @@
+== Version 5.3.1 (07/07/2022) ==
+* Minor change to Weir Structure specification cards for integration into SMS 13.x (13.2 at present).
+** Add option to specify Cell IDs in the same manner as for Rubble Mound Jetties.
+* Updated the array upper limit for several CMS-Wave variables.
+
 == Version 5.3.0 (05/16/2022) == 
 * Initial version of CMS to be released with SMS version 13.2
 * Change cardnames and documentation from 'CSHORE' to 'C2SHORE'.  Upcoming SMS 13.2 interface will reference 'C2SHORE_xxx' cards.

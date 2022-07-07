@@ -9,7 +9,7 @@ module global_inline
     integer, parameter :: NPF=75, MPD=50, MPD2=75, IPMX=2500, JPMX=2500  !Alex: NPF should be maybe increased
     integer, parameter :: IGPX=IPMX-1,JGPX=JPMX-1,MPMX=MPD*JGPX
     integer, parameter :: IJPMX=IPMX*JPMX,IJGPX=IGPX*JGPX
-    integer, parameter :: KOMX=20000, NOMX=80000
+    integer, parameter :: KOMX=20000, NOMX=150000
     
     
     !added a few other changable parameters to share  MEB  10/19/2021
