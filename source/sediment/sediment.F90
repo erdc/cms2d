@@ -1596,7 +1596,7 @@ d1: do ii=1,30
     
     !Surface percentile diameters
     allocate(d50(ncellsD),d90(ncellsD))  !Only ones required. Others only needed for output
-    allocate(d50lay(ncellsD))   !(hli, 03/15/16)
+    !allocate(d50lay(ncellsD))   !(hli, 03/15/16)   Moved this down rather than allocating early.
     
     if(nsed>1) singlesize = .false.
     !==== Multiple-sizes sediment transport =======
@@ -1617,6 +1617,7 @@ d1: do ii=1,30
       
       !--- Sediment size class diameters ------------
       allocate(diam(nsed),diamlim(nsed+1))
+      if (.not. allocated(d50lay)) allocate(d50lay(ncellsD))   !(hli, 03/15/16)     Moved from above to allocate if not already allocated.  MEB 07/20/22
       !Calculate grain sizes if none specified
       if(sum(sedclass(:)%idiam)==0)then !No diameters specified 
         select case(bedlay(1)%ipbkinp)  !use surface layer
@@ -1809,7 +1810,9 @@ d1: do ii=1,30
           
         case(3) !D35, D50, D90
           OutPerDiam(ipd(35)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(90)) = .true. 
-          allocate(d35lay(ncellsD),d50lay(ncellsD),d90lay(ncellsD))
+          allocate(d35lay(ncellsD))
+          allocate(d90lay(ncellsD))
+          if (.not. allocated(d50lay)) allocate(d50lay(ncellsD))   !This is probably already allocated from above - MEB  07/20/22
           file = bedlay(j)%perdiam(ipd(35))%file; path = bedlay(j)%perdiam(ipd(35))%path
 
           call fileext(trim(file),aext)      
