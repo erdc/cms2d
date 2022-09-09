@@ -1,3 +1,9 @@
+== Version 5.3.2 (08/11/2022) == 
+* Minor change to reading parameter file for Explicit scheme.
+* Bug fix when choosing multi-sediment with D35,D50,D90. Fixed array allocation error.
+* Bug fix in one lookup-table, 'bs_init' routine.
+* Bug fix in Tools (Option 4) when merging datasets written by SMS instead of CMS solution datasets.
+
 == Version 5.3.1 (07/07/2022) ==
 * Minor change to Weir Structure specification cards for integration into SMS 13.x (13.2 at present).
 ** Add option to specify Cell IDs in the same manner as for Rubble Mound Jetties.

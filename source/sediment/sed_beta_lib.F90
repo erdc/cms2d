@@ -1357,12 +1357,12 @@ contains
           zap_table(i) = logzap+dzap*(i-1)
         enddo
         
-        nr = 100
+        nr = 200                      !Fixed??  This was previsouly set to:   nr = 100, but the tables below reflect 200 entries.          MEB  07/20/22
         dr = 0.05    
         r0 = 0.001 
         allocate(r_table(nr))
-        do i=1,nzap
-          r_table(j) = r0+dr*(j-1)
+        do i=1,nr                     !Fixed??  This was previously set to:   d i=1,nzap, but nzap is larger than nr and caused an error.  MEB  07/20/22
+          r_table(i) = r0+dr*(i-1)    !Fixed??  This was previously set to:   r_table(j) = r0+dr*(j-1), but j was never set to a value.    MEB  07/20/22
         enddo
         
         allocate(betas_table(nzap,nr))
