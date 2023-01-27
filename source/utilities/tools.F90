@@ -5,6 +5,7 @@
 ! 1 and 2 - 04/14/2021
 ! 3 - 9/30/2021
 ! 4 - 2/09/2022
+! 5 - 3/16/2022
 !******************************************************    
     use diag_lib, only: diag_print_message
     implicit none
@@ -82,8 +83,30 @@
 #endif
 
       return
-	  end subroutine clear_screen
-	  
+      end subroutine clear_screen
+
+!******************************************************
+      subroutine get_correct_fraction_dset_name (in_str,out_str)
+        implicit none
+        character(len=*), intent(in)  :: in_str
+        character(len=*), intent(out) :: out_str
+        character(100) :: first, middle, last
+        integer :: iloc1,iloc2
+        
+        iloc1 = index(in_str,'_')
+        first = in_str(1:iloc1-1)
+        middle = in_str(iloc1:iloc1+2)
+        
+        iloc1 = index(in_str,'(')
+        iloc2 = index(in_str,')')
+        last = in_str(iloc1:iloc2)
+        
+        out_str = trim(first)//trim(middle)//' '//trim(last)
+        
+      return
+      end subroutine get_correct_fraction_dset_name
+
+      
 !******************************************************
       subroutine find_in_output_strings (a_str, member)
 	    use out_def, only: noutputs, aoutputs
@@ -124,12 +147,12 @@
         use xmdf
         
         implicit none        
-        integer            :: cellID, a_Number, nDsets, sMaxPathLength, vMaxPathLength
+        integer            :: cellID, a_Number, nDsets, sMaxPathLength, vMaxPathLength, aLen
         integer            :: numFiles, i, j, k, ierr, fid, gid, nfid, ndid, ncells, a_NumTimes
         integer            :: nSDsets, nVDsets, complete, iloc, member, nDim, labelLength
         real(4)            :: num, wDir, wAbs, uVal, vVal
         logical            :: exists
-        character(len=100) :: newFile, a_Path, cardfile
+        character(len=100) :: newFile, a_Path, cardfile, aString
         character(len=500) :: sPath(1),vPath(1), cardname
         character(len=5)   :: which
         character          :: achoice
@@ -146,7 +169,7 @@
       
         !Read card file to get geometry information to map ID correctly.
 10      write(*,*)' '
-        write(*,'(A)',advance='no') 'Enter name of grid file: '
+        write(*,'(A)',advance='no') 'Enter name of parameter file (*.cmcards): '
         read(*,*) cardfile
         inquire(FILE=trim(cardfile),EXIST=exists)
         if (.not. exists) then
@@ -186,10 +209,14 @@
         !Loop through individual files, reading all datasets included in each
 		i = 1
         do
-          which = 'first'
-          if (i .ne. 1) which = 'next'
+          which = ''; aLen = 0
+          if (numFiles .gt. 1) then
+            which = 'first '
+            if (i .ne. 1) which = 'next '
+            aLen = len_trim(which)+1
+          endif
           write(*,*)' '
-          write(*,'(A)',advance='no') 'Enter '//trim(which)//' filename which holds a dataset to merge: '
+          write(*,'(A)',advance='no') 'Enter the '//adjustl(which(1:aLen))//'filename which holds a dataset to merge: '
           read(*,*) filenames(i)
           inquire(FILE=trim(filenames(i)),EXIST=exists)
           if (.not.exists) then
@@ -204,9 +231,25 @@
           allocate(Paths(nDsets),lengths(nDsets))
           Paths=' '; sPath = ' '; vPath = ' ';
           
+          !If no available datasets, try looking under the 'Datasets' folder (this file probably written by SMS, not CMS)
+          gid = -1
+          if (nDsets .eq. 0) then 
+            call XF_OPEN_GROUP(fid, 'Datasets', gid, ierr)
+            call XF_GET_SCALAR_DATASETS_INFO (gid, nSDsets, sMaxPathLength, ierr)
+            call XF_GET_VECTOR_DATASETS_INFO (gid, nVDsets, vMaxPathLength, ierr)
+            nDsets = nSDsets + nVDsets
+            if (nDsets .eq. 0) then
+              call diag_print_message('Error: no datasets found within the selected file. Preset try again')
+              write(*,*) 'Press the Enter key to continue'
+              read(*,*) 
+              return
+            endif
+          endif          
+
           !Get paths
-          call XF_GET_SCALAR_DATASET_PATHS (fid, nSDsets, sMaxPathLength, sPath, ierr)
-          call XF_GET_VECTOR_DATASET_PATHS (fid, nVDsets, vMaxPathLength, vPath, ierr)
+          if (gid .eq. -1) gid = fid       !If still equal to -1, then the first attempt worked
+          call XF_GET_SCALAR_DATASET_PATHS (gid, nSDsets, sMaxPathLength, sPath, ierr)
+          call XF_GET_VECTOR_DATASET_PATHS (gid, nVDsets, vMaxPathLength, vPath, ierr)
 		  
 		  !Find simlabel in path to help determine which dataset and what the proper length is
 		  iloc = index(sPath(1),'/',.false.)
@@ -218,13 +261,19 @@
           write(*,*) ' Datasets contained in '//trim(filenames(i))//': '
 		  k = 1
           do j=1,nSDsets
-			call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)           !Pass in the string to determine which of the output dataset names it is.
-			lengths(j) = aoutput_lengths(member) + labelLength - 1                !Set the proper length (there is a lot of garbage characters in the array of paths)
-            Paths(j) = sPath(1)(k:k+lengths(j))
+            aString=''
+            if (sPath(1)(1:8) .eq. 'Fraction') then                                        !MEB 08/11/22
+              call get_correct_fraction_dset_name(sPath(1)(k:k+sMaxPathLength),aString)
+              Paths(j) = 'Datasets/'//trim(aString)
+            else
+	          call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)         !Pass in the string to determine which of the output dataset names it is.
+		      lengths(j) = aoutput_lengths(member) + len_trim(simlabel) - 1          !Set the proper length (there is a lot of garbage characters in the array of paths)
+              Paths(j) = sPath(1)(k:k+lengths(j))
+            endif
             write(*,'(2x,i2,A)') j,' - '//trim(Paths(j))
-			k = k + sMaxPathLength														 !Have to parse through multiple paths in one long string to find each.
+			      k = k + sMaxPathLength                                                   !Have to parse through multiple paths in one long string to find each.
           enddo
-		  k = 1
+          k = 1
           do j=1,nVDsets
 			call find_in_output_strings (vPath(1)(k:k+vMaxPathLength), member)
 			lengths(j+nSDsets) = aoutput_lengths(member) + labelLength - 1
@@ -364,8 +413,9 @@
         real(8),allocatable :: Times(:)
         character(len=100),allocatable :: filenames(:), dsets(:)
         character(len=100),allocatable :: paths(:)
-        character(len=100) :: a_Path, newFile, units, which
+        character(len=100) :: a_Path, newFile, units, which, aString
         character(len=500) :: sPath(1),vPath(1)
+        character(len=5)   :: aExt
 
         !Determine output lengths
 		do k=1,noutputs
@@ -395,12 +445,30 @@
           call XF_GET_SCALAR_DATASETS_INFO (fid, nSDsets, sMaxPathLength, ierr)
           call XF_GET_VECTOR_DATASETS_INFO (fid, nVDsets, vMaxPathLength, ierr)
           nDsets = nSDsets + nVDsets
+          
+          !If no available datasets, try looking under the 'Datasets' folder (this file probably written by SMS, not CMS)  MEB 08/11/22
+          gid = -1
+          if (nDsets .eq. 0) then 
+            call XF_OPEN_GROUP(fid, 'Datasets', gid, ierr)
+            call XF_GET_SCALAR_DATASETS_INFO (gid, nSDsets, sMaxPathLength, ierr)
+            call XF_GET_VECTOR_DATASETS_INFO (gid, nVDsets, vMaxPathLength, ierr)
+            nDsets = nSDsets + nVDsets
+            if (nDsets .eq. 0) then
+              call diag_print_message('Error: no datasets found within the selected file. Preset try again')
+              write(*,*) 'Press the Enter key to continue'
+              read(*,*) 
+              return
+            endif
+          endif
+          
+          if (gid .eq. -1) gid = fid       !If still equal to -1, then the first attempt worked  MEB 08/11/22
           allocate(Paths(nDsets),lengths(nDsets))
           Paths=' '; sPath = ' '; vPath = ' ';
           
           !Get paths
-          call XF_GET_SCALAR_DATASET_PATHS (fid, nSDsets, sMaxPathLength, sPath, ierr)
-          call XF_GET_VECTOR_DATASET_PATHS (fid, nVDsets, vMaxPathLength, vPath, ierr)
+          call XF_GET_SCALAR_DATASET_PATHS (gid, nSDsets, sMaxPathLength, sPath, ierr)
+          call XF_GET_VECTOR_DATASET_PATHS (gid, nVDsets, vMaxPathLength, vPath, ierr)
+          call XF_CLOSE_FILE(fid,ierr)
 		  
 		  !Find simlabel in path to help determine which dataset and what the proper length is
 		  iloc = index(sPath(1),'/',.false.)
@@ -411,11 +479,17 @@
           write(*,*) ' Datasets contained in '//trim(filenames(i))//': '
 		  k = 1
           do j=1,nSDsets
-			call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)           !Pass in the string to determine which of the output dataset names it is.
-			lengths(j) = aoutput_lengths(member) + len_trim(simlabel) - 1                !Set the proper length (there is a lot of garbage characters in the array of paths)
-            Paths(j) = sPath(1)(k:k+lengths(j))
+            aString=''
+            if (sPath(1)(1:8) .eq. 'Fraction') then                                        !MEB 08/11/22
+              call get_correct_fraction_dset_name(sPath(1)(k:k+sMaxPathLength),aString)
+              Paths(j) = 'Datasets/'//trim(aString)
+            else
+			  call find_in_output_strings (sPath(1)(k:k+sMaxPathLength), member)           !Pass in the string to determine which of the output dataset names it is.
+			  lengths(j) = aoutput_lengths(member) + len_trim(simlabel) - 1                !Set the proper length (there is a lot of garbage characters in the array of paths)
+              Paths(j) = sPath(1)(k:k+lengths(j))
+            endif
             write(*,'(2x,i2,A)') j,' - '//trim(Paths(j))
-			k = k + sMaxPathLength														 !Have to parse through multiple paths in one long string to find each.
+			k = k + sMaxPathLength                                                         !Have to parse through multiple paths in one long string to find each.
           enddo
 		  k = 1
           do j=1,nVDsets
@@ -449,6 +523,9 @@
         write(*,*)' '
         write(*,'(A)',advance='no') 'Enter name of new file to create with merged datasets: '
         read(*,*) newFile
+        call fileext (newFile,aext)
+        if (aext(1:1) .eq. ' ') newFile = trim(newFile)//'.h5'
+        
         inquire(FILE=trim(newFile),EXIST=exists)
         if (exists) then
           open (11,file=newFile)

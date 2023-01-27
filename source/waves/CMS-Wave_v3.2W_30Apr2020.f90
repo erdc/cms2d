@@ -29,21 +29,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use diag_lib, only: diag_print_message, diag_print_error
       use diag_def, only: dgunit
 !$include "omp_lib.h"
-!      dimension dep0(ipmx,jpmx)
-!      dimension fsp(npf),xc(mpd),yc(mpd),wc(mpd),wcd(mpd)
-!      dimension refltx(ipmx,jpmx),reflty(ipmx,jpmx)
-       double precision edate, jdate, iwind_date, icur_date, ieta_date
-!
-!      REAL, ALLOCATABLE :: dep0(:,:),dvarxx(:),dvaryy(:),   &   !Wu/Zhang
-!      fsp(:),xc(:),yc(:),wc(:),wcd(:),hs13(:),              &   !Wu/Zhang
-!      refltx(:,:),reflty(:,:)                                   !Wu/Zhang
-      common /depreflx/dep0(ipmx,jpmx),fsp(npf),xc(komx),yc(komx),    &
-                       wc(komx),wcd(komx),hs13(komx),                 &
-                       refltx(ipmx,jpmx),reflty(ipmx,jpmx),&       !Wu
+      double precision edate, jdate, iwind_date, icur_date, ieta_date
+      common /depreflx/dep0(ipmx,jpmx),fsp(npf),xc(komx),yc(komx), &
+                       wc(komx),wcd(komx),hs13(komx),              &
+                       refltx(ipmx,jpmx),reflty(ipmx,jpmx),        &  !Wu
                        exx(igpx,jgpx),eyy(igpx,jgpx)
-      common /dxxdyy/dvarxx(ipmx),dvaryy(jpmx)                   !Wu
-      common /fl2wav/depin(ipmx,jpmx),etain(ipmx,jpmx), &        !Alex
-             uin(ipmx,jpmx),vin(ipmx,jpmx)                       !Alex
+      common /dxxdyy/dvarxx(ipmx),dvaryy(jpmx)                        !Wu
+      common /fl2wav/depin(ipmx,jpmx),etain(ipmx,jpmx),            &  !Alex
+             uin(ipmx,jpmx),vin(ipmx,jpmx)                            !Alex
       common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
       common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
       common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
@@ -55,15 +48,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       common /struc0/ijstruc1,ijstruc2,ijstruc3,ijstruc4,ismall
       common /struc1/istruc1(komx),jstruc1(komx),dstruc1(komx)
       common /struc2/istruc2(NOMX),jstruc2(NOMX),dstruc2(NOMX)
-      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx) &
+      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx)     &  
                     ,k3(komx),dstruc33(komx)
-      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx) &
+      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx)     &
                     ,kstruc4(komx),k4(komx),dstruc44(komx)
-      common /swell/sw13(igpx,jgpx),sa13(igpx,jgpx) &
-                   ,tw13(igpx,jgpx),ta13(igpx,jgpx) &
+      common /swell/sw13(igpx,jgpx),sa13(igpx,jgpx)                &
+                   ,tw13(igpx,jgpx),ta13(igpx,jgpx)                &
                    ,dw13(igpx,jgpx),da13(igpx,jgpx)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
-                   ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd     &
+                   ,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud       &
+                   ,iwnd,depmin0
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
       COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
       COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
@@ -73,8 +67,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
       COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
       COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx)  &
-                   ,sigm(jgpx),IWVBK,ibk3
+      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX)      &
+                   ,cmn(jgpx),sigm(jgpx),IWVBK,ibk3
       COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
       COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
       COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
@@ -87,18 +81,18 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
       common /uvwind/u10(ipmx,jpmx),v10(ipmx,jpmx)
       common /fric/bfric(ipmx,jpmx),amud(ipmx,jpmx)
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,    &
-                         WaveFile, ObsFile, EngOutFile, NestFile,   &
-                         BreakFile, RadsFile, StrucFile, SurgeFile, &
-                         MudFile, FricFile, FrflFile, BrflFile,     &
-                         SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
+      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,   &
+                         WaveFile, ObsFile, EngOutFile, NestFile,  &
+                         BreakFile, RadsFile, StrucFile, SurgeFile,&
+                         MudFile, FricFile, FrflFile, BrflFile,    &
+                         SpecFile, WindFile, XMDFFile, SetupFile,  &  !Mitch 3/22/2017
+                         SeaFile, SwellFile, ShipFile                 !Mitch 3/22/2017
       common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
       common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      common /wavegrid/ ni,nj                                          !Wu
-      common /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr                 !Wu
+      common /wavegrid/ ni,nj                                         !Wu
+      common /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr                !Wu
       common /variables/hsmin,hs13n,inest1,nestin,nestin1,nestin2,azimnest      !Wu/Zhan/Alex
-      common /logicalva/getfile4,getfile5,getfile7,getfile8            !Wu/Zhang 8/1/2009
+      common /logicalva/getfile4,getfile5,getfile7,getfile8           !Wu/Zhang 8/1/2009
 !
       logical getfile,getfile1,getfile2,getfile3,getfile4,getfile5
       logical getfile6,getfile7,getfile8,getfile9,getfile10
@@ -118,8 +112,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180 NestFile, StrucFile, SurgeFile
       CHARACTER*180 MudFile,  FricFile,  FrflFile,  BrflFile, WindFile
       CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
-      CHARACTER*180 SeaFile,  SwellFile, TotalFile                      !Mitch 03/22/2017
-      CHARACTER*80 :: cardname                                          !Mitch 10/18/2021
+      CHARACTER*180 SeaFile,  SwellFile, TotalFile                    !Mitch 03/22/2017
+      CHARACTER*80 :: cardname                                        !Mitch 10/18/2021
       
       logical :: foundfile, foundcard
 ! ... Output file variables
@@ -136,10 +130,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         goto 70                              !Wu/Zhang
       endif
   
-!      ALLOCATE (fsp(npf),dep0(ipmx,jpmx),dvarxx(ipmx),dvaryy(jpmx))        !Wu/Zhang
-!      ALLOCATE (xc(komx),yc(komx),wc(komx),wcd(komx),hs13(komx))           !Wu/Zhang
-!      ALLOCATE (refltx(ipmx,jpmx),reflty(ipmx,jpmx))                       !Wu/Zhang
-
       rk =0.5
       rkr=0.3
       eta=0.0
@@ -292,7 +282,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iark=0
       iarkr=0
       akap=1.0
-!     bf=0.001
       bf=0.0
       ark=0.5
       arkr=0.3
@@ -441,7 +430,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
           imud,iwnd,isolv,ixmdf,iproc,iview,iroll
       end select
-
 !
       iibreak=0
       inquire(file='std.dat',exist=getfile17)
@@ -478,9 +466,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         endif
         bf=1.
       end if
-!     if(ibf.eq.0) bf=0.001
       if(ibf.eq.0) bf=0.
-!     if(bf.lt..001) bf=.001
       if(ark.gt.1.) then
         write(*,*) '*** norm reflect index ark > 1, reset to 1 ***'
         if(noptset.eq.3)then

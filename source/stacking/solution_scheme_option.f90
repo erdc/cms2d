@@ -36,7 +36,7 @@
     implicit none
     integer :: k,ierr
     character*37 :: cardname
-    logical :: foundcard,foundfile
+    logical :: foundcard,foundfile,isopen
     
     
 !--- Set defaults -------------------------
@@ -55,9 +55,11 @@
 !!    call q3d_default   !Quasi-3D 
 
 !--- Read Card File -------------------------------------------------   
-    !call fileparts(ctlfile,apath,aname,aext) 
-    !astring = trim(aname) // '.' // trim(aext)
-    !write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
+!    call fileparts(ctlfile,apath,aname,aext) 
+!    astring = trim(aname) // '.' // trim(aext)
+!    write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
+    inquire(file=ctlfile,opened=isopen)
+    if (isopen) close(77)
     open(77,file=ctlfile,status='unknown')
     do
       read(77,*,iostat=ierr) cardname
