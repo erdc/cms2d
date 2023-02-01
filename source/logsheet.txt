@@ -1,3 +1,6 @@
+== Version 5.3.3 (02/01/2023) ==
+* Split third-party code (spatial transformations) out as separate linkable libraries.
+
 == Version 5.3.2 (08/11/2022) == 
 * Minor change to reading parameter file for Explicit scheme.
 * Bug fix when choosing multi-sediment with D35,D50,D90. Fixed array allocation error.
