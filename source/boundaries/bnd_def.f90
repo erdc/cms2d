@@ -94,7 +94,7 @@ module bnd_def
       !real(ikind) :: phase    !Phase [rad] (constituent)
       !real(ikind) :: f        !Nodal factor [-] (constituent)
       !real(ikind) :: vu       !Equilibrium argument [rad] (constituent)
-      !character(len=6) :: name     !Tidal Consitituent names (constituent)
+      !character(len=10) :: name     !Tidal Consitituent names (constituent)
     !endtype constit
 
 !--- Tidal/Harmonic BC (Type 2=TH) --------------------------------------------------------
@@ -119,7 +119,7 @@ module bnd_def
       real(ikind),      allocatable :: phase(:)    !Phase [rad] (constituent)
       real(ikind),      allocatable :: f(:)        !Nodal factor [-] (constituent)
       real(ikind),      allocatable :: vu(:)       !Equilibrium argument [rad] (constituent)
-      character(len=6), allocatable :: name(:)     !Tidal Consitituent names (constituent)
+      character(len=10), allocatable :: name(:)     !Tidal Consitituent names (constituent)
       real(ikind)                   :: angle       !Incident angle of tidal wave
       real(ikind),      allocatable :: psi(:,:)    !Phase difference due to incident wave angle (cell,constituent) 
       real(ikind)                   :: dwsex       !Regional steady water level gradinet
@@ -392,14 +392,14 @@ module bnd_def
       real(ikind), allocatable :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
       real(ikind), allocatable :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
       integer                  :: ntcin         !Tidal constituents used     
-      character(len=6),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
+      character(len=10),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
       integer                  :: ntc           !Tidal constituents used      
       real(ikind),     pointer :: amp(:,:)      !Amplitude [m] (cell,constituent)       
       real(ikind),     pointer :: phase(:,:)    !Phase [rad] (cell,constituent)
       real(ikind),     pointer :: f(:)          !Nodal factor [-] (constituent)
       real(ikind),     pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
       real(ikind),     pointer :: speed(:)      !Speed [rad/hrs] (constituent)
-      character(len=6),pointer :: name(:)       !Tidal Consitituent names (constituent) 
+      character(len=10),pointer :: name(:)       !Tidal Consitituent names (constituent) 
       character(len=10)        :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST
       character(len=200)       :: tdbpath       !Tidal Database file and path      
       type(projection)         :: projtdb       !Parent grid projection
@@ -414,47 +414,47 @@ module bnd_def
 !--- Nested Tidal Database WSE and Velocity BC (Type 10=NTHV) ----------------------------------
     integer :: nNTHVstr
     type NTHV_type !Nested eta values, one for each cell in string
-      integer                  :: idnum         !Boundary id number
-      integer                  :: istrtype      !Input id type, 1-cellstring, 2-nodestring
-      character(len=200)       :: bidfile       !Boundary ID file
-      character(len=200)       :: bidpath       !Boundary ID path
-      integer                  :: ncells        !Cells in string      
-      integer,         pointer :: cells(:)      !Cell id's
-      integer,         pointer :: faces(:)      !Boundary face
-      real(ikind), allocatable :: xbnd(:)       !Global x-coordinate of boundary cell centroid
-      real(ikind), allocatable :: ybnd(:)       !Global x-coordinate of boundary cell centroid
-      real(ikind)              :: wseoffset     !wse offset
-      real(ikind), allocatable :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
-      real(ikind), allocatable :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
-      real(ikind), allocatable :: wsebnd(:)     !Interpolated eta at each cell at current time [m/s]            
-      real(ikind), allocatable :: ubnd0(:)      !v at each cell at initial time [m/s]
-      real(ikind), allocatable :: ubnd(:)       !Interpolated eta at each cell at current time [m/s]
-      real(ikind), allocatable :: vbnd0(:)      !v at each cell at initial time [m/s]
-      real(ikind), allocatable :: vbnd(:)       !Interpolated eta at each cell at initial time [m/s]
-      integer                  :: ntcin         !Tidal constituents used     
-      character(len=6),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
-      integer                  :: ntc           !Tidal constituents used      
-      real(ikind),     pointer :: amp(:,:)      !Amplitude [m | m/s] (cell,constituent)
-      real(ikind),     pointer :: ampu(:,:)     !Amplitude [m | m/s] (cell,constituent)
-      real(ikind),     pointer :: ampv(:,:)     !Amplitude [m | m/s] (cell,constituent)      
-      real(ikind),     pointer :: phase(:,:)    !Phase [rad] (cell,constituent)
-      real(ikind),     pointer :: phaseu(:,:)   !Phase [rad] (cell,constituent)
-      real(ikind),     pointer :: phasev(:,:)   !Phase [rad] (cell,constituent)
-      real(ikind),     pointer :: f(:)          !Nodal factor [-] (constituent)
-      real(ikind),     pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
-      real(ikind),     pointer :: speed(:)      !Speed [rad/hrs] (cell,constituent)
-      character(len=6),pointer :: name(:)       !Tidal Consitituent names (constituent)
-      character(len=10)        :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
-      character(len=200)       :: tdbpath       !Tidal Database file and path
-      type(projection)         :: projtdb       !Parent grid projection
-      logical                  :: wseout        !Output wse time-series       
-      logical                  :: velout        !Output velocity time-series 
-      character(len=200)       :: wsefile       !Output wse file
-      character(len=200)       :: velfile       !Output velocity file
-      integer                  :: nssi          !Smoothing iterations for constituents
-      integer                  :: nssw          !Smoothing window width for constituents
-      real(ikind)              :: angvel        !Rotation angle for current velocities from parent to child grid [rad]
-      logical                  :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves
+      integer                   :: idnum         !Boundary id number
+      integer                   :: istrtype      !Input id type, 1-cellstring, 2-nodestring
+      character(len=200)        :: bidfile       !Boundary ID file
+      character(len=200)        :: bidpath       !Boundary ID path
+      integer                   :: ncells        !Cells in string      
+      integer,         pointer  :: cells(:)      !Cell id's
+      integer,         pointer  :: faces(:)      !Boundary face
+      real(ikind), allocatable  :: xbnd(:)       !Global x-coordinate of boundary cell centroid
+      real(ikind), allocatable  :: ybnd(:)       !Global x-coordinate of boundary cell centroid
+      real(ikind)               :: wseoffset     !wse offset
+      real(ikind), allocatable  :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
+      real(ikind), allocatable  :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
+      real(ikind), allocatable  :: wsebnd(:)     !Interpolated eta at each cell at current time [m/s]            
+      real(ikind), allocatable  :: ubnd0(:)      !v at each cell at initial time [m/s]
+      real(ikind), allocatable  :: ubnd(:)       !Interpolated eta at each cell at current time [m/s]
+      real(ikind), allocatable  :: vbnd0(:)      !v at each cell at initial time [m/s]
+      real(ikind), allocatable  :: vbnd(:)       !Interpolated eta at each cell at initial time [m/s]
+      integer                   :: ntcin         !Tidal constituents used     
+      character(len=10),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
+      integer                   :: ntc           !Tidal constituents used      
+      real(ikind),     pointer  :: amp(:,:)      !Amplitude [m | m/s] (cell,constituent)
+      real(ikind),     pointer  :: ampu(:,:)     !Amplitude [m | m/s] (cell,constituent)
+      real(ikind),     pointer  :: ampv(:,:)     !Amplitude [m | m/s] (cell,constituent)      
+      real(ikind),     pointer  :: phase(:,:)    !Phase [rad] (cell,constituent)
+      real(ikind),     pointer  :: phaseu(:,:)   !Phase [rad] (cell,constituent)
+      real(ikind),     pointer  :: phasev(:,:)   !Phase [rad] (cell,constituent)
+      real(ikind),     pointer  :: f(:)          !Nodal factor [-] (constituent)
+      real(ikind),     pointer  :: vu(:)         !Equilibrium argument [rad] (constituent)
+      real(ikind),     pointer  :: speed(:)      !Speed [rad/hrs] (cell,constituent)
+      character(len=10),pointer :: name(:)       !Tidal Consitituent names (constituent)
+      character(len=10)         :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
+      character(len=200)        :: tdbpath       !Tidal Database file and path
+      type(projection)          :: projtdb       !Parent grid projection
+      logical                   :: wseout        !Output wse time-series       
+      logical                   :: velout        !Output velocity time-series 
+      character(len=200)        :: wsefile       !Output wse file
+      character(len=200)        :: velfile       !Output velocity file
+      integer                   :: nssi          !Smoothing iterations for constituents
+      integer                   :: nssw          !Smoothing window width for constituents
+      real(ikind)               :: angvel        !Rotation angle for current velocities from parent to child grid [rad]
+      logical                   :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves
     endtype NTHV_type
     type(NTHV_type), allocatable :: NTHV_str(:)
     

@@ -51,15 +51,15 @@ contains
     integer :: m_list(ntf),mcyctemp(ntf)
     real(ikind) :: f_table(ntf+1,nfy),vu_table(ntf+1,nfy)
     real(ikind) :: speed_list(ntf),ftemp(ntf),vutemp(ntf),speedtemp(ntf)
-    character(len=6) :: name_list(ntf),nameyr(ntf)
+    character(len=10) :: name_list(ntf),nameyr(ntf)
     
     !Constituent names
-    data name_list/'M2    ','S2    ','N2    ','K1    ','M4    ','O1    ',&
-          'M6    ','MK3   ','S4    ','MN4   ','NU2   ','S6    ','MU2   ',&
-          '2N2   ','OO1   ','LDA2  ','S1    ','M1    ','J1    ','MM    ',&
-          'SSA   ','SA    ','MSF   ','MF    ','RHO1  ','Q1    ','T2    ',&
-          'R2    ','2Q1   ','P1    ','2SM2  ','M3    ','L2    ','2MK3  ',&
-          'K2    ','M8    ','MS4   '/
+    data name_list/'M2        ','S2        ','N2        ','K1        ','M4        ','O1        ',&
+          'M6        ','MK3       ','S4        ','MN4       ','NU2       ','S6        ','MU2       ',&
+          '2N2       ','OO1       ','LDA2      ','S1        ','M1        ','J1        ','MM        ',&
+          'SSA       ','SA        ','MSF       ','MF        ','RHO1      ','Q1        ','T2        ',&
+          'R2        ','2Q1       ','P1        ','2SM2      ','M3        ','L2        ','2MK3      ',&
+          'K2        ','M8        ','MS4       '/
 
     !Number of tide cycles per day
     data m_list/2,2,2,1,4,1,6,3,&
@@ -1908,8 +1908,7 @@ contains
     end subroutine tidal_data
     
 !******************************************************************************
-    subroutine tide_adcirc(tdbname,tdbpath,npts,xpts,ypts,&
-       ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)
+    subroutine tide_adcirc(tdbname,tdbpath,npts,xpts,ypts,ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)
 ! Extracts the Tidal Constituent variables from an ADICRC database
 ! An subgrid is extracted from the full ADCIRC to reduce the number of search
 ! points and increase the speed. 
@@ -1924,17 +1923,20 @@ contains
     integer,     intent(in)    :: npts
     real(ikind), intent(in)    :: xpts(npts),ypts(npts)
     integer,     intent(in)    :: ntcin
-    character(len=6), intent(in)    :: namein(ntcin)
+    character(len=*), intent(in)    :: namein(ntcin)
     integer,     intent(inout) :: ntc
-    character(len=6), intent(out), pointer :: name(:)
+    character(len=10), intent(out), pointer :: name(:)
     real(ikind), intent(out), pointer :: speed(:)    
     real(ikind), intent(out), pointer :: etamp(:,:),etpha(:,:) 
     real(ikind), intent(inout), pointer, optional :: utamp(:,:),utpha(:,:)
     real(ikind), intent(inout), pointer, optional :: vtamp(:,:),vtpha(:,:)
     character(len=*), intent(in) :: tdbname
     character(len=*), intent(in) :: tdbpath
+    
     !---Internal variables -----------------------------------------------
     character(len=200) :: grdfilesub,grdname,tdbgrid,tdbfile
+    character(len=50) :: tdbpre
+    logical :: is2015 = .false.
     !Fullgrid variables
     integer :: ne  !Number of elements on full grid
     integer :: nn  !Number of nodes on full grid
@@ -1957,12 +1959,22 @@ contains
     real(ikind), pointer :: uamp(:,:),upha(:,:)
     real(ikind), pointer :: vamp(:,:),vpha(:,:)
     
-    if(tdbname(1:6)=='EC2001')then !ADCIRC Eastern Continental 2001 Tidal Database
+    if(tdbname(1:6)=='EC2001')then                            !ADCIRC Eastern Continental 2001 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2001.grd'
       tdbfile = trim(tdbpath) // 'ec2001.tdb'
-    elseif(tdbname(1:9)=='ENPAC2003')then !ADCIRC Pacific 2003 Tidal Database
+    elseif(tdbname(1:6)=='EC2015') then                       !ADCIRC Eastern Continental 2015 Tidal Database
+      tdbgrid = trim(tdbpath) // 'ec2012_v3d_chk.grd'
+      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist
+      tdbpre = 'ec2012_v3d_otis3_fort'
+      is2015 = .true.
+    elseif(tdbname(1:9)=='ENPAC2003')then                     !ADCIRC Pacific 2003 Tidal Database
       tdbgrid = trim(tdbpath) // 'enpac2003.grd'
       tdbfile = trim(tdbpath) // 'enpac2003.tdb'
+    elseif(tdbname(1:9)=='ENPAC2015')then                     !ADCIRC Pacific 2015 Tidal Database
+      tdbgrid = trim(tdbpath) // 'wc2015_v1a_chk.grd'
+      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist
+      tdbpre = 'wc2015-v1a_1200tau1dt1VDatum_fort'
+      is2015 = .true.
     endif  
     
     !--- Read grid ------------------------
@@ -1976,34 +1988,40 @@ contains
     
     !----- Extract a subgrid overlapping the rectangular domain ------
     write(*,*) ' Extracting Subgrid ...'
-    call trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,&
-            nes,nns,xns,yns,zns,e2ns,kns)   
+    call trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,nes,nns,xns,yns,zns,e2ns,kns)   
     write(*,*) '   Elements: ',nes,' Nodes: ',nns    
     
     !--- Write SubGrid ---------------------------------------
-#ifdef DIAG_MODE
+!#ifdef DIAG_MODE
     grdfilesub = 'subgrid.grd'
     grdname = 'Subgrid'
     call write_grid14(grdfilesub,grdname,nes,nns,xns,yns,zns,e2ns)
-#endif       
+!#endif       
     deallocate(zns)
     
     !---- Load Tidal Database --------------------------------
     !Constituents are loaded on the subgrid
-    write(*,*) ' Reading Tidal Database: ',trim(tdbfile)
-    if(present(vtpha))then !Read wse and vel data
-      call tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,&
-        ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
+    
+    if (is2015) then
+      write(*,*) ' Reading Tidal Database files'
+      if(present(vtpha))then !Read wse and vel data
+        call tdb_adcirc_read_separate(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
+      else
+        call tdb_adcirc_read_separate(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha)  
+      endif
     else !Read only wse data
-      call tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,&
-        ntc,name,speed,eamp,epha)  
+      write(*,*) ' Reading Tidal Database file: ',trim(tdbfile)
+      if (present(vtpha)) then
+        call tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
+      else
+        call tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha)  
+      endif
     endif
     !---- Calculate Interpolation coefficients -------------------------
     xtrapdist = 1.0e20 !Set to large number so that the nearest node is used
     allocate(intp(0:3,npts),cntp(3,npts))
     write(*,*) ' Calculating Interpolation Coefficients ...'
-    call interp_coef_tri2pts(nes,nns,xns,yns,e2ns, &            
-                npts,xpts,ypts,xtrapdist,intp,cntp)
+    call interp_coef_tri2pts(nes,nns,xns,yns,e2ns,npts,xpts,ypts,xtrapdist,intp,cntp)
 
     !---- Interpolate Tidal Constituents ------------------------------
     allocate(etamp(npts,ntc),etpha(npts,ntc))    
@@ -2011,8 +2029,7 @@ contains
     if(present(vtpha))then !Both wse and velocity
       allocate(utamp(npts,ntc),utpha(npts,ntc))
       allocate(vtamp(npts,ntc),vtpha(npts,ntc))    
-      call tdb_interp_tri(npts,intp,cntp,nns,ntc,eamp,epha,etamp,etpha,&
-        uamp,upha,vamp,vpha,utamp,utpha,vtamp,vtpha)           
+      call tdb_interp_tri(npts,intp,cntp,nns,ntc,eamp,epha,etamp,etpha,uamp,upha,vamp,vpha,utamp,utpha,vtamp,vtpha)           
     else !Only wse
       call tdb_interp_tri(npts,intp,cntp,nns,ntc,eamp,epha,etamp,etpha)      
     endif
@@ -2026,8 +2043,7 @@ contains
     end subroutine tide_adcirc
     
 !**************************************************************
-    subroutine tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,&
-        ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
+    subroutine tdb_adcirc_read(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
 ! Reads the ADCIRC tidal constituent database file
 ! Output speeds are in degrees per hour
 ! Output phases are in degrees
@@ -2040,9 +2056,9 @@ contains
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
     integer,    intent(in) :: kns(nns)  !Node mapping from subgrid to full grid
     integer,    intent(in) :: ntcin
-    character(len=6),intent(in) :: namein(ntcin)
+    character(len=*),intent(in) :: namein(ntcin)
     integer,    intent(out):: ntc     !Number of tidal harmonic constituents
-    character(len=6),intent(out),pointer :: name(:)
+    character(len=10),intent(out),pointer :: name(:)
     real(ikind),intent(out),pointer :: speed(:)    
     real(ikind),intent(out),pointer :: eamp(:,:),epha(:,:)
     real(ikind),intent(out),pointer,optional :: uamp(:,:),upha(:,:)
@@ -2060,7 +2076,7 @@ contains
     real(ikind) :: eak(ntcmax),epk(ntcmax)
     real(ikind) :: uak(ntcmax),upk(ntcmax)
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
-    character(len=6) :: nametdb(ntcmax)    
+    character(len=10) :: nametdb(ntcmax)    
    
     open(105,file=tdbfile)
     read(105,*) ntctdb
@@ -2168,7 +2184,168 @@ contains
     
     return
     end subroutine tdb_adcirc_read
-        
+
+!**************************************************************
+    subroutine tdb_adcirc_read_separate(tdbfile,nns,kns,ntcin,namein,ntc,name,speed,eamp,epha,uamp,upha,vamp,vpha)
+! Reads from separate ADCIRC tidal constituent files (.53, .54) for the ENPAC and EC 2015 tidal databases
+! Output speeds are in degrees per hour
+! Output phases are in degrees
+!
+! Taken from 'tdb_adcirc_read' written by Alex Sanchez, USACE-CHL
+! Mitchell Brown, USACE-CHL  04/06/2023
+!**************************************************************
+    use prec_def
+    use diag_lib, only: diag_print_error
+    implicit none
+    !Input/Output
+    integer,    intent(in) :: nns     !Number of nodes on the sub grid
+    integer,    intent(in) :: kns(nns)  !Node mapping from subgrid to full grid
+    integer,    intent(in) :: ntcin
+    character(len=*),intent(in) :: namein(ntcin)
+    integer,    intent(out):: ntc     !Number of tidal harmonic constituents 
+    character(len=10),intent(out),pointer :: name(:)
+    real(ikind),intent(out),pointer :: speed(:)    
+    real(ikind),intent(out),pointer :: eamp(:,:),epha(:,:)
+    real(ikind),intent(out),pointer,optional :: uamp(:,:),upha(:,:)
+    real(ikind),intent(out),pointer,optional :: vamp(:,:),vpha(:,:)    
+    character(len=*),intent(in) :: tdbfile
+    !Internal variables
+    integer, parameter :: ntcmax = 38
+    integer :: i,j,k,n,npp,node,ind(ntcmax),ntctdb, ntctdb2, npp2, iloc
+    real(ikind), parameter :: pi = acos(-1.0_ikind)
+    real(ikind), parameter :: twopi = 2.0_ikind*pi
+    real(ikind), parameter :: deg2rad = pi/180.0_ikind
+    real(ikind), parameter :: rad2deg = 180.0_ikind/pi
+    real(ikind) :: freq,dum
+    real(ikind) :: speedtdb(ntcmax)
+    real(ikind) :: eak(ntcmax),epk(ntcmax)
+    real(ikind) :: uak(ntcmax),upk(ntcmax)
+    real(ikind) :: vak(ntcmax),vpk(ntcmax)
+    character(len=10) :: nametdb(ntcmax)   
+    character(len=200) :: file53, file54, tdbprefix
+   
+    iloc=index(tdbfile,'.')
+    tdbprefix=tdbfile(1:iloc)
+    file53 = trim(trim(tdbprefix)//'53')
+    file54 = trim(trim(tdbprefix)//'54')
+    open(105,file=file53)  !Scalar
+    read(105,*) ntctdb
+    if(present(vpha)) then
+      open(106,file=file54)  !Vector
+      read(106,*) ntctdb2
+      if (ntctdb .ne. ntctdb2) call diag_print_error('Number of consitituents is different in Tidal Database files')
+    endif
+    if(ntctdb>ntcmax) call diag_print_error('Maximum number of constituents are exceeded in Tidal Database Files')
+
+    
+    !Read header
+    do j=1,ntctdb
+      read(105,*) freq,dum,dum,nametdb(j)
+      if(present(vpha)) read(106,*) freq,dum,dum,nametdb(j)
+      speedtdb(j) = freq*3600.0*rad2deg !Degrees/hour
+    enddo
+    read(105,*) npp !Number of nodes (should match mesh)
+    if(present(vpha)) then
+      read(106,*) npp2 !Number of nodes (should match mesh)
+      if (npp .ne. npp2) call diag_print_error('Number of nodes is different in Tidal Database files')
+    endif
+    
+    !If ntcin specified get specified constituent index
+    ind = 0 !Initialize
+    if(ntc/=0)then
+      n=0
+      do k=1,ntcin
+        do j=1,ntctdb
+          if(namein(k)==name(j))then
+            n = n + 1
+            ind(n) = j
+            exit
+          elseif(j==ntc)then
+            write(*,*) 'WARNING: Constituent ',namein(k),' missing'
+            write(*,*) '  Skipping constituent'
+          endif
+        enddo
+      enddo    
+      ntc = ntcin
+    else
+      ntc = ntctdb 
+      do j=1,ntc
+        ind(j) = j
+      enddo
+    endif
+    
+    allocate(name(ntc),speed(ntc))
+    do j=1,ntc
+      i=ind(j)
+      speed(j) = speedtdb(i)
+      name(j) = nametdb(i)
+    enddo
+ 
+787 format(4x,'Percent Read: ',F5.1 )
+    k = 1
+    allocate(eamp(nns,ntc),epha(nns,ntc))    
+    if(present(vpha))then !Read both wse and velocity data
+      allocate(uamp(nns,ntc),upha(nns,ntc))
+      allocate(vamp(nns,ntc),vpha(nns,ntc))      
+      !Read amplitudes and phases ONLY for input nodes and constituents
+      do n=1,npp
+        read(105,*) node
+        read(106,*) node
+        if(mod(n,npp/4)==0)then
+          write(*,787) real(n*100)/real(npp)
+        endif
+        if(node==kns(k))then
+          !backspace(105)   !no backspace needed in separate files for 2015
+          do j=1,ntctdb
+            read(105,*) eak(j),epk(j)                ! Eamp Epha
+            read(106,*) uak(j),upk(j),vak(j),vpk(j)  ! Uamp Upha Vamp Vpha
+          enddo
+          do j=1,ntc
+            i=ind(j)
+            eamp(k,j) = eak(i); epha(k,j) = epk(i)
+            uamp(k,j) = uak(i); upha(k,j) = upk(i)
+            vamp(k,j) = vak(i); vpha(k,j) = vpk(i)        
+          enddo    
+          if(k==nns) exit
+          k = k + 1
+        else
+          do j=1,ntctdb
+            read(105,*)  ! It doesn't matter what is on the line, we are skipping this node
+            read(106,*) 
+          enddo
+        endif
+      enddo !n
+    else !Read only wse data
+      !Read amplitudes and phases ONLY for input nodes and constituents
+      do n=1,npp
+        read(105,*) node
+        if(mod(n,npp/4)==0)then
+          write(*,787) real(n*100)/real(npp)
+        endif
+        if(node==kns(k))then
+          !backspace(105)   !no backspace needed in separate files for 2015
+          do j=1,ntctdb
+            read(105,*) eak(j),epk(j)                ! Eamp Epha
+          enddo
+          do j=1,ntc
+            i=ind(j)
+            eamp(k,j) = eak(i); epha(k,j) = epk(i)
+          enddo    
+          if(k==nns) exit
+          k = k + 1
+        else
+          do j=1,ntctdb
+            read(105,*)  ! It doesn't matter what is on the line, we are skipping this node
+          enddo
+        endif
+      enddo !n      
+    endif
+    close(105)
+    if(present(vpha)) close(106)
+    
+    return
+    end subroutine tdb_adcirc_read_separate
+
 !******************************************************************************
     subroutine tide_fes(tdbname,tdbpath,npts,xpts,ypts,&
           ntcin,namein,ntc,name,etamp,etpha)
@@ -2181,9 +2358,9 @@ contains
     integer,    intent(in)    :: npts
     real(ikind),intent(in)    :: xpts(npts),ypts(npts)
     integer,    intent(in)    :: ntcin
-    character(len=6),intent(in)    :: namein(ntcin)
+    character(len=*),intent(in)    :: namein(ntcin)
     integer,    intent(inout) :: ntc
-    character(len=6),intent(out),pointer :: name(:)
+    character(len=10),intent(out),pointer :: name(:)
     real(ikind),intent(out),pointer :: etamp(:,:),etpha(:,:) 
     character(len=*),intent(in) :: tdbname
     character(len=*),intent(in) :: tdbpath        

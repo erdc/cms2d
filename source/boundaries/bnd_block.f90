@@ -66,7 +66,7 @@
     real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
     real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
     real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
-    character(len=6), pointer :: name(:)     !Tidal Consitituent names (constituent)
+    character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)
     character(len=100) :: station
     
     !WSE Block
@@ -101,7 +101,7 @@
     !Tidal Database Boundary Conditions
     logical :: tdbblockread
     integer :: ntcin  !Tidal constituents used     
-    character(len=6), pointer :: namein(:) !Input Tidal Consitituent names (constituent)
+    character(len=10), pointer :: namein(:) !Input Tidal Consitituent names (constituent)
     character(len=10)  :: tdbname !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
     character(len=200) :: tdbpath !Tidal Database file and path
     type(projection)   :: projtdb !Parent grid projection
@@ -125,8 +125,7 @@
     real(ikind) :: sedbnd
     
     interface
-      subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave, &
-         ioffsetmode,offsetfile,offsetpath,wseoffset,nti)   !hli(10/04/17)
+      subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffsetmode,offsetfile,offsetpath,wseoffset,nti)   !hli(10/04/17)
         use prec_def
         implicit none
         integer,intent(inout) :: ibndtype
@@ -137,7 +136,7 @@
         real(ikind), pointer :: phase(:)     !Phase [rad] (constituent)
         real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
         real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
-        character(len=6), pointer :: name(:) !Tidal Consitituent names (constituent)    
+        character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
         character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
         integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
         integer,         intent(out)   :: nti                   !(hli,10/04/17)
@@ -158,7 +157,7 @@
         real(ikind), pointer :: phase(:)     !Phase [rad] (constituent)
         real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
         real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
-        character(len=6), pointer :: name(:) !Tidal Consitituent names (constituent)    
+        character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
       end subroutine
     endinterface
     
@@ -176,13 +175,12 @@
     endinterface
     
     interface
-      subroutine tdb_block(ntcin,namein,tdbname,tdbpath,&
-        projtdb,nssi,nssw)
+      subroutine tdb_block(ntcin,namein,tdbname,tdbpath,projtdb,nssi,nssw)
         use geo_def, only: projection
         use prec_def
         implicit none
         integer,intent(out) :: ntcin !Tidal constituents used     
-        character(len=6),intent(inout),pointer :: namein(:) !Input Tidal Consitituent names (constituent)
+        character(len=*),intent(inout),pointer :: namein(:) !Input Tidal Consitituent names (constituent)
         character(len=*),intent(inout) :: tdbname !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
         character(len=*),intent(inout) :: tdbpath !Tidal Database file and path
         type(projection),intent(inout) :: projtdb !Parent grid projection
@@ -313,25 +311,21 @@
       !  read(77,*) cardname,bxyfile
           
       case('FLUX_BEGIN','FLUX_BOUNDARY_BEGIN')
-        call flux_block(ibndtype,ifluxmode,fluxfile,fluxpath,&
-          qfluxconst,ifluxunits,angle_flux,cmvel,ntiq,nsi,nsw)
+        call flux_block(ibndtype,ifluxmode,fluxfile,fluxpath,qfluxconst,ifluxunits,angle_flux,cmvel,ntiq,nsi,nsw)
         ibndtype = 1
         fluxblockread = .true.
         
       case('WSE_BEGIN','WSE_BOUNDARY_BEGIN','WSE_FORCING_BEGIN')
-        call wse_block(ibndtype,istidal,wsefile,wsepath,wseconst, &
-           ioffsetmode,offsetfile,offsetpath,wseoffset, &  !(hli)
+        call wse_block(ibndtype,istidal,wsefile,wsepath,wseconst,ioffsetmode,offsetfile,offsetpath,wseoffset, &  !(hli)
            dwsex,dwsey,minterp,ntiwse,nsiwse,nswwse,nssiwse,nsswwse,wseout,wseadjust)
         wseblockread = .true.
         
       case('VEL_BEGIN')
-        call vel_block(ibndtype,velfile,velpath,ntivel,nsivel,nswvel,&
-             nssivel,nsswvel,velout) !Note: same interpolation order for wse and vel
+        call vel_block(ibndtype,velfile,velpath,ntivel,nsivel,nswvel,nssivel,nsswvel,velout) !Note: same interpolation order for wse and vel
         velblockread = .true.
         
       case('TIDAL_CONSTITUENTS_BEGIN','TIDAL_BEGIN')     
-        call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave, &
-           ioffsetmode,offsetfile,offsetpath,wseoffset,ntiwse)       !(hli 10/04/17)
+        call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffsetmode,offsetfile,offsetpath,wseoffset,ntiwse)       !(hli 10/04/17)
         istidal = .true.
         
       case('HARMONIC_CONSTITUENTS_BEGIN','HARMONIC_BEGIN')
@@ -345,19 +339,15 @@
       case('PARENT_BEGIN','PARENT_SIMULATION_BEGIN')
         if(ibndtype==0) ibndtype=7  
         if(ibndtype==7 .or. ibndtype==8)then
-          call parent_block(ctlfilepar,grdfilepar,projpar,&
-               wsefilepar,wsepathpar,velfilepar,&
-               velpathpar,tjuldaypar,timestarthr,ntiwse)
+          call parent_block(ctlfilepar,grdfilepar,projpar,wsefilepar,wsepathpar,velfilepar,velpathpar,tjuldaypar,timestarthr,ntiwse)
         else
-          call diag_print_error('Found conflicing boundary specifications',&
-            '  Parent block specification conflicts with the boundary type')
+          call diag_print_error('Found conflicting boundary specifications','  Parent block specification conflicts with the boundary type')
         endif
         nestblockread = .true.
         
       case('TIDAL_DATABASE_BEGIN','DATABASE_BEGIN')  
-        call tdb_block(ntcin,namein,tdbname,tdbpath,&
-                projtdb,nssi,nssw)
-       tdbblockread = .true.
+        call tdb_block(ntcin,namein,tdbname,tdbpath,projtdb,nssi,nssw)
+        tdbblockread = .true.
        
       case('SALINITY_BLOCK','SALT_BLOCK','SAL_BLOCK')
         !call sal_block

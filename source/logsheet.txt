@@ -1,5 +1,6 @@
 == Version 5.3.3 (02/01/2023) ==
-* Split third-party code (spatial transformations) out as separate linkable libraries.
+* Split third-party code (spatial transformations) out as separate linkable libraries needed to Open Source CMS (in process).
+* Implemented two new ADCIRC tidal databases (EC2015 and ENPAC2015).  Currently in testing.
 
 == Version 5.3.2 (08/11/2022) == 
 * Minor change to reading parameter file for Explicit scheme.

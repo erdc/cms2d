@@ -60,3 +60,7 @@ UTM2GEO/x64/
 SPCS83/x64/
 
 GCTP/x64/
+
+*.exe
+
+*.u2d
