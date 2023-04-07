@@ -684,7 +684,7 @@
     real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
     real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
     real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
-    character(len=6), pointer :: name(:)     !Tidal Consitituent names (constituent)    
+    character(len=10), pointer :: name(:)     !Tidal Consitituent names (constituent)    
     !Internal Variables
     integer :: kk,ierr
     character(len=37) :: cardname
@@ -694,8 +694,8 @@
     integer :: mcyctemp(ntf),ind(ntf)
     real(ikind) :: ampfac,phafac
     real(ikind) :: amptemp(ntf),phasetemp(ntf),speedtemp(ntf),ftemp(ntf),vutemp(ntf)
-    character(len=6) :: nametemp(ntf)
-    character(len=6) :: nameyr(ntf),astr  
+    character(len=10) :: nametemp(ntf)
+    character(len=10) :: nameyr(ntf),astr  
     
 !   Get constituent names, speeds, nodal corrections and equilibrium phases (relative to Greenwich)
     call tidal_data(iyr,nameyr,speedtemp,mcyctemp,ftemp,vutemp)
@@ -905,7 +905,7 @@
     real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
     real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
     real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
-    character(len=6), pointer :: name(:)     !Tidal Consitituent names (constituent)    
+    character(len=10), pointer :: name(:)     !Tidal Consitituent names (constituent)    
     !Internal Variables
     integer :: i,k,kk,ierr,id,kunit,ind,idsta,kerr
     integer :: mcyctemp(ntf)
@@ -915,7 +915,7 @@
     real(ikind) :: amptemp(ntf),phasetemp(ntf),speedtemp(ntf),ftemp(ntf),vutemp(ntf)
     real(ikind),parameter :: amptol = 0.001
     logical :: foundcard,instaname
-    character(len=6) :: nametemp(ntf)
+    character(len=10) :: nametemp(ntf)
 
     !Get constituent names, speeds, nodal corrections and equilibrium phases (relative to Greenwich)
     call tidal_data(iyr,nametemp,speedtemp,mcyctemp,ftemp,vutemp)
@@ -1182,8 +1182,7 @@
     end subroutine parent_block    
 
 !********************************************************************    
-    subroutine tdb_block(ntcin,namein,tdbname,tdbpath,&
-        projtdb,nssi,nssw)
+    subroutine tdb_block(ntcin,namein,tdbname,tdbpath,projtdb,nssi,nssw)
 ! Reads a tidal database block from the card file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************
@@ -1193,13 +1192,14 @@
 
     implicit none
     !Input/Output
-    integer,intent(out)   :: ntcin           !Tidal constituents used     
-    character(len=6),intent(inout), pointer :: namein(:)       !Input Tidal Consitituent names (constituent)
-    character(len=*),intent(inout)     :: tdbname         !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
-    character(len=*),intent(inout)     :: tdbpath         !Tidal Database file and path
-    type(projection),intent(inout)     :: projtdb         !Parent grid projection
-    integer,intent(inout)              :: nssi     !Smoothing iterations (along string)
-    integer,intent(inout)              :: nssw    !Smoothing window width (along string)
+    integer,intent(out)            :: ntcin    !Tidal constituents used     
+    character(len=*),intent(inout), pointer :: namein(:)  !Input Tidal Consitituent names (constituent)
+    character(len=*),intent(inout) :: tdbname  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
+    character(len=*),intent(inout) :: tdbpath  !Tidal Database file and path
+    type(projection),intent(inout) :: projtdb  !Parent grid projection
+    integer,intent(inout)          :: nssi     !Smoothing iterations (along string)
+    integer,intent(inout)          :: nssw     !Smoothing window width (along string)
+    
     !Internal Variables
     integer :: k,kk,ierr,nn
     character :: cardname*37
@@ -1480,8 +1480,8 @@
     integer :: i,k,nn,kth,ntc,ierr
     integer :: mcyctemp(ntf),ind(ntf)
     real(ikind) :: amptemp(ntf),phasetemp(ntf),speedtemp(ntf),ftemp(ntf),vutemp(ntf)
-    character(len=6) :: nametemp(ntf)
-    character(len=6) :: nameyr(ntf),astr
+    character(len=10) :: nametemp(ntf)
+    character(len=10) :: nameyr(ntf),astr
     character(len=32) :: cardname    
     
 !   Get constituent names, speeds, nodal corrections and equilibrium phases (relative to Greenwich)
@@ -1605,8 +1605,7 @@ d1: do i=1,ntf
 !********************************************************************************
 #include "CMS_cpp.h"
     use bnd_def  
-    use bnd_lib, only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata, &
-                       read_offsetwsedata !(hli,01/20/17)
+    use bnd_lib, only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata, read_offsetwsedata !(hli,01/20/17)
     use cms_def, only: cmswave
     use comvarbl, only: tjulday0
     use const_def, only: deg2rad,rad2deg
@@ -2282,8 +2281,7 @@ d1: do i=1,ntf
     enddo
     
 !---- Store all boundary strings in one structure --------
-    nbndstr = nQstr + nTHstr + nHstr + nMHstr + nMHVstr &
-            + nCSstr + nNHstr + nNHVstr + nNTHstr + nNTHVstr
+    nbndstr = nQstr + nTHstr + nHstr + nMHstr + nMHVstr + nCSstr + nNHstr + nNHVstr + nNTHstr + nNTHVstr
     allocate(bnd_str(nbndstr))
     
     ibnd = 0 !Counter for all cell strings
@@ -2444,21 +2442,21 @@ d1: do i=1,ntf
 353 format(' ',A,T40,F0.3,A)
 374 format(' ',A,T40,E10.3)
 784 format(' ',A,T40,2(1x,E9.2))
-450 format('      ID  Name   Speed     Amplitude  Phase   Nodal Factor  Eq. Arg.')
-451 format('                [deg/hr]      [m]     [deg]       [-]        [deg]')   
-440 format('      ID    Speed     Amplitude  Phase')
-441 format('           [deg/hr]      [m]     [deg]')     
+450 format('       ID  Name   Speed     Amplitude  Phase   Nodal Factor  Eq. Arg.')
+451 format('                 [deg/hr]      [m]     [deg]       [-]        [deg]')   
+440 format('       ID    Speed     Amplitude  Phase')
+441 format('            [deg/hr]      [m]     [deg]')     
 452 format(' ',6x,I2,2x,A6,F9.5,2x,F7.3,2x,F8.2,3x,F7.3,4x,F8.2)
 442 format(' ',6x,I2,2x,F9.5,2x,F7.3,2x,F8.2)
 453 format(' ',6x,I2,2x,A6,F9.5,1x,3(F6.3),1x,3(F6.1),1x,F6.3,2x,F6.2)
-541 format('      Summary of Water Level Constituents:')
-531 format('      Summary of U-Velocity Constituents:')
-532 format('      Summary of V-Velocity Constituents:')
-542 format('                             Amplitude            Phase         Nodal     Eq.')
-543 format('                  Speed         [m]               [deg]         Factor   Arg.')
-533 format('                  Speed        [m/s]              [deg]         Factor   Arg.')
-544 format('      ID  Name   [deg/hr]  Min   Max   Avg    Min   Max   Avg    [-]    [deg]')
-431 format('         Start Date and Time:',T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
+541 format('       Summary of Water Level Constituents:')
+531 format('       Summary of U-Velocity Constituents:')
+532 format('       Summary of V-Velocity Constituents:')
+542 format('                              Amplitude            Phase         Nodal     Eq.')
+543 format('                   Speed         [m]               [deg]         Factor   Arg.')
+533 format('                   Speed        [m/s]              [deg]         Factor   Arg.')
+544 format('       ID  Name   [deg/hr]  Min   Max   Avg    Min   Max   Avg    [-]    [deg]')
+431 format('          Start Date and Time:',T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
     
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
@@ -2814,7 +2812,7 @@ d1: do i=1,ntf
         write(iunit(i),141)     '        Coordinate System:',trim(aHorizCoordSystem(NTH_str(iwse)%projtdb%iHorizCoordSystem))     
         if(NTH_str(iwse)%projtdb%iHorizCoordSystem/=22)then
           write(iunit(i),141)   '        Datum:',trim(aHorizDatum(NTH_str(iwse)%projtdb%iHorizDatum))
-          if(NTH_str(iwse)%projtdb%iHorizZone/=0)then
+          if(NTH_str(iwse)%projtdb%iHorizZone>0)then
             write(iunit(i),262) '        Zone:',NTH_str(iwse)%projtdb%iHorizZone
           endif
         endif      
@@ -3253,8 +3251,7 @@ d1: do i=1,ntf
 
 !--- Multiple Water Level and Velocity BC (Type 5=MHV) ----------      
     do iwse=1,nMHVstr
-      call bnd_vel_openwsevel(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,&
-            MHV_str(iwse)%faces,MHV_str(iwse)%ubnd,MHV_str(iwse)%vbnd)
+      call bnd_vel_openwsevel(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces,MHV_str(iwse)%ubnd,MHV_str(iwse)%vbnd)
     enddo
 
 !--- Nested Water Level BC (Type 7=NH) ----------------------------      
@@ -3264,8 +3261,7 @@ d1: do i=1,ntf
 
 !--- Nested Water Level and Velocity BC (Type 8=NHV) -------------      
     do iwse=1,nNHVstr
-      call bnd_vel_openwsevel(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,&
-            NHV_str(iwse)%faces,NHV_str(iwse)%ubnd,NHV_str(iwse)%vbnd)
+      call bnd_vel_openwsevel(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces,NHV_str(iwse)%ubnd,NHV_str(iwse)%vbnd)
     enddo
 
 !--- Tidal Database Water Level BC (Type 9=NTH) ----------------------------      
@@ -3472,13 +3468,10 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell
     do iwse=1,nTHstr      
       if(TH_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
-        call bnd_pp(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wseadj)
+        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
+        call bnd_pp(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wseadj)
       else
-        call bnd_pp(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
+        call bnd_pp(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
@@ -3487,33 +3480,27 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell      
     do iwse=1,nHstr        
       if(H_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
-        call bnd_pp(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wseadj)
+        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
+        call bnd_pp(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wseadj)
       else
-        call bnd_pp(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd)
+        call bnd_pp(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd)
       endif  
     enddo !iwse 
 
 !--- Multiple Water Level BC (Type 4=MH) ---------------------------
     do iwse=1,nMHstr
-      call bnd_pp(MH_str(iwse)%ncells,MH_str(iwse)%cells,&
-          MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
+      call bnd_pp(MH_str(iwse)%ncells,MH_str(iwse)%cells,MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------
     do iwse=1,nMHVstr
-      call bnd_pp(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,&
-          MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
+      call bnd_pp(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
     enddo !iwse        
 
 !--- Cross-shore BC (Type 6=CS) ------------------------------------
     call xshore_wse
     do icsh=1,nCSstr
-    !  call bnd_pp(CS_str(icsh)%ncells,CS_str(icsh)%cells,&
-    !      CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
+    !  call bnd_pp(CS_str(icsh)%ncells,CS_str(icsh)%cells,CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
       do j=1,CS_str(icsh)%ncells
         i=CS_str(icsh)%cells(j)
         k=CS_str(icsh)%faces(j)
@@ -3537,39 +3524,31 @@ d1: do i=1,ntf
     
 !--- Nested Water Level BC (Type 7=NH) ------------------------------
     do iwse=1,nNHstr
-      call bnd_pp(NH_str(iwse)%ncells,NH_str(iwse)%cells,&
-          NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
+      call bnd_pp(NH_str(iwse)%ncells,NH_str(iwse)%cells,NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Nested Water Level and Velocity BC (Type 8=NHV) --------------------
     do iwse=1,nNHVstr
-      call bnd_pp(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,&
-          NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
+      call bnd_pp(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
     enddo !iwse
 
 !--- Tidal Database Water Level BC (Type 9=NTH) ------------------------------
     do iwse=1,nNTHstr
       if(NTH_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-          NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
-        call bnd_pp(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
+        call bnd_pp(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
       else
-        call bnd_pp(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
+        call bnd_pp(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
 !--- Tidal Database Water Level and Velocity BC (Type 10=NTHV) --------------------
     do iwse=1,nNTHVstr
       if(NTHV_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
-        call bnd_pp(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
+        call bnd_pp(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
       else
-        call bnd_pp(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
+        call bnd_pp(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
       endif
     enddo !iwse    
     
@@ -3661,13 +3640,10 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell
     do iwse=1,nTHstr      
       if(TH_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
-        call bnd_p(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wseadj)
+        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
+        call bnd_p(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wseadj)
       else
-        call bnd_p(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
+        call bnd_p(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
@@ -3676,33 +3652,27 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell      
     do iwse=1,nHstr        
       if(H_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
-        call bnd_p(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wseadj)
+        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
+        call bnd_p(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wseadj)
       else
-        call bnd_p(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd)
+        call bnd_p(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd)
       endif  
     enddo !iwse 
 
 !--- Multiple Water Level BC (Type 4=MH) ---------------------------
     do iwse=1,nMHstr
-      call bnd_p(MH_str(iwse)%ncells,MH_str(iwse)%cells,&
-          MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
+      call bnd_p(MH_str(iwse)%ncells,MH_str(iwse)%cells,MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------
     do iwse=1,nMHVstr
-      call bnd_p(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,&
-          MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
+      call bnd_p(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
     enddo !iwse        
 
 !!--- Cross-shore BC (Type 6=CS) ------------------------------------
 !    call xshore_wse
 !    do icsh=1,nCSstr
-!    !  call bnd_p(CS_str(icsh)%ncells,CS_str(icsh)%cells,&
-!    !      CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
+!    !  call bnd_p(CS_str(icsh)%ncells,CS_str(icsh)%cells,CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
 !      do j=1,CS_str(icsh)%ncells
 !        i=CS_str(icsh)%cells(j)
 !        k=CS_str(icsh)%faces(j)
@@ -3726,39 +3696,31 @@ d1: do i=1,ntf
     
 !--- Nested Water Level BC (Type 7=NH) ------------------------------
     do iwse=1,nNHstr
-      call bnd_p(NH_str(iwse)%ncells,NH_str(iwse)%cells,&
-          NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
+      call bnd_p(NH_str(iwse)%ncells,NH_str(iwse)%cells,NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Nested Water Level and Velocity BC (Type 8=NHV) --------------------
     do iwse=1,nNHVstr
-      call bnd_p(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,&
-          NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
+      call bnd_p(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
     enddo !iwse
 
 !--- Tidal Database Water Level BC (Type 9=NTH) ------------------------------
     do iwse=1,nNTHstr
       if(NTH_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-          NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
-        call bnd_p(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
+        call bnd_p(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
       else
-        call bnd_p(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
+        call bnd_p(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
 !--- Tidal Database Water Level and Velocity BC (Type 10=NTHV) --------------------
     do iwse=1,nNTHVstr
       if(NTHV_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
-        call bnd_p(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
+        call bnd_p(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
       else
-        call bnd_p(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
+        call bnd_p(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
       endif
     enddo !iwse    
     
@@ -3850,13 +3812,10 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell
     do iwse=1,nTHstr      
       if(TH_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
-        call bnd_wse(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wseadj)
+        call bnd_wse_adjust(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd,TH_str(iwse)%wseadj)
+        call bnd_wse(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wseadj)
       else
-        call bnd_wse(TH_str(iwse)%ncells,TH_str(iwse)%cells,&
-          TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
+        call bnd_wse(TH_str(iwse)%ncells,TH_str(iwse)%cells,TH_str(iwse)%faces,TH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
@@ -3865,33 +3824,27 @@ d1: do i=1,ntf
 !and then adjusted for wind and wave setup starting from the center cell      
     do iwse=1,nHstr        
       if(H_str(iwse)%wseadjust)then
-        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
-        call bnd_wse(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wseadj)
+        call bnd_wse_adjust(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd,H_str(iwse)%wseadj)
+        call bnd_wse(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wseadj)
       else
-        call bnd_wse(H_str(iwse)%ncells,H_str(iwse)%cells,&
-          H_str(iwse)%faces,H_str(iwse)%wsebnd)
+        call bnd_wse(H_str(iwse)%ncells,H_str(iwse)%cells,H_str(iwse)%faces,H_str(iwse)%wsebnd)
       endif  
     enddo !iwse 
 
 !--- Multiple Water Level BC (Type 4=MH) ---------------------------
     do iwse=1,nMHstr
-      call bnd_wse(MH_str(iwse)%ncells,MH_str(iwse)%cells,&
-          MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
+      call bnd_wse(MH_str(iwse)%ncells,MH_str(iwse)%cells,MH_str(iwse)%faces,MH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------
     do iwse=1,nMHVstr
-      call bnd_wse(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,&
-          MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
+      call bnd_wse(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces,MHV_str(iwse)%wsebnd)
     enddo !iwse        
 
 !!--- Cross-shore BC (Type 6=CS) ------------------------------------
 !    call xshore_wse
 !    do icsh=1,nCSstr
-!    !  call bnd_wse(CS_str(icsh)%ncells,CS_str(icsh)%cells,&
-!    !      CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
+!    !  call bnd_wse(CS_str(icsh)%ncells,CS_str(icsh)%cells,CS_str(icsh)%faces,CS_str(icsh)%wsecsh)
 !      do j=1,CS_str(icsh)%ncells
 !        i=CS_str(icsh)%cells(j)
 !        k=CS_str(icsh)%faces(j)
@@ -3915,39 +3868,31 @@ d1: do i=1,ntf
     
 !--- Nested Water Level BC (Type 7=NH) ------------------------------
     do iwse=1,nNHstr
-      call bnd_wse(NH_str(iwse)%ncells,NH_str(iwse)%cells,&
-          NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
+      call bnd_wse(NH_str(iwse)%ncells,NH_str(iwse)%cells,NH_str(iwse)%faces,NH_str(iwse)%wsebnd)
     enddo !iwse
     
 !--- Nested Water Level and Velocity BC (Type 8=NHV) --------------------
     do iwse=1,nNHVstr
-      call bnd_wse(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,&
-          NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
+      call bnd_wse(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces,NHV_str(iwse)%wsebnd)  
     enddo !iwse
 
 !--- Tidal Database Water Level BC (Type 9=NTH) ------------------------------
     do iwse=1,nNTHstr
       if(NTH_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-          NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
-        call bnd_wse(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd,NTH_str(iwse)%wseadj)
+        call bnd_wse(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wseadj)
       else
-        call bnd_wse(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,&
-            NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
+        call bnd_wse(NTH_str(iwse)%ncells,NTH_str(iwse)%cells,NTH_str(iwse)%faces,NTH_str(iwse)%wsebnd)  
       endif
     enddo !iwse
     
 !--- Tidal Database Water Level and Velocity BC (Type 10=NTHV) --------------------
     do iwse=1,nNTHVstr
       if(NTHV_str(iwse)%wseadjust)then  
-        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
-        call bnd_wse(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
+        call bnd_wse_adjust(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd,NTHV_str(iwse)%wseadj)
+        call bnd_wse(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wseadj)
       else
-        call bnd_wse(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,&
-          NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
+        call bnd_wse(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces,NTHV_str(iwse)%wsebnd)  
       endif
     enddo !iwse    
     

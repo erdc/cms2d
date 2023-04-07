@@ -90,8 +90,7 @@
       call freememory_fl_wav 
       call getwave        
       !if(n2Dor3D==3) call getwave3D    !For 3D
-      call diag_print_message('*** Finished CMS-Wave Run ***',' ',&
-            '*** Starting CMS-Flow Run ***' )      
+      call diag_print_message('*** Finished CMS-Wave Run ***',' ','*** Starting CMS-Flow Run ***' )      
       timehrs=ctime/3600.0
       tswave1=ctime
       tswave2=tswave1

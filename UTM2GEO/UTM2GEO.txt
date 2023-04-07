@@ -1,0 +1,44 @@
+!*************************************************************************
+! Chris Massey, USACE-ERDC-CHL, Vicksburg, MS 39180
+! June 7, 2011
+!
+! Added a module called UTM2GEO that contains a set of 
+! subroutines for converting to and from UTM to Geographic
+! horizontal coordinate systems.  The original routines were
+! converted to fixed-format, fixed bugs where mixed mode
+! arthimetic was being used, changed all real values to .D0
+! type instead of default, and commented out the call to update
+! the grid_zone in the subroutine ll2utm.
+!
+!*************************************************************************
+!/*
+! * Peter Daly
+! * MIT Ocean Acoustics
+! * pmd@mit.edu
+! * 25-MAY-1998
+! * 
+! Revisions:
+!   Jan. 25, 1999 DHG  Port to Fortran 90
+!   Mar. 23, 1999 DHG  To add Lewis Dozier's fix to "rr1" calculation 
+! * 
+! Description:
+! * 
+! * These routines convert UTM to Lat/Longitude and vice-versa,
+! * using the WGS-84 (GPS standard) or Clarke 1866 Datums.
+! * 
+! * The formulae for these routines were originally taken from
+! * Chapter 10 of "GPS: Theory and Practice," by B. Hofmann-Wellenhof,
+! * H. Lictenegger, and J. Collins. (3rd ed) ISBN: 3-211-82591-6,
+! * however, several errors were present in the text which
+! * made their formulae incorrect.
+! *
+! * Instead, the formulae for these routines was taken from
+! * "Map Projections: A Working Manual," by John P. Snyder
+! * (US Geological Survey Professional Paper 1395)
+! *
+! * Copyright (C) 1998 Massachusetts Institute of Technology
+! *               All Rights Reserved
+! *
+! * RCS ID: $Id: convert_datum.c,v 1.2 1998/06/04 20:50:47 pmd Exp pmd $
+! */
+!*************************************************************************

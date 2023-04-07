@@ -677,13 +677,15 @@ contains
 !**********************************************************************************
     subroutine tdb_init(tdbname,tdbpath,projtdb,nbnd,xbnd,ybnd,niter,mwin,&
         ntcin,namein,ntc,name,speed,f,vu,etamp,etpha,utamp,utpha,vtamp,vtpha,angvel)
-! Initializes the nested tidal database boundary condition
-! Supports the ADCIRC EC2001 and ENPAC2003 databases as well as the 
-! LeProvost, FES952 and FES2004 databases.
-! The option is provided to smooth (running mean) the consituents alon the boundary
-! since sharp gradients can occur for coarse databases due to linear interpolation.
-! A description of the input and output variables is provided below.
+!   Initializes the nested tidal database boundary condition
+!   Supports the ADCIRC EC2001 and ENPAC2003 databases as well as the 
+!   LeProvost, FES952 and FES2004 databases.
+!   The option is provided to smooth (running mean) the consituents along the boundary
+!   since sharp gradients can occur for coarse databases due to linear interpolation.
+!   A description of the input and output variables is provided below.
 ! written by Alex Sanchez, USACE-CHL
+!   Added support for the ENPAC15 database
+! Mitchell Brown, USACE-CHL  04/06/2023
 !**********************************************************************************
     use geo_def, only: azimuth_fl
     use geo_def, only: projection,projfl
@@ -694,6 +696,7 @@ contains
     use bnd_def, only: ntf
     use diag_lib
     use prec_def
+
     implicit none
     !Input/Output
     integer,         intent(in)    :: nbnd           !Number of boundary points
@@ -701,32 +704,38 @@ contains
     real(ikind),     intent(in)    :: ybnd(nbnd)     !y-coordinte (global) of points (usually boundary cell centroids or nodes)
     integer,         intent(in)    :: niter          !Spatial Smoothing iterations
     integer,         intent(inout) :: mwin           !Spatial Smoothing window width
-    character(len=*),intent(in)    :: tdbname        !Tidal database file
-    character(len=*),intent(in)    :: tdbpath        !Tidal database path
-    type(projection),intent(inout) :: projtdb        !Tidal database projection
-    integer,         intent(in)    :: ntcin          !Number of input constituents
-    character(len=6),     intent(in)    :: namein(ntcin)  !Names of input constituents
-    integer,         intent(inout) :: ntc            !Number of output constituents
-    character(len=6),     intent(out), pointer :: name(:) !Names of output constituents
-    real(ikind),     intent(out), pointer :: speed(:),f(:),vu(:) !Constituent speed, nodal factor and equilibrium argument
-    real(ikind),     intent(out), pointer :: etamp(:,:),etpha(:,:) !Water level amplitude and phase
-    real(ikind),     intent(inout), pointer, optional :: utamp(:,:),utpha(:,:) !U-velocity amplitude (m) and phase (deg)
-    real(ikind),     intent(inout), pointer, optional :: vtamp(:,:),vtpha(:,:) !V-Velocity amplitude (m) and phase (deg)
-    real(ikind),     intent(out),   optional :: angvel
+    character(len=*),  intent(in)    :: tdbname        !Tidal database file
+    character(len=*),  intent(in)    :: tdbpath        !Tidal database path
+    type(projection),  intent(inout) :: projtdb        !Tidal database projection
+    integer,           intent(in)    :: ntcin          !Number of input constituents
+    character(len=*), intent(in)    :: namein(ntcin)  !Names of input constituents
+    integer,           intent(inout) :: ntc            !Number of output constituents
+    character(len=10), intent(out), pointer :: name(:) !Names of output constituents
+    real(ikind),       intent(out), pointer :: speed(:),f(:),vu(:) !Constituent speed, nodal factor and equilibrium argument
+    real(ikind),       intent(out), pointer :: etamp(:,:),etpha(:,:) !Water level amplitude and phase
+    real(ikind),       intent(inout), pointer, optional :: utamp(:,:),utpha(:,:) !U-velocity amplitude (m) and phase (deg)
+    real(ikind),       intent(inout), pointer, optional :: vtamp(:,:),vtpha(:,:) !V-Velocity amplitude (m) and phase (deg)
+    real(ikind),       intent(out),   optional :: angvel
     !Internal variables
-    integer :: i,ii,j,jj,k,ind(ntf),mcyctemp(ntf)
+    integer :: i,ii,j,jj,k,ind(ntf),mcyctemp(ntf), iloc
     real(ikind) :: distmin,dist,xout(nbnd),yout(nbnd)
     real(ikind) :: speedtemp(ntf),ftemp(ntf),vutemp(ntf)
-    character(len=6) :: nametemp(ntf)
+    character(len=10) :: nametemp(ntf),first,num,temp
     character(len=100) :: msg2,msg3,msg4,msg5
     
-    !Get corrections for all constituents correspondint that year
+    interface
+      function toUpper(str) result(aString)
+        character(len=*), intent(in)  :: str
+        character(len=len(str))       :: aString
+      end function
+    end interface    
+    
+    !Get corrections for all constituents corresponding that year
     call tidal_data(iyr,nametemp,speedtemp,mcyctemp,ftemp,vutemp)
     
     !If Projection is not specified (local), then assume Geographic, NAD83, degrees
     if(projtdb%iHorizDatum==2)then !2=Local
-      call diag_print_warning('Tidal Database Horizontal Projection not specified',&
-        ' Assuming Projection: Geographic, NAD83, degrees')
+      call diag_print_warning('Tidal Database Horizontal Projection not specified',' Assuming Projection: Geographic, NAD83, degrees')
       projtdb%iHorizDatum = 1         !Horizontal Datum = NAD83
       projtdb%iHorizCoordSystem = 0   !Horizontal Coordinate System = GEOGRAPHIC
       projtdb%iHorizUnits = 4         !Horizontal Units = DEGREES
@@ -740,13 +749,11 @@ contains
     call proj_horiz_conv(projfl,projtdb,nbnd,xout,yout)
     
     !Read parent grid and control file
-    if(tdbname(1:6)=='EC2001' .or. tdbname(1:9)=='ENPAC2003')then !ADCIRC Tidal Database   
+    if(tdbname(1:6)=='EC2001' .or. tdbname(1:9)=='ENPAC2003' .or. tdbname(1:9)=='ENPAC2015') then !ADCIRC Tidal Database   
       if(present(vtpha))then
-        call tide_adcirc(tdbname,tdbpath,nbnd,xout,yout,&
-           ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)      
+        call tide_adcirc(tdbname,tdbpath,nbnd,xout,yout,ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)      
       else
-        call tide_adcirc(tdbname,tdbpath,nbnd,xout,yout,&
-           ntcin,namein,ntc,name,speed,etamp,etpha)     
+        call tide_adcirc(tdbname,tdbpath,nbnd,xout,yout,ntcin,namein,ntc,name,speed,etamp,etpha)     
       endif
     elseif(tdbname(1:9)=='LEPROVOST' .or. tdbname(1:3)=='FES')then !LeProvost Tidal Database
       call tide_fes(tdbname,tdbpath,nbnd,xout,yout,ntcin,namein,ntc,name,etamp,etpha)  
@@ -771,10 +778,29 @@ contains
       !vtamp = 0.0; vtpha = 0.0
       
     elseif(tdbname(1:4)=='TPXO')then !TPXO Tidal Database (all versions)
-        !Not implimented yet
+        !Not implemented yet
     else
       call diag_print_error('Invalid Parent Grid Control File Extention')
     endif
+    
+    !Check names for parentheses (i.e., M(2) instead of M2) and if 'Lambda'
+    do k=1,ntc
+      iloc = 0
+      iloc = index(name(k),'(')
+      temp = ''
+      if (iloc .ne. 0) then  !remove the ()
+        if (name(k) .eq. 'Lambda(2)') then
+          name(k) = 'LDA2'
+        else
+          temp=name(k)
+          first=temp(1:iloc-1)
+          num=temp(iloc+1:iloc+1)
+          name(k) = trim(first)//trim(num)
+        endif
+      endif
+      name(k)=toUpper(trim(name(k)))
+      continue
+    enddo
     
     !Calculate index for names
     ind = 0

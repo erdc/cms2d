@@ -1,3 +1,7 @@
+== Version 5.3.3 (04/07/2023) ==
+* Split third-party code (spatial transformations) out as separate linkable libraries needed to Open Source CMS (in process).
+* Implemented two new ADCIRC tidal databases (EC2015 and ENPAC2015).  Currently in testing.
+
 == Version 5.3.2 (08/11/2022) == 
 * Minor change to reading parameter file for Explicit scheme.
 * Bug fix when choosing multi-sediment with D35,D50,D90. Fixed array allocation error.

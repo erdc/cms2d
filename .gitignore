@@ -54,3 +54,13 @@ Intel_vs2019/x64/Release/
 Intel_vs2019/.vs/
 
 Intel_vs2019/enc_temp_folder/e6486a49675cef3446d357a411a6d441/
+
+UTM2GEO/x64/
+
+SPCS83/x64/
+
+GCTP/x64/
+
+*.exe
+
+*.u2d

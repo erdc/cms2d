@@ -617,10 +617,8 @@ contains
     end subroutine write_grid14
 
 !********************************************************************    
-    subroutine trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,&
-        nes,nns,xns,yns,zns,e2ns,kns)
-! Extracts a submesh from an unstructured triangular overlapping 
-! a rectangular domain
+    subroutine trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,nes,nns,xns,yns,zns,e2ns,kns)
+! Extracts a submesh from an unstructured triangular overlapping a rectangular domain
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************
     use diag_lib

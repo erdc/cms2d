@@ -1,32 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject ProjectCreator="Intel Fortran" Keyword="Console Application" Version="11.0" ProjectIdGuid="{CBBA6C9A-9D83-4792-8F77-E72DB8D581B9}">
 	<Platforms>
-		<Platform Name="Win32"/>
 		<Platform Name="x64"/></Platforms>
 	<Configurations>
-		<Configuration Name="Debug|Win32" OutputDirectory="$(PlatformName)\$(ConfigurationName)" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT " GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0d_2017.lib"/>
-				<Tool Name="VFResourceCompilerTool"/>
-				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
-				<Tool Name="VFCustomBuildTool"/>
-				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/>
-				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="Release|Win32" OutputDirectory="$(PlatformName)\$(ConfigurationName)" IntermediateDirectory="$(PlatformName)\$(ConfigurationName)">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" Traceback="true" BoundsCheck="true" UninitializedVariablesCheck="true"/>
-				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="46214400" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0_2017.lib"/>
-				<Tool Name="VFResourceCompilerTool"/>
-				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
-				<Tool Name="VFCustomBuildTool"/>
-				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/>
-				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="LIBCMT.lib" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -36,7 +15,7 @@
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|x64">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
-				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
+				<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRT" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib ..\external_libraries\NetCDF\ncdff-x64.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -87,11 +66,6 @@
 		<File RelativePath="..\source\friction\fric_lib.f90"/>
 		<File RelativePath="..\source\friction\friction.F90"/>
 		<File RelativePath="..\source\solvers\gauss-seidel.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\gctp.f90">
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\geospatial\geo_def.f90"/>
 		<File RelativePath="..\source\geospatial\geo_lib.f90"/>
 		<File RelativePath="..\source\geospatial\geo_test.F90"/>
@@ -162,11 +136,6 @@
 		<File RelativePath="..\source\solvers\solv_def.f90"/>
 		<File RelativePath="..\source\solvers\solvers.f90"/>
 		<File RelativePath="..\source\solvers\sparse.f90"/>
-		<File RelativePath="..\external_libraries\proj_conv\spcs83_combined.f90">
-			<FileConfiguration Name="Release|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
-			<FileConfiguration Name="Debug|x64">
-				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
 		<File RelativePath="..\source\statistics\stat_def.f90"/>
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
@@ -185,7 +154,6 @@
 		<File RelativePath="..\source\utilities\tool_def.f90"/>
 		<File RelativePath="..\source\utilities\tools.F90"/>
 		<File RelativePath="..\source\utilities\unitconv_lib.F90"/>
-		<File RelativePath="..\external_libraries\proj_conv\utm2geo.f90"/>
 		<File RelativePath="..\source\vegetation\veg_def.f90"/>
 		<File RelativePath="..\source\vegetation\vegetation.F90"/>
 		<File RelativePath="..\source\utilities\watch_def.F90"/>
