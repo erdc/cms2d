@@ -39,9 +39,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
-    revision = 3             ! Revision number
+    revision = 4             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '04/06/2023'
+    rdate    = '04/10/2023'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -131,6 +131,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     use diag_def
     use hot_def, only: coldstart
     use out_def, only: write_sup,write_tecplot,write_ascii_input
+    use steer_def, only: auto_steer
     implicit none
     integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr
     character :: cardname*37,aext*10, answer,laext*10   !added variable to hold lowercase version of the extension for the case statement.
@@ -171,7 +172,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       if (astr == 'inline' .or. astr == 'tools') laext=astr
       select case(laext)
         case('cmcards') !Flow model
-          ctlfile = trim(aname) // '.' // trim(aext)   !'.cmcards'
+          ctlfile = trim(aname) // '.' // trim(aext)
           flowpath = apath
           casename = aname
           inquire(file=ctlfile,exist=ok)
@@ -310,7 +311,14 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         write(*,*) 'in hours and Press <RETURN>'
         write(*,*) ' '
         read(*,*) dtsteer
-        dtsteer = dtsteer*3600.0  !Convert from hours to seconds 
+        if (dtsteer > 0) then
+            dtsteer = dtsteer*3600.0  !Convert from hours to seconds 
+        elseif (dtsteer == 0) then
+            dtsteer = 10800.0
+        else
+            auto_steer = .true.
+            dtsteer = 10800.0 !Initially just set to 3-hour default.
+        endif
       else
         dtsteer = 10800.0 !3 hours ********************
       endif

@@ -1,4 +1,14 @@
 !===================================================================
+module steer_def
+! Added 4/10/2023 - MEB  !Not sure what happened to previous method to do automatic steering intervals, but here is a new attempt
+implicit none
+logical :: auto_steer
+
+end module steer_def
+
+    
+    
+!===================================================================
 module flow_wavegrid_def
 ! Flow variables on the wave grid.
 ! Used to pass information from the flow model to the wave model

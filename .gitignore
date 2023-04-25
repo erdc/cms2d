@@ -46,14 +46,9 @@ Intel_vs2017/x64/Release/
 
 *.dll
 
-Intel_vs2019/x64/Release/
 Intel_vs2019/CMS2D_V5p2.u2d
-Intel_vs2019/x64/Debug/
-Intel_vs2019/x64/Release/
-
-Intel_vs2019/.vs/
-
-Intel_vs2019/enc_temp_folder/e6486a49675cef3446d357a411a6d441/
+Intel_vs2019/x64/
+Intel_vs2019/.vs/Intel_vs2019/enc_temp_folder/e6486a49675cef3446d357a411a6d441/
 
 UTM2GEO/x64/
 
@@ -64,3 +59,5 @@ GCTP/x64/
 *.exe
 
 *.u2d
+
+Intel_vs2019/.vs/CMS2D_V5.3/v16/

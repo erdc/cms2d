@@ -2896,7 +2896,7 @@ d1: do i=1,ntf
         write(iunit(i),141)     '        Coordinate System:',trim(aHorizCoordSystem(NTHV_str(iwse)%projtdb%iHorizCoordSystem))     
         if(NTHV_str(iwse)%projtdb%iHorizCoordSystem/=22)then
           write(iunit(i),141)   '        Datum:',trim(aHorizDatum(NTHV_str(iwse)%projtdb%iHorizDatum))
-          if(NTHV_str(iwse)%projtdb%iHorizZone/=0)then
+          if(NTHV_str(iwse)%projtdb%iHorizZone > 0)then
             write(iunit(i),262) '        Zone:',NTHV_str(iwse)%projtdb%iHorizZone
           endif
         endif      
