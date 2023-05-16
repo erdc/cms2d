@@ -459,7 +459,10 @@
         Q_str(nQstr)%fluxfile = fluxfile
         Q_str(nQstr)%fluxpath = fluxpath
       endif
-      Q_str(nQstr)%angle = angle_flux
+      if(angle_flux .ne. undef) then
+        Q_str(nQstr)%angle = angle_flux
+        Q_str(nQstr)%specified = .true.
+      endif
       Q_str(nQstr)%cmvel = cmvel
       Q_str(nQstr)%ifluxunits = ifluxunits
       Q_str(nQstr)%nti = ntiq
@@ -472,7 +475,10 @@
       TH_str(nTHstr)%bidpath = bidpath
       TH_str(nTHstr)%idnum = idnum
       TH_str(nTHstr)%istrtype = istrtype
-      TH_str(nTHstr)%angle = angle_wave
+      if(angle_wave .ne. undef) then
+        TH_str(nTHstr)%angle = angle_wave
+        TH_str(nTHstr)%specified = .true.
+      endif
       TH_str(nTHstr)%wseoffset = wseoffset      
       TH_str(nTHstr)%ntc = ntc
       TH_str(nTHstr)%wseadjust = wseadjust

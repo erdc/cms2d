@@ -1,5 +1,6 @@
-== Version 5.3.4 (04/10/2023) == 
-*
+== Version 5.3.4 (05/16/2023) == 
+* Added a warning if user-specified boundary angle was too different than internally calculated angle for that boundary.
+* Fix in CMS Wave GSR Solver to avoid an infinity in certain situations.
 
 == Version 5.3.3 (04/07/2023) ==
 * Split third-party code (spatial transformations) out as separate linkable libraries needed to Open Source CMS (in process).
