@@ -808,7 +808,7 @@
       read(100,'(A300)') astring
       fileCopied=index(astring,'opied')
       if (filecopied .gt. 0) then 
-      close(100,status='delete',iostat=ierr)
+        close(100,status='delete',iostat=ierr)
       else
         call diag_print_error(' ','*** Error copying IC file to temporary file ***','See "file" for message')
       endif

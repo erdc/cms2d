@@ -10222,16 +10222,16 @@ contains
       JUDG=0
       XXMAX=0
       DO I=1,NMX            
-         IF(ABS(AA(1,I)).LT.1.0E-4) THEN
-           X(I)=0.0
-         ELSE
-           X(I)=B(I)/AA(1,I)
-         ENDIF
-         IF(X(I).GT.1.0E-20) JUDG=1
-         X0(I)=X(I)
-         ABXX=ABS(X(I))
-         IF(XXMAX.LT.ABXX) XXMAX=ABXX
-        ENDDO
+        IF(ABS(AA(1,I)).LT.1.0E-4) THEN
+          X(I)=0.0
+        ELSE
+          X(I)=B(I)/AA(1,I)
+        ENDIF
+        IF(X(I).GT.1.0E-20) JUDG=1
+        X0(I)=X(I)
+        ABXX=ABS(X(I))
+        IF(XXMAX.LT.ABXX) XXMAX=ABXX
+      ENDDO
 !
       IF(JUDG.EQ.0) GOTO 11
       XLIM=XXMAX/1000.0
@@ -10239,38 +10239,39 @@ contains
       XMAX=100.0
 !
 !----Iteration loop
-        IO=0
+      IO=0
       DO WHILE (XMAX.GT.DLTA.AND.ICC.LT.LIM)
         ICC=ICC+1
         XMAX=0.0
 !$omp parallel
-!$omp do private (S, I, J, PX, PPX) REDUCTION(MAX:XMAX)
+!$omp do private (S, IP, I0, I, J, PX, XX, PPX) REDUCTION(MAX:XMAX)
         DO I=1,NMX
          IF(ABS(AA(1,I)).GE.1.0E-4) THEN
            IP=0
            S=0.
            IF(I.NE.IA(1,I)) THEN
-           IO=1
+             IO=1
            ELSE
              IP=1
            ENDIF
 !
            DO J=2,5
-              IF(ABS(AA(J,I)).GE.1.0E-4) THEN
-                IF(I.NE.IA(J,I).AND.IA(J,I).GT.0) THEN
-                  IF(x(IA(J,I)).gt.1.0E-18) then
-                    IF(abs(s).gt.100.) s=0.
-                    S=S+AA(J,I)*X(IA(J,I))
-                  ENDIF
-                ENDIF
-              ENDIF
+             IF(ABS(AA(J,I)).GE.1.0E-4) THEN
+               IF(I.NE.IA(J,I).AND.IA(J,I).GT.0) THEN
+                 IF(x(IA(J,I)).gt.1.0E-18) then
+                   IF(abs(s).gt.100.) s=0.
+                   S=S+AA(J,I)*X(IA(J,I))
+                 ENDIF
+               ENDIF
+             ENDIF
            ENDDO
-!           IF(IP.EQ.0) GOTO 50
+           IF(abs(s).gt.100.) s=0.  !Added to avoid infinity below.  MEB  051623
+!          IF(IP.EQ.0) GOTO 50
            PX=X(I)
            if(abs(AA(1,I)).LT.1.0E-4) then
-           XX=0.0
+             XX=0.0
            else
-           XX=(B(I)-S)/AA(1,I)
+             XX=(B(I)-S)/AA(1,I)
            end if
 !       if(ws.ge..1) then
 !         if(ifast.eq.1) then

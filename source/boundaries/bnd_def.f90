@@ -71,6 +71,7 @@ module bnd_def
       integer              :: inc         !Current time step of boundary data      
       real(ikind)          :: cmvel       !Coefficient [-]
       real(ikind)          :: angle       !Angle of flow clockwise from north [rad]
+      logical              :: specified   !True when a user specifies the angle in the parameter file.
       real(ikind)          :: qflux       !Interpolated river flux [m^3/s]
       real(ikind)          :: qfluxconst  !Constant flux [m^3/s]
       real(ikind), pointer :: times(:)    !Times [hrs]
@@ -119,8 +120,9 @@ module bnd_def
       real(ikind),      allocatable :: phase(:)    !Phase [rad] (constituent)
       real(ikind),      allocatable :: f(:)        !Nodal factor [-] (constituent)
       real(ikind),      allocatable :: vu(:)       !Equilibrium argument [rad] (constituent)
-      character(len=10), allocatable :: name(:)     !Tidal Consitituent names (constituent)
+      character(len=10),allocatable :: name(:)     !Tidal Consitituent names (constituent)
       real(ikind)                   :: angle       !Incident angle of tidal wave
+      logical                       :: specified   !True when a user specifies the angle in the parameter file.
       real(ikind),      allocatable :: psi(:,:)    !Phase difference due to incident wave angle (cell,constituent) 
       real(ikind)                   :: dwsex       !Regional steady water level gradinet
       real(ikind)                   :: dwsey       !Regional steady water level gradinet

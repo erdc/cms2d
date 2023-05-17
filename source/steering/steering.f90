@@ -6,6 +6,7 @@
     use cms_def
     use flow_def
     use comvarbl, only: flowpath
+    use steer_def, only: auto_steer
     implicit none
     
     noptset = 3          !Option identifying the mode of simulation
@@ -23,6 +24,7 @@
     xtrpdistwav = 0.0    !Wave extrapolation distance    
     noptxtrpwav = 2      !0-No extrapolation, 1-User specified, 2-Automatic   
     dtsteer = -1.0       !hours, steering interval
+    auto_steer = .false. !Automatic steering interval indicator  MEB  04/10/2023
     cmsflow = .false.    !toggle for running CMS-Flow
     cmswave = .false.    !toggle for running CMS-Wave
     wave_interp = .true. !toggle for temporal wave interpolation   MEB  01/22/2014
@@ -46,6 +48,7 @@
     use cms_def
     use geo_def, only: grdfile,wgrdfile
     use flow_def
+    use steer_def, only: auto_steer    
     implicit none
     integer :: ierr
     character(len=10) :: aext
@@ -67,6 +70,7 @@
       case('STEERING_INTERVAL','CMS-STEERING_INTERVAL')
         call card_scalar(77,'hrs','sec',dtsteer,ierr)
         cmswave = .true.
+        if (dtsteer < 0) auto_steer = .true.
         
       !Temporal Wave Interpolation toggle - MEB 01/22/2014
       case('TEMPORAL_WAVE_INTERPOLATION')   
