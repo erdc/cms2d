@@ -6,12 +6,12 @@
 !   bnd_cards - Reads the flow boundary cards from the card file
 !   bnd_init - Initializes the flow boundary variables
 !   bnd_print - Prints the flow boundary settings to the diagnostic file
-!              and the screen
+!               and the screen
 !   bnd_eval - Evaluates the boundary conditions
 !   bound_uv - Applies the boundary conditions to the momentum equations
 !   bound_pp - Applies the boundary conditions to the pressure correction equation
 !   bnd_wse_adjust - Adjusts the water level at a boundary cell string to 
-!                   include the wind and wave setup
+!                    include the wind and wave setup
 !   bndflux - Updates the volume fluxes at all the boundaries
 !   bndriver_vel - Updates the current velocity at flux boundaries
 !   flux_alloc - Resizes the flux boundary condition variable 
@@ -25,14 +25,14 @@
 !   tdb_block - Reads a tidal database block from the card file
 !   multiwse_alloc - Resizes the multiple water level boundary condition variables   
 !   multiwsevel_alloc - Resizes the multiple water level and velocity boundary
-!                      condition variable
+!                       condition variable
 !   xshore_uv - Solves the cross-shore momentum equations for the current velocities
 !   xshore_wse - Solves the cross-shore momentum equation for water levels
 !   bnd_pp - Pressure correction boundary condition
 !   bnd_vel_flux - Calculatest the velocity at a flux boundary condition
 !   bnd_vel_openwse - Calculates the velocity at an open wse boundary condition
 !   bnd_vel_openwsevel - Calculates the velocity at an open wse and velocity 
-!                       boundary condition
+!                        boundary condition
 !
 ! written by Alex Sanchez, USACE-CHL
 !================================================================================
@@ -257,6 +257,7 @@
     Q_str(nQstr)%fluxpath = ''    
     Q_str(nQstr)%cmvel = 0.667  !Default value
     Q_str(nQstr)%angle = -999.0 !No default
+    Q_str(nQstr)%specified = .false. 
     Q_str(nQstr)%qflux = 0.0
     Q_str(nQstr)%qfluxconst = 0.0
     Q_str(nQstr)%ifluxunits = 0  !Input flux units: 0-m^3/s/cell,1-m^3/s,2-ft^3/s
@@ -721,7 +722,7 @@
         backspace(77)
         read(77,*) cardname,phaunits
       
-      case('INCIDENT_ANGLE','INCIDENT_DIRECTION')
+      case('INCIDENT_ANGLE','INCIDENT_DIRECTION','DIRECTION')
         backspace(77)
         read(77,*) cardname,angle_wave  !degrees
         angle_wave = 90.0 - angle_wave - azimuth_fl !degrees, clockwise from North, local coordinate system
@@ -840,7 +841,7 @@
         backspace(77)
         read(77,*) cardname,spdunits
       
-      case('INCIDENT_ANGLE','INCIDENT_DIRECTION')
+      case('INCIDENT_ANGLE','INCIDENT_DIRECTION','DIRECTION')
         backspace(77)
         read(77,*) cardname,angle_wave              !degrees
         angle_wave = 90.0 - angle_wave - azimuth_fl !degrees, clockwise from North, local coordinate system
@@ -974,7 +975,7 @@
         backspace(77)
         read(77,*) cardname,ntc,(name(k),k=1,ntc)
       
-      case('INCIDENT_ANGLE','INCIDENT_DIRECTION')
+      case('INCIDENT_ANGLE','INCIDENT_DIRECTION','DIRECTION')
         backspace(77)
         read(77,*) cardname,angle_wave  !degrees
         angle_wave = 90.0 - angle_wave - azimuth_fl !degrees, clockwise from North, local coordinate system
@@ -1301,6 +1302,7 @@
     TH_str(nTHstr)%nti = 2     !hli(10/06/17)
     TH_str(nTHstr)%inc = 1     !hli(10/06/17)
     TH_str(nTHstr)%angle = -999.0
+    TH_str(nTHstr)%specified = .false. 
     TH_str(nTHstr)%dwsex = 0.0
     TH_str(nTHstr)%dwsey = 0.0
     TH_str(nTHstr)%wseoffset = 0.0    
@@ -1625,8 +1627,8 @@ d1: do i=1,ntf
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
     integer :: iriv,iwse,icsh,korient,id1,id2,ibnd,ipar,idpar,kk
     integer :: itide    !adding a descriptive loop control variable for the tidal and harmonic cell strings
-    character(len=10) :: aext
-    real(ikind) :: dep,cosang,sinang,val,distx,disty,tjuldaypar,xtrapdist
+    character(len=10) :: aext, asc_ibnd
+    real(ikind) :: dep,cosang,sinang,val,distx,disty,tjuldaypar,xtrapdist, local_angle, ang_diff
     integer :: ibndtemp(ncellsD)
     real(ikind), allocatable :: valtemp(:,:)
     type(MH_type),allocatable :: MH_temp(:)
@@ -1664,8 +1666,7 @@ d1: do i=1,ntf
       call diag_print_error('Missing tidal constituents for cell string',msg2)
     elseif(.not.Tread .and. Tide_read)then
       nTHstr = 0
-      call diag_print_warning('Missing cell string for tidal constituents',&
-        '  Tidal constituents will be ignored')
+      call diag_print_warning('Missing cell string for tidal constituents','  Tidal constituents will be ignored')
     endif
     
 !    if(nTstrchk/=nTHstr)then
@@ -1675,22 +1676,27 @@ d1: do i=1,ntf
 !--- River/Flux BC (Type 1=Q) -------------------------------
     do iriv=1,nQstr
       !Read cell/node string  
-      call read_bndstr(Q_str(iriv)%bidfile,Q_str(iriv)%bidpath,&
-        Q_str(iriv)%istrtype,Q_str(iriv)%idnum,&
-        Q_str(iriv)%ncells,Q_str(iriv)%cells,Q_str(iriv)%faces)
+      call read_bndstr(Q_str(iriv)%bidfile,Q_str(iriv)%bidpath, Q_str(iriv)%istrtype,Q_str(iriv)%idnum, Q_str(iriv)%ncells,Q_str(iriv)%cells,Q_str(iriv)%faces)
       
       !Determine orientation of river boundary
-      if(Q_str(iriv)%angle<-900.0)then
-        im = Q_str(iriv)%ncells/2  !Reference ID
-        i = Q_str(iriv)%cells(im) !Reference cell
-        k = Q_str(iriv)%faces(im)  !Reference face 
-        if(Q_str(iriv)%istrtype==1)then
-          korient = idirface(k,i) !Bug fix, Alex, June 8, 2010, changed i to iid
-          !If inflow angle is not specified assume normal to boundary
-          Q_str(iriv)%angle = float(4-korient)*90.0 !Angle is in local coordinates            
-        else
-          Q_str(iriv)%angle = atan2(ry(k,i),rx(k,i))*rad2deg-180.0 !Inflow Angle
-        endif
+      im = Q_str(iriv)%ncells/2 !Reference ID
+      i = Q_str(iriv)%cells(im) !Reference cell
+      k = Q_str(iriv)%faces(im) !Reference face
+      korient = idirface(k,i)   !Bug fix, Alex, June 8, 2010, changed i to iid
+      write(asc_ibnd,"(I0)") iriv
+      if(Q_str(iriv)%istrtype==1)then
+        !If inflow angle is not specified assume normal to boundary
+        local_angle = float(4-korient)*90.0 !Angle is in local coordinates
+      else 
+        local_angle = atan2(ry(k,i),rx(k,i))*rad2deg-180.0 !Inflow Angle
+      endif 
+      
+      if(Q_str(iriv)%angle<-900.0)then  !if not already user-specified
+        Q_str(iriv)%angle = local_angle
+      else
+        !check specified angle to see how far off from calculated normal angle
+        ang_diff = Q_str(iriv)%angle - local_angle
+        if (abs(ang_diff) .ge. 90.0) call diag_print_warning('User-specified angle is more than 90 degrees off calculated inflow angle for flux boundary '//trim(asc_ibnd))
       endif
       
       !Unit Conversion, ifluxunits = 0-m^3/s/cell, 1-m^3/s/boundary, 2-ft^3/s/boundary, default = 0      
@@ -1753,7 +1759,7 @@ d1: do i=1,ntf
       allocate(TH_str(itide)%psi(TH_str(itide)%ncells,TH_str(itide)%ntc))
       TH_str(itide)%psi = 0.0
       !Calculate characteristic depth
-      if(TH_str(itide)%angle>-900.0)then
+      if(TH_str(itide)%angle > -900.0)then
         dep = 0.0
         do j=1,TH_str(itide)%ncells
           i = TH_str(itide)%cells(j)
@@ -1769,7 +1775,7 @@ d1: do i=1,ntf
         ii=TH_str(itide)%cells(j)
         distx=x(ii)-x(i); disty=y(ii)-y(i)
         TH_str(itide)%wsevar(j) = distx*TH_str(itide)%dwsex + disty*TH_str(itide)%dwsey
-        if(TH_str(itide)%angle<-900.0) cycle
+        if(TH_str(itide)%angle < -900.0) cycle
         val = (distx*cosang+disty*sinang)/sqrt(grav*dep)/3600.0
         do k=1,TH_str(itide)%ntc
           TH_str(itide)%psi(j,k) = TH_str(itide)%psi(j,k) + TH_str(itide)%speed(k)*val
@@ -2506,7 +2512,11 @@ d1: do i=1,ntf
         elseif(ang>360.0)then
           ang = ang - 360.0
         endif
-        write(iunit(i),341)   '      Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
+        if(Q_str(iriv)%specified) then
+          write(iunit(i),341)   '      Direction (specified):',trim(vstrlz(ang,'(f0.3)')),' deg'
+        else
+          write(iunit(i),341)   '      Direction:',trim(vstrlz(ang,'(f0.3)')),' deg'
+        endif
         write(iunit(i),341)   '      Conveyance Coefficient:',trim(vstrlz(Q_str(iriv)%cmvel,'(f0.3)'))
       enddo !i-str
     
@@ -2540,7 +2550,7 @@ d1: do i=1,ntf
           if(abs(valy)<1.0e-10) valy=0.0  
           write(iunit(i),784)   '      Water Level Gradients:',TH_str(iwse)%dwsex,TH_str(iwse)%dwsey
         endif 
-        if(TH_str(iwse)%angle>-900)then
+        if(TH_str(iwse)%angle > -900)then
           ang = 90.0 - TH_str(iwse)%angle*rad2deg - azimuth_fl
           if(ang<0.0)then
             ang = ang + 360.0
@@ -2896,7 +2906,7 @@ d1: do i=1,ntf
         write(iunit(i),141)     '        Coordinate System:',trim(aHorizCoordSystem(NTHV_str(iwse)%projtdb%iHorizCoordSystem))     
         if(NTHV_str(iwse)%projtdb%iHorizCoordSystem/=22)then
           write(iunit(i),141)   '        Datum:',trim(aHorizDatum(NTHV_str(iwse)%projtdb%iHorizDatum))
-          if(NTHV_str(iwse)%projtdb%iHorizZone/=0)then
+          if(NTHV_str(iwse)%projtdb%iHorizZone > 0)then
             write(iunit(i),262) '        Zone:',NTHV_str(iwse)%projtdb%iHorizZone
           endif
         endif      

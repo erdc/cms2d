@@ -130,7 +130,7 @@ module geo_def
     type projection
       integer :: iHorizDatum        !0-NAD27,1-NAD83,2-Local      
       integer :: iHorizCoordSystem  !Code number for input horizontal coordinate system
-      integer :: iHorizZone         !Code number for input horizontal coordinate zone
+      integer :: iHorizZone = 0     !Code number for input horizontal coordinate zone
       integer :: iHorizUnits        !Code number for input horizontal coordinate units
       integer :: iVertDatum         !Code number for input vertical coordinate datum
       integer :: iVertUnits         !Code number for input vertical coordinate units

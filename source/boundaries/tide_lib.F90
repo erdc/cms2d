@@ -2291,8 +2291,11 @@ contains
       do n=1,npp
         read(105,*) node
         read(106,*) node
-        if(mod(n,npp/4)==0)then
-          write(*,787) real(n*100)/real(npp)
+!        if(mod(n,npp/4)==0)then
+!          write(*,787) real(n*100)/real(npp)
+!        endif
+        if(mod(k,nns/4)==0)then                    ! Use values for the mapped subsection of the database instead of the entire TD  MEB  4/25/23
+          write(*,787) real(k*100)/real(nns)
         endif
         if(node==kns(k))then
           !backspace(105)   !no backspace needed in separate files for 2015
@@ -2319,8 +2322,11 @@ contains
       !Read amplitudes and phases ONLY for input nodes and constituents
       do n=1,npp
         read(105,*) node
-        if(mod(n,npp/4)==0)then
-          write(*,787) real(n*100)/real(npp)
+        !if(mod(n,npp/4)==0)then
+        !  write(*,787) real(n*100)/real(npp)
+        !endif
+        if(mod(k,nns/4)==0)then                    ! Use values for the mapped subsection of the database instead of the entire TD  MEB  4/25/23
+          write(*,787) real(k*100)/real(nns)
         endif
         if(node==kns(k))then
           !backspace(105)   !no backspace needed in separate files for 2015
