@@ -1,4 +1,5 @@
 == Version 5.3.4 (05/16/2023) == 
+* Bug fix for missing zero output time in files when increment > 100 hours.
 * Added a warning if user-specified boundary angle was too different than internally calculated angle for that boundary.
 * Fix in CMS Wave GSR Solver to avoid an infinity in certain situations.
 

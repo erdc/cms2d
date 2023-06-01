@@ -2857,7 +2857,8 @@ implicit none
         endif       
       enddo    
       !Add value to temp and move counter
-      if(abs(tseries(id,inc(id))-temp(kth))>0.01*tlist(id,3))then !skip repeated values
+      !always add 0.0  (sometimes if increment > 100, the 0.0 was left out)                          MEB  12/2/2022
+      if(tseries(id,inc(id)).eq.0.d0 .or. abs(tseries(id,inc(id))-temp(kth))>0.01*tlist(id,3)) then  !skip repeated values
         tmin = tseries(id,inc(id))
         kth = kth + 1
         temp(kth) = tseries(id,inc(id))                    
