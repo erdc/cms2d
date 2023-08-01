@@ -1,18 +1,17 @@
+!*******************************************************************************
      subroutine update_advection_tel_reg()
-     use EXP_Global_def
-     USE EXP_bndcond_def    
-     use EXP_Structures_def
-     use flow_def 
-     use geo_def
-     use sed_def
-     use const_def, only: pi,deg2rad    
-     use met_def, only: tauwindx,tauwindy,pressatm
+!*******************************************************************************
+     use EXP_Global_def,    only: imix, iadv
+     use EXP_TELESCOPING,   only: numregxfaces, regxfaces, xface_cells, xface_advf, xface_q, xface_vel, xface_advdif_i, xface_wall, xface_cadvf, xface_advdif_c
+     use EXP_TELESCOPING,   only: numregyfaces, regyfaces, yface_cells, yface_advf, yface_q, yface_vel, yface_advdif_i, yface_wall, yface_cadvf, yface_advdif_c
+     use EXP_TELESCOPING,   only: xface_length, yface_length, numspecx, numspecy, specx, specy
      use wave_flowgrid_def, only: wavestrx,wavestry     
-     use fric_def, only: cfrict,uelwc
-     USE EXP_transport_def 
-     use NupdateMod
-     use sal_def  
-     use exp_telescoping
+     use flow_def,  only: vis, eta
+     use geo_def,   only: zb, dx, dy
+     use const_def, only: pi, deg2rad    
+     use met_def,   only: tauwindx, tauwindy, pressatm
+     use fric_def,  only: cfrict, uelwc
+     use prec_def,  only: ikind
       
      implicit none
      integer i,j,id,id1,id2,id3,ii

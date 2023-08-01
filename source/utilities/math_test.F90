@@ -12,9 +12,10 @@ contains
     subroutine math_test_all()  
 ! written by Alex Sanchez, USACE-CHL        
 !**********************************************************
-    use math_lib
-    use diag_lib
-    use prec_def
+    use math_lib, only: lognpdf, erfinv, logninv, sortup
+    use diag_lib, only: diag_print_message
+    use prec_def, only: ikind
+    
     implicit none
     integer, parameter :: nsort = 4
     integer :: indsort(nsort)

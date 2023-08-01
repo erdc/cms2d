@@ -687,32 +687,32 @@ contains
 !   Added support for the ENPAC15 database
 ! Mitchell Brown, USACE-CHL  04/06/2023
 !**********************************************************************************
-    use geo_def, only: azimuth_fl
-    use geo_def, only: projection,projfl
-    use geo_lib, only: proj_horiz_conv
-    use comvarbl, only: tjulhr0,tjulhryr,iyr
+    use geo_def,   only: azimuth_fl
+    use geo_def,   only: projection,projfl
+    use geo_lib,   only: proj_horiz_conv
+    use comvarbl,  only: tjulhr0,tjulhryr,iyr
     use const_def, only: deg2rad,twopi
-    use tide_lib, only: tide_adcirc,tide_fes,tidal_data
-    use bnd_def, only: ntf
+    use tide_lib,  only: tide_adcirc,tide_fes,tidal_data
+    use bnd_def,   only: ntf
     use diag_lib
     use prec_def
 
     implicit none
     !Input/Output
-    integer,         intent(in)    :: nbnd           !Number of boundary points
-    real(ikind),     intent(in)    :: xbnd(nbnd)     !x-coordinte (global) of points (usually boundary cell centroids or nodes)
-    real(ikind),     intent(in)    :: ybnd(nbnd)     !y-coordinte (global) of points (usually boundary cell centroids or nodes)
-    integer,         intent(in)    :: niter          !Spatial Smoothing iterations
-    integer,         intent(inout) :: mwin           !Spatial Smoothing window width
-    character(len=*),  intent(in)    :: tdbname        !Tidal database file
-    character(len=*),  intent(in)    :: tdbpath        !Tidal database path
-    type(projection),  intent(inout) :: projtdb        !Tidal database projection
-    integer,           intent(in)    :: ntcin          !Number of input constituents
-    character(len=*), intent(in)    :: namein(ntcin)  !Names of input constituents
-    integer,           intent(inout) :: ntc            !Number of output constituents
-    character(len=10), intent(out), pointer :: name(:) !Names of output constituents
-    real(ikind),       intent(out), pointer :: speed(:),f(:),vu(:) !Constituent speed, nodal factor and equilibrium argument
-    real(ikind),       intent(out), pointer :: etamp(:,:),etpha(:,:) !Water level amplitude and phase
+    integer,           intent(in)    :: nbnd            !Number of boundary points
+    real(ikind),       intent(in)    :: xbnd(nbnd)      !x-coordinte (global) of points (usually boundary cell centroids or nodes)
+    real(ikind),       intent(in)    :: ybnd(nbnd)      !y-coordinte (global) of points (usually boundary cell centroids or nodes)
+    integer,           intent(in)    :: niter           !Spatial Smoothing iterations
+    integer,           intent(inout) :: mwin            !Spatial Smoothing window width
+    character(len=*),  intent(in)    :: tdbname         !Tidal database file
+    character(len=*),  intent(in)    :: tdbpath         !Tidal database path
+    type(projection),  intent(inout) :: projtdb         !Tidal database projection
+    integer,           intent(in)    :: ntcin           !Number of input constituents
+    integer,           intent(inout) :: ntc             !Number of output constituents
+    character(len=*),  intent(inout), pointer  :: namein(:) !Names of input constituents
+    character(len=10), intent(out), pointer    :: name(:)  !Names of output constituents
+    real(ikind),       intent(out), pointer    :: speed(:),f(:),vu(:) !Constituent speed, nodal factor and equilibrium argument
+    real(ikind),       intent(out), pointer    :: etamp(:,:),etpha(:,:) !Water level amplitude and phase
     real(ikind),       intent(inout), pointer, optional :: utamp(:,:),utpha(:,:) !U-velocity amplitude (m) and phase (deg)
     real(ikind),       intent(inout), pointer, optional :: vtamp(:,:),vtpha(:,:) !V-Velocity amplitude (m) and phase (deg)
     real(ikind),       intent(out),   optional :: angvel
@@ -798,7 +798,26 @@ contains
           name(k) = trim(first)//trim(num)
         endif
       endif
-      name(k)=toUpper(trim(name(k)))
+!      name(k)=toUpper(trim(name(k)))
+      continue
+    enddo
+
+    !Do the same for the input constituents
+    do k=1,ntcin
+      iloc = 0
+      iloc = index(namein(k),'(')
+      temp = ''
+      if (iloc .ne. 0) then  !remove the ()
+        if (namein(k) .eq. 'Lambda(2)') then
+          namein(k) = 'LDA2'
+        else
+          temp=namein(k)
+          first=temp(1:iloc-1)
+          num=temp(iloc+1:iloc+1)
+          namein(k) = trim(first)//trim(num)
+        endif
+      endif
+!      namein(k)=toUpper(trim(namein(k)))
       continue
     enddo
     

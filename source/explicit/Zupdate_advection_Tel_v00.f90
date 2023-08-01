@@ -1,17 +1,12 @@
+!*******************************************************************************
       subroutine update_advection_tel()
-      use EXP_Global_def, only: imix, iadv
+!*******************************************************************************
+      use EXP_Global_def,  only: imix, iadv
+      use EXP_TELESCOPING, only: numtbxfaces,tbxfaces,xface_advf,xface_cells,xface_q,xface_vel,xface_advdif_i,xface_wall,xface_cadvf,xface_length,xface_advdif_C
+      USE EXP_TELESCOPING, only: numtbyfaces,tbyfaces,yface_advf,yface_cells,yface_q,yface_vel,yface_advdif_i,yface_wall,yface_cadvf,yface_length,yface_advdif_C
       use flow_def, only: eta, vis
       use geo_def,  only: dx, dy, zb 
       use prec_def, only: ikind
-      use EXP_TELESCOPING, only: numtbxfaces,tbxfaces,xface_advf,xface_cells,xface_q,xface_vel,xface_advdif_i,xface_wall,xface_cadvf,xface_length,xface_advdif_C
-      USE EXP_TELESCOPING, only: numtbyfaces,tbyfaces,yface_advf,yface_cells,yface_q,yface_vel,yface_advdif_i,yface_wall,yface_cadvf,yface_length,yface_advdif_C
-      !use const_def, only: pi,deg2rad    
-      !use met_def, only: tauwindx,tauwindy,pressatm
-      !use wave_flowgrid_def, only: wavestrx,wavestry     
-      !use fric_def, only: cfrict,uelwc
-      !USE EXP_transport_def 
-      !use NupdateMod
-      !use sal_def  
       
       implicit none
       integer i,j,id,id1,id2,id3,ii,istop   !Chris Reed - 10/20/2016

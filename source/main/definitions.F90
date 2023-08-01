@@ -8,9 +8,24 @@ module prec_def
 end module prec_def
     
 !===================================================================
+module BalanceCheck_def 
+! Specifies the precision for the CMS-Flow floating variables
+!===================================================================    
+    implicit none
+    save
+    logical :: BalCheck = .false. !CWR   =true, mass, momentum and sedimetn mass balance chacks implemented at
+                                  !interval BalCheck_int
+    real(8) :: BalCheck_int, BalanceCheck_time       !interval in seconds for mass balance checks, cumulaive time of latest balance check
+    real(8) :: MassFluxin, MassFluxout, MassTotal, MassTotal_old
+    real(8) :: MomFluxin, MomFluxout, MomTotal, MomFricLoss, MomWindAdd, MomTotal_old, MomPressAdd
+    real(8) :: Salfluxin, SalFluxout, SalmassTotal, SalmassTotal_old
+    real(8) :: SMassFluxin, SMassFluxout, SMassTotal, SbedAdd, SbedLoss, SMassTotal_old
+end module BalanceCheck_def    
+    
+!===================================================================
 module cms_def
 !===================================================================
-    use prec_def
+    use prec_def, only: ikind
     
     implicit none
     save
@@ -65,7 +80,7 @@ end module cms_def
 module const_def
 ! Constants
 !===================================================================
-    use prec_def
+    use prec_def, only: ikind
     implicit none
     save
 
@@ -86,7 +101,7 @@ end module const_def
 !===================================================================
 module comvarbl
 !===================================================================
-    use prec_def
+    use prec_def, only: ikind
     implicit none
     save
     
@@ -138,6 +153,7 @@ module comvarbl
     
     !Solution scheme
     integer:: nfsch  !0-Implicit, 1-Explicit
+    logical:: isImplicit, isExplicit  !trying a more readable way to do scheme tests
     
     !Implicit scheme
     logical :: pred_corr !Predictor-corrector scheme (adapative time stepping)

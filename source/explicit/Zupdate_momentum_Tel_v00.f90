@@ -1,18 +1,17 @@
+!*************************************************************
      subroutine update_momentum_tel()
-      use EXP_Global_def
-      USE EXP_bndcond_def    
-      use EXP_Structures_def
-      use flow_def 
-      use geo_def
-      use sed_def
-      use const_def, only: pi,deg2rad    
-      use met_def, only: tauwindx,tauwindy,pressatm
+!*************************************************************
+      use EXP_Global_def,    only: rhoprim, dt
+      use exp_telescoping,   only: numtbxfaces, tbxfaces, xface_wall, xface_cells, xface_advdif_i, xface_advdif_c, xface_advf, xface_cadvf, xface_length, xface_qn, xface_q
+      use exp_telescoping,   only: numtbyfaces, tbyfaces, yface_wall, yface_cells, yface_advdif_i, yface_advdif_c, yface_advf, yface_cadvf, yface_length, yface_qn, yface_q
+      use EXP_TELESCOPING,   only: xface_basic_orientation, yface_basic_orientation, xface_gcoef, xface_side, yface_gcoef, yface_side
       use wave_flowgrid_def, only: wavestrx,wavestry     
-      use fric_def, only: cfrict,uelwc,coefman
-      USE EXP_transport_def 
-      use NupdateMod
-      use sal_def  
-      use exp_telescoping
+      use flow_def,  only: eta, grav
+      use geo_def,   only: dx, dy, zb
+      use const_def, only: pi,deg2rad    
+      use met_def,   only: tauwindx,tauwindy,pressatm
+      use fric_def,  only: cfrict,uelwc,coefman
+      use prec_def,  only: ikind
       
       implicit none
       integer i,j,id,id1,id2,id3,id4,ii,advf3,advf4

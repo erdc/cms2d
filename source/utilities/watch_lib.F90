@@ -21,8 +21,7 @@ module watch_lib
     implicit none
     
     private    
-    public :: watch_default,watch_init,watch_start,watch_stop,&
-      watch_print,watch_output,watch_destroy
+    public :: watch_default, watch_init, watch_start, watch_stop, watch_print, watch_output, watch_destroy
     
 contains   
 

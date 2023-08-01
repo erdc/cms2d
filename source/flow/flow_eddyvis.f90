@@ -4,18 +4,17 @@
 !   by Weiming Wu, Oct. 2008
 !   modified by Alex Sanchez, USACE 2011
 !***********************************************************************
-    use size_def
     use geo_def
     use flow_def
-    use fric_def, only: cfrict,bsvel
-    use struct_def
-    use comvarbl
-    use wave_flowgrid_def
-    use cms_def
-    use const_def, only: cappa,small
+    use cms_def,    only: noptset
+    use size_def,   only: ncells, ncellpoly
+    use fric_def,   only: cfrict,bsvel
+    use const_def,  only: cappa,small
     use interp_def, only: fintp
     use interp_lib, only: interp_scal_cell2face
-    use prec_def
+    use prec_def,   only: ikind
+    use wave_flowgrid_def, only: whgt, worb, wavediss
+
     implicit none
     integer :: i,k,kk,kkdf,nck
     real(ikind) :: ss12,stens,cidrym,vissum
@@ -232,9 +231,10 @@
 ! Modified by Alex Sanchez, USACE-CHL
 !***************************************************************
     use size_def, only: ncells,ncellsD
-    use geo_def, only: x,y,areap
+    use geo_def,  only: x,y,areap
     use flow_def, only: iwet
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(out) :: diswall(ncellsD)

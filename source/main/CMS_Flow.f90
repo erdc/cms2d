@@ -5,25 +5,25 @@
 ! Modified by Alex Sanchez, USACE-CHL
 !***********************************************************************
 #include "CMS_cpp.h"
-    use sed_def
-    use sal_def
-    use heat_def
-    use hot_def
-    use stat_def  
-    use out_def
-    use cms_def, only: cmswave
-    use comvarbl
+    use sed_def,  only: sedtrans
+    use sal_def,  only: saltrans
+    use heat_def, only: heattrans
+    use hot_def,  only: timeout, hot_out
+    use out_def,  only: simlabel, write_maxwse, write_xmdf_output, write_sup, outlist, save_point
+    use cms_def,  only: cmswave
+    use comvarbl, only: timehrs, ctime, stimet, flowpath, casename
+    use dredge_def, only: dredging
     use wave_flowgrid_def, only: constant_waves
-    use dredge_def
+!! Added MEB  9/20/2021
+    use flow_def, only: maxeta
+    use out_lib,  only: write_scal_dat_file
 #ifdef DEV_MODE
     use fric_def, only: mbedfric
     use flow_exp_mod
     use flow_semi_mod
     use geo_def, only: bathydata,zb
 #endif    
-!! Added MEB  9/20/2021
-    use flow_def, only: maxeta
-    use out_lib,  only: write_scal_dat_file
+
 #ifdef XMDF_IO
     use out_lib, only: writescalh5
 #endif
@@ -32,7 +32,6 @@
     character(len=200) :: apath, aname
     
     call prestart    
-    
     call sim_start_print  !Start timer here
 
     !Output
@@ -113,19 +112,20 @@
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
 #include "CMS_cpp.h"
-    use comvarbl
+    use comvarbl,  only: ntime, etime, timehrs, timesecs, nprt, ctime, ctime1, stimet, dtimebeg, deltime, mtime, jtime, dtime
+    use comvarbl,  only: ramp, rampdur, wtsch, dtime1, ntsch, rmom, rmomtargetp
     use const_def, only: pi
-    use time_lib
-    use diag_def
-    use diag_lib
+    use time_lib,  only: time_jul, ramp_func, time_sec2str
+    use diag_def,  only: msg, msg2
+    use diag_lib,  only: diag_print_message
     use cms_def,   only: timestart,timenow
     use solv_def,  only: iconv
-    use prec_def
+    use prec_def,  only: ikind
     use sed_def,   only: scalemorph
     use sed_def,   only: scalemorph_rampdur, scalemorph_ramp, scalemorph_orig  !added meb 03/11/2019
     use sed_def,   only: write_smorph_ramp,smorph_file
-    implicit none
     
+    implicit none
     integer     :: ierr
     real(8)     :: dtimetemp,rtime !,dtimetemp2,dtime2
     real(8)     :: timedur,timerem,timelast,speed,err,timeint
@@ -246,15 +246,16 @@
 ! modified by Alex Sanchez, USACE-CHL
 !*************************************************
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def, only: zb
+    use size_def, only: ncellsd
+    use geo_def,  only: zb
     use flow_def, only: maxeta, u2, v2, p2, h2, u1, v1, p1, h1, iwet, iwet1,flux, flux1
     use flow_def, only: u, v, p, h, pp, dppx, dppy, eta
     use comvarbl, only: dtime,dtime1,wtsch,ntime,nspinup,nfsch
-    use sed_def
-    use sal_def
-    use heat_def
-    use prec_def
+    use sed_def,  only: sedtrans, zb1, btk, btk1, btk2, ctk, ctk1, ctk2, ibt, singlesize, pbk, pbk1, db, db1
+    use sal_def,  only: saltrans, sal, sal1, sal2
+    use heat_def, only: heattrans, heat, heat1, heat2
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i
 
@@ -412,10 +413,11 @@
  !*****************************************************
     subroutine makeflow1D
  !*****************************************************
-    use geo_def, only: maxcol,maxrow,idmap
+    use geo_def,  only: maxcol,maxrow,idmap
     use flow_def, only: u,v,p,uv
     use comvarbl, only: iflow1D
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i,j,ii,id
     real(ikind) :: uavg,vavg,pavg,dmaxcol,dmaxrow    

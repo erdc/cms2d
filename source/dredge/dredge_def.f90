@@ -3,7 +3,8 @@ module dredge_def
 ! dredging simulation variables
 ! written by Chris Reed
 !===================================================================
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     save
     

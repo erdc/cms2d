@@ -1,12 +1,11 @@
+!*************************************************************
       subroutine update_uv_from_qxqy()
-    use EXP_Global_def
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
-      use geo_def, only: zb,cell2cell
+!*************************************************************
+      use EXP_Global_def,  only: ue, ve, qx, qy 
+      use flow_def, only: eta
+      use prec_def, only: ikind
+      use size_def, only: ncells, ncellsd
+      use geo_def,  only: zb,cell2cell
       
       implicit none   
       integer i,id,istop
@@ -37,4 +36,5 @@
         endif
       enddo
 
+      return
       end subroutine

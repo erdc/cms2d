@@ -1,19 +1,18 @@
+!*******************************************************************************
       subroutine update_culverts()
-      use EXP_Global_def
-      USE EXP_bndcond_def
-      USE EXP_transport_def  
-      use EXP_Structures_def
-      use sed_def
-      use sal_def 
-      use flow_def
-      use comvarbl 
-      use geo_def, only: dx,dy,zb    
+!*******************************************************************************
+      use EXP_Global_def,     only: etan, dt, adeq
+      USE EXP_transport_def,  only: salt, voln, adss
+      use EXP_Structures_def, only: structures, cul_on, cul
+      use sal_def,   only: saltrans, sal, sal1
+      use flow_def,  only: eta, iwet
+      use prec_def,  only: ikind
+      use geo_def,   only: dx,dy,zb    
       use const_def, only: pi 
 
       implicit none
       integer j,id1,id2
       real(ikind) xh1,xh2,dh,have,hgt,area,per,rh,flow,arg
-
 
       if(structures) then
       if(CUL_on) then

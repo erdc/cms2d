@@ -1,27 +1,28 @@
-
 !***********************************************************************
     subroutine sed_exp_tel
 ! Solves single and multi-sized sediment transport 
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use size_def
-    use geo_def, only: idmap,zb,zbk,dzbx,dzby
-    use flow_def
-    use sed_def
-!!    use q3d_def
-    use comp_lib
-    use comvarbl
-    use der_def, only: nder,nlim, goa            !added goa 
-    use der_lib, only: der_grad_eval             !renamed from 'gradxy'
-    use interp_lib, only: interp_scal_cell2face
-    use prec_def
-    use EXP_transport_def, only: adss,tsed_elapse
-    use bnd_def
-    USE EXP_bndcond_def  
+    !USE EXP_bndcond_def  
     USE EXP_Global_def, only: FUU,GVV,ACTIVE,ETAN
-    use geo_def, only: dx,dy,cell2cell  
+    use EXP_TELESCOPING,   only: numxfaces, numyfaces, numtbxfaces, numtbyfaces, numregxfaces, numregyfaces
+    use EXP_TELESCOPING,   only: xsedtransq, xface_flux, xface_cells, xface_length, xface_wall, xface_wet
+    use EXP_TELESCOPING,   only: ysedtransq, yface_flux, yface_cells, yface_length, yface_wall, yface_wet
+    use EXP_TELESCOPING,   only: tbxfaces, tbyfaces, regxfaces, regyfaces, cellfaces
+    use EXP_transport_def, only: adss,tsed_elapse
+    use size_def, only: ncells, ncellsd
+    use geo_def,  only: idmap,zb,zbk,dzbx,dzby
+    use flow_def, only: vis, eta, h
+    use sed_def,  only: zb1, ihidexpform, ibedslope, icapac, nsed, ctstarp, tstartmorph, scalemorph, calcmorph, ibt
+    use sed_def,  only: errctk0, errpbk0, ctk, schmidt, ctkstar, alphat, wsfall, btk, do_bedslope, wavesedtrans
+    use sed_def,  only: singlesize, d50, d90, dzb, do_aval, sedbalance
+    use comvarbl, only: timehrs, dtime
+    use der_def,  only: nder,nlim, goa            !added goa 
+    use der_lib,  only: der_grad_eval             !renamed from 'gradxy'
+    use prec_def, only: ikind
+    use geo_def,  only: dx,dy,cell2cell  
     use diag_def, only: dgunit, dgfile
-    use EXP_TELESCOPING
+    use interp_lib, only: interp_scal_cell2face
       
     implicit none
     integer :: i,j,ks,ncs,ncw,ii,IDO,nce,ncn,id1,id2
@@ -72,12 +73,12 @@
     !$OMP END PARALLEL DO
     
     !=== Inflow Boundary Conditions ====
-    !!call sedbnd_eval  !CtstarP(nck,:)
+    !call sedbnd_eval  !CtstarP(nck,:)
     
     call Zsedbnd_eval_EXP_tel  
     
     !do i=1,ncells
-    !ctk(i,ks) = CtstarP(i,ks)
+    !  ctk(i,ks) = CtstarP(i,ks)
     !enddo
        
     !=== Determine whether to calculate morphology change ====
@@ -100,80 +101,80 @@
     if(nsed>1) call mixing_layer !db(i,1)
       
     !=== Print header to screen ============
-!    if(nsed>1  .and. sedcouple)then 
-!      write(*,741)
-!    else
-!      write(*,349)
-!    endif          
+    !if(nsed>1  .and. sedcouple)then 
+    !  write(*,741)
+    !else
+    !  write(*,349)
+    !endif          
     
     !=== 3D dispersion terms =======================
-!!    if(q3d) call q3d_sed !s3dxk, s3dyk             
+    !if(q3d) call q3d_sed !s3dxk, s3dyk             
         
     !=== Solve each A-D equation =====================
     errCtk0 = 0.0_ikind; errpbk0 = 0.0_ikind
-!!!    do itersed=1,maxitersed 
-!!!       errCtk = 0.0_ikind; errpbk = 0.0_ikind
-!!!       rsCtkmax = 0.0
-!!!       do ks=1,nsed   
-!!!         !=== Coefficients and solve for Ctk =======
-!!!         select case(ndsch) 
-!!!         case(1); call coeffsourcesink_c(hybridcoef,ks)
-!!!         case(2); call coeffsourcesink_c(powerlawcoef,ks)
-!!!         case(3); call coeffsourcesink_c(exponentialcoef,ks)
-!!!         case default; call coeffsourcesink_c(upwindcoef,ks)
-!!!         end select
-!!!         if(ncellsimple==ncells)then !No gradients required
-!!!           select case(ndsch) !Anti-diffusion corrections
-!!!           case(4); call defcorhlpa(Ctk(:,ks),su)
-!!!           case(5); call defcorgamma(gammadefcor,Ctk(:,ks),su)
-!!!           case(6); call defcorgamma(cubistadefcor,Ctk(:,ks),su)
-!!!           case(7); call defcorgamma(alvsmartdefcor,Ctk(:,ks),su)
-!!!           case(8); call defcorgamma(hoabdefcor,Ctk(:,ks),su)
-!!!           end select
-!!!         else
-!!!           select case(ndsch) !Anti-diffusion corrections
-!!!           case(4); call defcorhlpagrad(Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
-!!!           case(5); call defcorgammagrad(gammadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
-!!!           case(6); call defcorgammagrad(cubistadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
-!!!           case(7); call defcorgammagrad(alvsmartdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
-!!!           case(8); call defcorgammagrad(hoabdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
-!!!           case default; if(skewcor) call defcorparagrad(dCtkx(:,ks),dCtky(:,ks),su) !Skewness correction      
-!!!           end select
-!!!         endif
-!!!         call bound_c(ks)
-!!!!         call check_variables(4)
-!!!         call solve(acoef,su,sp,rsCtk,Ctk(:,ks),4)
-!!!         errCtk=max(rmom(4),errCtk)
-!!!         rsCtkmax=max(rsCtkmax,rsCtk)
-!!!         !=== Check for bad values =====
-!!!         where(Ctk(:,ks)<0.0) Ctk(:,ks)=0.0
-!!!         where(Ctk(:,ks)>200.0) Ctk(:,ks)=200.0
-!!!         !=== Compute gradients
-!!!         call der_grad_eval(Ctk(:,ks),1,nder,nlim,dCtkx(:,ks),dCtky(:,ks))
-!!!       enddo !ks
+    !do itersed=1,maxitersed 
+    !  errCtk = 0.0_ikind; errpbk = 0.0_ikind
+    !  rsCtkmax = 0.0
+    !  do ks=1,nsed   
+    !    !=== Coefficients and solve for Ctk =======
+    !    select case(ndsch) 
+    !    case(1); call coeffsourcesink_c(hybridcoef,ks)
+    !    case(2); call coeffsourcesink_c(powerlawcoef,ks)
+    !    case(3); call coeffsourcesink_c(exponentialcoef,ks)
+    !    case default; call coeffsourcesink_c(upwindcoef,ks)
+    !    end select
+    !
+    !    if(ncellsimple==ncells)then !No gradients required
+    !      select case(ndsch) !Anti-diffusion corrections
+    !      case(4); call defcorhlpa(Ctk(:,ks),su)
+    !      case(5); call defcorgamma(gammadefcor,Ctk(:,ks),su)
+    !      case(6); call defcorgamma(cubistadefcor,Ctk(:,ks),su)
+    !      case(7); call defcorgamma(alvsmartdefcor,Ctk(:,ks),su)
+    !      case(8); call defcorgamma(hoabdefcor,Ctk(:,ks),su)
+    !      end select
+    !    else
+    !      select case(ndsch) !Anti-diffusion corrections
+    !      case(4); call defcorhlpagrad(Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
+    !      case(5); call defcorgammagrad(gammadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
+    !      case(6); call defcorgammagrad(cubistadefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
+    !      case(7); call defcorgammagrad(alvsmartdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
+    !      case(8); call defcorgammagrad(hoabdefcor,Ctk(:,ks),dCtkx(:,ks),dCtky(:,ks),su)
+    !      case default; if(skewcor) call defcorparagrad(dCtkx(:,ks),dCtky(:,ks),su) !Skewness correction      
+    !      end select
+    !    endif
+    !    call bound_c(ks)
+    !    !call check_variables(4)
+    !    call solve(acoef,su,sp,rsCtk,Ctk(:,ks),4)
+    !    errCtk=max(rmom(4),errCtk)
+    !    rsCtkmax=max(rsCtkmax,rsCtk)
+    !    !=== Check for bad values =====
+    !    where(Ctk(:,ks)<0.0) Ctk(:,ks)=0.0
+    !    where(Ctk(:,ks)>200.0) Ctk(:,ks)=200.0
+    !    !=== Compute gradients
+    !    call der_grad_eval(Ctk(:,ks),1,nder,nlim,dCtkx(:,ks),dCtky(:,ks))
+    !  enddo !ks
 
 
     !=== Set Time Average Flows =====================
-        !do i=1,ncells
-        !ADSS(i)%qx = ADSS(i)%qx/tsed_elapse
-        !ADSS(i)%qy = ADSS(i)%qy/tsed_elapse
-        !enddo
+    !do i=1,ncells
+    !ADSS(i)%qx = ADSS(i)%qx/tsed_elapse
+    !ADSS(i)%qy = ADSS(i)%qy/tsed_elapse
+    !enddo
 !$OMP PARALLEL DO 
-          do i=1,numxfaces
-            xSedTransQ(i) = xSedTransQ(i)/tsed_elapse
-          enddo
+    do i=1,numxfaces
+      xSedTransQ(i) = xSedTransQ(i)/tsed_elapse
+    enddo
 !$OMP END PARALLEL DO
 
 !$OMP PARALLEL DO 
-          do i=1,numyfaces
-            ySedTransQ(i) = ySedTransQ(i)/tsed_elapse
-          enddo
+    do i=1,numyfaces
+      ySedTransQ(i) = ySedTransQ(i)/tsed_elapse
+    enddo
 !$OMP END PARALLEL DO
 
 
     !=== Solve each NET A-D equation =====================
-          do ks=1,nsed   
-
+    do ks=1,nsed   
 !$OMP DO 
       do i=1,numxfaces
         if(xSedTransQ(i) .gt. 0) then
@@ -197,7 +198,6 @@
       Dflux = 0.0
                             
 !Diffusion Exchanges (telescoping cells)   !Chris Reed - 10/20/2016
-
       do ii=1,numTBXfaces
         i=TBXfaces(ii)
         if(.not. xface_wall(i) .and. xface_wet(i)) then
@@ -210,10 +210,8 @@
           FluxT = -area*diffT*(Ctk(id1,ks)-Ctk(id2,ks))/dxT            
           Dflux(id1) = Dflux(id1) + FluxT
           Dflux(id2) = Dflux(id2) - FluxT           
-            
-       endif
+        endif
       enddo
-
 
       do ii=1,numTBYfaces
         i=TBYfaces(ii)
@@ -227,17 +225,14 @@
           FluxT = -area*diffT*(Ctk(id1,ks)-Ctk(id2,ks))/dyT            
           Dflux(id1) = Dflux(id1) + FluxT
           Dflux(id2) = Dflux(id2) - FluxT               
-            
-       endif
+        endif
       enddo
       
 !Diffusion Exchanges (regular cells)   !Chris Reed - 10/20/2016
-
 !$omp do private(i,id1,id2,DiffT,dxT,area,FluxT)
       do ii=1,numREGXfaces
         i=REGXfaces(ii) 
-                  
-        if(.not. xface_wall(i) .and. xface_wet(i)) then
+         if(.not. xface_wall(i) .and. xface_wet(i)) then
           id1 = xface_cells(1,i)
           id2 = xface_cells(2,i)
        
@@ -247,15 +242,13 @@
           FluxT = -area*diffT*(Ctk(id1,ks)-Ctk(id2,ks))/dxT            
           Dflux(id1) = Dflux(id1) + FluxT
           Dflux(id2) = Dflux(id2) - FluxT
-          
-       endif
+        endif
       enddo
 !$omp end do 
 
 !$omp do private(i,id1,id2,DiffT,dyT,area,FluxT)
       do ii=1,numREGYfaces
         i=REGYfaces(ii) 
-          
         if(.not. yface_wall(i) .and. yface_wet(i)) then
           id1 = yface_cells(1,i)
           id2 = yface_cells(2,i)     
@@ -266,99 +259,97 @@
           FluxT = -area*diffT*(Ctk(id1,ks)-Ctk(id2,ks))/dyT            
           Dflux(id1) = Dflux(id1) + FluxT
           Dflux(id2) = Dflux(id2) - FluxT           
-            
-       endif
+        endif
       enddo
 !$omp end do      
 
 !advection + source/sink + update
-
 !$OMP DO PRIVATE (NCE,NCN,VOLN)
       do i=1,ncells
-      Ctkstar(i,ks)=CtstarP(i,ks) !*pbk(i,ks,1)       
+        Ctkstar(i,ks)=CtstarP(i,ks) !*pbk(i,ks,1)       
         ncn = cell2cell(1,i)
         nce = cell2cell(2,i)
         if(active(i,3)) then
           voln = (-zb(i) + etan(i))*dx(i)*dy(i)        
           ADSS(i)%concn = Ctk(i,ks)*ADSS(i)%vol + Dflux(i) &         !Chris Reed - 10/20/2016
-       +( xface_flux(cellfaces(8,i))-xface_flux(cellfaces(3,i))  &
-       +  xface_flux(cellfaces(7,i))-xface_flux(cellfaces(4,i))  &
-       +  yface_flux(cellfaces(6,i))-yface_flux(cellfaces(1,i))  &
-       +  yface_flux(cellfaces(5,i))-yface_flux(cellfaces(2,i))  &        
-        +  alphat(i)*wsfall(ks)*(Ctkstar(i,ks)-Ctk(i,ks))*dx(i)*dy(i)  ) &
-          *tsed_elapse*Btk(i,ks) 
+            +( xface_flux(cellfaces(8,i))-xface_flux(cellfaces(3,i))  &
+            +  xface_flux(cellfaces(7,i))-xface_flux(cellfaces(4,i))  &
+            +  yface_flux(cellfaces(6,i))-yface_flux(cellfaces(1,i))  &
+            +  yface_flux(cellfaces(5,i))-yface_flux(cellfaces(2,i))  &        
+            +  alphat(i)*wsfall(ks)*(Ctkstar(i,ks)-Ctk(i,ks))*dx(i)*dy(i)  ) &
+              *tsed_elapse*Btk(i,ks) 
           ADSS(i)%concn = ADSS(i)%concn/voln
           ADSS(i)%vol = voln
         endif
       enddo
 !$OMP END DO          
 
-         do i=1,ncells
-          if(active(i,3)) ctk(i,ks) = adss(i)%concn
-         enddo
-
-           enddo !ks 
+      do i=1,ncells
+        if(active(i,3)) ctk(i,ks) = adss(i)%concn
+      enddo
+    enddo !ks 
          
-!        ii=cell2cell(440,2)   
-!        write(*,*)ctk(439,1),ctk(440,1),ctkstar(440,1) 
-!        write(*,*)Fuu(439),Fuu(440),Fuu(ii)
+    !ii=cell2cell(440,2)   
+    !write(*,*)ctk(439,1),ctk(440,1),ctkstar(440,1) 
+    !write(*,*)Fuu(439),Fuu(440),Fuu(ii)
            
                  
-       !=== Bedslope term =================
-       if(do_bedslope) call bedslope !Sb(i,ks)
+    !=== Bedslope term =================
+    if(do_bedslope) call bedslope !Sb(i,ks)
          
-       !=== Wave-induced sed transport ============
-       if(wavesedtrans) call sed_wave !Sb(i,ks)+Sw(i) 
+    !=== Wave-induced sed transport ============
+    if(wavesedtrans) call sed_wave !Sb(i,ks)+Sw(i) 
         
-       !=== Bed Change and Sorting ==============
-       if(calcmorph)then                   
-         if(singlesize)then !no sorting needed
-           call bedchange !dzb(i)
-         else      
-           call bedchangesort !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
-         endif
-         call struct_dzb !dzb(i) and optionally dzbk(i,ks)
-         call check_hardbottom
-       endif                  
+    !=== Bed Change and Sorting ==============
+    if(calcmorph)then                   
+      if(singlesize)then !no sorting needed
+        call bedchange !dzb(i)
+      else      
+        call bedchangesort !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
+      endif
+      call struct_dzb !dzb(i) and optionally dzbk(i,ks)
+      call check_hardbottom
+    endif                  
        
-!!!       !=== Print to screen ==============
-!!!       if(mod(itersed,10)==0 .or. itersed==1)then
-!!!         if(nsed>1 .and. sedcouple)then
-!!!           write(*,751) itersed,errCtk,errpbk
-!!!         else
-!!!           write(*,359) itersed,errCtk
-!!!         endif
-!!!       endif
-         
-!!!       !=== Check for convergence ============   
-!!!       if(itersed>=maxitersed/2 .or. errCtk<1.e-12)then
-!!!        if(singlesize)then
-!!!         if(errCtk<=tolCtk) exit   !Error, concentrations
-!!!         chgCtk=abs(errCtk-errCtk0)  
-!!!         if(chgCtk<=1.0e-8) exit   !Absolute error change, concentrations
-!!!         chgCtk=chgCtk/max(errCtk0,tolCtk)
-!!!         if(chgCtk<=0.01) exit     !Relative error change, concentrations
-!!!         errCtk0=errCtk
-!!!        else   
-!!!         convCtk=(errCtk<=tolCtk)  !Error, concentrations
-!!!         convpbk=(errpbk<=tolpbk)  !Error, bed composition
-!!!         if(convCtk .and. convpbk) exit   
-!!!         chgCtk=abs(errCtk-errCtk0)  !Absolute error change, concentrations
-!!!         chgpbk=abs(errpbk-errpbk0)  !Absolute error change, bed composition
-!!!         convCtk=(convCtk .or. chgCtk<=1.e-7)
-!!!         convpbk=(convpbk .or. chgpbk<=1.0e-6)
-!!!         if(convCtk .and. convpbk) exit
-!!!         chgCtk=chgCtk/max(errCtk0,tolCtk) !Relative error change, concentrations
-!!!         chgpbk=chgpbk/max(errpbk0,tolpbk) !Relative error change, bed composition
-!!!         convCtk=(convCtk .or. chgCtk<=0.01)
-!!!         convpbk=(convpbk .or. chgpbk<=0.01)
-!!!         if(convCtk .and. convpbk) exit
-!!!         errCtk0=errCtk
-!!!         errpbk0=errpbk
-!!!        endif
-!!!       endif
-!!!    enddo !iteration loop     
-!!!    rmom(4) = errCtk  
+    !!=== Print to screen ==============
+    !if(mod(itersed,10)==0 .or. itersed==1)then
+    !  if(nsed>1 .and. sedcouple)then
+    !    write(*,751) itersed,errCtk,errpbk
+    !  else
+    !    write(*,359) itersed,errCtk
+    !  endif
+    !endif
+       
+    !!=== Check for convergence ============   
+    !if(itersed>=maxitersed/2 .or. errCtk<1.e-12)then
+    !  if(singlesize)then
+    !    if(errCtk<=tolCtk) exit   !Error, concentrations
+    !    chgCtk=abs(errCtk-errCtk0)  
+    !    if(chgCtk<=1.0e-8) exit   !Absolute error change, concentrations
+    !    chgCtk=chgCtk/max(errCtk0,tolCtk)
+    !    if(chgCtk<=0.01) exit     !Relative error change, concentrations
+    !    errCtk0=errCtk
+    !  else   
+    !    convCtk=(errCtk<=tolCtk)  !Error, concentrations
+    !    convpbk=(errpbk<=tolpbk)  !Error, bed composition
+    !    if(convCtk .and. convpbk) exit   
+    !    chgCtk=abs(errCtk-errCtk0)  !Absolute error change, concentrations
+    !    chgpbk=abs(errpbk-errpbk0)  !Absolute error change, bed composition
+    !    convCtk=(convCtk .or. chgCtk<=1.e-7)
+    !    convpbk=(convpbk .or. chgpbk<=1.0e-6)
+    !    if(convCtk .and. convpbk) exit
+    !    chgCtk=chgCtk/max(errCtk0,tolCtk) !Relative error change, concentrations
+    !    chgpbk=chgpbk/max(errpbk0,tolpbk) !Relative error change, bed composition
+    !    convCtk=(convCtk .or. chgCtk<=0.01)
+    !    convpbk=(convpbk .or. chgpbk<=0.01)
+    !    if(convCtk .and. convpbk) exit
+    !    errCtk0=errCtk
+    !    errpbk0=errpbk
+    !  endif
+    !endif
+    
+    !enddo !iteration loop     
+    !rmom(4) = errCtk  
     
     !=== Bed sorting and gradation =============
     if(.not.singlesize .and. calcmorph)then
@@ -393,19 +384,19 @@
     endif
  
     !==== Update bed elevation ====================
-     do i=1,ncells         
-       if(abs(dzb(i))>0.5*h(i))then     
-         open(dgunit,file=dgfile,access='append')        
-         write(dgunit,*)
-         write(dgunit,*) 'WARNING: Large bed change'
-         close(dgunit) 
-         write(*,*)
-         write(*,*) 'WARNING: Large bed change'
-         call print_sedvar(i,1)
+    do i=1,ncells         
+      if(abs(dzb(i))>0.5*h(i))then     
+        open(dgunit,file=dgfile,access='append')        
+        write(dgunit,*)
+        write(dgunit,*) 'WARNING: Large bed change'
+        close(dgunit) 
+        write(*,*)
+        write(*,*) 'WARNING: Large bed change'
+        call print_sedvar(i,1)
       endif
       !zb(i)=zb1(i)+dzb(i)   !*****************
       zb(i)=zb(i)+dzb(i)*tsed_elapse/dtime   !*****************      
-     enddo  
+    enddo  
       
     !=== Avalanching =============
     if(do_aval) call avalanche
@@ -414,18 +405,18 @@
     call der_grad_eval (goa,0,zb,dzbx,dzby)                          !call der_grad_eval(zb,0,nder,0,dzbx,dzby) !Bed-slope     !!Added goa - 11/3/2015 MB
     
     !=== Update bed elevation at cell faces =====
-    !!!call interp_scal_cell2face(zb,0,zbk,dzbx,dzby)
+    !call interp_scal_cell2face(zb,0,zbk,dzbx,dzby)
     
     !=== Correct concentrations for depth changes =======
 !!$OMP PARALLEL DO PRIVATE(i,val)
-!    do i=1,ncells
-!      val=h(i)                        !save old total water depth
-!      h(i)=max(hmin,p(i)/grav-zb(i))  !New total water depth
-!!      if(h(i)>2*hmin .and. val>2*hmin .and. abs(dzb(i))<0.25*hmin)then      
-!      if(h(i)>2*hmin .and. val>2*hmin)then     
-!        Ctk(i,:) = val*Ctk(i,:)/h(i)
-!      endif  
-!    enddo
+    !do i=1,ncells
+    !  val=h(i)                        !save old total water depth
+    !  h(i)=max(hmin,p(i)/grav-zb(i))  !New total water depth
+    !  !if(h(i)>2*hmin .and. val>2*hmin .and. abs(dzb(i))<0.25*hmin)then      
+    !  if(h(i)>2*hmin .and. val>2*hmin)then     
+    !    Ctk(i,:) = val*Ctk(i,:)/h(i)
+    !  endif  
+    !enddo
 !!$OMP END PARALLEL DO
     
     !=== Update sediment variables ====
@@ -443,498 +434,486 @@
     return
     end subroutine sed_exp_tel
     
-   !***********************************************************************
+!***********************************************************************
     subroutine Zsedbnd_eval_exp_tel
 ! Applies sediment transport boundaries
 ! Blocks off dry regions which are not solved
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use EXP_Global_def, only: ncn,nce,ncw,ncs,qx,qy,active
+    use EXP_Global_def,  only: ncn,nce,ncw,ncs,qx,qy,active
     use EXP_bndcond_def, only: QstringEXP
-    use size_def
-    use geo_def
-    use flow_def
-    use struct_def
-    use bnd_def
-    use comvarbl
-    use wave_flowgrid_def
-    use sed_def
-    use const_def, only: eps
-    use prec_def
-    use diag_def,only: dgunit, dgfile
     use exp_telescoping, only: cellmap    
+    use size_def,  only: ncells
+    use geo_def,   only: cell2cell, ds
+    use flow_def,  only: u, v, h, uv, iwet, flux
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, h_str, th_str, mh_str, mhv_str, q_str
+    use comvarbl,  only: timehrs, ramp
+    use prec_def,  only: ikind
+    use sed_def,   only: isedinflowbc, ctstarp, facqtotin, ctk, qtotin, rhosed, nsedflux, sed_str, pbk, pbk1,nsed, sedbnd, ctkstar
+    use const_def, only: eps
+    use diag_def,  only: dgunit, dgfile
+
     implicit none
     integer :: i,ii,j,k,ks,nck,ntimes,inc,ised,iwse
     real(ikind) :: fac,qstartot,qstarcell,qsedtot,qut,qvt
 
     
-      if(nHstr .gt. 0) then
-        do i = 1,nHstr  !for each cell string
-          do j=1,H_str(i)%NCells    !for each cell in string
-            ii=H_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
+    if(nHstr .gt. 0) then
+      do i = 1,nHstr  !for each cell string
+        do j=1,H_str(i)%NCells    !for each cell in string
+          ii=H_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
             
-
-         if(isedinflowbc==1)then
-
-!            
-!            if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-!                CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
-!            else  !outflow
-!                CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
-!            endif
-!            if(quT .le. 0.0 .and. nce .gt. Ncells) then
-!                CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
-!            else
-!                CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
-!            endif
-!            if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-!                CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
-!            else
-!                CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
-!            endif
-!            if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-!                CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
-!            else
-!                CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
-!            endif
+          if(isedinflowbc==1)then
+            !if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
+            !  CtstarP(ii,:) = facQtotin*CtstarP(nce,:) !Capacity times loading factor  
+            !else  !outflow
+            !  CtstarP(ii,:) = CtstarP(ncw,:) !extraoplate from upstream value
+            !endif
+            !if(quT .le. 0.0 .and. nce .gt. Ncells) then
+            !  CtstarP(ii,:) = facQtotin*CtstarP(ncw,:) !Capacity times loading factor   
+            !else
+            !  CtstarP(ii,:) = CtstarP(nce,:)   !extraoplate from upstream value  
+            !endif
+            !if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
+            !  CtstarP(ii,:) = facQtotin*CtstarP(ncn,:) !Capacity times loading factor  
+            !else
+            !  CtstarP(ii,:) = CtstarP(ncs,:  )!extraoplate from upstream value
+            !endif
+            !if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
+            !  CtstarP(ii,:) = facQtotin*CtstarP(ncs,:) !Capacity times loading factor  
+            !else
+            !  CtstarP(ii,:) = CtstarP(ncn,:)  !extraoplate from upstream value
+            !endif
              
-             if(ncw .gt. Ncells) then  !potential left side boundary cell
-                 if(active(nce,3)) then    !it is left side boundary cell   
-                     if(quT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
-                     elseif(quT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(nce,:) 
-                     endif
-                 else  ! it is a left side corner cell
-                    if(ncn .gt. Ncells) then  !upper left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(ncs .gt. ncells) then  !lower left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    endif
-                 endif
-             endif
-             if(nce .gt. Ncells) then  !potential right side boundary cell
-                 if(active(ncw,3)) then    !it is right side boundary cell   
-                     if(quT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncw,:) 
-                     endif
-                 else  ! it is a right side corner cell
-                    if(ncn .gt. Ncells) then  !upper right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    elseif(ncs .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif                
+            if(ncw .gt. Ncells) then  !potential left side boundary cell
+              if(active(nce,3)) then    !it is left side boundary cell   
+                if(quT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
+                elseif(quT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(nce,:) 
                 endif
-             endif         
-             if(ncs .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncn,3)) then    !it is bottom boundary cell   
-                     if(qvT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
-                     elseif(qvT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncn,:) 
-                     endif
-                 else  ! it is a bottom corner cell
-                    if(ncw .gt. Ncells) then  !bottom left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif  
-                 endif
-             endif
-             if(ncn .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncs,3)) then    !it is bottom boundary cell   
-                     if(qvT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncs,:) 
-                     endif
-                 else  ! it is a top corner cell
-                    if(ncw .gt. Ncells) then  !top left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !top right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    endif 
-                 endif
-             endif          
+              else  ! it is a left side corner cell
+                if(ncn .gt. Ncells) then  !upper left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(ncs .gt. ncells) then  !lower left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                endif
+              endif
+            endif
+            if(nce .gt. Ncells) then  !potential right side boundary cell
+              if(active(ncw,3)) then    !it is right side boundary cell   
+                if(quT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncw,:) 
+                endif
+              else  ! it is a right side corner cell
+                if(ncn .gt. Ncells) then  !upper right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                elseif(ncs .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif                
+              endif
+            endif         
+            if(ncs .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncn,3)) then    !it is bottom boundary cell   
+                if(qvT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
+                elseif(qvT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncn,:) 
+                endif
+              else  ! it is a bottom corner cell
+                if(ncw .gt. Ncells) then  !bottom left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif  
+              endif
+            endif
+            if(ncn .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncs,3)) then    !it is bottom boundary cell   
+                if(qvT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncs,:) 
+                endif
+              else  ! it is a top corner cell
+                if(ncw .gt. Ncells) then  !top left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !top right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                endif 
+              endif
+            endif          
 
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                          
-          enddo
-        enddo ! end of each cell string
-      endif  !nHstr strings
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                          
+        enddo
+      enddo ! end of each cell string
+    endif  !nHstr strings
 
-
-      if(nTHstr .gt. 0) then
+    if(nTHstr .gt. 0) then
       do iwse=1,nTHstr
         do j=1,TH_str(iwse)%NCells    !for each cell in string
-            ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-         if(isedinflowbc==1)then
-             if(ncw .gt. Ncells) then  !potential left side boundary cell
-                 if(active(nce,3)) then    !it is left side boundary cell   
-                     if(quT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
-                     elseif(quT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(nce,:) 
-                     endif
-                 else  ! it is a left side corner cell
-                    if(ncn .gt. Ncells) then  !upper left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(ncs .gt. ncells) then  !lower left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    endif
-                 endif
-             endif
-             if(nce .gt. Ncells) then  !potential right side boundary cell
-                 if(active(ncw,3)) then    !it is right side boundary cell   
-                     if(quT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncw,:) 
-                     endif
-                 else  ! it is a right side corner cell
-                    if(ncn .gt. Ncells) then  !upper right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    elseif(ncs .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif                
+          ii=TH_str(iwse)%Cells(j)  !Chris Reed - 10/20/2016
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(isedinflowbc==1)then
+            if(ncw .gt. Ncells) then  !potential left side boundary cell
+              if(active(nce,3)) then    !it is left side boundary cell   
+                if(quT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
+                elseif(quT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(nce,:) 
                 endif
-             endif         
-             if(ncs .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncn,3)) then    !it is bottom boundary cell   
-                     if(qvT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
-                     elseif(qvT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncn,:) 
-                     endif
-                 else  ! it is a bottom corner cell
-                    if(ncw .gt. Ncells) then  !bottom left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif  
-                 endif
-             endif
-             if(ncn .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncs,3)) then    !it is bottom boundary cell   
-                     if(qvT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncs,:) 
-                     endif
-                 else  ! it is a top corner cell
-                    if(ncw .gt. Ncells) then  !top left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !top right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    endif 
-                 endif
-             endif       
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+              else  ! it is a left side corner cell
+                if(ncn .gt. Ncells) then  !upper left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(ncs .gt. ncells) then  !lower left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                endif
+              endif
+            endif
+            if(nce .gt. Ncells) then  !potential right side boundary cell
+              if(active(ncw,3)) then    !it is right side boundary cell   
+                if(quT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncw,:) 
+                endif
+              else  ! it is a right side corner cell
+                if(ncn .gt. Ncells) then  !upper right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                elseif(ncs .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif                
+              endif
+            endif         
+            if(ncs .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncn,3)) then    !it is bottom boundary cell   
+                if(qvT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
+                elseif(qvT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncn,:) 
+                endif
+              else  ! it is a bottom corner cell
+                if(ncw .gt. Ncells) then  !bottom left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif  
+              endif
+            endif
+            if(ncn .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncs,3)) then    !it is bottom boundary cell   
+                if(qvT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncs,:) 
+                endif
+              else  ! it is a top corner cell
+                if(ncw .gt. Ncells) then  !top left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !top right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                endif 
+              endif
+            endif       
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-            
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                               
-            
-       enddo 
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                               
+        enddo 
       enddo !iwse-str      
-      endif  !H_tide
+    endif  !H_tide
 
-      if(nMHstr .gt. 0) then
-        do i = 1,nMHstr  !for each cell string                        
-          do j=1,MH_str(i)%NCells   !for each cell in string
-            ii=MH_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-         if(isedinflowbc==1)then
-             if(ncw .gt. Ncells) then  !potential left side boundary cell
-                 if(active(nce,3)) then    !it is left side boundary cell   
-                     if(quT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
-                     elseif(quT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(nce,:) 
-                     endif
-                 else  ! it is a left side corner cell
-                    if(ncn .gt. Ncells) then  !upper left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(ncs .gt. ncells) then  !lower left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    endif
-                 endif
-             endif
-             if(nce .gt. Ncells) then  !potential right side boundary cell
-                 if(active(ncw,3)) then    !it is right side boundary cell   
-                     if(quT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncw,:) 
-                     endif
-                 else  ! it is a right side corner cell
-                    if(ncn .gt. Ncells) then  !upper right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    elseif(ncs .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif                
+    if(nMHstr .gt. 0) then
+      do i = 1,nMHstr  !for each cell string                        
+        do j=1,MH_str(i)%NCells   !for each cell in string
+          ii=MH_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(isedinflowbc==1)then
+            if(ncw .gt. Ncells) then  !potential left side boundary cell
+              if(active(nce,3)) then    !it is left side boundary cell   
+                if(quT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
+                elseif(quT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(nce,:) 
                 endif
-             endif         
-             if(ncs .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncn,3)) then    !it is bottom boundary cell   
-                     if(qvT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
-                     elseif(qvT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncn,:) 
-                     endif
-                 else  ! it is a bottom corner cell
-                    if(ncw .gt. Ncells) then  !bottom left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif  
-                 endif
-             endif
-             if(ncn .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncs,3)) then    !it is bottom boundary cell   
-                     if(qvT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncs,:) 
-                     endif
-                 else  ! it is a top corner cell
-                    if(ncw .gt. Ncells) then  !top left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !top right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    endif 
-                 endif
-             endif       
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+              else  ! it is a left side corner cell
+                if(ncn .gt. Ncells) then  !upper left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(ncs .gt. ncells) then  !lower left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                endif
+              endif
+            endif
+            if(nce .gt. Ncells) then  !potential right side boundary cell
+              if(active(ncw,3)) then    !it is right side boundary cell   
+                if(quT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncw,:) 
+                endif
+              else  ! it is a right side corner cell
+                if(ncn .gt. Ncells) then  !upper right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                elseif(ncs .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif                
+              endif
+            endif         
+            if(ncs .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncn,3)) then    !it is bottom boundary cell   
+                if(qvT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
+                elseif(qvT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncn,:) 
+                endif
+              else  ! it is a bottom corner cell
+                if(ncw .gt. Ncells) then  !bottom left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif  
+              endif
+            endif
+            if(ncn .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncs,3)) then    !it is bottom boundary cell   
+                if(qvT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncs,:) 
+                endif
+              else  ! it is a top corner cell
+                if(ncw .gt. Ncells) then  !top left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !top right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                endif 
+              endif
+            endif       
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-            
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                                  
-              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                                  
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi
 
-      if(nMHVstr .gt. 0) then
-        do i = 1,nMHVstr  !for each cell string
-          do j=1,MHV_str(i)%NCells   !for each cell in string
-           ii=MHV_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-         if(isedinflowbc==1)then
-             if(ncw .gt. Ncells) then  !potential left side boundary cell
-                 if(active(nce,3)) then    !it is left side boundary cell   
-                     if(quT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
-                     elseif(quT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(nce,:) 
-                     endif
-                 else  ! it is a left side corner cell
-                    if(ncn .gt. Ncells) then  !upper left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(ncs .gt. ncells) then  !lower left corner cell
-                     CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    endif
-                 endif
-             endif
-             if(nce .gt. Ncells) then  !potential right side boundary cell
-                 if(active(ncw,3)) then    !it is right side boundary cell   
-                     if(quT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncw,:) 
-                     endif
-                 else  ! it is a right side corner cell
-                    if(ncn .gt. Ncells) then  !upper right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    elseif(ncs .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif                
+    if(nMHVstr .gt. 0) then
+      do i = 1,nMHVstr  !for each cell string
+        do j=1,MHV_str(i)%NCells   !for each cell in string
+          ii=MHV_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(isedinflowbc==1)then
+            if(ncw .gt. Ncells) then  !potential left side boundary cell
+              if(active(nce,3)) then    !it is left side boundary cell   
+                if(quT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(nce,:)
+                elseif(quT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(nce,:) 
                 endif
-             endif         
-             if(ncs .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncn,3)) then    !it is bottom boundary cell   
-                     if(qvT .gt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
-                     elseif(qvT .le. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncn,:) 
-                     endif
-                 else  ! it is a bottom corner cell
-                    if(ncw .gt. Ncells) then  !bottom left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !lower right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
-                    endif  
-                 endif
-             endif
-             if(ncn .gt. Ncells) then  !potential bottom boundary cell
-                 if(active(ncs,3)) then    !it is bottom boundary cell   
-                     if(qvT .lt. 0.0) then
-                        CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
-                     elseif(quT .ge. 0.0)then
-                        CtstarP(ii,:) = CtstarP(ncs,:) 
-                     endif
-                 else  ! it is a top corner cell
-                    if(ncw .gt. Ncells) then  !top left corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
-                    elseif(nce .gt. ncells) then  !top right corner cell
-                     CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
-                    endif 
-                 endif
-             endif       
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-         elseif(isedinflowbc==2)then  
+              else  ! it is a left side corner cell
+                if(ncn .gt. Ncells) then  !upper left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(ncs .gt. ncells) then  !lower left corner cell
+                  CtstarP(ii,:)= 0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                endif
+              endif
+            endif
+            if(nce .gt. Ncells) then  !potential right side boundary cell
+              if(active(ncw,3)) then    !it is right side boundary cell   
+                if(quT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncw,:) 
+                endif
+              else  ! it is a right side corner cell
+                if(ncn .gt. Ncells) then  !upper right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                elseif(ncs .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif                
+              endif
+            endif         
+            if(ncs .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncn,3)) then    !it is bottom boundary cell   
+                if(qvT .gt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncn,:)
+                elseif(qvT .le. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncn,:) 
+                endif
+              else  ! it is a bottom corner cell
+                if(ncw .gt. Ncells) then  !bottom left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !lower right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncn,:) + CtstarP(ncw,:))
+                endif  
+              endif
+            endif
+            if(ncn .gt. Ncells) then  !potential bottom boundary cell
+              if(active(ncs,3)) then    !it is bottom boundary cell   
+                if(qvT .lt. 0.0) then
+                  CtstarP(ii,:) = facQtotin*CtstarP(ncs,:)
+                elseif(quT .ge. 0.0)then
+                  CtstarP(ii,:) = CtstarP(ncs,:) 
+                endif
+              else  ! it is a top corner cell
+                if(ncw .gt. Ncells) then  !top left corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(nce,:))
+                elseif(nce .gt. ncells) then  !top right corner cell
+                  CtstarP(ii,:)=0.5*(CtstarP(ncs,:) + CtstarP(ncw,:))
+                endif 
+              endif
+            endif       
+            
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          elseif(isedinflowbc==2)then  
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec  
             if(quT .le. 0.0 .and. nce .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec     
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec    
             if(qvT .le. 0.0 .and. ncn .gt. Ncells) CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec   
-            
+             
             if(quT .gt. 0.0 .and. ncw .gt. Ncells) then  !inflow
-                CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(nce)*h(nce))/rhosed  !Qtotin in kg/m/sec
             else  !outflow
-                CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncw,:) !extrapolate from upstream value
             endif
             if(quT .le. 0.0 .and. nce .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncw)*h(ncw))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
+              CtstarP(ii,:) = CtstarP(nce,:)   !extrapolate from upstream value  
             endif
             if(qvT .gt. 0.0 .and. ncs .gt. Ncells) then
-                CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
+              CtstarP(ii,:) = Qtotin/(uv(ncn)*h(ncn))/rhosed  !Qtotin in kg/m/sec  
             else
-                CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncs,:  )!extrapolate from upstream value
             endif
             if(qvT .le. 0.0 .and. ncn .gt. Ncells)then
-                CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
+              CtstarP(ii,:) = Qtotin/(uv(ncs)*h(ncs))/rhosed  !Qtotin in kg/m/sec
             else
-                CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
+              CtstarP(ii,:) = CtstarP(ncn,:)  !extrapolate from upstream value
             endif           
             
-             !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
-             Ctk(ii,:)=CtstarP(ii,:)             
-           endif                                 
-              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi   
-
-      
+            !Ctk(ii,:)=pbk(ii,:,1)*CtstarP(ii,:)
+            Ctk(ii,:)=CtstarP(ii,:)             
+          endif                                 
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi   
  
-      if(nQstr .gt. 0) then
-        do i = 1,nQstr  !for each cell string
-          if(QstringEXP(i)%vface) then 
-              
-           if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
+    if(nQstr .gt. 0) then
+      do i = 1,nQstr  !for each cell string
+        if(QstringEXP(i)%vface) then 
+          if( QstringEXP(i)%sgn .eq. 1 ) then  !south face 
             do j=1,Q_str(i)%NCells    !for each cell in string
               ii= Q_str(i)%Cells(j) 
               ncs = cellmap(5,ii)
@@ -942,7 +921,7 @@
               !Ctk(iid,:)=pbk(iid,:,1)*CtstarP(iid,:)
               Ctk(ncs,:)=CtstarP(ncs,:) 
             enddo
-           else  !north face
+          else  !north face
             do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)
               ncs = cellmap(5,ii)
@@ -951,9 +930,7 @@
               Ctk(ii,:)=CtstarP(ii,:) 
             enddo               
           endif
-              
-          else
-              
+        else
           if( QstringEXP(i)%sgn .eq. 1 ) then  !west face 
             do j=1,Q_str(i)%NCells    !for each cell in string
               ii = Q_str(i)%Cells(j)
@@ -966,21 +943,16 @@
             do j=1,Q_str(i)%NCells    !for each cell in string
               II = Q_str(i)%Cells(j)   
               ncw = cellmap(7,ii)          
-               CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)              
+              CtstarP(ii,:) = facQtotin*CtstarP(ncw,:)              
               !Ctk(iid,:)=pbk(iid,:,1)*CtstarP(iid,:)
               Ctk(ii,:)=CtstarP(ii,:) 
             enddo        
           endif  
-            
-         endif
-        enddo ! end of NQdriver
-      endif  !Q_single     
+        endif
+      enddo ! end of NQdriver
+    endif  !Q_single     
       
-      
-      
-      
-      
-        goto 1000
+    goto 1000
       
   !Sediment flux boundaries, will overide river boundary conditions
     do ised=1,nsedflux
@@ -997,7 +969,7 @@
       !Get sediment transport rate      
       if(sed_str(ised)%ibctype==1)then !Total sediment transport rate        
         qsedtot = (1.0-fac)*sed_str(ised)%val(inc,1) + &
-                fac*sed_str(ised)%val(inc+1,1)  !kg/sec, total per cellstring                        
+                  fac*sed_str(ised)%val(inc+1,1)  !kg/sec, total per cellstring                        
         !Compute average bed composition for cell string   
         do ii=1,sed_str(ised)%ncells
           i = sed_str(ised)%cells(ii)  
@@ -1014,34 +986,35 @@
         sedbnd(ised,:) = pbk(nck,:,1)*qsedtot      
       else      !Fractional sediment transport rate                
         sedbnd(ised,:) = (1.0-fac)*sed_str(ised)%val(inc,:) + &
-                fac*sed_str(ised)%val(inc+1,:) !kg/sec, per fraction and cellstring           
-        sedbnd(ised,:)= ramp*facQtotin*sedbnd(ised,:) !Apply ramp and loading factor
+                         fac*sed_str(ised)%val(inc+1,:) !kg/sec, per fraction and cellstring           
+        sedbnd(ised,:) = ramp*facQtotin*sedbnd(ised,:) !Apply ramp and loading factor
+        
         !Sum sediment transport rate
         qsedtot = sum(sedbnd(ised,:))
-!!        !Compute bed composition at ghost cells           
-!!        if(qsedtot>1.e-5)then 
-!!          do ii=1,sed_str(ised)%ncells
-!!            i = sed_str(ised)%cells(ii)  
-!!            k = sed_str(ised)%faces(ii)    
-!!            nck = cell2cell(i,k)                     
-!!            pbk(nck,:,1) = sedbnd(ised,:)/qsedtot
-!!            pbk(nck,:,1) = pbk(nck,:,1)/sum(pbk(nck,:,1)) !Normalize to make sure sum is 1
-!!          enddo
-!!        else
-!!          do ii=1,sed_str(ised)%ncells
-!!            i = sed_str(ised)%cells(ii)  
-!!            k = sed_str(ised)%faces(ii)    
-!!            nck = cell2cell(i,k)   
-!!            pbk(nck,:,1) = pbk(i,:,1)
-!!          enddo
-!!        endif  
+        !!Compute bed composition at ghost cells           
+        !if(qsedtot>1.e-5)then 
+        !  do ii=1,sed_str(ised)%ncells
+        !    i = sed_str(ised)%cells(ii)  
+        !    k = sed_str(ised)%faces(ii)    
+        !    nck = cell2cell(i,k)                     
+        !    pbk(nck,:,1) = sedbnd(ised,:)/qsedtot
+        !    pbk(nck,:,1) = pbk(nck,:,1)/sum(pbk(nck,:,1)) !Normalize to make sure sum is 1
+        !  enddo
+        !else
+        !  do ii=1,sed_str(ised)%ncells
+        !    i = sed_str(ised)%cells(ii)  
+        !    k = sed_str(ised)%faces(ii)    
+        !    nck = cell2cell(i,k)   
+        !    pbk(nck,:,1) = pbk(i,:,1)
+        !  enddo
+        !endif  
       endif      
             
       write(*,*) 'Specified Total Inflow Sediment Transport Rate: ',qsedtot,' kg/sec'      
-!      write(*,*) 'Fractional Inflow Sediment Transport Rates, mm, kg/sec'      
-!      do ks=1,nsed                      
-!        write(*,*) diam(ks)*1000.0, sedbnd(ised,ks)
-!      enddo !ks 
+      !write(*,*) 'Fractional Inflow Sediment Transport Rates, mm, kg/sec'      
+      !do ks=1,nsed                      
+      !  write(*,*) diam(ks)*1000.0, sedbnd(ised,ks)
+      !enddo !ks 
      
       qsedtot = 0.0
       do ks=1,nsed   
@@ -1052,12 +1025,13 @@
           nck = cell2cell(k,i)
           if(iwet(i)==0) cycle                                  
           if(flux(k,i)<0.0)then !Inflow      
-!            qstarcell = h(i)*uv(i)*CtstarP(i,ks) !kg/m/sec  
+            !qstarcell = h(i)*uv(i)*CtstarP(i,ks) !kg/m/sec  
             qstarcell = 1.0
             qstarcell = max(qstarcell,0.0001)                                                            
             qstartot = qstartot + ds(k,i)*qstarcell !kg/sec 
           endif 
         enddo !ii  
+        
         qstartot = max(qstartot,1.0e-15)
         do ii=1,sed_str(ised)%ncells
           i = sed_str(ised)%cells(ii)  
@@ -1065,7 +1039,7 @@
           nck = cell2cell(k,i)  
           if(iwet(i)==0) cycle                                  
           if(flux(k,i)<0.0)then
-!            qstarcell = h(i)*uv(i)*CtstarP(i,ks) !kg/m/sec  
+            !qstarcell = h(i)*uv(i)*CtstarP(i,ks) !kg/m/sec  
             qstarcell = 1.0
             qstarcell = max(qstarcell,0.0001) 
             fac = qstarcell/(h(i)*uv(i)*qstartot)
@@ -1077,114 +1051,110 @@
             CtstarP(nck,:) = CtstarP(i,:)
           endif
         enddo !ii    
-      enddo !ks     
+      enddo !ks    
+      
       write(*,*) 'Calculated Total Inflow Sediment Transport Rate: ',qsedtot,' kg/sec'    
       open(dgunit,file=dgfile,access='append') 
       write(dgunit,*) 'Calculated Total Inflow Sediment Transport Rate: ',qsedtot,' kg/sec'   
       close(dgunit)
     enddo !ised
 
-1000    continue    
+1000 continue    
     
     return
     end subroutine Zsedbnd_eval_EXP_tel
     
-   !***********************************************************************
+!***********************************************************************
     subroutine Zbndzb_exp_tel
 ! Applies sediment transport boundaries
 ! Blocks off dry regions which are not solved
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use EXP_Global_def, only: ncn,nce,ncw,ncs,qx,qy
+    use EXP_Global_def,  only: ncn,nce,ncw,ncs,qx,qy
     use EXP_bndcond_def, only: QstringEXP
-    use size_def
-    use geo_def
-    use flow_def
-    use struct_def
-    use bnd_def
-    use comvarbl
-    use wave_flowgrid_def
-    use sed_def
-    use const_def, only: eps
-    use prec_def
     use exp_telescoping, only: cellmap
+    use prec_def,  only: ikind
+    use size_def,  only: ncells
+    use geo_def,   only: zb
+    use flow_def,  only: u, v, h
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, mhv_str, mh_str, th_str, h_str
+    use const_def, only: eps
+    
     implicit none
     integer :: i,ii,j,iwse
     real(ikind) :: qut,qvt
-
     
-      if(nHstr .gt. 0) then
-        do i = 1,nHstr  !for each cell string
-          do j=1,H_str(i)%NCells    !for each cell in string
-            ii=H_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)                                        
-          enddo
-        enddo ! end of each cell string
-      endif  !nHstr strings
+    if(nHstr .gt. 0) then
+      do i = 1,nHstr  !for each cell string
+        do j=1,H_str(i)%NCells    !for each cell in string
+          ii=H_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)                                        
+        enddo
+      enddo ! end of each cell string
+    endif  !nHstr strings
 
-
-      if(nTHstr .gt. 0) then
+    if(nTHstr .gt. 0) then
       do iwse=1,nTHstr
         do j=1,TH_str(iwse)%NCells    !for each cell in string
           ii=TH_str(iwse)%Cells(j)  !added Mitch Brown - 10/20/2016 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)           
-       enddo 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)           
+        enddo 
       enddo !iwse-str      
-      endif  !H_tide
+    endif  !H_tide
 
-      if(nMHstr .gt. 0) then
-        do i = 1,nMHstr  !for each cell string                        
-          do j=1,MH_str(i)%NCells   !for each cell in string
-            ii=MH_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi
+    if(nMHstr .gt. 0) then
+      do i = 1,nMHstr  !for each cell string                        
+        do j=1,MH_str(i)%NCells   !for each cell in string
+          ii=MH_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)              
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi
 
-      if(nMHVstr .gt. 0) then
-        do i = 1,nMHVstr  !for each cell string
-          do j=1,MHV_str(i)%NCells   !for each cell in string
-            ii=MHV_str(i)%Cells(j) 
-            ncn = cellmap(1,ii)
-            nce = cellmap(3,ii)
-            ncs = cellmap(5,ii)    
-            ncw = cellmap(7,ii)                
-            quT = u(ii)*h(ii)
-            qvT = v(ii)*h(ii)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)             
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi        
+    if(nMHVstr .gt. 0) then
+      do i = 1,nMHVstr  !for each cell string
+        do j=1,MHV_str(i)%NCells   !for each cell in string
+          ii=MHV_str(i)%Cells(j) 
+          ncn = cellmap(1,ii)
+          nce = cellmap(3,ii)
+          ncs = cellmap(5,ii)    
+          ncw = cellmap(7,ii)                
+          quT = u(ii)*h(ii)
+          qvT = v(ii)*h(ii)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)             
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi        
     
     return
     end subroutine Zbndzb_EXP_tel

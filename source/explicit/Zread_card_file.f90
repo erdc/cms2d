@@ -1,22 +1,25 @@
+!***********************************************************************
       subroutine ReadCardFile_EXP
-      !use XMDF
-      use EXP_Global_def
-      USE EXP_transport_def 
-      USE EXP_bndcond_def 
-      use EXP_Structures_def       
+!***********************************************************************
+      use EXP_Global_def,  only: drydep, dt, iadv, imix, a0, thetac, iripple, advcoef, rainfall, isedform
+      use EXP_Global_def,  only: dtsed, dtmorph, dtsalt, dtheat, rf_filename, maxunit, rf_unit, rf_frac_ro
+      USE EXP_bndcond_def, only: modify_h, hmod
+      USE EXP_transport_def,  only: rate_avalanche, chparms, saltsimd, cohes_flow_bc_file, cohes_flow_bc
+      use EXP_Structures_def, only: srm, structures, srm_on, srm, cul, cul_on
+      use prec_def, only: ikind
       use flow_def, only: hmin
       use comvarbl, only: ctlfile,dtime  
                  
       implicit none
       !local vars
-      integer i,j,itimes,ios
+      integer i,j,itimes,ios, ierr
       real(ikind) Adummy
       character :: astring*50   
       CHARACTER*30  CARDNAME    
       CHARACTER*12  STRINGNAME   
       CHARACTER*3   CSWITCH   
       CHARACTER*200  ADUM      
-      LOGICAL   FOUND
+      LOGICAL   FOUND, bool 
       LOGICAL :: UNRECOGNIZED = .FALSE.
  
       !rhow = densit   !rhow now used in all code - MEB 11/13
@@ -36,7 +39,7 @@
       IRIPPLE = 1   
       rate_avalanche = 0.01     
       !BC extrabploation
-      ADVCOEF = 1.0d0 
+      ADVCOEF = 0.0  !0.90d0 !1.0d0 
       !cohesive
       CHparms%Dfac = 1.0
       !COHD_PATH = "COHES_DIFF"    
@@ -58,24 +61,23 @@
              
 !--START OF HYDRO CARDS
           CASE ('USE_ADVECTION_TERMS')
-            READ(1,*) CARDNAME, CSWITCH
-            IF (CSWITCH.EQ.'OFF') IADV = 0            !DEFAULT = 'ON'
-            CSWITCH = '   '
+            call card_boolean(1,bool,ierr)
+            !READ(1,*) CARDNAME, CSWITCH
+            IF (.not.BOOL) IADV = 0            !DEFAULT = 'ON'
 
           CASE ('USE_MIXING_TERMS')
-            READ(1,*) CARDNAME, CSWITCH
-            IF (CSWITCH.EQ.'OFF') IMIX = 0            !DEFAULT = 'ON'
-            CSWITCH = '   '
+            call card_boolean(1,bool,ierr)              
+            !READ(1,*) CARDNAME, CSWITCH
+            IF (.not.BOOL) IMIX = 0            !DEFAULT = 'ON'
 
 !--START OF SED TRANS CARDS   
-
           CASE ('SED_TRAN_FORMULATION')
             READ(1,*) CARDNAME, STRINGNAME
             IF     (STRINGNAME.EQ.'WATANABE')  THEN 
               ISEDFORM=1
-             ELSEIF (STRINGNAME.EQ.'LUND_CIRP') THEN 
+            ELSEIF (STRINGNAME.EQ.'LUND_CIRP') THEN 
               ISEDFORM=2
-             ELSEIF (STRINGNAME.EQ.'EXNER') THEN 
+            ELSEIF (STRINGNAME.EQ.'EXNER')     THEN 
               ISEDFORM=2              
             ELSEIF (STRINGNAME.EQ.'A-D')       THEN 
               ISEDFORM=3
@@ -152,7 +154,6 @@
             ENDIF
             
 !--START OF COHESIVE CARDS
-
           CASE ('COHESIVE_E')
             READ (1,*) CARDNAME,CHparms%E
             ISEDFORM = 5                           !added 05/15/09 reed
@@ -195,8 +196,7 @@
               write(*,*)CHparms%DEPTH(J),CHparms%Tcrit_Ev(J),CHparms%Tcrit_Dv(J)
             ENDDO
 
-!--------START OF STRUCTURE CARDS - ROUBLE MOUND
-
+!--------START OF STRUCTURE CARDS - RUBBLE MOUND
           CASE ('STRUCT_RM')
             READ(1,*) CARDNAME, SRM%NCELLS
             BACKSPACE(1)
@@ -246,7 +246,6 @@
             ENDDO          
 
 !--------START OF STRUCTURE CARDS - CULVERT   
-
           CASE ('STRUCT_CUL')
             READ(1,*) CARDNAME, cul%NUM
             BACKSPACE(1)
@@ -260,12 +259,12 @@
               write(*,*)'cul pair = ',cul%cells1(i),cul%cells2(i)
             enddo
             IF (.NOT.ALLOCATED(cul%INVERT)) ALLOCATE(cul%INVERT(cul%NUM))
-            cul%INVERT = 1.0            
-            IF (.NOT.ALLOCATED(cul%DIA)) ALLOCATE(cul%DIA(cul%NUM))
-            cul%DIA = 0.67           
-            IF (.NOT.ALLOCATED(cul%FRIC)) ALLOCATE(cul%FRIC(cul%NUM))
-            cul%FRIC = 0.025           
+            IF (.NOT.ALLOCATED(cul%DIA))    ALLOCATE(cul%DIA(cul%NUM))
+            IF (.NOT.ALLOCATED(cul%FRIC))   ALLOCATE(cul%FRIC(cul%NUM))
             IF (.NOT.ALLOCATED(cul%LENGTH)) ALLOCATE(cul%LENGTH(cul%NUM))
+            cul%INVERT = 1.0            
+            cul%DIA = 0.67           
+            cul%FRIC = 0.025           
             cul%LENGTH = 5
                                        
           CASE ('STRUCT_CUL_INVERT')
@@ -293,7 +292,6 @@
             ENDDO             
                      
 ! START OF RAINFALL CARDS
-
           CASE ('RF_FILENAME')
             READ (1,*) CARDNAME, RF_FILENAME
             maxunit=maxunit+1

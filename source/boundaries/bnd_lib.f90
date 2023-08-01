@@ -229,9 +229,9 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !*************************************************************
     use size_def, only: ncells,ncellsD
-    use geo_def, only: ncface,cell2cell,idirface   
+    use geo_def,  only: ncface,cell2cell,idirface   
     use diag_lib, only: diag_print_error
-    use bnd_def, only: nbndcorner, bndcorner
+    use bnd_def,  only: nbndcorner, bndcorner
     
     implicit none
     !Input/Output
@@ -321,7 +321,7 @@ contains
     subroutine cellstr_bnd_old(nstrcells,icells,kfaces)
 !*************************************************************
     use size_def, only: ncells,ncellsD
-    use geo_def, only: ncface,cell2cell    
+    use geo_def,  only: ncface,cell2cell    
     
     implicit none
     !Input/Output
@@ -385,8 +385,8 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
     use size_def, only: ncells
-    use geo_def, only: nncell,node2cell,ncface,cell2node
-    use bnd_def, only: bc_str,nbcstr
+    use geo_def,  only: nncell,node2cell,ncface,cell2node
+    use bnd_def,  only: bc_str,nbcstr
     use prec_def, only: ikind
     
     implicit none
@@ -438,7 +438,7 @@ contains
 !*****************************************************************************    
 #include "CMS_cpp.h"
     use prec_def, only: ikind
-    use diag_lib
+    use diag_lib, only: diag_print_error
     use comvarbl, only: tjulday0
     use in_lib, only: read_xys,read_tsd
 
@@ -486,7 +486,7 @@ contains
 ! written by Honghai Li, USACE-CHL (01/19/17)
 !*****************************************************************************    
 #include "CMS_cpp.h"
-    use in_lib, only: read_xys,read_tsd
+    use in_lib,   only: read_xys,read_tsd
     use comvarbl, only: tjulday0
     use diag_lib, only: diag_print_error
     use prec_def, only: ikind
@@ -586,7 +586,7 @@ contains
 #include "CMS_cpp.h"    
     use diag_lib, only: diag_print_error
     use comvarbl, only: tjulday0
-    use in_lib, only: read_tsd
+    use in_lib,   only: read_tsd
     use prec_def, only: ikind
     
     implicit none
@@ -631,7 +631,7 @@ contains
 #include "CMS_cpp.h"
     use diag_lib, only: diag_print_error
     use comvarbl, only: tjulday0
-    use in_lib, only: read_tsd
+    use in_lib,   only: read_tsd
     use prec_def, only: ikind
     
     implicit none
@@ -685,7 +685,7 @@ contains
 !**********************************************************************************
     subroutine read_multiwseh5(datfile,datpath,nstrcells,icells,ntimes,times,wsedata)
 !**********************************************************************************
-    use geo_def, only: mapid
+    use geo_def,  only: mapid
     use xmdf
     use prec_def, only: ikind
     use comvarbl, only: input_ver
@@ -731,7 +731,7 @@ contains
 !************************************************************************************************
     subroutine read_multivelh5(datfile,datpath,nstrcells,icells,ntimes,times,udata,vdata)
 !************************************************************************************************
-    use geo_def, only: mapid
+    use geo_def,  only: mapid
     use diag_lib, only: diag_print_error
     use xmdf
     use prec_def, only: ikind
@@ -803,7 +803,7 @@ contains
 ! The values are specified at each boundary cell
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************************************
-    use geo_def, only: mapid
+    use geo_def,  only: mapid
     use diag_lib, only: diag_print_error
     use xmdf
     use prec_def, only: ikind

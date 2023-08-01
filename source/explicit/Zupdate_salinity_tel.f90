@@ -1,19 +1,15 @@
+!*************************************************************
       subroutine update_salinity_tel()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl      
-      use sal_def
-      use size_def
-      use EXP_TELESCOPING
+!*************************************************************
+      use EXP_Global_def,    only: dt, dtsalt
+      USE EXP_transport_def, only: tsalt_elapse, salt
+      use EXP_TELESCOPING,   only: numxfaces, numyfaces, xtransq, ytransq, xface_qn, yface_qn
+      use flow_def, only: iwet, vis
+      use size_def, only: ncellsd
 
       implicit none
       integer i,j,ii
           
-
 !$OMP PARALLEL DO 
         do i = 1,numxfaces
           xTransQ(i) = xTransQ(i) + xface_qn(i)*dt

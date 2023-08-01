@@ -1,14 +1,15 @@
+!*************************************************************
     subroutine update_salt_conc_tel()
-      use EXP_Global_def
-      USE EXP_transport_def     
-      USE EXP_bndcond_def
-      use flow_def
-      use comvarbl
-      use geo_def, only: dx,dy,zb,cell2cell,mapid
-      use sed_def
-      use sal_def 
-      use size_def   
-      use EXP_TELESCOPING
+!*************************************************************
+      use EXP_Global_def,    only: active, etan
+      USE EXP_transport_def, only: voln, salt, tsalt_elapse
+      use EXP_TELESCOPING,   only: numxfaces, numyfaces, xtransq, ytransq, xface_flux, yface_flux, xface_length, yface_length, xface_wall, yface_wall, cellfaces
+      use EXP_TELESCOPING,   only: xface_cells, yface_cells
+      use flow_def, only: eta
+      use geo_def,  only: dx,dy,zb,cell2cell,mapid
+      use prec_def, only: ikind
+      use sal_def,  only: sal, sal1
+      use size_def, only: ncells, ncellsd
       
       implicit none
       integer i,nm,np
@@ -64,6 +65,8 @@
       enddo
 !$OMP END DO
 
+        call balancecheck_tel_sal_flux()
+
 !$OMP DO PRIVATE (VOLN)
       do i=1,ncells
         if(active(i,3)) then
@@ -86,6 +89,10 @@
       enddo
 !$OMP END DO   
 !$OMP END PARALLEL  
+
+        call balancecheck_tel_sal_mass()
+
+
 
 !  open(unit=909,file='check.txt')
 ! 

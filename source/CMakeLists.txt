@@ -26,8 +26,9 @@ SET( CMS_SOURCE_FILES
   ./dredge/dredge_def.f90
   ./dredge/dredge_op.F90
   ./dredge/dredge_setup.F90
-  ./explicit/initialize_flow_arrays.f90
-  ./explicit/initialize_flow_arrays_Tel_v02.f90
+  ./explicit/Zinitialize_flow_arrays.f90
+  ./explicit/Zinitialize_flow_arrays_Tel_v02.f90
+  ./explicit/ZBalanceCheck.f90
   ./explicit/ZCMS_FLOW_EXP_C.f90
   ./explicit/ZCMS_FLOW_EXP_Main.f90
   ./explicit/ZCMS_FLOW_EXP_T.f90
@@ -41,6 +42,7 @@ SET( CMS_SOURCE_FILES
   ./explicit/Zinitialize_structures.f90
   ./explicit/ZModules.F90
   ./explicit/Zprestart_EXP.f90
+  ./explicit/Zprestart_EXP_shared.f90
   ./explicit/Zread_card_file.f90
   ./explicit/Zsed_exp.F90
   ./explicit/Zsed_exp_tel.F90
@@ -194,8 +196,8 @@ SET( CMS_SOURCE_FILES
   ./waves/wave.F90
   ./waves/CMS-Wave_v3.2W_30Apr2020.f90
   ./waves/wave_rad_stress_fl.f90
-  ../external_libraries/proj_conv/utm2geo.f90
-  ../external_libraries/proj_conv/spcs83_combined.f90
+  ../UTM2GEO/utm2geo.f90
+  ../SPCS83/spcs83_combined.f90
 )
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")

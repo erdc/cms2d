@@ -1,13 +1,14 @@
+!*******************************************************************************
       subroutine update_COHES_conc
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def      
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl      
-      use size_def
-      use geo_def, only: dx,dy,zb,cell2cell    
+!*******************************************************************************
+      use EXP_Global_def,  only: etan, ncw, nce, ncn, ncs, fuu, gvv, active
+      USE EXP_bndcond_def, only: qstringexp
+      USE EXP_transport_def, only: cohes, tsed_elapse, cohes_flow_bc, voln, chparms
+      use bnd_def,  only: nqstr, q_str
+      use flow_def, only: eta
+      use prec_def, only: ikind
+      use size_def, only: ncells, ncellsd
+      use geo_def,  only: dx, dy, zb, cell2cell    
 
       implicit none
       !local vars

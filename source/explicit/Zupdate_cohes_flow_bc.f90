@@ -1,13 +1,14 @@
-
+!*******************************************************************************
       subroutine update_cohes_flow_bc()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      use bnd_def
-      USE EXP_transport_def 
-      use flow_def
-    use comvarbl, only: timehrs      
-      use sed_def, only: rhosed 
-      use geo_def, only: dx,dy,cell2cell
+!*******************************************************************************
+      use EXP_Global_def,    only: ncs, ncw, gvv, fuu
+      USE EXP_bndcond_def,   only: qstringexp
+      USE EXP_transport_def, only: cohes, cohes_bc, cohes_bc_time, cohes_bc_cells, cohes_unit
+      use bnd_def,  only: nqstr, q_str
+      use prec_def, only: ikind
+      use comvarbl, only: timehrs      
+      use sed_def,  only: rhosed 
+      use geo_def,  only: dx,dy,cell2cell
           
       implicit none  
       real(ikind) fac,value

@@ -1,10 +1,9 @@
+!***********************************************************************
       subroutine ST_hardbottom_COHES()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def    
+!***********************************************************************
+      use EXP_Global_def,    only: hardbottom
+      USE EXP_transport_def, only: bed, cohes
       use sed_def, only: poros,hardbed,scalemorph,nhard,idhard
-      use flow_def
-      use comvarbl 
       use geo_def, only: zb 
            
       implicit none
@@ -21,5 +20,6 @@
           endif
         enddo
       endif    
-      
+
+      return
       end subroutine

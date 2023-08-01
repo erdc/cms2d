@@ -1,18 +1,14 @@
+!********************************************************************************    
       subroutine initialize_extrapolations_CWR_Tel()
+!********************************************************************************    
 #include "CMS_cpp.h"    
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
-      use geo_def, only: cell2cell
-      use EXP_Telescoping
+      use EXP_Global_def,  only: num_ext_w, num_ext_e, num_ext_n, num_ext_s
+      USE EXP_bndcond_def, only: ext_w, ext_e, ext_n, ext_s
+      use EXP_Telescoping, only: cellmap, cellfaces
+      use bnd_def,  only: nhstr, nmhstr, nthstr, h_str, mh_str, th_str
+      use size_def, only: ncells
       
-      
- implicit none
+      implicit none
       integer i,j,id
 
       num_ext_W =0
@@ -55,13 +51,7 @@
           enddo
         endif
         
-!        write(*,*)'ext n = ',num_ext_n
-!        write(*,*)'ext e = ',num_ext_e
-!        write(*,*)'ext s = ',num_ext_s        
-!        write(*,*)'ext w = ',num_ext_w       
-        
-        allocate(ext_w(num_ext_W,2),ext_n(num_ext_N,2), &
-        ext_s(num_ext_S,2),ext_e(num_ext_E,2))
+        allocate(ext_w(num_ext_W,2),ext_n(num_ext_N,2),ext_s(num_ext_S,2),ext_e(num_ext_E,2))
 
         num_ext_W = 0
         num_ext_E = 0
@@ -183,4 +173,5 @@
 #endif     
       endif !H_single or H_multi or H_tide
       
+      return
       end subroutine

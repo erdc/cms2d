@@ -20,15 +20,15 @@
 #ifdef UNIT_TEST
     use CMS_test
 #endif
-    use cms_def
-    use diag_def
+    use cms_def,    only: noptset, dtsteer
+    use prec_def,   only: ikind
+    use diag_def,   only: dgunit, dgfile
     use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version, minor_version, bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
     use size_def,   only: ncellsD
     use dredge_def, only: dredging
-
 
     implicit none
     integer k,j,ID,i,jlay,iper,loc,lstr
@@ -39,9 +39,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
-    revision = 4             ! Revision number
+    revision = 5             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '07/11/2023'
+    rdate    = '08/17/2023'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -125,13 +125,14 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! Gets the command line arguments
 ! or runs an interactive input
 !*************************************  
-    use geo_def, only: grdfile,telfile
-    use cms_def
-    use comvarbl
-    use diag_def
-    use hot_def, only: coldstart
-    use out_def, only: write_sup,write_tecplot,write_ascii_input
+    use geo_def,   only: grdfile,telfile
+    use cms_def,   only: cmsflow, cmswave, wavsimfile, wavepath, wavename, noptset, inlinewave, dtsteer, noptwse, noptvel, noptzb
+    use comvarbl,  only: casename, flowpath, mpfile, ctlfile
+    use diag_def,  only: dgfile
+    use hot_def,   only: coldstart
+    use out_def,   only: write_sup,write_tecplot,write_ascii_input
     use steer_def, only: auto_steer
+    
     implicit none
     integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr
     character :: cardname*37,aext*10, answer,laext*10   !added variable to hold lowercase version of the extension for the case statement.
@@ -411,7 +412,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     subroutine print_header
 !************************************************************************        
     use comvarbl, only: version,revision,release,developmental,rdate,machine,major_version,minor_version,bugfix
-    use diag_def
+    use diag_def, only: dgfile, dgunit
     
     implicit none
     integer      :: iunit(2),i
@@ -492,10 +493,10 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! by Mitch Brown and modified by Alex Sanchez, USACE-ERDC-CHL
 !*************************************************************
 #include "CMS_cpp.h"
-    use cms_def
+    use cms_def,  only: timebegin, timestart, timenow
     use diag_def, only: dgunit,dgfile
     use comvarbl, only: ctime,ctime1
-    use time_lib 
+    use time_lib, only: time_cpu, time_jul, time_cal2str
     
 #ifdef PROFILE
     use watch_lib
@@ -544,10 +545,10 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! by Mitch Brown and modified by Alex Sanchez, USACE-ERDC-CHL
 !************************************************************************
 #include "CMS_cpp.h"
-    use cms_def
+    use cms_def,  only: timestart, timebegin, cmsflow
     use comvarbl, only: stimet
     use diag_def, only: dgunit,dgfile
-    use time_lib
+    use time_lib, only: time_jul, time_cpu, time_cal2str, time_sec2str
 #ifdef PROFILE
     use watch_lib
 #endif    
@@ -619,10 +620,10 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************    
     use comvarbl,  only: flowpath,ctlfile, input_ver, advfile, read_adv, SMS_ver
-    use cms_def,   only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath,  &
-       dtsteer,radpath,wavpath,perpath,dirpath,disspath,                      &
-       noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
-    use diag_def
+    use cms_def,   only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath  
+    use cms_def,   only: dtsteer,radpath,wavpath,perpath,dirpath,disspath
+    use cms_def,   only: noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
+    use diag_def,  only: dgunit, dgfile
     use geo_def,   only: wgrdfile
     use tool_def,  only: vstrlz    
     
@@ -736,7 +737,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! Prints the known CMS-Wave parameters to the screen and diagnostic file
 ! written by Mitchell Brown, USACE-CHL
 !********************************************************************************    
-    use diag_def
+    use diag_def, only: dgunit, dgfile
     use tool_def, only: vstrlz
     
     implicit none

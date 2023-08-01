@@ -31,7 +31,7 @@ module comp_lib
 !
 ! written by Alex Sanchez, USACE-CHL
 !===================================================================    
-    use prec_def
+    use prec_def, only: ikind
     implicit none
     
 contains
@@ -43,7 +43,6 @@ contains
     implicit none
     real(ikind),intent(in) :: dk,fk
     real(ikind) :: acoefik,rdum
-    
     
     rdum=dk                                  !This is stupid.  We should remove the inbound arguments.
     rdum=fk

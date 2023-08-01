@@ -1,17 +1,17 @@
+!********************************************************************************    
     subroutine initialize_flow_arrays_tel
+!********************************************************************************    
 #include "CMS_cpp.h"    
-    use EXP_Global_def
-    USE EXP_transport_def 
-    USE EXP_bndcond_def
-    use size_def    
+    use EXP_Global_def,  only: num_linktodummies, linktodummiestel, etan, advectx, advecty, cdx, cdy, rhoprim, mixing
+    use EXP_Global_def,  only: fuu, fuv, gvv, gvu, advect, drydep
+    use EXP_TELESCOPING
+    use size_def, only: ncells, ncellsd, nmaxfaces
     use flow_def, only: eta,iwet
-    use met_def, only: tauwindx,tauwindy   
+    use met_def,  only: tauwindx,tauwindy,pressatm
+    use geo_def,  only: zb,cell2cell,idirface,dx,dy,mapid,icol,irow
+    use sal_def,  only: saltrans,sal        
+    use bnd_def,  only: nhstr, h_str
     use wave_flowgrid_def, only: wavestrx,wavestry
-    use geo_def, only: zb,cell2cell,idirface,dx,dy,mapid,icol,irow
-    use met_Def, only: pressatm
-    use exp_telescoping
-    use sal_def, only: saltrans,sal        
-    use bnd_def
       
     implicit none 
     !local variables

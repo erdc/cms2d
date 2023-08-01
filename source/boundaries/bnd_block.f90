@@ -7,19 +7,18 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************
-    use bnd_def, only: nparsim,parsim,q_str,nqstr,th_str,nthstr,h_str,nhstr,mh_str,nmhstr,mhv_str,nmhvstr,nh_str,nnhstr,nhv_str,nnhvstr
-    use bnd_def, only: nth_str,nnthstr,nthv_str,nnthvstr,ioffsetmode !1-Constant offset, 2-Offset curve (hli,01/18/17)
-    use sal_def, only: nsalstr,sal_str
-    use geo_def, only: azimuth_fl,projection
-    use geo_lib, only: proj_default
+    use bnd_def,   only: nparsim,parsim,q_str,nqstr,th_str,nthstr,h_str,nhstr,mh_str,nmhstr,mhv_str,nmhvstr,nh_str,nnhstr,nhv_str,nnhvstr
+    use bnd_def,   only: nth_str,nnthstr,nthv_str,nnthvstr,ioffsetmode !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    use sal_def,   only: nsalstr,sal_str
+    use geo_def,   only: azimuth_fl,projection
+    use geo_lib,   only: proj_default
+    use comvarbl,  only: mpfile,flowpath,tjulday0,iyr
+    use time_lib,  only: calendar2julian
+    use tide_lib,  only: tidal_data
+    use diag_lib,  only: diag_print_error, diag_print_warning
+    use prec_def,  only: ikind
+    use cms_def,   only: aValue
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath,tjulday0,iyr
-    use time_lib, only: calendar2julian
-    use tide_lib, only: tidal_data
-    !use unitconv_lib
-    use diag_lib, only: diag_print_error, diag_print_warning
-    use prec_def, only: ikind
-    use cms_def,  only: aValue
     implicit none    
 
     real(ikind), parameter :: undef = -999.0
@@ -267,7 +266,7 @@
     !Tidal Database Boundary Conditions
     tdbblockread = .false.
     ntcin  = 0  !Tidal constituents used
-    tdbname = ''  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
+    tdbname = ''  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, etc
     tdbpath = ''  !Tidal Database file and path
     nssi = iundef  !Smoothing iterations (along string)
     nssw = iundef !Smoothing window width (along string)
