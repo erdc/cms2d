@@ -2790,6 +2790,7 @@ d1: do i=1,ntf
     
       !--- Tidal Database WSE BC (Type 9=NTH) -----------------------------------
       do iwse=1,nNTHstr
+        write(iunit(i),141)     '    Tidal DB Name:',NTH_str(iwse)%tdbname
         write(iunit(i),241)     '    Tidal DB WSE Boundary:',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NTH_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NTH_str(iwse)%bidpath)        
@@ -2835,6 +2836,7 @@ d1: do i=1,ntf
     
       !--- Tidal Database WSE and Velocity BC (Type 10=NTHV) --------------------------------
       do iwse=1,nNTHVstr
+        write(iunit(i),141)     '    Tidal DB Name:',NTHV_str(iwse)%tdbname
         write(iunit(i),241)     '    Tidal DB WSE and Vel Boundary:',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(NTHV_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(NTHV_str(iwse)%bidpath)

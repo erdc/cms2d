@@ -1,3 +1,7 @@
+== Version 5.3.5 (08/17/2023) ==
+* Fix issues with Tidal Database operation with CMS. Improved screen output.
+* Fix issue with Grid Angle introduced with SMS 13.1.
+
 == Version 5.3.4 (05/16/2023) == 
 * Bug fix for missing zero output time in files when increment > 100 hours.
 * Added a warning if user-specified boundary angle was too different than internally calculated angle for that boundary.
