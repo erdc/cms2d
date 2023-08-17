@@ -267,7 +267,7 @@
     !Tidal Database Boundary Conditions
     tdbblockread = .false.
     ntcin  = 0  !Tidal constituents used
-    tdbname = ''  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
+    tdbname = ''  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, etc
     tdbpath = ''  !Tidal Database file and path
     nssi = iundef  !Smoothing iterations (along string)
     nssw = iundef !Smoothing window width (along string)

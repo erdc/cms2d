@@ -138,6 +138,7 @@ module comvarbl
     
     !Solution scheme
     integer:: nfsch  !0-Implicit, 1-Explicit
+    logical:: isImplicit, isExplicit  !trying a more readable way to do scheme tests
     
     !Implicit scheme
     logical :: pred_corr !Predictor-corrector scheme (adapative time stepping)

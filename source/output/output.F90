@@ -1580,13 +1580,10 @@
     use heat_def, only: heat
     use sed_def
     use size_def
-    use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,           &
-        !wavediss,waveibr,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
-        wavediss,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
+    use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,wavediss,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
     use dredge_def
 #ifdef DEV_MODE
-    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,        &
-      udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
+    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
 #endif
 
 implicit none    
@@ -1614,8 +1611,6 @@ implicit none
       call writescalh5(outlist(1)%afile,apath,'Water_Elevation',eta,'m',timehrs,0)
       if(write_presres)then !Pressure Residuals
         call writescalh5(outlist(1)%afile,apath,'Pres_Norm_Res',rsp,'none',timehrs,0)
-        !val = log10(1.0+rsp)
-        !call writescalh5(outlist(1)%afile,apath,'Pres_Norm_Res_Scaled',val,'none',timehrs,0)
       endif
       if(write_pres)then
         call writescalh5(outlist(1)%afile,apath,'Pressure',p,'m^2/s^2',timehrs,1)
@@ -1670,25 +1665,6 @@ implicit none
         endif
       endif
 #endif
-      !if(ncellpoly>0 .and. debug_mode)then
-      !  call writescalh5(outlist(1)%afile,apath,'Hu',Hu,'m^2/s',timehrs,1)
-      !  call writescalh5(outlist(1)%afile,apath,'Hv',Hv,'m^2/s',timehrs,1)    
-      !  call writescalh5(outlist(1)%afile,apath,'apuareap',apuareap,'m/s^2',timehrs,1)
-      !  call writescalh5(outlist(1)%afile,apath,'sumu',sumu,'m^2/s',timehrs,1)    
-      !  call writescalh5(outlist(1)%afile,apath,'spu',spu,'m/s^2',timehrs,1)
-      !  call writescalh5(outlist(1)%afile,apath,'spv',spv,'m/s^2',timehrs,1)
-      !  call writescalh5(outlist(1)%afile,apath,'sp',sp,'m/s^2',timehrs,1)
-      !  if(write_sup)then
-      !    call write_scal_dat_file(aname,'Hu','Hu',Hu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'Hv','Hv',Hv) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'apuareap','apuareap',apuareap) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'sumu','sumu',sumu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'spu','spu',spu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'spv','spv',spv) !SUPER ASCII File
-      !  endif  
-      !endif
-!      call writescalh5(outlist(1)%afile,apath,'limX',limx,'',timehrs,1) !Slope limiters
-!      call writescalh5(outlist(1)%afile,apath,'limY',limy,'',timehrs,1) !Slope limiters
 
       if(.not. outlist(5)%write_dat) then
         if(dredging) then
@@ -1711,7 +1687,6 @@ implicit none
         call writevech5(outlist(2)%afile,apath,'Current_Velocity',vecx,vecy,'m/s',timehrs,0)
         if(write_veltotal)then
           call writevech5(outlist(2)%afile,apath,'Total_Flux_Velocity',u,v,'m/s',timehrs,0)
-          !if(write_sup) call write_vec_dat_file(aname,'Total_Velocity','totvel',u,v) !SUPER ASCII File
           if(write_veltotalmag)then
             do i=1,ncells
               val(i) = sqrt(u(i)*u(i) + v(i)*v(i))
@@ -1730,14 +1705,6 @@ implicit none
         call writescalh5(outlist(2)%afile,apath,'duy',duy,'none',timehrs,0)
         call writescalh5(outlist(2)%afile,apath,'dvx',dvx,'none',timehrs,0)  
         call writescalh5(outlist(2)%afile,apath,'dvy',dvy,'none',timehrs,0)
-!#ifdef DEV_MODE
-!        if(nfsch==1 .and. nlim>0)then
-!          call writescalh5(outlist(2)%afile,apath,'limdux',limdux,'none',timehrs,0)     
-!          call writescalh5(outlist(2)%afile,apath,'limduy',limduy,'none',timehrs,0)
-!          call writescalh5(outlist(2)%afile,apath,'limdvx',limdvx,'none',timehrs,0)  
-!          call writescalh5(outlist(2)%afile,apath,'limdvy',limdvy,'none',timehrs,0)
-!        endif
-!#endif
       endif
       if(write_velcurv)then
         call curvxy(gow,dux,duy,vecx,vecy)
@@ -1773,8 +1740,6 @@ implicit none
             aname = 'Current_Velocity_Lay' // trim(alay)
             vecx(1:ncellsD) = uzplay(j,1:ncellsD)
             vecy(1:ncellsD) = vzplay(j,1:ncellsD)
-            !vecx(1:ncellsD) = 0.0
-            !vecy(1:ncellsD) = 0.0
             call writevech5(outlist(2)%afile,apath,aname,vecx,vecy,'m/s',timehrs,0)  
             do i=1,ncells
               val(i) = sqrt(vecx(i)*vecx(i) + vecy(i)*vecy(i))
@@ -1792,16 +1757,6 @@ implicit none
       if(write_velres)then !Velocity Residuals
         call writescalh5(outlist(2)%afile,apath,'Vx_Norm_Res',rsu,'none',timehrs,0)   
         call writescalh5(outlist(2)%afile,apath,'Vy_Norm_Res',rsv,'none',timehrs,0)  
-        !vecx = log10(1.0+rsu)
-        !vecy = log10(1.0+rsv)
-        !call writescalh5(outlist(2)%afile,apath,'Vx_Norm_Res_Scaled',vecx,'none',timehrs,0)   
-        !call writescalh5(outlist(2)%afile,apath,'Vy_Norm_Res_Scaled',vecy,'none',timehrs,0)
-!!        call writevech5(outlist(2)%afile,apath,'Vx_Gradient',dux,duy,'1/s',timehrs,0)
-!!        val=sqrt(dux**2+duy**2)
-!!        call writescalh5(outlist(2)%afile,apath,'Vx_Gradient_Mag',val,'1/s',timehrs,0)
-!!        call writevech5(outlist(2)%afile,apath,'Vy_Gradient',dvx,dvy,'1/s',timehrs,0)  
-!!        val=sqrt(dvx**2+dvy**2)
-!!        call writescalh5(outlist(2)%afile,apath,'Vy_Gradient_Mag',val,'1/s',timehrs,0) 
       endif
     endif
    
@@ -1835,12 +1790,6 @@ implicit none
       call writevech5(outlist(4)%afile,apath,'Total_Sediment_Transport',qtx,qty,'kg/m/s',timehrs,0)
       if(write_fracsusp)then
         call writescalh5(outlist(4)%afile,apath,'Fraction_Suspended',rs,'none',timehrs,0)  
-        !do ks=1,nsed
-        !  name = 'Fraction_Suspended_' // aconc(ks)
-        !  call writescalh5(outlist(11)%afile,apath,aname,rsk(:,ks),'none',timehrs,0)                      
-        !  aname = 'Fraction_Mix_Layer_' // trim(aconc(ks))
-        !  call writescalh5(outlist(11)%afile,apath,aname,pbk(:,ks,1),'none',timehrs,1) 
-        !enddo !ks
       endif
       if(debug_mode)then
         call writescalh5(outlist(4)%afile,apath,'Conc_Res',rsCtkmax,'-',timehrs,0)  
@@ -1858,10 +1807,6 @@ implicit none
       endif
       if(write_betatot)then
         call writescalh5(outlist(4)%afile,apath,'Beta_t',btk(:,1),'',timehrs,0) 
-        !do ks=1,nsed
-          !aname='Beta_t'//aconc(ks)
-          !call writescalh5(outlist(11)%afile,apath,aname,btk(:,ks),'',timehrs,0)
-        !enddo !ks
       endif
       if(write_betasusp)then
         call writescalh5(outlist(4)%afile,apath,'Beta_s',bsk(:,1),'',timehrs,0) 
@@ -2197,40 +2142,40 @@ implicit none
     if(check_time_list(1))then             
       call print_output_header(header)
       eta(ncells+1:ncellsD)=p(ncells+1:ncellsD)*gravinv
-      call write_scal_dat_file(aname,'Water_Elevation','eta',eta) !SUPER ASCII File      
+      call write_scal_dat_file(aname,'Water_Elevation','eta',eta)       
       if(write_presres)then !Pressure Residuals
-        call write_scal_dat_file(aname,'Pres_Norm_Res','rsp',rsp) !SUPER ASCII File
+        call write_scal_dat_file(aname,'Pres_Norm_Res','rsp',rsp) 
       endif
       if(write_pres)then
-        call write_scal_dat_file(aname,'Pressure','p',p) !SUPER ASCII File
+        call write_scal_dat_file(aname,'Pressure','p',p) 
       endif
       if(write_totdep)then
-        call write_scal_dat_file(aname,'Total_Water_Depth','h',h) !SUPER ASCII File
+        call write_scal_dat_file(aname,'Total_Water_Depth','h',h) 
       endif
       if(write_wsegrad)then
         vecx=dpx*gravinv
         vecy=dpy*gravinv
-        call write_scal_dat_file(aname,'detax','detax',vecx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'detay','detay',vecy) !SUPER ASCII File
+        call write_scal_dat_file(aname,'detax','detax',vecx) 
+        call write_scal_dat_file(aname,'detay','detay',vecy) 
       endif
       if(write_presgrad)then
-        call write_scal_dat_file(aname,'dpx','dpx',dpx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'dpy','dpy',dpy) !SUPER ASCII File  
+        call write_scal_dat_file(aname,'dpx','dpx',dpx) 
+        call write_scal_dat_file(aname,'dpy','dpy',dpy)   
       endif
       if(write_prescor)then  
-        call write_scal_dat_file(aname,'Pressure_Correction','pp',pp) !SUPER ASCII File
+        call write_scal_dat_file(aname,'Pressure_Correction','pp',pp) 
       endif  
       if(write_prescorgrad)then 
-        call write_scal_dat_file(aname,'dppx','dppx',dppx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'dppy','dppy',dppy) !SUPER ASCII File
+        call write_scal_dat_file(aname,'dppx','dppx',dppx) 
+        call write_scal_dat_file(aname,'dppy','dppy',dppy) 
       endif
       !if(ncellpoly>0 .and. debug_mode)then
-      !    call write_scal_dat_file(aname,'Hu','Hu',Hu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'Hv','Hv',Hv) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'apuareap','apuareap',apuareap) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'sumu','sumu',sumu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'spu','spu',spu) !SUPER ASCII File
-      !    call write_scal_dat_file(aname,'spv','spv',spv) !SUPER ASCII File
+      !    call write_scal_dat_file(aname,'Hu','Hu',Hu) 
+      !    call write_scal_dat_file(aname,'Hv','Hv',Hv) 
+      !    call write_scal_dat_file(aname,'apuareap','apuareap',apuareap) 
+      !    call write_scal_dat_file(aname,'sumu','sumu',sumu) 
+      !    call write_scal_dat_file(aname,'spu','spu',spu) 
+      !    call write_scal_dat_file(aname,'spv','spv',spv) 
       !endif
     endif
     
@@ -2239,26 +2184,26 @@ implicit none
       call print_output_header(header)
       if(waveflux)then !****************************
         vecx=u-us; vecy=v-vs !Current (Eulerian) velocities
-        call write_vec_dat_file(aname,'Current_Velocity','vel',vecx,vecy) !SUPER ASCII File
+        call write_vec_dat_file(aname,'Current_Velocity','vel',vecx,vecy) 
         if(write_veltotal)then
-          call write_vec_dat_file(aname,'Total_Velocity','totvel',u,v) !SUPER ASCII File
+          call write_vec_dat_file(aname,'Total_Velocity','totvel',u,v) 
         endif          
       else  
-        call write_vec_dat_file(aname,'Current_Velocity','vel',u,v) !SUPER ASCII File
+        call write_vec_dat_file(aname,'Current_Velocity','vel',u,v) 
       endif
       if(write_velgrad)then
-        call write_scal_dat_file(aname,'dux','dux',dux) !SUPER ASCII File
-        call write_scal_dat_file(aname,'duy','duy',duy) !SUPER ASCII File
-        call write_scal_dat_file(aname,'dvx','dvx',dvx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'dvy','dvy',dvy) !SUPER ASCII File
+        call write_scal_dat_file(aname,'dux','dux',dux) 
+        call write_scal_dat_file(aname,'duy','duy',duy) 
+        call write_scal_dat_file(aname,'dvx','dvx',dvx) 
+        call write_scal_dat_file(aname,'dvy','dvy',dvy) 
       endif
       if(write_velcurv)then
         call curvxy(gow,dux,duy,vecx,vecy)
-        call write_scal_dat_file(aname,'d2udx2','d2udx2',vecx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'d2udy2','d2udy2',vecy) !SUPER ASCII File
+        call write_scal_dat_file(aname,'d2udx2','d2udx2',vecx) 
+        call write_scal_dat_file(aname,'d2udy2','d2udy2',vecy) 
         call curvxy(gow,dvx,dvy,vecx,vecy)
-        call write_scal_dat_file(aname,'d2vdx2','d2vdx2',vecx) !SUPER ASCII File
-        call write_scal_dat_file(aname,'d2vdy2','d2vdy2',vecy) !SUPER ASCII File
+        call write_scal_dat_file(aname,'d2vdx2','d2vdx2',vecx) 
+        call write_scal_dat_file(aname,'d2vdy2','d2vdy2',vecy) 
       endif
       if(write_streamcurv)then
         do i=1,ncells
@@ -2266,11 +2211,11 @@ implicit none
           vecy(i)=v(i)-vs(i)
           val(i) = streamwise_curvature(vecx(i),vecy(i),uv(i),duy(i),duy(i),dvx(i),dvy(i))
         enddo
-        call write_scal_dat_file(aname,'curv','curv',val) !SUPER ASCII File
+        call write_scal_dat_file(aname,'curv','curv',val) 
       endif
       if(write_velres)then !Velocity Residuals
-        call write_scal_dat_file(aname,'Vx_Norm_Res','rsu',rsu) !SUPER ASCII File
-        call write_scal_dat_file(aname,'Vy_Norm_Res','rsv',rsv) !SUPER ASCII File
+        call write_scal_dat_file(aname,'Vx_Norm_Res','rsu',rsu) 
+        call write_scal_dat_file(aname,'Vy_Norm_Res','rsv',rsv) 
         !vecx = log10(1.0+rsu)
         !vecy = log10(1.0+rsv)
         !call writescalh5(outlist(2)%afile,apath,'Vx_Norm_Res_Scaled',vecx,'none',timehrs,0)   
@@ -2300,7 +2245,7 @@ implicit none
       if(isedmodel/=3 .and. write_capac)then
         call write_scal_dat_file(aname,'Capacity','Ctstar',Ctstar)
       endif  
-      call write_vec_dat_file(aname,'Total_Sediment_Transport','Qt',qtx,qty) !SUPER ASCII File
+      call write_vec_dat_file(aname,'Total_Sediment_Transport','Qt',qtx,qty) 
       if(write_fracsusp)then 
         call write_scal_dat_file(aname,'Fraction_Suspended','rs',rs)
       endif
@@ -2370,7 +2315,7 @@ implicit none
       !  call writescalh5(outlist(7)%afile,apath,'Dissipation_Coeff',vecy,'-',timehrs,0)   
       !endif
       if(write_wavstress)then
-        call write_vec_dat_file(aname,'Wave_Stress','rad',wavestrx,wavestry) !SUPER ASCII File
+        call write_vec_dat_file(aname,'Wave_Stress','rad',wavestrx,wavestry) 
       endif      
       if(write_wavorbvel)then
         call write_scal_dat_file(aname,'Wave_Bot_Orb_Vel','wOrb',Worb)
@@ -2379,7 +2324,7 @@ implicit none
         call write_scal_dat_file(aname,'Wave_Length','wLen',Wlen)
       endif        
       if(write_wavvel)then
-        call write_vec_dat_file(aname,'Wave_Flux_Velocity','wvel',us,vs) !SUPER ASCII File
+        call write_vec_dat_file(aname,'Wave_Flux_Velocity','wvel',us,vs) 
       endif
       if(write_rollenergy)then
         val = Ssr/2.0
@@ -2387,7 +2332,7 @@ implicit none
       endif
       if(write_rollstress)then
          call interp_vec_wavfl(rxrs,ryrs,vecx,vecy) !Extrapolate to zero
-         call write_vec_dat_file(aname,'Roller_Stress','rolstress',vecx,vecy) !SUPER ASCII File
+         call write_vec_dat_file(aname,'Roller_Stress','rolstress',vecx,vecy) 
       endif
       if(write_rolldiss)then
         call interp_scal_wavfl(roldiss,val) !Extrapolate to zero
@@ -2400,10 +2345,10 @@ implicit none
       if(windvar .or. windsta)then
         call print_output_header(header)
         if(windformat/=7)then          
-          call write_vec_dat_file(aname,'Wind_Velocity','wind',uwind,vwind) !SUPER ASCII File
+          call write_vec_dat_file(aname,'Wind_Velocity','wind',uwind,vwind) 
         endif
         if(write_wndstress)then
-          call write_vec_dat_file(aname,'Wind_Stress','wndstr',tauwindx,tauwindy) !SUPER ASCII File
+          call write_vec_dat_file(aname,'Wind_Stress','wndstr',tauwindx,tauwindy) 
         endif
         if(write_wndstressmag)then
           do i=1,ncells
