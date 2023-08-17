@@ -35,7 +35,10 @@
 ! written by Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
 !***************************************************************************    
     use sed_def
-    !use wave_flowgrid_def, only: waveheight, waveperiod, wavedir
+    use comvarbl, only: isExplicit
+    use EXP_Global_def,    only: a0, thetac
+    use EXP_transport_def, only: rate_avalanche
+
     implicit none
     
     integer :: i
@@ -209,6 +212,12 @@
       open (9,file=smorph_file)
       close (9,status='delete')
     endif
+    
+    if(isExplicit)then
+      A0     = -1.d0
+      THETAC = -1.d0
+      rate_avalanche = 0.01
+    endif
 
     return
     end subroutine sed_default
@@ -219,11 +228,14 @@
 ! Author: Alex Sanchez, USACE-CHL
 !************************************************************
 #include "CMS_cpp.h"
-    use geo_def, only: grdfile
-    use comvarbl, only: flowpath,rampdur,nswp,nswp0
+    use geo_def,  only: grdfile
+    use comvarbl, only: flowpath,rampdur,nswp,nswp0,isExplicit,isImplicit
     use math_lib, only: sortup
     use diag_lib
     use sed_def
+    use EXP_Global_def,    only: isedform, dtsed, dtmorph, a0, thetac
+    use EXP_transport_def, only: rate_avalanche
+    
     implicit none
     integer :: i,j,ks,ipr,ndiamlim,nn,ierr
     character(len=37) :: cardname,cdum    
@@ -243,36 +255,44 @@
     case('SED_TRAN_FORMULATION','SED_TRANS_FORMULATION')
       backspace(77)
       read(77,*) cardname, cdum  
-      do i=1,size(asedmodel)
-        cardname=asedmodel(i)
-        if(cdum(1:3)==cardname(1:3))then
-          isedmodel = i
-          !write(*,*)'bdj in sediment.F90 and isedmodel = ',isedmodel                                                                                                                                                                                                               
-          exit
+      if (isImplicit) then
+        do i=1,size(asedmodel)
+          cardname=asedmodel(i)
+          if(cdum(1:3)==cardname(1:3))then
+            isedmodel = i
+            exit
+          endif
+        enddo          
+        if(isedmodel==4) icapac = 3
+        if(isedmodel==5) icapac = 2
+        isedmodel = min(isedmodel,3) !3, 4, and 5 are the same model
+        if(isedmodel==2)then
+          call diag_print_error('A-D model is currently not supported in the inline model')     
         endif
-      enddo          
-      if(isedmodel==4) icapac = 3
-      if(isedmodel==5) icapac = 2
-      isedmodel = min(isedmodel,3) !3,4, and 5 are the same model
-      if(isedmodel==2)then
-        call diag_print_error('A-D model is currently not supported in the inline model')     
+      elseif (isExplicit) then
+        select case(cdum)
+        case('WATANABE');  isedform = 1
+        case('LUND_CIRP'); isedform = 2
+        case('EXNER');     isedform = 2
+        case('A-D');       isedform = 3
+        case('COHES');     isedform = 5
+        end select
+      else
+        continue  !Semi-implicits TBD
       endif
-!        if(cdum(1:3)/='NET')then
-!          write(*,*) 'ERROR: Only the NET model is currently supported in the inline model'
-!          open(dgunit,file=dgfile,access='append') 
-!          write(dgunit,*) 'ERROR: Only the NET model is currently supported in the inline model'
-!          close(dgunit)
-!          write(*,*) 'Press any key to continue.'
-!          read(*,*)
-!          stop
-!        endif
       
     !--- Time steps ----------------------
     case('SED_TRAN_CALC_INTERVAL')
-      !DO NOTHING
+      if(isExplicit) then
+        backspace(77)
+        read(77,*) cardname, dtsed
+      endif
       
     case('MORPH_UPDATE_INTERVAL')
-      !DO NOTHING      
+      if(isExplicit) then
+        backspace(77)
+        read(77,*) cardname, dtmorph
+      endif
       
     !---- Hardbottom --------------------  
     case('HARDBOTTOM_DATASET')
@@ -295,6 +315,19 @@
     case('A_COEFFICIENT_WATANABE')
       backspace(77)
       read(77,*) cardname, Awatan  
+      if(isExplicit) A0 = Awatan
+      
+    case('THETA_CRITICAL')
+      if(isExplicit) then
+        backspace(77)
+        read(77,*) cardname, thetac
+      endif
+      
+    case('AVALANCHE_RATE')
+      if(isExplicit) then
+        backspace(77)
+        read(77,*) cardname, rate_avalanche
+      endif 
 
     case('CSHORE_EFFB','SUSPENSION_EFFICIENCY_WAVE_BREAKING', &     !Older card names kept for backward compatibility.     added 6/7/2019 bdj
          'C2SHORE_EFFICIENCY')                                      !New card name to be used with SMS 13.2+
@@ -2302,15 +2335,17 @@ d1: do ii=1,30
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************   
 #include "CMS_cpp.h"    
-    use size_def    
     use sed_def
+    use diag_def,  only: dgunit, dgfile
+    use der_def,   only: nder, ader
+    use size_def,  only: ncells
     use comvarbl,  only: dtime,nsolv,ndsch,ntsch,wtsch,advsc
-    use diag_def
     use solv_def,  only: asolv
-    use der_def
     use const_def, only: deg2rad
-    use prec_def
+    use prec_def,  only: ikind
     use tool_def,  only: vstrlz
+    use EXP_Global_def,  only: dtsed, dtmorph, dtsalt, dtheat
+    
     implicit none
     integer :: i,ii,j,jj,ks,iunit(2)
     real(ikind) :: pbklow(nsed,nlay),pbkhigh(nsed,nlay),pbkmean(nsed,nlay)
@@ -2372,8 +2407,8 @@ d1: do ii=1,30
       end select
       
       write(iunit(i),445)       '  Timing'
-      write(iunit(i),354)       '    Transport Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'
-      write(iunit(i),354)       '    Morphologic Time Step:',trim(vstrlz(dtime,'(f0.2)')),' sec'   
+      write(iunit(i),354)       '    Transport Time Step:',trim(vstrlz(dtsed,'(f0.2)')),' sec'
+      write(iunit(i),354)       '    Morphologic Time Step:',trim(vstrlz(dtmorph,'(f0.2)')),' sec'   
       write(iunit(i),354)       '    Morphology Starting Time:',trim(vstrlz(tStartMorph,'(f0.2)')),' hrs'
       if(nsed>1)then
         write(iunit(i),354)     '    Composition Starting Time:',trim(vstrlz(tStartBedComp,'(f0.2)')),' hrs'

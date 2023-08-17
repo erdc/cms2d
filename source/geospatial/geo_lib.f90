@@ -777,8 +777,8 @@ contains
       call diag_print_error('Cannot convert between different Horizontal Projections')
     endif
     
-    if(projfrom%iHorizDatum==projto%iHorizDatum .and. &
-      projfrom%iHorizCoordSystem==projto%iHorizCoordSystem .and. &
+!   if(projfrom%iHorizDatum==projto%iHorizDatum .and. &                !We know these are the same, otherwise the program would have stopped already
+    if(projfrom%iHorizCoordSystem==projto%iHorizCoordSystem .and. &
       projfrom%iHorizUnits==projto%iHorizUnits)then
       !write(*,*) ' Projections are the same'  
       return 

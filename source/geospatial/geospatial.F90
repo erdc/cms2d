@@ -146,7 +146,7 @@
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************    
     use geo_def
-    use comvarbl, only: mpfile,flowpath,casename
+    use comvarbl, only: mpfile, flowpath, casename, SMS_ver
     use prec_def
     implicit none
     
@@ -199,7 +199,9 @@
           
       case('GRID_ANGLE')
         call card_scalar(77,'deg','deg',azimuth_fl,ierr)
-        azimuth_fl = 360.0 - azimuth_fl  !Alex
+        if (SMS_ver .le. 13.0) then               !value for Grid Angle 13.1 and after eliminates this need.  MEB  08/17/2023
+          azimuth_fl = 360.0 - azimuth_fl  !Alex
+        endif
               
       case('GRID_ORIGIN_X')
         call card_scalar(77,'m','m',xorigin,ierr)
@@ -1856,7 +1858,7 @@ loopj: do j=1,numnode  !number of faces
     
 !--- Global Cartesian Coordinates ----------------------
     allocate(xc(ncellsD),yc(ncellsD))
-    costheta = cos(azimuth_fl*deg2rad)
+    costheta = cos(azimuth_fl*deg2rad)  
     sintheta = sin(azimuth_fl*deg2rad)
     do i=1,ncellsD 
       xc(i)=xOrigin+x(i)*costheta-y(i)*sintheta
@@ -2962,7 +2964,9 @@ d1: do k=1,10
         
       case('GRID_ANGLE')
         call card_scalar(kunit,'deg','deg',azimuth_fl,ierr)
-        azimuth_fl = 360.0 - azimuth_fl  !Alex
+        if (SMS_ver .le. 13.0) then                   !value for Grid Angle 13.1 and after eliminates this need.  MEB  08/17/2023
+          azimuth_fl = 360.0 - azimuth_fl  !Alex
+        endif
               
       case('GRID_ORIGIN_X')
         call card_scalar(kunit,'m','m',xorigin,ierr)

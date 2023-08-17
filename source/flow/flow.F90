@@ -57,6 +57,8 @@
 
     !Solution scheme
     nfsch = 0 !0-implicit, 1-explicit
+    isExplicit = .false.
+    isImplicit = .false.
     
     !Explicit flow solver settings    
     norder = 1           !Order of explicit solution
@@ -178,7 +180,7 @@
     use time_lib, only: julday,calendar2julian,julianday2calendarmonthday
     use heat_def, only: heatic
     use cms_def,  only: aValue
-    use EXP_Global_def, only: outinterval
+    use EXP_Global_def, only: outinterval, iadv, imix
     implicit none
     
     character(len=*),intent(inout) :: cardname
@@ -190,6 +192,7 @@
     character(len=12) :: stringname
     character(len=200) :: apath,aname
     character(len=10) :: aext
+    logical :: bool
     
     foundcard = .true.
     select case(cardname)
@@ -327,23 +330,33 @@
           
     !=== Advection ================  
     case('USE_ADVECTION_TERMS') !Outdated
-      backspace(77)
-      read(77,*) cardname, cdum
-      if(cdum(1:3)=='OFF')then
-        ndsch = 0
-        if(doPrint) call diag_print_warning('Turning off advection',&
-          '  Only recomended for testing or idealized cases')
+      if(isImplicit) then
+        call card_boolean(77,bool,ierr)
+        !backspace(77)
+        !read(77,*) cardname, cdum
+        if(.not.BOOL) then
+          if(doPrint) call diag_print_warning('Turning off advection',&
+            '  Only recommended for testing or idealized cases')
+        endif
+      elseif(isExplicit) then
+        call card_boolean(77,bool,ierr)
+        if(.not.BOOL) iadv = 0
       endif
           
     !=== Mixing ======================
     case('USE_MIXING_TERMS') !Outdated
-      backspace(77)
-      read(77,*) cardname, cdum
-      if(cdum(1:3)=='OFF')then
-        mturbul = 0   
-        cviscon = 0.0
-        if(doPrint) call diag_print_warning('Turning off diffusion',&
-          '  Only recomended for testing or idealized cases')
+      if(isImplicit) then
+        call card_boolean(77,bool,ierr)
+        !backspace(77)
+        !read(77,*) cardname, cdum
+        if(.not.BOOL) then
+          cviscon = 0.0
+          if(doPrint) call diag_print_warning('Turning off diffusion',&
+            '  Only recommended for testing or idealized cases')
+        endif
+      elseif(isExplicit) then
+        call card_boolean(77,bool,ierr)
+        if(.not.BOOL) imix = 0
       endif
         
     case('TURBULENCE_MODEL')
@@ -414,11 +427,13 @@
       read(77,*) cardname, cdum 
       if(cdum(1:3)=='EXP')then
         nfsch = 1 !Explicit
+        isExplicit = .true.
         !call diag_print_warning('Invalid temporal solution scheme',&
         !  '  The inline model executable only contains the implicit temporal scheme.',&
         !  '  To run the explicit temporal scheme, use the explicit model executable.')            
       elseif(cdum(1:3)=='IMP')then
         nfsch = 0 !Implicit
+        isImplicit = .true.
       elseif(cdum(1:3)=='SEM')then  
         nfsch = 2 !Semi-implicits  
       endif

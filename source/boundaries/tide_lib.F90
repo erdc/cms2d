@@ -1909,9 +1909,8 @@ contains
     
 !******************************************************************************
     subroutine tide_adcirc(tdbname,tdbpath,npts,xpts,ypts,ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)
-! Extracts the Tidal Constituent variables from an ADICRC database
-! An subgrid is extracted from the full ADCIRC to reduce the number of search
-! points and increase the speed. 
+! Extracts the Tidal Constituent variables from an ADCIRC database
+! An subgrid is extracted from the full ADCIRC to reduce the number of search points and increase the speed. 
 ! written by Alex Sanchez, USACE-CHL  
 !******************************************************************************    
 #include "CMS_cpp.h"
@@ -1923,7 +1922,7 @@ contains
     integer,     intent(in)    :: npts
     real(ikind), intent(in)    :: xpts(npts),ypts(npts)
     integer,     intent(in)    :: ntcin
-    character(len=*), intent(in)    :: namein(ntcin)
+    character(len=*), intent(inout), pointer    :: namein(:)
     integer,     intent(inout) :: ntc
     character(len=10), intent(out), pointer :: name(:)
     real(ikind), intent(out), pointer :: speed(:)    
@@ -2056,7 +2055,7 @@ contains
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
     integer,    intent(in) :: kns(nns)  !Node mapping from subgrid to full grid
     integer,    intent(in) :: ntcin
-    character(len=*),intent(in) :: namein(ntcin)
+    character(len=*),intent(inout), pointer :: namein(:)
     integer,    intent(out):: ntc     !Number of tidal harmonic constituents
     character(len=10),intent(out),pointer :: name(:)
     real(ikind),intent(out),pointer :: speed(:)    
@@ -2076,6 +2075,8 @@ contains
     real(ikind) :: eak(ntcmax),epk(ntcmax)
     real(ikind) :: uak(ntcmax),upk(ntcmax)
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
+    integer :: npcnt
+    real    :: pcnt(4)
     character(len=10) :: nametdb(ntcmax)    
    
     open(105,file=tdbfile)
@@ -2097,11 +2098,11 @@ contains
     
     !If ntcin specified get specified constituent index
     ind = 0 !Initialize
-    if(ntc/=0)then
+    if(ntcin /= 0)then                    !ntc was wrong here, MEB  08/16/2023
       n=0
-      do k=1,ntcin
+      do k=1,ntcin                        
         do j=1,ntctdb
-          if(namein(k)==name(j))then
+          if(namein(k)==nametdb(j))then   !name was wrong here, MEB  08/16/2023
             n = n + 1
             ind(n) = j
             exit
@@ -2129,14 +2130,20 @@ contains
 787 format(4x,'Percent Read: ',F5.1 )
     k = 1
     allocate(eamp(nns,ntc),epha(nns,ntc))    
+    pcnt = (/25.0, 50.0, 75.0, 100.0/)
+    npcnt = 1
     if(present(vpha))then !Read both wse and velocity data
       allocate(uamp(nns,ntc),upha(nns,ntc))
       allocate(vamp(nns,ntc),vpha(nns,ntc))      
       !Read amplitudes and phases ONLY for input nodes and constituents
       do n=1,npp
         read(105,*) node
-        if(mod(n,npp/4)==0)then
-          write(*,787) real(n*100)/real(npp)
+!        if(mod(n,npp/4)==0)then
+!          write(*,787) real(n*100)/real(npp)
+!        endif
+        if(real(k*100)/real(nns) .ge. pcnt(npcnt)) then
+          write(*,787) pcnt(npcnt)
+          npcnt = npcnt+1 
         endif
         if(node==kns(k))then
           backspace(105)   
@@ -2160,8 +2167,12 @@ contains
       !Read amplitudes and phases ONLY for input nodes and constituents
       do n=1,npp
         read(105,*) node
-        if(mod(n,npp/4)==0)then
-          write(*,787) real(n*100)/real(npp)
+!        if(mod(n,npp/4)==0)then
+!          write(*,787) real(n*100)/real(npp)
+!        endif
+        if(real(k*100)/real(nns) .ge. pcnt(npcnt)) then   ! Use values for the mapped subsection of the database instead of the entire TD  MEB  4/25/23
+          write(*,787) pcnt(npcnt)
+          npcnt = npcnt+1 
         endif
         if(node==kns(k))then
           backspace(105)   
@@ -2201,7 +2212,7 @@ contains
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
     integer,    intent(in) :: kns(nns)  !Node mapping from subgrid to full grid
     integer,    intent(in) :: ntcin
-    character(len=*),intent(in) :: namein(ntcin)
+    character(len=*),intent(inout), pointer :: namein(:)
     integer,    intent(out):: ntc     !Number of tidal harmonic constituents 
     character(len=10),intent(out),pointer :: name(:)
     real(ikind),intent(out),pointer :: speed(:)    
@@ -2221,6 +2232,8 @@ contains
     real(ikind) :: eak(ntcmax),epk(ntcmax)
     real(ikind) :: uak(ntcmax),upk(ntcmax)
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
+    real    :: pcnt(4)
+    integer :: npcnt
     character(len=10) :: nametdb(ntcmax)   
     character(len=200) :: file53, file54, tdbprefix
    
@@ -2252,11 +2265,11 @@ contains
     
     !If ntcin specified get specified constituent index
     ind = 0 !Initialize
-    if(ntc/=0)then
+    if(ntcin /= 0)then                    !ntc was wrong here, MEB  08/16/2023
       n=0
       do k=1,ntcin
         do j=1,ntctdb
-          if(namein(k)==name(j))then
+          if(namein(k)==nametdb(j))then   !name was wrong here, MEB  08/16/2023
             n = n + 1
             ind(n) = j
             exit
@@ -2284,6 +2297,8 @@ contains
 787 format(4x,'Percent Read: ',F5.1 )
     k = 1
     allocate(eamp(nns,ntc),epha(nns,ntc))    
+    pcnt = (/25.0, 50.0, 75.0, 100.0/)
+    npcnt = 1
     if(present(vpha))then !Read both wse and velocity data
       allocate(uamp(nns,ntc),upha(nns,ntc))
       allocate(vamp(nns,ntc),vpha(nns,ntc))      
@@ -2294,8 +2309,9 @@ contains
 !        if(mod(n,npp/4)==0)then
 !          write(*,787) real(n*100)/real(npp)
 !        endif
-        if(mod(k,nns/4)==0)then                    ! Use values for the mapped subsection of the database instead of the entire TD  MEB  4/25/23
-          write(*,787) real(k*100)/real(nns)
+        if(real(k*100)/real(nns) .ge. pcnt(npcnt)) then
+          write(*,787) pcnt(npcnt)
+          npcnt = npcnt+1 
         endif
         if(node==kns(k))then
           !backspace(105)   !no backspace needed in separate files for 2015
@@ -2325,8 +2341,9 @@ contains
         !if(mod(n,npp/4)==0)then
         !  write(*,787) real(n*100)/real(npp)
         !endif
-        if(mod(k,nns/4)==0)then                    ! Use values for the mapped subsection of the database instead of the entire TD  MEB  4/25/23
-          write(*,787) real(k*100)/real(nns)
+        if(real(k*100)/real(nns) .ge. pcnt(npcnt)) then
+          write(*,787) pcnt(npcnt)
+          npcnt = npcnt+1 
         endif
         if(node==kns(k))then
           !backspace(105)   !no backspace needed in separate files for 2015
