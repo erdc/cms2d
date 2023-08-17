@@ -1729,7 +1729,7 @@
 !Lihwa added  12/18/2020
 !$  if(nthr>=1) call omp_set_num_threads(nthr)
 
-      write(*,*) 'NTHR =', nthr
+      !write(*,*) 'NTHR =', nthr
 
       call getwave
       
