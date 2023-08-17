@@ -380,36 +380,36 @@ module bnd_def
 !--- Nested Tidal Database WSE BC (Type 9=NTH) -------------------------------------------
     integer :: nNTHstr
     type NTH_type !Nested eta values, one for each cell in string
-      integer                  :: idnum         !Boundary id number
-      integer                  :: istrtype      !Input id type, 1-cellstring, 2-nodestring
-      character(len=200)       :: bidfile       !Boundary ID file
-      character(len=200)       :: bidpath       !Boundary ID path
-      integer                  :: ncells        !Cells in string      
-      integer,         pointer :: cells(:)      !Cell id's
-      integer,         pointer :: faces(:)      !Boundary face
-      real(ikind), allocatable :: xbnd(:)       !Global x-coordinate of boundary cell centroid
-      real(ikind), allocatable :: ybnd(:)       !Global x-coordinate of boundary cell centroid
-      real(ikind)              :: wseoffset     !wse offset
-      real(ikind), allocatable :: wsebnd(:)     !Interpolated eta at each cell at current time [m/s]
-      real(ikind), allocatable :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
-      real(ikind), allocatable :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
-      integer                  :: ntcin         !Tidal constituents used     
+      integer                   :: idnum         !Boundary id number
+      integer                   :: istrtype      !Input id type, 1-cellstring, 2-nodestring
+      character(len=200)        :: bidfile       !Boundary ID file
+      character(len=200)        :: bidpath       !Boundary ID path
+      integer                   :: ncells        !Cells in string      
+      integer,         pointer  :: cells(:)      !Cell id's
+      integer,         pointer  :: faces(:)      !Boundary face
+      real(ikind), allocatable  :: xbnd(:)       !Global x-coordinate of boundary cell centroid
+      real(ikind), allocatable  :: ybnd(:)       !Global x-coordinate of boundary cell centroid
+      real(ikind)               :: wseoffset     !wse offset
+      real(ikind), allocatable  :: wsebnd(:)     !Interpolated eta at each cell at current time [m/s]
+      real(ikind), allocatable  :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
+      real(ikind), allocatable  :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
+      integer                   :: ntcin         !Tidal constituents used     
       character(len=10),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
-      integer                  :: ntc           !Tidal constituents used      
-      real(ikind),     pointer :: amp(:,:)      !Amplitude [m] (cell,constituent)       
-      real(ikind),     pointer :: phase(:,:)    !Phase [rad] (cell,constituent)
-      real(ikind),     pointer :: f(:)          !Nodal factor [-] (constituent)
-      real(ikind),     pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
-      real(ikind),     pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+      integer                   :: ntc           !Tidal constituents used      
+      real(ikind),     pointer  :: amp(:,:)      !Amplitude [m] (cell,constituent)       
+      real(ikind),     pointer  :: phase(:,:)    !Phase [rad] (cell,constituent)
+      real(ikind),     pointer  :: f(:)          !Nodal factor [-] (constituent)
+      real(ikind),     pointer  :: vu(:)         !Equilibrium argument [rad] (constituent)
+      real(ikind),     pointer  :: speed(:)      !Speed [rad/hrs] (constituent)
       character(len=10),pointer :: name(:)       !Tidal Consitituent names (constituent) 
-      character(len=10)        :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST
-      character(len=200)       :: tdbpath       !Tidal Database file and path      
-      type(projection)         :: projtdb       !Parent grid projection
-      logical                  :: wseout        !Output wse time-series 
-      character(len=200)       :: wsefile       !Output wse file
-      integer                  :: nssi          !Spatial smoothing iterations
-      integer                  :: nssw          !Spatial smoothing window width
-      logical                  :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves
+      character(len=10)         :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST
+      character(len=200)        :: tdbpath       !Tidal Database file and path      
+      type(projection)          :: projtdb       !Parent grid projection
+      logical                   :: wseout        !Output wse time-series 
+      character(len=200)        :: wsefile       !Output wse file
+      integer                   :: nssi          !Spatial smoothing iterations
+      integer                   :: nssw          !Spatial smoothing window width
+      logical                   :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves
     endtype NTH_type
     type(NTH_type), allocatable :: NTH_str(:)    
 

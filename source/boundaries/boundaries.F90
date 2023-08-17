@@ -2238,10 +2238,10 @@ d1: do i=1,ntf
       allocate(NTHV_str(iwse)%vbnd(NTHV_str(iwse)%ncells))
       allocate(NTHV_str(iwse)%vbnd0(NTHV_str(iwse)%ncells))
       NTHV_str(iwse)%vbnd(:)  = 0.0
-      NTHV_str(iwse)%vbnd0(:) = 0.0      
+      NTHV_str(iwse)%vbnd0(:) = 0.0   
       
       !Initialize constituent variables
-      if(NTHV_str(iwse)%ntc==0) allocate(NTHV_str(iwse)%namein(1))
+      if(NTHV_str(iwse)%ntc==0 .and. NTHV_str(iwse)%ntcin==0) allocate(NTHV_str(iwse)%namein(1))
       if(NTHV_str(iwse)%tdbname(1:9)=='LEPROVOST' .or. &
          NTHV_str(iwse)%tdbname(1:3)=='FES')then
         call diag_print_error('Invalid Boundary Specified',&
@@ -2260,7 +2260,7 @@ d1: do i=1,ntf
          NTHV_str(iwse)%speed,NTHV_str(iwse)%f,NTHV_str(iwse)%vu,&
          NTHV_str(iwse)%amp,NTHV_str(iwse)%phase,&
          NTHV_str(iwse)%ampu,NTHV_str(iwse)%phaseu,&
-         NTHV_str(iwse)%ampv,NTHV_str(iwse)%phasev,NTHV_str(iwse)%angvel)        
+         NTHV_str(iwse)%ampv,NTHV_str(iwse)%phasev,NTHV_str(iwse)%angvel)   
     enddo !iwse-str
 
 !!--- River BC - extrapolation ------------------       
@@ -2436,8 +2436,9 @@ d1: do i=1,ntf
     integer :: nstrcells
     real(ikind) :: ampavg,phaseavg,ampmax,phasemax,ampmin,phasemin
     real(ikind) :: cosang,sinang,ang,valx,valy,val
+    real        :: f,vu
     character(len=200) :: apath,aname,astring,bidoutfile
-    character(len=10) :: aext
+    character(len=10)  :: aext
 
 141 format(' ',A,T40,A)
 241 format(' ',A,T40,I0)
@@ -2455,12 +2456,15 @@ d1: do i=1,ntf
 452 format(' ',6x,I2,2x,A6,F9.5,2x,F7.3,2x,F8.2,3x,F7.3,4x,F8.2)
 442 format(' ',6x,I2,2x,F9.5,2x,F7.3,2x,F8.2)
 453 format(' ',6x,I2,2x,A6,F9.5,1x,3(F6.3),1x,3(F6.1),1x,F6.3,2x,F6.2)
+454 format(' ',6x,I2,2x,A6,3(F6.3),1x,3(F6.1),1x,F6.3,2x,F6.2)
 541 format('       Summary of Water Level Constituents:')
 531 format('       Summary of U-Velocity Constituents:')
 532 format('       Summary of V-Velocity Constituents:')
-542 format('                              Amplitude            Phase         Nodal     Eq.')
-543 format('                   Speed         [m]               [deg]         Factor   Arg.')
-533 format('                   Speed        [m/s]              [deg]         Factor   Arg.')
+542 format('                    Amplitude            Phase         Nodal     Eq.')
+543 format('                       [m]               [deg]         Factor   Arg.')
+545 format('       ID  Name   Min   Max   Avg    Min   Max   Avg    [-]    [deg]')
+522 format('                              Amplitude            Phase         Nodal     Eq.')
+523 format('                   Speed        [m/s]              [deg]         Factor   Arg.')
 544 format('       ID  Name   [deg/hr]  Min   Max   Avg    Min   Max   Avg    [-]    [deg]')
 431 format('          Start Date and Time:',T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
     
@@ -2837,10 +2841,11 @@ d1: do i=1,ntf
         write(iunit(i),261)     '      Boundary Cells:',NTHV_str(iwse)%ncells
         write(iunit(i),241)     '      Number of Constituents:',NTHV_str(iwse)%ntc
         ntc = NTHV_str(iwse)%ntc
+        write(iunit(i),*)''
         write(iunit(i),541)
         write(iunit(i),542)
         write(iunit(i),543)
-        write(iunit(i),544)
+        write(iunit(i),545)
         do k=1,ntc
           nbndcells = NTHV_str(iwse)%ncells
           ampmin = minval(NTHV_str(iwse)%amp(1:nbndcells,k))
@@ -2850,12 +2855,16 @@ d1: do i=1,ntf
           call avgampdir(nbndcells,NTHV_str(iwse)%amp(1:nbndcells,k),&
                  NTHV_str(iwse)%phase(1:nbndcells,k),ampavg,phaseavg)
           phaseavg = phaseavg*rad2deg
-          write(iunit(i),*) k,NTHV_str(iwse)%name(k),ampmin,ampmax,ampavg,&
-             phasemin,phasemax,phaseavg,NTHV_str(iwse)%f(k),NTHV_str(iwse)%vu(k)*rad2deg
+          aname = NTHV_str(iwse)%name(k)
+          vu = NTHV_str(iwse)%vu(k)*rad2deg
+          f = NTHV_str(iwse)%f(k)
+          write(iunit(i),454) k,aname,ampmin,ampmax,ampavg,phasemin,phasemax,phaseavg,f,vu
+          continue
         enddo
+        write(iunit(i),*)''
         write(iunit(i),531)
-        write(iunit(i),542)
-        write(iunit(i),533)
+        write(iunit(i),522)
+        write(iunit(i),523)
         write(iunit(i),544)
         do k=1,ntc
           nbndcells = NTHV_str(iwse)%ncells
@@ -2870,9 +2879,10 @@ d1: do i=1,ntf
                 ampmin,ampmax,ampavg,phasemin,phasemax,phaseavg,&
                 NTHV_str(iwse)%f(k),NTHV_str(iwse)%vu(k)*rad2deg
         enddo
+        write(iunit(i),*)''        
         write(iunit(i),532)
-        write(iunit(i),542)
-        write(iunit(i),533)
+        write(iunit(i),522)
+        write(iunit(i),523)
         write(iunit(i),544)
         do k=1,ntc
           nbndcells = NTHV_str(iwse)%ncells

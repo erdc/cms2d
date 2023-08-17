@@ -898,6 +898,7 @@
     select case(noptwse)
     case(0) !None
       call diag_print_message('   wse(wave_time,wave_grid) = 0.0 m')
+
       !Convert p to eta and check dry cells        
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)
       do j=1,nwavej  
@@ -909,8 +910,8 @@
         
     case(1) !Last time step
       call diag_print_message('   wse(wave_time,wave_grid) = wse(flow_time,flow_grid)')
-      
       call interp_scal_flwav(p,etawave,3) !Notes: ***** etawave is pressure here ****, Extrapolated out
+
       !Convert p to eta and check dry cells
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)        
       do j=1,nwavej
@@ -921,8 +922,9 @@
 !$OMP END PARALLEL DO
 
     case(2) !Tidal
-      write(msg,*) '   wse(wave_time,wave_grid) = tide(flow_time) = ',tide2,' m'
+      write(msg,*)            '   wse(wave_time,wave_grid) = tide(flow_time) = ',tide2,' m'
       call diag_print_message(msg)
+      
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)        
       do i=1,nwavei
         do j=1,nwavej
@@ -932,10 +934,11 @@
 !$OMP END PARALLEL DO
 
     case default !(3) !Tidal Plus Variation
-      write(msg,*)      '   tide(flow_time) = ',tide1,'tide(wave_time) = ', tide2,' m'
+      write(msg,*)            '   tide(flow_time) = ',tide1,'tide(wave_time) = ', tide2,' m'
       call diag_print_message('   wse(wave_time,wave_grid) = wse(flow_time,flow_grid)',&
                               '            + tide(wave_time) - tide(flow_time)',msg)
       call interp_scal_flwav(p,etawave,3) !Notes: ***** etawave is pressure here ****, Extrapolated
+      
       !Convert p to eta and check dry cells
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)         
       do j=1,nwavej
@@ -949,7 +952,7 @@
     !---Current Velocities ------------
     select case(noptvel)  
     case(0) !None
-      call diag_print_message('   vel(wave_time,wave_grid)=0.0')
+      call diag_print_message('   vel(wave_time,wave_grid) = 0.0')
 !$OMP PARALLEL DO PRIVATE(i,j) COLLAPSE(2)        
       do j=1,nwavej
         do i=1,nwavei
@@ -960,7 +963,7 @@
 !$OMP END PARALLEL DO        
 
     case(1) !Last  
-      call diag_print_message('   vel(wave_time,wave_grid)=vel(flow_time,flow_grid)')
+      call diag_print_message('   vel(wave_time,wave_grid) = vel(flow_time,flow_grid)')
 #ifdef DEV_MODE
       select case(ivelwav)   
       case(1) !Mean
@@ -1082,6 +1085,7 @@
     use size_def, only: ncellsD
     use wave_wavegrid_def, only: nwavei,nwavej
     use wave_flowgrid_def, only: ijwavcell,coefintp_wavfl
+    use diag_lib, only: diag_print_error
     use interp_lib
     use prec_def
     implicit none    
@@ -1092,7 +1096,7 @@
     !Internal
     integer :: iextrap  
     integer :: iwetwave(nwavei,nwavej)
-    real(ikind) :: valdry    
+    real(ikind) :: valdry, val1, val2 
     
     iextrap = 1  !All wave variables are extrapolated to zero
     valdry = -999.0 !Value for dry cells (Not used because all wave cells are considered wet/active)
@@ -1100,6 +1104,12 @@
     call interp_scal_cart2tel(nwavei,nwavej,varwave,iwetwave,ijwavcell,coefintp_wavfl,&
            ncellsD,ncellsD,varflow,valdry,iextrap) !Note: Ghost cells are also interpolated
 
+    val1 = maxval(varwave)
+    val2 = maxval(varflow)
+    if (val1 > 0.0 .and. val2 == 0.0) then
+        call diag_print_error('Issue when mapping wave information to flow grid')  !MEB 05/18/2023
+    endif
+   
     return 
     end subroutine interp_scal_wavfl
     
@@ -1147,10 +1157,8 @@
     use comvarbl, only: nfsch
     use geo_def, only: azimuth_fl
     use flow_wavegrid_def, only: hwave
-    use wave_flowgrid_def, only: wavestrx2,wavestry2,whgt2,wper2,&
-       wunitx2,wunity2,wavediss2
-    use wave_wavegrid_def, only: nwavei,nwavej,azimuth_wav,&
-       wxrs1,wyrs1,wheight,wperiod,wcos,wsin,wdiss,idatewave
+    use wave_flowgrid_def, only: wavestrx2,wavestry2,whgt2,wper2,wunitx2,wunity2,wavediss2
+    use wave_wavegrid_def, only: nwavei,nwavej,azimuth_wav,wxrs1,wyrs1,wheight,wperiod,wcos,wsin,wdiss,idatewave
     use cms_def, only: ndissm,npersm,wavedisstol
     use global_inline
     use rol_def, only: roller
@@ -1165,8 +1173,7 @@
     common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
     common /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
     common /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,    &
-                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+    common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     integer :: i,j,iwave,jwave !,ierr
     real(ikind) :: thetadgr, g
     !real :: sfac(nwavei,nwavej),svar(nwavei,nwavej)
@@ -1292,8 +1299,7 @@
     call check_wave_var(nwavei,nwavej,wcos,'wcos',ierr)
     call check_wave_var(nwavei,nwavej,wsin,'wsin',ierr)    
     if(ierr/=0)then
-      call diag_print_error('Instability in wave model',&
-        '  Check wave model solution')
+      call diag_print_error('Instability in wave model','  Check wave model solution')
     endif
 #endif
     
