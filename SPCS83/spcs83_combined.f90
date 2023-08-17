@@ -132,11 +132,11 @@
       TEMP=DEXP(Q+Q)
       SINE=(TEMP-1.D0)/(TEMP+1.D0)
 
-      DO 10 I=1,3
-      F1=(DLOG((1.D0+SINE)/(1.D0-SINE))-E*DLOG((1.D0+E*SINE) &
-        /(1.D0-E*SINE)))/2.D0-Q
-      F2=1.D0/(1.D0-SINE*SINE)-ESQ/(1.D0-ESQ*SINE*SINE)
- 10   SINE=SINE-F1/F2
+      DO I=1,3            !10   MEB change for Gnu fortran issue
+        F1=(DLOG((1.D0+SINE)/(1.D0-SINE))-E*DLOG((1.D0+E*SINE) /(1.D0-E*SINE)))/2.D0-Q
+        F2=1.D0/(1.D0-SINE*SINE)-ESQ/(1.D0-ESQ*SINE*SINE)
+        SINE=SINE-F1/F2
+      ENDDO               !10
       LAT=DASIN(SINE)
 !
       FI = LAT
@@ -1158,9 +1158,11 @@
 !**  DATE = JUNE 91, 1987
 !**
 
-      DO 10 I=1,135
-      DO 10 J=1,6
- 10   SPCC(I,J)=0.D0
+      DO I=1,135       !10   MEB change for Gnu fortran issue
+        DO J=1,6       !10
+          SPCC(I,J)=0.D0
+        ENDDO          !10
+      ENDDO            !10
 
 !** LOAD CONSTANTS BY EACH STATE APHABETICALLY
 !** TRANSVERSE MERCATOR WILL HAVE 4 CONSTANTS
@@ -2076,8 +2078,9 @@
 !** SINCE THE LAST 3 CONSTANTS ARE ALWAYS THE SAME,
 !**       ONLY THE CENTRAL MERDIAN IS LOADED.
 
-      DO 30 I=1,60
- 30     UTMC(I)=6.D0*I-183.D0
+      DO I=1,60     !30   MEB change for Gnu fortran issue
+        UTMC(I)=6.D0*I-183.D0  
+      ENDDO         !30
 
       ZN(1)='AL E'
       ZN(2)='AL W'
@@ -2334,7 +2337,6 @@
       RF=298.257222101D0
       F=1.D0/RF
       ESQ=(F+F-F*F)
-
 
       CALL TBLSPC(IZC,AP,SPCC,UTMC,ZN)
 

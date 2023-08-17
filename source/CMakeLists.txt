@@ -194,13 +194,13 @@ SET( CMS_SOURCE_FILES
   ./waves/wave.F90
   ./waves/CMS-Wave_v3.2W_30Apr2020.f90
   ./waves/wave_rad_stress_fl.f90
-  ../external_libraries/proj_conv/utm2geo.f90
-  ../external_libraries/proj_conv/spcs83_combined.f90
+  ../UTM2GEO/utm2geo.f90
+  ../SPCS83/spcs83_combined.f90
 )
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
 
-  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -fopenmp -ffree-line-length-none -ffixed-line-length-none -O3 -D__linux" )
+  SET( CMAKE_Fortran_FLAGS ${CMAKE_Fortran_FLAGS} "-cpp -fopenmp -ffree-line-length-none -ffixed-line-length-none -O3 -D__linux -mcmodel=medium" )
 
 ELSEIF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
 

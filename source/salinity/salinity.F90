@@ -122,7 +122,7 @@
       backspace(77)
       read(77,*) cardname, cdum, saldrvpath(nsalstr)  
       
-    case('SALINITY_BOUNDARY_BEGIN')  
+    case('SALINITY_BOUNDARY_BEGIN', 'SALT_BOUNDARY_BEGIN')
       call sal_bnd_block
       
     CASE ('SALINITY_CALC_INTERVAL')

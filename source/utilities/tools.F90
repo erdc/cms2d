@@ -1283,5 +1283,32 @@
     Int2Str = adjustl(str)
     
     end function Int2Str
+
+!************************************************************
+    subroutine check_TidalConstituent(name)
+    !Drop '(' and change Lambda(2) to LDA2
+!************************************************************
+    character(len=*), intent(inout) :: name
+    ! Locals
+    integer k, iloc
+    character(len=10) first,num,temp
     
+    !Check names for parentheses (i.e., M(2) instead of M2) and if 'Lambda'
+    iloc = 0
+    iloc = index(name,'(')
+    temp = ''
+    if (iloc .ne. 0) then  !remove the ()
+      if (name .eq. 'Lambda(2)') then
+        name = 'Lda2'
+      else
+        temp=name
+        first=temp(1:iloc-1)
+        num=temp(iloc+1:iloc+1)
+        name = trim(first)//trim(num)
+      endif
+    endif
+!     name(k)=toUpper(trim(name(k)))
+    
+    return
+    end subroutine
     

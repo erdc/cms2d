@@ -701,7 +701,7 @@
       backspace(77)
       read(77,*) cardname, cdum
       call bedlay_resize
-      do i=1,size(apbkinp)
+      do i=1,6               !size(apbkinp) ! Always ignore the 0 element  MEB change for Gnu fortran issue 
         cardname = apbkinp(i)
         if(cdum(1:3)==cardname(1:3))then
           bedlay(1)%ipbkinp = i

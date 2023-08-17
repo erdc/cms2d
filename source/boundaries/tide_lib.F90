@@ -1957,6 +1957,7 @@ contains
     real(ikind), pointer :: eamp(:,:),epha(:,:) 
     real(ikind), pointer :: uamp(:,:),upha(:,:)
     real(ikind), pointer :: vamp(:,:),vpha(:,:)
+    integer :: i
     
     if(tdbname(1:6)=='EC2001')then                            !ADCIRC Eastern Continental 2001 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2001.grd'
@@ -2000,6 +2001,9 @@ contains
     
     !---- Load Tidal Database --------------------------------
     !Constituents are loaded on the subgrid
+    do i = 1, ntcin
+      call check_TidalConstituent(namein(i))
+    enddo
     
     if (is2015) then
       write(*,*) ' Reading Tidal Database files'
@@ -2255,6 +2259,7 @@ contains
     do j=1,ntctdb
       read(105,*) freq,dum,dum,nametdb(j)
       if(present(vpha)) read(106,*) freq,dum,dum,nametdb(j)
+      call check_TidalConstituent(nametdb(j))
       speedtdb(j) = freq*3600.0*rad2deg !Degrees/hour
     enddo
     read(105,*) npp !Number of nodes (should match mesh)
@@ -2370,8 +2375,7 @@ contains
     end subroutine tdb_adcirc_read_separate
 
 !******************************************************************************
-    subroutine tide_fes(tdbname,tdbpath,npts,xpts,ypts,&
-          ntcin,namein,ntc,name,etamp,etpha)
+    subroutine tide_fes(tdbname,tdbpath,npts,xpts,ypts,ntcin,namein,ntc,name,etamp,etpha)
 ! Extracts the Tidal Constituent variables from a LeProvost database
 ! written by Alex Sanchez, USACE-CHL  
 !******************************************************************************    
@@ -2459,8 +2463,7 @@ contains
     end subroutine tide_fes
           
 !**********************************************************************
-      subroutine FES_interp(fespath,fesname,npts,xlon,ylat,&
-                    ntc,tcname,etamp,etpha)
+      subroutine FES_interp(fespath,fesname,npts,xlon,ylat,ntc,tcname,etamp,etpha)
 !  Program to extract the FES95.2 tidal database of Le Provost to     *
 !  scattered points                                                   *
 !                                                                     *
@@ -2471,6 +2474,7 @@ contains
 !  inside a FES grid square with only 2 or 1 active nodes are not     *
 !  computed.  Rather the dummy value of -999, -999. is assigned.      *
 !                                                                     *
+!           modified by Mitch Brown for use in CMS 08/17/23           *
 !           modified by Alex Sanchez for use in CMS 08/13/12          *
 !            Comment line cleanup by R.L. 10/12/01                    *
 !             Written by R.L.  3/10/1995    v2.06                     *
@@ -2493,6 +2497,7 @@ contains
 !  enddo                                                              *
 !**********************************************************************
     use diag_def, only: debug_mode
+    use diag_lib, only: diag_print_error
     use prec_def
     implicit none
     !PARAMETERS
@@ -2514,7 +2519,7 @@ contains
     real(ikind) :: xmin,xmax,ymin,ymax
     integer     :: imin,imax,jmin,jmax
     real(ikind) :: UNDEFa,UNDEFp,UNDEF,zeta,eta,amp,pha
-    character*55:: datafile,ampfile,phafile
+    character*55:: datafile,ampfile,phafile,suffix
     character*3 :: consname
     logical     :: found      
     
@@ -2524,24 +2529,23 @@ contains
     ymax = maxval(ylat)
     ymin = minval(ylat)
     
-    write(*,*) 'Reading in Tidal Database File(s): '
+    write(*,*) 'Reading in Tidal Database File(s) '
+    if(fesname(1:5)=='FES95')then
+      suffix = '.fes95.2'
+    elseif(fesname(1:7)=='FES2004')then
+      suffix = '_fes2004.asc'  
+    else
+      suffix = '.legi'
+    endif
+    
     do k=1,ntc
       consname = tcname(k)
-      if(fesname(1:5)=='FES95')then
-        datafile = trim(fespath) // trim(consname) // '.fes95.2'
-      elseif(fesname(1:7)=='FES2004')then
-        datafile = trim(fespath) // trim(consname) // '_fes2004.asc'  
-      else
-        datafile = trim(fespath) // trim(consname) // '.legi'
-      endif
+      datafile = trim(fespath) // trim(consname) // trim(suffix)
       inquire(file=datafile,exist=found)
       if(.not.found)then
-        write(*,*) 'Could not find tidal database file: ',trim(datafile)
-        write(*,*) '  Press any key to continue.'
-        read(*,*)
-        stop
+        call diag_print_error('Could not find tidal database file: '//trim(datafile))
       endif
-      write(*,*) '  ',trim(datafile)
+      !write(*,*) '  ',trim(datafile)
       open(11,file=datafile)
       read(11,*) lonmin,lonmax
       read(11,*) latmin,latmax

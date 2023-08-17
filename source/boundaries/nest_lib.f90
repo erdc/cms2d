@@ -749,7 +749,8 @@ contains
     call proj_horiz_conv(projfl,projtdb,nbnd,xout,yout)
     
     !Read parent grid and control file
-    if(tdbname(1:6)=='EC2001' .or. tdbname(1:9)=='ENPAC2003' .or. tdbname(1:9)=='ENPAC2015') then !ADCIRC Tidal Database   
+    if(tdbname(1:6)=='EC2001'    .or. tdbname(1:6)=='EC2015' .or. &
+       tdbname(1:9)=='ENPAC2003' .or. tdbname(1:9)=='ENPAC2015') then !ADCIRC Tidal Database   
       if(present(vtpha))then
         call tide_adcirc(tdbname,tdbpath,nbnd,xout,yout,ntcin,namein,ntc,name,speed,etamp,etpha,utamp,utpha,vtamp,vtpha)      
       else
@@ -782,44 +783,44 @@ contains
     else
       call diag_print_error('Invalid Parent Grid Control File Extention')
     endif
-    
-    !Check names for parentheses (i.e., M(2) instead of M2) and if 'Lambda'
-    do k=1,ntc
-      iloc = 0
-      iloc = index(name(k),'(')
-      temp = ''
-      if (iloc .ne. 0) then  !remove the ()
-        if (name(k) .eq. 'Lambda(2)') then
-          name(k) = 'LDA2'
-        else
-          temp=name(k)
-          first=temp(1:iloc-1)
-          num=temp(iloc+1:iloc+1)
-          name(k) = trim(first)//trim(num)
-        endif
-      endif
-!      name(k)=toUpper(trim(name(k)))
-      continue
-    enddo
 
-    !Do the same for the input constituents  MEB 08/17/2023
-    do k=1,ntcin
-      iloc = 0
-      iloc = index(namein(k),'(')
-      temp = ''
-      if (iloc .ne. 0) then  !remove the ()
-        if (namein(k) .eq. 'Lambda(2)') then
-          namein(k) = 'LDA2'
-        else
-          temp=namein(k)
-          first=temp(1:iloc-1)
-          num=temp(iloc+1:iloc+1)
-          namein(k) = trim(first)//trim(num)
-        endif
-      endif
-!      namein(k)=toUpper(trim(namein(k)))
-      continue
-    enddo
+!    !Check names for parentheses (i.e., M(2) instead of M2) and if 'Lambda'
+!    do k=1,ntc
+!      iloc = 0
+!      iloc = index(name(k),'(')
+!      temp = ''
+!      if (iloc .ne. 0) then  !remove the ()
+!        if (name(k) .eq. 'Lambda(2)') then
+!          name(k) = 'LDA2'
+!        else
+!          temp=name(k)
+!          first=temp(1:iloc-1)
+!          num=temp(iloc+1:iloc+1)
+!          name(k) = trim(first)//trim(num)
+!        endif
+!      endif
+!!      name(k)=toUpper(trim(name(k)))
+!      continue
+!    enddo
+!
+!    !Do the same for the input constituents  MEB 08/17/2023
+!    do k=1,ntcin
+!      iloc = 0
+!      iloc = index(namein(k),'(')
+!      temp = ''
+!      if (iloc .ne. 0) then  !remove the ()
+!        if (namein(k) .eq. 'Lambda(2)') then
+!          namein(k) = 'LDA2'
+!        else
+!          temp=namein(k)
+!          first=temp(1:iloc-1)
+!          num=temp(iloc+1:iloc+1)
+!          namein(k) = trim(first)//trim(num)
+!        endif
+!      endif
+!!      namein(k)=toUpper(trim(namein(k)))
+!      continue
+!    enddo
     
     !Calculate index for names
     ind = 0

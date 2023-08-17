@@ -1,6 +1,7 @@
-== Version 5.3.5 (08/17/2023) ==
+== Version 5.3.5 (09/08/2023) ==
 * Fix issues with Tidal Database operation with CMS. Improved screen output.
 * Fix issue with Grid Angle introduced with SMS 13.1.
+* Minor GFortran fixes for compiling on HPC/Linux with newer Gnu compiler.
 
 == Version 5.3.4 (05/16/2023) == 
 * Bug fix for missing zero output time in files when increment > 100 hours.
