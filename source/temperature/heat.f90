@@ -361,7 +361,7 @@ d1: do k=1,10
       
       if(ierr/=0)then
         write(*,*) 'ERROR: Check path for temperature initial concentration dataset'
-        write(*,*) 'Press any key to continue.'
+        write(*,*) 'Press <enter> key to continue.'
         read(*,*)
         stop
       endif

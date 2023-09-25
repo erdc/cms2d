@@ -977,7 +977,7 @@
       enddo
       write(msg,103)
       call diag_print_message(msg)
-      write(*,*) 'Press any key to continue.'
+      write(*,*) 'Press <enter> key to continue.'
       read(*,*)
       stop
     endif

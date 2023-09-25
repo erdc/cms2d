@@ -546,7 +546,7 @@
         write(*,*) ' '
         if(ierr<0)then
           write(*,*) 'ERROR CREATING XMDF FILE ',trim(XMDFFile)
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
           stop
          else
@@ -559,7 +559,7 @@
         call XF_CREATE_GENERIC_GROUP(PID,'Dataset',DGID,ierr)
         if(ierr < 0)then
           write(*,*) 'COULD NOT CREATE DATASET - '//'Dataset'
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
           stop
         endif        
@@ -572,10 +572,10 @@
                TS_HOURS,0,DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-          else
-            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-            write(*,*) 'Press any key to continue.'
-            read(*,*)
+        else
+          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          write(*,*) 'Press <enter> key to continue.'
+          read(*,*)
           stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
@@ -591,10 +591,10 @@
                TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
-          else
-            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-            write(*,*) 'Press any key to continue.'
-            read(*,*)
+        else
+          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          write(*,*) 'Press <enter> key to continue.'
+          read(*,*)
           stop
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
@@ -629,7 +629,7 @@
           write(*,*) 'CREATED DATASET - '//trim(prefix)
         else
           write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
           stop
         endif

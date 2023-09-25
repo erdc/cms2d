@@ -353,7 +353,7 @@
     integer,intent(out) :: iyr,imo,iday,ihr,imin,isec
     !Internal variables
     integer :: iloc,ierr
-    character(len=37) :: cdum
+    character(len=37) :: cdum,aval
     character(len=200) :: aline
     
     ierr = 0
@@ -363,7 +363,10 @@
 784 format(I4,'-',I2,'-',I2) !YYYY-MM-DD
     iloc = index(aline,'-',back=.false.)
     cdum = aline(iloc-4:)
-    read(cdum,784,iostat=ierr) iyr,imo,iday
+    aval = cdum(1:4)  ; read (aval,*) iyr
+    aval = cdum(6:7)  ; read (aval,*) imo
+    aval = cdum(9:10) ; read (aval,*) iday
+    !read(cdum,784,iostat=ierr) iyr,imo,iday
     
     if(ierr/=0)then
       call diag_print_error('Could not read date: ',aline)
@@ -372,7 +375,10 @@
 673 format(I2,':',I2,':',I2) !hh:mm:ss    
     iloc = index(aline,':',back=.false.)
     cdum = aline(iloc-2:)
-    read(cdum,673,iostat=ierr) ihr,imin,isec
+    aval = cdum(1:2) ; read (aval,*) ihr
+    aval = cdum(4:5) ; read (aval,*) imin
+    aval = cdum(7:8) ; read (aval,*) isec
+    !read(cdum,673,iostat=ierr) ihr,imin,isec
     
     if(ierr/=0)then
       call diag_print_error('Could not read date: ',cdum)

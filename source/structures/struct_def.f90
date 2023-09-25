@@ -81,6 +81,7 @@ module struct_def
     character(len=200) :: astructporofile,astructporopath
     character(len=200) :: astructbaseDfile,astructbaseDpath
     character(len=200) :: astructmethfile,astructmethpath
+    character(len=200) :: astructIDfile, astructIDpath          !meb incomplete - finish or remove  09/25/23
     character(len=34)  :: methrm           !hli(12/11/12)
 
 end module struct_def

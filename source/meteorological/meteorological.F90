@@ -858,6 +858,7 @@ d1: do ii=1,4
 
 111 format(' ',A,T40,A)    
 118 format(' ',A,T40,I0)    
+119 format(' ',A,T40,I0,A)
 262 format(' ',A,T40,I4)
 193 format(' ',A,T40,F0.3,A)
 102 format(' ',A,T40,F0.2,A)    
@@ -890,7 +891,7 @@ d1: do ii=1,4
             write(iunit(i),111) '  Wind Curve:',trim(windpath)
           endif
         endif
-        write(iunit(i),118)     '    Length of Wind Data:',nwtimes          
+        write(iunit(i),119)     '  Length of Wind Data:',nwtimes, ' records'          
       elseif(windvar)then !Wind Fields
         call fileparts(windfile,apath,aname,aext)
         afile = trim(aname) // '.' // trim(aext)

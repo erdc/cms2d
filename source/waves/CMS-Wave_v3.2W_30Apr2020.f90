@@ -1217,7 +1217,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '  is larger than then maximum value of ',NPF
           write(9,*) 'ERROR: Number of input frequencies ',NFF
           write(9,*) '  is larger than then maximum value of ',NPF
-          write(*,*) '  Press any key to continue'
+          write(*,*) '  Press <enter> key to continue'
           read(*,*)
           stop
         endif
@@ -9478,10 +9478,8 @@ contains
         call fileparts(SimFile,apath,aname,aext)           !Split the path and files out before conditional to use later.  MEB  01/26/2022
         INQUIRE(FILE = SimFile, EXIST=ExistFile)
         if (.not.ExistFile) then
-          msg  = 'Simulation file does not exist at path location specified'
-          msg2 = '- Path = '//trim(apath)
-          msg3 = '- File = '//trim(aname)//'.'//trim(aext)
-          call diag_print_error (msg,msg2,msg3)
+          msg  = "Wave file not found: "//trim(SimFile)
+          call diag_print_error (msg)
         endif
         
         OPEN (41, FILE = SimFile, STATUS = 'OLD')

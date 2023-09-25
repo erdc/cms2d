@@ -796,7 +796,7 @@
         call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
         write(*,*)''
         write(*,'(A,F0.6)') 'RT_JULIAN date is: ',reftime
-        write(*,'(A)') 'Press any key to continue.'
+        write(*,'(A)') 'Press <enter> key to continue.'
         read(*,*)
         write(*,*)''
         
@@ -816,7 +816,7 @@
         call XF_JULIAN_TO_CALENDAR(era,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
         write(*,*)''
         write(*,100) iyr, imo, iday, ihr, imin, isec
-        write(*,'(A)') 'Press any key to continue.'
+        write(*,'(A)') 'Press <enter> key to continue.'
         read(*,*)
         write(*,*)''
         
