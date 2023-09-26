@@ -2088,7 +2088,7 @@ contains
     if(ntctdb>ntcmax)then
       write(*,*) 'ERROR: Maximum number of constituents exceeded in'
       write(*,*) 'Tidal Database File: ',tdbfile
-      write(*,*) 'Press any key to continue.'
+      write(*,*) 'Press <enter> key to continue.'
       read(*,*)
       stop
     endif
@@ -2443,7 +2443,7 @@ contains
         
       else
         write(*,*) 'ERROR: Invalid Tidal Database Name '
-        write(*,*) 'Press any key to continue.'
+        write(*,*) 'Press <enter> key to continue.'
         read(*,*)
         stop
         

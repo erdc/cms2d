@@ -29,7 +29,7 @@ contains
     call time_test_all
     !call wave_test_all
 
-    write(*,*) ' Press any key to continue'
+    write(*,*) ' Press <enter> key to continue'
     read(*,*)
     
     return

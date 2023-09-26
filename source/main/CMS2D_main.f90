@@ -39,9 +39,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
-    revision = 5             ! Revision number
+    revision = 6             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '09/08/2023'
+    rdate    = '09/25/2023'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -178,7 +178,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           inquire(file=ctlfile,exist=ok)
           if(.not.ok)then
             write(*,*) 'ERROR: ',trim(ctlfile),' does not exist'
-            write(*,*) 'Press any key to continue.'
+            write(*,*) 'Press <enter> key to continue.'
             read(*,*)
             stop
           endif    
@@ -199,7 +199,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           inquire(file=WavSimFile,exist=ok)
             if(.not.ok) then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
-            write(*,*) 'Press any key to continue.'
+            write(*,*) 'Press <enter> key to continue.'
             read(*,*)
             stop
           endif    
@@ -219,7 +219,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           inquire(file=astr,exist=ok)
           if(.not.ok) then
             write(*,*) 'ERROR: ',trim(astr),' does not exist'
-            write(*,*) 'Press any key to continue.'
+            write(*,*) 'Press <enter> key to continue.'
             read(*,*)
             stop
           endif    
@@ -230,7 +230,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           write_ascii_input = .false.  ! Not overwrite input
         case default
           write(*,*) 'File not found: ',trim(astr)
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
           stop
       end select      
@@ -247,7 +247,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         inquire(file=astr,exist=ok)
           if(.not.ok) then
           write(*,*) 'ERROR: ',trim(astr),' does not exist'
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
           stop
         endif
@@ -268,11 +268,11 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         inquire(file=astr,exist=ok)
         if(.not.ok) then
           write(*,*) 'ERROR: ',trim(astr),' does not exist'
-          write(*,*) 'Press any key to continue.'
+          write(*,*) 'Press <enter> key to continue.'
           read(*,*)
-            stop
-          endif
-          ctlfile = trim(aname) // '.cmcards'
+          stop
+        endif
+        ctlfile = trim(aname) // '.cmcards'
         flowpath = apath
         casename = aname  
         cmsflow = .true.

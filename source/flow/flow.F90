@@ -1137,17 +1137,17 @@
       endif
     
       write(iunit(i),222)   '  Turbulence Model:',trim(aturb(mturbul))
-      write(iunit(i),111)   '    Coefficients'
-      write(iunit(i),354)   '    Constant:',trim(vstrlz(cviscon,'(1pe10.3)'))
+      write(iunit(i),354)   '    Constant:',trim(vstrlz(cviscon,'(1pe10.3)')),' m^2/s'
+      write(iunit(i),111)   '    Coefficients:'
       if(mturbul>=2)then
-        write(iunit(i),354) '    Current Bottom Shear:',trim(vstrlz(cvisbot,'(f0.3)'))
+        write(iunit(i),354) '      Current Bottom Shear:',trim(vstrlz(cvisbot,'(f0.3)'))
       endif  
       if(mturbul>=3)then
-        write(iunit(i),354) '    Current Horizontal Shear: ',trim(vstrlz(cvishor,'(f0.3)'))
+        write(iunit(i),354) '      Current Horizontal Shear: ',trim(vstrlz(cvishor,'(f0.3)'))
       endif  
       if(noptset>=3)then
-        write(iunit(i),354) '    Wave Bottom Shear:',trim(vstrlz(cviswav,'(f0.3)'))
-        write(iunit(i),354) '    Wave Breaking:',trim(vstrlz(cviswavbrk,'(f0.3)'))
+        write(iunit(i),354) '      Wave Bottom Shear:',trim(vstrlz(cviswav,'(f0.3)'))
+        write(iunit(i),354) '      Wave Breaking:',trim(vstrlz(cviswavbrk,'(f0.3)'))
       endif    
     
       write(iunit(i),111)   '  Numerical Methods'
