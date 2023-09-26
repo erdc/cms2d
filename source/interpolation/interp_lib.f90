@@ -217,7 +217,7 @@ contains
       write(*,*) 'xi = ',xi
       write(*,*) 'yi = ',yi
       write(*,*) 'd = ',d      
-      write(*,*) '  Press any key to continue.'
+      write(*,*) '  Press <enter> key to continue.'
       read(*,*)
       stop
     endif
@@ -274,7 +274,7 @@ contains
       write(*,*) 'yq(1:4) = ',yq
       write(*,*) 'xi = ',xi
       write(*,*) 'yi = ',yi
-      write(*,*) '  Press any key to continue.'
+      write(*,*) '  Press <enter> key to continue.'
       read(*,*)
       stop
     endif    
@@ -354,7 +354,7 @@ contains
       write(*,*) 'yp(1:np) = ',yp(1:np)
       write(*,*) 'xi = ',xi
       write(*,*) 'yi = ',yi
-      write(*,*) '  Press any key to continue.'
+      write(*,*) '  Press <enter> key to continue.'
       read(*,*)
       stop
     endif

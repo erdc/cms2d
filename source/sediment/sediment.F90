@@ -701,7 +701,7 @@
       backspace(77)
       read(77,*) cardname, cdum
       call bedlay_resize
-      do i=1,size(apbkinp)
+      do i=1,6               !size(apbkinp) ! Always ignore the 0 element  MEB change for Gnu fortran issue 
         cardname = apbkinp(i)
         if(cdum(1:3)==cardname(1:3))then
           bedlay(1)%ipbkinp = i
@@ -2419,7 +2419,7 @@ d1: do ii=1,30
       write(iunit(i),354)       '    Porosity:',trim(vstrlz(poros,'(f0.2)'))
     
       if(singlesize)then !Single-size
-        write(iunit(i),354)     '    Characteristic Diameter:',trim(vstrlz(diam(1)*1000.0,'(f0.3)')),'mm'
+        write(iunit(i),354)     '    Characteristic Diameter:',trim(vstrlz(diam(1)*1000.0,'(f0.3)')),' mm'
         write(iunit(i),354)     '    Fall Velocity:',trim(vstrlz(wsfall(1),'(f0.4)')),' m/s'
         write(iunit(i),354)     '    Corey Shape Factor:',trim(vstrlz(coreyshape(1),'(f0.4)'))
         if(icapac==1 .or. icapac==3)then

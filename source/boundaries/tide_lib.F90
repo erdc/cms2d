@@ -1957,6 +1957,7 @@ contains
     real(ikind), pointer :: eamp(:,:),epha(:,:) 
     real(ikind), pointer :: uamp(:,:),upha(:,:)
     real(ikind), pointer :: vamp(:,:),vpha(:,:)
+    integer :: i
     
     if(tdbname(1:6)=='EC2001')then                            !ADCIRC Eastern Continental 2001 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2001.grd'
@@ -2000,6 +2001,9 @@ contains
     
     !---- Load Tidal Database --------------------------------
     !Constituents are loaded on the subgrid
+    do i = 1, ntcin
+      call check_TidalConstituent(namein(i))
+    enddo
     
     if (is2015) then
       write(*,*) ' Reading Tidal Database files'
@@ -2084,7 +2088,7 @@ contains
     if(ntctdb>ntcmax)then
       write(*,*) 'ERROR: Maximum number of constituents exceeded in'
       write(*,*) 'Tidal Database File: ',tdbfile
-      write(*,*) 'Press any key to continue.'
+      write(*,*) 'Press <enter> key to continue.'
       read(*,*)
       stop
     endif
@@ -2255,6 +2259,7 @@ contains
     do j=1,ntctdb
       read(105,*) freq,dum,dum,nametdb(j)
       if(present(vpha)) read(106,*) freq,dum,dum,nametdb(j)
+      call check_TidalConstituent(nametdb(j))
       speedtdb(j) = freq*3600.0*rad2deg !Degrees/hour
     enddo
     read(105,*) npp !Number of nodes (should match mesh)
@@ -2438,7 +2443,7 @@ contains
         
       else
         write(*,*) 'ERROR: Invalid Tidal Database Name '
-        write(*,*) 'Press any key to continue.'
+        write(*,*) 'Press <enter> key to continue.'
         read(*,*)
         stop
         

@@ -225,6 +225,7 @@
       REAL NU,NUP,NUP2,I
       COMMON /ORBITF/DS,DP,DH,DP1,DN,DI,DNU,DXI,DNUP,DNUP2,DPC
       COMMON /CNST/ FNDCST(37),EQCST(37),ACST(37),PCST(37)
+      
       PI180=3.14159265/180.
 !* OBTAINING ORBITAL VALUES AT BEGINNING OF SERIES FOR V0
       CALL ORBIT(YR,DAYJ,HR)
@@ -284,8 +285,10 @@
       EQCST(35)=2.*(T+H)-2.*NUP2
       EQCST(36)=8.*(T-S+H)+8.*(XI-NU)
       EQCST(37)=2.*(2.*T-S+H)+2.*(XI-NU)
-      DO 1 IH=1,37
-    1 EQCST(IH)=ANGLE(EQCST(IH))
+      DO IH=1,37
+        EQCST(IH)=ANGLE(EQCST(IH))
+      ENDDO
+      
       END
 
 !*********************************************************************
@@ -357,23 +360,45 @@
 !*********************************************************************
       INTEGER K
       REAL BOTTOM,TOP,ARCTAN
-      IF(BOTTOM .NE. 0.0) GO TO 4
-      IF(TOP) 2,9,3
-    2 ARCTAN=270.
-      RETURN
-    3 ARCTAN=90.
-      RETURN
-    4 ARCTAN=ATAN(TOP/BOTTOM)*57.2957795
-      IF(KEY.EQ.0) RETURN
-      IF(TOP) 5,5,7
-    5 IF(BOTTOM) 6,9,8
-    6 ARCTAN=ARCTAN+180.
-      RETURN
-    7 IF(BOTTOM) 6,3,10
-    8 ARCTAN=ARCTAN+360.
-      RETURN
-    9 ARCTAN=0.
-   10 RETURN
+      
+   !   IF(BOTTOM .NE. 0.0) GO TO 4
+   !   IF(TOP) 2,9,3
+   ! 2 ARCTAN=270.
+   !   RETURN
+   ! 3 ARCTAN=90.
+   !   RETURN
+   ! 4 ARCTAN=ATAN(TOP/BOTTOM)*57.2957795
+   !   IF(KEY.EQ.0) RETURN
+   !   IF(TOP) 5,5,7
+   ! 5 IF(BOTTOM) 6,9,8
+   ! 6 ARCTAN=ARCTAN+180.
+   !   RETURN
+   ! 7 IF(BOTTOM) 6,3,10
+   ! 8 ARCTAN=ARCTAN+360.
+   !   RETURN
+   ! 9 ARCTAN=0.
+   !10 RETURN
+      
+      !MEB change for Gnu fortran issue
+      if (BOTTOM .eq. 0.0) then
+        if (TOP .lt. 0) ARCTAN = 270.                !2
+        if (TOP .eq. 0) ARCTAN = 0.                  !9
+        if (TOP .gt. 0) ARCTAN = 90.                 !3
+        RETURN
+      else
+        ARCTAN = ATAN(TOP/BOTTOM)*57.2957795
+        if (KEY .eq. 0) RETURN
+        if (TOP .le. 0) then
+          if (BOTTOM .lt. 0) ARCTAN = ARCTAN + 180.  !6
+          if (BOTTOM .eq. 0) ARCTAN = 0.             !9
+          if (BOTTOM .gt. 0) ARCTAN = ARCTAN + 360.  !8
+        else 
+          if (BOTTOM .lt. 0) ARCTAN = ARCTAN + 180.  !6
+          if (BOTTOM .eq. 0) ARCTAN = 90.            !3
+          RETURN
+        endif
+      endif
+      
       END
 
 !*********************************************************************
@@ -386,11 +411,14 @@
       DIMENSION DAYT(12),DAYS(12)
       DATA DAYT/0.,31.,59.,90.,120.,151.,181.,212.,243.,273.,304.,334./
       DATA DAYS(1),DAYS(2) /0.,31./
+      
       DINC=0.
       YRLP=MOD((YR-1900.),4.)
       IF(YRLP .EQ. 0.) DINC=1.
-      DO 1 I=3,12
-    1 DAYS(I)=DAYT(I)+DINC
+      DO I=3,12             !1   MEB change for Gnu fortran issue
+        DAYS(I)=DAYT(I)+DINC
+      ENDDO                 !1
       DAYJUL=DAYS(IFIX(XMONTH))+DAY
+      
       END
       

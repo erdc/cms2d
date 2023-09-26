@@ -49,7 +49,7 @@
         write(*,*) 'Sxx(i):     ',Sxx(i)
         write(*,*) 'Sxy(i):     ',Sxy(i)
         write(*,*) 'Syy(i):     ',Syy(i)
-        write(*,*) '  Press any key to continue'
+        write(*,*) '  Press <enter> key to continue'
         read(*,*)
       endif
     enddo

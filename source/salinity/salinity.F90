@@ -122,7 +122,7 @@
       backspace(77)
       read(77,*) cardname, cdum, saldrvpath(nsalstr)  
       
-    case('SALINITY_BOUNDARY_BEGIN')  
+    case('SALINITY_BOUNDARY_BEGIN', 'SALT_BOUNDARY_BEGIN')
       call sal_bnd_block
       
     CASE ('SALINITY_CALC_INTERVAL')
@@ -345,7 +345,7 @@ d1: do k=1,10
       
       if(ierr/=0)then
         write(*,*) 'ERROR: Check path for salinity initial concentration dataset'
-        write(*,*) 'Press any key to continue.'
+        write(*,*) 'Press <enter> key to continue.'
         read(*,*)
         stop
       endif

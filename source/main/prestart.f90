@@ -169,7 +169,11 @@
 !--- Read Grid File and setup geometric variables ------------------------------
     write(*,*) 'Reading Grid'
     inquire(file=telfile,exist=foundfile)
-    if(foundfile) igridtype = 1
+    if(foundfile) then
+      igridtype = 1
+    else
+      call diag_print_error("Grid file not found: "//trim(telfile))
+    endif
     select case(igridtype)
     case(0)
       call fileext(grdfile,aext) 

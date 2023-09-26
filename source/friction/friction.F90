@@ -475,11 +475,11 @@
     character(len=200) :: apath,aname,astring
     character(len=10) :: aext
     
-342 format(' ',A,T52,F0.2,A)
-353 format(' ',A,T52,F0.3,A)
-354 format(' ',A,T52,A,A)    !Added for vstrlz function results
-345 format(' ',A,T52,F0.5)
-787 format(' ',A,T52,A)       
+342 format(' ',A,T40,F0.2,A)
+353 format(' ',A,T40,F0.3,A)
+354 format(' ',A,T40,A,A)    !Added for vstrlz function results
+345 format(' ',A,T40,F0.5)
+787 format(' ',A,T40,A)       
     
     call fileparts(fricfile,apath,aname,aext)
     astring=trim(aname) // '.' // aext
@@ -529,7 +529,7 @@
           endif
         case(4)  
           if(constbotfric)then
-            write(iunit(i),354) '    Constant Linear Friction Coeff: ',trim(vstrlz(cbotfric,'(F0.3)'))
+            write(iunit(i),354) '    Constant Linear Friction Coeff:',trim(vstrlz(cbotfric,'(F0.3)'))
           else
             write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'          
             stop
@@ -547,7 +547,7 @@
         write(iunit(i),787)     '    Bed-slope Friction Factor:','OFF'
       endif    
       if(noptset>=3)then
-          write(iunit(i),787)   '    Wave-Current Mean Bottom Shear Stress Model:',awavcur(mwavcurint)
+          write(iunit(i),787)   '    Wave-Curr Bttm Shear Stress Model:',awavcur(mwavcurint)
         if(mwavcurint==1)then
           write(iunit(i),354)   '    Wave Bottom Friction Coefficient:',trim(vstrlz(cfricwav,'(F0.3)'))
         endif

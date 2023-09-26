@@ -37,7 +37,7 @@
         read(77,*) cardname,numtidegate    !No. of tide gates
         if(numtidegate>0)then
           allocate(ntidegate(0:numtidegate),orienttidegate(numtidegate),coeftidegate(numtidegate,2),  &
-                   openhgttidegate(numtidegate),elevtidegate(numtidegate),methtidegate(numtidegate),    &
+                   openhgttidegate(numtidegate),elevtidegate(numtidegate),methtidegate(numtidegate),  &
                    orienttgbay(numtidegate),orienttgsea(numtidegate),Qtottidegate(numtidegate))       
           backspace(77)
           read(77,*) cardname, numtidegate,(ntidegate(itg),itg=1,numtidegate)              
@@ -46,11 +46,10 @@
           allocate(idtidegate(maxtidegate),opentidegate(maxtidegate),coeftglateral(maxtidegate), &
                    qtidegate(maxtidegate),dqtgdzdown(maxtidegate),dqtgdzup(maxtidegate))
           backspace(77)
-          read(77,*) cardname, numtidegate,(ntidegate(itg),itg=1,numtidegate),  &
+          read(77,*) cardname, numtidegate,(ntidegate(itg),itg=1,numtidegate),                         &
                      (idtidegate(idtg),idtg=1,maxtidegate),(coeftglateral(idtg),idtg=1,maxtidegate),   &
-                     (orienttidegate(itg),coeftidegate(itg,1),coeftidegate(itg,2),openhgttidegate(itg),  &
+                     (orienttidegate(itg),coeftidegate(itg,1),coeftidegate(itg,2),openhgttidegate(itg),&
                       elevtidegate(itg),methtidegate(itg),itg=1,numtidegate)                 
-          !!methtidegate=1
           dqtgdzdown=0.0;  dqtgdzup=0.0   
           do itg=1,numtidegate
              orienttgsea(itg) = orienttidegate(itg)   !Define direction of sea side at local coordinate
@@ -86,7 +85,7 @@
         read(77,*) cardname,numweir    !No. of weirs
         if(numweir>0)then
           allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
-                   coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
+                   coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),               &
                    orientweirsea(numweir),Qtotweir(numweir) )
           backspace(77)
           read(77,*) cardname, numweir,(nweir(iwr),iwr=1,numweir)              
@@ -95,10 +94,9 @@
           allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir)) 
           backspace(77)
           read(77,*) cardname, numweir,(nweir(iwr),iwr=1,numweir),(idweir(idwr),idwr=1,maxweir),  &
-                     (coefweirlateral(idwr),idwr=1,maxweir),   &
-                     (orientweir(iwr),iweirtype(iwr),coefweir(iwr,1),coefweir(iwr,2),  &
+                     (coefweirlateral(idwr),idwr=1,maxweir),                                      &
+                     (orientweir(iwr),iweirtype(iwr),coefweir(iwr,1),coefweir(iwr,2),             &
                       elevweir(iwr),methweir(iwr),iwr=1,numweir)              
-          !!methweir=1
           dqweirdzdown = 0.0;  dqweirdzup = 0.0   
           do iwr=1,numweir
              orientweirsea(iwr) = orientweir(iwr)   !Define direction of sea side at local coordinate
@@ -125,41 +123,26 @@
         backspace(77)
         read(77,*) cardname,numculvert    !No. of culverts
         if(numculvert>0)then
-          allocate(idculvert(numculvert,2),iculverttype(numculvert),iculvertflap(numculvert),  &
-                   culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),  &
+          allocate(idculvert(numculvert,2),iculverttype(numculvert),iculvertflap(numculvert),        &
+                   culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),        &
                    culvertelevbay(numculvert),culvertelevsea(numculvert),culvertlength(numculvert),  &
                    cvheadlossbayentr(numculvert),cvheadlossbayexit(numculvert),cvheadlossseaentr(numculvert),  &
-                   cvheadlossseaexit(numculvert),culvertfrict(numculvert),culvertmann(numculvert),  &
-                   qculvert(numculvert),dqcvdzdown(numculvert),dqcvdzup(numculvert),  &
+                   cvheadlossseaexit(numculvert),culvertfrict(numculvert),culvertmann(numculvert),   &
+                   qculvert(numculvert),dqcvdzdown(numculvert),dqcvdzup(numculvert),                 &
                    uvculvert(numculvert),angleculvertbay(numculvert),angleculvertsea(numculvert) )   
           backspace(77)
-          read(77,*) cardname,numculvert,(idculvert(icv,1),idculvert(icv,2),   &
+          read(77,*) cardname,numculvert,(idculvert(icv,1),idculvert(icv,2),                     &
                       iculverttype(icv),iculvertflap(icv),culvertwidth(icv),culvertheight(icv),  &
-                      culvertelevbay(icv),culvertelevsea(icv),culvertlength(icv), &
-                      cvheadlossbayentr(icv),cvheadlossbayexit(icv),cvheadlossseaentr(icv),  &
-                      cvheadlossseaexit(icv),culvertfrict(icv),culvertmann(icv),   &
+                      culvertelevbay(icv),culvertelevsea(icv),culvertlength(icv),                &
+                      cvheadlossbayentr(icv),cvheadlossbayexit(icv),cvheadlossseaentr(icv),      &
+                      cvheadlossseaexit(icv),culvertfrict(icv),culvertmann(icv),                 &
                       angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert) 
           do icv=1,numculvert
              culvertrad(icv)=0.5*culvertwidth(icv)
              angleculvertbay(icv)=angleculvertbay(icv)*pi/180.0
              angleculvertsea(icv)=angleculvertsea(icv)*pi/180.0
           enddo
-          dqcvdzdown=0.0;  dqcvdzup=0.0             
-          !allocate(nculvert(0:numculvert),iculverttype(numculvert),iculvertflap(numculvert),  &
-          !         coefculvert(numculvert),culvertrad(numculvert),culvertwidth(numculvert),  &
-          !         culvertheight(numculvert),culvertlength(numculvert),culvertelev(numculvert),  &
-          !         culvertmann(numculvert),qculvert(numculvert) )   
-          !backspace(77)
-          !read(77,*) cardname, numculvert,(nculvert(icv),icv=1,numculvert)              
-          !nculvert(0) = 0
-          !maxculvert = nculvert(numculvert)
-          !allocate(idculvert(maxculvert,2))    !,openweir(maxweir))
-          !backspace(77)
-          !read(77,*) cardname,numculvert,(nculvert(icv),icv=1,numculvert),  &
-          !           (idculvert(idcv,1),idculvert(idcv,2),idcv=1,maxculvert),   &
-          !           (iculverttype(icv),iculvertflap(icv),coefculvert(icv),   &
-          !            culvertrad(icv),culvertwidth(icv),culvertheight(icv),  &
-          !            culvertlength(icv),culvertelev(icv),culvertmann(icv),icv=1,numculvert)             
+          dqcvdzdown=0.0;  dqcvdzup=0.0 
         endif
       
       case('CULVERT_BEGIN')
@@ -180,7 +163,7 @@
           allocate(idrubmound(maxrubmound))    !,openweir(maxweir))
           backspace(77)
           read(77,*) cardname,numrubmound,(nrubmound(irm),irm=1,numrubmound),  &
-                     (idrubmound(idrm),idrm=1,maxrubmound),   &
+                     (idrubmound(idrm),idrm=1,maxrubmound),                    &
                      (rubmounddia(irm),rubmoundporo(irm),methrubmoundab(irm),irm=1,numrubmound)   
           do irm=1,numrubmound                   !coefficients a and b 
              if(methrubmoundab(irm)==1) then     !Sidiropoulou et al. (2007)
@@ -192,9 +175,6 @@
              elseif(methrubmoundab(irm)==3) then   !Ward (1964)
                 rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
                 rubmoundb(irm)=10.44/grav/rubmounddia(irm)
-!             elseif(methrubmoundab(irm)==4) then   !Permeability
-!                rubmounda(irm)=viscos*rubmoundporo(irm)/rubmounddia(irm)   !Note: rubmounddia=Permeability
-!                rubmoundb(irm)=rubmoundporo(irm)**2/sqrt(rubmounddia(irm)) !Note: rubmounddia=Permeability
              endif
           enddo
         endif
@@ -276,30 +256,11 @@
         case('WEIR_STRUCT_END','END')
           exit
           
-!        case('NUMBER_WEIRS','NUMBER_WEIR')
-!          backspace(77)
-!          read(77,*) cardname,numweir
-!          allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
-!                   coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
-!                   orientweirsea(numweir),Qtotweir(numweir) )
-
         case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
           backspace(77)
           read(77,*) cardname,ival
-          
           WR_struct(iweir)%ncells = ival
           allocate(WR_struct(iweir)%cells(ival))
-          
-!          nweir(0) = 0
-!          maxweir = 0
-!          do iwr=1,numweir
-!            maxweir = maxweir + nweir(iwr)
-!          enddo
-!          do iwr=1,numweir
-!            nweir(iwr) = nweir(iwr-1) + nweir(iwr)
-!          enddo
-
-!          allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
 
         case('CELLS')
           backspace(77)
@@ -360,8 +321,6 @@
           
         case default
           write(*,*) 'WARNING: Card ',cardname,' not found'
-          write(*,*) 'Press any key to continue.'
-          read(*,*)
           foundcard = .false.
          
         end select
@@ -465,8 +424,6 @@
           
       case default
         write(*,*) 'WARNING: Card ',cardname,' not found'
-        write(*,*) 'Press any key to continue.'
-        read(*,*)
         foundcard = .false.
          
       end select
@@ -530,7 +487,7 @@
             cdum = strings(icv)  
             if(cdum(1:3)=='CIR')then
               iculverttype(icv) = 1
-            else !if(cdum(1:3)=='BOX')then
+            else 
               iculverttype(icv) = 2
             endif 
           enddo   
@@ -627,8 +584,6 @@
           
         case default
           write(*,*) 'WARNING: Card ',trim(cardname),' not found'
-          !write(*,*) 'Press any key to continue.'
-          !read(*,*)
           
       end select
     enddo
@@ -735,8 +690,6 @@
           
       case default
         write(*,*) 'WARNING: Card ',cardname,' not found'
-        write(*,*) 'Press any key to continue.'
-        read(*,*)
         foundcard = .false.
          
     end select
@@ -828,8 +781,6 @@
           
       case default
         write(*,*) 'WARNING: Card ',cardname,' not found'
-        write(*,*) 'Press any key to continue.'
-        read(*,*)
         foundcard = .false.
          
     end select
@@ -902,29 +853,29 @@
         case('RUBBLE_MOUND_END','END')
           exit
           
-        case('RUBBLE_MOUND_DATASET')  !Modfiy input format for rubble mound structure (hli,11/26/12)
+        case('RUBBLE_MOUND_DATASET')  !Modify input format for rubble mound structure (hli,11/26/12)
           backspace(77)
-          read(77,*) cardname,arubmoundfile,arubmoundpath
+          read(77,*) cardname, arubmoundfile, arubmoundpath
           rm_dset = .true.
 
         case('ROCK_DIAMETER_DATASET')
           backspace(77)
-          read(77,*) cardname,arockdiamfile,arockdiampath
+          read(77,*) cardname, arockdiamfile, arockdiampath
           rm_dset = .true.
 
         case('STRUCTURE_POROSITY_DATASET')
           backspace(77)
-          read(77,*) cardname,astructporofile,astructporopath    
+          read(77,*) cardname, astructporofile, astructporopath    
           rm_dset = .true.
 
         case('STRUCTURE_BASE_DEPTH_DATASET')
           backspace(77)
-          read(77,*) cardname,astructbaseDfile,astructbaseDpath    
+          read(77,*) cardname, astructbaseDfile, astructbaseDpath    
           rm_dset = .true.
 
         case('FORCHHEIMER_COEFF_METHOD_DATASET')
           backspace(77)
-          read(77,*) cardname,astructmethfile,astructmethpath    
+          read(77,*) cardname, astructmethfile, astructmethpath    
           rm_dset = .true.
 
         case('CELL_IDS')
@@ -934,6 +885,11 @@
           allocate(RM_struct(irubmound)%cells(numids))
           backspace(77)
           read(77,*) cardname,numids,(RM_struct(irubmound)%cells(irm),irm=1,numids)
+          rm_dset = .false.
+          
+        case('CELL_ID_DATASET')                                 !meb incomplete - finish or remove  09/25/23
+          backspace(77)
+          read(77,*) cardname, astructIDfile, astructIDpath
           rm_dset = .false.
 
         case('NAME')
@@ -1045,9 +1001,8 @@
     integer :: i,i1,itg,im,iwr,icv,irm,kk,ierr   !hli(11/19/13)
     character(len=10) :: aext    
     integer :: j,idum
-!
+
 !   Read rubble mound information from datasets or specify constants (hli, 12/10/12)
-!
     if(rmblock.eq.1 .and. rm_dset) then    !modified for alternate input, meb 01/28/2019
       allocate(permeability(ncellsfull))
       allocate(rockdiam(ncellsfull))
@@ -1095,9 +1050,6 @@
             idrubmound(kk)=mapid(i)  !Convert from internal to SMS Cell ID number
           endif
         enddo
-        !open(200,file='CELL_IDs.txt',status='unknown')  !Remove after testing, meb
-        !write(200,99) (idrubmound(i),i=1,kk)  
-        !close(200)
 
 !read rock diameter from dataset
         call fileext(trim(arockdiamfile),aext)      
@@ -1178,7 +1130,7 @@
     else  !rmblock == 1 and rm_dset == .false.  
       numrubmound = 0
       do i=1,irubmound
-        numrubmound = numrubmound + RM_struct(irubmound)%ncells 
+        numrubmound = numrubmound + RM_struct(i)%ncells 
       enddo
 
       allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound), & 
@@ -1194,15 +1146,15 @@
       nrubmound(0) = 0
       kk=0
       do irm=1,irubmound
-        do j=1,RM_struct(irubmound)%ncells
+        do j=1,RM_struct(irm)%ncells
           kk=kk+1
-          idrubmound(kk)     = RM_struct(irubmound)%cells(j)         !don't convert, already the SMS Cell ID number
-          rubmounddia(kk)    = RM_struct(irubmound)%rockdia_const
-          rubmoundporo(kk)   = RM_struct(irubmound)%structporo_const
-          rubmoundbotm(kk)   = RM_struct(irubmound)%structbaseD_const
-          methrubmoundab(kk) = RM_struct(irubmound)%rubmoundmeth
+          idrubmound(kk)     = RM_struct(irm)%cells(j)         !don't convert, already the SMS Cell ID number
+          rubmounddia(kk)    = RM_struct(irm)%rockdia_const
+          rubmoundporo(kk)   = RM_struct(irm)%structporo_const
+          rubmoundbotm(kk)   = RM_struct(irm)%structbaseD_const
+          methrubmoundab(kk) = RM_struct(irm)%rubmoundmeth
+          rubmoundname(kk)   = RM_struct(irm)%name
         enddo
-        rubmoundname(j)      = RM_struct(irubmound)%name
       enddo
     endif  
     
@@ -1223,7 +1175,6 @@
     endif
     
 !   (hli, 12/10/12)
-!
 !--- Map structure ids from full to active grid -----
     !Tidal Gates
     if(numtidegate>0) call map_cell_full2active(ntidegate(numtidegate),idtidegate)
@@ -1241,22 +1192,6 @@
     !Rubble Mounds   
     if(numrubmound>0) call map_cell_full2active(nrubmound(numrubmound),idrubmound)
 
-!--- Rubble Mound Structures -----------------------------------
-!    do irm=1,numrubmound
-!      do im=nrubmound(irm-1)+1,nrubmound(irm)
-!        i=idrubmound(im)
-!        areap(i)=areap(i)*rubmoundporo(im)
-!        do k=1,ncface(i)
-!          nck=cell2cell(k,i)
-!          idj=llec2llec(k,i)
-!          ds(k,i)=ds(k,i)*sqrt(rubmoundporo(im))
-!          ds(nck,idj)=ds(nck,idj)*sqrt(rubmoundporo(im))
-!          dsxy(k,i)=dsxy(k,i)*sqrt(rubmoundporo(im))
-!          dsxy(nck,idj)=dsxy(nck,idj)*sqrt(rubmoundporo(im))
-!        enddo  
-!      enddo
-!    enddo    
-        
 !--- Modify Bathymetry at structures --------------------    
     !Tidal Gate
     do itg=1,numtidegate
@@ -1284,12 +1219,10 @@
 
 !---- Rubble Mound Structure ------------
     do irm=1,numrubmound
-!      if(methrubmoundbotm(irm).eq.1) then   !methrubmoundbotm=1, specify the elevation of impermeable bottom of each RMS as constant  
       do im=nrubmound(irm-1)+1,nrubmound(irm)
         i=idrubmound(im)
         zb(i)=-rubmoundbotm(irm)   ! minus the depth below reference datum, i.e. still water level 
       enddo
-!         endif
     enddo
     
     return
@@ -1302,13 +1235,16 @@
 !*****************************************************************************************
     use const_def
     use struct_def
-    use diag_def, only: dgfile,dgunit
+    use diag_def,   only: dgfile,dgunit
     use prec_def
+    
     implicit none
-    integer :: i,icv,iunit(2),ierr
+    integer :: i,j,icv,iunit(2),ierr
  
 111 format(' ',A,T40,A)
+112 format(' ',A,I0)
 241 format(' ',A,T40,I0)
+242 format(' ',A,T40,I0,A)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
@@ -1321,8 +1257,14 @@
         cycle
       endif
       !---- Rubble Mound Structures -------
-      if (numrubmound > 0) then
-        write(iunit(i),241) '    Number of Rubble Mound Cells:',numrubmound
+      !Added more information to diagnostic summary - MEB  09/25/23
+      if (irubmound > 0) then
+        write(iunit(i),241)   '    Number of Rubble Mounds:',irubmound 
+        do j=1,irubmound
+          write(iunit(i),112) '      Rubble Mound Structure: ',j
+          if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 
+          write(iunit(i),241) '        Number of cells:',rm_struct(j)%ncells
+        enddo
       endif
       
       !---- Tidal Gate --------------------
@@ -1394,8 +1336,7 @@
           ctimetg=ctime/3600.0
           tgateoptstr  =tidegateopt(ntidegateopt(itg-1)+2*ktg-1)
           tgateopendura=tidegateopt(ntidegateopt(itg-1)+2*ktg  )
-          if(ctimetg>=tgateoptstr .and.   &
-             ctimetg<=(tgateoptstr+tgateopendura)) then
+          if(ctimetg>=tgateoptstr .and. ctimetg<=(tgateoptstr+tgateopendura)) then
              do im=ntidegate(itg-1)+1,ntidegate(itg)
                opentidegate(im)=1
              enddo
@@ -1438,7 +1379,6 @@
     do itg=1,numtidegate
       do im=ntidegate(itg-1)+1,ntidegate(itg)
         i=idtidegate(im)
-        !iwet(i)=opentidegate(im)            
         if(opentidegate(im)==0) then
           iwet(i)=0  
         else
@@ -1450,7 +1390,6 @@
             enddo
           endif
         endif
-        !iextrap(i)=1
       enddo
     enddo
 
@@ -1478,8 +1417,7 @@
 !***************************************************************************    
     use size_def
     use geo_def, only: ncface,cell2cell,llec2llec,signface,idirface,ds,areap
-    use flow_def, only: iwet,h,h1,h2,p,dpx,dpy,u1,u2,v1,v2,uv,&
-       acoef,su,sv,spu,spv,spuv0,ssu0,ssv0,grav
+    use flow_def, only: iwet,h,h1,h2,p,dpx,dpy,u1,u2,v1,v2,uv,acoef,su,sv,spu,spv,spuv0,ssu0,ssv0,grav
     use struct_def
     use comvarbl, only: dtime,ntsch,ctsch1,ctsch2,relax
     use const_def, only: small,pi
@@ -1504,7 +1442,6 @@
                   tgflux=max(0.0,qtidegate(im))
                 endif
                 su(nck)=su(nck)+signface(idirface(k,i))*tgflux*ds(k,i)*tgflux/h(nck)
-                !!sp(nck)=sp(nck)-tgflux*ds(k,i)
                 spu(nck)=spu(nck)-abs(qtidegate(im))*ds(k,i)
                 spv(nck)=spv(nck)-acoef(llec2llec(k,i),nck)
               else
@@ -1514,7 +1451,6 @@
                   tgflux=max(0.0,qtidegate(im))
                 endif
                 sv(nck)=sv(nck)+signface(idirface(k,i))*tgflux*ds(k,i)*tgflux/h(nck)
-                !!sp(nck)=sp(nck)-tgflux*ds(k,i)
                 spv(nck)=spv(nck)-abs(qtidegate(im))*ds(k,i)  
                 spu(nck)=spu(nck)-acoef(llec2llec(k,i),nck)
               endif
@@ -1589,7 +1525,6 @@
                 tgflux=max(0.0,qweir(im))
               endif
               su(nck)=su(nck)+signface(idirface(k,i))*tgflux*ds(k,i)*tgflux/h(nck)
-              !!sp(nck)=sp(nck)-tgflux*ds(k,i)
               spu(nck)=spu(nck)-abs(qweir(im))*ds(k,i)
               spv(nck)=spv(nck)-acoef(llec2llec(k,i),nck)
             else
@@ -1599,7 +1534,6 @@
                 tgflux=max(0.0,qweir(im))
               endif
               su(nck)=su(nck)+signface(idirface(k,i))*tgflux*ds(k,i)*tgflux/h(nck)
-              !!sp(nck)=sp(nck)-tgflux*ds(k,i)
               spv(nck)=spv(nck)-abs(qweir(im))*ds(k,i)  
               spu(nck)=spu(nck)-acoef(llec2llec(k,i),nck)
             endif
@@ -1668,15 +1602,7 @@
           spu(i)=spu(i)-abs(qculvert(icv))
           spv(i)=spv(i)-abs(qculvert(icv))
         endif
-        !if(abs(angleculvertsea(icv)-pi)<=pi) then  !Closed to ignore momentum leaving at culvert entrance
-        !   su(i1)=su(i1)-abs(qculvert(icv)*uvculvert(icv))*cos(angleculvertsea(icv))
-        !   !sp(i1)=sp(i1)+abs(qculvert(icv))
-        !endif
       else
-        !if(abs(angleculvertbay(icv)-pi)<=pi) then  !Closed to ignore momentum leaving at culvert entrance
-        !   su(i)=su(i)-abs(qculvert(icv)*uvculvert(icv))*cos(angleculvertbay(icv))
-        !   !sp(i)=sp(i)+abs(qculvert(icv))
-        !endif
         if(abs(angleculvertsea(icv)-pi)<=pi) then
           su(i1)=su(i1)+abs(qculvert(icv)*uvculvert(icv))*cos(angleculvertsea(icv))
           sv(i1)=sv(i1)+abs(qculvert(icv)*uvculvert(icv))*sin(angleculvertsea(icv))
@@ -1686,7 +1612,7 @@
       endif
     enddo
 
-!Rubble Mound Structures  
+!--- Rubble Mound Structure --------------
     do irm=1,numrubmound
       do im=nrubmound(irm-1)+1,nrubmound(irm)
         i=idrubmound(im)
@@ -1717,8 +1643,7 @@
             if(nck==ii) isRMS=1
           enddo  
           if(isRMS==0)then
-            val=0.5*(rubmounda(irm)+rubmoundb(irm)*uv(nck))  &
-                               *grav*h(nck)*areap(nck)*iwet(nck)
+            val=0.5*(rubmounda(irm)+rubmoundb(irm)*uv(nck)) *grav*h(nck)*areap(nck)*iwet(nck)
             spu(nck)=spu(nck)-val
             spv(nck)=spv(nck)-val
           endif                               
@@ -1935,31 +1860,11 @@
           if(wslbay>=wslsea) then
             weirdepth=max(0.0,wslbay-zb(i))
             weirdepth1=weirdepth+small
-            !!if(iweirtype(iwr)==2) then   !broad-crested weir
-            !weirdepth2=max(0.0,wslsea-zb(i))
-            !weirdepth2over1=weirdepth2/weirdepth1     !Submergence
-            !if(weirdepth2over1<=0.67) then
-            !   alphasubmerg=1.0
-            !   dalphadzdown=0.0
-            !   dalphadzup=0.0
-            !else
-            !   alphasubmerg=1.0-27.8*(weirdepth2over1-0.67)**3
-            !   dalphadzdown=-27.8*3.0*(weirdepth2over1-0.67)**2/weirdepth1
-            !   dalphadzup=-27.8*3.0*(weirdepth2over1-0.67)**2*(-weirdepth2/weirdepth1**2)
-            !endif
             weirdepthd=wslbay-wslsea
             expweirdepthd1=exp(-8.5*weirdepthd/weirdepth1)
             alphasubmerg=1.0-expweirdepthd1
             dalphadzdown=-expweirdepthd1*8.5/weirdepth1
             dalphadzup=expweirdepthd1*8.5*(weirdepth1-weirdepthd)/weirdepth1**2
-            !!elseif(iweirtype(iwr)==1) then        !sharp-crested weir !Instable when u/s and d/s water levels are close
-            !!   weirdepth2=max(0.0,wslsea-zb(i))
-            !!   weirdepth2over1=(weirdepth2/weirdepth1)**0.5
-            !!   alphasubmerg=(1.0-weirdepth2over1*(weirdepth2/weirdepth1))**0.385
-            !!   sharpweirtemp=0.385/(alphasubmerg**1.5974+small)   !(1.0-weirdepth2over1*(weirdepth2/weirdepth1))**0.615
-            !!   dalphadzdown=-sharpweirtemp*1.5*weirdepth2over1/weirdepth1
-            !!   dalphadzup=-sharpweirtemp*1.5*weirdepth2over1*(-weirdepth2/weirdepth1**2)
-            !!endif 
             weirtemp0=coefweir(iwr,1)*coefweirlateral(im)*sqrtgrav*weirdepth**0.5*idrycheck
             weirtemp1=weirtemp0*weirdepth
             qweir(im)=alphasubmerg*weirtemp1
@@ -1968,31 +1873,11 @@
           elseif(wslsea>wslbay) then
             weirdepth=max(0.0,wslsea-zb(i))
             weirdepth1=weirdepth+small
-            !!if(iweirtype(iwr)==2) then   !broad-crested weir
-            !weirdepth2=max(0.0,wslbay-zb(i))
-            !weirdepth2over1=weirdepth2/weirdepth1     !Submergence
-            !if(weirdepth2over1<=0.67) then
-            !   alphasubmerg=1.0
-            !   dalphadzdown=0.0
-            !   dalphadzup=0.0
-            !else
-            !   alphasubmerg=1.0-27.8*(weirdepth2over1-0.67)**3
-            !   dalphadzdown=-27.8*3.0*(weirdepth2over1-0.67)**2/weirdepth1
-            !   dalphadzup=-27.8*3.0*(weirdepth2over1-0.67)**2*(-weirdepth2/weirdepth1**2)
-            !endif
             weirdepthd=wslsea-wslbay
             expweirdepthd1=exp(-8.5*weirdepthd/weirdepth1)
             alphasubmerg=1.0-expweirdepthd1
             dalphadzdown=-expweirdepthd1*8.5/weirdepth1
             dalphadzup=expweirdepthd1*8.5*(weirdepth1-weirdepthd)/weirdepth1**2
-            !!elseif(iweirtype(iwr)==1) then        !sharp-crested weir  !Instable when u/s and d/s water levels are close
-            !!   weirdepth2=max(0.0,wslbay-zb(i))
-            !!   weirdepth2over1=(weirdepth2/weirdepth1)**0.5
-            !!   alphasubmerg=(1.0-weirdepth2over1*(weirdepth2/weirdepth1))**0.385
-            !!   sharpweirtemp=0.385/(alphasubmerg**1.5974+small)   !(1.0-weirdepth2over1*(weirdepth2/weirdepth1))**0.615
-            !!   dalphadzdown=-sharpweirtemp*1.5*weirdepth2over1/weirdepth1
-            !!   dalphadzup=-sharpweirtemp*1.5*weirdepth2over1*(-weirdepth2/weirdepth1**2)
-            !!endif
             weirtemp0=coefweir(iwr,2)*coefweirlateral(im)*sqrtgrav*weirdepth**0.5*idrycheck
             weirtemp1=weirtemp0*weirdepth
             qweir(im)=-alphasubmerg*weirtemp1
@@ -2011,9 +1896,6 @@
       isea=idculvert(icv,2)    !Sea node -Downstream
       wslbay=p(ibay)/grav
       wslsea=p(isea)/grav
-      !write(1000,*) "icv= ",icv,"wslbay= ",wslbay,"wslsea= ",wslsea,"ibay= ",ibay,"isea= ",isea
-      !write(1000,*)"ctime=",ctime
-      !if(wslbay>=wslsea) then
       if(wslbay>wslsea+small) then  
         if(wslbay<=max(culvertelevbay(icv),culvertelevsea(icv))+hmin) then
           qculvert(icv)=0.0
@@ -2086,12 +1968,8 @@
             culvertheadloss=cvheadlossbayentr(icv)+cvheadlossseaexit(icv)  &
                            +2.0*grav*culvertmann(icv)**2*culvertlength(icv)/cvhydrradius**1.3333
             qculvertnormaltemp=cvarea*sqrt(2.0*grav/culvertheadloss)
-            !qculvertnormaltemp=cvarea*(cvarea/(cvperimeter+small))**0.6667  &  
-            !                      /sqrt(culvertlength(icv))/culvertmann(icv)
             qculvertnormaltemp1=sqrt(wslbay-wslsea)
             qculvertnormal=qculvertnormaltemp*qculvertnormaltemp1     !Normal flow
-            !write(1000,*)"wslsea=",wslsea,"culvertelevsea(icv)=",culvertelevsea(icv)
-            !write(1000,*)"qculvertnormal=",qculvertnormal,"qculvertcritcl=",qculvertcritcl
             if(wslsea>culvertelevsea(icv).and.qculvertnormal<=qculvertcritcl) then
               qculvert(icv)=qculvertnormal
               dqculvertupdown=qculvertnormaltemp*0.5/(qculvertnormaltemp1+small)
@@ -2106,7 +1984,6 @@
         endif
         uvculvert(icv)=qculvert(icv)/(cvarea+small)
       elseif(wslsea>wslbay+small) then  
-      !elseif(wslsea>wslbay) then    
         if(iculvertflap(icv)==1) then  ! with flap gate
           qculvert(icv)=0.0
           dqcvdzdown(icv)=0.0
@@ -2185,8 +2062,6 @@
             culvertheadloss=cvheadlossseaentr(icv)+cvheadlossbayexit(icv)  &
                            +2.0*grav*culvertmann(icv)**2*culvertlength(icv)/cvhydrradius**1.3333
             qculvertnormaltemp=cvarea*sqrt(2.0*grav/culvertheadloss)
-            !qculvertnormaltemp=cvarea*(cvarea/(cvperimeter+small))**0.6667  &  
-            !                      /sqrt(culvertlength(icv))/culvertmann(icv)
             qculvertnormaltemp1=sqrt(wslsea-wslbay)
             qculvertnormal=qculvertnormaltemp*qculvertnormaltemp1     !Normal flow
             if(wslbay>culvertelevbay(icv).and.qculvertnormal<=qculvertcritcl) then
@@ -2213,7 +2088,6 @@
       qculvert(icv)=qculvert(icv)*idrybaysea
       dqcvdzdown(icv)=dqcvdzdown(icv)*idrybaysea
       dqcvdzup(icv)=dqcvdzup(icv)*idrybaysea
-      !  write(1000,*)"qculvert=",qculvert(icv),"dqcvdzdown=",dqcvdzdown(icv),"dqcvdzup=",dqcvdzup(icv)
     enddo
 !!$OMP END SECTIONS
         
@@ -2249,7 +2123,6 @@
              enddo
           endif
         enddo
-        !write(107,*) ctime/3600.0,Qtottidegate(itg)
       elseif(methtidegate(itg)==2) then
         Qtottidegate(itg)=0.0
         do im=ntidegate(itg-1)+1,ntidegate(itg)
@@ -2266,7 +2139,6 @@
             enddo
           endif
         enddo
-        !write(207,*) ctime/3600.0,Qtottidegate(itg)
       endif
     enddo
 
@@ -2281,7 +2153,6 @@
                Qtotweir(iwr)=Qtotweir(iwr)+qweir(im)*ds(k,i)
           enddo
         enddo
-        !write(108,*) ctime/3600.0,Qtotweir(iwr)
       elseif(methweir(iwr)==2) then
         Qtotweir(iwr)=0.0
         do im=nweir(iwr-1)+1,nweir(iwr)
@@ -2296,7 +2167,6 @@
             endif
           enddo
         enddo
-        !write(208,*) ctime/3600.0,Qtotweir(iwr)
       endif
     enddo
 
@@ -2380,19 +2250,9 @@
               if(mod(idirface(k,i),2)==0)then
                 if(idirface(k,i)==orienttgbay(itg).or.idirface(k,i)==orienttgsea(itg)) &
                         u(nck)=u(nck)*2.0    !The structure is treated as dry node, cdflux=0
-                !if(idirface(k,i)==orienttgbay(itg)) then
-                  !u(nck)=u(nck)-0.5*signface(idirface(k,i))*qtidegate(im)/h(nck)
-                !elseif(idirface(k,i)==orienttgsea(itg)) then
-                  !u(nck)=u(nck)+0.5*signface(idirface(k,i))*qtidegate(im)/h(nck)
-                !endif
               else
                 if(idirface(k,i)==orienttgbay(itg).or.idirface(k,i)==orienttgsea(itg)) &
                    v(nck)=v(nck)*2.0    !The structure is treated as dry node, cdflux=0
-                !if(idirface(k,i)==orienttgbay(itg)) then
-                   !v(nck)=v(nck)-0.5*signface(idirface(k,i))*qtidegate(im)/h(nck)
-                !elseif(idirface(k,i)==orienttgsea(itg)) then
-                   !v(nck)=v(nck)+0.5*signface(idirface(k,i))*qtidegate(im)/h(nck)
-                !endif
               endif  
             enddo
           endif
@@ -2410,19 +2270,9 @@
              if(mod(idirface(k,i),2)==0) then
                 if(idirface(k,i)==orientweirbay(iwr).or.idirface(k,i)==orientweirsea(iwr)) &
                    u(nck)=u(nck)*2.0     !The structure is treated as dry node, cdflux=0
-                !if(idirface(k,i)==orientweirbay(iwr)) then
-                   !u(nck)=u(nck)-0.5*signface(idirface(k,i))*qweir(im)/h(nck)
-                !elseif(idirface(k,i)==orientweirsea(iwr)) then
-                   !u(nck)=u(nck)+0.5*signface(idirface(k,i))*qweir(im)/h(nck)
-                !endif
              else
                 if(idirface(k,i)==orientweirbay(iwr).or.idirface(k,i)==orientweirsea(iwr)) &
                    v(nck)=v(nck)*2.0     !The structure is treated as dry node, cdflux=0
-                !if(idirface(k,i)==orientweirbay(iwr)) then
-                   !v(nck)=v(nck)-0.5*signface(idirface(k,i))*qweir(im)/h(nck)
-                !elseif(idirface(k,i)==orientweirsea(iwr)) then
-                   !v(nck)=v(nck)+0.5*signface(idirface(k,i))*qweir(im)/h(nck)
-                !endif
              endif  
           enddo
         enddo
@@ -2543,13 +2393,11 @@
               if(idirface(k,i)==orienttgbay(itg))then
                 tgflux=max(0.0,-qtidegate(im))
                 su(nck)=su(nck)+tgflux*ds(k,i)*Ctksea*rtksea    !Only suspended load passes
-                !sp(nck)=sp(nck)-tgflux*ds(k,i)
                 sp(nck)=sp(nck)-(tgflux+max(0.0,qtidegate(im))*rtkbay)*ds(k,i)
                 acoef(llec2llec(k,i),nck)=0.0
               elseif(idirface(k,i)==orienttgsea(itg))then
                 tgflux=max(0.0,qtidegate(im))
                 su(nck)=su(nck)+tgflux*ds(k,i)*Ctkbay*rtkbay
-                !sp(nck)=sp(nck)-tgflux*ds(k,i)
                 sp(nck)=sp(nck)-(tgflux+max(0.0,-qtidegate(im))*rtksea)*ds(k,i)
                 acoef(llec2llec(k,i),nck)=0.0
               endif
@@ -2592,13 +2440,11 @@
             if(idirface(k,i)==orientweirbay(iwr))then
               tgflux=max(0.0,-qweir(im))
               su(nck)=su(nck)+tgflux*ds(k,i)*Ctksea*rtksea   !Only suspended load passes
-              !sp(nck)=sp(nck)-tgflux*ds(k,i)
               sp(nck)=sp(nck)-(tgflux+max(0.0,qweir(im))*rtkbay)*ds(k,i)
               acoef(llec2llec(k,i),nck)=0.0
             elseif(idirface(k,i)==orientweirsea(iwr))then
               tgflux=max(0.0,qweir(im))
               su(nck)=su(nck)+tgflux*ds(k,i)*Ctkbay*rtkbay
-              !sp(nck)=sp(nck)-tgflux*ds(k,i)
               sp(nck)=sp(nck)-(tgflux+max(0.0,-qweir(im))*rtksea)*ds(k,i)
               acoef(llec2llec(k,i),nck)=0.0
             endif
@@ -2689,13 +2535,11 @@
               if(idirface(k,i)==orienttgbay(itg)) then
                  tgflux=max(0.0,-qtidegate(im))
                  susal0(nck)=susal0(nck)+tgflux*ds(k,i)*salsea
-                 !sp(nck)=sp(nck)-tgflux*ds(k,i)
                  sp(nck)=sp(nck)-abs(qtidegate(im))*ds(k,i)
                  acoef(llec2llec(k,i),nck)=0.0
               elseif(idirface(k,i)==orienttgsea(itg)) then
                  tgflux=max(0.0,qtidegate(im))
                  susal0(nck)=susal0(nck)+tgflux*ds(k,i)*salbay
-                 !sp(nck)=sp(nck)-tgflux*ds(k,i)
                  sp(nck)=sp(nck)-abs(qtidegate(im))*ds(k,i)
                  acoef(llec2llec(k,i),nck)=0.0
               endif
@@ -2732,13 +2576,11 @@
             if(idirface(k,i)==orientweirbay(iwr)) then
               tgflux=max(0.0,-qweir(im))
               susal0(nck)=susal0(nck)+tgflux*ds(k,i)*salsea
-              !sp(nck)=sp(nck)-tgflux*ds(k,i)
               sp(nck)=sp(nck)-abs(qweir(im))*ds(k,i)
               acoef(llec2llec(k,i),nck)=0.0
             elseif(idirface(k,i)==orientweirsea(iwr)) then
               tgflux=max(0.0,qweir(im))
               susal0(nck)=susal0(nck)+tgflux*ds(k,i)*salbay
-              !sp(nck)=sp(nck)-tgflux*ds(k,i)
               sp(nck)=sp(nck)-abs(qweir(im))*ds(k,i)
               acoef(llec2llec(k,i),nck)=0.0
             endif
