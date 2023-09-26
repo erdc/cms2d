@@ -12,9 +12,10 @@ contains
     subroutine time_test_all
 ! written by Alex Sanchez, USACE-CHL        
 !**********************************************************
-    use time_lib
-    use diag_lib
-    use prec_def
+    use time_lib, only: time_cal2str, calendar2julian, time_sec2str, julian2calendar
+    use diag_lib, only: diag_print_message
+    use prec_def, only: ikind
+    
     implicit none
     integer :: iyr,imo,iday,ihr,imin,isec,imilsec
     real(ikind) :: tjul,tjul2

@@ -1,18 +1,15 @@
+!*************************************************************
       subroutine update_variables_tel()
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
-      use EXP_TELESCOPING
+!*************************************************************
+      use EXP_Global_def,  only: etan, linktodummiestel, num_linktodummies 
+      use EXP_TELESCOPING, only: numxfaces, numyfaces, xface_q, yface_q, xface_qn, yface_qn
+      use flow_def, only: eta
+      use size_def, only: ncells
 
       implicit none
       integer i,id1,id2
       
 !$OMP PARALLEL 
-
 !$omp do 
       do i=1,ncells
         eta(i) = etan(i)
@@ -32,7 +29,6 @@
         yface_q(i) = yface_qn(i)
       enddo
 !$OMP END DO
-
 !$OMP END PARALLEL
 
       !assign wave values to dummy cells
@@ -43,4 +39,5 @@
         eta(id2) = eta(id1)
       enddo
       
+      return
       end subroutine

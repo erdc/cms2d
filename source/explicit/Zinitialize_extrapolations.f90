@@ -1,13 +1,11 @@
+!********************************************************************************    
       subroutine initialize_extrapolations_CWR()
+!********************************************************************************    
 #include "CMS_cpp.h"    
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
+      use EXP_Global_def,  only: num_ext_w, num_ext_e, num_ext_n, num_ext_s
+      USE EXP_bndcond_def, only: ext_w, ext_e, ext_n, ext_s
+      use bnd_def,  only: nhstr, nmhstr, nthstr, h_str, mh_str, th_str
+      use size_def, only: ncells
       use geo_def, only: cell2cell
 
       implicit none
@@ -26,11 +24,11 @@
               id = H_Str(i)%cells(j)
               if(cell2cell(1,id).gt.ncells) num_ext_N = num_ext_N + 1
               if(cell2cell(2,id).gt.ncells) num_ext_E = num_ext_E + 1
-              if(cell2cell(3,id).gt.ncells)then
+              if(cell2cell(3,id).gt.ncells) then
                 if(cell2cell(1,id).gt.0) num_ext_S = num_ext_S + 1
               endif
               if(cell2cell(4,id).gt.ncells) then
-                if(cell2cell(2,id).gt.0)  num_ext_W = num_ext_W + 1
+                if(cell2cell(2,id).gt.0) num_ext_W = num_ext_W + 1
               endif
             enddo
           enddo
@@ -41,11 +39,11 @@
             id = TH_str(i)%cells(j)
             if(cell2cell(1,id).gt.ncells) num_ext_N = num_ext_N + 1
             if(cell2cell(2,id).gt.ncells) num_ext_E = num_ext_E + 1
-            if(cell2cell(3,id).gt.ncells)then
+            if(cell2cell(3,id).gt.ncells) then
               if(cell2cell(1,id).gt.0) num_ext_S = num_ext_S + 1
             endif
             if(cell2cell(4,id).gt.ncells) then
-              if(cell2cell(2,id).gt.0)  num_ext_W = num_ext_W + 1
+              if(cell2cell(2,id).gt.0) num_ext_W = num_ext_W + 1
             endif
           enddo
         endif    
@@ -55,18 +53,17 @@
               id = MH_Str(i)%cells(j)
               if(cell2cell(1,id).gt.ncells) num_ext_N = num_ext_N + 1
               if(cell2cell(2,id).gt.ncells) num_ext_E = num_ext_E + 1
-              if(cell2cell(3,id).gt.ncells)then
+              if(cell2cell(3,id).gt.ncells) then
                 if(cell2cell(1,id).gt.0) num_ext_S = num_ext_S + 1
               endif
               if(cell2cell(4,id).gt.ncells) then
-                if(cell2cell(2,id).gt.0)  num_ext_W = num_ext_W + 1
+                if(cell2cell(2,id).gt.0) num_ext_W = num_ext_W + 1
               endif
             enddo
           enddo
         endif
 
-        allocate(ext_w(num_ext_W,2),ext_n(num_ext_N,2), &
-        ext_s(num_ext_S,2),ext_e(num_ext_E,2))
+        allocate(ext_w(num_ext_W,2),ext_n(num_ext_N,2),ext_s(num_ext_S,2),ext_e(num_ext_E,2))
 
         num_ext_W =0
         num_ext_E = 0
@@ -87,7 +84,7 @@
                 ext_E(num_ext_E,1) = cell2cell(2,id)
                 ext_E(num_ext_E,2) = id
               endif
-              if(cell2cell(3,id).gt.ncells)then
+              if(cell2cell(3,id).gt.ncells) then
                 if(cell2cell(1,id).gt.0) then
                   num_ext_S = num_ext_S + 1
                   ext_S(num_ext_S,1) = id
@@ -119,7 +116,7 @@
               ext_E(num_ext_E,1) = cell2cell(2,id)
               ext_E(num_ext_E,2) = id
             endif
-            if(cell2cell(3,id).gt.ncells)then
+            if(cell2cell(3,id).gt.ncells) then
               if(cell2cell(1,id).gt.0) then
                 num_ext_S = num_ext_S + 1
                 ext_S(num_ext_S,1) = id
@@ -150,7 +147,7 @@
                 ext_E(num_ext_E,1) = cell2cell(2,id)
                 ext_E(num_ext_E,2) = id
               endif
-              if(cell2cell(3,id).gt.ncells)then
+              if(cell2cell(3,id).gt.ncells) then
                 if(cell2cell(1,id).gt.0) then
                   num_ext_S = num_ext_S + 1
                   ext_S(num_ext_S,1) = id
@@ -201,4 +198,5 @@
 #endif
       endif !H_single or H_multi or H_tide
       
+      return
       end subroutine

@@ -1,26 +1,24 @@
-
 !***********************************************************************
     subroutine sed_exp
 ! Solves single and multi-sized sediment transport 
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use size_def
-    use geo_def, only: idmap,zb,zbk,dzbx,dzby
-    use flow_def
-    use sed_def
-!!    use q3d_def
-    use comp_lib
-    use comvarbl
-    use der_def, only: nder,nlim, goa            !added goa 
-    use der_lib, only: der_grad_eval             !renamed from 'gradxy'
-    use interp_lib, only: interp_scal_cell2face
-    use prec_def
+    USE EXP_bndcond_def,   only: qstringexp
+    USE EXP_Global_def,    only: FUU,GVV,ACTIVE,ETAN
     use EXP_transport_def, only: adss,tsed_elapse
-    use bnd_def
-    USE EXP_bndcond_def  
-    USE EXP_Global_def, only: FUU,GVV,ACTIVE,ETAN
-    use geo_def, only: dx,dy,cell2cell  
-    use diag_def, only: dgunit, dgfile
+    use prec_def,   only: ikind
+    use size_def,   only: ncells
+    use geo_def,    only: idmap,zb,zbk,dzbx,dzby
+    use flow_def,   only: vis, eta, h
+    use sed_def,    only: zb1, ihidexpform, ibedslope, icapac, nsed, tstartmorph, scalemorph, calcmorph, ctstarp, do_aval, do_bedslope
+    use sed_def,    only: ibt, errctk0, errpbk0, ctk, schmidt, ctkstar, alphat, wsfall, btk, wavesedtrans, singlesize, d50, d90, dzb, sedbalance
+    use comvarbl,   only: timehrs, dtime
+    use der_def,    only: nder,nlim, goa            !added goa 
+    use der_lib,    only: der_grad_eval             !renamed from 'gradxy'
+    use bnd_def,    only: nqstr, q_str
+    use geo_def,    only: dx,dy,cell2cell  
+    use diag_def,   only: dgunit, dgfile
+    use interp_lib, only: interp_scal_cell2face
     
     implicit none
     integer :: i,j,ks,ncs,ncw,ii,IDO,nce,ncn
@@ -391,23 +389,21 @@
 ! Blocks off dry regions which are not solved
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use EXP_Global_def, only: ncn,nce,ncw,ncs,qx,qy
+    use EXP_Global_def,  only: ncn,nce,ncw,ncs,qx,qy
     use EXP_bndcond_def, only: QstringEXP
-    use size_def
-    use geo_def
-    use flow_def
-    use struct_def
-    use bnd_def
-    use comvarbl
-    use wave_flowgrid_def
-    use sed_def
+    use size_def,  only: ncells
+    use geo_def,   only: cell2cell, ds
+    use flow_def,  only: uv, h, iwet, flux
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, q_str, h_str, th_str, mh_str, mhv_str
+    use comvarbl,  only: timehrs, ramp
+    use sed_def,   only: isedinflowbc, ctstarp, facqtotin, ctk, qtotin, rhosed, nsedflux, sed_str, pbk, pbk1, sedbnd, ctkstar, nsed
     use const_def, only: eps
-    use prec_def
-    use diag_def,only: dgunit, dgfile
+    use diag_def,  only: dgunit, dgfile
+    use prec_def,  only: ikind
+
     implicit none
     integer :: i,ii,j,k,ks,nck,ntimes,inc,ised,iwse
     real(ikind) :: fac,qstartot,qstarcell,qsedtot,qut,qvt
-
     
     if(nHstr .gt. 0) then
       do i = 1,nHstr  !for each cell string
@@ -475,7 +471,6 @@
         enddo
       enddo ! end of each cell string
     endif  !nHstr strings
-
 
     if(nTHstr .gt. 0) then
       do iwse=1,nTHstr
@@ -834,95 +829,89 @@
 ! Blocks off dry regions which are not solved
 ! written by Alex Sanchez, USACE-CHL;  Weiming Wu, NCCHE
 !***********************************************************************
-    use EXP_Global_def, only: ncn,nce,ncw,ncs,qx,qy
+    use EXP_Global_def,  only: ncn,nce,ncw,ncs,qx,qy
     use EXP_bndcond_def, only: QstringEXP
-    use size_def
-    use geo_def
-    use flow_def
-    use struct_def
-    use bnd_def
-    use comvarbl
-    use wave_flowgrid_def
-    use sed_def
+    use size_def,  only: ncells
+    use geo_def,   only: cell2cell, zb
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, h_str, th_str, mh_str, mhv_str
     use const_def, only: eps
-    use prec_def
+    use prec_def,  only: ikind
+    
     implicit none
     integer :: i,ii,j,iwse
     real(ikind) :: qut,qvt
+   
+    if(nHstr .gt. 0) then
+      do i = 1,nHstr  !for each cell string
+        do j=1,H_str(i)%NCells    !for each cell in string
+          ii=H_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)                                        
+        enddo
+      enddo ! end of each cell string
+    endif  !nHstr strings
 
-    
-      if(nHstr .gt. 0) then
-        do i = 1,nHstr  !for each cell string
-          do j=1,H_str(i)%NCells    !for each cell in string
-            ii=H_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)                                        
-          enddo
-        enddo ! end of each cell string
-      endif  !nHstr strings
-
-
-      if(nTHstr .gt. 0) then
+    if(nTHstr .gt. 0) then
       do iwse=1,nTHstr
         do j=1,TH_str(iwse)%NCells    !for each cell in string
-             ii=TH_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)           
-       enddo 
+          ii=TH_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)           
+        enddo 
       enddo !iwse-str      
-      endif  !H_tide
+    endif  !H_tide
 
-      if(nMHstr .gt. 0) then
-        do i = 1,nMHstr  !for each cell string                        
-          do j=1,MH_str(i)%NCells   !for each cell in string
-            ii=MH_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)              
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi
+    if(nMHstr .gt. 0) then
+      do i = 1,nMHstr  !for each cell string                        
+        do j=1,MH_str(i)%NCells   !for each cell in string
+          ii=MH_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)              
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi
 
-      if(nMHVstr .gt. 0) then
-        do i = 1,nMHVstr  !for each cell string
-          do j=1,MHV_str(i)%NCells   !for each cell in string
-             ii=MHV_str(i)%Cells(j) 
-            ncn = cell2cell(1,ii)
-            nce = cell2cell(2,ii)
-            ncs = cell2cell(3,ii)    
-            ncw = cell2cell(4,ii)                
-            quT = qx(ii)+qx(nce)
-            qvT = qy(ii)+qy(ncn)
-            if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
-            if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
-            if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
-            if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)             
-          enddo
-        enddo ! end of each cell string
-      endif  !H_multi        
+    if(nMHVstr .gt. 0) then
+      do i = 1,nMHVstr  !for each cell string
+        do j=1,MHV_str(i)%NCells   !for each cell in string
+          ii=MHV_str(i)%Cells(j) 
+          ncn = cell2cell(1,ii)
+          nce = cell2cell(2,ii)
+          ncs = cell2cell(3,ii)    
+          ncw = cell2cell(4,ii)                
+          quT = qx(ii)+qx(nce)
+          qvT = qy(ii)+qy(ncn)
+          if(quT .gt. 0.0 .and. nce .gt. Ncells) zb(ii) = zb(ncw)   
+          if(quT .le. 0.0 .and. ncw .gt. Ncells) zb(ii) = zb(nce)   
+          if(qvT .gt. 0.0 .and. ncn .gt. Ncells) zb(ii) = zb(ncs)  
+          if(qvT .le. 0.0 .and. ncs .gt. Ncells) zb(ii) = zb(ncn)             
+        enddo
+      enddo ! end of each cell string
+    endif  !H_multi        
     
     return
     end subroutine Zbndzb_EXP

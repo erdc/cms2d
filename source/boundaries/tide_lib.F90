@@ -1986,6 +1986,11 @@ contains
     xmin = minval(xpts(:)); xmax = maxval(xpts(:))
     ymin = minval(ypts(:)); ymax = maxval(ypts(:))
     
+    !Overwrite temporarily to see new subgrid  MEB
+!   xmin = -124.33164043480;    xmax = -124.06927587010
+!   ymin = 40.66880241966;      ymax = 40.90454910556
+    
+    
     !----- Extract a subgrid overlapping the rectangular domain ------
     write(*,*) ' Extracting Subgrid ...'
     call trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,nes,nns,xns,yns,zns,e2ns,kns)   

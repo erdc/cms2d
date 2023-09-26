@@ -1,8 +1,11 @@
+!***********************************************************************
      subroutine diswallEXP
+!***********************************************************************
      use EXP_Global_def, only: active     
      use size_def, only: ncells,ncellsD
-     use flow_def
-     use geo_def, only: dx,dy,x,y
+     use prec_def, only: ikind
+     use flow_def, only: diswall, iwet
+     use geo_def,  only: dx,dy,x,y
      
      implicit none
      integer i,ii

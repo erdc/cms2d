@@ -1,10 +1,11 @@
 !********************************************************************************
 MODULE EXP_Global_def
+!********************************************************************************    
 #include "CMS_cpp.h"
 #ifdef XMDF_IO
 USE XMDF, only: DOUBLE, XF_GUID_STRINGLENGTH
 #endif
-use prec_def
+use prec_def, only: ikind
 
 !CHARACTER*10,PARAMETER :: Rdate    = '8/18/2010'
 !REAL, PARAMETER        :: Version  = 3.75
@@ -84,10 +85,10 @@ integer isedform
 real(ikind) thetac
      
 END MODULE EXP_Global_def 
-!********************************************************************************
 
+!********************************************************************************    
     Module EXP_Structures_def
-    
+!********************************************************************************    
     TYPE SRM_TYPE
       INTEGER NCELLS
       INTEGER, ALLOCATABLE :: CELLS(:)
@@ -149,11 +150,9 @@ END MODULE EXP_Global_def
     
     end Module EXP_Structures_def
     
-    
-    
 !********************************************************************************
 MODULE EXP_bndcond_def
-
+!********************************************************************************    
 TYPE HMOD_TYPE 
   INTEGER INC
   REAL, ALLOCATABLE :: DTIME(:)
@@ -187,11 +186,11 @@ integer ext_s,ext_n,ext_e,ext_w
 logical modify_h
 
 END MODULE
-!********************************************************************************
 
 !********************************************************************************
 MODULE EXP_transport_def
-use prec_def
+!********************************************************************************    
+use prec_def, only: ikind
 
 real*8 SLPFAC,RHOWDIV8,XKS,A0DIVRHOWGRAV,TCR,TWOPI,RHOWDIV2  
 
@@ -205,7 +204,6 @@ TYPE (SALT_type), ALLOCATABLE :: SALT(:)
     
 LOGICAL :: saltsimD = .true.              
 
-    
 !suspended sediment concentration variables
 TYPE ADSS_type
   REAL conc,concn,eros,depo,vol,diffC,qx,qy
@@ -238,17 +236,19 @@ real(ikind), allocatable :: qsx(:),qsy(:),bed(:) !Alex changed to double
 
 REAL    TMORPH_ELAPSE,TSED_ELAPSE,TSALT_ELAPSE
 
-
 END MODULE 
 
 !********************************************************************************
-MODULE NupdateMod
+    MODULE NupdateMod
+!********************************************************************************    
       integer NupdateInt,NupdateCnt
       logical Nupdate
     END MODULE
     
+!********************************************************************************    
 MODULE EXP_TELESCOPING
-    use prec_def
+!********************************************************************************    
+    use prec_def, only: ikind
     integer, allocatable :: cellfaces(:,:),cellmap(:,:)
     
     integer numxfaces

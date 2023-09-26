@@ -1,9 +1,8 @@
+!***********************************************************************
       subroutine ST_hardbottom()
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def
-      use flow_def
-      use comvarbl
+!***********************************************************************
+      use EXP_Global_def,    only: hardbottom
+      USE EXP_transport_def, only: bed, qsx, qsy, tsed_elapse 
       use sed_def, only: poros,hardbed,scalemorph,nhard,idhard
       use geo_def, only: dx,dy,zb
         
@@ -25,4 +24,5 @@
         enddo
       endif    
       
+      return
       end subroutine

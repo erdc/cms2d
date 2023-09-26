@@ -1,18 +1,16 @@
+!*************************************************************
       subroutine update_wetdry()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use sed_def
-      use flow_def
-      use comvarbl 
-      use size_def    
-      use geo_def, only: zb,cell2cell
+!*************************************************************
+      use EXP_Global_def, only: qxn, qyn, ncw, ncs, drydep
+      use flow_def, only: eta
+      use prec_def, only: ikind
+      use size_def, only: ncells 
+      use geo_def,  only: zb, cell2cell
       
       implicit none
       integer i
       real(ikind) depth1,depth2
             
-
 !!! LIMIT FLOW BETWEEN CELLS THAT ARE DRY   
 ! GWH slight reformatting 07/20/08 ! appears this can be a parallel loop
 !$omp parallel do private(depth1,depth2,NCW,NCS)
@@ -40,4 +38,5 @@
       ENDDO
 !$OMP end parallel do    
 
+      return
       end subroutine

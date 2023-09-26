@@ -1,23 +1,20 @@
-!********************************************************************************
+!*******************************************************************************
 !   initalizes arrays for explicit algorithm flow and salinity boundary conditions
 !   determines if cell string is for U or V flow
 !   determines sign to assing to flow input so positive flow is into grid
-!   redstributes flow input so it is uniform over string (imapct only wehn cells
+!   redstributes flow input so it is uniform over string (impact only when cells
 !       are not of uniform width
-!   re-assigns salintiy concentratino BC to dummy cells for for advection into 
-!       grid
+!   re-assigns salintiy concentration BC to dummy cells for for advection into grid
 !*******************************************************************************
       SUBROUTINE Initialize_BC_tel
-      use EXP_Global_def
-      USE EXP_bndcond_def 
-      use geo_def, only: dx,dy,cell2cell
-      use size_def     
-      use flow_def
-      use comvarbl
-      use out_def, only: goutfile
-      use bnd_def
-      use sal_def
-      use EXP_TELESCOPING
+!*******************************************************************************
+      USE EXP_bndcond_def, only: qstringexp
+      use EXP_TELESCOPING, only: cellmap, cellfaces
+      use geo_def,  only: dx,dy,cell2cell
+      use size_def, only: ncells
+      use out_def,  only: goutfile
+      use bnd_def,  only: nqstr, q_str
+      use prec_def, only: ikind
       USE diag_def, only: dgunit,dgfile
       
       IMPLICIT NONE
@@ -27,9 +24,7 @@
       REAL(ikind) sum
       LOGICAL isOpen
 
-
       if(nQstr .gt. 0) then
-                
         !determine orientation of cell string to determine to which face the flow is applied
         allocate (QstringEXP(nQstr))
         do i=1,nQstr
@@ -134,7 +129,6 @@
          !   enddo
          ! endif  
          !endif       
-        
         enddo !end of NQdriver
 
         inquire(unit=DGUNIT,opened=isOpen)
@@ -149,20 +143,16 @@
       RETURN
       END SUBROUTINE !INITIALIZE_BC
       
-    !********************************************************************************
+!*******************************************************************************
       SUBROUTINE INITIALIZE_WABC_tel
+!*******************************************************************************
 #include "CMS_cpp.h"      
-      use EXP_Global_def 
-      USE EXP_bndcond_def  
-      use size_def
-      use flow_def   
-      use cms_def, only: radpath,noptset
-      use comvarbl, only: timehrs
-      use sed_def
-      use met_def, only: windconst,windvar
-      use bnd_def
-      use geo_def, only: dx,dy
+      USE EXP_bndcond_def, only: wabc, swabc, twabc, mwabc
       use EXP_TELESCOPING, only: cellmap
+      use cms_def, only: radpath,noptset
+      use met_def, only: windconst,windvar
+      use bnd_def, only: nhstr, nthstr, nmhstr, h_str, th_str, mh_str
+      use geo_def, only: dx,dy
       
       IMPLICIT NONE
       !local variables
@@ -396,21 +386,22 @@
       RETURN
       END SUBROUTINE INITIALIZE_WABC_tel
       
-!********************************************************************************
+!*******************************************************************************
       SUBROUTINE INITIALIZE_TRANSPORT_Tel
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def
-      use size_def    
-      use flow_def
-      use comvarbl
-      use bnd_def
-      use sal_def  
-      use sed_def, only: rhosed,hardbed  
-      use hot_def  
-      use geo_def, only: dx,dy,idmap,zb,cell2cell
-      use sed_def, only: sedtrans,ct,qtx,qty,rs
-      use EXP_TELESCOPING
+!*******************************************************************************
+      use EXP_Global_def,    only: sedtransexp, isedform, maxunit, ndummy
+      USE EXP_bndcond_def,   only: qstringexp
+      USE EXP_transport_def, only: salt, adss, qsx, qsy, bed, tsed_elapse, tmorph_elapse, cohesive, cohesive_read
+      use EXP_transport_def, only: cohes, csfils, chparms, cohes_flow_bc, cohes_unit, cohes_flow_bc_file, cohes_bc
+      use EXP_transport_def, only: cohes_bc_time, cohes_bc_cells
+      use EXP_TELESCOPING,   only: xtransq, ytransq, xsedtransq, ysedtransq, numxfaces, numyfaces
+      use size_def, only: ncells, ncellsd, nmaxfaces
+      use flow_def, only: eta, acoef
+      use bnd_def,  only: nqstr, q_str
+      use sal_def,  only: saltrans
+      use sed_def,  only: rhosed,hardbed  
+      use geo_def,  only: dx,dy,idmap,zb,cell2cell
+      use sed_def,  only: sedtrans,ct,qtx,qty,rs
        
       IMPLICIT NONE
       INTEGER i,j,K,id_t
@@ -430,31 +421,30 @@
         if(.not. allocated(yTransQ) ) allocate(yTransQ(numyfaces))       
         xTransQ = 0
         yTransQ = 0
-      Endif      
+      endif      
       
     !sedtrans is implicit code switch for NET
     !the explicit NET is built on the ADEQ advection/diffsuion algorithm
     !and uses some of those varaible for processing - they are allocated
     !and initialized here
-        if(sedtrans) then
-          allocate(ADSS(ncellsD))
-          ADSS%conc=0
-          ADSS%concN=0
-          ADSS%diffC=0
-          ADSS%eros=0
-          ADSS%depo=0
-          ADSS%qx = 0
-          ADSS%qy = 0
-          do i=1,ncellsD
+      if(sedtrans) then
+        allocate(ADSS(ncellsD))
+        ADSS%conc=0
+        ADSS%concN=0
+        ADSS%diffC=0
+        ADSS%eros=0
+        ADSS%depo=0
+        ADSS%qx = 0
+        ADSS%qy = 0
+        do i=1,ncellsD
           ADSS(i)%vol = (eta(i)-zb(i))*dx(i)*dy(i)
-          enddo
+        enddo
         if(.not. allocated(xSedTransQ) ) allocate(xSedTransQ(numxfaces))
         if(.not. allocated(ySedTransQ) ) allocate(ySedTransQ(numyfaces))  
         xSedTransQ = 0
         ySedTransQ = 0
-          allocate(acoef(nmaxfaces,ncellsD))          !ncellsD,nmaxfaces switched 10/27/2015
-        Endif
-
+        allocate(acoef(nmaxfaces,ncellsD))          !ncellsD,nmaxfaces switched 10/27/2015
+      endif
         
 ! the explicit code also supports AD (with Lund-CIRP) and TL (with Lund-CIRP and WATANABE)
 ! the required varaibles are allocated and initialized here
@@ -462,7 +452,7 @@
 ! writing to output files
 
       if(sedtransEXP) then  
-          if(isedform == 3) then   !AD scheme
+        if(isedform == 3) then   !AD scheme
           allocate(qsx(NCellsD),qsy(NcellsD),bed(ncellsD))
           tsed_elapse = 0.0
           tmorph_elapse = 0.0
@@ -484,8 +474,8 @@
           if( .not. allocated(qtx)) allocate (qtx(ncellsD))
           if( .not. allocated(qty)) allocate (qty(ncellsD))         
           if( .not. allocated(rs)) allocate (rs(ncellsD)) 
-          endif
-          if(isedform == 1 .or. isedform == 2) then   !TL (Watanabe or Lund-CIRP)
+        endif
+        if(isedform == 1 .or. isedform == 2) then   !TL (Watanabe or Lund-CIRP)
           allocate(qsx(NCellsD),qsy(NcellsD),bed(ncellsD))
           tsed_elapse = 0.0
           tmorph_elapse = 0.0
@@ -494,111 +484,107 @@
           bed=0
           if( .not. allocated(qtx)) allocate (qtx(ncellsD))
           if( .not. allocated(qty)) allocate (qty(ncellsD))         
-          endif          
+        endif          
       endif      
 
-      
       ! cexplicit code cohesive algorithm initialization here
-        if(cohesive) then
-          cohesive_read = .false.
-          !if(elev_read) cohesive_read = .true.
-          allocate(COHES(ncellsD))
-          COHES%conc=0
-          COHES%concN=0
-          COHES%diffC=0
-          COHES%eros=0
-          COHES%depo=0
-          COHES%qx = 0
-          COHES%qy = 0
-          COHES%tbmax = 0
-          do i=1,ncellsD
-            COHES(i)%vol = (eta(i)-zb(i))*dx(i)*dy(i)
-          enddo
-          csfils(1) = 'cohesive.dat'
-          csfils(2) = 'cohesive.dat'
+      if(cohesive) then
+        cohesive_read = .false.
+        !if(elev_read) cohesive_read = .true.
+        allocate(COHES(ncellsD))
+        COHES%conc=0
+        COHES%concN=0
+        COHES%diffC=0
+        COHES%eros=0
+        COHES%depo=0
+        COHES%qx = 0
+        COHES%qy = 0
+        COHES%tbmax = 0
+        do i=1,ncellsD
+          COHES(i)%vol = (eta(i)-zb(i))*dx(i)*dy(i)
+        enddo
+        csfils(1) = 'cohesive.dat'
+        csfils(2) = 'cohesive.dat'
           
-          if(CHparms%Tcrit_variable) then
+        if(CHparms%Tcrit_variable) then
           !set E and D according to depth
           do i=1,ncellsD
-          if(-zb(i).ge.CHparms%Depth(1)) then
-          COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(1)
-          COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(1)
-          endif        
-          do k=1,CHparms%numDEPTHS-1
-          if(-zb(i).le.CHparms%Depth(k).and. -zb(i)  .gt.CHparms%Depth(k+1))then
-          fac = (-zb(i)-CHparms%Depth(k+1))/(CHparms%Depth(k)-CHparms%Depth(k+1))
-          COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(k+1)+fac*(CHparms%Tcrit_Ev(k)-CHparms%Tcrit_Ev(k+1))
-          COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(k+1)+fac*(CHparms%Tcrit_Dv(k)-CHparms%Tcrit_Dv(k+1)) 
-          endif
-          enddo
-          if(-zb(i).le.CHparms%Depth(CHparms%numDEPTHs)) then
-          COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(CHparms%numDEPTHS)
-          COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(CHparms%numDEPTHS)
-          endif         
+            if(-zb(i).ge.CHparms%Depth(1)) then
+              COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(1)
+              COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(1)
+            endif        
+            do k=1,CHparms%numDEPTHS-1
+              if(-zb(i).le.CHparms%Depth(k).and. -zb(i)  .gt.CHparms%Depth(k+1))then
+                fac = (-zb(i)-CHparms%Depth(k+1))/(CHparms%Depth(k)-CHparms%Depth(k+1))
+                COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(k+1)+fac*(CHparms%Tcrit_Ev(k)-CHparms%Tcrit_Ev(k+1))
+                COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(k+1)+fac*(CHparms%Tcrit_Dv(k)-CHparms%Tcrit_Dv(k+1)) 
+              endif
+            enddo
+            if(-zb(i).le.CHparms%Depth(CHparms%numDEPTHs)) then
+              COHES(i)%Tcrit_E = CHparms%Tcrit_Ev(CHparms%numDEPTHS)
+              COHES(i)%Tcrit_D = CHparms%Tcrit_Dv(CHparms%numDEPTHS)
+            endif         
           enddo         
-          else
+        else
           !set all value so same input value
           COHES%Tcrit_E = CHparms%Tcrit_E
           COHES%Tcrit_D = CHparms%Tcrit_D
-          endif
+        endif
           
-          dmin_E = 9999
-          dmin_D = 9999
-          dmax_E = 0
-          dmax_D = 0
-          do i=1,ncellsD
+        dmin_E = 9999
+        dmin_D = 9999
+        dmax_E = 0
+        dmax_D = 0
+        do i=1,ncellsD
           dmax_E = MAX(cohes(i)%TCriT_E,dmax_E)
           DMIN_e = MIN(COHES(I)%Tcrit_E,dmin_E)
-           dmax_D = MAX(cohes(i)%TCriT_D,dmax_D)
+          dmax_D = MAX(cohes(i)%TCriT_D,dmax_D)
           DMIN_D = MIN(COHES(I)%Tcrit_D,dmin_D) 
-          enddo
-          write(*,*)dmax_E,dmin_E
-          write(*,*)dmax_D,dmin_D                  
-          
-        Endif 
+        enddo
+        write(*,*)dmax_E,dmin_E
+        write(*,*)dmax_D,dmin_D                  
+      Endif 
        
-        if(nQstr .eq. 0) cohes_flow_bc = .false.  !no need for cohes bcs if no flow bcs
+      if(nQstr .eq. 0) cohes_flow_bc = .false.  !no need for cohes bcs if no flow bcs
+      if(cohes_flow_bc) then
+        maxunit=maxunit+1
+        cohes_unit = maxunit
+        open(unit=cohes_unit,file=cohes_flow_bc_file,status='old')
 
-        if(cohes_flow_bc) then
-          maxunit=maxunit+1
-          cohes_unit = maxunit
-          open(unit=cohes_unit,file=cohes_flow_bc_file,status='old')
-
-          read(cohes_unit,*)!header
-          allocate (cohes_bc(2,nQstr),cohes_bc_time(2))
-          read(cohes_unit,*)cohes_bc_time(1),(cohes_bc(1,j),j=1,nQstr)
-          read(cohes_unit,*)cohes_bc_time(2),(cohes_bc(2,j),j=1,nQstr)
-          do i=1,2
-            do j=1,nQstr
-              cohes_bc(i,j) = cohes_bc(i,j)/(rhosed*1000)  !convert from mg/L to volume concentration
+        read(cohes_unit,*)!header
+        allocate (cohes_bc(2,nQstr),cohes_bc_time(2))
+        read(cohes_unit,*)cohes_bc_time(1),(cohes_bc(1,j),j=1,nQstr)
+        read(cohes_unit,*)cohes_bc_time(2),(cohes_bc(2,j),j=1,nQstr)
+        do i=1,2
+          do j=1,nQstr
+            cohes_bc(i,j) = cohes_bc(i,j)/(rhosed*1000)  !convert from mg/L to volume concentration
+          enddo
+        enddo
+        !determine cells that require cohes bcs (piigy back of of flow bcs)
+        !first allocate cell stoarge array - need max length of flow bc strings
+        ndummy=0
+        do i=1,nQstr
+          ndummy = max(ndummy,Q_Str(i)%ncells)
+        enddo
+        allocate(cohes_bc_cells(nQstr,ndummy))
+        !now assign cell values
+        do i=1,nQstr
+          if(QstringEXP(I)%Vface .eqv. .true.) then !then on north or south face      
+            do j=1,Q_Str(I)%NCELLS
+              ID_T = Q_Str(I)%cells(j)
+              if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the north face
+              if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(3,ID_T) !on the south face
             enddo
-          enddo
-          !determine cells that require cohes bcs (piigy back of of flow bcs)
-          !first allocate cell stoarge array - need max length of flow bc strings
-          ndummy=0
-          do i=1,nQstr
-            ndummy = max(ndummy,Q_Str(i)%ncells)
-          enddo
-          allocate(cohes_bc_cells(nQstr,ndummy))
-          !now assign cell values
-          do i=1,nQstr
-            if(QstringEXP(I)%Vface .eqv. .true.) then !then on north or south face      
-              do j=1,Q_Str(I)%NCELLS
-                ID_T = Q_Str(I)%cells(j)
-                if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the north face
-                if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(3,ID_T) !on the south face
-             enddo
-           endif
-           if(QstringEXP(I)%Vface .eqv. .false.) then !then on east or west face      
-             do j=1,Q_Str(I)%NCELLS
-               ID_T = Q_Str(I)%cells(j)
-               if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the east face
-               if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(4,ID_T) !on the west face
-              enddo
-            endif     
-          enddo      
-        endif !end cohes_flow_bc
+          endif
+          if(QstringEXP(I)%Vface .eqv. .false.) then !then on east or west face      
+            do j=1,Q_Str(I)%NCELLS
+              ID_T = Q_Str(I)%cells(j)
+              if(ID_T.gt.ncells) cohes_bc_cells(i,j)= ID_T  !on the east face
+              if(ID_T.le.ncells) cohes_bc_cells(i,j)= cell2cell(4,ID_T) !on the west face
+            enddo
+          endif     
+        enddo      
+      endif !end cohes_flow_bc
       
       RETURN
       END SUBROUTINE !INITIALIZE TRANSPORT
-

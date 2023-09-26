@@ -1,12 +1,12 @@
+!*************************************************************
       subroutine update_sedtrans()
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def      
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl 
-      use size_def    
+!*************************************************************
+      use EXP_Global_def,    only: dt, qxn, qyn, dtsed, watanabe, lundcirp, dtmorph, adeq, sedtransexp
+      USE EXP_bndcond_def,   only: qstringexp
+      USE EXP_transport_def, only: adss, cohesive, cohes, tsed_elapse, tmorph_elapse, cohes_flow_bc
+      use bnd_def,  only: nqstr, q_str
+      use sed_def,  only: do_aval
+      use size_def, only: ncells 
 
       implicit none
       !local vars
@@ -102,14 +102,13 @@
       !  Chris Reed   6/28/2013
       !*************************************************************      
       subroutine ADSS_prep_for_output
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def      
-      use bnd_def
-      use sed_def
-      use flow_def
+      !*************************************************************
+      use EXP_Global_def,    only: nce, ncn, qx, qy
+      USE EXP_transport_def, only: adss, qsx, qsy
+      use sed_def,   only: ct, rhosed, qtx, qty, rs
+      use prec_def,  only: ikind
       use const_def, only: small
-      use size_def 
+      use size_def,  only: ncells
       use out_def, only: write_fracsusp
       use geo_def, only: cell2cell
       
@@ -155,8 +154,9 @@
       !  Chris Reed   6/28/2013
       !*************************************************************
       subroutine TL_prep_for_output
-      USE EXP_transport_def      
-      use sed_def
+      !*************************************************************
+      USE EXP_transport_def, only: qsx, qsy
+      use sed_def, only: qtx, qty
 
       implicit none
       

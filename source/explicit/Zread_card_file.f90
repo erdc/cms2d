@@ -1,9 +1,12 @@
+!***********************************************************************
       subroutine ReadCardFile_EXP
-      !use XMDF
-      use EXP_Global_def
-      USE EXP_transport_def 
-      USE EXP_bndcond_def 
-      use EXP_Structures_def       
+!***********************************************************************
+      use EXP_Global_def,  only: drydep, dt, iadv, imix, a0, thetac, iripple, advcoef, rainfall, isedform
+      use EXP_Global_def,  only: dtsed, dtmorph, dtsalt, dtheat, rf_filename, maxunit, rf_unit, rf_frac_ro
+      USE EXP_bndcond_def, only: modify_h, hmod
+      USE EXP_transport_def,  only: rate_avalanche, chparms, saltsimd, cohes_flow_bc_file, cohes_flow_bc
+      use EXP_Structures_def, only: srm, structures, srm_on, srm, cul, cul_on
+      use prec_def, only: ikind
       use flow_def, only: hmin
       use comvarbl, only: ctlfile,dtime  
                  
@@ -36,7 +39,7 @@
       IRIPPLE = 1   
       rate_avalanche = 0.01     
       !BC extrabploation
-      ADVCOEF = 1.0d0 
+      ADVCOEF = 0.0  !0.90d0 !1.0d0 
       !cohesive
       CHparms%Dfac = 1.0
       !COHD_PATH = "COHES_DIFF"    

@@ -1,11 +1,9 @@
+!*************************************************************
       subroutine update_variables()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
+!*************************************************************
+      use EXP_Global_def, only: qx, qy, qxn, qyn, linktodummies, etan
+      use flow_def, only: eta
+      use size_def, only: ncells, ncellsd
 
       implicit none
       integer i,ii,jj
@@ -26,4 +24,5 @@
         eta(i) = eta(jj)
       enddo
       
+      return
       end subroutine

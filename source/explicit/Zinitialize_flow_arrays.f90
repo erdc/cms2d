@@ -1,9 +1,10 @@
+!********************************************************************************    
   subroutine initialize_flow_arrays
+!********************************************************************************    
 #include "CMS_cpp.h"    
-    use EXP_Global_def
-    USE EXP_transport_def 
-    USE EXP_bndcond_def
-    use size_def    
+    use EXP_Global_def, only: linktodummies, qx, qxn, qy, qyn, etan, ue, ve, advectx, advecty, cdx, cdy, rhoprim, num_fg_m_cells
+    use EXP_Global_def, only: advect, mixing, fuu, fuv, gvv, gvu, drydep, num_fg_a_cells, ncn, nce, ncs, ncw, fg_a_cells, fg_m_cells
+    use size_def, only: ncells, ncellsd
     use flow_def, only: eta,iwet
     use met_def, only: tauwindx,tauwindy,pressatm
     use wave_flowgrid_def, only: wavestrx,wavestry

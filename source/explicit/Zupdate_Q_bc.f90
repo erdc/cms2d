@@ -1,12 +1,12 @@
+!*************************************************************
       subroutine update_Q_bc
-    use EXP_Global_def 
-      USE EXP_bndcond_def    
-      USE EXP_transport_def      
-    use comvarbl, only: timehrs,ramp
-      use bnd_def
-      use sed_def 
-      use flow_def
-      use geo_def, only: dx,dy
+!*************************************************************
+      use EXP_Global_def,  only: qx, qy, qxn, qyn
+      USE EXP_bndcond_def, only: qstringexp
+      use comvarbl, only: timehrs,ramp
+      use bnd_def,  only: nqstr, q_str
+      use prec_def, only: ikind
+      use geo_def,  only: dx,dy
       use size_def, only: ncells,ncellsD
       
       implicit none     

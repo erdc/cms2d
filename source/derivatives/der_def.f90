@@ -3,7 +3,7 @@ module der_def
 ! Spatial Derivative Operator Definitions
 ! Author: Alex Sanchez, USACE-CHL
 !=====================================================
-    use prec_def   
+    use prec_def, only: ikind
     implicit none
     save  
     

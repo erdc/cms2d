@@ -12,7 +12,8 @@ contains
 ! Destroys the watches    
 ! written by Alex Sanchez, USACE-CHL        
 !**********************************************************
-    use watch_lib
+    use watch_lib, only: watch_stop, watch_start, watch_default, watch_init, watch_print, watch_output, watch_destroy
+    
     implicit none    
     integer, parameter :: n = 100000
     integer :: i,j,iwatch

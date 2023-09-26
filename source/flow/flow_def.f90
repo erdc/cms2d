@@ -4,7 +4,8 @@ module flow_def
 !
 ! written by Weiming Wu, NCCHE, and Alex Sanchez, USACE-CHL
 !===================================================================
-  use prec_def
+  use prec_def, only: ikind
+  
   implicit none    
   save  
 

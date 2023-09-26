@@ -1,19 +1,20 @@
+!********************************************************************************    
       Subroutine prestart_EXP
-      use EXP_Global_def
-      USE EXP_bndcond_def
-      USE EXP_transport_def             
-      use flow_def
-      use cms_def
-      use bnd_def
+!********************************************************************************    
+      use EXP_Global_def,    only: fac_uw, fac_dw, advect, advcoef, mixing, time, waves, sedtransexp, watanabe, lundcirp, adeq
+      use EXP_Global_def,    only: isedform, dtsed, dtmorph, dstar, wsfall, thetacr, thetac, taucr, ustcr, a0, dt
+      USE EXP_transport_def, only: slpfac, xks, rhowdiv8, a0divrhowgrav, tcr, twopi, rhowdiv2
+      use flow_def,  only: rhow, grav, viscos
+      use cms_def,   only: noptset
+      use prec_def,  only: ikind
       use const_def, only: pi,deg2Rad
-      use wave_flowgrid_def
-      use comvarbl, only: ctlfile,rampdur,iday,tmax,ramp,timehrs,ndsch
-      use out_def, only: save_point,obs_cell,write_capac,write_fracsusp,write_conc
-      use sal_def, only: saltrans,sal
-      use stat_def, only: flowstats,sedstats,salstats
-      use sed_def, only: rhosed,sedclass,variableD50,sedtrans,poros,dcoeff
-      use hot_def 
-      use diag_def, only: dgunit, dgfile
+      use comvarbl,  only: ctlfile,rampdur,iday,tmax,ramp,timehrs,ndsch
+      use out_def,   only: save_point,obs_cell,write_capac,write_fracsusp,write_conc
+      use sal_def,   only: saltrans,sal
+      use stat_def,  only: flowstats,sedstats,salstats
+      use sed_def,   only: rhosed,sedclass,variableD50,sedtrans,poros,dcoeff
+      use hot_def,   only: coldstart
+      use diag_def,  only: dgunit, dgfile
           
       implicit none
       real(ikind) s1,singleD50
@@ -98,3 +99,28 @@
       
       return
       end subroutine
+
+    !*************************************************************   
+    subroutine balancecheck_cards(cardname,foundcard)
+    ! Reads mass/mom balance toggle and interval form advanced card file
+    ! modified by Chris Reed starting with similar routines created by Alex Sanchez
+    !*************************************************************
+    use BalanceCheck_def, only: balcheck_int, balcheck
+    
+    implicit none
+    integer :: ierr
+    character(len=37) :: cardname, cdum
+    logical :: foundcard
+    
+    foundcard = .true.
+    select case (cardname)      
+    case('BalanceCheck')
+      backspace(77)
+      read(77,*) cardname, BalCheck_int 
+      balcheck = .true.
+    case default
+      foundcard = .false.
+    end select
+    
+    return
+    end subroutine balancecheck_cards

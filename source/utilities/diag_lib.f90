@@ -9,16 +9,18 @@ contains
     subroutine diag_print_var(i,neq)
 ! Prints the model variables to screen and debug file
 !******************************************************************       
-    use geo_def
-    use flow_def
-    use fric_def
-    use diag_def
-    use comvarbl, only: niter
-    use wave_flowgrid_def
-    use sed_def
-    use cms_def, only: noptset
+    use geo_def,   only: mapid, igridtype, xc, yc, icol, irow, x, y, zb, cell2cell, ncface, dsxy
+    use flow_def,  only: iwet, iwet1, u, v, uv, u1, v1, p, pp, h, h1, gravinv, flux, acoef, hk, visk
+    use flow_def,  only: su, sp, vis, dpx, dpy, dppx, dppy, dux, duy, dvx, dvy, us, vs
+    use fric_def,  only: cfrict, uelwc
+    use diag_def,  only: dgunit, dgfile
+    use comvarbl,  only: niter
+    use sed_def,   only: singlesize, alphat, dzb, wsfall, varsigma, sb, btk, btk1, ctstarp, ctkstar, ctk, ctk1, nsed, dzbk, pbk, pbk1, db, db1, rsk
+    use cms_def,   only: noptset
     use const_def, only: deg2rad
-    use prec_def
+    use prec_def,  only: ikind
+    use wave_flowgrid_def, only: whgt, wper, wlen, wavestrx, wavestry, wunitx, wunity, worb, worbrep
+    
     implicit none
     integer :: i,j,k,neq,ks,junit(2)
 
@@ -177,6 +179,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL       
 !******************************************************************************
     use diag_def, only: dgfile,dgunit
+    
     implicit none
     !Input/Output
     character(len=*),intent(in) :: msg1
@@ -216,6 +219,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL    
 !******************************************************************************
     use diag_def, only: dgfile,dgunit
+    
     implicit none
     !Input/Output
     character(len=*),intent(in) :: msg1
@@ -253,6 +257,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL    
 !******************************************************************************
     use diag_def, only: dgfile,dgunit
+    
     implicit none
     !Input/Output
     character(len=*),intent(in) :: msg1

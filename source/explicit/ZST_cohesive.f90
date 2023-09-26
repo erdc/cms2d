@@ -1,14 +1,14 @@
+!***********************************************************************
       subroutine ST_cohesive()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use sed_def
-      use wave_flowgrid_def
-      use flow_def
-      use comvarbl
+!***********************************************************************
+      use EXP_Global_def,    only: waves, etan, qxn, qyn
+      USE EXP_transport_def, only: rhowdiv2, rhowdiv8, twopi, cohes, chparms
+      use wave_flowgrid_def, only: wlen, whgt, wper
+      use flow_def,  only: viscos
+      use prec_def,  only: ikind
       use const_def, only: pi
-      use size_def 
-      use geo_def, only: zb,cell2cell
+      use size_def,  only: ncells
+      use geo_def,   only: zb,cell2cell
                 
       implicit none
       integer i

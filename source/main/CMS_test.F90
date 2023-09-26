@@ -12,12 +12,12 @@ contains
 ! outputs the results to the diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************
-    use comvarbl
-    use watch_test
-    use geo_test
-    use math_test
-    use time_test
-    !use wave_test
+    use diag_def,   only: dgfile, dgunit
+    use geo_test,   only: geo_test_all
+    use math_test,  only: math_test_all 
+    use time_test,  only: time_test_all
+    use watch_test, only: watch_test_all
+
     implicit none
     
     dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path

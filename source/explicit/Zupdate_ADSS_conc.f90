@@ -1,16 +1,19 @@
+!*******************************************************************************
       subroutine update_ADSS_conc()
-    use size_def; use geo_def
-    use EXP_Global_def; use flow_def; use comvarbl
-      USE EXP_bndcond_def
-      use bnd_def
-      use sed_def
-      USE EXP_transport_def 
+!*******************************************************************************
+      use EXP_Global_def,    only: etan, ncw, ncs, nce, ncn, fuu, gvv, active
+      USE EXP_transport_def, only: tsed_elapse, voln, adss
+      use size_def, only: ncells
+      use geo_def,  only: zb, cell2cell, dx, dy
+      use flow_def, only: eta
+      use prec_def, only: ikind
+
       !USE SYNOPTIC_VARS    !Alex, Sep 23, 2009
+      
       implicit none
       !local vars
       integer i
       real(ikind) difft,dxt,dyt,area
-      
       
 !$OMP PARALLEL 
       !update C based on erosion and deposition
@@ -92,13 +95,15 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! sets concentrations at flow and wse boundaries      
       
+!*******************************************************************************
       subroutine ADeq_conc_BC()
-      USE EXP_transport_def 
-     use EXP_Global_def; use flow_def; use comvarbl
-      USE EXP_bndcond_def     
-    use size_def; use geo_def
-      use bnd_def
-      use sed_def
+!*******************************************************************************
+      USE EXP_transport_def, only: adss
+      use EXP_Global_def,    only: ncn, ncs, ncw, nce, qx, qy, gvv, fuu
+      USE EXP_bndcond_def,   only: qstringexp
+      use size_def, only: ncells
+      use geo_def,  only: cell2cell, dx, dy
+      use bnd_def,  only: nqstr, nhstr, q_str, h_str
 
       implicit none
       !local vars

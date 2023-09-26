@@ -1,14 +1,12 @@
-      subroutine ST_morphology()
-      use EXP_Global_def 
-      USE EXP_bndcond_def     
-      USE EXP_transport_def    
-      use EXP_Structures_def
-    use size_def
-      use geo_def
-      use flow_def
-      use comvarbl
-      !use sed_def
-      use sed_def, only: scalemorph,poros
+!***********************************************************************
+      subroutine ST_morphology()  
+!***********************************************************************
+      use EXP_Global_def,     only: etan, drydep, linktodummies, adeq
+      USE EXP_transport_def,  only: bed, adss, cohesive, cohes
+      use EXP_Structures_def, only: structures, srm_on, srm
+      use size_def, only: ncells, ncellsd
+      use geo_def,  only: zb, dx, dy
+      use sed_def,  only: scalemorph,poros
    
       implicit none
       !local vars   
@@ -62,5 +60,6 @@
         enddo
 !$OMP END PARALLEL DO        
       endif     
-          
+        
+      return
       end subroutine ST_morphology

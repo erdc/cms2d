@@ -1,25 +1,19 @@
+!*************************************************************
       subroutine update_wetdry_tel()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use sed_def
-      use flow_def
-      use comvarbl 
-      use size_def    
-      use geo_def, only: zb,cell2cell
-      use exp_telescoping
+!*************************************************************
+      use EXP_Global_def,  only: drydep
+      use exp_telescoping, only: xface_qn, yface_qn, numxfaces, numyfaces, xface_cells, yface_cells
+      use flow_def, only: eta 
+      use prec_def, only: ikind
+      use geo_def,  only: zb, cell2cell
       
       implicit none
       integer i,id1,id2
       real(ikind) depth1,depth2
             
-
 !!! LIMIT FLOW BETWEEN CELLS THAT ARE DRY   
 
-
-
 !$omp parallel
-
 !$omp do private(depth1,depth2,id1,id2)
       do i=1,numxfaces
     ! if( .not. xface_wall) then  !look at possible wet dry adjustments
@@ -55,9 +49,7 @@
   !    endif
       enddo
 !$OMP end  do    
-
 !$OMP end parallel 
-
 
 !!$omp parallel do  
 !!$omp+ private(depth1,depth2,NCW,NCS)
@@ -85,32 +77,27 @@
 !      ENDDO
 !!$OMP end parallel do    
 
+      return
       end subroutine
     
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
+!*************************************************************
       subroutine update_wetdry_tel_pre()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use sed_def
-      use flow_def
-      use comvarbl 
-      use size_def    
-      use geo_def, only: zb,cell2cell
-      use exp_telescoping
+!*************************************************************
+      use EXP_Global_def,  only: drydep
+      use exp_telescoping, only: numxfaces, numyfaces, xface_wet, yface_wet, xface_cells, yface_cells, xface_qn, yface_qn
+      use flow_def, only: eta
+      use prec_def, only: ikind
+      use geo_def,  only: zb, cell2cell
       
       implicit none
       integer i,id1,id2
       real(ikind) depth1,depth2
             
-
 !!! LIMIT FLOW BETWEEN CELLS THAT ARE DRY   
 
     xface_wet = .true.
 
 !$omp parallel
-
 !$omp do private(depth1,depth2,id1,id2)
       do i=1,numxfaces
     ! if( .not. xface_wall) then  !look at possible wet dry adjustments
@@ -142,9 +129,7 @@
   !    endif
       enddo
 !$OMP end  do    
-
 !$OMP end parallel 
-
 
 !!$omp parallel do  
 !!$omp+ private(depth1,depth2,NCW,NCS)
@@ -172,4 +157,5 @@
 !      ENDDO
 !!$OMP end parallel do    
 
+      return
       end subroutine 
