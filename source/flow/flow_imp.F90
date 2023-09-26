@@ -32,24 +32,25 @@
 !            Alejandro Sanchez, USACE-CHL
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
     use flow_def
-    use flow_lib, only: number_wet_cells
-    use struct_def
-    use met_def
     use comvarbl
-    use comp_lib    
-    use cms_def
-    use bnd_def
+    use cms_def,  only: cmswave
+    use comp_lib, only: zerocoef, hybridcoef, powerlawcoef, exponentialcoef, upwindcoef, gammadefcor, cubistadefcor, alvsmartdefcor, hoabdefcor
+    use diag_lib, only: diag_print_error, diag_print_message
+    use diag_def, only: msg, msg2, debug_mode, dgunit, dgfile
+    use size_def, only: ncells, ncellsimple
+    use flow_lib, only: number_wet_cells
+    use met_def,  only: presconst, windconst, windvar, presvar, windsta, pressta, iwndlagr, rain_evap
+    use solv_def, only: iconv
+    
 #ifdef DEV_MODE
     use q3d_def
 #endif
-    use diag_lib
+
 #ifdef PROFILE
     use watch_lib
 #endif
-    use diag_def
-    use solv_def, only: iconv
+
     implicit none
     integer :: i
 
@@ -316,15 +317,16 @@
 ! Static components of the hydro source and sink terms are
 ! calculated once and stored for efficiency
 !*******************************************************    
-    use size_def
     use geo_def
     use met_def
     use flow_def
-    use wave_flowgrid_def, only: wavestrx,wavestry
-    use cms_def, only: noptset
-    use comvarbl, only: dtime,ntsch,ctsch1,ctsch2,ramp
+    use size_def,  only: ncells
+    use cms_def,   only: noptset
+    use comvarbl,  only: dtime,ntsch,ctsch1,ctsch2,ramp
     use const_def, only: pi
-    use prec_def
+    use prec_def,  only: ikind
+    use wave_flowgrid_def, only: wavestrx,wavestry
+
     implicit none
     integer :: i
     real(ikind):: fac1,fac2,val,gravdtimeinv,dtimeinv
@@ -410,25 +412,22 @@
 !***********************************************************************
 #include "CMS_cpp.h"
     use comvarbl
-    use comp_lib
-    use cms_def, only: noptset
-    use der_def, only: gow
-    use der_lib, only: dx2d,dy2d
-    use flow_def, only: flux,u,v,us,vs,h,hk,visk,fc,waveflux,iwet,&
-        dpx,dpy,acoef,su,sv,sp,ssu0,ssv0,spuv0,apuareap,sumu,uv,rhow
-    use fric_def, only: cbcfuwcap,cfrict,uelwc,cmb,&
-        z0,bbl_stream
-    use fric_lib, only: fric_normapprough,fric_streaming_stress
     use geo_def
-    use met_def, only: iwndlagr,windconst,windvar,presvar,windsta,&
-        cdWndareap,wndx,wndy,uwind,vwind,pressatmdx,pressatmdy,pressta
+    use prec_def, only: ikind
+    use size_def, only: ncells
+    use cms_def,  only: noptset
+    use der_def,  only: gow
+    use der_lib,  only: dx2d,dy2d
+    use flow_def, only: flux,u,v,us,vs,h,hk,visk,fc,waveflux,iwet,dpx,dpy,acoef,su,sv,sp,ssu0,ssv0,spuv0,apuareap,sumu,uv,rhow
+    use fric_def, only: cbcfuwcap,cfrict,uelwc,cmb,z0,bbl_stream
+    use fric_lib, only: fric_normapprough,fric_streaming_stress
+    use met_def,  only: iwndlagr,windconst,windvar,presvar,windsta,cdWndareap,wndx,wndy,uwind,vwind,pressatmdx,pressatmdy,pressta
+    use wave_flowgrid_def, only: wunitx,wunity,worbrep,wlen,wper
 #ifdef DEV_MODE
     use q3d_def
     use veg_def
 #endif
-    use prec_def
-    use size_def
-    use wave_flowgrid_def, only: wunitx,wunity,worbrep,wlen,wper
+
     implicit none
     integer :: i,k
     real(ikind) :: ddk,densitinv,za,asum,apu,val,dvarx,dvary
@@ -582,22 +581,21 @@
 ! Modified by Alex Sanchez, USACE, 2013
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
+    use size_def,   only: ncells, ncellsd, ncelljoint, ncellpoly, nmaxfaces
     use geo_def
-    use der_def
-    use der_lib, only: der_grad_eval,der_gradvec_eval
-    use interp_def
     use flow_def
-    use comp_lib
-    use comvarbl, only: dtime,niter,maxit,relax,&
-        ntsch,ctsch,ctsch1,ctsch2,skewcor,rmom
-    use cms_def, only: noptset
-    use const_def, only: small
+    use der_lib,    only: der_grad_eval,der_gradvec_eval
+    use comvarbl,   only: dtime,niter,maxit,relax,ntsch,ctsch,ctsch1,ctsch2,skewcor,rmom
+    use cms_def,    only: noptset
+    use const_def,  only: small
+    use prec_def,   only: ikind
+    use interp_def, only: fintp
+    
 #ifdef DIAG_MODE
     use diag_def
     use diag_lib
 #endif
-    use prec_def
+
     implicit none
     integer :: i,j,k,ii,nck,jcn
     real(ikind) :: fk,fp,apuvolpf,sumuf,asum,apu

@@ -1,4 +1,3 @@
-
 !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 !
 ! BELOW FOLLOWS A THREE SUBROUTINES TO COMPUTE SEDIMENT TRANSPORT
@@ -363,14 +362,12 @@
 !      RETURN
 !      END SUBROUTINE !BBEDLUND
 
-!********************************************************************
+!*******************************************************************************
 ! ROUTINE TO COMPUTE SEDIMENT TRANSPORT
-!********************************************************************
-      SUBROUTINE LUNDCIRP_(H,PERIOD,DB,U0,DEP,D50,PHI_M,VNU,RHOW, &
-          RHOS,QBS,QSS,IRIPPLE,              &
-          BDpart,CRCW,WSFALL,USTC,USTW,TAUCR,TAUCWTB,TAUCWMTB,      &
-          EPSCW,FCF,FWF)
-!********************************************************************
+!*******************************************************************************
+      SUBROUTINE LUNDCIRP_(H,PERIOD,DB,U0,DEP,D50,PHI_M,VNU,RHOW,RHOS,QBS,QSS,IRIPPLE, &
+          BDpart,CRCW,WSFALL,USTC,USTW,TAUCR,TAUCWTB,TAUCWMTB,EPSCW,FCF,FWF)
+!*******************************************************************************
 ! INPUT VARIABLES TO LUND-CIRP SEDIMENT TRANSPORT CALCULATIONS
 ! ------------------------------------------------------------
 ! I = COUNTER (?; NOT USED)
@@ -441,13 +438,13 @@
 ! CRITICAL SHEAR STRESS
       TAUCR=THETACR*(RHOS-RHOW)*GRAV*D50
       CALL ZSHEARLUND(IRIPPLE,DEPTH,UC,UW,T,PHI,RHOS,RHOW,D50, &
-                     TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,       &
-                     TAUCTB,TAUCWTB,TAUCWMTB,                 &
-                     FCF,FWF,FCWF)                            
+                      TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,       &
+                      TAUCTB,TAUCWTB,TAUCWMTB,                 &
+                      FCF,FWF,FCWF)                            
       CALL ZSUSPLUND(DEPTH,UC,UW,RHOS,RHOW,D50,WSFALL,DSTAR,   &
-                    TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,        &
-                    FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
-                    BDpart,USTC,USTW)
+                     TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,        &
+                     FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
+                     BDpart,USTC,USTW)
       CALL ZBEDLUND(RHOS,RHOW,TAUCTB,TAUCWTB,TAUCWMTB,TAUCR,QBS)
 
       !QSS = SCALESUS*QSS
@@ -461,10 +458,12 @@
 ! ROUTINE FOR SOLVING THE DISPERSION RELATIONSHIP USING
 ! A PADE APPROXIMATION
 !
-!**********************************************************
+!*******************************************************************************
       SUBROUTINE DISPD(T,DD,L,CG,CN)
+!*******************************************************************************
       USE const_def, only: PI,TWOPI
       USE flow_def, only: GRAV
+      
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 T,DD,L,CG,CN,Y,F
       REAL*8 C  !Added to define explicit type - MEB 12/11/2013
@@ -485,6 +484,7 @@
          CN=0.5D0
       ENDIF
       CG=CN*L/T
+      
       RETURN
       END SUBROUTINE !DISPD
 
@@ -503,8 +503,8 @@
 !
 !******************************************************************
       SUBROUTINE ZSHEARLUND(IRIPPLE,DEP,UC,UW,T,PHI,RHOS,RHOW,D50,  &
-                           TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,      &
-                           TAUCTB,TAUCWTB,TAUCWMTB,FCF,FWF,FCWF)
+                            TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT,     &
+                            TAUCTB,TAUCWTB,TAUCWMTB,FCF,FWF,FCWF)
       USE const_def, only: pi
       USE flow_def, only: grav
 ! VARIABLE DECLARATIONS
@@ -704,9 +704,9 @@
 !******************************************************************
 
       SUBROUTINE ZSUSPLUND(DEP,UC,UW,RHOS,RHOW,D50,                  &
-                          WS,DST,TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT, &
-                          FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
-                          BDpart,USTC,USTW)
+                           WS,DST,TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT, &
+                           FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
+                           BDpart,USTC,USTW)
       USE const_def, only: PI
       USE flow_def, only: GRAV
 ! VARIABLE DECLARATIONS
@@ -850,7 +850,6 @@
     SUBROUTINE ZPRINT_HEADER
     !use EXP_Global_def, ONLY: VERSION,REVISION,RDATE  !synchronize these variables with implicit for the merged code. 
     use comvarbl, ONLY: VERSION,REVISION,RDATE
-    use flow_def
     use diag_def, ONLY: DGUNIT
 
     IMPLICIT NONE
@@ -865,9 +864,7 @@
       WRITE(IUNIT,7011)
       WRITE(IUNIT,7012)
       WRITE(IUNIT,7013)
-      
-        WRITE(IUNIT,7014)
-
+      WRITE(IUNIT,7014)
       WRITE(IUNIT,7016) RDATE
       WRITE(IUNIT,7009)
       WRITE(IUNIT,*)
@@ -885,14 +882,12 @@
 
 !************************************************************
     SUBROUTINE PRINT_STATUS
-    use EXP_Global_def 
-    USE EXP_transport_def 
-    USE EXP_bndcond_def      
-    use flow_def 
-    use comvarbl
-    use sed_def, only: rhosed,poros,scalesus,scalemorph,scalebed,scalemorph
-    use met_def, only: wkappa
-    use hot_def
+    use EXP_Global_def, only: iadv, imix, advcoef, dt, isedform, thetac, a0, dtmorph, dtsed
+    use flow_def, only: rhow
+    use comvarbl, only: tmax, rampdur
+    use sed_def,  only: rhosed,poros,scalesus,scalemorph,scalebed,scalemorph
+    use met_def,  only: wkappa
+    use hot_def,  only: coldstart
     use diag_def, only: DGUNIT, DGFILE
     
     IMPLICIT NONE    
@@ -1103,7 +1098,6 @@
     
     !ITHREADS = ITHR
     !IPROCS = IPR
-          
 
 !Hydrodynamics
 8000  FORMAT('  Iterations      - ',I0)
@@ -1187,7 +1181,7 @@
     
 !   ***************************************************************  
     SUBROUTINE SMOOTH (EL, NCELLS, NTIMES)
-    use prec_def
+    use prec_def, only: ikind
 
     ! added 07/25/06 by meb
     ! This routine smooths the spatial values of the passed WSEL array
@@ -1231,14 +1225,12 @@
 ! modified by Mitchell Brown, USACE-CHL for explicit operation
 !*****************************************************************
 #include "CMS_cpp.h"
-    use comvarbl
+    use comvarbl,  only: ntime, etime, timesecs, ctime, ctime1, stimet, mtime, deltime, timehrs, ramp, rampdur
     use const_def, only: pi
-    use time_lib
-    use diag_def
-    use diag_lib
-    use cms_def, only: timestart,timenow
-    use solv_def, only: iconv
-    use prec_def
+    use time_lib,  only: time_jul, ramp_func
+    use cms_def,   only: timestart, timenow
+    use solv_def,  only: iconv
+    use prec_def,  only: ikind
     implicit none
     
     integer :: ierr

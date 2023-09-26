@@ -83,8 +83,9 @@
 		<File RelativePath="..\source\input\in_def.F90"/>
 		<File RelativePath="..\source\input\in_lib.f90"/>
 		<File RelativePath="..\source\input\in_xmdf_lib.f90"/>
-		<File RelativePath="..\source\explicit\initialize_flow_arrays.f90"/>
-		<File RelativePath="..\source\explicit\initialize_flow_arrays_Tel_v02.f90"/>
+		<File RelativePath="..\source\explicit\ZBalanceCheck.f90"/>
+		<File RelativePath="..\source\explicit\Zinitialize_flow_arrays.f90"/>
+		<File RelativePath="..\source\explicit\Zinitialize_flow_arrays_Tel_v02.f90"/>
 		<File RelativePath="..\source\input\input.F90"/>
 		<File RelativePath="..\source\interpolation\interp_def.f90"/>
 		<File RelativePath="..\source\interpolation\interp_lib.f90"/>
@@ -178,6 +179,7 @@
 		<File RelativePath="..\source\explicit\Zinitialize_structures.f90"/>
 		<File RelativePath="..\source\explicit\ZModules.F90"/>
 		<File RelativePath="..\source\explicit\Zprestart_EXP.f90"/>
+		<File RelativePath="..\source\explicit\Zprestart_EXP_shared.f90"/>
 		<File RelativePath="..\source\explicit\Zread_card_file.f90"/>
 		<File RelativePath="..\source\explicit\Zsed_exp.F90"/>
 		<File RelativePath="..\source\explicit\Zsed_exp_tel.F90"/>

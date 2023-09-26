@@ -7,7 +7,8 @@
 ! Sets the Spatial Derivative default values
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use der_def
+    use der_def, only: nder, npow, nlim
+    
     implicit none
     
     !Derivatives
@@ -25,7 +26,8 @@
 ! Spatial Derivative cards
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use der_def
+    use der_def, only: nder, npow, nlim, alim
+    
     implicit none
     integer :: i
     character(len=37) :: cardname,cdum
@@ -87,13 +89,14 @@
 ! Initializes derivatives module
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
+    use size_def, only: ncells, ncellsd, ncelljoint, ncellsimple, ncellpoly, nmaxfaces, ndmaxfaces, nmaxextcells
     use flow_def, only: dHuxm,dHuym,dHvxm,dHvym,dapuareaxm,dapuareaym
     use comvarbl, only: skewcor
     use diag_lib, only: diag_print_error
-    use geo_def
-    use der_def
-    use der_lib
+    use geo_def,  only: idcellsimple, idcelljoint, idirface, cell2cell, x, y, ncface
+    use der_def,  only: goa, gow, nder, nlistcw, ilistcw, nlistgw, ilistgw, der_go_type, nlim, rgx, rgy
+    use der_lib,  only: der_grad_cbfd, der_grad_cbwlsfs, der_alloc, der_grad_cbgg, der_grad_cbggcr
+    
     implicit none
     integer :: i,ii,k,ncn,nce,ncs,ncw,nsc
     integer :: nlistca,nlistga
@@ -205,11 +208,12 @@
 !***********************************************************************
 #include "CMS_cpp.h"
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint
+    use geo_def,  only: idcelljoint
     use flow_def, only: iwet,iwet1
-    use geo_def, only: cell2cell,ncface
-    use der_def
-    use der_lib
+    use geo_def,  only: cell2cell,ncface
+    use der_def,  only: nlistcw, ilistcw, nlistgw, ilistgw, nder, gow
+    use der_lib,  only: der_grad_cbgg, der_grad_cbggcr, der_grad_cbwlsfs, der_grad_cbfd
+    
     implicit none
     !Internal variables
     integer :: i,ii,k

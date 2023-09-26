@@ -20,9 +20,9 @@
 ! Author: by Alex Sanchez, USACE-CHL
 !***************************************************************************    
     use size_def, only: ncellsD
-    use der_def, only: gow,nlim
-    use der_lib, only: der_grad_eval_recon
-    use prec_def
+    use der_def,  only: gow,nlim
+    use der_lib,  only: der_grad_eval_recon
+    use prec_def, only: ikind
     implicit none
     !Input/Output
     real(ikind),intent(in) :: phi(ncellsD)
@@ -49,10 +49,11 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***************************************************************************    
-    use size_def
+    use size_def, only: ncelljoint, ncellpoly, ncells, ncellsd, nmaxfaces
     use flow_def, only: iwet,acoef,flux
-    use geo_def
-    use prec_def
+    use geo_def,  only: idcelljoint, ncface, nxface, kxface, cell2cell, llec2llec, rpx, rpy, nyface, kyface, nxyface, kxyface
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: dphix,dphiy
@@ -157,10 +158,11 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***************************************************************************    
-    use size_def
+    use size_def, only: ncelljoint, ncellpoly, ncells, ncellsd, nmaxfaces
     use flow_def, only: iwet,acoef,flux
-    use geo_def
-    use prec_def
+    use geo_def,  only: idcelljoint, ncface, nxface, nyface, kxface, kyface, cell2cell, llec2llec, rpx, rpy, nxyface, kxyface
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in) :: dudx(ncellsD),dudy(ncellsD),dvdx(ncellsD),dvdy(ncellsD)
@@ -270,11 +272,12 @@
 ! Last updated: January 15, 2014
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces
+    use geo_def,  only: ncface, nxyface, kxyface, cell2cell, llec2llec, kkface
     use flow_def, only: iwet,flux
-    use der_def, only: nder,nlim
-    use prec_def
+    use der_def,  only: nder,nlim
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi
@@ -339,11 +342,12 @@
 ! Last updated: January 15, 2014
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces
+    use geo_def,  only: cell2cell, llec2llec, ncface, nxyface, kxyface, kkface
     use flow_def, only: iwet,flux
-    use der_def, only: nder,nlim
-    use prec_def
+    use der_def,  only: nder,nlim
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v
@@ -418,12 +422,13 @@
 ! Last updated: January 15, 2014
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncellsd, ncells, nmaxfaces
+    use geo_def,  only: cell2cell, llec2llec, ncface, nxyface, kxyface, kkface
     use flow_def, only: iwet,flux
-    use der_def, only: nder,nlim
-    use interp_def
-    use prec_def
+    use der_def,  only: nder,nlim
+    use prec_def, only: ikind
+    use interp_def, only: fintp
+
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi
@@ -495,12 +500,13 @@
 ! Last updated: January 15, 2014
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces
+    use geo_def,  only: ncface, nxyface, kxyface, kkface, cell2cell, llec2llec
     use flow_def, only: iwet,flux
-    use der_def, only: nder,nlim
-    use interp_def
-    use prec_def
+    use der_def,  only: nder,nlim
+    use prec_def, only: ikind
+    use interp_def, only: fintp
+
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v
@@ -585,10 +591,11 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: cell2cell, llec2llec, ncface, idcellsimple, nxface, nyface, kxface, kyface, dnx, dny, idcelljoint, rpx, rpy, nxyface, kxyface
     use flow_def, only: iwet,flux,acoef
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi,dphix,dphiy
@@ -777,11 +784,12 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: rpx, rpy, ncface, nxface, kxface, nyface, kyface, nxyface, kxyface, cell2cell, llec2llec, dnx, dny, idcellsimple, idcelljoint
     use flow_def, only: iwet,flux,acoef
+    use prec_def, only: ikind
     use interp_def, only: fintp
-    use prec_def
+
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi,dphix,dphiy
@@ -985,10 +993,11 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces
+    use geo_def,  only: rpx, rpy, dnx, dny, ncface, kxyface, nxyface, cell2cell, llec2llec, cell2upwdcell
     use flow_def, only: iwet,flux,acoef
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v,dudx,dudy,dvdx,dvdy
@@ -1104,10 +1113,11 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: cell2cell, llec2llec, ncface, nxface, kxface, nyface, kyface, nxyface, kxyface, dnx, dny, rpx, rpy, idcelljoint, idcellsimple
     use flow_def, only: iwet,flux,acoef
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v,dudx,dudy,dvdx,dvdy
@@ -1369,12 +1379,13 @@
 ! Last updated: January 15, 2014
 ! Author: by Alex Sanchez, USACE-CHL
 !****************************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: ncface, nxface, kxface, nyface, kyface, nxyface, kxyface, dnx, dny, rpx, rpy, idcellsimple, idcelljoint, cell2cell, llec2llec
+    use prec_def, only: ikind
+    use comvarbl, only: skewcor
     use flow_def, only: iwet,flux,acoef
     use interp_def, only: fintp
-    use comvarbl, only: skewcor
-    use prec_def
+
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v,dudx,dudy,dvdx,dvdy
@@ -1661,11 +1672,12 @@
 ! Last updated: November 6, 2012
 ! Author: by Alex Sanchez, USACE-CHL
 !******************************************************************************
-    use size_def
-    use geo_def
+    use size_def, only: ncells, ncellsd, nmaxfaces, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: cell2cell, llec2llec, ncface, nxface, kxface, nyface, kyface, nxyface, kxyface, dnx, dny, rpx, rpy, idcelljoint, idcellsimple
     use flow_def, only: iwet,flux,acoef
+    use prec_def, only: ikind
     use interp_def, only: fintp
-    use prec_def
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v,dudx,dudy,dvdx,dvdy
@@ -1918,7 +1930,8 @@
     function isnankind(a) result(nan)
 ! Portable isnan function for arbitrary precision
 !**************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind),intent(in) :: a 
     logical :: nan
@@ -1978,7 +1991,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i,m
     integer,intent(in) :: n
@@ -2018,7 +2032,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i,m
     integer,intent(in) :: n
@@ -2062,7 +2077,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n    
@@ -2103,7 +2119,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n
@@ -2145,7 +2162,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n    
@@ -2187,7 +2205,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n    
@@ -2233,7 +2252,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n
@@ -2284,7 +2304,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n
@@ -2334,7 +2355,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: i,m
     integer,intent(in) :: n
@@ -2377,7 +2399,8 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     integer:: j
     integer,intent(in) :: n,n2
@@ -2398,7 +2421,8 @@
 ! niter = number of iterations    
 ! m = width of moving average    
 !***********************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: niter  !Number of iterations
@@ -2428,7 +2452,8 @@
 ! a = amplitude    
 ! d = direction in radians
 !***********************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: numiter  !Number of iterations
@@ -2468,7 +2493,8 @@
 ! davg = average direction [rad]
 !***********************************************
     use const_def, only: pi
-    use prec_def
+    use prec_def,  only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: n      !Calculation size for x 
@@ -2505,7 +2531,8 @@
 !    n = length(x)
 ! written by Alex Sanchez, USACE-CHL
 !***********************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: m,n
@@ -2548,7 +2575,8 @@
 ! m = width of moving average
 ! written by Alex Sanchez, USACE-CHL
 !***********************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: niter  !Number of iterations
@@ -2587,7 +2615,8 @@
 ! Rotates a vector (vecx,vecy) by theta degrees clockwise
 !***********************************************************************
     use const_def, only: deg2rad
-    use prec_def
+    use prec_def,  only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: nsize,ncalc
@@ -2618,7 +2647,8 @@
 ! Rotates a vector (vecx,vecy) by theta degrees clockwise
 !***********************************************************************
     use const_def, only: pi
-    use prec_def
+    use prec_def,  only: ikind
+    
     implicit none
     !Input/Output
     integer, intent(in) :: nsize,ncalc

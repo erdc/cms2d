@@ -3,23 +3,18 @@
 !           active(*,1) = false   no u-momentum calculation
 !           active(*,2) = false   no v-momentum calculation
 !           active(*,3) = false   no mass balance calculation 
-!
 !********************************************************************************    
     SUBROUTINE Initialize_ActivityArray_tel
-    use EXP_Global_def
-    USE EXP_bndcond_def 
-    use geo_def, only: dx,dy,cell2cell
-    use size_def     
-    use flow_def
-    use comvarbl
-    use out_def, only: goutfile
-    use bnd_def
-    use sal_def
+!********************************************************************************    
+    use EXP_Global_def, only: active
+    use geo_def,  only: dx,dy,cell2cell
+    use size_def, only: ncells, ncellsd
+    use out_def,  only: goutfile
+    use bnd_def,  only: nhstr, nthstr, nmhstr, nmhvstr, h_str, th_str, mh_str, mhv_str
       
     IMPLICIT NONE
     !LOCAL VARIABLES
     INTEGER I,J,JJ,ID_CELL
-      
     
     allocate (active(ncellsD,3))
     do i=1,ncells
@@ -60,7 +55,7 @@
           !if(cell2cell(4id_cell) .eq. H_Str(i)%cells(jj))  active(id_cell,1)=.false. 
         enddo
       enddo
-    Endif !(H_single)    
+    endif !(H_single)    
 
     if(nTHstr .gt. 0) then
       i=1
@@ -82,7 +77,7 @@
         !jj=min(j+1,TH_str(i)%ncells)
         !if(cell2cell(4,id_cell) .eq. TH_Str(I)%Cells(jj)) active(id_cell,1)=.false.
       enddo
-    Endif !(H_tides)    
+    endif !(H_tides)    
         
     if(nMHstr .gt. 0) then
       !set activity based on wse bc cells
@@ -105,7 +100,7 @@
           !if(cell2cell(4,id_cell) .eq. MH_Str(i)%cells(jj)) active(id_cell,1)=.false.
         enddo
       enddo
-    Endif !(H_multi)
+    endif !(H_multi)
     
     if(nMHVstr .gt. 0) then
       !set activity based on wse bc cells
@@ -130,6 +125,5 @@
       enddo
     endif
       
-    RETURN
-    END SUBROUTINE 
-      
+    return
+    end subroutine     

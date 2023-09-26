@@ -1,17 +1,17 @@
+!*************************************************************
       subroutine update_WABC()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use bnd_def
-      use sed_def
-      use geo_def, only: dx,dy,zb
-      use met_def, only: windvar,windconst,tauwindx,tauwindy
-      use wave_flowgrid_def
-      use flow_def
-      use comvarbl    
-
-      !USE SYNOPTIC_VARS    !Alex, Sep 23, 2009
+!*************************************************************
+      use EXP_Global_def,    only: dt, drydep
+      USE EXP_bndcond_def,   only: wabc, swabc, mwabc, twabc
+      use wave_flowgrid_def, only: wavestrx, wavestry
+      use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, h_str, th_str, mh_str, mhv_str
+      use geo_def,   only: dx, dy, zb
+      use met_def,   only: windvar, windconst, tauwindx, tauwindy
+      use flow_def,  only: eta, grav
+      use prec_def,  only: ikind
       use const_def, only: pi 
+      !USE SYNOPTIC_VARS    !Alex, Sep 23, 2009
+      
       implicit none
       !local vars  
       integer i,j,id1,id2,loc,id 
@@ -21,7 +21,6 @@
       !calculate advective terms
       if(WABC .or. windconst .or. windvar) then
         if(nHstr .gt. 0) then
-
           !update momentum equation
           do i=1,nHstr
             do j=1,H_str(i)%ncells - 1
@@ -214,9 +213,8 @@
               MWABC(i)%eta(j+1)=MWABC(i)%eta(j+1)-VOLQ/(dx(id2)*dy(id2))
             enddo
           enddo
-
         endif ! H_multi        
-        
       endif  ! Radstr
 
+      return  
       end subroutine

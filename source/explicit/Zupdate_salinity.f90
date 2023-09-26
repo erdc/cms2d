@@ -1,13 +1,12 @@
+!*************************************************************
       subroutine update_salinity()
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def       
-      use bnd_def
-      use sed_def
-      use flow_def
-      use comvarbl      
-      use sal_def
-      use size_def
+!*************************************************************
+      use EXP_Global_def,    only: qx, qxn, qy, qyn, dt, dtsalt
+      USE EXP_bndcond_def,   only: qstringexp
+      USE EXP_transport_def, only: salt, tsalt_elapse
+      use bnd_def,  only: nqstr, q_str
+      use flow_def, only: iwet, vis
+      use size_def, only: ncells, ncellsd
 
       implicit none
       integer i,j,ii

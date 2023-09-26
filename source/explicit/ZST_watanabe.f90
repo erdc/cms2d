@@ -1,14 +1,15 @@
+!***********************************************************************
       subroutine ST_watanabe()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def      
-      use sed_def, only: rhosed,d50 
-      use wave_flowgrid_def
-      use flow_def
-      use comvarbl
-      use size_def
+!***********************************************************************
+      use EXP_Global_def,    only: ncn, nce, thetac, etan, cdx, cdy, waves
+      USE EXP_transport_def, only: xks, tcr, rhowdiv2, rhowdiv8, twopi, a0divrhowgrav, qsx, qsy
+      use wave_flowgrid_def, only: whgt, wper, wlen
+      use sed_def,   only: rhosed,d50 
+      use flow_def,  only: rhow, grav
+      use prec_def,  only: ikind
+      use size_def,  only: ncells
       use const_def, only: pi
-      use geo_def, only: zb,cell2cell 
+      use geo_def,   only: zb,cell2cell 
        
       implicit none
       !local vars
@@ -56,4 +57,5 @@
 !$OMP end do
 !$OMP END PARALLEL
 
+      return
       end subroutine

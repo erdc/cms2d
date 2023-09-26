@@ -1,12 +1,11 @@
-
+!***********************************************************************
       subroutine ST_avalanche()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def     
-      use flow_def 
-      use comvarbl     
-      use sed_def
-      use size_def
+!***********************************************************************
+      use EXP_Global_def,    only: nce, ncn
+      USE EXP_transport_def, only: qsx, qsy, rate_avalanche
+      use flow_def, only: iwet
+      use sed_def,  only: a_repose
+      use size_def, only: ncells
       use geo_def, only: dx,dy,zb,cell2cell
  
       !USE SYNOPTIC_VARS    !Alex, Sep 23, 2009
@@ -55,4 +54,5 @@
       enddo
 !$OMP END PARALLEL DO    
 
+      return
       end subroutine  

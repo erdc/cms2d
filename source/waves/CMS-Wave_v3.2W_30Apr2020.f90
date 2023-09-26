@@ -1,9 +1,6 @@
 Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
-!
 ! Note: Presently used for Inline Steering, MEB 10/4/2018
 !       Adding '_inline' to all subroutines (and references), MEB 10/9/2018
-!
-
 !***************************************************************C
 !                      CMS-Wave (ver.3.2)                       C
 !   (Wave Action Balance Equation with Diffraction effect)      C
@@ -14,13 +11,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   C
 !    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           C
 !***************************************************************C
-!---------------------------------------------------------------
 !  Basic equation to be solved is wave action balance equation
 !  with independent variables of x, y, q (angle).  
 !  Intrinsic frequency is treated as a dependent variable.  
 !  Energy dissipation term is formulated by using a modified
 !  Miche's breaker index in order to include current effects.
-!---------------------------------------------------------------
+!***************************************************************C
 #include "CMS_cpp.h"
       use GLOBAL_INLINE
       use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
@@ -142,8 +138,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iidate=0
 !
       if(noptset.ne.3)then
-
-#ifdef MERGED_CODE
         call diag_print_message(' ')
         call diag_print_message('**********************************************')
         call diag_print_message('CMS-Wave V-3.2 Inline, last update 19 Oct 2021')
@@ -153,15 +147,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')
         call diag_print_message('**********************************************')
         call diag_print_message(' ')
-#else
-        print*,'CMS-Wave V-3.2 Inline, last update 19 Oct 2021'
-        print*,'**********************************************'
-        print*,'  Point of Contact:'
-        print*,'  Lihwa Lin, USACE ERDC'
-        print*,'  mail to: Lihwa.Lin@usace.army.mil'
-        print*,'**********************************************'
-        print*,' '
-#endif
       endif
 
 !Read filenames from .sim file and get correct paths set right.

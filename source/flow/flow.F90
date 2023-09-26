@@ -22,9 +22,12 @@
 ! Sets the default parameters for flow variables
 ! written by Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
 !***************************************************************************
-    use flow_def
-    use comvarbl 
-    use prec_def   
+    use comvarbl
+    use flow_def, only: grav, gravinv, sqrtgrav, idensit, iviscos, isalt, iheat, watertemp, watersalt, rhow, viscos
+    use flow_def, only: hmin, hdry, hdry1, hdry2, ponding, narrowchannels, icoriolisplane, fcoriolis, crossdiff, mturbul
+    use flow_def, only: cvismax, cviscon, cvisbot, cvishor, cviswav, cviswavbrk, waveflux, volcor, flowvolbal
+    use prec_def, only: ikind
+    
     implicit none
 
     !Gravity
@@ -169,11 +172,10 @@
 ! Reads data from Model Parameters file
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************
-    use diag_def
-    use geo_def
     use comvarbl
-    use diag_lib
     use flow_def
+    use diag_lib, only: diag_print_error, diag_print_warning
+    use diag_def, only: msg2
     use rol_def,  only: rolflux
     use flow_lib, only: water_viscosity_kinematic
     use solv_def, only: asolv
@@ -224,7 +226,7 @@
       read(77,*) cardname, grav
       
     case('WATER_DENSITY')
-      call card_scalar(77,'kg/m^3','kg/m^3',rhow,ierr)
+      call card_scalar(77,'kg/m^3','kg/m^3',rhow,ierr)  
       idensit = 0 !User specified
           
     case('WATER_TEMPERATURE')
@@ -317,7 +319,7 @@
       stimet = tmax*3600.0 !seconds
           
     case('DURATION_RAMP','RAMP_DURATION')
-      call card_scalar(77,'days','hrs',rampdur,ierr)
+      call card_scalar(77,'days','hrs',rampdur,ierr)  !default unit is Days
           
     case('SPIN_UP_ITERATIONS','SPINUP_ITERATIONS')  
       backspace(77)
@@ -592,18 +594,19 @@
 !   modified by Alex Sanchez, USACE
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def,  only: ncface,cell2cell,x,y,yc,avg_lat,areaavg,&
-        xorigin,yorigin,azimuth_fl,lat,latfile,latpath
-    use flow_def  
+    use flow_def
     use flow_lib
-    use der_def,  only: nder
-    use comvarbl
-    use time_lib, only: ramp_func
-    use const_def
-    use secant_lib
-    use prec_def
-    use sed_def,  only: scalemorph_rampdur, scalemorph_ramp, scalemorph_orig, scalemorph
+    use comvarbl,   only: dtime, nramp, timehrs, rampdur, ramp, stime, ctime, timesecs, jtime, ntime, mtime, wtsch, nfsch
+    use comvarbl,   only: ntsch, nprt, ctsch, ctsch1, ctsch2, ndsch, nsolv, nswp0, nswp, maxit0, maxit, rmom0, rmom, nthr, skewcor
+    use const_def,  only: omega, deg2rad, earthradius
+    use secant_lib, only: secant
+    use prec_def,   only: ikind
+    use size_def,   only: ncells, ncellsd, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,    only: ncface,cell2cell,x,y,yc,avg_lat,areaavg,xorigin,yorigin,azimuth_fl,lat,latfile,latpath
+    use der_def,    only: nder
+    use time_lib,   only: ramp_func
+    use sed_def,    only: scalemorph_rampdur, scalemorph_ramp, scalemorph_orig, scalemorph
+    
     implicit none
     
     integer :: iter    !omp_get_num_threads
@@ -839,11 +842,11 @@
 !         Alex Sanchez, USACE-CHL
 !*****************************************************************    
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def
     use flow_def
-    use prec_def
+    use prec_def, only: ikind
+    use size_def, only: ncells, ncellsd, nmaxfaces
     use comvarbl, only: ntsch,nfsch,pred_corr,norder
+    
     implicit none
   
     !State
@@ -990,6 +993,7 @@
 !***************************************************
     use flow_def
     use comvarbl
+    
     implicit none
     
     deallocate(iwet,iwet1)
@@ -1047,16 +1051,16 @@
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************   
 #include "CMS_cpp.h"
-    use size_def
     use geo_def
     use flow_def
-    use der_def
-    use diag_def
     use comvarbl
+    use der_def,  only: nder, ader, nlim, alim 
+    use diag_def, only: dgunit, dgfile
     use solv_def, only: asolv
     use rol_def,  only: rolflux
     use cms_def,  only: noptset
     use tool_def, only: vstrlz
+    
     implicit none
     integer :: i,iunit(2)
 
@@ -1224,16 +1228,16 @@
 ! modified by Alex Sanchez, USACE-CHL, 2013
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
     use geo_def
-    use flow_def, only: h, p, gravinv, hdry, hdry1, hdry2, hmin, iwet, iwet1, flux
-    use flow_def, only: ponding, icorner, narrowchannels, u, v, vis, mturbul, diswall, visk, hk
     use bnd_def
-    use interp_def, only: fintp
-    use comvarbl, only: dtime,pred_corr
-    use const_def, only: small
     use diag_lib
-    use prec_def
+    use prec_def,   only: ikind
+    use size_def,   only: ncells, ncellsd, ncellpoly
+    use flow_def,   only: h, p, gravinv, hdry, hdry1, hdry2, hmin, iwet, iwet1, flux
+    use flow_def,   only: ponding, icorner, narrowchannels, u, v, vis, mturbul, diswall, visk, hk
+    use interp_def, only: fintp
+    use comvarbl,   only: dtime,pred_corr
+    use const_def,  only: small
 
     implicit none
     integer :: i,j,k,kk,ksum,nck,iflagdry   !ibnd
@@ -1535,15 +1539,16 @@
 ! modified by Alex Sanchez, USACE-CHL, 2013
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
     use geo_def
     use flow_def
     use bnd_def
-    use interp_def, only: fintp
-    use comvarbl, only: dtime,pred_corr
-    use const_def, only: small
     use diag_lib
-    use prec_def
+    use prec_def,   only: ikind
+    use interp_def, only: fintp
+    use comvarbl,   only: dtime,pred_corr
+    use const_def,  only: small
+    use size_def,   only: ncells, ncellsd, ncellpoly
+    
     implicit none
     integer :: i,j,k,kk,ksum,nck,ibnd
     integer :: jcn,iwetface,iwetface1
@@ -1798,12 +1803,12 @@
 ! written by Wu, Dec. 30, 2001
 ! modified by Alex Sanchez, USACE-CHL
 !***********************************************************************
+    use bnd_def,  only: nbndstr, bnd_str
+    use prec_def, only: ikind
     use size_def, only: ncellsD,ncells
-    use geo_def, only: ncface,cell2cell
+    use geo_def,  only: ncface,cell2cell
     use flow_def, only: iwet
-    use struct_def
-    use bnd_def
-    use prec_def
+    
     implicit none
     integer :: i,j,k,ibnd,nck,npond
     integer :: ipond(ncellsD)
@@ -1869,11 +1874,11 @@
 ! Initialising volume fluxes based on cell-center velocities
 ! by Weiming Wu, NCCHE, Oct. 2008
 !***********************************************************************
-    use size_def
-    use geo_def, only: cell2cell,fnx,fny,llec2llec,nxyface,kxyface,ds
+    use size_def,   only: ncells
+    use geo_def,    only: cell2cell,fnx,fny,llec2llec,nxyface,kxyface,ds
     use interp_def, only: fintp
-    use flow_def, only: iwet,flux,u,v,hk
-    use prec_def
+    use flow_def,   only: iwet,flux,u,v,hk
+    use prec_def,   only: ikind
     implicit none
     integer :: i,j,k,nck
     real(ikind) :: uni,unk
@@ -1904,13 +1909,13 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*********************************************************
-    use size_def
-    use geo_def, only: mapid,dx,dy,areap
+    use diag_lib, only: diag_print_message
+    use size_def, only: ncells, ncellsimple
+    use geo_def,  only: mapid,dx,dy,areap
     use flow_def, only: u,v,p,h,iwet,gravinv,grav
-    use comvarbl, only: uxtrm,vxtrm,pxtrm,crmax,&
-        idu,idv,idp,idcr,nthr,nfsch,dtime
-    use diag_lib
-    use prec_def
+    use comvarbl, only: uxtrm,vxtrm,pxtrm,crmax,idu,idv,idp,idcr,nthr,nfsch,dtime
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i,iprintstat,ierr
 !    integer :: iugradmax,ivgradmax,ietagradmax

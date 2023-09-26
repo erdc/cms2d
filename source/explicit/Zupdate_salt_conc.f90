@@ -1,18 +1,17 @@
+!*************************************************************
     subroutine update_salt_conc()
-      use EXP_Global_def
-      USE EXP_transport_def     
-      USE EXP_bndcond_def
-      use flow_def
-      use comvarbl
-      use geo_def, only: dx,dy,zb,cell2cell
-      use sed_def
-      use sal_def 
-      use size_def       
+!*************************************************************
+      use EXP_Global_def,    only: ncw, nce, ncs, ncn, fuu, gvv, active, etan
+      USE EXP_transport_def, only: salt, tsalt_elapse, voln
+      use flow_def, only: eta
+      use geo_def,  only: dx,dy,zb,cell2cell
+      use prec_def, only: ikind
+      use sal_def,  only: sal, sal1
+      use size_def, only: ncells, ncellsd
       
       implicit none
       integer i
       real(ikind) difft,dxt,dyt,area
-      
       
 !$OMP PARALLEL 
 !$OMP DO PRIVATE (NCW,NCS)

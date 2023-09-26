@@ -46,9 +46,10 @@ contains
 ! Allocates the derivative operator variables
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************    
-    use size_def
-    use geo_def
-    use der_def
+    use size_def, only: ncells, ncellsd, ncelljoint
+    use geo_def,  only: idcelljoint
+    use der_def,  only: goa, gow, ilistcw, nlistcw, ilistgw, nlistgw
+    
     implicit none
     integer :: i
     
@@ -86,9 +87,9 @@ contains
 ! Allocates the derivative operator variables
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************    
-    use size_def
-    !use geo_def, only: idcelljoint          never used, commented out   MEB  01/26/2022
-    use der_def
+    use size_def, only: nmaxfaces, ncellpoly
+    use der_def,  only: go, der_go_type
+    
     implicit none
     type(der_go_type) :: go  !Gradient Operator    
     
@@ -125,8 +126,9 @@ contains
 ! Allocates the derivative operator variables
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************    
-    use size_def
-    use der_def
+    use size_def, only: ncellsimple, ncellsd
+    use der_def,  only: nlim, rgx, rgy
+    
     implicit none
     
     !Slope limiters
@@ -152,14 +154,14 @@ contains
 ! For regular grids, it reduces to the Central Difference Approximation
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************
-    use size_def
-    use der_def
+    use size_def, only: ncells, ncellsimple
+    use der_def,  only: go, der_go_type
     use flow_def, only: iwet
-    use geo_def, only: ncface,cell2cell,x,y
-    !use interp_def, only: fintp                       !never used, commented out   MEB  01/26/2022
-    use diag_def
-    use diag_lib
-    use prec_def
+    use geo_def,  only: ncface,cell2cell,x,y
+    use diag_def, only: msg2, msg3, msg4, msg5
+    use diag_lib, only: diag_print_error
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     type(der_go_type) :: go !Gradient Operator
@@ -272,14 +274,15 @@ contains
 ! cell-based Green-Gauss method (first order for skewed cells)
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************
-    use size_def
-    use der_def
+    use size_def, only: nmaxfaces
+    use der_def,  only: go, der_go_type
     use flow_def, only: iwet
-    use geo_def, only: ncface,cell2cell,areap,dsx,dsy
+    use geo_def,  only: ncface,cell2cell,areap,dsx,dsy
     use interp_def, only: fintp
-    use diag_def
-    use diag_lib
-    use prec_def
+    use diag_def, only: msg2, msg3, msg4
+    use diag_lib, only: diag_print_error
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Ouput
     type(der_go_type) :: go !Gradient Operator
@@ -381,12 +384,13 @@ contains
 ! The method is second order.
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************************
-    use size_def
-    use der_def
-    use geo_def
+    use size_def, only: nmaxfaces, ncells, ncelljoint
+    use der_def,  only: go, der_go_type
+    use geo_def,  only: cell2cell, llec2llec, dx, dy, nxface, nyface, kxface, kyface, dsx, dsy, rpx, rpy, areap, ncface
     use flow_def, only: iwet
     use interp_def, only: fintp
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Ouput
     type(der_go_type),intent(inout) :: go !Gradient Operator
@@ -504,13 +508,14 @@ contains
 ! Weighted Cell-based least-squares (face-sharing) gradient coefficients
 ! Author: Alex Sanchez, USACE-CHL
 !*************************************************************************
-    use size_def
-    use geo_def
-    use der_def
-    use diag_def
-    use diag_lib
+    use size_def, only: ncellpoly
+    use geo_def,  only: ncface, cell2cell, x, y, ncnode, cell2extcell, mapid
+    use der_def,  only: go, der_go_type, npow
+    use diag_def, only: msg2, msg3
+    use diag_lib, only: diag_print_warning, diag_print_error
     use flow_def, only: iwet
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Ouput
     type(der_go_type) :: go !Gradient Operator
@@ -675,9 +680,8 @@ contains
 !***********************************************************************
     subroutine screen_weights(nt,wxt,wyt,ixt,iyt,ns,nx,ny,ix,iy,wx,wy)
 !***********************************************************************
-    !use size_def, only: ncellsD,ndmaxfaces,nmaxfaces            ! never used, commented out   MEB  01/26/2022
-    !use geo_def, only: ncface,cell2cell                         ! never used, commented out   MEB  01/26/2022
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     integer,    intent(in) :: nt
@@ -725,9 +729,9 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint                               !ncface,cell2cell   never used, commented out   MEB  01/26/2022
-    use der_def    
-    use prec_def
+    use geo_def,  only: idcelljoint
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
     implicit none
     !Input/Output
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -843,10 +847,11 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
-    use size_def, only: ncellsD,ncelljoint,ncellpoly         !ncells             never used, commented out   MEB  01/26/2022
-    use geo_def, only: idcelljoint                           !ncface,cell2cell   never used, commented out   MEB  01/26/2022
-    use der_def    
-    use prec_def
+    use size_def, only: ncellsD,ncelljoint,ncellpoly      
+    use geo_def,  only: idcelljoint                        
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -934,9 +939,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint                          !ncface, cell2cell   never used, commented out   MEB  01/26/2022
-    use der_def
-    use prec_def
+    use geo_def,  only: idcelljoint                     
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     type(der_go_type),intent(in) :: go !Gradient Operator    
@@ -1049,9 +1055,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !******************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
-    use geo_def, only: idcelljoint                              !ncface, cell2cell   never used, commented out   MEB  01/26/2022
-    use der_def    
-    use prec_def
+    use geo_def,  only: idcelljoint                          
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1163,9 +1170,10 @@ contains
 !   11/27/2012 Alex Sanchez USACE-CHL
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
-    use size_def
-    use der_def
-    use prec_def
+    use size_def, only: ncellsd
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1188,9 +1196,10 @@ contains
 !   11/27/2012 Alex Sanchez USACE-CHL
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
-    use size_def
-    use der_def
-    use prec_def
+    use size_def, only: ncellsd
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1212,9 +1221,10 @@ contains
 !   11/27/2012 Alex Sanchez USACE-CHL
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
-    use size_def
-    use der_def
-    use prec_def
+    use size_def, only: ncellsd
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1234,9 +1244,10 @@ contains
 ! with the positive directions in the outward direction
 ! written by Alex Sanchez, USACE
 !******************************************************************
-    use size_def
-    use geo_def, only: cell2cell,llec2llec,dn,rpx,rpy          !ncface   never used, commented out   MEB  01/26/2022
-    use prec_def
+    use size_def, only: ncells, ncellsd
+    use geo_def,  only: cell2cell,llec2llec,dn,rpx,rpy    
+    use prec_def, only: ikind
+    
     implicit none
     integer :: i,k,j,n
     real(ikind):: phi(ncellsD),dphix(ncellsD),dphiy(ncellsD),gradk
@@ -1268,8 +1279,9 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
     use size_def, only: ncells,ncellsD
-    use der_def    
-    use prec_def
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1294,8 +1306,9 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
     use size_def, only: ncellsD
-    use der_def
-    use prec_def
+    use der_def,  only: go, der_go_type
+    use prec_def, only: ikind
+    
     implicit none
     !Input
     type(der_go_type),intent(in) :: go !Gradient Operator
@@ -1323,8 +1336,9 @@ contains
 ! Applies a slope limiter to the scalar array var
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
-    use size_def
-    use prec_def
+    use size_def, only: ncellsd
+    use prec_def, only: ikind
+    
     implicit none
     integer,    intent(in) :: ilim
     real(ikind),intent(in),dimension(ncellsD) :: var
@@ -1349,8 +1363,9 @@ contains
 ! Applies a slope limiter to the vector array var
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
-    use size_def
-    use prec_def
+    use size_def, only: ncellsd
+    use prec_def, only: ikind
+    
     implicit none
     integer,    intent(in) :: ilim
     real(ikind),intent(in),dimension(ncellsD) :: u,v
@@ -1376,7 +1391,8 @@ contains
 !     difference scheme II. Monotonicity and conservation combined  
 !     in a second order scheme. J. Comp. Phys., 14, p361-70.
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind), intent(in) :: r
     real(ikind) :: phi,rr
@@ -1395,7 +1411,8 @@ contains
 !     A comparative study of computational methods in cosmic 
 !     gas dynamics, Astron. Astrophysics, 108, p76.
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind), intent(in) :: r
     real(ikind) :: phi,rr
@@ -1409,7 +1426,8 @@ contains
     function musclslopelim(r) result(phi)
 ! MUSCL (BJ) slope limiter
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind), intent(in) :: r
     real(ikind) :: phi,b,rr
@@ -1424,7 +1442,8 @@ contains
     function minmodslopelim(r) result(phi)
 !Minmod slope limiter
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind), intent(in) :: r
     real(ikind) :: phi,b,rr
@@ -1442,7 +1461,8 @@ contains
 !   Roe, P.L. (1986). Characteristic-based schemes for the 
 !     Euler equations, Annual Review in Fluid Mechanics, 18, p337.
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     real(ikind),intent(in) :: r
     real(ikind) :: psi
     
@@ -1457,7 +1477,8 @@ contains
 !   Venkatakrishnan, V. 1993. On the accuracy of limiters and
 !      convergence to steady state solutions, AIAA Paper 93-0880.
 !*****************************************************************
-    use prec_def
+    use prec_def, only: ikind
+    
     implicit none
     real(ikind), intent(in) :: r
     real(ikind) :: psi
@@ -1482,9 +1503,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !**********************************************************************
-    use size_def
-    use geo_def
-    use prec_def
+    use size_def, only: ncellsimple, ncelljoint, ncellpoly, ncellsd
+    use geo_def,  only: idcellsimple, idcelljoint, rx, ry, nxface, nyface, kxface, kyface, ncface, cell2cell
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi
@@ -1626,9 +1648,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !**********************************************************************
-    use size_def
-    use geo_def
-    use prec_def
+    use size_def, only: ncellsd, ncellsimple, ncellpoly, ncelljoint
+    use geo_def,  only: idcellsimple, idcelljoint, rx, ry, nxface, nyface, kxface, kyface, ncface, cell2cell
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v
@@ -1823,10 +1846,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************
-    use size_def
-    use geo_def
-    use comp_lib
-    use prec_def
+    use size_def, only: ncellsd, ncellsimple, ncellpoly, ncelljoint
+    use geo_def,  only: idcellsimple, idcelljoint, rx, ry, ncface, nxface, nyface, kxface, kyface, cell2cell
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi
@@ -1947,9 +1970,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************
-    use size_def
-    use geo_def
-    use prec_def
+    use size_def, only: ncellsd, ncellsimple, ncelljoint, ncellpoly
+    use geo_def,  only: idcellsimple, idcelljoint, rx, ry, ncface, nxface, nyface, kxface, kyface, cell2cell
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v
@@ -2113,10 +2137,11 @@ contains
 !   Limits the slopes dphix and dphiy (gradients) for variable phi
 !   Written by Alex Sanchez, USACE-CHL
 !***********************************************************************    
-    use size_def
-    use geo_def, only: idcellsimple,cell2cell,idcelljoint,ncface,idirface
-    use der_def, only: rgx,rgy
-    use prec_def
+    use size_def, only: ncellsimple, ncelljoint, ncellsd, nmaxfaces
+    use geo_def,  only: idcellsimple,cell2cell,idcelljoint,ncface,idirface
+    use der_def,  only: rgx,rgy
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: phi
@@ -2197,12 +2222,12 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************    
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def, only: idcellsimple,cell2cell,idcelljoint,ncface,idirface
-    use der_def, only: rgx,rgy
-    use diag_def
-    use diag_lib
-    use prec_def
+    use size_def, only: ncellsd, ncellsimple, ncelljoint, nmaxfaces
+    use geo_def,  only: idcellsimple,cell2cell,idcelljoint,ncface,idirface
+    use der_def,  only: rgx,rgy
+    use diag_def, only: 
+    use diag_lib, only: diag_print_error
+    use prec_def, only: ikind
     implicit none
     !Input/Output
     real(ikind),intent(in),dimension(ncellsD) :: u,v

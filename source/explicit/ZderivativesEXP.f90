@@ -2,11 +2,9 @@
     subroutine derivativeEXP()
 ! calculates derivatives for Explicit Solver
 !***********************************************************************
-    use size_def
-    use flow_def
-    use comvarbl
-    use prec_def
-    use geo_def, only: dx,dy,cell2cell
+    use size_def, only: ncells
+    use flow_def, only: dux, duy, dvx, dvy, u, v
+    use geo_def,  only: dx,dy,cell2cell
     
     implicit none
     integer ncn,nce,ncw,ncs,i
@@ -25,27 +23,27 @@
       dvx(i) = (v(nce)-v(ncw))/dxT         
     enddo
     
+    return
     end subroutine
-    
-    
+        
 !***********************************************************************
     subroutine UpdateDummyCells(var)
 ! calculates derivatives for Explicit Solver
 !***********************************************************************
     use size_def, only: ncells,ncellsD
-    use prec_def
+    use prec_def, only: ikind
     use EXP_Global_def, only: linktodummies
+    
     implicit none
     real(ikind) var(ncellsD)
     integer ii,i,jj
     
-      ii=0
-      do i=ncells+1,ncellsD
-        ii=ii+1
-        jj = linktodummies(ii)
-        var(i) = var(jj)
-      enddo
-      
-    end subroutine    
+    ii=0
+    do i=ncells+1,ncellsD
+      ii=ii+1
+      jj = linktodummies(ii)
+      var(i) = var(jj)
+    enddo
     
-    
+    return
+    end subroutine

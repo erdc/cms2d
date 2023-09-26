@@ -81,12 +81,12 @@
 ! Reads the flow boundary cards from the card file
 ! written by Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
 !***************************************************************************
-    use bnd_def
-    use flow_def, only: grav,viscos
+    use bnd_def,   only: nhstr, nqstr, nthstr, nmhstr, nmhvstr, ncsstr, h_str, q_str, th_str, mh_str, mhv_str, cs_str
+    use bnd_def,   only: veldamp, tide_read, tread
+    use flow_def,  only: grav,viscos
     use const_def, only: pi
-    use comvarbl, only: flowpath
-    !use diag_def
-    use prec_def, only: ikind
+    use comvarbl,  only: flowpath
+    use prec_def,  only: ikind
     
     implicit none    
     integer :: ierr  !Wu
@@ -279,11 +279,11 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath
-    use diag_lib, only: diag_print_error
-    use prec_def, only: ikind
+    use comvarbl,  only: mpfile,flowpath
+    use diag_lib,  only: diag_print_error
+    use prec_def,  only: ikind
     
     implicit none
     !Input/Output
@@ -399,11 +399,11 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath
-    use diag_lib, only: diag_print_error
-    use prec_def, only: ikind
+    use comvarbl,  only: mpfile,flowpath
+    use diag_lib,  only: diag_print_error
+    use prec_def,  only: ikind
     
     implicit none
     !Input/Output
@@ -565,10 +565,10 @@
 ! Reads a velocity block from the card file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath
-    use diag_lib, only: diag_print_error
+    use comvarbl,  only: mpfile,flowpath
+    use diag_lib,  only: diag_print_error
     !use prec_def
     
     implicit none
@@ -662,13 +662,13 @@
 ! Add "nti" for curve inperpolation
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath,iyr
-    use bnd_def, only: ntf
-    use tide_lib, only: tidal_data
+    use comvarbl,  only: mpfile,flowpath,iyr
+    use bnd_def,   only: ntf
+    use tide_lib,  only: tidal_data
+    use prec_def,  only: ikind
     use unitconv_lib, only: unitconv_var
-    use prec_def, only: ikind
     
     implicit none
     !Input/Output
@@ -792,12 +792,12 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath
-    use bnd_def, only: ntf
+    use comvarbl,  only: mpfile,flowpath
+    use bnd_def,   only: ntf
+    use prec_def,  only: ikind
     use unitconv_lib, only: unitconv_var
-    use prec_def, only: ikind
     
     implicit none
     !Input/Output
@@ -886,14 +886,14 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************************
-    use geo_def, only: azimuth_fl
+    use geo_def,   only: azimuth_fl
+    use comvarbl,  only: mpfile,flowpath,iyr
+    use bnd_def,   only: ntf
+    use tide_lib,  only: tidal_data
+    use diag_lib,  only: diag_print_error
+    use prec_def,  only: ikind
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath,iyr
-    use bnd_def, only: ntf
-    use tide_lib, only: tidal_data
     use unitconv_lib, only: unitconv_var
-    use diag_lib, only: diag_print_error
-    use prec_def, only: ikind
     
     implicit none
     !Input/Output
@@ -1088,11 +1088,11 @@
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
-    use geo_def, only: projection
+    use geo_def,   only: projection
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath,tjulday0
-    use time_lib, only: calendar2julian
-    use prec_def, only: ikind
+    use comvarbl,  only: mpfile,flowpath,tjulday0
+    use time_lib,  only: calendar2julian
+    use prec_def,  only: ikind
     
     implicit none
     !Input/Output
@@ -1187,9 +1187,9 @@
 ! Reads a tidal database block from the card file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************
-    use geo_def, only: azimuth_fl,projection
+    use geo_def,   only: azimuth_fl,projection
     use const_def, only: deg2rad
-    use comvarbl, only: mpfile,flowpath
+    use comvarbl,  only: mpfile,flowpath
 
     implicit none
     !Input/Output
@@ -1472,11 +1472,11 @@
 ! A total of 37 tidal contituents can be used for the prediction 
 ! (hli, 02/03/10).
 !****************************************************************
-    use bnd_def, only: TH_str,ntf,TH_type,nTHstr,Tread,nbndstr
-    use comvarbl, only: iyr
-    use tide_lib, only: tidal_data
+    use bnd_def,   only: TH_str,ntf,TH_type,nTHstr,Tread,nbndstr
+    use comvarbl,  only: iyr
+    use tide_lib,  only: tidal_data
     use const_def, only: deg2rad,twopi
-    use prec_def, only: ikind
+    use prec_def,  only: ikind
     
     implicit none
     integer :: i,k,nn,kth,ntc,ierr
@@ -1544,9 +1544,9 @@ d2:   do k=1,ntf
 ! A total of 37 tidal contituents can be used for the prediction 
 ! (hli, 02/03/10).
 !****************************************************************
-    use bnd_def, only: TH_str,ntf,TH_type,nTHstr,Tread,nbndstr
+    use bnd_def,   only: TH_str,ntf,TH_type,nTHstr,Tread,nbndstr
     use const_def, only: deg2rad,twopi
-    use prec_def, only: ikind
+    use prec_def,  only: ikind
     
     implicit none
     integer :: i,k,ntc,ierr
@@ -1606,22 +1606,22 @@ d1: do i=1,ntf
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************
 #include "CMS_cpp.h"
-    use bnd_def  
-    use bnd_lib, only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata, read_offsetwsedata !(hli,01/20/17)
-    use cms_def, only: cmswave
-    use comvarbl, only: tjulday0
-    use const_def, only: deg2rad,rad2deg
-    use diag_def
-    use diag_lib, only: diag_print_error, diag_print_warning
-    use flow_def, only: grav
-    use geo_def, only: ncface,cell2cell,idirface,x,y,zb,rx,ry,xc,yc,projfl,mapid
-    use geo_lib, only: read_grid14,proj_horiz_conv
+    use bnd_def,    only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,    only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
+    use bnd_def,    only: mh_type, tread, tide_read, nparsim, parsim
+    use bnd_lib,    only: read_bndstr,read_fluxdata,read_snglwsedata,read_multiwsedata,read_multiveldata, read_offsetwsedata !(hli,01/20/17)
+    use cms_def,    only: cmswave
+    use comvarbl,   only: tjulday0
+    use diag_def,   only: msg2
+    use diag_lib,   only: diag_print_error, diag_print_warning
+    use flow_def,   only: grav
+    use geo_def,    only: ncface,cell2cell,idirface,x,y,zb,rx,ry,xc,yc,projfl,mapid
+    use geo_lib,    only: read_grid14,proj_horiz_conv
+    use nest_lib,   only: read_parent_grid_xmdf, read_parent_cmcards, read_parent_grid_tel, tdb_init
+    use prec_def,   only: ikind
+    use size_def,   only: ncellsd,ncellpoly,ncells
+    use const_def,  only: deg2rad,rad2deg
     use interp_lib, only: interp_coef_tel2pts,interp_coef_tri2pts
-    use nest_lib
-    use prec_def, only: ikind
-    use size_def, only: ncellsd,ncellpoly,ncells
-    !use struct_def
-    !use tide_lib
     
     implicit none      
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
@@ -2417,17 +2417,18 @@ d1: do i=1,ntf
 ! Prints the boundary condition setup to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************************    
-    use bnd_def
-    use geo_def,   only: azimuth_fl,mapid
-    use struct_def
-    use geo_def,   only: aHorizCoordSystem,aHorizDatum,aHorizUnits
-    use diag_def,  only: dgunit, dgfile
-    use time_lib,  only: julian2calendar
-    use const_def, only: rad2deg,deg2rad
-    use out_def,   only: write_ascii_input,outprefix
-    use prec_def,  only: ikind
-    use met_def,   only: wndspeed,wnddirection
-    use tool_def,  only: vstrlz
+    use bnd_def,    only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,    only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
+    use bnd_def,    only: mh_type, tread, tide_read, nparsim, parsim, veldamp
+    use geo_def,    only: azimuth_fl,mapid
+    use geo_def,    only: aHorizCoordSystem,aHorizDatum,aHorizUnits
+    use diag_def,   only: dgunit, dgfile
+    use time_lib,   only: julian2calendar
+    use const_def,  only: rad2deg,deg2rad
+    use out_def,    only: write_ascii_input,outprefix
+    use prec_def,   only: ikind
+    use met_def,    only: wndspeed,wnddirection
+    use tool_def,   only: vstrlz
     
     implicit none
     integer :: iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar,ibnd
@@ -2948,7 +2949,7 @@ d1: do i=1,ntf
 ! Completed by Mitch Brown, 02/28/2018
     use const_def, only: deg2rad
     use geo_def,   only: azimuth_fl
-    use met_def
+    use met_def,   only: windfile, nwtimes, wndtimes, wndspeed, wnddirection
     use met_lib,   only: wind_heightcorr
     use prec_def,  only: ikind
 #ifdef _WIN32
@@ -3022,11 +3023,11 @@ d1: do i=1,ntf
 !   for each cell in the grid.
 ! Completed by Mitch Brown, 02/21/2018
     
-    use cms_def, only: dsetList,ndsets
+    use cms_def,  only: dsetList,ndsets
     use size_def, only: ncells,ncellsD
     use prec_def, only: ikind
-    use geo_def, only: lat,lon
-    use out_lib, only: writescalTxt,writevecTxt
+    use geo_def,  only: lat,lon
+    use out_lib,  only: writescalTxt,writevecTxt
     use in_xmdf_lib, only: readscalh5,readvech5
     
     implicit none
@@ -3232,19 +3233,21 @@ d1: do i=1,ntf
 ! modified by Alex Sanchez, USACE-CHL
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def
-    use flow_def    
-    use bnd_def
-    use comvarbl, only: ntsch,ctsch1,ctsch2,relax
-    use fric_def, only: wallfric,z0,wallfac
-    use fric_lib, only: wall_coef
-    use comp_lib, only: upwindcoef
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,   only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
+    use bnd_def,   only: mh_type, tread, tide_read, nparsim, parsim
+    use size_def,  only: ncells
+    use geo_def,   only: ncface, cell2cell, fnx, fny, rx, ry, ds, dsxy, idirface
+    use flow_def,  only: iwet, sp, spu, spv, su, sv, visk, acoef, flux, h, hk, u, v
+    use comvarbl,  only: ntsch,ctsch1,ctsch2,relax
+    use fric_def,  only: wallfric,z0,wallfac
+    use fric_lib,  only: wall_coef
+    use comp_lib,  only: upwindcoef
     use const_def, only: small,pi
+    use prec_def,  only: ikind
 #ifdef DIAG_MODE
-    use diag_lib, only: diag_print_error
+    use diag_lib,  only: diag_print_error
 #endif   
-    use prec_def, only: ikind
     
     implicit none
     integer :: i,k,iriv,im,iwse,icsh,nck
@@ -3414,9 +3417,10 @@ d1: do i=1,ntf
 ! written by Weiming Wu, NCCHE, NOV. 2008
 !***********************************************************************
     use size_def, only: ncells
-    use geo_def, only: ncface,cell2cell,dsxy,kkface,idirface
-    use flow_def
-    use bnd_def
+    use geo_def,  only: ncface,cell2cell,dsxy,kkface,idirface
+    use flow_def, only: iwet, su, sv, sp, acoef, pp, grav, p, flux
+    use bnd_def,  only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,  only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
     use prec_def, only: ikind
     
     implicit none
@@ -3758,9 +3762,10 @@ d1: do i=1,ntf
 ! written by Weiming Wu, NCCHE, NOV. 2008
 !***********************************************************************
     use size_def, only: ncells
-    use geo_def, only: ncface,cell2cell,dsxy,kkface,idirface,zb
-    use flow_def
-    use bnd_def
+    use geo_def,  only: ncface,cell2cell,dsxy,kkface,idirface,zb
+    use flow_def, only: h, eta
+    use bnd_def,  only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,  only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
 
     implicit none
     integer :: i,j,k,iwse,iriv,nck
@@ -3929,8 +3934,8 @@ d1: do i=1,ntf
 ! Calculates local setup correction due to wind and wave forcing in x
 !*******************************************************************
     use flow_def, only: h,gravinv
-    use geo_def, only: x
-    use met_def, only: windconst,windvar,tauwx,tauwindx
+    use geo_def,  only: x
+    use met_def,  only: windconst,windvar,tauwx,tauwindx
     use prec_def, only: ikind
     
     implicit none
@@ -3955,7 +3960,7 @@ d1: do i=1,ntf
 ! Calculates local setup correction due to wind and wave forcing in y
 !*******************************************************************   
     use flow_def, only: h,gravinv
-    use geo_def, only: y
+    use geo_def,  only: y
     use prec_def, only: ikind
     
     implicit none 
@@ -3981,19 +3986,19 @@ d1: do i=1,ntf
 ! x direction. Used at boundary cells
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************
-    use cms_def, only: noptset
+    use cms_def,  only: noptset
     use comvarbl, only: ramp
-    use der_def, only: gow
-    use der_lib, only: dx2d,dy2d
+    use der_def,  only: gow
+    use der_lib,  only: dx2d,dy2d
     use flow_def, only: u,us,h,rhow,waveflux
     use fric_def, only: bbl_stream,z0,cbcfuwcap
     use fric_lib, only: fric_streaming_stress
-    use geo_def, only: areap
-    use met_def, only: windconst,windvar,tauwx,tauwindx,&
-        iwndlagr,cdWndareap,wndx,uwind,presvar,pressatmdx
+    use geo_def,  only: areap
+    use met_def,  only: windconst,windvar,tauwx,tauwindx,iwndlagr,cdWndareap,wndx,uwind,presvar,pressatmdx
     use prec_def, only: ikind
-    use q3d_def, only: q3d,q3d_to_flow,f3dxx,f3dxy,f3dyy
+    use q3d_def,  only: q3d,q3d_to_flow,f3dxx,f3dxy,f3dyy
     use wave_flowgrid_def, only: wavestrx,worbrep,wper,wlen,wunitx
+    
     implicit none
     integer,intent(in) :: i
     real(ikind) :: fx,taustr,za,dvarx,dvary
@@ -4041,18 +4046,17 @@ d1: do i=1,ntf
 ! y direction. Used at boundary cells
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************   
-    use cms_def, only: noptset
+    use cms_def,  only: noptset
     use comvarbl, only: ramp
-    use der_lib, only: dx2d,dy2d
-    use der_def, only: gow
+    use der_lib,  only: dx2d,dy2d
+    use der_def,  only: gow
     use flow_def, only: v,vs,h,rhow,waveflux
     use fric_def, only: bbl_stream,z0,cbcfuwcap
     use fric_lib, only: fric_streaming_stress
-    use geo_def, only: areap
-    use met_def, only: windconst,windvar,tauwy,tauwindy,&
-        iwndlagr,cdWndareap,wndy,vwind,presvar,pressatmdy
+    use geo_def,  only: areap
+    use met_def,  only: windconst,windvar,tauwy,tauwindy,iwndlagr,cdWndareap,wndy,vwind,presvar,pressatmdy
     use prec_def, only: ikind
-    use q3d_def, only: q3d,q3d_to_flow,f3dxx,f3dxy,f3dyy
+    use q3d_def,  only: q3d,q3d_to_flow,f3dxx,f3dxy,f3dyy
     use wave_flowgrid_def, only: wavestry,worbrep,wper,wlen,wunity
     
     implicit none 
@@ -4101,13 +4105,15 @@ d1: do i=1,ntf
 !  Updates the flux and water level values at boundary cells
 !  written by Alex Sanchez, USACE-ERDC-CHL        
 !***********************************************************************
-    use comvarbl, only: timehrs,ramp,dtj
-    use geo_def, only: azimuth_fl
-    use nest_lib, only: nest_wse_eval,nest_vel_eval
-    use flow_def, only: h
-    use bnd_def
-    use plagr_lib
-    use prec_def, only: ikind
+    use comvarbl,  only: timehrs,ramp,dtj
+    use geo_def,   only: azimuth_fl
+    use nest_lib,  only: nest_wse_eval,nest_vel_eval
+    use flow_def,  only: h
+    use bnd_def,   only: nhstr, nthstr, nmhstr, nmhvstr, nqstr, ncsstr, nnhstr, nnhvstr, nnthstr, nnthvstr, nbndstr
+    use bnd_def,   only: h_str, th_str, mh_str, mhv_str, q_str, cs_str, nh_str, nhv_str, nth_str, nthv_str, bnd_str, w_str
+    use bnd_def,   only: nparsim, parsim
+    use plagr_lib, only: plagr_eval, plagr_fit
+    use prec_def,  only: ikind
     
     implicit none
     integer :: j,k,iriv,iwse,np,ipar,idpar
@@ -4325,16 +4331,16 @@ d1: do i=1,ntf
 ! last modified 02/14/2013
 !***********************************************************************
 #include "CMS_cpp.h"
-    use size_def, only: ncells
-    use geo_def, only: cell2cell,llec2llec,ds,fnx,fny,ncface,mapid
-    use flow_def, only: iwet,hk,u,v,flux
-    use bnd_def
-    use comvarbl, only: ramp,niter
-    use fric_def, only: coefman
+    use size_def,  only: ncells
+    use geo_def,   only: cell2cell,llec2llec,ds,fnx,fny,ncface,mapid
+    use flow_def,  only: iwet,hk,u,v,flux
+    use bnd_def,   only: nqstr, q_str
+    use comvarbl,  only: ramp,niter
+    use fric_def,  only: coefman
     use const_def, only: deg2rad,small
-    use diag_def
-    use diag_lib, only: diag_print_error, diag_print_warning
-    use prec_def, only: ikind
+    use diag_def,  only: msg2, msg3, msg4
+    use diag_lib,  only: diag_print_error, diag_print_warning
+    use prec_def,  only: ikind
     
     implicit none
     integer :: i,j,k,iriv,nck,jcn
@@ -4413,17 +4419,17 @@ d1: do i=1,ntf
     
 !***********************************************************************
     subroutine bndflux
-! Updatse volume fluxes at all the boundaries
+! Update volume fluxes at all the boundaries
 ! written by Weiming Wu, NCCHE, Oct. 2008
 ! modified by Alex Sanchez, USACE-CHL
 !***********************************************************************
 #include "CMS_cpp.h"
 #ifdef DIAG_MODE
     use size_def, only: ncells
-    use geo_def, only: cell2cell,ncface
+    use geo_def,  only: cell2cell,ncface
     use flow_def, only: flux,iwet
 #endif
-    use bnd_def
+    use bnd_def,  only: nqstr, ncsstr, q_str, cs_str
     use diag_lib, only: diag_print_error
 
 !!#ifdef DEV_MODE
@@ -4522,8 +4528,8 @@ d1: do i=1,ntf
     subroutine bndcopy2ghost(val)
 !**********************************************************************
     use size_def, only: ncellsD
-    use geo_def, only: cell2cell
-    use bnd_def
+    use geo_def,  only: cell2cell
+    use bnd_def,  only: nbndstr, bnd_str
     use prec_def, only: ikind
     
     implicit none
@@ -4547,15 +4553,15 @@ d1: do i=1,ntf
 ! written by Weiming Wu
 ! modified by Alex Sanchez, USACE-CHL
 !**********************************************************************
-    use geo_def, only: cell2cell,idirface,dx,dy
-    use flow_def, only: iwet,h,u,v,us,vs,vis
-    use bnd_def, only: nCSstr,CS_str
-    use fric_def, only: cfrict,z0
-    use wave_flowgrid_def, only: worb,worbrep,wper,wang    
-    use comvarbl, only: niter
-    use cms_def, only: noptset
+    use geo_def,   only: cell2cell,idirface,dx,dy
+    use flow_def,  only: iwet,h,u,v,us,vs,vis
+    use bnd_def,   only: nCSstr,CS_str
+    use fric_def,  only: cfrict,z0
+    use comvarbl,  only: niter
+    use cms_def,   only: noptset
     use const_def, only: small
-    use prec_def, only: ikind
+    use prec_def,  only: ikind
+    use wave_flowgrid_def, only: worb,worbrep,wper,wang    
     
     implicit none
     integer :: i,k,kk,im,im1,icsh,nck
@@ -4694,9 +4700,9 @@ d1: do i=1,ntf
 ! written by Weiming, Wu, NCCHE
 ! modified by Alex Sanchez, USACE-CHL
 !****************************************************************  
-    use geo_def, only: cell2cell, idirface
+    use geo_def,  only: cell2cell, idirface
     use flow_def, only: p, gravinv
-    use bnd_def
+    use bnd_def,  only: ncsstr, cs_str
     use prec_def, only: ikind
     
     implicit none
@@ -4736,7 +4742,7 @@ d1: do i=1,ntf
 ! the wind and wave setup.
 ! written by Alex Sanchez, USACE-CHL    
 !*********************************************************************
-    use geo_def, only: rx,ry
+    use geo_def,  only: rx,ry
     use prec_def, only: ikind
     
     implicit none
@@ -4855,7 +4861,7 @@ d1: do i=1,ntf
 ! Flux boundary condition
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************
-    use geo_def, only: ds,cell2cell,llec2llec,fnx,fny
+    use geo_def,  only: ds,cell2cell,llec2llec,fnx,fny
     use flow_def, only: flux,iwet,u,v,h,hk
     
     implicit none
@@ -4882,7 +4888,7 @@ d1: do i=1,ntf
 ! Pressure correction boundary condition
 !*************************************************************************
     use size_def, only: ncellsimple,ncelljoint,ncellpoly,ncells
-    use geo_def, only: cell2cell,idirface,ncface,kkface,fnx,fny
+    use geo_def,  only: cell2cell,idirface,ncface,kkface,fnx,fny
     use flow_def, only: flux,iwet,p,pp,su,sp,acoef,grav
     use prec_def, only: ikind
     
@@ -4966,7 +4972,7 @@ d1: do i=1,ntf
 ! Pressure boundary condition
 !*************************************************************************
     use size_def, only: ncellsimple,ncelljoint,ncellpoly,ncells
-    use geo_def, only: cell2cell,idirface,ncface,kkface,fnx,fny,zb
+    use geo_def,  only: cell2cell,idirface,ncface,kkface,fnx,fny,zb
     use flow_def, only: flux,iwet,p,h,su,sp,acoef,grav
     use prec_def, only: ikind
     
@@ -4998,7 +5004,7 @@ d1: do i=1,ntf
     subroutine bnd_wse(nbndcells,icells,kfaces,wsebnd)
 ! Pressure boundary condition
 !*************************************************************************
-    use geo_def, only: cell2cell,zb,ds,fnx,fny
+    use geo_def,  only: cell2cell,zb,ds,fnx,fny
     use flow_def, only: p,h,eta,u,v,hk,flux,grav
     use prec_def, only: ikind
     
@@ -5031,9 +5037,9 @@ d1: do i=1,ntf
 ! Extrapolates the boundary velocity using
 ! a simple flux formulation
 !********************************************************    
-    use geo_def, only: cell2cell
+    use geo_def,  only: cell2cell
     use flow_def, only: h,u,v,iwet
-    use bnd_def, only: bnd_str
+    use bnd_def,  only: bnd_str
     
     implicit none
     !Input
@@ -5058,9 +5064,9 @@ d1: do i=1,ntf
 ! Extrapolates the boundary water depth and 
 ! pressure
 !********************************************************    
-    use geo_def, only: cell2cell,zb
+    use geo_def,  only: cell2cell,zb
     use flow_def, only: h,p,iwet,hmin,gravinv
-    use bnd_def, only: bnd_str
+    use bnd_def,  only: bnd_str
     
     implicit none
     !Input

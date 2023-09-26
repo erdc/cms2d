@@ -1,11 +1,11 @@
+!***********************************************************************
     subroutine ST_adeq()
-      use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def
-      use wave_flowgrid_def
-      use flow_def
-      use comvarbl
-      use size_def
+!***********************************************************************
+      use EXP_Global_def,    only: iripple, waves, etan, cdx, cdy, linktodummies
+      USE EXP_transport_def, only: qsx, qsy, adss, tsed_elapse
+      use wave_flowgrid_def, only: whgt, wper, wavediss, wang
+      use flow_def, only: rhow, iwet, vis
+      use size_def, only: ncells, ncellsd
       use sed_def, only: rhosed,d50,scalesus,scalebed 
       use geo_def, only: zb
                 
@@ -138,4 +138,5 @@
         ADSS(i)%diffC = ADSS(jj)%diffC
       enddo
 
+      return
       end subroutine

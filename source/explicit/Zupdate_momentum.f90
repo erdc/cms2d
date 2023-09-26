@@ -1,19 +1,18 @@
+!*************************************************************
       subroutine update_momentum()
-      use EXP_Global_def, only: mixing,ncn,nce,ncs,ncw,ncsw,fuu,ue,gvv,ve,fuv,gvu,advect,qx
-      use EXP_Global_def, only: num_fg_m_cells,fg_m_cells,num_fg_a_cells,fg_a_cells,qy,advectx,advecty,active,rhoprim,dt,qyn,qxn
+!*************************************************************
+      use EXP_Global_def,     only: mixing,ncn,nce,ncs,ncw,ncsw,fuu,ue,gvv,ve,fuv,gvu,advect,qx
+      use EXP_Global_def,     only: num_fg_m_cells,fg_m_cells,num_fg_a_cells,fg_a_cells,qy,advectx,advecty,active,rhoprim,dt,qyn,qxn
       use EXP_Structures_def, only: structures,srm_on,srmu,srmv
-      use flow_def, only: vis,eta,u,v,fcoriolis,grav,uv
-      use geo_def, only: cell2cell,zb,dx,dy,azimuth_fl
-      use comvarbl, only: timesecs
+      use wave_flowgrid_def,  only: wavestrx,wavestry     
+      use flow_def,  only: vis,eta,u,v,fcoriolis,grav,uv
+      use geo_def,   only: cell2cell,zb,dx,dy,azimuth_fl
+      use comvarbl,  only: timesecs
       use const_def, only: pi,deg2rad    
-      use met_def, only: tauwindx,tauwindy,pressatm
-      use wave_flowgrid_def, only: wavestrx,wavestry     
-      use fric_def, only: cfrict,uelwc
-      use prec_def, only: ikind
-      !USE EXP_transport_def 
-      !use NupdateMod
-      !use sal_def
-      use size_def, only: ncells
+      use met_def,   only: tauwindx,tauwindy,pressatm
+      use fric_def,  only: cfrict,uelwc
+      use prec_def,  only: ikind
+      use size_def,  only: ncells
       
       implicit none
       integer i,j,id

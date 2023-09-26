@@ -14,9 +14,11 @@
 ! checks and modifies status of dredging operations activity
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy  
-    use sed_def, only: hardbottom
+    use dredge_def, only: ndredge_operations, dredge_operations, dredgets_vars, write_dredge_diag
+    use geo_def,    only: zb,dx,dy  
+    use sed_def,    only: hardbottom
+    use prec_def,   only: ikind
+    
     implicit none
     integer :: i,k,NCnt,ID_t
     real(ikind) :: vol_tot,diff,bed_t
@@ -72,9 +74,11 @@
 ! checks and modifies status of dredging operations activity
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy  
-    use comvarbl, only: timehrs
+    use dredge_def, only: dredge_operations
+    use geo_def,    only: zb,dx,dy  
+    use comvarbl,   only: timehrs
+    use prec_def,   only: ikind
+    
     implicit none
     integer i,k
     real(ikind) sum_area,sum_area_exceed,area,sum_vol,ratio
@@ -127,12 +131,12 @@
 ! checks and modifies status of dredging operations activity
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy  
-    use comvarbl, only: timehrs
+    use dredge_def, only: dredge_operations
+    use geo_def,    only: zb,dx,dy  
+    use comvarbl,   only: timehrs
+    
     implicit none
     integer i,k
-
     
    !operation is currently set to .true., so see if it should be stopped
    !because specified active interval is finsihed
@@ -154,9 +158,11 @@
 ! moves sediment for any active dredging operation
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy
-    use sed_def, only: singlesize    
+    use dredge_def, only: dredge_operations, bed_change, dredgets_vars, dredge_time_lapse
+    use geo_def,    only: zb,dx,dy
+    use sed_def,    only: singlesize    
+    use prec_def,   only: ikind
+    
     implicit none  
     integer k,ncnt,i,ival,cell_inc
     real(ikind) Diff,vol_tot,vol_limit,area,tmp_vol,tot_vol_dredged  !,dep_inc
@@ -343,81 +349,83 @@
 ! checks and modifies status of dredging operations activity
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy   
+    use dredge_def, only: dredge_operations, dredgets_vars
+    use geo_def,    only: zb,dx,dy   
+    use prec_def,   only: ikind
+    
     implicit none
     integer k,j,m,num_remain
     real(ikind) placement_vol,excess,amount_placed,sum_percentage
     real(ikind), allocatable :: placement_Vol_byarea(:),PAallocation(:)    
 
-     excess=0.0
+    excess=0.0
      
-     !do this so that for no placement areas all dredge materail goes to 'excess'
-     if(dredge_operations(k)%NumPlacementAreas == 0) then
-         excess = dredge_operations(k)%placement_vol
-         DredgeTS_Vars(k,3) = excess
-         !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
-     endif
+    !do this so that for no placement areas all dredge materail goes to 'excess'
+    if(dredge_operations(k)%NumPlacementAreas == 0) then
+      excess = dredge_operations(k)%placement_vol
+      DredgeTS_Vars(k,3) = excess
+      !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
+    endif
      
-     IF(dredge_operations(k)%NumPlacementAreas == 1) THEN   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-       j=1 
-       placement_vol = dredge_operations(k)%placement_vol
-       call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
-       DredgeTS_Vars(k,2) = amount_placed
-       DredgeTS_Vars(k,3) = excess
-       dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
-       dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed     
-     ELSE
-       if(dredge_operations(k)%PAmethod == 1) then  ! allocate by order!!!!!!!!!!!!!!!!!!!!!!!
-         placement_vol = dredge_operations(k)%placement_vol 
-         DredgeTS_Vars(k,2) = 0.0
-         do j=1,dredge_operations(k)%NumPlacementAreas
-           call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
-           placement_vol = excess
-           DredgeTS_Vars(k,2) =  DredgeTS_Vars(k,2) + amount_placed
-           dredge_operations(k)%placed_vol_by_area(j) = amount_placed
-           dredge_operations(k)%total_placed_by_area(j) = dredge_operations(k)%total_placed_by_area(j) + amount_placed
-           dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed    
-         enddo 
-         !DredgeTS_Vars(k,2) = amount_placed  !dredge_operations(k)%placement_vol - excess
-         DredgeTS_Vars(k,3) = excess
-         dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess      
-       elseif(dredge_operations(k)%PAmethod .eq. 2) then  ! allocate by percentage!!!!!!!!!!!!!!!!!!!!!!!
-         allocate(placement_Vol_byarea(dredge_operations(k)%NumPlacementAreas))
-         allocate(PAallocation(dredge_operations(k)%NumPlacementAreas))
-         do j=1,dredge_operations(k)%NumPlacementAreas
-           placement_Vol_byarea(j) = dredge_operations(k)%placement_vol*dredge_operations(k)%DredgePlacementAllocation(j)/100.0  
-         enddo
-         do j=1,dredge_operations(k)%NumPlacementAreas
-           PAallocation(j) = dredge_operations(k)%DredgePlacementAllocation(j)
-         enddo
+    IF(dredge_operations(k)%NumPlacementAreas == 1) THEN   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      j=1 
+      placement_vol = dredge_operations(k)%placement_vol
+      call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
+      DredgeTS_Vars(k,2) = amount_placed
+      DredgeTS_Vars(k,3) = excess
+      dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
+      dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed     
+    ELSE
+      if(dredge_operations(k)%PAmethod == 1) then  ! allocate by order!!!!!!!!!!!!!!!!!!!!!!!
+        placement_vol = dredge_operations(k)%placement_vol 
+        DredgeTS_Vars(k,2) = 0.0
+        do j=1,dredge_operations(k)%NumPlacementAreas
+          call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
+          placement_vol = excess
+          DredgeTS_Vars(k,2) =  DredgeTS_Vars(k,2) + amount_placed
+          dredge_operations(k)%placed_vol_by_area(j) = amount_placed
+          dredge_operations(k)%total_placed_by_area(j) = dredge_operations(k)%total_placed_by_area(j) + amount_placed
+          dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed    
+        enddo 
+        !DredgeTS_Vars(k,2) = amount_placed  !dredge_operations(k)%placement_vol - excess
+        DredgeTS_Vars(k,3) = excess
+        dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess      
+      elseif(dredge_operations(k)%PAmethod .eq. 2) then  ! allocate by percentage!!!!!!!!!!!!!!!!!!!!!!!
+        allocate(placement_Vol_byarea(dredge_operations(k)%NumPlacementAreas))
+        allocate(PAallocation(dredge_operations(k)%NumPlacementAreas))
+        do j=1,dredge_operations(k)%NumPlacementAreas
+          placement_Vol_byarea(j) = dredge_operations(k)%placement_vol*dredge_operations(k)%DredgePlacementAllocation(j)/100.0  
+        enddo
+        do j=1,dredge_operations(k)%NumPlacementAreas
+          PAallocation(j) = dredge_operations(k)%DredgePlacementAllocation(j)
+        enddo
      
-         DredgeTS_Vars(k,2) =  0.0
-         do j=1,dredge_operations(k)%NumPlacementAreas
-           placement_vol =  placement_Vol_byarea(j) + excess*PAallocation(j)/100.0   
-           call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
-           DredgeTS_Vars(k,2) =  DredgeTS_Vars(k,2) + amount_placed
-           dredge_operations(k)%placed_vol_by_area(j) = amount_placed
-           dredge_operations(k)%total_placed_by_area(j) = dredge_operations(k)%total_placed_by_area(j) + amount_placed     
-           dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed
-           if(excess .gt. 0.0 .and. j .lt. dredge_operations(k)%NumPlacementAreas) then  !re-adjust %s based on subsequent placement areas
-             sum_percentage = 0.0
-             num_remain = 0
-             do m=j+1,dredge_operations(k)%NumPlacementAreas
-               sum_percentage = sum_percentage + PAallocation(m)
-               num_remain = num_remain + 1
-             enddo  
-             if(sum_percentage .gt. 0.0) then !reallocate
-               do m=j+1,dredge_operations(k)%NumPlacementAreas
-                 !write(*,*)'reall1: ',m,PAallocation(m),excess              
-                 PAallocation(m) = 100*PAallocation(m)/sum_percentage
-                 !write(*,*)'reall2: ',m,PAallocation(m)
-               enddo 
-             else
-               do m=j+1,dredge_operations(k)%NumPlacementAreas
-                 PAallocation(m) = 100.0/num_remain
-               enddo               
-             endif
+        DredgeTS_Vars(k,2) =  0.0
+        do j=1,dredge_operations(k)%NumPlacementAreas
+          placement_vol =  placement_Vol_byarea(j) + excess*PAallocation(j)/100.0   
+          call place_it(k,j,placement_vol,amount_placed,excess)  !placed dredged volume for kth operation and jth placement area
+          DredgeTS_Vars(k,2) =  DredgeTS_Vars(k,2) + amount_placed
+          dredge_operations(k)%placed_vol_by_area(j) = amount_placed
+          dredge_operations(k)%total_placed_by_area(j) = dredge_operations(k)%total_placed_by_area(j) + amount_placed     
+          dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed
+          if(excess .gt. 0.0 .and. j .lt. dredge_operations(k)%NumPlacementAreas) then  !re-adjust %s based on subsequent placement areas
+            sum_percentage = 0.0
+            num_remain = 0
+            do m=j+1,dredge_operations(k)%NumPlacementAreas
+              sum_percentage = sum_percentage + PAallocation(m)
+              num_remain = num_remain + 1
+            enddo  
+            if(sum_percentage .gt. 0.0) then !reallocate
+              do m=j+1,dredge_operations(k)%NumPlacementAreas
+                !write(*,*)'reall1: ',m,PAallocation(m),excess              
+                PAallocation(m) = 100*PAallocation(m)/sum_percentage
+                !write(*,*)'reall2: ',m,PAallocation(m)
+              enddo 
+            else
+              do m=j+1,dredge_operations(k)%NumPlacementAreas
+                PAallocation(m) = 100.0/num_remain
+              enddo               
+            endif
           endif
         enddo
         !DredgeTS_Vars(k,2) = amount_placed  !dredge_operations(k)%placement_vol - excess
@@ -435,9 +443,11 @@
 ! moves sediment for any active dredging operation
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use geo_def, only: zb,dx,dy
-    use sed_def, only: singlesize     
+    use dredge_def, only: bed_change, dredge_operations
+    use geo_def,    only: zb,dx,dy
+    use sed_def,    only: singlesize   
+    use prec_def,   only: ikind
+    
     implicit none  
     integer k,ncnt,i,j,cell_inc,m
     real(ikind) dump_depth,area,placement_vol,capacity,diff,excess,amount_placed,placement_vol_remaining
@@ -612,16 +622,15 @@
 ! to dredge operations
 ! written by Chris Reed
 !**************************************************************    
-    use size_def
-    use geo_def, only: idmap,zb,zbk,dzbx,dzby
-    use flow_def
-    use sed_def
-    use comp_lib
-    use comvarbl
-    use der_def, only: nder,nlim,goa
-    use der_lib, only: der_grad_eval
+    use size_def,   only: ncells
+    use geo_def,    only: idmap,zb,zbk,dzbx,dzby
+    use flow_def,   only: h, hmin, p, grav
+    use sed_def,    only: ctk, dzb, dzbk
+    use der_def,    only: nder,nlim,goa
+    use der_lib,    only: der_grad_eval
     use interp_lib, only: interp_scal_cell2face
-    use prec_def 
+    use prec_def,   only: ikind
+    
     implicit none
     integer i
     real(ikind):: val
@@ -663,9 +672,10 @@
 ! moves sediment for any active dredging operation
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use comvarbl, only: timehrs
-    use geo_def, only: zb,zb0
+    use dredge_def, only: dredge_operations, dredgeunit, dredgets_vars
+    use comvarbl,   only: timehrs
+    use geo_def,    only: zb,zb0
+    
     implicit none 
     integer :: k,j,m,NumPlacementAreas
 
@@ -693,10 +703,11 @@
 ! the haarbottom depth to the new dredge depth
 ! written by Chris Reed
 !**************************************************************    
-    use prec_def
-    use sed_def, only: poros,hardbed,nhard,idhard
-    use geo_def, only: zb
-    use sed_Def, only: hardbottom
+    use prec_def, only: ikind
+    use sed_def,  only: poros,hardbed,nhard,idhard
+    use geo_def,  only: zb
+    use sed_Def,  only: hardbottom
+    
     implicit none
     integer:: i,id
     real(ikind):: tdepth
@@ -720,7 +731,9 @@
 !     SORTING IS DONE ACCORDING TO VALUE OF X
 !     uses Shell algorithm
 !     
-      use prec_def 
+      use prec_def, only: ikind
+      
+      implicit none
       integer N
       real(ikind) X(N),TEMPX  
       INTEGER  H,Y(N),TEMPY,I,J
@@ -763,6 +776,7 @@
 !     SORTING IS DONE ACCORDING TO VALUE OF X
 !     uses Shell algorithm
 !       
+      implicit none
       Integer N
       REAL*8  X(N)
       real TEMPX
@@ -801,8 +815,9 @@
 !****************************************************    
     subroutine dredge_eval()
 !****************************************************
-    use dredge_def
+    use dredge_def, only: dredge_time_lapse, dredge_interval
     use comvarbl, only: dtime
+    
     implicit none
     
     dredge_time_lapse = dredge_time_lapse + dtime
@@ -817,10 +832,10 @@
 !****************************************************    
     subroutine dredge_bed_sort(ncnt,cells)
 !****************************************************    
-    use size_def, only: ncells
-    use sed_def
-     use prec_def
+    use size_def,   only: ncells
+    use sed_def,    only: db, pbk, dbmax, dbmin, db1, nsed, nlay
     use dredge_def, only: bed_change,dredge_mat_gradation
+    
     implicit none
 
     integer ncnt,lay_max,ival
@@ -928,10 +943,10 @@
 !****************************************************    
     subroutine place_bed_sort(ncnt,cells)
 !****************************************************    
-    use size_def, only: ncells
-    use sed_def
-     use prec_def
+    use size_def,   only: ncells
+    use sed_def,    only: db, pbk, dbmax, nlay, nsed, db1
     use dredge_def, only: bed_change,dredge_mat_gradation      
+    
     implicit none
 
     integer ncnt,i,id
@@ -985,9 +1000,10 @@
 ! Calculates sediment grain size percentiles from a fractional distribution    
 ! written by  Weiming Wu, NCCHE; Alex Sanchez, USACE-ERDC-CHL  
 !**************************************************************************
-    use size_def
-    use sed_def, only: nsed,pbk,diam,diamlim,logdiamlim
-    use prec_def
+    use size_def, only: ncells, ncellsd
+    use sed_def,  only: nsed,pbk,diam,diamlim,logdiamlim
+    use prec_def, only: ikind
+    
     implicit none
     !Input/Output
     integer,intent(in) :: iper,klay

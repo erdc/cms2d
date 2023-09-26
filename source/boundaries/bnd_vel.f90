@@ -3,7 +3,7 @@
     subroutine bnd_vel_flux(nbndcells,icells,kfaces)
 ! Calculatest the velocity at a flux boundary condition
 !*************************************************************     
-    use geo_def, only: dsxy,cell2cell
+    use geo_def,  only: dsxy,cell2cell
     use flow_def, only: visk,hk,flux,iwet,u,v,su,sv,sp,acoef
     use comp_lib, only: upwindcoef
     use prec_def, only: ikind
@@ -37,7 +37,7 @@
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************
     use size_def, only: ncellsimple,ncelljoint,ncellpoly
-    use geo_def, only: ds,dsxy,idirface,cell2cell,fnx,fny
+    use geo_def,  only: ds,dsxy,idirface,cell2cell,fnx,fny
     use flow_def, only: visk,flux,iwet,u,v,h,hk,su,sv,sp,acoef
     use comp_lib, only: upwindcoef
     use prec_def, only: ikind
@@ -102,7 +102,7 @@
 ! Calculates the velocity at an open wse and velocity boundary condition
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************
-    use geo_def, only: ds,dsxy,cell2cell,fnx,fny
+    use geo_def,  only: ds,dsxy,cell2cell,fnx,fny
     use flow_def, only: visk,flux,iwet,u,v,h,hk,su,sv,sp,acoef
     use comp_lib, only: upwindcoef
     use prec_def, only: ikind
@@ -148,14 +148,14 @@
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************************
     use size_def, only: ncellsimple,ncelljoint,ncellpoly
-    use geo_def, only: ds,dsxy,idirface,cell2cell,fnx,fny
+    use geo_def,  only: ds,dsxy,idirface,cell2cell,fnx,fny
     use flow_def, only: visk,flux,iwet,u,v,h,hk,su,sv,sp,acoef,uv,fc,&
         dux,duy,dvx,dvy,dpx,dpy,vis,us,vs
     use fric_def, only: cfrict
     use comp_lib, only: upwindcoef
-    use der_lib, only: dx2d,dy2d
-    use der_def, only: gow
-    use bnd_def, only: veldamp
+    use der_lib,  only: dx2d,dy2d
+    use der_def,  only: gow
+    use bnd_def,  only: veldamp
     use prec_def, only: ikind
     
     implicit none

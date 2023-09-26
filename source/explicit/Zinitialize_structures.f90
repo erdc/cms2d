@@ -1,13 +1,13 @@
+!********************************************************************************    
       subroutine initialize_structures_CWR
-      use EXP_Global_def
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use EXP_Structures_def
-      use sal_def
-      use flow_def
-      use comvarbl      
-      use sed_def
-      use size_def
+!********************************************************************************    
+      use EXP_Global_def,     only: etan, drydep, adeq
+      USE EXP_transport_def,  only: salt, adss, cohes, cohesive
+      use EXP_Structures_def, only: structures, srm_on, hasstruct, haspor, hashgt, hashc, hasa, hasb, srmu, srm, srmv, cul_on, cul
+      use sal_def,  only: saltrans
+      use flow_def, only: eta
+      use sed_def,  only: nhard, idhard, hardbed
+      use size_def, only: ncells, ncellsd
       use geo_def, only: dx,dy,idmap,zb,cell2cell
       
       implicit none

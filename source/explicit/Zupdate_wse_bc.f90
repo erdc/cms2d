@@ -1,14 +1,14 @@
+!***********************************************************************
       subroutine update_wse_bc()
-      use EXP_Global_def
-      USE EXP_transport_def 
-      USE EXP_bndcond_def   
-      use flow_def
+!***********************************************************************
+      use EXP_Global_def,  only: drydep, etan
+      USE EXP_bndcond_def, only: modify_h, hmod, wabc, swabc, twabc, mwabc
+      use flow_def, only: eta
       use comvarbl, only: timehrs,ramp,dtj
-      use bnd_def
-      use sed_def
-      use geo_def, only: zb
-      use met_def, only: windconst,windvar      
-      
+      use bnd_def,  only: nhstr, nthstr, nmhstr, nmhvstr, h_str, th_str, mh_str, mhv_str
+      use prec_def, only: ikind
+      use geo_def,  only: zb
+      use met_def,  only: windconst,windvar      
       
       implicit none
       integer i,j,inc,k,iwse
@@ -30,27 +30,48 @@
 
       if(nHstr .gt. 0) then
         do i = 1,nHstr  !for each cell string
-          !find out where we are in the time/value arrays
-          inc = H_str(i)%inc
-          do while (timeHRS.gt.H_str(i)%times(inc+1))
-            inc = inc+1
-            H_str(i)%inc = inc
-          enddo
-          val1 = H_str(i)%wsecurv(inc)
-          val2 = H_str(i)%wsecurv(inc+1) 
-          tval1 = H_str(i)%times(inc)
-          tval2 = H_str(i)%times(inc+1)    
-          fac = (timeHRS-tval1) / (tval2-tval1)                         !compute the weighting factor for the WSE forcing
-          elev = val1 + fac*(val2-val1)                                 !compute the weighted value of WSE
-          elev = ramp*(elev + helev)                                    !apply the ramp to the elevation plus added WSE from a different signal 
-          do j=1,H_str(i)%NCells    !for each cell in string
-            eta(H_str(i)%Cells(j)) = elev
-            if(eta(H_str(i)%Cells(j))-zb(H_str(i)%Cells(j)).lt.drydep)then
-              eta(H_str(i)%Cells(j)) = &
-                0.5d0*drydep+zb(H_str(i)%Cells(j))
-            endif
-            etan(H_str(i)%Cells(j)) = eta(H_str(i)%Cells(j))
-          enddo
+          if(H_STR(i)%ntimes>0)then           
+            !find out where we are in the time/value arrays
+            inc = H_str(i)%inc
+            do while (timeHRS.gt.H_str(i)%times(inc+1))
+              inc = inc+1
+              H_str(i)%inc = inc
+            enddo
+            val1 = H_str(i)%wsecurv(inc)
+            val2 = H_str(i)%wsecurv(inc+1) 
+            tval1 = H_str(i)%times(inc)
+            tval2 = H_str(i)%times(inc+1)    
+            fac = (timeHRS-tval1) / (tval2-tval1)                         !compute the weighting factor for the WSE forcing
+            elev = val1 + fac*(val2-val1)                                 !compute the weighted value of WSE
+            elev = ramp*(elev + helev)                                    !apply the ramp to the elevation plus added WSE from a different signal 
+            do j=1,H_str(i)%NCells    !for each cell in string
+              
+              !write(*,*)'i = ',i
+              !write(*,*)'j = ',j
+              !write(*,*)'H-ncells =',H_str(i)%NCells
+              !write(*,*)'array size = ',size(H_str(i)%Cells)
+              
+              eta(H_str(i)%Cells(j)) = elev
+              if(eta(H_str(i)%Cells(j))-zb(H_str(i)%Cells(j)).lt.drydep)then
+                eta(H_str(i)%Cells(j)) = &
+                  0.5d0*drydep+zb(H_str(i)%Cells(j))
+              endif
+              etan(H_str(i)%Cells(j)) = eta(H_str(i)%Cells(j))
+            enddo
+          
+          else !use constant value
+          
+            do j=1,H_str(i)%NCells    !for each cell in string
+              eta(H_str(i)%Cells(j)) = H_str(i)%wseconst
+              if(eta(H_str(i)%Cells(j))-zb(H_str(i)%Cells(j)).lt.drydep)then
+                eta(H_str(i)%Cells(j)) = &
+                  0.5d0*drydep+zb(H_str(i)%Cells(j))
+              endif
+              etan(H_str(i)%Cells(j)) = eta(H_str(i)%Cells(j))
+            enddo          
+         
+          endif
+          
         enddo ! end of each cell string
       endif  !H_single
 

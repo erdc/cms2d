@@ -12,9 +12,9 @@ contains
     subroutine geo_test_all()  
 ! written by Alex Sanchez, USACE-CHL        
 !**********************************************************
-    use geo_lib
-    use diag_lib
-    use prec_def
+    use geo_lib,  only: poly_sort, line_line_intercept
+    use prec_def, only: ikind
+    
     implicit none
     integer :: ierr
     integer, parameter :: np = 4

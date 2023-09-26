@@ -1,11 +1,10 @@
+!***********************************************************************
       subroutine ST_wet_dry_check()
-    use EXP_Global_def
-    USE EXP_transport_def 
-      USE EXP_bndcond_def
-      use sed_def
-      use flow_def
-      use comvarbl
-      use size_def
+!***********************************************************************
+      use EXP_Global_def,    only: ncn, nce, ncs, ncw
+      USE EXP_transport_def, only: qsx, qsy
+      use flow_def, only: iwet
+      use size_def, only: ncells
       use geo_def, only: cell2cell
 
       implicit none 
@@ -31,4 +30,5 @@
       enddo        
 !$omp end parallel do
 
+      return
       end subroutine

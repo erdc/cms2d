@@ -9,6 +9,7 @@
       use size_def
       use geo_def, only: dx,dy,zb,cell2cell
       use exp_telescoping
+      use BalanceCheck_def 
       
       implicit none
       !local vars

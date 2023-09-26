@@ -17,7 +17,8 @@
 ! Sets default variables for dredging simulation
 ! written by Chris Reed
 !**************************************************************    
-    use dredge_def
+    use dredge_def, only: dredging, ndredge_operations, dredge_interval, write_dredge_diag, dredge_diag_file 
+    
     implicit none
     logical :: found = .false.
     
@@ -43,8 +44,9 @@
 !   - Added OUTPUT_DREDGE_DIAGNOSTICS card to only write extra information if desired.
 !**************************************************************    
 #include "CMS_cpp.h"
-    use dredge_def
-    use diag_lib, only: diag_print_error
+    use dredge_def, only: dredge_interval, ndredge_operations, dredging, write_dredge_diag
+    use diag_lib,   only: diag_print_error
+    
     implicit none
 
     character cardname*37
@@ -86,7 +88,8 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Chris Reed
 !********************************************************************
-    use dredge_def
+    use dredge_def, only: dredge_operations, write_dredge_diag, ndredge_operations
+    
     implicit none
 
     integer :: kk,ierr
@@ -131,12 +134,14 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Chris Reed
 !********************************************************************
-    use dredge_def
-    use diag_def
-    use diag_lib
+    use dredge_def, only: dredge_operations, method, ndredge_operations, num_trigger_ts, trigger_start, trigger_finish
+    use prec_def,   only: ikind
+    use diag_def,   only: msg, msg2
+    use diag_lib,   only: diag_print_error, diag_print_warning
+    use geo_def,    only: grdfile
+    use comvarbl,   only: flowpath
     use unitconv_lib, only: unitconv_var
-    use geo_def, only: grdfile
-    use comvarbl, only: flowpath
+    
     implicit none
 
     integer :: kk,ierr,m
@@ -291,9 +296,10 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Chris Reed
 !********************************************************************
-    use dredge_def
-    use geo_def, only: grdfile
-    use comvarbl, only: flowpath
+    use dredge_def, only: dredge_operations, write_dredge_diag, num_place_areas, ndredge_operations, method, dredge_diag_file
+    use geo_def,    only: grdfile
+    use comvarbl,   only: flowpath
+    use prec_def,   only: ikind
    
     implicit none
 
@@ -395,7 +401,8 @@
 !   type Dredge_Operations(*)
 !   written by Chris Reed
 !**************************************************************    
-    use dredge_def
+    use dredge_def, only: dredge_operations, write_dredge_diag, dredge_diag_file, ndredge_operations, dredge_operations_type, num_place_areas
+    
     implicit none
 
     integer      :: i
@@ -476,7 +483,8 @@
 !   type Dredge_Operations(*)
 !   written by Chris Reed
 !**************************************************************    
-    use dredge_def
+    use dredge_def, only: num_place_areas, ndredge_operations, dredge_operations
+    
     implicit none
 
     integer i
@@ -566,10 +574,11 @@
 !   subroutine writes summary of dredge operations setup
 !   written by Chris Reed
 !**************************************************************    
-    use dredge_def
-    use prec_def
-    use diag_def, only: dgunit,dgfile
-    use tool_def, only: vstrlz, rround
+    use dredge_def, only: ndredge_operations, dredge_operations
+    use prec_def,   only: ikind
+    use diag_def,   only: dgunit,dgfile
+    use tool_def,   only: vstrlz, rround
+    
     implicit none
 
     integer i,j,k,m, iunit(2)
@@ -670,19 +679,21 @@
 ! Written By Chris Reed 
 !**************************************************************       
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def,     only: idmap,x,y,dx,dy
-    use geo_def,     only: zb,zb0
-    !use comvarbl,    only:  ntsch
-    use dredge_def
-    use sed_def,     only: singlesize,nsed    
+    use size_def,   only: ncells, ncellsd, ncellsfull
+    use geo_def,    only: idmap,x,y,dx,dy
+    use geo_def,    only: zb,zb0
+    use dredge_def, only: dredgets_vars, dredgeunit, dredge_diag_file, ndredge_operations, dredge_operations, write_dredge_diag
+    use dredge_def, only: dredge_interval, bed_change, dredge_mat_gradation
+    use sed_def,    only: singlesize,nsed    
+    use in_lib,     only: readscalTxt
+    use diag_lib,   only: diag_print_error
+    use diag_def,   only: msg
+    use prec_def,   only: ikind
 #ifdef XMDF_IO
     use xmdf
     use in_xmdf_lib, only: readscalh5
 #endif
-    use in_lib,      only: readscalTxt
-    use diag_lib,    only: diag_print_error
-    use diag_def,    only: msg
+    
     implicit none
 
     integer       :: error,dfile_id,dcell_id,sumcells,k,i,j,summax,kk,ii,jj,ncnt

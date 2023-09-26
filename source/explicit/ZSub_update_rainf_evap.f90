@@ -1,15 +1,16 @@
+!***********************************************************************
       subroutine rain_evap()
-
-       use EXP_Global_def, only: etan,rain,evap,RF_frac_ro,rain_time,adeq,rf_unit
-       use flow_def, only: iwet
-       use EXP_transport_def, only: adss,salt 
-       use sal_def
+!***********************************************************************
+      use EXP_Global_def,    only: etan,rain,evap,RF_frac_ro,rain_time,adeq,rf_unit
+      use EXP_transport_def, only: adss,salt 
+      use flow_def, only: iwet
       use size_def, only: ncells,ncellsD 
-      use geo_def, only: dx,dy      
+      use geo_def,  only: dx,dy      
+      use sal_def,  only: saltrans, sal
        
-       implicit none 
-       real amount,Wamount,Damount,smass 
-       integer i  
+      implicit none 
+      real amount,Wamount,Damount,smass 
+      integer i  
       
       !RAINFALL  
       if(rain_time.gt.3600) then
@@ -51,5 +52,5 @@
         endif          
       endif
 
-
-    end subroutine
+      return
+      end subroutine

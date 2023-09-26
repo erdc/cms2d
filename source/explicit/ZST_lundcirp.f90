@@ -1,15 +1,13 @@
-
+!***********************************************************************
       subroutine ST_lundcirp()
-    use EXP_Global_def 
-      USE EXP_bndcond_def
-      USE EXP_transport_def 
-      use EXP_Structures_def
-      use wave_flowgrid_def
-      use flow_def
-      use comvarbl
-      use sed_def, only: rhosed,d50,scalesus,scalebed 
-      use size_def
-      use geo_def, only: zb,cell2cell     
+!***********************************************************************
+      use EXP_Global_def,    only: iripple, waves, ncn, nce, etan, cdx, cdy
+      USE EXP_transport_def, only: qsx, qsy
+      use wave_flowgrid_def, only: wper, wavediss, whgt, wang
+      use flow_def, only: rhow, iwet
+      use sed_def,  only: rhosed,d50,scalesus,scalebed 
+      use size_def, only: ncells
+      use geo_def,  only: zb,cell2cell     
             
       implicit none     
       real*8 uvel,vvel,arg,c_angle,w_angle,taucwtb,taucwmtb,epscw,fcf,fwf
@@ -61,30 +59,24 @@
             uvel = cdx(i) !((qxn(i)+qxn(nce))/2. + 1.e-10)/dep_lc
             vvel = cdy(i) !((qyn(i)+qyn(ncn))/2.)/dep_lc
             U0_lc = sqrt(uvel**2+vvel**2)
-            
             H_lc = min(0.7*Dep_lc,H_lc)
-
             arg = vvel/uvel
             c_angle = atan2(vvel,uvel)
             w_angle = Wang(i) !Wdir(i)*pi/180.0
             PHI_lc = abs(w_angle - c_angle)
             SINGLE_D50 = D50(I) !CHANGE SINGLED50 FOR EACH VARIABLE D50(I)
             VNU_lc = .000001d0
-
             CALL LUNDCIRP_(H_lc,PERIOD_lc,DB_lc,U0_lc,DEP_lc,     &
                  single_D50,PHI_lc,VNU_lc,xRHOW,xRHOSED,QBS_lc,   & !Variable D50 here
                  QSS_lc,iIRIPPLE,BDpart,CRCW,xWSFALL,             &
                  USTC,USTW,xTAUCR,TAUCWTB,TAUCWMTB,EPSCW,FCF,FWF)
-
-           QSS_lc = SCALESUS*QSS_lc
-           QBS_lc = SCALEBED*QBS_lc
-           QTOT_lc = QSS_lc + QBS_lc   
- 
-                 
-          !regular LC total load - in direction of depth-averaged current
-          qsx(i) = (uvel/U0_lc)*qtot_lc
-          qsy(i) = (vvel/U0_lc)*qtot_lc
-
+            QSS_lc = SCALESUS*QSS_lc
+            QBS_lc = SCALEBED*QBS_lc
+            QTOT_lc = QSS_lc + QBS_lc   
+                  
+            !regular LC total load - in direction of depth-averaged current
+            qsx(i) = (uvel/U0_lc)*qtot_lc
+            qsy(i) = (vvel/U0_lc)*qtot_lc
           endif !wet         
         ENDDO
 !!$omp end parallel do        
@@ -94,7 +86,6 @@
 !!$omp+ private(vnu_lc,h_lc,period_lc,db_lc,phi_lc,single_D50)
 !!$omp+ private(bdpart,crcw,xWSFALL,ustc,ustw,xtaucr,taucwtb)
 !!$omp+ private(taucwmtb,epscw,fcf,fwf,qbs_lc,Qss_lc)
-
         DO I=1,NCELLS
           qsx(i) = 0.
           qsy(i) = 0.
@@ -111,16 +102,14 @@
             vvel = cdy(i) !((qyn(i)+qyn(ncn))/2.)/dep_lc
             U0_lc = sqrt(uvel**2+vvel**2)
             SINGLE_D50 = D50(I)!CHANGE SINGLED50 FOR EACH VARIABLE D50(I)
-
             CALL LUNDCIRP_(H_lc,PERIOD_lc,DB_lc,U0_lc,DEP_lc,    &
                  single_D50,PHI_lc,VNU_lc,xRHOW,xRHOSED,QBS_lc,  &  !Variable D50 here
                  QSS_lc,iIRIPPLE,BDpart,CRCW,xWSFALL,            &
                  USTC,USTW,xTAUCR,TAUCWTB,TAUCWMTB,EPSCW,FCF,FWF)
-     
             QSS_lc = SCALESUS*QSS_lc
             QBS_lc = SCALEBED*QBS_lc
             QTOT_lc = QSS_lc + QBS_lc
-           
+         
             qsx(i) = (uvel/U0_lc)*qtot_lc
             qsy(i) = (vvel/U0_lc)*qtot_lc              
           endif
@@ -128,6 +117,7 @@
         
 !!$omp end parallel do        
       ENDIF
-      
+
+      return
       end subroutine
 

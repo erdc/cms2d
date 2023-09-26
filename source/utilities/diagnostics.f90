@@ -1,7 +1,7 @@
 !***************************************************************
     subroutine diag_default
 !***************************************************************    
-    use diag_def
+    use diag_def, only: msg, msg2, msg3, msg4, msg5, msg6, msg7, msg8, debug_mode
     implicit none
     
     !Debug model    
@@ -24,7 +24,8 @@
 ! Reads diagnositic variable
 ! written by Alex Sanchez, USACE-CHL
 !*************************************************************
-    use diag_def
+    use diag_def, only: debug_mode, dgfile, debug_level
+    
     implicit none
     integer :: ierr
     character(len=37) :: cardname
@@ -56,7 +57,8 @@
 ! Prints the general CMS settings to the screen and diagnostic file
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************  
-    use diag_def
+    use diag_def, only: dgunit, dgfile, debug_mode
+    
     implicit none
     integer :: i,iunit(2)
     
