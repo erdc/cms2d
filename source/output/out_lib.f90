@@ -776,20 +776,24 @@ contains
     
 #ifdef XMDF_IO
 !**************************************************************************
-    subroutine writescalh5(afile,apath,aname,var,aunits,timehr,iwritedry)
+    subroutine writescalh5(afile,apath,aname,var,aunits,timehr,iwritedry,writecf)
 ! writes a scalar dataset to the xmdf file with id number PID
 !
 ! written by Alex Sanchez, USACE-ERDC-CHL  
+! added optional argument, Mitchell Brown, USACE-ERDC-CHL  10/02/2023
 !**************************************************************************
     use size_def, only: ncellsD,ncellsfull,ncellpoly
     use xmdf
     use interp_lib, only: interp_scal_cell2node
     use prec_def
     implicit none
+    
     !Input/Output
     character(len=*),intent(in) :: afile,apath,aname,aunits
     real(ikind),intent(in) :: var(ncellsD),timehr
     integer,intent(in) :: iwritedry
+    logical,intent(in), optional :: writecf
+    
     !Internal variables
     integer :: fid,gid,ierr    
     real(8) :: timed  !Must be double    
@@ -806,6 +810,7 @@ contains
     call XF_OPEN_FILE(trim(afile),readwrite,fid,ierr) !Open XMDF file
     if(ierr<0)then
       call XF_CREATE_FILE(trim(afile),readwrite,fid,ierr)
+!      call write_general_cf_info(afullpath) !Write general CF attributes on new file creation  MEB 10/02/2023
     endif                         
     call OPEN_CREATE_DATASET(fid,trim(afullpath),gid,1,aunits,ierr)  !Open/create dataset          
     timed = dble(timehr)
@@ -1075,5 +1080,82 @@ contains
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Tecplot End
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
+
+!*******************************************************************
+    subroutine add_item_to_cf_list(number, name, long, standard, units, positive)
+! Adds items to the cf compliance list of variables
+! written by Mitchell Brown, USACE-CHL  10/02/2023
+!*******************************************************************
+    use out_def, only: cf_vars
+    implicit none
+    
+    integer, intent(in) :: number
+    character(len=*),intent(in) :: name, long, standard, units, positive
+    
+    cf_vars(number)%output_name = name
+    cf_vars(number)%long_name = long
+    cf_vars(number)%standard_name = standard
+    cf_vars(number)%units = units
+    cf_vars(number)%positive = positive
+    
+    return
+    end subroutine add_item_to_cf_list
+    
+!*******************************************************************
+    subroutine init_cf_var_list()
+! Initializes the cf compliance list of variables
+! written by Mitchell Brown, USACE-CHL  10/02/2023
+!*******************************************************************
+    use out_def, only: cf_vars
+    implicit none
+    
+    allocate(cf_vars(19))
+    
+    call add_item_to_cf_list(1, 'Water_Elevation', 'sea surface elevation', &
+                                'surface_elevation', 'm', 'up')
+    call add_item_to_cf_list(2, 'Total_Water_Depth', 'bathymetry plus surface elevation', &
+                                'total_water_depth', 'm', 'down')
+    call add_item_to_cf_list(3, 'Current_Velocity', 'vertical averaged velocity vector', &
+                                'u/v_velocity', 'm/s', 'x/y_direction')
+    call add_item_to_cf_list(4, 'Current_Magnitude', 'magnitude of vertical averaged velocity', &
+                                'velocity_magnitude', 'm/s', 'up')
+    call add_item_to_cf_list(5, 'Depth', 'bathymetry plus change due to sediment transport', &
+                                'depth_through_time', 'm', 'down')
+    call add_item_to_cf_list(6, 'Morphology_Change', 'change due to sediment transport', &
+                                'depth_change_through_time', 'm', 'up')
+    call add_item_to_cf_list(7, 'Eddy_Viscosity', 'diffusivity due to eddy advection', &
+                                'ocean_tracer_diffusivity_due_to_parameterized_mesoscale_eddy_advection', &
+                                'm^2/s', 'up')
+    call add_item_to_cf_list(8, 'Concentration', 'concentration of suspended sediment', &
+                                'mass_concentration_of_suspended_sediment_in_sea_water', &
+                                'kg/m^3','up')
+    call add_item_to_cf_list(9, 'Capacity', 'maximum capacity of sea water to hold sediment', &
+                                'maximum_capacity_of_sea_water_to_hold_suspended_sediment', &
+                                'kg/m^3', 'up')
+    call add_item_to_cf_list(10,'Total_Sediment_Transport', 'total sediment transport across unit distance in ocean', &
+                                'total_sediment_transport_across_unit_distance_in_ocean', 'kg/m/s', 'x/y_direction')
+    call add_item_to_cf_list(11,'Fraction_Suspended','fraction of suspended sediment of specific grain size', &
+                                'fraction_suspended_sediment_for_specific_grain_size_in_sea_water', 'nondimensional', 'up')
+    call add_item_to_cf_list(12,'Salinity', 'concentration of salinity', &
+                                'mass_concentration_of_salinity_in_sea_water', 'ppt', 'up')
+    call add_item_to_cf_list(13,'Temperature', 'sea water conservative temperature', &
+                                'sea_water_redistributed_conservative_temperature', 'degree C', 'up')
+    call add_item_to_cf_list(14,'Wave_Height', 'significant wave height', &
+                                'sea_surface_wave_significant_height', 'm', 'up') 
+    call add_item_to_cf_list(15,'Wave_Period', 'parabolic fit to the period of the peak of the energy', &
+                                'sea_surface_wave_period_at_variance_spectral_density_maximum', 's', 'up') 
+    call add_item_to_cf_list(16,'Wave_Height_Vec', 'significant wave height vectors', &
+                                'sea_surface_wave_significant_height_vectors', 'm', 'up')
+    call add_item_to_cf_list(17,'Wave_Dissipation', 'reduction in stress due to dissipation of waves', &
+                                'sea_surface_downward_stress_due_to_dissipation_of_sea_surface_waves', 'm^2/s', 'down') 
+    call add_item_to_cf_list(18,'Wave_Rad_Str', 'wave xy radiation stress vectors', &
+                                'sea_surface_wave_xy_radiation_stress', 'm^2/s^2', 'up')
+    call add_item_to_cf_list(19,'Wave_Rad_Str_Mag', 'wave xy radiation stress magnitude', &    
+                                'sea_surface_wave_xy_radiation_stress', 'm^2/s^2', 'up')
+
+
+    
+    return
+    end subroutine init_cf_var_list
 
 end module out_lib    

@@ -149,7 +149,13 @@
       call diag_print_error('Could not read dataset card: ',cardname)
     endif
     call fileparts(datafile,apath,aname,aext)
-
+    
+    if(len_trim(aext)==0)then !Is NOT a file. It is only a path   !Moved from lower in this routine to exit early and avoid extra '.' in pathname.  MEB  10/04/2023
+      datapath = datafile
+      datafile = defaultfile !Assume the file is the grid file
+      return  
+    endif
+      
     ilen=len_trim(aPath)-1
     if (ilen.gt.0) then
 #ifdef _WIN32
@@ -160,11 +166,6 @@
       datafile = trim(aFile)
     endif
 
-    if(len_trim(aext)==0)then !Is NOT a file. It is a path
-      datapath = datafile
-      datafile = defaultfile !Assume the file is the grid file
-      return  
-    endif            
     call lowercase(aext)
     select case(aext)
     case('h5')

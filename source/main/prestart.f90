@@ -45,7 +45,7 @@
     character :: aLetter
     character(len=37) :: cardname,aext
     character(len=200) :: aname,apath,astring
-    logical :: foundcard,foundfile
+    logical :: foundcard, foundfile, foundtel, foundgrid
     
     !Get CMS Version number for setting defaults
     open(77,file=ctlfile,status='unknown')
@@ -168,11 +168,14 @@
 
 !--- Read Grid File and setup geometric variables ------------------------------
     write(*,*) 'Reading Grid'
-    inquire(file=telfile,exist=foundfile)
-    if(foundfile) then
+    inquire(file=telfile, exist=foundtel)
+    inquire(file=grdfile, exist=foundgrid)
+    if(foundtel) then
       igridtype = 1
+    elseif(foundgrid) then
+      igridtype = 0      
     else
-      call diag_print_error("Grid file not found: "//trim(telfile))
+      call diag_print_error("No .tel or _grid.h5 file not found.")
     endif
     select case(igridtype)
     case(0)

@@ -1,3 +1,6 @@
+== Version 5.3.7 (10/02/2023) ==
+* Start adding CF Compliant naming to HDF5 solution datasets.
+
 == Version 5.3.6 (09/26/2023) ==
 * Minor fixes and diagnostic output improvements for Rubble Mound Jetties with SMS 13.3+.
 * Incorporate fixes for some explicit issues
