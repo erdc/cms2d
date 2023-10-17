@@ -1363,12 +1363,10 @@
       call writescalh5(goutfile,apath,'Cell_Area',areap,'m^2',timehrs,1)  !Cell Area
 #endif     
     endif
+    
+    call init_cf_var_list()
 
     return
-!-----------------------------------------------------------
-!978 call diag_print_error('Could not access output file ')
-!    return
-
     end subroutine out_init
     
 !*******************************************************************
@@ -1608,7 +1606,7 @@ implicit none
     !WATER SURFACE ELEVATION GROUP
     if(check_time_list(1))then
       call print_output_header(header)
-      call writescalh5(outlist(1)%afile,apath,'Water_Elevation',eta,'m',timehrs,0)
+      call writescalh5(outlist(1)%afile,apath,'Water_Elevation',eta,'m',timehrs,0,.true.)
       if(write_presres)then !Pressure Residuals
         call writescalh5(outlist(1)%afile,apath,'Pres_Norm_Res',rsp,'none',timehrs,0)
       endif
@@ -1879,11 +1877,11 @@ implicit none
       !  call writescalh5(outlist(7)%afile,apath,'Dissipation_Coeff',vecy,'-',timehrs,0)   
       !endif
       if(write_wavstress)then
-        call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str',wavestrx,wavestry,'none',timehrs,0)
+        call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str',wavestrx,wavestry,'m^2/s^2',timehrs,0)
         do i=1,ncells
           val(i) = sqrt(wavestrx(i)*wavestrx(i) + wavestry(i)*wavestry(i))
         enddo
-        call writescalh5(outlist(7)%afile,apath,'Wave_Rad_Str_Mag',val,'none',timehrs,0)
+        call writescalh5(outlist(7)%afile,apath,'Wave_Rad_Str_Mag',val,'m^2/s^2',timehrs,0)
         !!**************** For testing ******************************************************************
         !call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str2',wavstrx,wavstry,'none',timehrs,0)
         !do i=1,ncells

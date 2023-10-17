@@ -91,6 +91,17 @@ module out_def
                     'Roughness_Height_Transport_Current',&    
                     'Mannings_Coefficient'/ 
     
+    !Adding cf compliance information to be written to HDF5 (XMDF or NetCDF) datasets.  MEB  10/02/2023
+    type cf_var_type
+      character(len=50)  :: output_name
+      character(len=100) :: long_name
+      character(len=100) :: standard_name
+      character(len=20)  :: units
+      character(len=10)  :: positive
+    endtype cf_var_type
+    type(cf_var_type), allocatable :: cf_vars(:)
+    integer :: ncf_vars = 0
+    
 !--- Output Times List ---------------------------------   
    type output_time_list
      character(len=11) :: name

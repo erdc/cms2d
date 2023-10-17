@@ -36,15 +36,19 @@ contains
     real(ikind),intent(inout),pointer :: vec(:)
     
     !Internal variables
-    integer :: pid,gid,ierr    
+    integer :: pid,gid,ierr,iloc
     real(4),allocatable :: ftemp(:) !Should be single    
+    character(100) :: thepath
        
     call XF_OPEN_FILE(afile,READONLY,pid,ierr)
     msg = "Unable to open file: '" // trim(afile) // "'"
     if (ierr < 0) call diag_print_error (msg)
     
-    call XF_OPEN_GROUP(pid,apath,gid,ierr)
-    msg = "Unable to open dataset: '" // trim(apath) // "from file: '" // trim(afile) // "'"
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(pid,thepath,gid,ierr)
+    msg = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
     if (ierr < 0) call diag_print_error (msg)
 
     call XF_GET_PROPERTY_NUMBER(gid,trim(aname),nn,ierr)
@@ -83,18 +87,21 @@ contains
     real(ikind), intent(out) :: var(ncellsD)
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: fid,gid
+    integer :: fid,gid,iloc
     real(4) :: vtemp(ncellsfull)
-    character(len=200) :: msg2,msg3
+    character(len=200) :: msg2,msg3,thepath
 
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0) call diag_print_error('Could not open file: ',trim(afile))
     
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not open dataset from',msg2,msg3)
       return
     endif
@@ -104,7 +111,7 @@ contains
       !call XF_CLOSE_GROUP(gid,ierr)
       !call XF_CLOSE_FILE(fid,ierr)  
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !call diag_print_error('Could not read scalar dataset from',msg2,msg3)
       return
     endif
@@ -140,20 +147,24 @@ contains
     real(ikind), intent(out):: var(ncellsD),thrs
     integer, intent(out) :: ierr    
     !Internal Variables
-    integer :: fid,gid,ntimes
+    integer :: fid,gid,ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull) !Must be single
+    character(100) :: thepath
     
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0)then
       call diag_print_error('Could not open file: ',afile)
     endif
           
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !call diag_print_warning('Could not open dataset from',msg2,msg3)
       ierr = -2 !Could not open group
       return
@@ -164,7 +175,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)  
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !write(msg4,*,iostat=ierr) '  Time Step: ',itsind
       !call diag_print_warning('Could not read scalar time step',msg2,msg3,msg4)
       ierr = 3 !Could not read timestep value
@@ -177,7 +188,7 @@ contains
     if(ierr<0)then
       thrs = -999.0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_warning('Could not read time stamp from',msg2,msg3)
       ierr = 4 !Could not read time stamp
     else
@@ -216,18 +227,22 @@ contains
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer :: fid,gid    
+    integer :: fid,gid,iloc
     real(8), allocatable :: timed(:) !Output time
     real(4) :: vtemp(ncellsfull) !Must be single
+    character(100) :: thepath
     
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)   
     if(ierr<0) call diag_print_error('Could not open file: ',afile)
       
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
 !      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-!      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+!      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
 !      call diag_print_warning('Could not open dataset from ',msg2,msg3)
       ierr = -2
       return
@@ -238,7 +253,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not read number of times from',msg2,msg3)
     endif
     
@@ -247,7 +262,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)  
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_error('Could not read last time step scalar values from',msg2,msg3,msg4)
     endif
@@ -257,7 +272,7 @@ contains
     if(ierr<0)then
       thrs = -999.0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_warning('Could not read times from',msg2,msg3,msg4)
       ierr = 4 !Could not read time stamp
@@ -270,7 +285,7 @@ contains
     if(ierr<0)then
       reftimed = -999.0d0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_warning('Could not read reference time from',msg2,msg3)
       ierr = 5 !Could not read time stamp
     endif  
@@ -309,20 +324,24 @@ contains
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: i,fid,gid,nstep,ntimes
+    integer :: i,fid,gid,nstep,ntimes,iloc
     real(8), allocatable :: timed(:) !Output time
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull) !Must be single
+    character(100) :: thepath
     
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)   
     if(ierr<0) call diag_print_error('Could not open file: ',afile)
       
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
 !#ifdef DIAG_MODE
 !      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-!      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+!      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
 !      call diag_print_warning('Could not open dataset from ',msg2,msg3)
 !#endif
       ierr = -2
@@ -334,7 +353,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not read number of times from',msg2,msg3)
     endif
     
@@ -342,7 +361,7 @@ contains
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)
     if(ierr<0)then
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_warning('Could not read times from',msg2,msg3,msg4)
       ierr = 4 !Could not read time stamp
@@ -359,7 +378,7 @@ contains
       enddo
       if(terrdmin>0.001)then
         write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-        write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+        write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
         write(msg4,*,iostat=ierr) '  Time: ',thrs,' hrs'
         call diag_print_warning('Could not find time: ',msg2,msg3,msg4)
       endif
@@ -371,7 +390,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)  
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_error('Could not read last time step scalar values from',msg2,msg3,msg4)
     endif
@@ -380,7 +399,7 @@ contains
     if(ierr<0)then
       reftimed = -999.0d0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_warning('Could not read reference time from',msg2,msg3)
       ierr = 5 !Could not read time stamp
     endif  
@@ -414,18 +433,21 @@ contains
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD)
     integer, intent(out) :: ierr
     !Internal
-    integer :: fid,gid
+    integer :: fid,gid,iloc
     real(4) :: vtemp(ncellsfull*2) !Must be single
-    character(len=200) :: msg2,msg3
+    character(len=200) :: msg2,msg3,thepath
 
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0) call diag_print_error('Could not open file: ',afile)
-      
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'    
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)  
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not open dataset from',msg2,msg3)
       return
     endif
@@ -435,7 +457,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not read vector dataset from',msg2,msg3) 
       return
     endif
@@ -470,21 +492,24 @@ contains
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD),thrs
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: fid,gid,ntimes
+    integer :: fid,gid,ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
-    character(len=200) :: msg2,msg3,msg4
+    character(len=200) :: msg2,msg3,msg4,thepath
 
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0)then
       call diag_print_error('Could not open file: ',afile)
     endif
               
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !call diag_print_warning('Could not open dataset from',msg2,msg3)
       ierr = -2 !Could not open group
       return
@@ -495,7 +520,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !write(msg4,*,iostat=ierr) '  Time step: ',itsind
       !call diag_print_warning('Could not read vector time step values',msg2,msg3)
       ierr = 3 !Could not read timestep
@@ -508,7 +533,7 @@ contains
     if(ierr<0)then
       thrs = -999.0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',itsind
       call diag_print_warning('Could not read time stamp from',msg2,msg3,msg4)
       ierr = 4
@@ -547,9 +572,10 @@ contains
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer :: fid,gid    
+    integer :: fid,gid,iloc
     real(8), allocatable :: timed(:)  !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
+    character(100) :: thepath
 
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0)then
@@ -557,11 +583,14 @@ contains
       call diag_print_error('Could not open file: ',afile)
     endif
       
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)  
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !call diag_print_warning('Could not open dataset from',msg2,msg3)
       ierr = -2
       return
@@ -572,7 +601,7 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)  
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not read number of times from ',msg2,msg3)
     endif
     
@@ -586,7 +615,7 @@ contains
 !    string = trim(apath) // 'TIME'
 !    call XF_OPEN_GROUP(fid,trim(string),gid,ierr)
 !    if(ierr<0)then
-!      call diag_print_error('Invalid dataset path: ',apath)
+!      call diag_print_error('Invalid dataset path: ',thepath)
 !    endif    
 !    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,1,thrs,ierr)
         
@@ -595,7 +624,7 @@ contains
     if(ierr<0)then
       thrs = -999.0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_warning('Could not read times from ',msg2,msg3,msg4)
       ierr = 4
@@ -608,7 +637,7 @@ contains
     if(ierr<0)then
       reftimed = -999.0d0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_warning('Could not read reference time from',msg2,msg3)
       ierr = 5
     endif
@@ -646,10 +675,11 @@ contains
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: i,fid,gid,nstep,ntimes
+    integer :: i,fid,gid,nstep,ntimes,iloc
     real(8), allocatable :: timed(:)  !Output times
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull*2) !Must be single
+    character(100) :: thepath
 
     call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
     if(ierr<0)then
@@ -657,11 +687,14 @@ contains
       call diag_print_error('Could not open file: ',afile)
     endif
       
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
+    thepath = trim(apath)
+    iloc=index(thepath,'\')
+    if (iloc.gt.0) thepath(iloc:iloc)='/'
+    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)  
       !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       !call diag_print_warning('Could not open dataset from',msg2,msg3)
       ierr = -2
       return
@@ -672,14 +705,14 @@ contains
       call XF_CLOSE_GROUP(gid,ierr)
       call XF_CLOSE_FILE(fid,ierr)  
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_error('Could not read number of times from ',msg2,msg3)
     endif
       
 !    string = trim(apath) // 'TIME'
 !    call XF_OPEN_GROUP(fid,trim(string),gid,ierr)
 !    if(ierr<0)then
-!      call diag_print_error('Invalid dataset path: ',apath)
+!      call diag_print_error('Invalid dataset path: ',thepath)
 !    endif    
 !    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,1,thrs,ierr)
         
@@ -687,7 +720,7 @@ contains
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)   
     if(ierr<0)then
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       write(msg4,*,iostat=ierr) '  Time step: ',ntimes
       call diag_print_warning('Could not read times from ',msg2,msg3,msg4)
       ierr = 4
@@ -704,7 +737,7 @@ contains
       enddo
       if(terrdmin>0.001)then
         write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-        write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+        write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
         write(msg4,*,iostat=ierr) '  Time: ',thrs,' hrs'
         call diag_print_warning('Could not find time: ',msg2,msg3,msg4)
       endif
@@ -722,7 +755,7 @@ contains
     if(ierr<0)then
       reftimed = -999.0d0
       write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(apath)
+      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
       call diag_print_warning('Could not read reference time from',msg2,msg3)
       ierr = 5
     endif

@@ -988,7 +988,7 @@
     subroutine struct_init
 !****************************************************
 #include "CMS_cpp.h"
-    use geo_def, only: zb,mapid   !(hli, 11/19/13)  
+    use geo_def,  only: zb,mapid   !(hli, 11/19/13)  
     use size_def, only: ncellsfull  !(hli, 11/19/13) 
     use flow_def, only: grav  !(hli, 11/19/13) 
     use struct_def
@@ -1033,7 +1033,11 @@
       if(numrubmound.gt.0)then
         allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound),   & 
         rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
-        rubmoundbotm(numrubmound))   
+        rubmoundbotm(numrubmound))
+        
+        !Added MEB  10/04/2023
+        allocate(rm_struct(irubmound)%cells(numrubmound))  
+        rm_struct(irubmound)%ncells = numrubmound
         
         do irm=1,numrubmound
           nrubmound(irm)=irm
@@ -1042,12 +1046,13 @@
         nrubmound(0) = 0
         allocate(idrubmound(numrubmound)) 
 
- 99 format(15(i0,x))
+ 99     format(15(i0,x))
         kk=0
         do i=1,ncellsfull
           if(permeability(i).gt.0.0) then
             kk=kk+1
             idrubmound(kk)=mapid(i)  !Convert from internal to SMS Cell ID number
+            rm_struct(irubmound)%cells(kk) = idrubmound(kk)  !Added MEB  10/04/2023
           endif
         enddo
 
