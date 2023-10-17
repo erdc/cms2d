@@ -43,7 +43,6 @@
 ! written by Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
 !***************************************************************************
     use bnd_def
-    
     implicit none
     
     !Parameters
@@ -87,8 +86,8 @@
     use const_def, only: pi
     use comvarbl,  only: flowpath
     use prec_def,  only: ikind
-    
     implicit none    
+	
     integer :: ierr  !Wu
     character(len=37) :: cardname
     logical :: foundcard    
@@ -119,7 +118,6 @@
       call card_bid(flowpath,TH_str(nTHstr)%bidfile,TH_str(nTHstr)%bidpath,TH_str(nTHstr)%idnum)
       Tread = .true.
       if(tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
-      !TH_str(nTHstr)%istidal = .true. !Default already true and this may overide user-input, Alex: 08-22-14
       TH_str(nTHstr)%istrtype = 1
      
     case('TIDAL_CONSTITUENTS_BEGIN')     
@@ -133,9 +131,6 @@
     case('TIDAL_CONSTITUENTS_END','END')
       
     case('HARMONIC_CELLSTRING')          !Harmonic BC
-      !if(tide_read)then
-      !  call diag_print_warning('Cannot specify both tidal and harmonic boundary condition')
-      !endif
       if(.not.tide_read) call tidal_alloc
       call card_bid(flowpath,TH_str(nTHstr)%bidfile,TH_str(nTHstr)%bidpath,TH_str(nTHstr)%idnum)
       Tread = .true.          
@@ -197,8 +192,8 @@
     subroutine xshore_alloc
 !****************************************************************
     use bnd_def, only: nCSstr,CS_str,CS_type
-    
     implicit none
+	
     integer :: i
     type(CS_type),allocatable :: CS_temp(:)
     
@@ -226,9 +221,8 @@
 ! Resizes the flux boundary condition variable    
 !**********************************************************
     use bnd_def, only: nQstr,Q_type,Q_str
-    !use prec_def
-    
     implicit none
+	
     integer :: i
     type(Q_type),allocatable :: Q_temp(:)
     
@@ -284,16 +278,17 @@
     use comvarbl,  only: mpfile,flowpath
     use diag_lib,  only: diag_print_error
     use prec_def,  only: ikind
-    
     implicit none
+	
     !Input/Output
-    character(len=*),intent(inout) :: fluxfile,fluxpath
-    integer,intent(out) :: ibndtype,ifluxmode,ifluxunits,nti,nsi,nsw
+    integer,intent(out)     :: ibndtype,ifluxmode,ifluxunits,nti,nsi,nsw
     real(ikind),intent(out) :: qfluxconst,angle_flux,cmvel
+    character(len=*),intent(inout) :: fluxfile,fluxpath
+	
     !Internal Variables
-    integer :: kk,ierr
+    integer   :: kk,ierr
     character :: cardname*37,qunits*40,aline*200
-    logical :: foundcard
+    logical	  :: foundcard
     
     ibndtype = 0 !Q-1
     
@@ -404,14 +399,15 @@
     use comvarbl,  only: mpfile,flowpath
     use diag_lib,  only: diag_print_error
     use prec_def,  only: ikind
-    
     implicit none
+	
     !Input/Output
     character(len=*),intent(inout) :: wsefile,wsepath,offsetfile,offsetpath !(hli,01/18/17)
     integer,         intent(inout) :: ibndtype,minterp,nti,nsi,nsw,nssi,nssw
     integer,         intent(out)   :: ioffsetmode                           !(hli,01/18/17)
     real(ikind),     intent(inout) :: wseconst,wseoffset,dwsex,dwsey
     logical,         intent(inout) :: istidal,wseout,wseadjust
+	
     !Internal Variables
     integer :: kk,ierr
     character(len=37) :: cardname
@@ -427,11 +423,8 @@
       read(77,*,iostat=ierr) cardname
       if(ierr/=0) exit
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      !call bnd_time_smooth_cards(cardname,nti,nsi,nsw,foundcard)
-      !if(foundcard) cycle 
-      !call bnd_space_smooth_cards(cardname,nssi,nssw,foundcard)
-      !if(foundcard) cycle 
-      select case(cardname)    
+
+	  select case(cardname)    
       case('WSE_BOUNDARY_END','WSE_END','WSE_FORCING_END','END')
         exit
           
@@ -522,6 +515,7 @@
         endif
         backspace(77)
         read(77,*) cardname,dwsex,dwsey
+		
         !Rotate gradients to the local coordinate system
         cosang=cos(azimuth_fl*deg2rad)
         sinang=sin(azimuth_fl*deg2rad)
@@ -569,13 +563,13 @@
     use const_def, only: deg2rad
     use comvarbl,  only: mpfile,flowpath
     use diag_lib,  only: diag_print_error
-    !use prec_def
-    
     implicit none
+	
     !Input/Output
     integer,         intent(inout) :: ibndtype,nti,nsi,nsw,nssi,nssw
     character(len=*),intent(inout) :: velfile,velpath
     logical,         intent(inout) :: velout
+	
     !Internal Variables
     integer :: kk,ierr
     character :: cardname*37,cdum*40
@@ -669,24 +663,24 @@
     use tide_lib,  only: tidal_data
     use prec_def,  only: ikind
     use unitconv_lib, only: unitconv_var
-    
     implicit none
+	
     !Input/Output
+	integer,intent(inout) :: ibndtype
+    integer,intent(out)   :: nti                            !(hli,10/06/17)
     character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
     integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
     real(ikind),     intent(inout) :: wseoffset
-    
-    integer,intent(inout) :: ibndtype
-    integer,intent(out)  :: nti                   !(hli,10/06/17)
-    integer              :: ntc         !Tidal constituents used
-    real(ikind)          :: angle_wave  !Incident angle of tidal wave
-    real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
-    real(ikind), pointer :: speed(:)    !Speed [rad/hrs] (constituent)
-    real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
-    real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
-    real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
-    character(len=10), pointer :: name(:)     !Tidal Consitituent names (constituent)    
+	
     !Internal Variables
+    integer              :: ntc           !Tidal constituents used
+    real(ikind)          :: angle_wave    !Incident angle of tidal wave
+    real(ikind), pointer :: amp(:)        !Amplitude [m] (constituent) 
+    real(ikind), pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+    real(ikind), pointer :: phase(:)      !Phase [rad] (constituent)
+    real(ikind), pointer :: f(:)          !Nodal factor [-] (constituent)
+    real(ikind), pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
+    character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
     integer :: kk,ierr
     character(len=37) :: cardname
     character(len=6) :: ampunits,phaunits
@@ -758,8 +752,6 @@
         call card_dataset(77,mpfile,flowpath,offsetfile,offsetpath,1)   
         ioffsetmode=2
         nti=2
- !     write(3000,*)'mpfile= ',mpfile,'flowpath = ',flowpath           !hli(10/04/17)
- !     write(3000,*)'offsetfile= ',offsetfile,'offsetpath = ',offsetpath  !hli(10/04/17)
           
       case default
         foundcard = .false.
@@ -798,8 +790,8 @@
     use bnd_def,   only: ntf
     use prec_def,  only: ikind
     use unitconv_lib, only: unitconv_var
-    
     implicit none
+	
     !Input/Output
     integer,intent(inout) :: ibndtype
     integer              :: ntc         !Tidal constituents used
@@ -807,6 +799,7 @@
     real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
     real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
     real(ikind), pointer :: speed(:)    !Speed [rad/hrs] (constituent)
+	
     !Internal Variables
     integer :: k,kk,ierr
     character(len=37) :: cardname
@@ -856,8 +849,6 @@
         ntc = ntc + 1
         backspace(77)   
         read(77,*) cardname,speedtemp(ntc),amptemp(ntc),phasetemp(ntc) !Preferred format, speed in deg/hr
-        !read(77,*) cardname,amptemp(ntc),phasetemp(ntc),speedtemp(ntc)   !Current format in SMS 11.1, speed in cycles/hr
-        !speedtemp(ntc) = speedtemp(ntc)*180.0 !convert from cycles/hr to deg/hr
         ibndtype = 2
         
       case default
@@ -894,19 +885,20 @@
     use prec_def,  only: ikind
     use const_def, only: deg2rad
     use unitconv_lib, only: unitconv_var
-    
     implicit none
+	
     !Input/Output
     integer,intent(inout) :: ibndtype
-    character(len=*)     :: station
-    integer              :: ntc         !Tidal constituents used
-    real(ikind)          :: angle_wave  !Incident angle of tidal wave
-    real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
-    real(ikind), pointer :: speed(:)    !Speed [rad/hrs] (constituent)
-    real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
-    real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
-    real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
-    character(len=10), pointer :: name(:)     !Tidal Consitituent names (constituent)    
+    character(len=*)      :: station
+    integer               :: ntc          !Tidal constituents used
+    real(ikind)           :: angle_wave   !Incident angle of tidal wave
+    real(ikind), pointer  :: amp(:)       !Amplitude [m] (constituent) 
+    real(ikind), pointer  :: speed(:)     !Speed [rad/hrs] (constituent)
+    real(ikind), pointer  :: phase(:)     !Phase [rad] (constituent)
+    real(ikind), pointer  :: f(:)         !Nodal factor [-] (constituent)
+    real(ikind), pointer  :: vu(:)        !Equilibrium argument [rad] (constituent)
+    character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
+	
     !Internal Variables
     integer :: i,k,kk,ierr,id,kunit,ind,idsta,kerr
     integer :: mcyctemp(ntf)
@@ -1093,8 +1085,8 @@
     use comvarbl,  only: mpfile,flowpath,tjulday0
     use time_lib,  only: calendar2julian
     use prec_def,  only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(inout) :: nti    
     real(ikind),intent(inout) :: tjuldaypar    !Parent simulation reference (starting) time in Julian days
@@ -1104,6 +1096,7 @@
     character(len=200),intent(inout) :: ctlfilepar               !Parent control file and path
     character(len=200),intent(inout) :: grdfilepar               !Parent grid file and path
     type(projection),intent(inout) :: projpar
+	
     !Internal Variables
     integer :: kk,ierr
     integer :: iyrpar,imopar,idaypar,ihrpar,iminpar,isecpar
@@ -1137,14 +1130,6 @@
         backspace(77)
         read(77,*) cardname,wsefilepar  
         velfilepar = wsefilepar  
-        
-      !case('WSE_FILE','PARENT_WSE_FILE','WSE_OUT_FILE','WSE_SOL_FILE')
-      !  backspace(77)
-      !  read(77,*) cardname,wsefilepar  
-      !  
-      !case('VEL_FILE','PARENT_VEL_FILE','VEL_OUT_FILE','VEL_SOL_FILE')
-      !  backspace(77)
-      !  read(77,*) cardname,velfilepar
         
       case('WSE_SOLUTION','WSE_DATASET','WSE_FILE','PARENT_WSE_FILE','WSE_OUT_FILE','WSE_SOL_FILE')
         backspace(77)                                 !added 6/10/21 MEB
@@ -1190,16 +1175,16 @@
     use geo_def,   only: azimuth_fl,projection
     use const_def, only: deg2rad
     use comvarbl,  only: mpfile,flowpath
-
     implicit none
-    !Input/Output
+
+	!Input/Output
     integer,intent(out)            :: ntcin    !Tidal constituents used     
-    character(len=*),intent(inout), pointer :: namein(:)  !Input Tidal Consitituent names (constituent)
     character(len=*),intent(inout) :: tdbname  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
     character(len=*),intent(inout) :: tdbpath  !Tidal Database file and path
     type(projection),intent(inout) :: projtdb  !Parent grid projection
     integer,intent(inout)          :: nssi     !Smoothing iterations (along string)
     integer,intent(inout)          :: nssw     !Smoothing window width (along string)
+    character(len=*),intent(inout), pointer :: namein(:)  !Input Tidal Consitituent names (constituent)
     
     !Internal Variables
     integer :: k,kk,ierr,nn
@@ -1262,8 +1247,8 @@
     subroutine tidal_alloc
 !**********************************************************
     use bnd_def, only: TH_str,nTHstr,ntf,TH_type,ioffsetmode !(hli 10/04/17)
-
     implicit none
+	
     integer :: i,ntc
     type(TH_type), allocatable :: Tstrtemp(:)
     
@@ -1318,8 +1303,8 @@
 ! Resizes the single water level boundary condition variable    
 !*************************************************************
     use bnd_def, only: H_str,nHstr,H_type,ioffsetmode
-
     implicit none
+	
     integer :: i
     type(H_type), allocatable :: Hstrtemp(:)    
     
@@ -1340,7 +1325,6 @@
     endif
     
     !Initialize and set default values
-!    write(3000,*)'ioffsetmode (singlewse) = ',ioffsetmode 
     H_str(nHstr)%ioffsetmode = ioffsetmode  !1-Constant offset, 2-Offset curve (hli,01/18/17)
     H_str(nHstr)%offsetfile = ''
     H_str(nHstr)%offsetpath = ''    
@@ -1359,7 +1343,6 @@
     H_str(nHstr)%nsw = 0 !Temporal smoothing width
     H_str(nHstr)%nsi = 0 !Temporal smoothing iterations
     H_str(nHstr)%wseadjust = .true.
-    !H_str(nHstr)%minterp    !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
     
     return
     end subroutine singlewse_alloc
@@ -1369,8 +1352,8 @@
 ! Resizes the multiple water level boundary condition variables    
 !****************************************************************
     use bnd_def, only: MH_str,nMHstr,MH_type
-
     implicit none
+	
     integer :: i
     type(MH_type), allocatable :: MHstrtemp(:)    
     
@@ -1399,10 +1382,10 @@
     MH_str(nMHstr)%ncells = 0
     MH_str(nMHstr)%ntimes = 0
     MH_str(nMHstr)%inc = 1
-    MH_str(nMHstr)%nti = 2  !Temporal interpolation order
-    MH_str(nMHstr)%nsw = 0  !Temporal smoothing width
+    MH_str(nMHstr)%nti = 2   !Temporal interpolation order
+    MH_str(nMHstr)%nsw = 0   !Temporal smoothing width
     MH_str(nMHstr)%nssi = 0  !Spatial smoothing iterations
-    MH_str(nMHstr)%nssw = 0 !Spatial smoothing width
+    MH_str(nMHstr)%nssw = 0  !Spatial smoothing width
     
     return
     end subroutine multiwse_alloc
@@ -1413,8 +1396,8 @@
 ! condition variable
 !**********************************************************
     use bnd_def, only: MHV_str,nMHVstr,MHV_type
-
     implicit none
+	
     integer :: i
     type(MHV_type), allocatable :: MHVstrtemp(:)    
     
@@ -1443,21 +1426,23 @@
     MHV_str(nMHVstr)%velfile = ''
     MHV_str(nMHVstr)%velpath = ''
     MHV_str(nMHVstr)%ncells = 0
+	
     !Water level options
     MHV_str(nMHVstr)%ntimeswse = 0    
     MHV_str(nMHVstr)%incwse = 1
     MHV_str(nMHVstr)%ntiwse = 2  !Temporal interpolation order
     MHV_str(nMHVstr)%nswwse = 0  !Temporal smoothing width
     MHV_str(nMHVstr)%nsiwse = 0  !Temporal smoothing iterations
-    MHV_str(nMHVstr)%nssiwse = 0  !Spatial smoothing iterations
+    MHV_str(nMHVstr)%nssiwse = 0 !Spatial smoothing iterations
     MHV_str(nMHVstr)%nsswwse = 0 !Spatial smoothing width
+	
     !Current velocity options
     MHV_str(nMHVstr)%ntimesvel = 0
     MHV_str(nMHVstr)%incvel = 1
     MHV_str(nMHVstr)%ntivel = 2  !Temporal interpolation order
     MHV_str(nMHVstr)%nswvel = 0  !Temporal smoothing width
     MHV_str(nMHVstr)%nsivel = 0  !Temporal smoothing iterations
-    MHV_str(nMHVstr)%nssivel = 0  !Spatial smoothing iterations
+    MHV_str(nMHVstr)%nssivel = 0 !Spatial smoothing iterations
     MHV_str(nMHVstr)%nsswvel = 0 !Spatial smoothing width
     
     return
@@ -1477,8 +1462,8 @@
     use tide_lib,  only: tidal_data
     use const_def, only: deg2rad,twopi
     use prec_def,  only: ikind
-    
     implicit none
+	
     integer :: i,k,nn,kth,ntc,ierr
     integer :: mcyctemp(ntf),ind(ntf)
     real(ikind) :: amptemp(ntf),phasetemp(ntf),speedtemp(ntf),ftemp(ntf),vutemp(ntf)
@@ -1489,9 +1474,6 @@
 !   Get constituent names, speeds, nodal corrections and equilibrium phases (relative to Greenwich)
     call tidal_data(iyr,nameyr,speedtemp,mcyctemp,ftemp,vutemp)
 
-    !backspace(77)   
-    !read(77,*) cardname    !SKIP DOWN TO NEXT LINE   
-             
     ntc = 0 !Number of tidal constituents used
 d1: do i=1,ntf
       read(77,*,iostat=ierr) cardname
@@ -1514,6 +1496,7 @@ d2:   do k=1,ntf
       read(77,*) cardname, amptemp(kth), phasetemp(kth)
       nametemp(kth) = astr
     enddo d1        
+
     if(.not.Tread)then
       call tidal_alloc
     endif       
@@ -1547,14 +1530,14 @@ d2:   do k=1,ntf
     use bnd_def,   only: TH_str,ntf,TH_type,nTHstr,Tread,nbndstr
     use const_def, only: deg2rad,twopi
     use prec_def,  only: ikind
-    
     implicit none
+	
     integer :: i,k,ntc,ierr
     real(ikind) :: amptemp(ntf),phasetemp(ntf),speedtemp(ntf)
     character(len=32) :: cardname
     
     ntc = 0 !Number of tidal constituents used
-d1: do i=1,ntf
+    do i=1,ntf
       read(77,*,iostat=ierr) cardname
       backspace(77)
       if(ierr/=0) exit
@@ -1579,8 +1562,9 @@ d1: do i=1,ntf
           endif  
         endif  
       end select
-    enddo d1        
-    if(.not.Tread)then
+    enddo
+
+if(.not.Tread)then
       call tidal_alloc
     endif      
     TH_str(nTHstr)%istidal = .false.
@@ -1622,8 +1606,8 @@ d1: do i=1,ntf
     use size_def,   only: ncellsd,ncellpoly,ncells
     use const_def,  only: deg2rad,rad2deg
     use interp_lib, only: interp_coef_tel2pts,interp_coef_tri2pts
-    
     implicit none      
+		
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
     integer :: iriv,iwse,icsh,korient,id1,id2,ibnd,ipar,idpar,kk
     integer :: itide    !adding a descriptive loop control variable for the tidal and harmonic cell strings
@@ -1669,10 +1653,6 @@ d1: do i=1,ntf
       call diag_print_warning('Missing cell string for tidal constituents','  Tidal constituents will be ignored')
     endif
     
-!    if(nTstrchk/=nTHstr)then
-!      call diag_print_error('Unassigned tidal constituent information')
-!    endif
-
 !--- River/Flux BC (Type 1=Q) -------------------------------
     do iriv=1,nQstr
       !Read cell/node string  
@@ -1754,8 +1734,6 @@ d1: do i=1,ntf
       endif
       
       !Calculate phase difference due incident angle and regional wse gradients
-      !allocate(TH_str(nTHstr)%psi(TH_str(nTHstr)%ncells,TH_str(nTHstr)%ntc))     !meb 1/31/2020  I think these should reference each cell string's PSI instead of always the max
-      !TH_str(nTHstr)%psi = 0.0
       allocate(TH_str(itide)%psi(TH_str(itide)%ncells,TH_str(itide)%ntc))
       TH_str(itide)%psi = 0.0
       !Calculate characteristic depth
@@ -1785,9 +1763,6 @@ d1: do i=1,ntf
         !Read offset data           
         call read_offsetwsedata(TH_str(itide)%offsetfile,TH_str(itide)%offsetpath,&
              TH_str(itide)%ntimesoffset,TH_str(itide)%offsettimes,TH_str(itide)%offsetcurve)
-!        write(3000,*)'TH_str(itide)%offsetfile = ',TH_str(itide)%offsetfile
-!        write(3000,*)'TH_str(itide)%offsettimes = ',TH_str(itide)%offsettimes
-!        write(3000,*)'TH_str(itide)%offsetcurve = ',TH_str(itide)%offsetcurve
       endif
     enddo !i-str   
 
@@ -2038,8 +2013,7 @@ d1: do i=1,ntf
         deallocate(ParSim(ipar)%zpar) !Not needed    
         !Check horizontal projection
         if(ParSim(ipar)%projpar%iHorizDatum==2 .or. ParSim(ipar)%projpar%iHorizCoordSystem==2)then !Local
-          call diag_print_warning('No horizontal projection defined for ADCIRC grid',&
-            '   Assuming Geographic, NAD83, Degrees')
+          call diag_print_warning('No horizontal projection defined for ADCIRC grid','   Assuming Geographic, NAD83, Degrees')
           ParSim(ipar)%projpar%iHorizDatum = 1         !Horizontal Datum = NAD83
           ParSim(ipar)%projpar%iHorizCoordSystem = 0   !Horizontal Coordinate System = GEOGRAPHIC
           ParSim(ipar)%projpar%iHorizUnits = 4         !Horizontal Units = DEGREES
@@ -2097,6 +2071,7 @@ d1: do i=1,ntf
         mntp = 3  
       endif      
       NH_str(iwse)%mntp = mntp
+	  
       !Calculate interpolation coefficients    
       xtrapdist = 1.0e6 !Set large value to use nearest neighbor value      
       nbndcells = NH_str(iwse)%ncells
@@ -2161,6 +2136,7 @@ d1: do i=1,ntf
         mntp = 3  
       endif      
       NHV_str(iwse)%mntp = mntp
+	  
       !Calculate interpolation coefficients    
       xtrapdist = 1.0e6 !Set large value to use nearest neighbor value      
       nbndcells = NHV_str(iwse)%ncells
@@ -2262,19 +2238,6 @@ d1: do i=1,ntf
          NTHV_str(iwse)%ampu,NTHV_str(iwse)%phaseu,&
          NTHV_str(iwse)%ampv,NTHV_str(iwse)%phasev,NTHV_str(iwse)%angvel)   
     enddo !iwse-str
-
-!!--- River BC - extrapolation ------------------       
-!    allocate(iextrap(ncellsD))
-!    iextrap = 0 !Initialize    
-!    do iriv=1,nQstr
-!      do j=1,Q_str(iriv)%ncells
-!        i=Q_str(iriv)%cells(j)
-!        k=Q_str(iriv)%faces(j)
-!        iextrap(cell2cell(k,i))=1
-!      enddo
-!    enddo
-    
-!    call write_bnd_check
 
 !--- Deallocate no longer used Parent Simulation Variables --------------------
     do ipar=1,nParSim
@@ -3043,6 +3006,7 @@ d1: do i=1,ntf
       call fileparts(trim(dsetList(i)%filename),apath,aname,aext)
       ibegin=index(dsetList(i)%path,'/',.true.)+1
       iend=len_trim(dsetList(i)%path)
+	  
       !Set datasetname for file
       dsetname=dsetList(i)%path
       dsetname=trim(dsetname(ibegin:iend))
@@ -3093,12 +3057,11 @@ d1: do i=1,ntf
     use geo_def,  only: mapid
     use diag_lib, only: diag_print_error
     use sal_def,  only: sal_str,nsalstr
-
 #ifdef _WIN32
     use IFPORT
 #endif
-    
     implicit none
+	
     integer              :: kunit,i,j, val, ibnd, nstrcells, correctID, id, ntimes
     integer, allocatable :: ibndcells(:)
     character(len=200)   :: bidoutfile, xysoutfile, astring,astring2, abnd, indirpath
@@ -3195,6 +3158,7 @@ d1: do i=1,ntf
           endif
         enddo
         if(correctID .lt. 0) call diag_print_error('Error: Could not locate correct Boundary string')
+		
         !Write curve information for correct boundary
         write(abnd,'(I0)') h_str(correctID)%idnum  !Use ID number from SMS (Boundary_#2 = 2) as the number to write out.          
         xysoutfile = trim(indirpath)// '/' //trim(outprefix) // '_h_'// trim(abnd) // '.xys'    !ASCII Boundary Forcing file
@@ -3383,7 +3347,6 @@ d1: do i=1,ntf
           if(flux(k,i)<0.0)then !Inflow 
             su(i)=su(i)+acoef(k,i)*u(nck)
             spu(i)=spu(i)-acoef(k,i)
-            !v(nck)=v(i)
             v(nck)=v(i)*h(i)/h(nck)*iwet(i)
           else
             u(nck)=u(i)*h(i)/h(nck)*iwet(i)
@@ -3394,7 +3357,6 @@ d1: do i=1,ntf
           if(flux(k,i)<0.0)then !Inflow
             sv(i)=sv(i)+acoef(k,i)*v(nck)   
             spv(i)=spv(i)-acoef(k,i)
-            !u(nck)=u(i)
             u(nck)=u(i)*h(i)/h(nck)*iwet(i)
           else
             u(nck)=u(i)*h(i)/h(nck)*iwet(i)
@@ -3430,9 +3392,6 @@ d1: do i=1,ntf
 !--- Dry nodes ---------------------------------------------------------------
 !$OMP PARALLEL DO PRIVATE(i,k,nck,sumwet,aploc)
     do i=1,ncells
-       !if(iwet(i)==1)then
-       !  acoef(1:ncface(i),i)=iwet(cell2cell(1:ncface(i),i))*acoef(1:ncface(i),i)           
-       !elseif(iwet(i)==0)then
        if(iwet(i)==0)then 
          sumwet=0.0
          do k=1,ncface(i)
@@ -3460,26 +3419,12 @@ d1: do i=1,ntf
              endif             
            enddo
          endif
-         !if(aploc<=0.000001) then
-         !  write(*,*) 'WARNING: ap= ',aploc, 'at node ', i
-         !  write(*,*) 'Press any key to continue'
-         !  read(*,*)
-         !  stop
-         !endif
          su(i)=su(i)-aploc*p(i)
          sp(i)=0.0
        endif
     enddo
 !$OMP END PARALLEL DO
 
-!Note: dry faces are already included in coefsourcesink_pp
-!!--- Wall BC ---------------------------------------------------------
-!    do j=1,W_str%ncells
-!      i=W_str%cells(j)
-!      k=W_str%faces(j)
-!      acoef(k,i)=0.0
-!    enddo
-    
 !--- River BC (Type 1=Q) --------------------------------------------
     do iriv=1,nQstr
       do j=1,Q_str(iriv)%ncells
@@ -3599,59 +3544,6 @@ d1: do i=1,ntf
     integer :: i,j,k,kk,sumwet,nck,iriv,iwse,icsh,kkdf
     real(ikind) :: aploc,acoefik
 
-!!--- Dry nodes ---------------------------------------------------------------
-!!$OMP PARALLEL DO PRIVATE(i,k,nck,sumwet,aploc)
-!    do i=1,ncells
-!       !if(iwet(i)==1)then
-!       !  acoef(1:ncface(i),i)=iwet(cell2cell(1:ncface(i),i))*acoef(1:ncface(i),i)           
-!       !elseif(iwet(i)==0)then
-!       if(iwet(i)==0)then 
-!         sumwet=0.0
-!         do k=1,ncface(i)
-!           nck=cell2cell(k,i)
-!           if(nck<=ncells) sumwet=sumwet+iwet(nck)
-!         enddo             
-!         aploc=0.0
-!         su(i)=0.0
-!         if(sumwet>=1)then
-!           do k=1,ncface(i)
-!             nck=cell2cell(k,i)
-!             acoef(k,i)=iwet(nck)  
-!             aploc=aploc+acoef(k,i)
-!             su(i)=su(i)+acoef(k,i)*p(nck)
-!           enddo  
-!         else
-!           do k=1,ncface(i)
-!             nck=cell2cell(k,i)
-!             if(nck>ncells)then
-!               acoef(k,i)=0.0
-!             else
-!               acoef(k,i)=dsxy(k,i)
-!               aploc=aploc+acoef(k,i)
-!               su(i)=su(i)+acoef(k,i)*p(nck)
-!             endif             
-!           enddo
-!         endif
-!         !if(aploc<=0.000001) then
-!         !  write(*,*) 'WARNING: ap= ',aploc, 'at node ', i
-!         !  write(*,*) 'Press any key to continue'
-!         !  read(*,*)
-!         !  stop
-!         !endif
-!         su(i)=su(i)-aploc*p(i)
-!         sp(i)=0.0
-!       endif
-!    enddo
-!!$OMP END PARALLEL DO
-
-!Note: dry faces are already included in coefsourcesink_pp
-!!--- Wall BC ---------------------------------------------------------
-!    do j=1,W_str%ncells
-!      i=W_str%cells(j)
-!      k=W_str%faces(j)
-!      acoef(k,i)=0.0
-!    enddo
-    
 !--- River BC (Type 1=Q) --------------------------------------------
     do iriv=1,nQstr
       do j=1,Q_str(iriv)%ncells
@@ -3770,59 +3662,6 @@ d1: do i=1,ntf
     implicit none
     integer :: i,j,k,iwse,iriv,nck
 
-!!--- Dry nodes ---------------------------------------------------------------
-!!$OMP PARALLEL DO PRIVATE(i,k,nck,sumwet,aploc)
-!    do i=1,ncells
-!       !if(iwet(i)==1)then
-!       !  acoef(1:ncface(i),i)=iwet(cell2cell(1:ncface(i),i))*acoef(1:ncface(i),i)           
-!       !elseif(iwet(i)==0)then
-!       if(iwet(i)==0)then 
-!         sumwet=0.0
-!         do k=1,ncface(i)
-!           nck=cell2cell(k,i)
-!           if(nck<=ncells) sumwet=sumwet+iwet(nck)
-!         enddo             
-!         aploc=0.0
-!         su(i)=0.0
-!         if(sumwet>=1)then
-!           do k=1,ncface(i)
-!             nck=cell2cell(k,i)
-!             acoef(k,i)=iwet(nck)  
-!             aploc=aploc+acoef(k,i)
-!             su(i)=su(i)+acoef(k,i)*p(nck)
-!           enddo  
-!         else
-!           do k=1,ncface(i)
-!             nck=cell2cell(k,i)
-!             if(nck>ncells)then
-!               acoef(k,i)=0.0
-!             else
-!               acoef(k,i)=dsxy(k,i)
-!               aploc=aploc+acoef(k,i)
-!               su(i)=su(i)+acoef(k,i)*p(nck)
-!             endif             
-!           enddo
-!         endif
-!         !if(aploc<=0.000001) then
-!         !  write(*,*) 'WARNING: ap= ',aploc, 'at node ', i
-!         !  write(*,*) 'Press any key to continue'
-!         !  read(*,*)
-!         !  stop
-!         !endif
-!         su(i)=su(i)-aploc*p(i)
-!         sp(i)=0.0
-!       endif
-!    enddo
-!!$OMP END PARALLEL DO
-
-!Note: dry faces are already included in coefsourcesink_pp
-!!--- Wall BC ---------------------------------------------------------
-!    do j=1,W_str%ncells
-!      i=W_str%cells(j)
-!      k=W_str%faces(j)
-!      acoef(k,i)=0.0
-!    enddo
-    
 !--- River BC (Type 1=Q) --------------------------------------------
     do iriv=1,nQstr
       do j=1,Q_str(iriv)%ncells
@@ -3923,9 +3762,6 @@ d1: do i=1,ntf
       endif
     enddo !iwse    
     
-!--- Structures -------------------    
-    !call struct_p
-
     return
     end subroutine bound_wse  
     
@@ -4009,7 +3845,6 @@ d1: do i=1,ntf
       fx = fx + wavestrx(i)
       !Bottom boundary layer streaming (beta)
       if(bbl_stream)then
-        !za = 1.6667e-05 !=0.2/1000/12
         za = z0(i)
         taustr = fric_streaming_stress(rhow,za,worbrep(i),wper(i),wlen(i)) 
         fx = fx+taustr*wunitx(i)/rhow 
@@ -4035,8 +3870,7 @@ d1: do i=1,ntf
     
     !Atmospheric pressure gradients
     if(presvar) fx = fx - pressatmdx(i)*h(i)/rhow
-    
-    
+        
     return
     end function forcex
     
@@ -4130,7 +3964,6 @@ d1: do i=1,ntf
         Q_str(iriv)%qflux = Q_str(iriv)%qfluxconst
       elseif(Q_str(iriv)%ifluxmode==2)then !Time-series
         call plagr_fit(Q_str(iriv)%ntimes,Q_str(iriv)%times,timehrs,nb,lb,Q_str(iriv)%nti,np,Q_str(iriv)%inc)  
-        !Q_STR(iriv)%qflux = plagr_eval(Q_STR(iriv)%ntimes,Q_STR(iriv)%qcurv,nb,lb,np,Q_STR(iriv)%inc)
         Q_str(iriv)%qflux = sum(lb(1:np+1)*Q_str(iriv)%qcurv(Q_str(iriv)%inc:Q_str(iriv)%inc+np))
       elseif(Q_str(iriv)%ifluxmode==3)then !Stage-Flow curve
         stagebnd = 0.0
@@ -4148,7 +3981,8 @@ d1: do i=1,ntf
 !--- Tidal/Harmonic BC (Type 2=T) ---------------------------------------------------
     do iwse=1,nTHstr
       do j=1,TH_str(iwse)%ncells
-        wsebnd = TH_str(iwse)%wseoffset
+        !wsebnd = TH_str(iwse)%wseoffset   !This was doubled later in this section.  Removed per H.Li 10/12/2023
+        wsebnd = 0.0
         if(TH_str(iwse)%istidal)then
           do k=1,TH_str(iwse)%ntc  
             wsebnd = wsebnd + TH_str(iwse)%f(k)*TH_str(iwse)%amp(k) &
@@ -4161,8 +3995,6 @@ d1: do i=1,ntf
                 - TH_STR(iwse)%phase(k) + TH_str(iwse)%psi(j,k))
           enddo
         endif
- !       write(3000,*)'ioffsetmode (bnd_eval) = ',TH_str(iwse)%ioffsetmode 
- !       write(3000,*)'TH_str(iwse)%wseoffset = ',TH_str(iwse)%wseoffset 
         if(TH_str(iwse)%ioffsetmode==1)then !Constant (hli,10/05/17)
            wsebnd = wsebnd + TH_str(iwse)%wseoffset !Add Offset 
         elseif(TH_str(iwse)%ioffsetmode==2)then !Time-series
@@ -4172,8 +4004,6 @@ d1: do i=1,ntf
         endif
         TH_str(iwse)%wsebnd(j) = (1.0-ramp)*TH_str(iwse)%wsebnd0(j) &
                       + ramp*(wsebnd + TH_str(iwse)%wsevar(j))
-!        write(3000,*)'j = ',j
-!        write(3000,*)'TH_str(iwse)%wsebnd(j) = ',TH_str(iwse)%wsebnd(j)
       enddo !j-cell
     enddo !iwse-str
 
@@ -4181,7 +4011,6 @@ d1: do i=1,ntf
     do iwse=1,nHstr  !for each cell string
       if(H_STR(iwse)%ntimes>0)then !Time series
         call plagr_fit(H_str(iwse)%ntimes,H_str(iwse)%times,timehrs,nb,lb,H_str(iwse)%nti,np,H_str(iwse)%inc)  
-        !wsebnd = plagr_eval(H_STR(iwse)%ntimes,H_STR(iwse)%wsecurv,nb,lb,np,H_STR(iwse)%inc)
         wsebnd = sum(lb(1:np+1)*H_str(iwse)%wsecurv(H_str(iwse)%inc:H_str(iwse)%inc+np))
         !!Limit value to be within neighboring values (higher order interpolations can produce extremal values)
         !wsemax = maxval(H_str(iwse)%wsecurv(H_str(iwse)%inc:H_str(iwse)%inc+np))
@@ -4190,16 +4019,11 @@ d1: do i=1,ntf
       else !Constant
         wsebnd = H_str(iwse)%wseconst
       endif
-!!745   format(2(F8.3,1x),I4,I3,5F12.4) !for testing
-!!      write(23,745) timehrs,wsebnd,H_str(iwse)%inc,np,lb(1:np+1) !for testing
       !wsebnd = wsebnd + H_str(iwse)%wseoffset !Add Offset
       if(H_str(iwse)%ioffsetmode==1)then !Constant (hli,01/19/17)
       wsebnd = wsebnd + H_str(iwse)%wseoffset !Add Offset
       elseif(H_str(iwse)%ioffsetmode==2)then !Time-series
-!        write(3000,*)'ntimesoffset = ',H_str(iwse)%ntimesoffset,'offsettimes =',H_str(iwse)%offsettimes 
-!        call SINTER(H_str(iwse)%offsettimes,H_str(iwse)%offsetcurve,H_str(iwse)%times,H_str(iwse)%wsecurveoffset,H_str(iwse)%ntimesoffset,H_str(iwse)%ntimes)  
         call plagr_fit(H_str(iwse)%ntimesoffset,H_str(iwse)%offsettimes,timehrs,nb,lb,H_str(iwse)%nti,np,H_str(iwse)%inc)  
-!        write(3000,*)'iwse =',iwse,'H_str(iwse)%nti = ',H_str(iwse)%nti,'H_str(iwse)%inc =',H_str(iwse)%inc
         H_str(iwse)%wsecurveoffset = sum(lb(1:np+1)*H_str(iwse)%offsetcurve(H_str(iwse)%inc:H_str(iwse)%inc+np))
         wsebnd = wsebnd + H_str(iwse)%wsecurveoffset
       endif
@@ -4207,7 +4031,6 @@ d1: do i=1,ntf
       do j=1,H_str(iwse)%ncells
         H_str(iwse)%wsebnd(j) = (1.0-ramp)*H_str(iwse)%wsebnd0(j)+ramp*(wsebnd + H_str(iwse)%wsevar(j))    
       enddo
-!      write(3000,*)'ioffsetmode (bnd_eval) = ',H_str(iwse)%ioffsetmode 
     enddo ! end of each cell string
     
 !--- Multiple Water Level BC (Type 4=MH) ----------------------------------------
@@ -4369,7 +4192,6 @@ d1: do i=1,ntf
         i = Q_str(iriv)%cells(j)
         k = Q_str(iriv)%faces(j)
         nck = cell2cell(k,i)
-        !!iwet(nck)=iwet(i)
         val = iwet(i)*iwet(nck)*hk(k,i)**Q_str(iriv)%cmvel/max(coefman(i),1.0e-5) !Note: h.^(1+r) is split to h^r*h, the h is below
         u(nck) = val*cosang !temporary storage of weights
         v(nck) = val*sinang !temporary storage of weights
@@ -4432,21 +4254,11 @@ d1: do i=1,ntf
     use bnd_def,  only: nqstr, ncsstr, q_str, cs_str
     use diag_lib, only: diag_print_error
 
-!!#ifdef DEV_MODE
-!!    use comvarbl, only: dtime
-!!    use flow_def, only: h,h1
-!!    use geo_def, only: areap
-!!#endif
-    
     implicit none
     integer :: iriv,icsh
 #ifdef DIAG_MODE
     integer :: i,k
 #endif
-!!#ifdef DEV_MODE
-!!    integer :: nck
-!!#endif
-
     !Check fluxes
 #ifdef DIAG_MODE 
     do i=1,ncells
@@ -4458,29 +4270,10 @@ d1: do i=1,ntf
     enddo
 #endif
 
-!!#ifdef DEV_MODE
-!!    call flow_negdepth
-!!#endif
-
 !--- Flux -------------------------------------
     do iriv=1,nQstr
       call fluxbnd(Q_str(iriv)%ncells,Q_str(iriv)%cells,Q_str(iriv)%faces)      
     enddo
-    
-!!--- Multiple WSE-Vel ------------------------------------    
-!    do iwse=1,nMHVstr
-!      call fluxbnd(MHV_str(iwse)%ncells,MHV_str(iwse)%cells,MHV_str(iwse)%faces)  
-!    enddo
-!    
-!!--- Nested WSE-Vel ------------------------------------    
-!    do iwse=1,nNHVstr
-!      call fluxbnd(NHV_str(iwse)%ncells,NHV_str(iwse)%cells,NHV_str(iwse)%faces)  
-!    enddo
-!    
-!!--- Tidal WSE-Vel ------------------------------------    
-!    do iwse=1,nNTHVstr
-!      call fluxbnd(NTHV_str(iwse)%ncells,NTHV_str(iwse)%cells,NTHV_str(iwse)%faces)  
-!    enddo        
     
 !--- Cross-shore ------------------------------------
     do icsh=1,nCSstr
@@ -4490,26 +4283,6 @@ d1: do i=1,ntf
 !--- Structures ----
     call struct_flux
 
-!!#ifdef DEV_MODE
-!!!--- Open Boundaries ----------------------
-!!! Computes fluxes at boundaries using the continuity equation
-!!    do i=1,ncells
-!!      if(iwet(i)==0) cycle
-!!      do k=1,ncface(i)
-!!        nck=cell2cell(k,i)  
-!!        if(iwet(i)*iwet(nck)==0 .or. nck<=ncells) cycle
-!!        flux(k,i) = h1(i) - h(i) - dtime*(sum(flux(1:ncface(i),i))-flux(k,i))/areap(i)   
-!!      enddo
-!!    enddo
-!!#endif
-
-!--- Dry nodes ------------    
-!Note: dry faces already treated in coefsourcesink_pp but check here anyway
-!#ifdef DIAG_MODE
-!    do i=1,ncells
-!      flux(1:ncface(i),i)=iwet(i)*iwet(cell2cell(1:ncface(i),i))*flux(1:ncface(i),i)
-!    enddo
-!#endif
     !Check fluxes
 #ifdef DIAG_MODE
     do i=1,ncells
@@ -4570,15 +4343,6 @@ d1: do i=1,ntf
     real(ikind) :: uhdelyyup,uhdelyydw,uhdelxxup,uhdelxxdw
     real(ikind) :: uxshim,vxshim,forcex,forcey
     
-    !if(noptset<3)then !No waves
-    !  do icsh=1,nCSstr
-    !    im1=CS_str(icsh)%ncells/2        
-    !    if(mod(idirface(im1,k),2)==0)then !East/West          
-    !      CS_str(icsh)%ucsh(:)=0.0
-    !    endif
-    !  enddo
-    !  return
-    !endif
     relaxcsh=0.5
     relaxcsh1=1.0-relaxcsh
     iterxsh=max(5,30-niter**2)    
@@ -4891,16 +4655,15 @@ d1: do i=1,ntf
     use geo_def,  only: cell2cell,idirface,ncface,kkface,fnx,fny
     use flow_def, only: flux,iwet,p,pp,su,sp,acoef,grav
     use prec_def, only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(in) :: nbndcells
     integer,intent(in) :: icells(nbndcells),kfaces(nbndcells)
     real(ikind),intent(in) :: wsebnd(nbndcells)
+	
     !Internal Variables
-    integer :: i,j,k,nck !,kk,kkdf    
-    !real(ikind) :: acoefik
-    !real(ikind) :: fac,sumfac
+    integer :: i,j,k,nck 
     
     do j=1,nbndcells
       i=icells(j)
@@ -4911,58 +4674,6 @@ d1: do i=1,ntf
       sp(i)=sp(i)-acoef(k,i)
       acoef(k,i)=0.0
     enddo !j
-    
-    !if(ncellsimple==ncells)then !Nonuniform Cartesian grid
-    !  do j=1,nbndcells
-    !    i=icells(j)
-    !    k=kfaces(j)
-    !    nck=cell2cell(k,i)
-    !    pp(nck)=wsebnd(j)*grav-p(nck)   !Set given wse at the dummy node
-    !    acoefik=acoef(kkface(k),i)
-    !    su(i)=su(i)+acoefik*pp(nck)  !using a_kk because a_k is not well defined  
-    !    sp(i)=sp(i)-acoefik
-    !    acoef(k,i)=0.0
-    !  enddo !j
-    !elseif(ncelljoint>0)then !Telescoping grid
-    !  do j=1,nbndcells
-    !    i=icells(j)
-    !    k=kfaces(j)
-    !    nck=cell2cell(k,i)
-    !    pp(nck)=wsebnd(j)*grav-p(nck)   !Set given wse at the dummy node
-    !    if(ncface(i)==4)then
-    !      acoefik=acoef(kkface(k),i)
-    !    else
-    !      acoefik=0.0; kkdf=kkface(idirface(k,i))
-    !      do kk=1,ncface(i)    !Assume boundary face does not split
-    !        if(idirface(kk,i)==kkdf) acoefik=acoefik+acoef(kk,i)
-    !      enddo                   
-    !    endif                        
-    !    su(i)=su(i)+acoefik*pp(nck)  !using a_kk because a_k is not well defined  
-    !    sp(i)=sp(i)-acoefik
-    !    acoef(k,i)=0.0
-    !  enddo !j  
-    !elseif(ncellpoly>0)then !Unstructured Polyhedral grid
-    !  do j=1,nbndcells
-    !    i=icells(j)
-    !    k=kfaces(j)
-    !    nck=cell2cell(k,i)
-    !    pp(nck)=wsebnd(j)*grav-p(nck)   !Set given wse at the dummy node
-    !    !!-- set coefficient as average of opposite face(s) -----
-    !    !acoefik=0.0; sumfac=0.0
-    !    !do kk=1,ncface(i)    !Assume boundary face does not split
-    !    !  if(kk==k) cycle
-    !    !  fac=max(-fnx(k,i)*fnx(i,kk),0.0)+max(-fny(k,i)*fny(i,kk),0.0) !Determine if face is opposite facing
-    !    !  acoefik=acoefik+acoef(kk,i)*fac
-    !    !  sumfac=sumfac+fac
-    !    !enddo 
-    !    !acoefik=acoefik/max(sumfac,1.0e-15)
-    !    !--- Use acoef(k,i) since acoef(kk,i) is not well defined ---
-    !    acoefik=acoef(k,i)
-    !    su(i)=su(i)+acoefik*pp(nck)  !using a_kk because a_k is not well defined  
-    !    sp(i)=sp(i)-acoefik
-    !    acoef(k,i)=0.0
-    !  enddo !j
-    !endif 
     
     return
     end subroutine bnd_pp
@@ -4975,17 +4686,16 @@ d1: do i=1,ntf
     use geo_def,  only: cell2cell,idirface,ncface,kkface,fnx,fny,zb
     use flow_def, only: flux,iwet,p,h,su,sp,acoef,grav
     use prec_def, only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(in) :: nbndcells
     integer,intent(in) :: icells(nbndcells),kfaces(nbndcells)
     real(ikind),intent(in) :: wsebnd(nbndcells)
+	
     !Internal Variables
-    integer :: i,j,k,nck !,kk,kkdf    
-    !real(ikind) :: acoefik
-    !real(ikind) :: fac,sumfac
-    
+    integer :: i,j,k,nck 
+	
     do j=1,nbndcells
       i=icells(j)
       k=kfaces(j)
@@ -5007,14 +4717,15 @@ d1: do i=1,ntf
     use geo_def,  only: cell2cell,zb,ds,fnx,fny
     use flow_def, only: p,h,eta,u,v,hk,flux,grav
     use prec_def, only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(in) :: nbndcells
     integer,intent(in) :: icells(nbndcells),kfaces(nbndcells)
     real(ikind),intent(in) :: wsebnd(nbndcells)
+	
     !Internal Variables
-    integer :: i,j,k,nck !,kk,kkdf
+    integer :: i,j,k,nck 
     
     do j=1,nbndcells
       i=icells(j)
@@ -5023,8 +4734,6 @@ d1: do i=1,ntf
       eta(nck)=wsebnd(j)  !Set given wse at the dummy node
       p(nck)=eta(nck)*grav 
       h(nck)=eta(nck)-zb(nck)
-      !u(nck)=u(i)*h(i)/h(nck)
-      !v(nck)=v(i)*h(i)/h(nck)
       u(nck)=fnx(k,i)*flux(k,i)/(ds(k,i)*hk(k,i))
       v(nck)=fny(k,i)*flux(k,i)/(ds(k,i)*hk(k,i))
     enddo !j
@@ -5040,11 +4749,12 @@ d1: do i=1,ntf
     use geo_def,  only: cell2cell
     use flow_def, only: h,u,v,iwet
     use bnd_def,  only: bnd_str
-    
     implicit none
+	
     !Input
     integer,intent(in) :: nbndcells
     integer,intent(in),dimension(nbndcells) :: icells,kfaces
+	
     !Internal Variables
     integer :: i,j,k,nck
     
@@ -5067,11 +4777,12 @@ d1: do i=1,ntf
     use geo_def,  only: cell2cell,zb
     use flow_def, only: h,p,iwet,hmin,gravinv
     use bnd_def,  only: bnd_str
-    
     implicit none
+	
     !Input
     integer,intent(in) :: nbndcells
     integer,intent(in),dimension(nbndcells) :: icells,kfaces
+	
     !Internal Variables
     integer :: i,j,k,nck
     
@@ -5080,8 +4791,6 @@ d1: do i=1,ntf
       k=kfaces(j)
       nck=cell2cell(k,i)
       p(nck)=p(i)
-      !p(nck)=p(i)+2.0*(rx(k,i)*dpx(i)+ry(k,i)*dpy(i)) !Linear extrapolation
-      !p(cell2cell(k,i))=2.0*p(i)-p(cell2cell(llec2llec(k,i),i)) !Linear extrapolation
       h(nck)=max(hmin,p(nck)*gravinv-zb(nck))
     enddo
     

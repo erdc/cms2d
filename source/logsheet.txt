@@ -1,5 +1,8 @@
-== Version 5.3.7 (10/02/2023) ==
-* Start adding CF Compliant naming to HDF5 solution datasets.
+== Version 5.3.7 (10/12/2023) ==
+* Start adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
+* Incremented CMS-Wave version number to 3.3. The code was modified in 2021 but the number was not incremented.
+* Fix for Tidal boundaries where Offset used - it was doubling the offset.
+* Getting ready for Open Source - several files are modified/moved.
 
 == Version 5.3.6 (09/26/2023) ==
 * Minor fixes and diagnostic output improvements for Rubble Mound Jetties with SMS 13.3+.

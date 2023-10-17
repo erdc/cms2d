@@ -1,14 +1,12 @@
 ## Coastal Modeling System (CMS)
 
 CMS is a coastal modeling system that couples a wave, circulation, and morphology model together to 
-get better predictions in the near-shore
+get better predictions in the near-shore.
 
 CMS is developed by the USACE - Coastal and Hydraulics Laboratory
 
 Documentation for the source code is available here:
-
 https://cirpwiki.info/wiki/CMS
-
 
 
 To build CMS On linux you must have CMAKE software above 3.4

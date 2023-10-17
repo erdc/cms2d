@@ -1,14 +1,14 @@
               U.S. Army Corps of Engineers
             Coastal Inlets Research Program
                 Coastal Modeling System
- Coupled Hydrodynamic, Wave, and Sediment Transport Model
-       For the latest version of CMS please visit
-          https://cirp.usace.army.mil/products/cms.php
+  Coupled Hydrodynamic, Wave, and Sediment Transport Model
+       For the latest executable for CMS please visit
+        https://cirp.usace.army.mil/products/cms.php
 
     By using this software the user has agreed to the
     terms and conditions of CMS license agreement.
-    A copy of the license can be obtained from the
-    website shown above.
+    A copy of the license can be obtained from
+    https://cirpwiki.info/wiki/CMS_License.
      
     This software is distributed on an "AS IS" basis
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
@@ -22,7 +22,8 @@
         > CMS2D_V5.3.exe Flow.cmcards
     Flow and Wave models in steering (w/default time interval of 3 hours)
         > CMS2D_V5.3.exe Wave.sim Flow.cmcards
-   If there are both a Wave and Flow simulation specified, user may specify time interval as 4th argument.
+   If there are both a Wave and Flow simulation specified, user may specify time interval 
+   as 4th argument.
 
     Flow and Wave models in steering (with specified time interval of 1 hour)
         > CMS2D_V5.3.exe Wave.sim Flow.cmcards 1.0
@@ -42,7 +43,8 @@
           Fortran | Optimization - Global Optimizations => Yes (/Og) 
           Fortran | Language - Process OpenMP Directives => Generate Parallel Code (/Qopenmp)
           Fortran | Floating Point | Floating Point Exception Handling =>
-                     Underflow gives 0.0; Abort on other IEEE exceptions (/fpe:0) (giving problems with ICCG solver)
+                     Underflow gives 0.0; Abort on other IEEE exceptions (/fpe:0) (giving problems with 
+                     ICCG solver)
                   or Produce NaN, signed infinities, and denormal results (more stable for some reason)
           Fortran | Run-time - Generate Traceback Information  => Yes
           Fortran | Run-time - Check Array and Sting Bounds => Yes

@@ -75,7 +75,7 @@ module bnd_def
       real(ikind)          :: qflux       !Interpolated river flux [m^3/s]
       real(ikind)          :: qfluxconst  !Constant flux [m^3/s]
       real(ikind), pointer :: times(:)    !Times [hrs]
-      integer              :: nstages   
+      integer              :: nstages     !Number of stages
       real(ikind), pointer :: stage(:)    !Stage (water level) [m] (used for flow-rating curve)
       real(ikind), pointer :: qcurv(:)    !Data Values (time)
       real(ikind), pointer :: rflow(:)    !Flow-rate [m^3/s] (used for flow-rating curve)
@@ -86,17 +86,6 @@ module bnd_def
       character(len=200) :: fluxfile,fluxpath  !Flux data file and path
     endtype Q_type 
     type(Q_type), allocatable :: Q_str(:)    
-
-!--- Tidal/Harmonic Constituent ----------------------------------------------------
-    !type constit
-      !integer     :: msp      !Species (constituent)
-      !real(ikind) :: speed    !Speed [rad/hrs] (constituent)
-      !real(ikind) :: amp      !Amplitude [m] (constituent)
-      !real(ikind) :: phase    !Phase [rad] (constituent)
-      !real(ikind) :: f        !Nodal factor [-] (constituent)
-      !real(ikind) :: vu       !Equilibrium argument [rad] (constituent)
-      !character(len=10) :: name     !Tidal Consitituent names (constituent)
-    !endtype constit
 
 !--- Tidal/Harmonic BC (Type 2=TH) --------------------------------------------------------
     integer, parameter :: ntf = 37    !Total number of possible tidal constituents    

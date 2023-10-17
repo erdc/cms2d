@@ -160,8 +160,7 @@ contains
     open(38,file=bidfile,status='old')
     read(38,*) nbndstr       !# of boundary strings
     if(idbnd>nbndstr)then                                   !Removed this check because each type of boundary has it's own BID file now.  MEB 02/21/2018
-      call diag_print_error('Boundary ID number is larger than the number of ',&
-        '  strings in the Boundary ID File: ',bidfile)
+      call diag_print_error('Boundary ID number is larger than the number of strings in the Boundary ID File: ',bidfile)
     endif
     do k=1,nbndstr
       read(38,*) nstrelem  
@@ -400,14 +399,13 @@ contains
     integer :: ii,j,k,jj,jj2,nd1,nd2
 
     nstrcells = nstrnodes - 1
-    !if(allocated(icells)) deallocate(icells)
-    !if(allocated(kfaces)) deallocate(kfaces)
     allocate(icells(nstrcells),kfaces(nstrcells))
     
     icells=0 
     do j=1,nstrnodes-1
       nd1=jnodes(j)
       nd2=jnodes(j+1)
+	  
       !Search neighboring cells for one connected to nd1 and nd2
  dok: do k=1,nncell(nd1)
         ii=node2cell(k,nd1)
@@ -419,14 +417,15 @@ contains
             jj2=jj+1  
           endif
           if((cell2node(jj,ii)==nd1 .and. cell2node(jj2,ii)==nd2) .or. &
-             (cell2node(jj,ii)==nd2 .and. cell2node(jj2,ii)==nd1))then
+             (cell2node(jj,ii)==nd2 .and. cell2node(jj2,ii)==nd1)) then
             icells(j)=ii
             kfaces(j)=jj
             exit dok
           endif
-        enddo !jj neighboring node
+        enddo   !jj neighboring node
       enddo dok !k neighboring cell
-    enddo !j node pair
+ 
+    enddo       !j node pair
     
     return
     end subroutine nodestr_bnd
@@ -522,9 +521,7 @@ contains
       allocate(wseoffset(ntimes))
       wseoffset = dat(:,1)
       deallocate(dat)
-!      write(2000,*)'times = ',times,'tjuldaybegwse =',tjuldaybegwse,'tjulday0 =',tjulday0 
       times = times/3600.0 + 24.0*(tjuldaybegwse - tjulday0) !Note conversions to hours
-!      write(2000,*)'times = ',times
     endif
     
     return
@@ -543,13 +540,14 @@ contains
 #ifdef XMDF_IO
     use in_xmdf_lib,   only: read_dataseth5
 #endif
-    
     implicit none
+	
     !Input/Output
     integer,intent(out):: ntimes
     real(ikind),intent(inout),pointer:: times(:)
     real(ikind),intent(inout),pointer:: wse(:)
     character(len=*),intent(in) :: datfile,datpath
+	
     !Internal Variables
     integer :: ndat
     character(len=10) :: aext
@@ -588,14 +586,15 @@ contains
     use comvarbl, only: tjulday0
     use in_lib,   only: read_tsd
     use prec_def, only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(in):: nstrcells
     integer,intent(inout),pointer:: icells(:)
     integer,intent(out):: ntimes
     real(ikind),intent(inout),pointer:: times(:)
     real(ikind),intent(inout),pointer:: wsedata(:,:)
+	
     !Internal Variables
     integer :: ndat
     real(ikind) :: tjuldaybegwse
@@ -633,8 +632,8 @@ contains
     use comvarbl, only: tjulday0
     use in_lib,   only: read_tsd
     use prec_def, only: ikind
-    
     implicit none
+	
     !Input/Output
     integer,intent(in):: nstrcells
     integer,intent(inout),pointer:: icells(:)
@@ -642,6 +641,7 @@ contains
     real(ikind),intent(inout),pointer:: times(:)
     real(ikind),intent(inout),pointer:: udata(:,:),vdata(:,:) !(time,cell)
     character(len=*),intent(in) :: datfile,datpath
+	
     !Internal Variables
     integer :: i,j,j2,j2m1
     integer :: ndat,ncurves
@@ -689,8 +689,8 @@ contains
     use xmdf
     use prec_def, only: ikind
     use comvarbl, only: input_ver
-    
     implicit none
+	
     !Input/Output
     integer,intent(in):: nstrcells
     integer,intent(inout),pointer:: icells(:)
@@ -698,6 +698,7 @@ contains
     real(ikind),intent(inout),pointer:: times(:)    
     real(ikind),intent(inout),pointer:: wsedata(:,:) !(time,cell)
     character(len=*),intent(in) :: datfile,datpath
+	
     !Internal Variables
     character :: astring*50,card*80, time_dset*10
     integer :: j,error,PID,GID,WID
@@ -736,8 +737,8 @@ contains
     use xmdf
     use prec_def, only: ikind
     use comvarbl, only: input_ver
-    
     implicit none
+	
     !Input/Output
     integer,intent(in):: nstrcells
     integer,intent(inout),pointer:: icells(:)
@@ -745,6 +746,7 @@ contains
     real(ikind),intent(inout),pointer:: times(:)    
     real(ikind),intent(inout),pointer:: udata(:,:),vdata(:,:)
     character(len=*),intent(in) :: datfile,datpath
+	
     !Internal Variables
     character :: astring*50,card*80, time_dset*10
     integer :: j,error,PID,GID,LID,RID,TID,BID
@@ -808,8 +810,8 @@ contains
     use xmdf
     use prec_def, only: ikind
     use comvarbl, only: input_ver
-    
     implicit none
+	
     !Input/Output
     integer,intent(in):: nstrcells
     integer,intent(inout),pointer:: icells(:)
@@ -817,6 +819,7 @@ contains
     real(ikind),intent(inout),pointer:: times(:)    
     real(ikind),intent(inout),pointer:: wsevel(:,:,:)
     character(len=*),intent(in) :: datfile,datpath
+	
     !Internal Variables
     character :: astring*50,card*80, time_dset*10
     integer :: j,error,PID,GID,LID,RID,TID,BID,WID
@@ -840,24 +843,22 @@ contains
     do j=1,nstrcells
       write(unit=astring,fmt='(I0)') mapid(icells(j))
       card = 'Velocity_'//trim(astring)
-      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error) !Left face
+      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error)         !Left face
       if(error<0)then
         call error_invalid_dataset(datfile,datpath,card)
       endif
       if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
       wsevel(:,j,1) = ftemp(:)
-      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error) !Right face      
+      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error)         !Right face      
       if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')         
-      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error) !Top face
+      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error)        !Top face
       if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
       wsevel(:,j,2) = ftemp2(:)
-      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error) !Bot face  
+      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error)        !Bot face  
       if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
                            
-      !Average Left and Right faces
-      wsevel(:,j,1)=0.5*(ftemp(:)+wsevel(:,j,1))            
-      !Average Top and Bottom faces
-      wsevel(:,j,2)=0.5*(ftemp2(:)+wsevel(:,j,2))         
+      wsevel(:,j,1)=0.5*(ftemp(:)+wsevel(:,j,1))   !Average Left and Right faces
+      wsevel(:,j,2)=0.5*(ftemp2(:)+wsevel(:,j,2))  !Average Top and Bottom faces
                    
       card = 'WaterLevel_'//trim(astring) 
       call XF_READ_PROPERTY_FLOAT(WID,trim(card),ntimes,ftemp(1),error) !WSE

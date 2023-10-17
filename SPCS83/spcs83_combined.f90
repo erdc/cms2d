@@ -4,7 +4,7 @@
 !     SPCS83 - Version 2.1 From National Geodetic Survey
 !                    February, 2002
 !
-!     This modules contains all the subroutines needed to convert
+!     This module contains all the subroutines needed to convert
 !     NAD 83 state plane coordinates to NAD 83 geographic positions
 !     and conversely. Includes defining constants for NAD 83
 !     coordinate zones. State plane coordinates are entered or 
@@ -22,7 +22,7 @@
 !
 !    routines with *_v2.for were modified for input contents only.
 !
-!    Original Source: http://www.ngs.noaa.gov/PC_PROD/SPCS83/
+!    Original Source: https://www.ngs.noaa.gov/PC_PROD/SPCS83/
 !
 !                           Disclaimer
 !

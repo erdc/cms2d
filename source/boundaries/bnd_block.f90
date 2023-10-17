@@ -23,28 +23,27 @@
 
     real(ikind), parameter :: undef = -999.0
     integer, parameter     :: iundef = -999
-    integer            :: i,k,kk,ierr
-    logical            :: foundcard,foundfile
-    character(len=20)  :: qunits
-    character(len=37)  :: cardname
+    integer				   :: i, k, kk, ierr
+    logical                :: foundcard, foundfile
+    character(len=20)      :: qunits
+    character(len=37)      :: cardname
     
     !Boundary String
     character(len=200) :: bidfile,bidpath    !Boundary ID file and path
     character(len=100) :: bndname
-    integer :: idnum       !Boundary id number
-    integer :: istrtype    !Input string type, 1-cellstring, 2-nodestring
-    integer :: ibndtype    !Boundary type,1=Q,2=T,3=H,4=MH,5=MHV,6=CS,7=NH,8=NHV,9=NTH,10-NTHV
+    integer :: idnum      !Boundary id number
+    integer :: istrtype   !Input string type, 1-cellstring, 2-nodestring
+    integer :: ibndtype   !Boundary type,1=Q,2=T,3=H,4=MH,5=MHV,6=CS,7=NH,8=NHV,9=NTH,10-NTHV
     
     !Flux Boundary
-    integer     :: ifluxmode   !1-Constant flux, 2-Total Flux curve
-!    integer     :: ioffsetmode   !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    integer     :: ifluxmode      !1-Constant flux, 2-Total Flux curve
     logical     :: fluxblockread
-    real(ikind) :: cmvel       !Coefficient [-]
-    real(ikind) :: angle_flux  !Angle of flow clockwise from north [rad]
+    real(ikind) :: cmvel          !Coefficient [-]
+    real(ikind) :: angle_flux     !Angle of flow clockwise from north [rad]
     real(ikind) :: qfluxconst
-    integer     :: ifluxunits  !Input flux units: 0-m^3/s/cell,1-m^3/s,2-ft^3/s
+    integer     :: ifluxunits     !Input flux units: 0-m^3/s/cell,1-m^3/s,2-ft^3/s
 
-    character(len=200) :: fluxfile,fluxpath  !Flux data file and path
+    character(len=200) :: fluxfile,fluxpath		 !Flux data file and path
     character(len=200) :: offsetfile,offsetpath  !offset data file and path (hli,01/18/17)
     integer    :: ntiq 
     
@@ -57,34 +56,34 @@
     integer :: nsivel      !Temporal smoothing iterations
     
     !Tidal Boundary Condition
-    integer              :: ntc         !Tidal constituents used
-    logical              :: istidal     !true for tidal, false for harmonic
-    real(ikind)          :: angle_wave  !Incident angle of tidal wave
-    real(ikind), pointer :: amp(:)      !Amplitude [m] (constituent) 
-    real(ikind), pointer :: speed(:)    !Speed [rad/hrs] (constituent)
-    real(ikind), pointer :: phase(:)    !Phase [rad] (constituent)
-    real(ikind), pointer :: f(:)        !Nodal factor [-] (constituent)
-    real(ikind), pointer :: vu(:)       !Equilibrium argument [rad] (constituent)
+    integer              :: ntc           !Tidal constituents used
+    logical              :: istidal       !true for tidal, false for harmonic
+    real(ikind)          :: angle_wave    !Incident angle of tidal wave
+    real(ikind), pointer :: amp(:)        !Amplitude [m] (constituent) 
+    real(ikind), pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+    real(ikind), pointer :: phase(:)      !Phase [rad] (constituent)
+    real(ikind), pointer :: f(:)          !Nodal factor [-] (constituent)
+    real(ikind), pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
     character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)
     character(len=100) :: station
     
     !WSE Block
     logical :: wseblockread
-    integer :: minterp  !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
-    integer :: ntiwse   !Interpolation order
-    character(len=200) :: wsefile,wsepath !Water level data file and path
+    integer :: minterp       !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
+    integer :: ntiwse        !Interpolation order
     real(ikind) :: wseoffset !wse offset
     real(ikind) :: dwsex     !Regional steady water level gradinet
     real(ikind) :: dwsey     !Regional steady water level gradinet
     logical :: wseout        !Water level output file
-    logical :: wseadjust      !Turns on or off the wse adjustment/correction due to wind and waves 
+    logical :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves 
+    character(len=200) :: wsefile,wsepath !Water level data file and path
     
     !Vel Block
-    logical :: velblockread
     integer :: ntivel
     real(ikind) :: wseconst
-    character(len=200) :: velfile,velpath  !Velocity data file and path
+    logical :: velblockread
     logical :: velout           !Velocity output file
+    character(len=200) :: velfile,velpath  !Velocity data file and path
     
     !Nested Boundary Conditions
     logical :: nestblockread
@@ -106,11 +105,11 @@
     type(projection)   :: projtdb !Parent grid projection
     
     !Spatial Smoothing
-    integer :: nssi  !Smoothing iterations (along string)
-    integer :: nssw  !Smoothing window width (along string)
-    integer :: nssiwse  !Smoothing iterations (along string)
+    integer :: nssi     !Smoothing iterations   (along string)
+    integer :: nssw     !Smoothing window width (along string)
+    integer :: nssiwse  !Smoothing iterations   (along string)
     integer :: nsswwse  !Smoothing window width (along string)
-    integer :: nssivel  !Smoothing iterations (along string)
+    integer :: nssivel  !Smoothing iterations   (along string)
     integer :: nsswvel  !Smoothing window width (along string)
     
     !Salinity
@@ -128,18 +127,18 @@
         use prec_def
         implicit none
         integer,intent(inout) :: ibndtype
-        integer              :: ntc          !Tidal constituents used
-        real(ikind)          :: angle_wave   !Incident angle of tidal wave
-        real(ikind), pointer :: amp(:)       !Amplitude [m] (constituent) 
-        real(ikind), pointer :: speed(:)     !Speed [rad/hrs] (constituent)
-        real(ikind), pointer :: phase(:)     !Phase [rad] (constituent)
-        real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
-        real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
+        integer              :: ntc           !Tidal constituents used
+        real(ikind)          :: angle_wave    !Incident angle of tidal wave
+        real(ikind), pointer :: amp(:)        !Amplitude [m] (constituent) 
+        real(ikind), pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+        real(ikind), pointer :: phase(:)      !Phase [rad] (constituent)
+        real(ikind), pointer :: f(:)          !Nodal factor [-] (constituent)
+        real(ikind), pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
         character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
-        character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
-        integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
-        integer,         intent(out)   :: nti                   !(hli,10/04/17)
-        real(ikind),     intent(inout) :: wseoffset             !(hli,10/04/17)
+        character(len=*),intent(inout) :: offsetfile,offsetpath 
+        integer,         intent(out)   :: ioffsetmode           
+        integer,         intent(out)   :: nti                   
+        real(ikind),     intent(inout) :: wseoffset             
       end subroutine
     endinterface
     
@@ -149,13 +148,13 @@
         implicit none
         integer,intent(inout) :: ibndtype
         character(len=*)     :: station
-        integer              :: ntc          !Tidal constituents used
-        real(ikind)          :: angle_wave   !Incident angle of tidal wave
-        real(ikind), pointer :: amp(:)       !Amplitude [m] (constituent) 
-        real(ikind), pointer :: speed(:)     !Speed [rad/hrs] (constituent)
-        real(ikind), pointer :: phase(:)     !Phase [rad] (constituent)
-        real(ikind), pointer :: f(:)         !Nodal factor [-] (constituent)
-        real(ikind), pointer :: vu(:)        !Equilibrium argument [rad] (constituent)
+        integer              :: ntc           !Tidal constituents used
+        real(ikind)          :: angle_wave    !Incident angle of tidal wave
+        real(ikind), pointer :: amp(:)        !Amplitude [m] (constituent) 
+        real(ikind), pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+        real(ikind), pointer :: phase(:)      !Phase [rad] (constituent)
+        real(ikind), pointer :: f(:)          !Nodal factor [-] (constituent)
+        real(ikind), pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
         character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)    
       end subroutine
     endinterface
@@ -178,13 +177,13 @@
         use geo_def, only: projection
         use prec_def
         implicit none
-        integer,intent(out) :: ntcin !Tidal constituents used     
-        character(len=*),intent(inout),pointer :: namein(:) !Input Tidal Consitituent names (constituent)
+        integer,intent(out) :: ntcin              !Tidal constituents used     
         character(len=*),intent(inout) :: tdbname !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, 
         character(len=*),intent(inout) :: tdbpath !Tidal Database file and path
         type(projection),intent(inout) :: projtdb !Parent grid projection
-        integer,intent(inout) :: nssi      !Smoothing iterations (along string)
-        integer,intent(inout) :: nssw     !Smoothing window width (along string)
+        integer,intent(inout) :: nssi             !Smoothing iterations (along string)
+        integer,intent(inout) :: nssw             !Smoothing window width (along string)
+        character(len=*),intent(inout),pointer :: namein(:) !Input Tidal Consitituent names (constituent)
       end subroutine 
     endinterface
     
@@ -305,10 +304,6 @@
         call card_bid(flowpath,bidfile,bidpath,idnum)
         istrtype = 2 
       
-      !case('COORDINATES') !Not implimented yet
-      !  backspace(77)
-      !  read(77,*) cardname,bxyfile
-          
       case('FLUX_BEGIN','FLUX_BOUNDARY_BEGIN')
         call flux_block(ibndtype,ifluxmode,fluxfile,fluxpath,qfluxconst,ifluxunits,angle_flux,cmvel,ntiq,nsi,nsw)
         ibndtype = 1
@@ -348,27 +343,6 @@
         call tdb_block(ntcin,namein,tdbname,tdbpath,projtdb,nssi,nssw)
         tdbblockread = .true.
        
-      case('SALINITY_BLOCK','SALT_BLOCK','SAL_BLOCK')
-        !call sal_block
-        
-      !case('SEDIMENT_TOTAL_FLUX_CURVE')
-      !  call card_dataset(77,mpfile,flowpath,sedfile,sedpath)
-      !  isedtype = 1 !Total sediemnt transport rate [kg/s]
-      !
-      !case('SEDIMENT_FRAC_FLUX_CURVE')
-      !  call card_dataset(77,mpfile,flowpath,sedfile,sedpath)
-      !  isedtype = 2 !Total sediemnt transport rate [kg/s]
-      !  
-      !case('SEDIMENT_TOTAL_FLUX_CONSTANT')
-      !  backspace(77)
-      !  read(77,*) cardname,sedbnd
-      !  isedtype = 1
-      !    
-      !case('SEDIMENT_FRAC_FLUX_CONSTANT')
-      !  backspace(77)
-      !  read(77,*) cardname,sedbnd
-      !  isedtype = 2
-      
       case default
         foundcard = .false.
         call diag_print_warning('Unrecognized Card: '//trim(cardname))
@@ -412,14 +386,14 @@
           idpar = nParSim
         endif
       endif
-      ParSim(idpar)%ctlfilepar  = ctlfilepar
-      ParSim(idpar)%grdfilepar  = grdfilepar
-      ParSim(idpar)%projpar     = projpar
-      ParSim(idpar)%tjuldaypar  = tjuldaypar
-      ParSim(idpar)%timestarthr = timestarthr
-      ParSim(idpar)%wsefilepar  = wsefilepar
-      ParSim(idpar)%wsepathpar  = wsepathpar
-      ParSim(idpar)%ntiwsepar   = max(ParSim(idpar)%ntiwsepar,ntiwse)
+      ParSim(idpar)%ctlfilepar   = ctlfilepar
+      ParSim(idpar)%grdfilepar   = grdfilepar
+      ParSim(idpar)%projpar      = projpar
+      ParSim(idpar)%tjuldaypar   = tjuldaypar
+      ParSim(idpar)%timestarthr  = timestarthr
+      ParSim(idpar)%wsefilepar   = wsefilepar
+      ParSim(idpar)%wsepathpar   = wsepathpar
+      ParSim(idpar)%ntiwsepar    = max(ParSim(idpar)%ntiwsepar,ntiwse)
       if(ibndtype==8)then
         ParSim(idpar)%velpar     = .true.  
         ParSim(idpar)%ntivelpar  = max(ParSim(idpar)%ntivelpar,ntivel)
@@ -435,7 +409,7 @@
       if(velblockread)then
         ibndtype = 10 !NTHV Nested wse and vel
       else
-        ibndtype = 9 !NTH Nested wse
+        ibndtype = 9  !NTH Nested wse
       endif  
     endif
     
@@ -522,8 +496,8 @@
       H_str(nHstr)%nsi = nsiwse
       H_str(nHstr)%nsw = nswwse
       H_str(nHstr)%wseadjust = wseadjust
-      H_str(nHstr)%offsetfile = offsetfile !hli
-      H_str(nHstr)%offsetpath = offsetpath !hli
+      H_str(nHstr)%offsetfile = offsetfile 
+      H_str(nHstr)%offsetpath = offsetpath 
       
       
     case(4) !MH - Multiple WSE
@@ -538,11 +512,11 @@
       endif
       MH_str(nMHstr)%wsefile = wsefile
       MH_str(nMHstr)%wsepath = wsepath
-      MH_str(nMHstr)%nti = ntiwse
-      MH_str(nMHstr)%nsw = nswwse     !Temporal smoothing width
-      MH_str(nMHstr)%nsi = nsiwse     !Temporal smoothing iterations
-      MH_str(nMHstr)%nssi = nssiwse  !Spatial smoothing iterations
-      MH_str(nMHstr)%nssw = nsswwse !Spatial smoothing window width
+      MH_str(nMHstr)%nti  = ntiwse
+      MH_str(nMHstr)%nsw  = nswwse    !Temporal smoothing width
+      MH_str(nMHstr)%nsi  = nsiwse    !Temporal smoothing iterations
+      MH_str(nMHstr)%nssi = nssiwse   !Spatial smoothing iterations
+      MH_str(nMHstr)%nssw = nsswwse   !Spatial smoothing window width
       MH_str(nMHstr)%wseoffset = wseoffset
     
     case(5) !MHV - Multiple WSE and Vel
@@ -557,12 +531,11 @@
       endif
       MHV_str(nMHVstr)%wsefile = wsefile
       MHV_str(nMHVstr)%wsepath = wsepath
-      MHV_str(nMHVstr)%ntiwse = ntiwse
-      MHV_str(nMHVstr)%nswwse = nswwse          !Temporal smoothing width
-      MHV_str(nMHVstr)%nsiwse = nsiwse          !Temporal smoothing iterations
-      MHV_str(nMHVstr)%ntiwse = ntiwse
-      MHV_str(nMHVstr)%nssiwse = nssiwse  !Spatial smoothing iterations
-      MHV_str(nMHVstr)%nsswwse = nsswwse !Spatial smoothing window width
+      MHV_str(nMHVstr)%ntiwse  = ntiwse
+      MHV_str(nMHVstr)%nswwse  = nswwse      !Temporal smoothing width
+      MHV_str(nMHVstr)%nsiwse  = nsiwse      !Temporal smoothing iterations
+      MHV_str(nMHVstr)%nssiwse = nssiwse     !Spatial smoothing iterations
+      MHV_str(nMHVstr)%nsswwse = nsswwse     !Spatial smoothing window width
       MHV_str(nMHVstr)%wseoffset = wseoffset
       if(len_trim(velfile)==0)then
         velfile = bidfile  
@@ -570,10 +543,10 @@
       endif
       MHV_str(nMHVstr)%velfile = velfile
       MHV_str(nMHVstr)%velpath = velpath
-      MHV_str(nMHVstr)%nswvel = nswvel          !Temporal smoothing width
-      MHV_str(nMHVstr)%nsivel = nsivel          !Temporal smoothing iterations
-      MHV_str(nMHVstr)%nssivel = nssivel  !Spatial smoothing iterations
-      MHV_str(nMHVstr)%nsswvel = nsswvel !Spatial smoothing window width
+      MHV_str(nMHVstr)%nswvel  = nswvel      !Temporal smoothing width
+      MHV_str(nMHVstr)%nsivel  = nsivel      !Temporal smoothing iterations
+      MHV_str(nMHVstr)%nssivel = nssivel     !Spatial smoothing iterations
+      MHV_str(nMHVstr)%nsswvel = nsswvel     !Spatial smoothing window width
 
     case(7) !NH - Nested WSE
       call nestwse_init
@@ -669,8 +642,6 @@
       NTHV_str(nNTHVstr)%wseout = wseout
       NTHV_str(nNTHVstr)%velout = velout
       NTHV_str(nNTHVstr)%wseadjust = wseadjust
-      !NTHV_str(nNTHVstr)%nssi = nssi  !Spatial smoothing iterations   !!Repeated
-      !NTHV_str(nNTHVstr)%nssw = nssw !Spatial smoothing window width  !!Repeated
       
     case default !Cross-shore boundary condition
           
@@ -682,34 +653,14 @@
       call salstr_resize
       sal_str(nsalstr)%bidfile = bidfile
       sal_str(nsalstr)%bidpath = bidpath
-      !sal_str(nsalstr)%idnum = idnum
-      !sal_str(nsalstr)%istrtype = istrtype
       if(len_trim(salfile)==0)then
         salfile = bidfile  
         salpath = bidpath
       endif
       sal_str(nsalstr)%salfile = salfile
       sal_str(nsalstr)%salpath = salpath
-      
-    !case(2) !Nested (not implimented yet)
+     
     end select
-    
-    !!Sediment boundary type
-    !select case(isedtype)
-    !case(1) !Constant along boundary
-    !  call sedstr_resize
-    !  sed_str(nsedstr)%bidfile = bidfile
-    !  sed_str(nsedstr)%bidpath = bidpath
-    !  sed_str(nsedstr)%idnum = idnum
-    !  !sal_str(nsalstr)%istrtype = istrtype
-    !  if(len_trim(salfile)==0)then
-    !    sedfile = bidfile  
-    !    sedpath = bidpath
-    !  endif
-    !  sed_str(nsedstr)%sedfile = sedfile
-    !  sed_str(nsedstr)%sedpath = sedpath
-    !!case(2) !Nested (not implimented yet)
-    !end select
     
     return
     end subroutine bnd_block

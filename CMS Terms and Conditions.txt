@@ -1,0 +1,45 @@
+Coastal Modeling System Terms and Conditions
+
+Terms and Conditions
+By using the CMS Software you voluntarily accept the following terms and conditions. 
+If you do not agree to these terms and conditions, uninstall the CMS Application and 
+remove any program materials. Terms and Conditions for use of CMS Software The United 
+States Government, US Army Corps of Engineers (USACE), Engineer Research and Development 
+Center (ERDC), Coastal and Hydraulics Laboratory(CHL) grants to the user the rights to 
+install "CMS Software" and to use, copy and/or distribute copies of the CMS Software to 
+other users, subject to the following Terms and Conditions of Use: All copies of the CMS 
+Software received or reproduced by or for user pursuant to the authority of this Terms 
+and Conditions of Use will be and remain the property of the US Army Corps of Engineers 
+ERDC CHL. User may reproduce and distribute the CMS Software provided that the recipient 
+agrees to the Terms and Conditions for Use noted herein. The US Army Corps of Engineers 
+ERDC CHL is solely responsible for the content of the CMS Software. The CMS Software may 
+not be modified, abridged, decompiled, disassembled, or reverse engineered. The user is 
+solely responsible for the content, interactions, and effects of any and all amendments, 
+if present, whether they be extension modules, language resource bundles, scripts or any 
+other amendment. The name, in whole or in part, of the CMS Software must not be used to 
+endorse or promote software products derived from the original CMS Software. No part of 
+this Terms and Conditions for Use may be modified, deleted or obliterated from the CMS 
+Software. No part of the CMS Software may be exported or re--?exported in contravention 
+of U.S. export laws or regulations.
+
+Waiver of Warranty
+The United States Government and its agencies, officials, representatives, and employees, 
+including its contractors and suppliers provide the CMS software “as is” without any 
+warranty or condition, expressed, implied, or statutory, and specifically disclaim any 
+implied warranties of title, merchantability, fitness for a particular purpose and 
+non-infringement. Depending on state law, the foregoing disclaimer may not apply to you, 
+and you may also have other legal rights that vary from state to state.
+
+Limitation of Liability
+In no event shall the United States Government and its agencies, officials, representatives, 
+and employees, including its contractors and suppliers be liable for lost profits or any 
+special, incidental or consequential damages arising out of or in connection with use of 
+the CMS software regardless of cause, including negligence. 
+
+Indemnity
+As a voluntary user of the CMS Software you agree to indemnify and hold the United States 
+Government, and its agencies, officials, representatives, and employees, including its 
+contractors and suppliers, harmless from any claim or demand, including reasonable 
+attorneys' fees, made by any third party due to or arising out of your use of the CMS 
+Software or breach of this Agreement or your violation of any law or the rights of a 
+third party.
