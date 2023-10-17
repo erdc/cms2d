@@ -2,7 +2,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 ! Note: Presently used for Inline Steering, MEB 10/4/2018
 !       Adding '_inline' to all subroutines (and references), MEB 10/9/2018
 !***************************************************************C
-!                      CMS-Wave (ver.3.2)                       C
+!                      CMS-Wave (ver.3.3)                       C
 !   (Wave Action Balance Equation with Diffraction effect)      C
 !     SPECTRAL WAVE TRANSFORMATION MODEL IN SHALLOW WATER       C
 !                INCLUDING WAVE DIFFRACTION                     C
@@ -140,7 +140,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(noptset.ne.3)then
         call diag_print_message(' ')
         call diag_print_message('**********************************************')
-        call diag_print_message('CMS-Wave V-3.2 Inline, last update 19 Oct 2021')
+        call diag_print_message('CMS-Wave V-3.3 Inline, last update 19 Oct 2021')
         call diag_print_message('**********************************************')
         call diag_print_message('  Point of Contact:')
         call diag_print_message('  Lihwa Lin, USACE ERDC')

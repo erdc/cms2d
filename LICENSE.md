@@ -30,8 +30,9 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 THIRD-PARTY USE NOTICE:
 This version of CMS uses the following libraries and source code:
-XMDF Binary Library
+- XMDF Binary Library [Aquaveo]
     Copyright 2023, Aquaveo, LLC
+	
     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
@@ -42,3 +43,43 @@ XMDF Binary Library
     TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+- General Cartographic Coordinates Transformation Package (GCTP) [USGS]
+Documentation - https://www.cmascenter.org/ioapi/documentation/all_versions/html/GCTP.pdf
+
+The General Cartographic Transformation Package (GCTP) is a system of computer subroutines, 
+written in FORTRAN, designed to permit the transformation of coordinate pairs from one map 
+projection to another. GCTP should not be used to transform coordinates between spheroids, 
+because a datum shift should be applied to the geographic coordinates in most cases. It is a 
+subroutine package that must be linked to and called by other FORTRAN programs. The GCTP is 
+the standard computer software used by the National Mapping Division for map projection 
+computations. The mathematical algorithms used in GCTP meet the accuracy specifications of 
+USGS Circular 878-B, "Representation of Geographic Point Locations for Information 
+Interchange," which has been proposed as Federal Information Processing Standards 
+Publication 70-1. This software is approved for use with all products of the National 
+Mapping Program.
+
+- State Plane Coordinate System (SPCS) [NOAA NGS]
+This module contains all the subroutines needed to convert NAD 83 state plane coordinates 
+to NAD 83 geographic positions and conversely. Includes defining constants for NAD 83 
+coordinate zones. State plane coordinates are entered or computed to 1 mm accuracy, while 
+the latitudes and longitudes entered or computed correspond to approximately 0.3 mm accuracy.
+
+Original Source: https://www.ngs.noaa.gov/PC_PROD/SPCS83/
+
+   This program and supporting information is furnished by the Government of the United 
+   States of America, and is accepted and used by the recipient with the understanding 
+   that the United States Government makes no warranties, express or implied, concerning 
+   the accuracy, completeness, reliability, or suitability of this program, of its 
+   constituent parts, or of any supporting data. The Government of the United States of 
+   America shall be under no liability whatsoever resulting from any use of this program. 
+   This program should not be relied upon as the sole basis for solving a problem whose 
+   incorrect solution could result in injury to person or property. This program is 
+   property of the Government of the United States of America. Therefore, the recipient 
+   further agrees not to assert proprietary rights therein and not to represent this 
+   program to anyone as being other than a Government program.
+   
+- UTM to GEO [MIT]
+These routines convert UTM to Lat/Longitude and vice-versa, using the WGS-84 (GPS standard) 
+or Clarke 1866 Datums.
+
+Copyright (C) 1998, Massachusetts Institute of Technology, All Rights Reserved.

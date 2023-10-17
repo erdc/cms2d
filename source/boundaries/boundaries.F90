@@ -4148,7 +4148,8 @@ d1: do i=1,ntf
 !--- Tidal/Harmonic BC (Type 2=T) ---------------------------------------------------
     do iwse=1,nTHstr
       do j=1,TH_str(iwse)%ncells
-        wsebnd = TH_str(iwse)%wseoffset
+        !wsebnd = TH_str(iwse)%wseoffset   !This was doubled later in this section.  Removed per H.Li 10/12/2023
+        wsebnd = 0.0
         if(TH_str(iwse)%istidal)then
           do k=1,TH_str(iwse)%ntc  
             wsebnd = wsebnd + TH_str(iwse)%f(k)*TH_str(iwse)%amp(k) &
@@ -4161,8 +4162,6 @@ d1: do i=1,ntf
                 - TH_STR(iwse)%phase(k) + TH_str(iwse)%psi(j,k))
           enddo
         endif
- !       write(3000,*)'ioffsetmode (bnd_eval) = ',TH_str(iwse)%ioffsetmode 
- !       write(3000,*)'TH_str(iwse)%wseoffset = ',TH_str(iwse)%wseoffset 
         if(TH_str(iwse)%ioffsetmode==1)then !Constant (hli,10/05/17)
            wsebnd = wsebnd + TH_str(iwse)%wseoffset !Add Offset 
         elseif(TH_str(iwse)%ioffsetmode==2)then !Time-series
@@ -4172,8 +4171,6 @@ d1: do i=1,ntf
         endif
         TH_str(iwse)%wsebnd(j) = (1.0-ramp)*TH_str(iwse)%wsebnd0(j) &
                       + ramp*(wsebnd + TH_str(iwse)%wsevar(j))
-!        write(3000,*)'j = ',j
-!        write(3000,*)'TH_str(iwse)%wsebnd(j) = ',TH_str(iwse)%wsebnd(j)
       enddo !j-cell
     enddo !iwse-str
 
