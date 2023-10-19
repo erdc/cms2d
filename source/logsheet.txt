@@ -1,4 +1,4 @@
-== Version 5.3.7 (10/12/2023) ==
+== Version 5.3.7 (10/19/2023) ==
 * Start adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
 * Incremented CMS-Wave version number to 3.3. The code was modified in 2021 but the number was not incremented.
 * Fix for Tidal boundaries where Offset used - it was doubling the offset.
