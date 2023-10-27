@@ -28,6 +28,7 @@ Note: Linux builds have not been fully tested on HPC platform and some extra con
 
 # File/Folder structure
 Below is a list of folders and descriptions of the contents.
+- **docs** - this folder contains the documentation files needed for the [CMS Documentation page](https://cms2d.readthedocs.io/) that is in progress.
 - **Intel_vs2019** - this folder contains the solution file needed to load into Visual Studio.
 - **GCTP** - this project folder contains library code needed to map information between horizontal projections.
 - **SPCS83** - this project folder contains library code needed for changes related to the State Plane coordinate system.
@@ -38,7 +39,7 @@ Below is a list of folders and descriptions of the contents.
 Additional files in the main folder and their descriptions:
 - [README.md](README.md) - this file.
 - [UNLICENSE.md](UNLICENSE.md) - contains information regarding the use of this repository and the third-party licenses.
-- [CMS Terms and Conditions.txt]("CMS Terms and Conditions.txt") - additional terms and conditions.
+- [CMS Terms and Conditions.txt](<CMS Terms and Conditions.txt>) - additional terms and conditions.
 
 Additional files in the "source" folder and their descriptions:
 - [CMakeLists.txt](source/CMakeLists.txt) - contains information for compiling on Linux using CMake.
