@@ -1,4 +1,5 @@
 !***************************************************************************   
+!***************************************************************************   
     subroutine struct_default
 ! Sets the default parameters for structure variables
 ! written by Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
@@ -9,7 +10,7 @@
     numtidegate = 0 !Tidal Gate
     numweir = 0     !Weirs
     numculvert = 0  !Culverts
-    numrubmound = 0 !Rubble Mounds
+    nrubmoundcells = 0 !Rubble Mounds
 
     return
     end subroutine struct_default
@@ -26,6 +27,7 @@
     implicit none    
     integer :: itg,idtg,maxtidegate,maxtidegateopt  !Wu
     integer :: iwr,idwr,maxweir,icv,irm,idrm,maxrubmound    !Wu
+    integer :: ierr
     character(len=37) :: cardname
     logical :: foundcard    
     
@@ -131,16 +133,16 @@
                    qculvert(numculvert),dqcvdzdown(numculvert),dqcvdzup(numculvert),                 &
                    uvculvert(numculvert),angleculvertbay(numculvert),angleculvertsea(numculvert) )   
           backspace(77)
-          read(77,*) cardname,numculvert,(idculvert(icv,1),idculvert(icv,2),                     &
-                      iculverttype(icv),iculvertflap(icv),culvertwidth(icv),culvertheight(icv),  &
-                      culvertelevbay(icv),culvertelevsea(icv),culvertlength(icv),                &
-                      cvheadlossbayentr(icv),cvheadlossbayexit(icv),cvheadlossseaentr(icv),      &
-                      cvheadlossseaexit(icv),culvertfrict(icv),culvertmann(icv),                 &
-                      angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert) 
+          read(77,*) cardname,numculvert,(idculvert(icv,1),idculvert(icv,2),                    &
+                     iculverttype(icv),iculvertflap(icv),culvertwidth(icv),culvertheight(icv),  &
+                     culvertelevbay(icv),culvertelevsea(icv),culvertlength(icv),                &
+                     cvheadlossbayentr(icv),cvheadlossbayexit(icv),cvheadlossseaentr(icv),      &
+                     cvheadlossseaexit(icv),culvertfrict(icv),culvertmann(icv),                 &
+                     angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert) 
           do icv=1,numculvert
-             culvertrad(icv)=0.5*culvertwidth(icv)
-             angleculvertbay(icv)=angleculvertbay(icv)*pi/180.0
-             angleculvertsea(icv)=angleculvertsea(icv)*pi/180.0
+            culvertrad(icv)=0.5*culvertwidth(icv)
+            angleculvertbay(icv)=angleculvertbay(icv)*pi/180.0
+            angleculvertsea(icv)=angleculvertsea(icv)*pi/180.0
           enddo
           dqcvdzdown=0.0;  dqcvdzup=0.0 
         endif
@@ -152,35 +154,38 @@
       rmblock=0
       case('RUBBLE_MOUND')         !Wu
         backspace(77)
-        read(77,*) cardname,numrubmound    !No. of rubble mound structures
-        if(numrubmound>0)then
-          allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound),   & 
-                   rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound))   
+        read(77,*) cardname,nrubmoundcells    !No. of rubble mound structures
+        if(nrubmoundcells>0)then
+          allocate(nrubmound(0:nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells),   & 
+                   rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells))   
           backspace(77)
-          read(77,*) cardname,numrubmound,(nrubmound(irm),irm=1,numrubmound)              
+          read(77,*) cardname,nrubmoundcells,(nrubmound(irm),irm=1,nrubmoundcells)              
           nrubmound(0) = 0
-          maxrubmound = nrubmound(numrubmound)
-          allocate(idrubmound(maxrubmound))    !,openweir(maxweir))
+          maxrubmound = nrubmound(nrubmoundcells)
           backspace(77)
-          read(77,*) cardname,numrubmound,(nrubmound(irm),irm=1,numrubmound),  &
+          read(77,*) cardname,nrubmoundcells,(nrubmound(irm),irm=1,nrubmoundcells),  &
                      (idrubmound(idrm),idrm=1,maxrubmound),                    &
-                     (rubmounddia(irm),rubmoundporo(irm),methrubmoundab(irm),irm=1,numrubmound)   
-          do irm=1,numrubmound                   !coefficients a and b 
-             if(methrubmoundab(irm)==1) then     !Sidiropoulou et al. (2007)
-                rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5)  *rubmoundporo(irm)**0.06         
-                rubmoundb(irm)=0.194  *rubmounddia(irm)**(-1.265)*rubmoundporo(irm)**(-1.14)
-             elseif(methrubmoundab(irm)==2) then  !Kadlec and Knight (1996)
-                rubmounda(irm)=255.0*viscos*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3.7/rubmounddia(irm)**2         
-                rubmoundb(irm)=2.0*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3/rubmounddia(irm)
-             elseif(methrubmoundab(irm)==3) then   !Ward (1964)
-                rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
-                rubmoundb(irm)=10.44/grav/rubmounddia(irm)
-             endif
+                     (rubmounddia(irm),rubmoundporo(irm),methrubmoundab(irm),irm=1,nrubmoundcells)   
+          do irm=1,nrubmoundcells                   !coefficients a and b 
+            if(methrubmoundab(irm)==1) then     !Sidiropoulou et al. (2007)
+              rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5)  *rubmoundporo(irm)**0.06         
+              rubmoundb(irm)=0.194  *rubmounddia(irm)**(-1.265)*rubmoundporo(irm)**(-1.14)
+            elseif(methrubmoundab(irm)==2) then  !Kadlec and Knight (1996)
+              rubmounda(irm)=255.0*viscos*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3.7/rubmounddia(irm)**2         
+              rubmoundb(irm)=2.0*(1.0-rubmoundporo(irm))/grav/rubmoundporo(irm)**3/rubmounddia(irm)
+            elseif(methrubmoundab(irm)==3) then   !Ward (1964)
+              rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
+              rubmoundb(irm)=10.44/grav/rubmounddia(irm)
+            endif
           enddo
         endif
         
+      case('RUBBLE_MOUND_ID_DATASET')
+        backspace(77)
+        read(77,*) cardname, arubmoundfile, arubmoundpath
+          
       case('RUBBLE_MOUND_BEGIN')
-         call read_rubble_mound(cardname,foundcard)        
+        call read_rubble_mound(cardname,foundcard)        
 
       case default
         foundcard = .false.
@@ -816,12 +821,18 @@
     endif      
     
     !Initialize and set default values
-    RM_struct(irubmound)%rockdia_const     = 0.0
-    RM_struct(irubmound)%structporo_const  = 0.0
-    RM_struct(irubmound)%structbaseD_const = 0.0
-    RM_struct(irubmound)%rubmoundmeth      = 0.0
-    RM_struct(irubmound)%ncells            = 0
-    RM_struct(irubmound)%name              = ''
+    RM_struct(irubmound)%rockdia_const       = 0.0
+    RM_struct(irubmound)%structporo_const    = 0.0
+    RM_struct(irubmound)%structbaseD_const   = 0.0
+    RM_struct(irubmound)%rubmoundmeth        = 0
+    RM_struct(irubmound)%ncells              = 0
+    RM_struct(irubmound)%name                = ''
+    RM_struct(irubmound)%rockdia_dset(2)     = ''
+    RM_struct(irubmound)%structporo_dset(2)  = ''
+    RM_struct(irubmound)%structbaseD_dset(2) = ''
+    RM_struct(irubmound)%structmeth_dset(2)  = ''
+    RM_struct(irubmound)%inc = 0
+
     
     return
     end subroutine rubble_mound_alloc
@@ -838,6 +849,7 @@
     integer :: k   !hli(11/28/12)
     integer :: numids, irm  !meb 01/28/2019
     character(len=34) :: cardname
+    character(len=200) :: aline,adum
     logical :: foundcard
         
     foundcard = .true.
@@ -856,27 +868,30 @@
         case('RUBBLE_MOUND_DATASET')  !Modify input format for rubble mound structure (hli,11/26/12)
           backspace(77)
           read(77,*) cardname, arubmoundfile, arubmoundpath
-          rm_dset = .true.
 
         case('ROCK_DIAMETER_DATASET')
           backspace(77)
           read(77,*) cardname, arockdiamfile, arockdiampath
-          rm_dset = .true.
+          RM_struct(irubmound)%rockdia_dset(1) = arockdiamfile
+          RM_struct(irubmound)%rockdia_dset(2) = arockdiampath
 
         case('STRUCTURE_POROSITY_DATASET')
           backspace(77)
           read(77,*) cardname, astructporofile, astructporopath    
-          rm_dset = .true.
+          RM_struct(irubmound)%structporo_dset(1) = astructporofile
+          RM_struct(irubmound)%structporo_dset(2) = astructporopath
 
         case('STRUCTURE_BASE_DEPTH_DATASET')
           backspace(77)
           read(77,*) cardname, astructbaseDfile, astructbaseDpath    
-          rm_dset = .true.
+          RM_struct(irubmound)%structbaseD_dset(1) = astructbaseDfile
+          RM_struct(irubmound)%structbaseD_dset(2) = astructbaseDpath
 
         case('FORCHHEIMER_COEFF_METHOD_DATASET')
           backspace(77)
           read(77,*) cardname, astructmethfile, astructmethpath    
-          rm_dset = .true.
+          RM_struct(irubmound)%structmeth_dset(1) = astructmethfile
+          RM_struct(irubmound)%structmeth_dset(2) = astructmethpath
 
         case('CELL_IDS')
           backspace(77)
@@ -885,36 +900,28 @@
           allocate(RM_struct(irubmound)%cells(numids))
           backspace(77)
           read(77,*) cardname,numids,(RM_struct(irubmound)%cells(irm),irm=1,numids)
-          rm_dset = .false.
           
-        case('CELL_ID_DATASET')                                 !meb incomplete - finish or remove  09/25/23
-          backspace(77)
-          read(77,*) cardname, astructIDfile, astructIDpath
-          rm_dset = .false.
-
         case('NAME')
           backspace(77)
-          read(77,*) cardname,RM_struct(irubmound)%name                !meb added index 3/17/2020
+          read(77,'(A100)') aline
+          read(aline,'(A,A100)') cardname,adum
+          RM_struct(irubmound)%name = adjustl(adum)                    !meb added index 3/17/2020
           
         case('ROCK_DIAMETER_CONSTANT')
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%rockdia_const       !meb added index 1/28/2019
-          rm_dset = .false.
     
         case('STRUCTURE_POROSITY_CONSTANT')
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%structporo_const    !meb added index 1/28/2019
-          rm_dset = .false.
            
         case('STRUCTURE_BASE_DEPTH_CONSTANT')
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%structbaseD_const   !meb added index 1/28/2019
-          rm_dset = .false.
   
         case('FORCHHEIMER_COEFF_METHOD')  
           backspace(77)
           read(77,*) cardname,RM_struct(irubmound)%rubmoundmeth        !meb added index 1/28/2019   
-          rm_dset = .false.
           
         case default
           foundcard = .false.
@@ -1001,150 +1008,32 @@
     integer :: i,i1,itg,im,iwr,icv,irm,kk,ierr   !hli(11/19/13)
     character(len=10) :: aext    
     integer :: j,idum
+    logical :: exists
 
-!   Read rubble mound information from datasets or specify constants (hli, 12/10/12)
-    if(rmblock.eq.1 .and. rm_dset) then    !modified for alternate input, meb 01/28/2019
-      allocate(permeability(ncellsfull))
-      allocate(rockdiam(ncellsfull))
-      allocate(structporo(ncellsfull))
-      allocate(structbaseD(ncellsfull))
-      allocate(structmeth(ncellsfull))
-      permeability=0.0; rockdiam=0.0; structporo=0.0; structbaseD=0.0; structmeth=0
+    !Allocate for full datasets and initialize
+    allocate(permeability(ncellsfull))
+    allocate(rockdiam(ncellsfull))
+    allocate(structporo(ncellsfull))
+    allocate(structbaseD(ncellsfull))
+    allocate(structmeth(ncellsfull))
+    permeability=0.0; rockdiam=0.0; structporo=0.0; structbaseD=0.0; structmeth=0
 
-! read cells that are permeable from dataset
-      call fileext(trim(arubmoundfile),aext)      
-      select case (aext)
-      case('h5')
-#ifdef XMDF_IO
-      call readscalh5(arubmoundfile,arubmoundpath,permeability,ierr)
-#endif
-      case('txt')
-        call readscalTxt(arubmoundfile,permeability,ierr)
-      end select
-      
-      numrubmound=0
-      if(ierr<0) stop
-      do i=1,ncellsfull
-        if(permeability(i).gt.0.0) then
-          numrubmound=numrubmound+1
-        endif
-      enddo
-
-      if(numrubmound.gt.0)then
-        allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound),   & 
-        rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
-        rubmoundbotm(numrubmound))
-        
-        !Added MEB  10/04/2023
-        allocate(rm_struct(irubmound)%cells(numrubmound))  
-        rm_struct(irubmound)%ncells = numrubmound
-        
-        do irm=1,numrubmound
-          nrubmound(irm)=irm
-        enddo
-
-        nrubmound(0) = 0
-        allocate(idrubmound(numrubmound)) 
-
- 99     format(15(i0,x))
-        kk=0
-        do i=1,ncellsfull
-          if(permeability(i).gt.0.0) then
-            kk=kk+1
-            idrubmound(kk)=mapid(i)  !Convert from internal to SMS Cell ID number
-            rm_struct(irubmound)%cells(kk) = idrubmound(kk)  !Added MEB  10/04/2023
-          endif
-        enddo
-
-!read rock diameter from dataset
-        call fileext(trim(arockdiamfile),aext)      
-        select case (aext)
-        case('h5')
-#ifdef XMDF_IO
-          call readscalh5(arockdiamfile,arockdiampath,rockdiam,ierr)
-#endif
-        case('txt')
-          call readscalTxt(arockdiamfile,rockdiam,ierr)
-        end select
-          
-        kk=0
-        do i=1,ncellsfull
-          if(rockdiam(i).gt.0.0) then
-            kk=kk+1
-            rubmounddia(kk)=rockdiam(i)
-          endif
-        enddo
-
-! read porosity from dataset
-        call fileext(trim(astructporofile),aext)      
-        select case (aext)
-        case('h5')
-#ifdef XMDF_IO
-          call readscalh5(astructporofile,astructporopath,structporo,ierr)
-#endif
-        case('txt')
-          call readscalTxt(astructporofile,structporo,ierr)
-        end select
-          
-        kk=0
-        do i=1,ncellsfull
-          if(structporo(i).gt.0.0) then
-            kk=kk+1
-            rubmoundporo(kk)=structporo(i)
-          endif
-        enddo
-
-! read Base depth from dataset
-        call fileext(trim(astructbaseDfile),aext)      
-        select case (aext)
-        case('h5')
-#ifdef XMDF_IO
-          call readscalh5(astructbaseDfile,astructbaseDpath,structbaseD,ierr)
-#endif
-        case('txt')
-          call readscalTxt(astructbaseDfile,structbaseD,ierr)
-        end select
-          
-        kk=0
-        do i=1,ncellsfull
-          if(structbaseD(i).gt.0.0) then
-            kk=kk+1
-            rubmoundbotm(kk)=structbaseD(i)
-          endif
-        enddo
-
-! read rubble mound method from dataset
-        call fileext(trim(astructmethfile),aext)      
-        select case (aext)
-        case('h5')
-#ifdef XMDF_IO
-          call readscalh5(astructmethfile,astructmethpath,structmeth,ierr)
-#endif
-        case('txt')
-          call readscalTxt(astructmethfile,structmeth,ierr)
-        end select
-          
-        kk=0
-        do i=1,ncellsfull
-          if(structmeth(i).gt.0.0) then
-            kk=kk+1
-            methrubmoundab(kk)=structmeth(i)
-          endif
-        enddo
-      endif  
-    else  !rmblock == 1 and rm_dset == .false.  
-      numrubmound = 0
+    inquire(file=arubmoundfile, exist=exists)
+    if (exists) then   !First check if an ID file was specified. 
+      call new_struct_init
+    else                              !If not this is the old way.  
+      nrubmoundcells = 0
       do i=1,irubmound
-        numrubmound = numrubmound + RM_struct(i)%ncells 
+        nrubmoundcells = nrubmoundcells + RM_struct(i)%ncells 
       enddo
 
-      allocate(nrubmound(0:numrubmound),rubmounddia(numrubmound),rubmoundporo(numrubmound), & 
-        rubmounda(numrubmound),rubmoundb(numrubmound),methrubmoundab(numrubmound), &
-        rubmoundbotm(numrubmound),idrubmound(numrubmound))  
+      allocate(nrubmound(0:nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells), & 
+        rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells), &
+        rubmoundbotm(nrubmoundcells),idrubmound(nrubmoundcells))  
 
-      allocate(rubmoundname(numrubmound))  !Added to keep names for rubble mound structures  !meb  03/19/20
+      allocate(rubmoundname(nrubmoundcells))  !Added to keep names for rubble mound structures  !meb  03/19/20
 
-      do irm=1,numrubmound
+      do irm=1,nrubmoundcells
         nrubmound(irm)=irm
       enddo
 
@@ -1163,8 +1052,8 @@
       enddo
     endif  
     
-    if (rmblock == 1 .and. numrubmound > 0) then 
-      do irm=1,numrubmound     
+    if (rmblock == 1 .and. nrubmoundcells > 0) then 
+      do irm=1,nrubmoundcells     
         select case (methrubmoundab(irm))
         case (1)             !Sidiropoulou et al. (2007)
           rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5) *rubmoundporo(irm)**0.06         
@@ -1195,7 +1084,7 @@
     endif
     
     !Rubble Mounds   
-    if(numrubmound>0) call map_cell_full2active(nrubmound(numrubmound),idrubmound)
+    if(nrubmoundcells>0) call map_cell_full2active(nrubmound(nrubmoundcells),idrubmound)
 
 !--- Modify Bathymetry at structures --------------------    
     !Tidal Gate
@@ -1223,7 +1112,7 @@
     enddo
 
 !---- Rubble Mound Structure ------------
-    do irm=1,numrubmound
+    do irm=1,nrubmoundcells
       do im=nrubmound(irm-1)+1,nrubmound(irm)
         i=idrubmound(im)
         zb(i)=-rubmoundbotm(irm)   ! minus the depth below reference datum, i.e. still water level 
@@ -1232,6 +1121,214 @@
     
     return
     end subroutine struct_init
+
+    
+!*****************************************************************************************
+    subroutine new_struct_init
+!*****************************************************************************************
+#include "CMS_cpp.h"
+    use geo_def,  only: mapid
+    use size_def, only: ncellsfull
+    use diag_lib, only: diag_print_error
+    use in_lib,   only: readscalTxt
+    use struct_def
+#ifdef XMDF_IO
+    use in_xmdf_lib, only: readscalh5
+#endif
+    implicit none
+    
+    logical :: use_dataset, exists
+    character(len=10)  :: aext
+    character(len=100) :: afile
+    integer :: ierr,i,j,irm,max,num,kk, ival
+
+    !Read permeable cell info from dataset
+    call fileext(trim(arubmoundfile),aext)      
+    select case (aext)
+    case('h5')
+#ifdef XMDF_IO
+      call readscalh5(arubmoundfile,arubmoundpath,permeability,ierr)
+#endif
+    case('txt')
+      call readscalTxt(arubmoundfile,permeability,ierr)
+    end select
+      
+    !Count total number of permeable cells
+    nrubmoundcells=0
+    if(ierr<0) call diag_print_error("Cannot open Rubble Mound ID dataset")
+    do i=1,ncellsfull
+      if(permeability(i).gt.0.0) then
+        nrubmoundcells=nrubmoundcells+1
+      endif
+    enddo
+
+    !Allocate rubble mound arrays to correct size
+    if(nrubmoundcells.gt.0)then
+      allocate(nrubmound(0:nrubmoundcells))
+      allocate(rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells))
+      allocate(rubmoundbotm(nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells))
+      allocate(idrubmound(nrubmoundcells),rubmoundname(nrubmoundcells)) 
+      nrubmound = 0; rubmounda = 0.0; rubmoundb = 0.0; methrubmoundab = 0
+      rubmoundbotm = 0.0; rubmounddia = 0.0; rubmoundporo = 0.0; idrubmound = 0 
+    endif
+        
+    !Assign each rubble mound cell an index number
+    do irm=1,nrubmoundcells
+      nrubmound(irm) = irm  
+    enddo
+
+    !Allocate each rubble mound structures 'cells' array.
+    max = maxval(permeability)
+    do i = 1, max
+      num = count(permeability==float(i))
+      if (.not.allocated(RM_struct(i)%cells)) allocate(RM_struct(i)%cells(num))
+      RM_struct(i)%ncells = num
+    enddo
+    
+    !Assign cells ids to array.
+    nrubmound(0) = 0
+    do i=1,ncellsfull
+      if(permeability(i).gt.0.0) then
+        ival = int(permeability(i))
+        RM_struct(ival)%inc = RM_struct(ival)%inc + 1
+        RM_struct(ival)%cells(RM_struct(ival)%inc) = mapid(i)
+      endif
+    enddo
+    !Will assign cells to idrubmound later
+
+!Read rock diameter from dataset
+    !if any of the rubble mound blocks have a dataset for rock diameter, 
+    !  read it in. Go through and reset values to constants later.
+    use_dataset = .false.
+    do i=1,irubmound
+      afile = RM_struct(i)%rockdia_dset(1)
+      inquire(file=trim(afile), exist=exists)
+      if (exists) use_dataset = .true.
+    enddo
+    if (use_dataset) then 
+      call fileext(trim(arockdiamfile),aext)      
+      select case (aext)
+      case('h5')
+#ifdef XMDF_IO
+        call readscalh5(arockdiamfile,arockdiampath,rockdiam,ierr)
+#endif
+      case('txt')
+        call readscalTxt(arockdiamfile,rockdiam,ierr)
+      end select
+          
+      kk=0
+      do i=1,ncellsfull
+        if(rockdiam(i).gt.0.0) then
+          kk=kk+1
+          rubmounddia(kk)=rockdiam(i)
+        endif
+      enddo
+    endif
+    
+!Read porosity from dataset
+    !if any of the rubble mound blocks have a dataset for porosity, 
+    !  read it in. Go through and reset values to constants later.
+    use_dataset = .false.
+    do i=1,irubmound
+      afile = RM_struct(i)%structporo_dset(1)
+      inquire(file=afile, exist=exists)
+      if (exists) use_dataset = .true.
+    enddo
+    if (use_dataset) then
+      call fileext(trim(astructporofile),aext)      
+      select case (aext)
+      case('h5')
+#ifdef XMDF_IO
+        call readscalh5(astructporofile,astructporopath,structporo,ierr)
+#endif
+      case('txt')
+        call readscalTxt(astructporofile,structporo,ierr)
+      end select
+          
+      kk=0
+      do i=1,ncellsfull
+        if(structporo(i).gt.0.0) then
+          kk=kk+1
+          rubmoundporo(kk)=structporo(i)
+        endif
+      enddo
+    endif
+
+!Read Base depth from dataset
+    !if any of the rubble mound blocks have a dataset for base depth, 
+    !  read it in. Go through and reset values to constants later.
+    use_dataset = .false.
+    do i=1,irubmound
+      afile = RM_struct(i)%structbaseD_dset(1)
+      inquire(file=afile, exist=exists)
+      if (exists) use_dataset = .true.
+    enddo
+    if (use_dataset) then
+      call fileext(trim(astructbaseDfile),aext)      
+      select case (aext)
+      case('h5')
+#ifdef XMDF_IO
+        call readscalh5(astructbaseDfile,astructbaseDpath,structbaseD,ierr)
+#endif
+      case('txt')
+        call readscalTxt(astructbaseDfile,structbaseD,ierr)
+      end select
+         
+      kk=0
+      do i=1,ncellsfull
+        if(structbaseD(i).gt.0.0) then
+          kk=kk+1
+          rubmoundbotm(kk)=structbaseD(i)
+        endif
+      enddo
+    endif
+
+!Read rubble mound method from dataset
+    !if any of the rubble mound blocks have a dataset for method, 
+    !  read it in. Go through and reset values to constants later.
+    use_dataset = .false.
+    do i=1,irubmound
+      afile = RM_struct(i)%structmeth_dset(1)
+      inquire(file=afile, exist=exists)
+      if (exists) use_dataset = .true.
+    enddo
+    if (use_dataset) then
+      call fileext(trim(astructmethfile),aext)      
+      select case (aext)
+      case('h5')
+#ifdef XMDF_IO
+        call readscalh5(astructmethfile,astructmethpath,structmeth,ierr)
+#endif
+      case('txt')
+        call readscalTxt(astructmethfile,structmeth,ierr)
+      end select
+          
+      kk=0
+      do i=1,ncellsfull
+        if(structmeth(i).gt.0.0) then
+          kk=kk+1
+          methrubmoundab(kk)=structmeth(i)
+        endif
+      enddo
+    endif
+    
+!Now go through and set constants (only if present) as well as the name and cell id
+    kk=0
+    do irm=1,irubmound
+      do j=1,RM_struct(irm)%ncells
+        kk=kk+1
+        rubmoundname(kk) = RM_struct(irm)%name
+        idrubmound(kk)   = RM_struct(irm)%cells(j) !don't convert, already the SMS Cell ID number
+        if(RM_struct(irm)%rubmoundmeth .gt. 0)        methrubmoundab(kk) = RM_struct(irm)%rubmoundmeth
+        if(RM_struct(irm)%rockdia_const .gt. 0.0)     rubmounddia(kk)    = RM_struct(irm)%rockdia_const
+        if(RM_struct(irm)%structporo_const .gt. 0.0)  rubmoundporo(kk)   = RM_struct(irm)%structporo_const
+        if(RM_struct(irm)%structbaseD_const .gt. 0.0) rubmoundbotm(kk)   = RM_struct(irm)%structbaseD_const
+      enddo
+    enddo
+    
+    return
+    end subroutine new_struct_init
+    
     
 !*****************************************************************************************
     subroutine struct_print()
@@ -1242,20 +1339,23 @@
     use struct_def
     use diag_def,   only: dgfile,dgunit
     use prec_def
+    use tool_def, only: vstrlz    
     
     implicit none
-    integer :: i,j,icv,iunit(2),ierr
+    integer :: i,j,icv,iunit(2),ierr,ival
  
 111 format(' ',A,T40,A)
 112 format(' ',A,I0)
 241 format(' ',A,T40,I0)
 242 format(' ',A,T40,I0,A)
+243 format(' ',A,T40,F5.2)
+244 format(' ',A,T40,A,A)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
     do i=1,2
       write(iunit(i),*)  
-      if(numtidegate+numweir+numculvert+numrubmound > 0)then
+      if(numtidegate+numweir+numculvert+nrubmoundcells > 0)then
         write(iunit(i),111) '  Structures:','ON'
       else
         write(iunit(i),111) '  Structures:','OFF'  
@@ -1269,6 +1369,19 @@
           write(iunit(i),112) '      Rubble Mound Structure: ',j
           if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 
           write(iunit(i),241) '        Number of cells:',rm_struct(j)%ncells
+          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:',    trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
+          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),111) '        Rock Diameter Dataset File:',trim(rm_struct(j)%rockdia_dset(1))
+          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',         trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
+          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),111) '        Porosity Dataset File:',     trim(rm_struct(j)%structporo_dset(1))
+          if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',       trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
+          if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),111) '        Base Depth Dataset File:',   trim(rm_struct(j)%structbaseD_dset(1))
+          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),111) '        Method Dataset File:',       trim(rm_struct(j)%structmeth_dset(1))
+          if (rm_struct(j)%rubmoundmeth .gt. 0) then
+            ival = rm_struct(j)%rubmoundmeth
+            if (ival .eq. 1) write(iunit(i),111) '        Method:','Sidiropoulou et al. (2007)'
+            if (ival .eq. 2) write(iunit(i),111) '        Method:','Kadlec and Knight (1996)'
+            if (ival .eq. 3) write(iunit(i),111) '        Method:','Ward (1964)'
+          endif
         enddo
       endif
       
@@ -1618,7 +1731,7 @@
     enddo
 
 !--- Rubble Mound Structure --------------
-    do irm=1,numrubmound
+    do irm=1,nrubmoundcells
       do im=nrubmound(irm-1)+1,nrubmound(irm)
         i=idrubmound(im)
         if(ntsch==1)then
@@ -1745,7 +1858,7 @@
     
 !--- Rubble Mound Structure --------------
     gravdtime=grav*dtime
-    do irm=1,numrubmound
+    do irm=1,nrubmoundcells
       i=idrubmound(irm)
       timetmp1=iwet(i)*areap(i)/gravdtime*(1.0-rubmoundporo(irm))
       if(ntsch==1)then
@@ -2298,7 +2411,7 @@
     integer :: i,k,nck,jcn,irm
     
 !--- Rubble Mound Structures ----------------------  
-    do irm=1,numrubmound
+    do irm=1,nrubmoundcells
       i=idrubmound(irm)
       do k=1,ncface(i)
         visk(k,i) = 0.0
@@ -2338,7 +2451,7 @@
     enddo
 
     !Rubble Mound Structure, !Wu, Oct. 2011    
-    do irm=1,numrubmound
+    do irm=1,nrubmoundcells
       i=idrubmound(irm)
       dzb(i)=dzb(i)/rubmoundporo(irm)
       if(nsed>1) dzbk(i,:)=dzbk(i,:)/rubmoundporo(irm)
