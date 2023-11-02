@@ -1,5 +1,12 @@
 What's New
 ==========
+v5.3.8 (27 October 2023)
+------------------------
+
+Improvements
+^^^^^^^^^^^^
+* Rework Rubble Mound structures to implement corrently in the SMS v13.3.xx for constant and dataset specification maintaining backward compatibilty.
+* Improve diagnostic output when sediment percentile datasets contain invalid values.
 
 v5.3.7 (19 October 2023)
 ------------------------

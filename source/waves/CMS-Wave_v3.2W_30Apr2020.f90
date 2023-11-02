@@ -137,11 +137,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       kdate=0
       iidate=0
 
+      if(noptset.ne.3) call diag_print_message(' ')
+      call diag_print_message('**********************************************')
+      call diag_print_message('CMS-Wave V-3.3 Inline, last update 19 Oct 2021')
+      call diag_print_message('**********************************************')
       if(noptset.ne.3)then
-        call diag_print_message(' ')
-        call diag_print_message('**********************************************')
-        call diag_print_message('CMS-Wave V-3.3 Inline, last update 19 Oct 2021')
-        call diag_print_message('**********************************************')
         call diag_print_message('  Point of Contact:')
         call diag_print_message('  Lihwa Lin, USACE ERDC')
         call diag_print_message('  mail to: Lihwa.Lin@usace.army.mil')

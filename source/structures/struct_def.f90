@@ -3,6 +3,7 @@ module struct_def
 ! Structures Module
 ! written by Weiming Wu, NCCHE
 ! modified by Alex Sanchez
+! updated by Mitchell Brown, 10/27/2023
 !===================================================================
     use prec_def
     save
@@ -48,7 +49,7 @@ module struct_def
                                uvculvert(:),angleculvertbay(:),angleculvertsea(:)
 
     !Rubble mound
-    integer :: numrubmound
+    integer :: nrubmoundcells      !refactored 'numrubmound' to 'nrubmoundcells' for clarity.  All of these look so similar.  10/27/2023
     integer,allocatable :: nrubmound(:),idrubmound(:)
     real(ikind),allocatable :: rubmounddia(:),rubmoundporo(:),rubmounda(:),rubmoundb(:),rubmoundbotm(:)
     real(ikind),allocatable :: permeability(:),rockdiam(:),structporo(:),structbaseD(:)  !hli(12/11/12)
@@ -67,7 +68,12 @@ module struct_def
       real                 :: rockdia_const
       real                 :: structporo_const
       real                 :: structbaseD_const
+      character(len=200)   :: rockdia_dset(2)      !Added meb 10/27/2023
+      character(len=200)   :: structporo_dset(2)   !Added meb 10/27/2023
+      character(len=200)   :: structbaseD_dset(2)  !Added meb 10/27/2023 
+      character(len=200)   :: structmeth_dset(2)   !Added meb 10/27/2023
       integer              :: rubmoundmeth
+      integer              :: inc                  !Added meb 10/27/2023
     endtype RM_type
     type(RM_type), allocatable :: RM_struct(:)
     logical :: rm_dset
@@ -75,13 +81,12 @@ module struct_def
  !-------
     
     !
-    integer :: rmblock  !hli(12/11/12)
-    character(len=200) :: arubmoundfile,arubmoundpath
-    character(len=200) :: arockdiamfile,arockdiampath
-    character(len=200) :: astructporofile,astructporopath
-    character(len=200) :: astructbaseDfile,astructbaseDpath
-    character(len=200) :: astructmethfile,astructmethpath
-    character(len=200) :: astructIDfile, astructIDpath          !meb incomplete - finish or remove  09/25/23
+    integer :: rmblock     !hli(12/11/12)
+    character(len=200) :: arubmoundfile, arubmoundpath       !Points to file that contains non-zero values in cells where there is permeability.  Each number denotes a different structure. 10/27/2023
+    character(len=200) :: arockdiamfile, arockdiampath           
+    character(len=200) :: astructporofile, astructporopath
+    character(len=200) :: astructbaseDfile, astructbaseDpath
+    character(len=200) :: astructmethfile, astructmethpath
     character(len=34)  :: methrm           !hli(12/11/12)
 
 end module struct_def

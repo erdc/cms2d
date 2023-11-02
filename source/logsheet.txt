@@ -1,3 +1,7 @@
+== Version 5.3.8 (10/27/2023) ==
+* Improve diagnostic output when sediment percentile datasets contain invalid values.
+* Rework Rubble Mound structures to implement corrently in the SMS for constant and dataset specification maintaining backward compatibilty.
+
 == Version 5.3.7 (10/19/2023) ==
 * Start adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
 * Incremented CMS-Wave version number to 3.3. The code was modified in 2021 but the number was not incremented.
