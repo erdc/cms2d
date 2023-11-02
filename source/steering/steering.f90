@@ -101,7 +101,7 @@
         
       case('WAVE_BED_ELEVATION','FLOW-TO-WAVE_BED_ELEVATION','FLOW_TO_WAVE_BED_ELEVATION',&
           'WAVE_WATER_DEPTH','FLOW-TO-WAVE_WATER_DEPTH','FLOW_TO_WAVE_WATER_DEPTH','FLOW_TO_WAVE_DEPTH')
-        backspace(77)   
+        backspace(77)
         read(77,*) cardname, cdum
         if(cdum(1:1)=='0' .or. cdum(1:1)=='N' .or. cdum(1:1)=='n')then
           noptzb = 0   !NONE
