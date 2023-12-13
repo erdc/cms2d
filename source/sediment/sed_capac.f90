@@ -37,102 +37,69 @@ subroutine sedcapac_lundcirp
 
   iripple = 1               
   if(noptset>=3)then  !Waves
-     gamma = 0.78      
-     !      rolfac = 2.0/rhow/sqrt(grav)
-     do i=1,ncells     
-        if(iwet(i)==0)then
-           CtstarP(i,:)=0.0
-           rsk(i,:)=1.0
-           cycle 
-        endif
-        phi = abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle                  
-        call shearlund(iripple,h(i),uv(i),Worb(i),Wper(i),phi,rhosed,rhow,D50(i),&
-             tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)              
-        if(wavesedtrans)then
-           Hrms = Whgt(i)/sqrttwo  
-           !          call brwratio(h(i),Hrms,gamma,alfa)
-           call brkwavratio(h(i),Hrms,Wlen(i),gamma,alfa)      
-           !          fac = 0.5+0.5*cos(pi*min(max(h(i)/max(Whgt2(i),0.01)-10.0,0.0)/10.0,1.0))
-           !          fac=0.5+0.5*cos(pi*min(max(max(h(i)/max(Whgt2(i),0.01)-1.5,0.0),1.0))
-           fac=0.5+0.5*cos(pi*min(max(h(i)/max(Whgt2(i),0.01)-1.0,0.0)/2.0,1.0))
-           !fac=1.0
-           !          if(roller) Qr = rolfac*Esr(i)/sqrt(max(h(i),hmin)) !Surface roller flux
-        endif
-        do ks=1,nsed
-           call susplund(h(i),uv(i),Worb(i),rhosed,rhow,diam(ks),   &
-                wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
-                fcf,fwf,wavediss(i),taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                 
-           call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)
-           !!          call bedlund(rhosed,rhow,tauct,taucwt,taucwmt,taucr(ks),Qbs)
-           Qbs = scalebed*Qbs/varsigma(i,ks)       !Bed Load Capacity        
-           Qss = scalesus*Qss/varsigma(i,ks)       !Suspended Load Capacity 
-           Qts = Qbs + Qss          !Total Load Capacity
-           CtstarP(i,ks) = rhosed*Qts/(uv(i)*h(i)+small) !Total-load concentration capacity of total load, kg/m^3              
-           CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
-           !          rsk(i,ks) = Qss/(Qts+small) !Fraction of suspended sediment  
-           !          if(rsk(i,ks).lt.1.e-6) rsk(i,ks) = 1.0  !*************        
-           rsk(i,ks) = max(Qss,small)/max(Qts,small) !Fraction of suspended sediment      
+    gamma = 0.78      
+    !rolfac = 2.0/rhow/sqrt(grav)
+    do i=1,ncells     
+      if(iwet(i)==0)then
+        CtstarP(i,:)=0.0
+        rsk(i,:)=1.0
+        cycle 
+      endif
+      phi = abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle                  
+      call shearlund(iripple,h(i),uv(i),Worb(i),Wper(i),phi,rhosed,rhow,D50(i),&
+           tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)              
+      if(wavesedtrans)then
+        Hrms = Whgt(i)/sqrttwo  
+        call brkwavratio(h(i),Hrms,Wlen(i),gamma,alfa)      
+        fac=0.5+0.5*cos(pi*min(max(h(i)/max(Whgt2(i),0.01)-1.0,0.0)/2.0,1.0))
+      endif
+      do ks=1,nsed
+        call susplund(h(i),uv(i),Worb(i),rhosed,rhow,diam(ks),   &
+             wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
+             fcf,fwf,wavediss(i),taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                 
+        call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)
+        Qbs = scalebed*Qbs/varsigma(i,ks)       !Bed Load Capacity        
+        Qss = scalesus*Qss/varsigma(i,ks)       !Suspended Load Capacity 
+        Qts = Qbs + Qss                         !Total Load Capacity
+        CtstarP(i,ks) = rhosed*Qts/(uv(i)*h(i)+small) !Total-load concentration capacity of total load, kg/m^3              
+        CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
+        rsk(i,ks) = max(Qss,small)/max(Qts,small) !Fraction of suspended sediment      
 
-           !Wave induced sediment transport
-           if(wavesedtrans .and. Whgt(i).gt.2*hmin .and. h(i).gt.3*hmin)then    
-              !            if(.not.roller)then                    
-              call crossmean(h(i),Whgt(i),Wper(i),Wlen(i),alfa,&
-                   rhosed,rhow,diam(ks),wsfall(ks),            &
-                   fcf,taucr(ks),taucwtb,taucwmtb,cak(i,ks),epsvk(i,ks),      &
-                   um,ur,Qsm,Qsr,Qbm)
-              !            else   
-              !              call crossmean_rol(h(i),Hrms,Wper(i),Wlen(i),Qr, &
-              !                 rhosed,rhow,diam(ks),wsfall(ks),            &
-              !                 fcf,taucrks,taucwtb,taucwmtb,crcw,epscw,      &
-              !                 um,ur,Qsm,Qsr,Qbm)   
-              !            endif     
-              call asymmetry(h(i),Hrms,Wper(i),Wlen(i),Worbrep(i),&
-                   rhosed,rhow,diam(ks),fwf,taucr(ks),taucwtb,taucwmtb,Qba)
-              QwsP(i,ks) = rhosed*(fba*Qba+fac*(fsr*Qsr-fsm*Qsm-fbm*Qbm)) !Potential net onshore transport, kg/m/sec
-              !if (i.eq.487) write(*,*)'in sedcapac_lundcirp, now setting QwsP(487,ks)',QwsP(i,ks)                                   !added bdj 01/2021
-              !            QwsP(i,ks) = min(0.0001,QwsP(i,ks)) !Limit transport to unrealistic transport near wet/dry interface
-              !            QwsP(i,ks) = max(-0.0001,QwsP(i,ks)) !Limit transport to unrealistic transport near wet/dry interface
-              !if(isnankind(QwsP(i,ks)))then
-              !  write(*,*)
-              !  write(*,*) 'ERROR: Qws(i,ks)=NaN'
-              !  write(*,*) 'i,mapid(i),ks',i,mapid(i),ks
-              !  write(*,*) 'h(i)',h(i)
-              !  write(*,*) 'um,ur',um,ur
-              !  write(*,*) 'cak(i,ks),epsvk(i,ks)',cak(i,ks),epsvk(i,ks)
-              !  write(*,*) 'Whgt(i),Worbrep(i),Wper(i)',Whgt(i),Worbrep(i),Wper(i)
-              !  write(*,*) 'Qsr,Qba,Qsm,Qbm',Qsr,Qba,Qsm,Qbm
-              !  write(*,*) 'Press any key to continue.'
-              !  read(*,*)
-              !  stop
-              !endif
-           endif
-        enddo
-     enddo
-  else         !No waves
-     phi = 0.0; Uw = 0.0; T = 10.0; dbrk = 0.0
-     do i=1,ncells  
-        if(iwet(i)==0)then
-           CtstarP(i,:)=0.0
-           rsk(i,:)=1.0
-           cycle 
+        !Wave induced sediment transport
+        if(wavesedtrans .and. Whgt(i).gt.2*hmin .and. h(i).gt.3*hmin)then    
+          call crossmean(h(i),Whgt(i),Wper(i),Wlen(i),alfa,&
+               rhosed,rhow,diam(ks),wsfall(ks),            &
+               fcf,taucr(ks),taucwtb,taucwmtb,cak(i,ks),epsvk(i,ks),      &
+               um,ur,Qsm,Qsr,Qbm)
+          call asymmetry(h(i),Hrms,Wper(i),Wlen(i),Worbrep(i),&
+               rhosed,rhow,diam(ks),fwf,taucr(ks),taucwtb,taucwmtb,Qba)
+          QwsP(i,ks) = rhosed*(fba*Qba+fac*(fsr*Qsr-fsm*Qsm-fbm*Qbm)) !Potential net onshore transport, kg/m/sec
         endif
-        call shearlund(iripple,h(i),uv(i),Uw,T,phi,rhosed,rhow,D50(i),&
-             tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)
-        do ks=1,nsed
-           call susplund(h(i),uv(i),Uw,rhosed,rhow,diam(ks),       &
-                wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
-                fcf,fwf,dbrk,taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                
-           call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)                            
-           Qbs = scalebed*Qbs/varsigma(i,ks)       !Bed Load Capacity        
-           Qss = scalesus*Qss/varsigma(i,ks)       !Suspended Load Capacity 
-           Qts = Qbs + Qss          !Total Load Capacity     
-           CtstarP(i,ks) = rhosed*Qts/max(uv(i)*h(i),small) !Total-load concentration capacity of total load, kg/m^3  
-           CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
-           !          rsk(i,ks) = Qss/(Qts+small)  !max(Qts,small)  !Fraction of suspended sediment                
-           !          if(rsk(i,ks).lt.0.0001) rsk(i,ks) = 1.0  !*************        
-           rsk(i,ks) = max(Qss,small)/max(Qts,small)
-        enddo
-     enddo
+      enddo
+    enddo
+  else         !No waves
+    phi = 0.0; Uw = 0.0; T = 10.0; dbrk = 0.0
+    do i=1,ncells  
+      if(iwet(i)==0)then
+        CtstarP(i,:)=0.0
+        rsk(i,:)=1.0
+        cycle 
+      endif
+      call shearlund(iripple,h(i),uv(i),Uw,T,phi,rhosed,rhow,D50(i),&
+           tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)
+      do ks=1,nsed
+        call susplund(h(i),uv(i),Uw,rhosed,rhow,diam(ks),       &
+             wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
+             fcf,fwf,dbrk,taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                
+        call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)                            
+        Qbs = scalebed*Qbs/varsigma(i,ks)       !Bed Load Capacity        
+        Qss = scalesus*Qss/varsigma(i,ks)       !Suspended Load Capacity 
+        Qts = Qbs + Qss          !Total Load Capacity     
+        CtstarP(i,ks) = rhosed*Qts/max(uv(i)*h(i),small) !Total-load concentration capacity of total load, kg/m^3  
+        CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
+        rsk(i,ks) = max(Qss,small)/max(Qts,small)
+      enddo
+    enddo
   endif
 
   return
@@ -386,62 +353,44 @@ subroutine sedcapac_c2shore
   real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSwf,CSsg,CSVs,qb
   !real(ikind) :: CSPs,CSPb,CSDf,CSDb,CSefff,CSeffb,CSwf,CSsg,CSVs      !CSeffb now defined in sed_def and initialized in sed_default - bdj 6/7/19
 
-  !write(*,*)'bdj in sedcapac_c2shore , noptset = ',noptset
   iripple = 1               
   gamma = 0.78      
   !Parallel statements added 6/20/2018 - meb  
-!  !!$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  ! this parr loop commented by bdj 2020-12-18 
+!!$OMP PARALLEL DO PRIVATE (i,ks,CSDb,CSefff,CSeffb,CSsg,CSwf,Hrms,sigT,CSDf,CSPs,CSVs)  ! this parr loop commented by bdj 2020-12-18 
   do i=1,ncells     
-     if(iwet(i)==0)then
-        CtstarP(i,:)=0.0
-        rsk(i,:)=1.0
-        cycle 
-     endif
+    if(iwet(i)==0)then
+      CtstarP(i,:)=0.0
+      rsk(i,:)=1.0
+      cycle 
+    endif
 
-     do ks=1,nsed
-        CSDb = max(wavediss(i),0.)
-        CSefff = 2.*CSeffb
-        !if(i.lt.10) write(*,*) 'CSeffb,CSblp,CSclp = ',CSeffb,CSblp,CSslp
-        !CSeffb = .005
-        CSsg = rhosed/1000.
-        CSwf = wsfall(ks)
-        Hrms = Whgt(i)/sqrt(2.)  
-        sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
-        call get_CSDf(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSDf)
-        call prob_susload(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSPs)
-        call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
-        qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
-        CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
-        CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing C2SHORE convention of depth integrated 
-        ! if (i.eq.487) then
-        !   write(*,*)'i,CSPs,CSDf,CSDb,CSVs,CSwf',i,CSPs,CSDf,CSDb,CSVs,CSwf
-        !   write(*,*)'x(cell2cell(4,i)),x(cell2cell(2,i))',x(cell2cell(4,i)),x(cell2cell(2,i))
-        !   write(*,*)'h(cell2cell(4,i)),h(i),h(cell2cell(2,i))',h(cell2cell(4,i)),h(i),h(cell2cell(2,i))
-        !   write(*,*)'Hs(cell2cell(4,i)),Hs(i),Hs(cell2cell(2,i))',Whgt(cell2cell(4,i)),Whgt(i),Whgt(cell2cell(2,i))
-        !   write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
-        !   write(*,*)'bdj i,CSDb,CSDf',i,CSPs,CSVs,CSDb,CSDf
-        ! endif
-    ! volumetric conentration Vs [m] to mass concentration CStarP [ kg/m^3]              
-        ! write(*,*)'bdj i, h(i), Hrms, wavediss(i),Vs,CtstarP(i,ks)', i, h(i), Hrms, wavediss(i),CSVs,CtstarP(i,ks)
-        ! write(2001,*) i, h(i), Hrms, CtstarP(i,ks), wavediss(i)
-        if(wavesedtrans)then
-          ! following the previous convention, wave-related trasport id BY DEFINITION in direction of wave propagation  
-          ! Asymettry related will be pos and return current related will be neg
-          !QwsP(i,ks) = rhosed*(.0000001)*x(i) !Potential net onshore transport, kg/m/sec
-          QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !only return-current transport here, kg/m/sec
-          !QwsP(i,ks) = (1-CSslp)*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !
-          QwsP(i,ks) = QwsP(i,ks) + qb ! the addition of bedload
-          !if (i.eq.487)         write(*,*)'bdj i,x,h,Hrms,CSPb,sigT,qb',i,x(i),h(i),Hrms,CSPb,sigT,qb
-          !if (i.eq.487)         write(*,*)'bdj i,x,y,us,QwsP(i,ks)',i,x(i),y(i),sqrt(us(i)**2.+vs(i)**2.),QwsP(i,ks)
-          !QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*1 !commented 2021-01-08
-
-          !QwsP(i,ks) = -rhosed*(csslp)*us(i) !Potential net onshore transport, kg/m/sec
-          ! if (i.eq.487) write(*,*)'in sedcapac_c2shore, now setting QwsP(487,ks)',QwsP(i,ks)
-          ! if (i.eq.487) write(*,*)'in sedcapac_c2shore, u(487),us(487),vs(487)',u(487),us(487),vs(487)
+    do ks=1,nsed
+      CSDb = max(wavediss(i),0.)
+      CSefff = 2.*CSeffb
+      CSsg = rhosed/1000.
+      CSwf = wsfall(ks)
+      Hrms = Whgt(i)/sqrt(2.)  
+      sigT = (Hrms/sqrt(8.))*(Wlen(i)/Wper(i))/h(i)
+      call get_CSDf(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSDf)
+      call prob_susload(u(i),v(i),sigT,Wang(i),Wper(i),CSwf,CSPs)
+      call prob_bedload(sigT,Wper(i),CSsg,diam(1),u(i),v(i),CSPb)
+      qb = rhosed*(CSPb*CSblp*sigT**3.)/(9.81*(CSsg-1.))
+      CSVs = CSPs*(CSDf*CSefff + CSDb*CSeffb)/(9810.*(CSsg-1)*CSwf);
+      CtstarP(i,ks) = rhosed*CSVs/(h(i)+small) !changing C2SHORE convention of depth integrated 
+    ! volumetric concentration Vs [m] to mass concentration CStarP [ kg/m^3]              
+      if(wavesedtrans)then
+        ! following the previous convention, wave-related transport is BY DEFINITION in direction of wave propagation  
+        ! Asymmetry related will be pos and return current related will be neg
+        !QwsP(i,ks) = rhosed*(.0000001)*x(i) !Potential net onshore transport, kg/m/sec
+        !QwsP(i,ks) = (1-CSslp)*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !
+        QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*CtstarP(i,ks) !only return-current transport here, kg/m/sec
+        QwsP(i,ks) = QwsP(i,ks) + qb ! the addition of bedload
+        !QwsP(i,ks) = -CSslp*sqrt(us(i)**2.+vs(i)**2.)*h(i)*1 !commented 2021-01-08
+        !QwsP(i,ks) = -rhosed*(csslp)*us(i) !Potential net onshore transport, kg/m/sec
         endif
      enddo
    enddo
-!  !!$OMP END PARALLEL DO  
+!!$OMP END PARALLEL DO  
 
   return
 end subroutine sedcapac_c2shore

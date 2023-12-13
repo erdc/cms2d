@@ -1,3 +1,7 @@
+== Version 5.3.9 (12/13/2023) ==
+* Add initialization of some variables in SETAB wave routine.
+* Wave induced sediment transport parameter forced to be on when C2SHORE is the transport algorithm.
+
 == Version 5.3.8 (10/27/2023) ==
 * Improve diagnostic output when sediment percentile datasets contain invalid values.
 * Rework Rubble Mound structures to implement corrently in the SMS for constant and dataset specification maintaining backward compatibilty.

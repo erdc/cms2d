@@ -6237,6 +6237,7 @@ contains
         duy=uy2-uy1
         dvy=vy2-vy1
         JJM=JM
+        if(jj .ge. je-1) dhy = 0 !bdj 2023-11-02
 
 ! -- setup of energy dissipation term
 ! -- JJM= local #, JJ= GLOBAL_INLINE #
