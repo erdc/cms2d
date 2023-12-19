@@ -93,9 +93,9 @@
     write(msg,3) ntime,dtime,ctime,number_wet_cells()
     if (ramp.lt.1) then
       write(msg2,5) ramp*100    
-      call diag_print_message(' ',msg2,msg,' Flow: iter    p_res          U_res          V_res')
+      call diag_print_message(' ',msg2,msg,' Flow: iter  p_res          U_res          V_res')
     else
-      call diag_print_message(' ',msg,' Flow: iter    p_res          U_res          V_res')
+      call diag_print_message(' ',msg,' Flow: iter  p_res          U_res          V_res')
     endif
     
 #ifdef PROFILE

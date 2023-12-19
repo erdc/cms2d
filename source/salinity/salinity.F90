@@ -477,7 +477,7 @@ d1: do k=1,10
     ctime = stime       
     call bndsaleval        
     write(*,*) 'Salinity Initial Condition' 
-    write(*,*) '          Iteration    Residual'
+    write(*,*) '          Iter    Residual'
     do itersal=1,itermaxsal*3
       call coeffinitsal                  !for Laplace equation  
       call boundinit_sal
@@ -542,7 +542,7 @@ d1: do k=1,10
     if(debug_mode) call check_variables(5)
     
     !call diag_print_message(' Salinity: itersal  ResidualSal')
-    call diag_print_message(' Salinity: iteration     residual')
+    call diag_print_message(' Salinity: iter  residual')
     rmom(5)=100.0
     itersal=0
     tempsal = sal    !Added 6/21/2016 meb

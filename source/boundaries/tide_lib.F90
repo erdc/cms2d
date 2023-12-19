@@ -1964,7 +1964,7 @@ contains
       tdbfile = trim(tdbpath) // 'ec2001.tdb'
     elseif(tdbname(1:6)=='EC2015') then                       !ADCIRC Eastern Continental 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2012_v3d_chk.grd'
-      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'ec2012_v3d_otis3_fort'
       is2015 = .true.
     elseif(tdbname(1:9)=='ENPAC2003')then                     !ADCIRC Pacific 2003 Tidal Database
@@ -1972,7 +1972,7 @@ contains
       tdbfile = trim(tdbpath) // 'enpac2003.tdb'
     elseif(tdbname(1:9)=='ENPAC2015')then                     !ADCIRC Pacific 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'wc2015_v1a_chk.grd'
-      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'wc2015-v1a_1200tau1dt1VDatum_fort'
       is2015 = .true.
     endif  
