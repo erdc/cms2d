@@ -2093,7 +2093,7 @@
 
 !--- Nested Tidal Database WSE and Velocity BC (Type 10-NTHV) --------------------------------    
     do iwse=1,nNTHVstr  !for each cell string
-      j=NTH_str(iwse)%ncells/2 !Use center cell as approximate value
+      j=NTHV_str(iwse)%ncells/2 !Use center cell as approximate value
       tideiwse = NTHV_str(iwse)%wseoffset
       do k=1,NTHV_str(iwse)%ntc            
         tideiwse = tideiwse + NTHV_str(iwse)%amp(j,k) &

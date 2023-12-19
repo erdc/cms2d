@@ -1964,7 +1964,7 @@ contains
       tdbfile = trim(tdbpath) // 'ec2001.tdb'
     elseif(tdbname(1:6)=='EC2015') then                       !ADCIRC Eastern Continental 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2012_v3d_chk.grd'
-      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'ec2012_v3d_otis3_fort'
       is2015 = .true.
     elseif(tdbname(1:9)=='ENPAC2003')then                     !ADCIRC Pacific 2003 Tidal Database
@@ -1972,7 +1972,7 @@ contains
       tdbfile = trim(tdbpath) // 'enpac2003.tdb'
     elseif(tdbname(1:9)=='ENPAC2015')then                     !ADCIRC Pacific 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'wc2015_v1a_chk.grd'
-      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'wc2015-v1a_1200tau1dt1VDatum_fort'
       is2015 = .true.
     endif  
@@ -2216,6 +2216,7 @@ contains
 !**************************************************************
     use prec_def
     use diag_lib, only: diag_print_error
+    
     implicit none
     !Input/Output
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
@@ -2243,9 +2244,16 @@ contains
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
     real    :: pcnt(4)
     integer :: npcnt
-    character(len=10) :: nametdb(ntcmax)   
+    character(len=10) :: nametdb(ntcmax), temp 
     character(len=200) :: file53, file54, tdbprefix
-   
+
+    interface
+      function toUpper(str) result(aString)
+        character(len=*), intent(in)  :: str
+        character(len=len(str))       :: aString
+      end function
+    end interface 
+    
     iloc=index(tdbfile,'.')
     tdbprefix=tdbfile(1:iloc)
     file53 = trim(trim(tdbprefix)//'53')
@@ -2279,7 +2287,10 @@ contains
       n=0
       do k=1,ntcin
         do j=1,ntctdb
-          if(namein(k)==nametdb(j))then   !name was wrong here, MEB  08/16/2023
+          temp = toUpper(nametdb(j))
+          if (namein(k) == 'LAM2') namein(k) = 'LDA2'
+          if (namein(k) == 'RHO')  namein(k) = 'RHO1'
+          if (namein(k) == temp) then   !name was wrong here, MEB  08/16/2023
             n = n + 1
             ind(n) = j
             exit

@@ -826,10 +826,11 @@ contains
     ind = 0
     do k=1,ntc
       do j=1,ntf
-        if(name(k)==nametemp(j))then
+        temp = toUpper(name(k))
+        if(temp==nametemp(j))then
           ind(k) = j
           exit
-        elseif(name(k)=='STEADY')then
+        elseif(temp=='STEADY')then
           ind(k) = 0
           exit
         elseif(j==ntf)then
