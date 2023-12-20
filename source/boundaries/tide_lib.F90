@@ -2243,8 +2243,15 @@ contains
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
     real    :: pcnt(4)
     integer :: npcnt
-    character(len=10) :: nametdb(ntcmax)   
+    character(len=10) :: nametdb(ntcmax), temp
     character(len=200) :: file53, file54, tdbprefix
+    
+    interface
+      function toUpper(str) result(aString)
+        character(len=*), intent(in)  :: str
+        character(len=len(str))       :: aString
+      end function
+    end interface     
    
     iloc=index(tdbfile,'.')
     tdbprefix=tdbfile(1:iloc)
@@ -2258,7 +2265,6 @@ contains
       if (ntctdb .ne. ntctdb2) call diag_print_error('Number of consitituents is different in Tidal Database files')
     endif
     if(ntctdb>ntcmax) call diag_print_error('Maximum number of constituents are exceeded in Tidal Database Files')
-
     
     !Read header
     do j=1,ntctdb
@@ -2279,7 +2285,10 @@ contains
       n=0
       do k=1,ntcin
         do j=1,ntctdb
-          if(namein(k)==nametdb(j))then   !name was wrong here, MEB  08/16/2023
+          temp = toUpper(nametdb(j))
+          if (namein(k) == 'LAM2') namein(k) = 'LDA2'
+          if (namein(k) == 'RHO')  namein(k) = 'RHO1'
+          if (namein(k) == temp) then   !name was wrong here, MEB  08/16/2023
             n = n + 1
             ind(n) = j
             exit
@@ -2295,7 +2304,7 @@ contains
       do j=1,ntc
         ind(j) = j
       enddo
-    endif
+    endif	
     
     allocate(name(ntc),speed(ntc))
     do j=1,ntc

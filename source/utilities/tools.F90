@@ -1042,20 +1042,39 @@
     implicit none
     character(len=*), intent(in)  :: str
     character(len=len(str))       :: aString
-    integer :: i,del
+    integer, parameter :: offset = iachar('a') - iachar('A')
+    integer :: i
 
-    del = iachar('a') - iachar('A')
-    do i=1,len_trim(str)
-      if(lge(str(i:i),'a') .and. lle(str(i:i),'z'))then
-        aString(i:i) = achar(iachar(str(i:i)) - del)
-      else
-        aString(i:i) = str(i:i)
-     endif
+    aString = str
+    do i=1, len(aString)
+      select case(aString(i:i))
+      case("a":"z")
+        aString(i:i) = achar(iachar(aString(i:i)) - offset)
+      end select
     enddo
 
     return
     end function toUpper
+    
+!********************************************************
+    function toLower(str) result(aString)
+!********************************************************
+    implicit none
+    character(len=*), intent(in)  :: str
+    character(len=len(str))       :: aString
+    integer, parameter :: offset = iachar('a') - iachar('A')
+    integer :: i
 
+    aString = str
+    do i=1,len(aString)
+      select case(aString(i:i))
+      case("A":"Z")
+        aString(i:i) = achar(iachar(aString(i:i)) + offset)
+      end select
+    enddo
+    
+    return
+    end function toLower
 
 !********************************************************
     subroutine lowercase(str)
@@ -1073,26 +1092,6 @@
 
     return
     end subroutine lowercase
-
-!********************************************************
-    function toLower(str) result(aString)
-!********************************************************
-    implicit none
-    character(len=*), intent(in)  :: str
-    character(len=len(str))       :: aString
-    integer :: i,del
-
-    del = iachar('a') - iachar('A')
-    do i=1,len_trim(str)
-      if(lge(str(i:i),'A') .and. lle(str(i:i),'Z'))then
-        aString(i:i) = achar(iachar(str(i:i)) + del)
-      else
-        aString(i:i) = str(i:i)
-      endif
-    enddo
-
-    return
-    end function toLower
 
     
 !*************************************************************
