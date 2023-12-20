@@ -3,6 +3,7 @@
 * Wave induced sediment transport parameter forced to be on when C2SHORE is the transport algorithm.
 * Improve diagnostic output when sediment percentile datasets contain invalid values.
 * Rework Rubble Mound structures to implement corrently in the SMS for constant and dataset specification maintaining backward compatibilty.
+* Bugfix for some Tidal Database forcing issues.
 
 == Version 5.3.7 (10/19/2023) ==
 * Start adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
