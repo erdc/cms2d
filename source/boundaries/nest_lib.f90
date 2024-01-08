@@ -734,7 +734,7 @@ contains
     call tidal_data(iyr,nametemp,speedtemp,mcyctemp,ftemp,vutemp)
     
     !If Projection is not specified (local), then assume Geographic, NAD83, degrees
-    if(projtdb%iHorizDatum==2)then !2=Local
+    if(projtdb%iHorizDatum == 2)then !2=Local
       call diag_print_warning('Tidal Database Horizontal Projection not specified',' Assuming Projection: Geographic, NAD83, degrees')
       projtdb%iHorizDatum = 1         !Horizontal Datum = NAD83
       projtdb%iHorizCoordSystem = 0   !Horizontal Coordinate System = GEOGRAPHIC

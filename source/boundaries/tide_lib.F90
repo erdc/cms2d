@@ -1964,7 +1964,7 @@ contains
       tdbfile = trim(tdbpath) // 'ec2001.tdb'
     elseif(tdbname(1:6)=='EC2015') then                       !ADCIRC Eastern Continental 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'ec2012_v3d_chk.grd'
-      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'ec2012_v3d_otis3_fort.tdb'              !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'ec2012_v3d_otis3_fort'
       is2015 = .true.
     elseif(tdbname(1:9)=='ENPAC2003')then                     !ADCIRC Pacific 2003 Tidal Database
@@ -1972,7 +1972,7 @@ contains
       tdbfile = trim(tdbpath) // 'enpac2003.tdb'
     elseif(tdbname(1:9)=='ENPAC2015')then                     !ADCIRC Pacific 2015 Tidal Database
       tdbgrid = trim(tdbpath) // 'wc2015_v1a_chk.grd'
-      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist
+      tdbfile = trim(tdbpath) // 'wc2015-v1a_1200tau1dt1VDatum_fort.tdb'  !This file doesn't exist, only individual .53/.54 files. Code uses `tdbpre` to get names right.
       tdbpre = 'wc2015-v1a_1200tau1dt1VDatum_fort'
       is2015 = .true.
     endif  
@@ -2216,6 +2216,7 @@ contains
 !**************************************************************
     use prec_def
     use diag_lib, only: diag_print_error
+    
     implicit none
     !Input/Output
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
@@ -2243,16 +2244,16 @@ contains
     real(ikind) :: vak(ntcmax),vpk(ntcmax)
     real    :: pcnt(4)
     integer :: npcnt
-    character(len=10) :: nametdb(ntcmax), temp
+    character(len=10) :: nametdb(ntcmax), temp 
     character(len=200) :: file53, file54, tdbprefix
-    
+
     interface
       function toUpper(str) result(aString)
         character(len=*), intent(in)  :: str
         character(len=len(str))       :: aString
       end function
-    end interface     
-   
+    end interface 
+    
     iloc=index(tdbfile,'.')
     tdbprefix=tdbfile(1:iloc)
     file53 = trim(trim(tdbprefix)//'53')
@@ -2265,6 +2266,7 @@ contains
       if (ntctdb .ne. ntctdb2) call diag_print_error('Number of consitituents is different in Tidal Database files')
     endif
     if(ntctdb>ntcmax) call diag_print_error('Maximum number of constituents are exceeded in Tidal Database Files')
+
     
     !Read header
     do j=1,ntctdb
@@ -2304,7 +2306,7 @@ contains
       do j=1,ntc
         ind(j) = j
       enddo
-    endif	
+    endif
     
     allocate(name(ntc),speed(ntc))
     do j=1,ntc
@@ -2396,15 +2398,15 @@ contains
     use prec_def
     implicit none
     !--- Input/Output -------------
-    integer,    intent(in)    :: npts
-    real(ikind),intent(in)    :: xpts(npts),ypts(npts)
-    integer,    intent(in)    :: ntcin
-    character(len=*),intent(in)    :: namein(ntcin)
-    integer,    intent(inout) :: ntc
-    character(len=10),intent(out),pointer :: name(:)
-    real(ikind),intent(out),pointer :: etamp(:,:),etpha(:,:) 
+    integer,    intent(in)      :: npts
+    real(ikind),intent(in)      :: xpts(npts),ypts(npts)
+    integer,    intent(in)      :: ntcin
+    integer,    intent(inout)   :: ntc
     character(len=*),intent(in) :: tdbname
     character(len=*),intent(in) :: tdbpath        
+    character(len=*),intent(inout),pointer :: namein(:)
+    character(len=10),intent(out),pointer  :: name(:)
+    real(ikind),intent(out),pointer        :: etamp(:,:),etpha(:,:) 
     !---- Internal Variables ----------
     integer :: k
     
@@ -2527,15 +2529,16 @@ contains
     !INTERNAL VARIABLES
     integer :: i,ii,j,k,n,nlon,nlat
     real(ikind),allocatable :: Ga(:,:),Gp(:,:)
-    integer     :: ixlo,ixhi,jylo,jyhi
-    real(ikind) :: phi(4),c(4),s(4),tc,ts,dlon,dlat
-    real(ikind) :: latmin,latmax,lonmin,lonmax,xlonlo,ylatlo
-    real(ikind) :: xmin,xmax,ymin,ymax
-    integer     :: imin,imax,jmin,jmax
-    real(ikind) :: UNDEFa,UNDEFp,UNDEF,zeta,eta,amp,pha
-    character*55:: datafile,ampfile,phafile,suffix
-    character*3 :: consname
-    logical     :: found      
+    integer       :: ixlo,ixhi,jylo,jyhi
+    real(ikind)   :: phi(4),c(4),s(4),tc,ts,dlon,dlat
+    real(ikind)   :: latmin,latmax,lonmin,lonmax,xlonlo,ylatlo
+    real(ikind)   :: xmin,xmax,ymin,ymax
+    integer       :: imin,imax,jmin,jmax
+    real(ikind)   :: UNDEFa,UNDEFp,UNDEF,zeta,eta,amp,pha
+    character*200 :: datafile
+    character*55  :: ampfile,phafile,suffix
+    character*3   :: consname
+    logical       :: found      
     
     !Calculate domain of input points
     xmax = maxval(xlon)
