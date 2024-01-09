@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[tool.hatch.build]
+exclude = [
+  "/docs"
+]
+
+[project]
+name = "cms2d"
+version = "5.3"
+authors = [
+  { name = "Mitchell Brown", email = "mitchell.e.brown@usace.army.mil" },
+]
+maintainers = [
+  { name = "Mitchell Brown", email = "mitchell.e.brown@usace.army.mil"},
+  { name = "Honghai Li" },
+  { name = "Lihwa Lin" },
+  ( name = "Elizabeth Holzenthal" },
+]
+description = "A coastal modeling system that couples a wave, circulation, and morphology model together to get better predictions in the near-shore."
+readme = "README.md"
+license = {file = "UNLICENSE.md"}
+keywords = ["hydrodynamics", "non-cohesive transport", "model", "phase-averaged waves"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: Unlicensed",
+  "Natural Language :: English",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Fortran :: 95",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.optional-dependencies]
+  dev = [
+  "Sphinx<7",
+  "sphinx-rtd-theme",
+  "sphinxcontrib-bibtex>=2.5.0",
+  "sphinx-copybutton==0.5.2",
+  "plot==0.6.5",
+  "nbsphinx>=0.9.2",
+  ]
+
+[project.urls]
+Homepage = "https://github.com/erdc/cms2d"
+Documentation = "https://cms.readthedocs.io"
+"Bug Tracker" = "https://github.com/erdc/cms2d/issues"
