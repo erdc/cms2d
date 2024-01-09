@@ -1,6 +1,6 @@
 !=========================================================
 module veg_def
-! Vegegation drag for hydrodynamics
+! Vegetation drag for hydrodynamics
 !=========================================================
     use prec_def
     implicit none

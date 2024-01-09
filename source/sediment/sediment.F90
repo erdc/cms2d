@@ -1759,6 +1759,7 @@ d1: do ii=1,30
           end select  
         endif
         
+        msg2 = 'Percentile datasets cannot have negative values.'                    !Added to check for negative values  10/26/23  MEB   
         select case(bedlay(j)%ipbkinp)
         case(0) !None
           if(j==1)then
@@ -1783,16 +1784,10 @@ d1: do ii=1,30
             call diag_print_error(msg2)
           end select
           
-          if(ierr<0) call dper_read_error_msg(file,path)          
+          if(ierr<0) call dper_read_error_msg(file,path)     
+          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d50sigma(nsed,diam,diamlim,d50lay,bedlay(j)%geostddev,pbk(:,:,j)) !Note: assumes units of mm for d50, diam, sedsigma       
           deallocate(d50lay)
-          
-          !open(unit=4045,file='initialbedcomp.txt')
-          !do i=1,ncells
-          !    write(4045,*)x(i),y(i),(pbk(i,k,1),k=1,nsed)
-          !enddo
-          !close(4045)
-          !stop
           
         case(2)  !D16, D50, D84
           OutPerDiam(ipd(16)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(84)) = .true.
@@ -1811,7 +1806,8 @@ d1: do ii=1,30
             call readscalTxt(file,d16lay,ierr)
           end select
           
-          if(ierr<0) call dper_read_error_msg(file,path)       
+          if(ierr<0) call dper_read_error_msg(file,path)
+          if(minval(d16lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
           
           call fileext(trim(file),aext)      
@@ -1825,6 +1821,7 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)     
+          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(84))%file; path = bedlay(j)%perdiam(ipd(84))%path
 
           call fileext(trim(file),aext)      
@@ -1838,14 +1835,15 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)          
+          if(minval(d84lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d16d50d84(nsed,diam,diamlim,d16lay,d50lay,d84lay,pbk(:,:,j))
           deallocate(d16lay,d50lay,d84lay)
           
         case(3) !D35, D50, D90
           OutPerDiam(ipd(35)) = .true.; OutPerDiam(ipd(50)) = .true.; OutPerDiam(ipd(90)) = .true. 
-          allocate(d35lay(ncellsD))
-          allocate(d90lay(ncellsD))
-          if (.not. allocated(d50lay)) allocate(d50lay(ncellsD))   !This is probably already allocated from above - MEB  07/20/22
+          if(.not.allocated(d35lay)) allocate(d35lay(ncellsD))
+          if(.not.allocated(d90lay)) allocate(d90lay(ncellsD))
+          if(.not.allocated(d50lay)) allocate(d50lay(ncellsD))
           file = bedlay(j)%perdiam(ipd(35))%file; path = bedlay(j)%perdiam(ipd(35))%path
 
           call fileext(trim(file),aext)      
@@ -1859,6 +1857,7 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)       
+          if(minval(d35lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
           
           call fileext(trim(file),aext)      
@@ -1871,6 +1870,7 @@ d1: do ii=1,30
             call readscalTxt(file,d50lay,ierr)
           end select
           if(ierr<0) call dper_read_error_msg(file,path)   
+          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(90))%file; path = bedlay(j)%perdiam(ipd(90))%path
           
           call fileext(trim(file),aext)      
@@ -1884,6 +1884,7 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path) 
+          if(minval(d90lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d35d50d90(nsed,diam,diamlim,d35lay,d50lay,d90lay,pbk(:,:,j)) !Calculates grain size distribution from D35,D50,D90
           deallocate(d35lay,d50lay,d90lay)
           
@@ -2047,6 +2048,7 @@ d1: do ii=1,30
         end select
         
         if(ierr<0) call dper_read_error_msg(file,path)        
+        if(minval(d50).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB        
         d50 = d50/1000.0
       endif      
       if(.not.allocated(sedclass))then  !No grain size specified. Determine from d50
