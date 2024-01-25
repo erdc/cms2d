@@ -1072,7 +1072,7 @@
         aString(i:i) = achar(iachar(aString(i:i)) + offset)
       end select
     enddo
-
+    
     return
     end function toLower
 

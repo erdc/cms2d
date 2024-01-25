@@ -1,14 +1,19 @@
 What's New
 ==========
-v5.3.8 (27 October 2023)
+v5.3.8 (08 January 2024) 
 ------------------------
-
+ 
 Improvements
 ^^^^^^^^^^^^
-* Rework Rubble Mound structures to implement corrently in the SMS v13.3.xx for constant and dataset specification maintaining backward compatibilty.
-* Improve diagnostic output when sediment percentile datasets contain invalid values.
+* Update for internal path length for tidal database file locations.
 
-v5.3.7 (19 October 2023)
+Notice
+^^^^^^
+* Investigating an issue with internal mapping from UTM to Lat/Long in tidal database cases. 
+  * Use State Plane if possible.
+
+
+v5.3.7.1 (20 December 2023)
 ------------------------
 
 Improvements
@@ -18,7 +23,9 @@ Improvements
 
 Bug fixes
 ^^^^^^^^^
-*  Tidal boundary conditions where an offset was used. The offset was being applied twice which doubled the effect.
+* Tidal boundary conditions where an offset was used. The offset was being applied twice which doubled the effect.
+* Steering for ADCIRC tidal databases with waves.
+* Some tidal database forcing issues.
 
 Documentation
 ^^^^^^^^^^^^^

@@ -2398,15 +2398,15 @@ contains
     use prec_def
     implicit none
     !--- Input/Output -------------
-    integer,    intent(in)    :: npts
-    real(ikind),intent(in)    :: xpts(npts),ypts(npts)
-    integer,    intent(in)    :: ntcin
-    character(len=*),intent(in)    :: namein(ntcin)
-    integer,    intent(inout) :: ntc
-    character(len=10),intent(out),pointer :: name(:)
-    real(ikind),intent(out),pointer :: etamp(:,:),etpha(:,:) 
+    integer,    intent(in)      :: npts
+    real(ikind),intent(in)      :: xpts(npts),ypts(npts)
+    integer,    intent(in)      :: ntcin
+    integer,    intent(inout)   :: ntc
     character(len=*),intent(in) :: tdbname
     character(len=*),intent(in) :: tdbpath        
+    character(len=*),intent(inout),pointer :: namein(:)
+    character(len=10),intent(out),pointer  :: name(:)
+    real(ikind),intent(out),pointer        :: etamp(:,:),etpha(:,:) 
     !---- Internal Variables ----------
     integer :: k
     
@@ -2529,15 +2529,16 @@ contains
     !INTERNAL VARIABLES
     integer :: i,ii,j,k,n,nlon,nlat
     real(ikind),allocatable :: Ga(:,:),Gp(:,:)
-    integer     :: ixlo,ixhi,jylo,jyhi
-    real(ikind) :: phi(4),c(4),s(4),tc,ts,dlon,dlat
-    real(ikind) :: latmin,latmax,lonmin,lonmax,xlonlo,ylatlo
-    real(ikind) :: xmin,xmax,ymin,ymax
-    integer     :: imin,imax,jmin,jmax
-    real(ikind) :: UNDEFa,UNDEFp,UNDEF,zeta,eta,amp,pha
-    character*55:: datafile,ampfile,phafile,suffix
-    character*3 :: consname
-    logical     :: found      
+    integer       :: ixlo,ixhi,jylo,jyhi
+    real(ikind)   :: phi(4),c(4),s(4),tc,ts,dlon,dlat
+    real(ikind)   :: latmin,latmax,lonmin,lonmax,xlonlo,ylatlo
+    real(ikind)   :: xmin,xmax,ymin,ymax
+    integer       :: imin,imax,jmin,jmax
+    real(ikind)   :: UNDEFa,UNDEFp,UNDEF,zeta,eta,amp,pha
+    character*200 :: datafile
+    character*55  :: ampfile,phafile,suffix
+    character*3   :: consname
+    logical       :: found      
     
     !Calculate domain of input points
     xmax = maxval(xlon)

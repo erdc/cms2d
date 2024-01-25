@@ -1,15 +1,15 @@
-== Version 5.3.8 (12/13/2023) ==
-* Add initialization of some variables in SETAB wave routine.
-* Wave induced sediment transport parameter forced to be on when C2SHORE is the transport algorithm.
-* Improve diagnostic output when sediment percentile datasets contain invalid values.
-* Rework Rubble Mound structures to implement corrently in the SMS for constant and dataset specification maintaining backward compatibilty.
-* Bugfix for some Tidal Database forcing issues.
+== Version 5.3.8 (01/08/2024) == 
+* Update for internal path length for tidal database file locations.
+* Investigating an issue with internal mapping from UTM to Lat/Long in tidal database cases. 
+** Use State Plane if possible.
 
-== Version 5.3.7 (10/19/2023) ==
-* Start adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
+== Version 5.3.7.1 (12/20/2023) ==
+* Began adding CF Compliant naming to HDF5 solution datasets (not yet implemented).
 * Incremented CMS-Wave version number to 3.3. The code was modified in 2021 but the number was not incremented.
 * Fix for Tidal boundaries where Offset used - it was doubling the offset.
 * Getting ready for Open Source - several files are modified/moved.
+* BugFix in Steering for ADCIRC tidal databases with waves.
+* BugFix for some tidal database forcing issues.
 
 == Version 5.3.6 (09/26/2023) ==
 * Minor fixes and diagnostic output improvements for Rubble Mound Jetties with SMS 13.3+.

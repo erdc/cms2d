@@ -910,6 +910,7 @@ contains
       endif
     elseif(projfrom%iHorizCoordSystem==1)then !from UTM
       if(projto%iHorizCoordSystem==0)then !to Geographic
+        call diag_print_warning("Potential Issues with UTM to LL mapping.", "- Use State Plane for grid, if needed.")
         ZCODE = projfrom%iHorizZone
         WGS_84_DATUM = 3
         RLON = -177.0d0 + (zcode-1)*6.0d0  !Get the central merdian for this zone
@@ -921,8 +922,10 @@ contains
           EAST =xpts(i)
           NORTH=ypts(i)
           call utm2ll(EAST,NORTH,RLON,RLAT,grid_zone,WGS_84_DATUM)
-          xpts(i)=RLON*rad2deg          
-          ypts(i)=RLAT*rad2deg
+          !xpts(i)=RLON*rad2deg       !Test MEB  01/05/2024   The UTM2LL subroutine already returns in degrees.  This caused bad values.
+          !ypts(i)=RLAT*rad2deg       !                       How did this ever work?
+          xpts(i)=RLON
+          ypts(i)=RLAT
           if(xpts(i)<180.0) xpts(i)=-xpts(i)
         enddo
       else
