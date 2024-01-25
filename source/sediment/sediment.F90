@@ -385,10 +385,7 @@
         endif
       enddo
       if (found) then         !meb 05/09/22
-        if (acapac(i) == 'C2SHORE') then
-          c2shore = .true.
-          wavesedtrans = .true.               !Added 12/13/2023 MEB - We should decide if this is correct, or if we need to have it as an option for the user in the SMS interface.
-        endif
+        if (acapac(i) == 'C2SHORE') c2shore = .true.
       else
         call diag_print_error('TRANSPORT_FORMULA option, "'//trim(cdum)//'", not found. Cannot continue.')
       endif        

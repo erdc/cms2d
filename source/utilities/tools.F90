@@ -833,14 +833,14 @@
 ! written by Mitch Brown, USACE-CHL 06/25/2021
 !
 ! The correct interface is given below
-    !interface  
-    ! function findCard(aFile,aCard,aValue)
-    !    character(len=*),intent(in)    :: aFile
-    !    character(len=*),intent(in)    :: aCard
-    !    character(len=100),intent(out) :: aValue
-    !    logical :: findCard
-    !  end function
-    !end interface
+        !interface  
+        ! function findCard(aFile,aCard,aValue)
+        !    character(len=*),intent(in)    :: aFile
+        !    character(len=*),intent(in)    :: aCard
+        !    character(len=100),intent(out) :: aValue
+        !    logical :: findCard
+        !  end function
+        !end interface
 !******************************************************    
     implicit none
     character(len=*), intent(in)    :: aFile
@@ -1309,4 +1309,51 @@
     
     return
     end subroutine
+    
+!************************************************************
+Subroutine get_current_dir(dir_name)
+!************************************************************
+    USE ISO_C_BINDING
+
+    Implicit NONE
+    Character(LEN=:), ALLOCATABLE, Intent(INOUT) :: dir_name
+    Type(C_PTR)             :: c_str_ptr
+    Character(132), Pointer :: f_str_ptr
+    Integer :: ilen, inull
+
+    Interface
+      Function c_getcwd(buf, size) BIND(C, NAME="getcwd")
+        IMPORT :: C_PTR, C_SIZE_T
+        Type(C_PTR),       VALUE :: buf
+        Integer(C_SIZE_T), VALUE :: size
+        Type(C_PTR)              :: c_getcwd
+      End Function c_getcwd
+    End Interface
+
+    Interface
+      Subroutine c_free(ptr) BIND(C,name="free")
+        IMPORT :: C_PTR
+        Implicit NONE
+        Type(C_PTR), VALUE :: ptr
+      End Subroutine c_free
+    End Interface
+
+    c_str_ptr = c_getcwd(C_NULL_PTR, 132_C_SIZE_T)
+
+    Call C_F_POINTER(c_str_ptr, f_str_ptr)
+
+    ilen  = LEN_TRIM(f_str_ptr)
+    inull = INDEX(f_str_ptr, C_NULL_CHAR)
+    If (inull /= 0) ilen = inull-1
+    ilen = MAX(1, MIN(ilen,132))
+
+    dir_name = TRIM(ADJUSTL(f_str_ptr(1:ilen)))
+
+    NULLIFY(f_str_ptr)
+
+    If (C_ASSOCIATED(c_str_ptr)) Then
+      Call c_free(c_str_ptr)
+    End If
+
+End Subroutine get_current_dir
     
