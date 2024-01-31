@@ -1062,7 +1062,7 @@
     use tool_def, only: vstrlz
     
     implicit none
-    integer :: i,iunit(2)
+    integer :: i,iunit(2), tdays, thours
 
 111  format(' ',A)
 222  format(' ',A,T40,A)    
@@ -1074,6 +1074,7 @@
 788  format(' ',A,T40,1x,A,A)
 800  format(' ',A,T40,1pe10.3,A)    
 801  format(' ',A,T40,I0)
+802  format(' ',A,T40,I0,' days, ',I0,' hours')     
 5431 format(' ','    Simulation Start Time: 'T40,I4,'-',I2.2,'-',I2.2,' ',I2.2,':',I2.2,':',I2.2,' UTC')
     
 !Note: There is no float format for a leading zero if value is <1.  
@@ -1082,6 +1083,8 @@
     iunit = (/6, dgunit/)
     open(dgunit,file=dgfile,access='append') 
     
+    thours = mod(tmax,24.0)
+    tdays = (tmax-thours)/24
     do i=1,2    
       write(iunit(i),*)        
       write(iunit(i),111)       'Hydrodynamics'  
@@ -1095,11 +1098,14 @@
       write(iunit(i),111)       '  Timing'
       write(iunit(i),5431)      iyr,imo,iday,ihr,imin,isec
       write(iunit(i),354)       '    Hydrodynamic time step: ',trim(vstrlz(dtime,'(f0.3)')),' sec'
-      write(iunit(i),354)       '    Simulation Duration: ',trim(vstrlz(tmax,'(f0.3)')),' hours'
+      if (tmax .ge. 24) then
+        write(iunit(i),802)     '    Simulation Duration: ',tdays,thours
+      else
+        write(iunit(i),354)     '    Simulation Duration: ',trim(vstrlz(tmax,'(f0.3)')),' hours'
+      endif
       write(iunit(i),354)       '    Ramp Duration: ',trim(vstrlz(rampdur,'(f0.3)')),' hours'    
 
-      !write(iunit(i),*)    
-      write(iunit(i),111)        '  Wetting and Drying'
+      write(iunit(i),111)       '  Wetting and Drying'
 #ifdef DEV_MODE
       write(iunit(i),354)       '    Minimum Depth: ',trim(vstrlz(hmin,'(1pe10.3)')),' m'
 #endif

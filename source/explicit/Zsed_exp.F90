@@ -24,10 +24,14 @@
     integer :: i,j,ks,ncs,ncw,ii,IDO,nce,ncn
     real(ikind) :: diffT,dxt,dyt,area,voln
     
-741 format(' Sediment: iter      Ctk_res       errpbk')
-751 format(5x,I10,1x,2(E13.4,1x))
-349 format(' Sediment: iter      Ctk_res')
-359 format(5x,I10,1x,E13.4,1x)
+!741 format(' Sediment: iter      Ctk_res       errpbk')
+!751 format(5x,I10,1x,2(E13.4,1x))
+!349 format(' Sediment: iter      Ctk_res')
+!359 format(5x,I10,1x,E13.4,1x)
+741 format(' Sediment: iter     Conc. residual   Bed Comp. residual')
+751 format(5x,I9,3x,2(1pe13.4,4x))
+349 format(' Sediment: iter     Conc. residual')
+359 format(5x,I9,3x,1pe13.4,1x)    
     
     !set zb1 = zb, which is needed for some implicit sub-routines used here to work properly
     zb1 = zb

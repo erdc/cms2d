@@ -1,3 +1,7 @@
+== Version 5.3.9 (01/31/2024) ==
+* Fix for Dredge module diagnostic file not found.
+* Clarified some diagnotic output regarding simulation duration and computed residuals.
+
 == Version 5.3.8 (01/08/2024) == 
 * Update for internal path length for tidal database file locations.
 * Investigating an issue with internal mapping from UTM to Lat/Long in tidal database cases. 

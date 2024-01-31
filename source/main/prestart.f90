@@ -44,7 +44,7 @@
     integer :: k,ierr,icount,ilen,i
     character :: aLetter
     character(len=37) :: cardname,aext
-    character(len=200) :: aname,apath,astring,adir
+    character(len=200) :: aname,apath,astring
     logical :: foundcard, foundfile, foundtel, foundgrid
     
     !Get CMS Version number for setting defaults
@@ -90,22 +90,19 @@
     call watch_default  !Watches
 #endif
 
-    call getcwd(adir)
-
 !--- Read Input and Advanced Card Files -----------------------------   
     do icount=1,2
       if (icount == 1) then                              !First time through process from Input '*.cmcards' file
         call fileparts(ctlfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,'(x,A)') "Current Working Directory:  '"//trim(adir)//"'"
-        write(*,'(x,A)') "Reading CMS-Flow Card File: '"//trim(astring)//"'"
+        !write(*,'(x,A)') "Reading CMS-Flow Card File: '"//trim(astring)//"'"
         open(77,file=ctlfile,status='unknown')
       else                                               !Second time through process from Advanced 'advanced.cmcards' file.  Note: this will overwrite previously read cards if they exist in the file.  
         inquire(file=advfile,exist=foundfile)
         if(.not.foundfile) exit  !no advanced cards to use
         call fileparts(advfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
+        !write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
         open(77,file=advfile,status='unknown')
         read_adv = .true.
       endif

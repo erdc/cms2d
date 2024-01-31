@@ -41,10 +41,13 @@
 #endif
 
 !741 format(' Sediment: iter      Ctk_res       errpbk')
-741 format(' Sediment: iter     Ctk_res       pbk_err')
-751 format(5x,I9,1x,2(1pe13.4,1x))
-349 format(' Sediment: iter      Ctk_res')
-359 format(5x,I9,1x,1pe13.4,1x)
+!751 format(5x,I10,1x,2(E13.4,1x))
+!349 format(' Sediment: iter      Ctk_res')
+!359 format(5x,I10,1x,E13.4,1x)
+741 format(' Sediment: iter     Conc. residual   Bed Comp. residual')
+751 format(5x,I9,3x,2(1pe13.4,4x))
+349 format(' Sediment: iter     Conc. residual')
+359 format(5x,I9,3x,1pe13.4,1x)
       
     !=== Hiding and exposure function ====
     select case(iHidExpForm) !varsigma(i,k)
