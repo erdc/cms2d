@@ -681,9 +681,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         write(iunit(i),341)    'Steering Interval:',trim(vstrlz(dtsteer/3600.0,'(F0.3)')),' hrs'
         write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Interpolation:','LINEAR'
-        !write(iunit(i),764)      '  Extrapolation Distance:   ',xtrpdistwav,' m'         
-        write(iunit(i),*)
-        write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Extrapolation: '
         write(iunit(i),887)    '    Water Level: '
         select case(noptwse)

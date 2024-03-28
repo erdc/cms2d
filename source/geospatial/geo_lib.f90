@@ -645,6 +645,7 @@ contains
     integer, allocatable :: jes(:)  !Element mapping from sub to full grid    
     integer, allocatable :: jns(:)  !Node mapping from full to sub grid    
     real(ikind) :: xnk,ynk
+    real :: xxmax, yymax, xxmin, yymin
     
     !--- Subgrid Element sublist -----------------
     !Find elements that overlap rectangular domain
@@ -652,6 +653,11 @@ contains
     allocate(ies(ne),ins(nn))  
     ies = 0
     ins = 0    
+    xxmax = maxval(xn)
+    xxmin = minval(xn)
+    yymax = maxval(yn)
+    yymin = minval(yn)
+    
     do j=1,ne
       do k=1,3
         n = e2n(k,j)  !Element to node on full grid
@@ -720,6 +726,24 @@ contains
     end subroutine trisubrect
     
 !***********************************************************************
+    subroutine assign_proj_names(proj)
+! Sets the names for each value assigned so it is more readable
+!***********************************************************************
+    use geo_def, only: projection, aHorizDatum, aHorizCoordSystem
+    use geo_def, only: aVertDatum, aVertUnits, aHorizUnits
+    implicit none
+    type(projection),intent(inout) :: proj
+    
+    proj%aHorizDatum       = aHorizDatum(proj%iHorizDatum)
+    proj%aHorizCoordSystem = aHorizCoordSystem(proj%iHorizCoordSystem)
+    proj%aHorizUnits       = aHorizUnits(proj%iHorizUnits)
+    proj%aVertDatum        = aVertDatum(proj%iVertDatum)
+    proj%aVertUnits        = aVertUnits(proj%iVertUnits)
+    
+    return
+    end subroutine assign_proj_names    
+    
+!***********************************************************************
     subroutine proj_default(proj)
 ! Sets the default values for the horizontal and vertical projections
 ! The default values are local and meters for both
@@ -756,6 +780,7 @@ contains
     proj%iVertDatum = iundef          !Vertical Datum = LOCAL
     proj%iVertUnits = iundef          !Vertical units = METERS
     proj%VertOffset = real(iundef)    !Vertical Offset from Datum
+    call assign_proj_names(proj)
     
     return
     end subroutine proj_undef
@@ -810,7 +835,7 @@ contains
 #ifdef PROJ_CONV
 !************************************************************************
     subroutine reproject27(projfrom,projto,ncalc,xpts,ypts)
-! Inteface to gctp.f NAD27 projection conversion library from USGS
+! Interface to gctp.f NAD27 projection conversion library from USGS
 !************************************************************************    
     use geo_def, only: projection
     use prec_def

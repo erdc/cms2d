@@ -2575,7 +2575,8 @@ if(.not.Tread)then
           write(iunit(i),261)   '      Water Level Data Points:',H_str(iwse)%ntimes  
           write(iunit(i),261)   '      Temporal Interp Order:',H_str(iwse)%nti
         else !Constant
-          write(iunit(i),353)   '      Water Level Value:',H_str(iwse)%wseconst,' m'  
+          !write(iunit(i),353)   '      Water Level Value:',,' m'  
+          write(iunit(i),341)   '      Water Level Value:',trim(vstrlz(H_str(iwse)%wseconst,'(f0.3)')),' m'
         endif  
         if (H_str(iwse)%ioffsetmode.eq.1) then
           write(iunit(i),341)   '      Water/Sea Level Change Offset:',trim(vstrlz(H_str(iwse)%wseoffset,'(f0.3)')),' m'

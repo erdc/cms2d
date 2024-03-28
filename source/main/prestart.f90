@@ -26,8 +26,9 @@
     use der_def
     use out_def
     use out_lib
-    use der_lib, only: der_grad_eval
+    use der_lib,    only: der_grad_eval
     use interp_lib, only: interp_scal_cell2face
+    use geo_lib,    only: assign_proj_names
     use diag_def
     use diag_lib
     use const_def
@@ -139,6 +140,7 @@
       enddo
       close(77)
     enddo  
+    call assign_proj_names(projfl)
     
     if(nCards > 0) then
       call diag_print_warning('Unknown cards found:')

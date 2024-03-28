@@ -670,7 +670,7 @@
          !wsefilepar,wsepathpar,velfilepar,velpathpar)
 !*******************************************************************************  
     use comvarbl, only: flowpath
-    use diag_lib, only: diag_print_error
+    use diag_lib, only: diag_print_error, diag_print_warning
     
     implicit none
     character(len=*),intent(inout) :: grdfilepar,ctlfilepar
@@ -723,7 +723,7 @@
     endif
     inquire(file=ctlfilepar,exist=foundfile) 
     if(.not.foundfile)then
-      call diag_print_error('Could not find Parent Control File:', ctlfilepar)
+      call diag_print_warning('Could not find Parent Control File:', ctlfilepar)
     endif
       
     return
