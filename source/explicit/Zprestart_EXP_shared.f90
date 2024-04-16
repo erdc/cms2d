@@ -5,7 +5,7 @@
 !***********************************************************************
 #include "CMS_cpp.h"
     use size_def, only: ncells
-    use geo_def,  only: telfile, igridtype, grdfile, zb, dzbx, dzby, zbk
+    use geo_def,  only: telfile, igridtype, grdfile, zb, dzbx, dzby, zbk, projfl
     use flow_def, only: iwet, iwet1, eta, p, gravinv, ponding, flowvolbal, h0, h, hmin
     use comvarbl, only: ctlfile, input_ver, advfile, read_adv, ctime, nthr
     use cms_def,  only: ncards, cardlist
@@ -19,6 +19,7 @@
     use interp_lib, only: interp_scal_cell2face
     use dredge_def, only: dredging
     use diag_lib, only: diag_print_warning, diag_print_message, diag_print_error
+    use geo_lib,  only: assign_proj_names
 #ifdef DEV_MODE
     use q3d_def
     use veg_def
@@ -127,6 +128,7 @@
       enddo
       close(77)
     enddo  
+    call assign_proj_names(projfl)
     
     if(nCards > 0) then
       call diag_print_warning('Advanced cards found:')

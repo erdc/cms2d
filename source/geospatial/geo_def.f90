@@ -134,6 +134,11 @@ module geo_def
       integer :: iHorizUnits        !Code number for input horizontal coordinate units
       integer :: iVertDatum         !Code number for input vertical coordinate datum
       integer :: iVertUnits         !Code number for input vertical coordinate units
+      character(len=5)  :: aHorizDatum        
+      character(len=40) :: aHorizCoordSystem  
+      character(len=9)  :: aHorizUnits        
+      character(len=6)  :: aVertDatum         
+      character(len=6)  :: aVertUnits         
       real(ikind) :: VertOffset     !Vertical offset from datum
     endtype projection
     type(projection) :: projfl    

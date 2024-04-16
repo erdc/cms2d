@@ -1000,6 +1000,7 @@
     use flow_def, only: grav  !(hli, 11/19/13) 
     use struct_def
     use flow_def, only: viscos
+    use comvarbl, only: SMS_ver
 #ifdef XMDF_IO
     use in_xmdf_lib, only: readscalh5
 #endif
@@ -1020,7 +1021,11 @@
 
     inquire(file=arubmoundfile, exist=exists)
     if (exists) then   !First check if an ID file was specified. 
-      call new_struct_init
+      if (SMS_ver >= 13.3) then
+        call test_new_struct_init_v2
+      else
+        call new_struct_init
+      endif  
     else                              !If not this is the old way.  
       nrubmoundcells = 0
       do i=1,irubmound
@@ -1244,7 +1249,7 @@
       case('txt')
         call readscalTxt(astructporofile,structporo,ierr)
       end select
-          
+      
       kk=0
       do i=1,ncellsfull
         if(structporo(i).gt.0.0) then
@@ -1329,6 +1334,111 @@
     return
     end subroutine new_struct_init
     
+!*****************************************************************************************
+    subroutine test_new_struct_init_v2
+#include "CMS_cpp.h"
+    use geo_def,  only: mapid
+    use size_def, only: ncellsfull
+    use diag_lib, only: diag_print_error
+    use in_lib,   only: readscalTxt
+    use struct_def
+#ifdef XMDF_IO
+    use in_xmdf_lib, only: readscalh5
+#endif
+    implicit none
+    
+    logical :: use_dataset, exists
+    character(len=10)  :: aext
+    character(len=100) :: afile
+    integer :: ierr,i,j,irm,max,num,kk, ival
+    integer, allocatable :: temparray(:)
+
+    !Read all datasets in from disk
+    call fileext(trim(arubmoundfile),aext)
+    select case(aext)
+    case('h5')
+#ifdef XMDF_IO
+      if(arubmoundpath(1:5)/='Empty') call readscalh5(arubmoundfile,arubmoundpath,permeability,ierr)
+      if(arockdiampath(1:5)/='Empty') call readscalh5(arubmoundfile,arockdiampath,rockdiam,ierr)
+      if(astructporopath(1:5)/='Empty') call readscalh5(arubmoundfile,astructporopath,structporo,ierr)
+      if(astructbaseDpath(1:5)/='Empty') call readscalh5(arubmoundfile,astructbaseDpath,structbaseD,ierr)
+#endif
+    case('txt')
+      call readscalTxt(arubmoundfile,permeability,ierr)
+      call readscalTxt(arockdiamfile,rockdiam,ierr)
+      call readscalTxt(astructporofile,structporo,ierr)
+      call readscalTxt(astructbaseDfile,structbaseD,ierr)
+    end select
+
+    allocate(temparray(ncellsfull))
+    temparray=0
+    
+    !Count total number of permeable cells
+    nrubmoundcells = 0
+    if(ierr < 0) call diag_print_error("Cannot open Rubble Mound ID dataset")
+    do i=1,ncellsfull
+      if(permeability(i).gt.0.0) then
+        nrubmoundcells = nrubmoundcells+1
+        temparray(nrubmoundcells) = mapid(i)
+      endif
+    enddo
+  
+    !Allocate rubble mound arrays to correct size
+    if(nrubmoundcells.gt.0)then
+      allocate(nrubmound(0:nrubmoundcells))
+      allocate(rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells))
+      allocate(rubmoundbotm(nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells))
+      allocate(idrubmound(nrubmoundcells),rubmoundname(nrubmoundcells)) 
+      nrubmound = 0; rubmounda = 0.0; rubmoundb = 0.0; methrubmoundab = 0
+      rubmoundbotm = 0.0; rubmounddia = 0.0; rubmoundporo = 0.0; idrubmound = 0 
+    endif
+
+    !Assign each rubble mound cell an index number and id value
+    do irm=1,nrubmoundcells
+      idrubmound(irm) = temparray(irm)
+      nrubmound(irm) = irm
+    enddo
+    deallocate(temparray)
+  
+    !Allocate each rubble mound structures 'cells' array.
+    max = maxval(permeability)
+    do i = 1, max
+      num = count(permeability==float(i))
+      if (.not.allocated(RM_struct(i)%cells)) allocate(RM_struct(i)%cells(num))
+      RM_struct(i)%ncells = num
+    enddo
+  
+    kk=0
+    do i=1,ncellsfull
+      if(permeability(i).gt.0.0) then
+        kk = kk + 1
+        if(allocated(rockdiam))    rubmounddia(kk)    = rockdiam(i)
+        if(allocated(structporo))  rubmoundporo(kk)   = structporo(i)
+        if(allocated(structbaseD)) rubmoundbotm(kk)   = structbaseD(i)
+        if(allocated(structmeth))  methrubmoundab(kk) = structmeth(i)
+    
+        !Assign Cell ids
+        ival = int(permeability(i))
+        RM_struct(ival)%inc = RM_struct(ival)%inc + 1
+        RM_struct(ival)%cells(RM_struct(ival)%inc) = mapid(i)
+        rubmoundname(kk) = RM_struct(ival)%name
+      endif
+    enddo
+    
+    kk=0
+    do irm=1,irubmound
+      do j=1,RM_struct(irm)%ncells
+        kk=kk+1
+        if(RM_struct(irm)%rubmoundmeth .gt. 0)        methrubmoundab(kk) = RM_struct(irm)%rubmoundmeth
+        if(RM_struct(irm)%rockdia_const .gt. 0.0)     rubmounddia(kk)    = RM_struct(irm)%rockdia_const
+        if(RM_struct(irm)%structporo_const .gt. 0.0)  rubmoundporo(kk)   = RM_struct(irm)%structporo_const
+        if(RM_struct(irm)%structbaseD_const .gt. 0.0) rubmoundbotm(kk)   = RM_struct(irm)%structbaseD_const
+      enddo
+    enddo    
+    
+    return
+    end subroutine test_new_struct_init_v2
+    
     
 !*****************************************************************************************
     subroutine struct_print()
@@ -1365,6 +1475,7 @@
       !Added more information to diagnostic summary - MEB  09/25/23
       if (irubmound > 0) then
         write(iunit(i),241)   '    Number of Rubble Mounds:',irubmound 
+        !if (use_dset) write(iunit(i),111)   '    Rubble Mound Dataset File:',trim(rm_struct(j)%rockdia_dset(1))
         do j=1,irubmound
           write(iunit(i),112) '      Rubble Mound Structure: ',j
           if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 

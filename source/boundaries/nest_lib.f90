@@ -575,7 +575,7 @@ contains
 ! Calculates the interpolation coefficients
 !***********************************************************************************
     use geo_def, only: projection,projfl,azimuth_fl
-    use geo_lib, only: read_grid14,proj_horiz_conv
+    use geo_lib, only: read_grid14,proj_horiz_conv,assign_proj_names
     use const_def, only: deg2rad
     use interp_lib, only: interp_coef_tri2pts
     use diag_lib
@@ -617,7 +617,8 @@ contains
       projpar%iHorizUnits = 4         !Horizontal Units = DEGREES
       projpar%iVertDatum = 9          !Vertical Datum = LOCAL
       projpar%iVertUnits = 2          !Vertical units = METERS
-      projpar%VertOffset = 0.0       !Vertical offset from datum
+      projpar%VertOffset = 0.0        !Vertical offset from datum
+      call assign_proj_names(projpar)
     endif
     
     !Reproject parent grid to child grid projection
@@ -689,7 +690,7 @@ contains
 !**********************************************************************************
     use geo_def,   only: azimuth_fl
     use geo_def,   only: projection,projfl
-    use geo_lib,   only: proj_horiz_conv
+    use geo_lib,   only: proj_horiz_conv,assign_proj_names
     use comvarbl,  only: tjulhr0,tjulhryr,iyr
     use const_def, only: deg2rad,twopi
     use tide_lib,  only: tide_adcirc,tide_fes,tidal_data
@@ -722,6 +723,8 @@ contains
     real(ikind) :: speedtemp(ntf),ftemp(ntf),vutemp(ntf)
     character(len=10) :: nametemp(ntf),first,num,temp
     character(len=100) :: msg2,msg3,msg4,msg5
+    real(ikind) :: xmin,ymin,xmax,ymax                        !Added just for testing 3/1/24 MEB
+    real(ikind) :: xxmin,yymin,xxmax,yymax                    !Added just for testing 3/1/24 MEB
     
     interface
       function toUpper(str) result(aString)
@@ -742,11 +745,16 @@ contains
       projtdb%iVertDatum = 9          !Vertical Datum = LOCAL
       projtdb%iVertUnits = 2          !Vertical units = METERS
       projtdb%VertOffset = 0.0        !Vertical offset from datum
+      call assign_proj_names(projtdb)
     endif
     
     !Reproject input coordinates to tidal database horizontal projection
     xout(:) = xbnd(:); yout(:) = ybnd(:)
     call proj_horiz_conv(projfl,projtdb,nbnd,xout,yout)
+
+    !Added just for testing 3/1/24 MEB
+    xmin  = minval(xbnd); ymin  = minval(ybnd); xmax  = maxval(xbnd); ymax  = maxval(ybnd)
+    xxmin = minval(xout); yymin = minval(yout); xxmax = maxval(xout); yymax = maxval(yout)
     
     !Read parent grid and control file
     if(tdbname(1:6)=='EC2001'    .or. tdbname(1:6)=='EC2015' .or. &
@@ -783,44 +791,6 @@ contains
     else
       call diag_print_error('Invalid Parent Grid Control File Extention')
     endif
-
-!    !Check names for parentheses (i.e., M(2) instead of M2) and if 'Lambda'
-!    do k=1,ntc
-!      iloc = 0
-!      iloc = index(name(k),'(')
-!      temp = ''
-!      if (iloc .ne. 0) then  !remove the ()
-!        if (name(k) .eq. 'Lambda(2)') then
-!          name(k) = 'LDA2'
-!        else
-!          temp=name(k)
-!          first=temp(1:iloc-1)
-!          num=temp(iloc+1:iloc+1)
-!          name(k) = trim(first)//trim(num)
-!        endif
-!      endif
-!!      name(k)=toUpper(trim(name(k)))
-!      continue
-!    enddo
-!
-!    !Do the same for the input constituents  MEB 08/17/2023
-!    do k=1,ntcin
-!      iloc = 0
-!      iloc = index(namein(k),'(')
-!      temp = ''
-!      if (iloc .ne. 0) then  !remove the ()
-!        if (namein(k) .eq. 'Lambda(2)') then
-!          namein(k) = 'LDA2'
-!        else
-!          temp=namein(k)
-!          first=temp(1:iloc-1)
-!          num=temp(iloc+1:iloc+1)
-!          namein(k) = trim(first)//trim(num)
-!        endif
-!      endif
-!!      namein(k)=toUpper(trim(namein(k)))
-!      continue
-!    enddo
     
     !Calculate index for names
     ind = 0
@@ -1287,6 +1257,7 @@ contains
     use diag_lib
     use prec_def
     implicit none      
+    
     !Input/Output
     integer :: n
     integer :: igap(n) !1-gap, 0-not gap    
@@ -1294,7 +1265,12 @@ contains
     !Internal variables
     integer :: i,j,j1,j2
     real(ikind) :: fac
-    character(len=100) :: msg2
+    character(len=100) :: msg2, filename
+    logical :: foundfile, isopen
+    
+101 format('Gap Interpolation issue. Cell IDs written to file: "interp_warning.txt"')
+    filename = 'interp_warning.txt'
+    inquire(file=filename,exist=foundfile)
     
     do j=1,n !Index loop
       if(igap(j)==1)then !is gap          
@@ -1322,11 +1298,19 @@ contains
         elseif(j2>0)then !Right value
           a(j)=a(j2)
         else
-          write(msg2,*) '  Boundary String Cell:',j
-          call diag_print_warning('Could not fill-in gap',msg2)
+          if(.not.foundfile)then
+            open(99,file=filename,status='unknown')
+            write(msg2,101) 
+            call diag_print_warning(msg2)
+          else
+            open(99,file=filename,access='append')
+          endif
+          write(99,*) 'Could not fill-in gap for Boundary String Cell: ',j
         endif
       endif !is gap
     enddo !index loop
+    inquire(unit=99, opened=isopen)
+    if (isopen) close(99)    
     
     return
     end subroutine interp_gap

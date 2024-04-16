@@ -177,7 +177,7 @@
     savept(4)%names(4) = 'diss'    ; savept(4)%ounit(4) = 'N/m/s'  ; savept(4)%vals(4) = 1
     
     !Morphology
-    savept(5)%group = 'Morhology'
+    savept(5)%group = 'Morphology'
     savept(5)%time_inc = 0.0                   !5 is Morphology group
     savept(5)%ncells = 0
     savept(5)%active = .false.                     !make sure there are save points listed to make true.
@@ -3194,7 +3194,7 @@ implicit none
           !if(savept(i)%cell(j)<=0 .or. savept(i)%cell(j)>ncells)then !Cell ID not specified or invalid
             !Search for nearest cell  
             ksp = 1; distmin = 1.0e10
-            if(ncellpoly==0)then
+            if(ncellpoly == 0)then
               do k=1,ncells  
                 dist = sqrt((savept(i)%x(j)-xc(k))**2+(savept(i)%y(j)-yc(k))**2)
                 if(dist<distmin)then
@@ -3204,23 +3204,23 @@ implicit none
               enddo
               kk = mapid(ksp) !Map to global grid
             else
-               do k=1,ncells  
+              do k=1,ncells  
                 dist = sqrt((savept(i)%x(j)-x(k))**2+(savept(i)%y(j)-y(k))**2)
                 if(dist<distmin)then
                   ksp = k
                   distmin = dist
                 endif
-               enddo
-               kk = ksp !Global index same as local index
+              enddo
+              kk = ksp !Global index same as local index
             endif
-            if(savept(i)%cell(j)>0 .and. savept(i)%cell(j)<=ncells .and. savept(i)%cell(j)/=kk)then
+!            if(savept(i)%cell(j)>0 .and. savept(i)%cell(j)<=ncells .and. savept(i)%cell(j)/=kk)then
               !write(msg2,*) ' Save point name: ',savept(i)%names(j)
               write(msg3,*) ' Specified Cell ID: ',savept(i)%cell(j)
-              write(msg4,*) ' Calculated Cell ID: ',kk
+              write(msg4,*) ' Calculated Cell ID: ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
               !write(msg5,*) ' Specified Coordinates: ',savept(i)%x(j),savept(i)%y(j)' m' !Global coordiantes
               write(msg5,*) ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
               call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg3,msg4,msg5)
-            endif
+!            endif
             savept(i)%cell(j) = ksp
           !endif
         enddo

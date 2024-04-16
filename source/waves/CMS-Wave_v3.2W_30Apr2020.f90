@@ -118,7 +118,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       SAVE dvarxxt, dvaryyt                        !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
  
       iunit = (/6,dgunit/)
-      
       iwbk = 0
       if(noptset.eq.3.and.nsteer.gt.1) then        !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
         iwbk = iwvbk
@@ -1442,15 +1441,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !Reworked this section to always output to screen and diagnostic file.  MEB 10/19/2021
       do i=1,2
         write(iunit(i),*) 'iprp    icur    ibk     irs    kout     ibnd     iwet    ibf     iark    iarkr'
-        write(iunit(i),'(3(i3,5x),i3,3x,i5,5x,5(i3,5x))') &
-                  iprpp,  icur,   ibreak,  irs,   kout,  &
-                  ibnd,   iwet,    ibf,    iark,   iarkr
+        write(iunit(i),'(3(i3,5x),i3,3x,i5,5x,5(i3,5x))') iprpp, icur, ibreak, irs, kout, ibnd, iwet, ibf, iark, iarkr
         write(iunit(i),*)
         write(iunit(i),*) 'akap    bf      ark     arkr   iwvbk    nonln    igrav   irunup  imud    iwnd '
-        write(iunit(i),'(4(f7.4,1x),6(i3,5x))') akap, bf, ark, arkr, iwvbk, nonln,igrav,irunup,imud,iwnd
+        write(iunit(i),'(4(f7.4,1x),6(i3,5x))') akap, bf, ark, arkr, iwvbk, nonln, igrav, irunup, imud, iwnd
         write(iunit(i),*)
         write(iunit(i),*) 'isolv   ixmdf   iproc   iview   iroll'
-        write(iunit(i),'(6(i3,5x))') isolv,ixmdf,iproc,iview,iroll
+        write(iunit(i),'(6(i3,5x))') isolv, ixmdf, iproc, iview, iroll
         write(iunit(i),*)
         if (gamma_bj78 .gt. -1) then
           write(iunit(i),'(A,F6.2)') ' User defined gamma value for Battjes-Janssen 1978: ', gamma_bj78
@@ -1683,8 +1680,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           read(8,'(a150)',end=420) text
         end if
         hs13(1)=0.
-        read(text,*,end=421,err=421) &
-        eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
+        read(text,*,end=421,err=421) eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
         if(abs(hs13(1)).gt.900.) hs13(1)=0.
         idate = int(mod(edate,100000.))
         kdate = int(edate/100000.)
@@ -2381,8 +2377,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       do j=2,nj-1
         do i=2,ni
-          if(d1(i,j).ge..01.and.d1(i,j+1).le..0.and.d1(i,j-1).le..0) &
-          d1(i,j)=0.
+          if(d1(i,j).ge..01.and.d1(i,j+1).le..0.and.d1(i,j-1).le..0) d1(i,j)=0.
         end do
       end do
 
@@ -3152,8 +3147,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           ! --- limit ph0hz to .33 avoid initial large height for small wind.
           do nn=1,nf
             om=pai2*fcn(nn)
-            om51=om**5*exp(0.74*min((ph0hz/fcn(nn))**4,10.))  &
-               /dth/(fcn(nf)-fcn(nf-1))
+            om51=om**5*exp(0.74*min((ph0hz/fcn(nn))**4,10.)) /dth/(fcn(nf)-fcn(nf-1))
             do mm=imd,md
               dd=-hpai-dth/2.+dth*mm-wd/2.
               if(abs(dd).lt.hpai) then
@@ -3951,9 +3945,9 @@ contains
 #endif
       END SUBROUTINE CMS_Wave_inline 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  INITIAL WAVE CONDITION AT UPWAVE BOUNDARY
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE INITL_inline
 !--------------------------------------------------
 !  setup of mesh size, angular-frequency spectrum
@@ -4045,10 +4039,10 @@ contains
       END SUBROUTINE INITL_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  wave spectrum calculation in forward (incident waves) 
 !    and backward (reflected waves) direction
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE SETIN_inline(IKAP)
 !-------------------------------------------------------
 !  in this subroutine, calc(ii) is the main subroutine 
@@ -4848,13 +4842,11 @@ contains
               if(d1(iii,jj).gt..001) then
                 if(d1(iii,jj-1).le..001) eta(iii,jj)=eta(iii,jj+1)
                 if(d1(iii,jj+1).le..001) eta(iii,jj)=eta(iii,jj-1)
-                if(d1(i3,jj).le..001) eta(iii,jj)=  &
-                 ((h13(i1,jj)+h13(iii,jj))*.085+eta(i1,jj))/2.
+                if(d1(i3,jj).le..001) eta(iii,jj)= ((h13(i1,jj)+h13(iii,jj))*.085+eta(i1,jj))/2.
               end if
             end do
             do jj=2,jgmx-1
-              if(d1(iii,jj).gt..001) hsgg(jj)=  &
-               (eta(iii,jj-1)+eta(iii,jj+1)+eta(iii,jj))/3.
+              if(d1(iii,jj).gt..001) hsgg(jj)= (eta(iii,jj-1)+eta(iii,jj+1)+eta(iii,jj))/3.
             end do
             do jj=2,jgmx-1
               if(d1(iii,jj).gt..001)eta(iii,jj)=(hsgg(jj)+eta(i1,jj))/2.
@@ -5479,9 +5471,9 @@ contains
 	  END SUBROUTINE SETIN_inline
 
 	
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  main of calculation by using sub. sgma, veloc, setab, gsm
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE CALC_inline(II,IKAP)
 !------------------------------------------------------------
 !  independent variables are x,y,q(angle)
@@ -5800,9 +5792,9 @@ contains
       END SUBROUTINE CALC_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !   subroutine for intrinsic angular frequency
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       subroutine sgma_inline(ii,jb,je,nn)
 !--------------------------------------
 !  sgma0(j,m) is at ii-1
@@ -5866,9 +5858,9 @@ contains
       end subroutine sgma_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine for C and Cg in wave-current field
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       subroutine veloc_inline(ii,jb,je,fc)
 !---------------------------------------------------
 !  variables needed for determination of
@@ -5995,10 +5987,10 @@ contains
 	  end subroutine veloc_inline
 
 	
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine for dispersion relation in current
 !      (om-kcos(q)*u-ksin(q)*v)^2=g*k*tanh(k*d)
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       subroutine wccg_inline(q,d,u,v,om,cw,cg,sg,akk)
 !-----------------------------------------------------
 !  when no solution and cg+u<0, sg=-1,....., are set
@@ -6068,9 +6060,9 @@ contains
 	  end subroutine wccg_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !   setting of matrix components                     
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE SETAB_inline(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
 !  akap= coefficient of diffraction term
       USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX,MPMX
@@ -6237,6 +6229,7 @@ contains
         duy=uy2-uy1
         dvy=vy2-vy1
         JJM=JM
+        if(jj .ge. je-1) dhy = 0 !bdj 2023-11-02
 
 ! -- setup of energy dissipation term
 ! -- JJM= local #, JJ= GLOBAL_INLINE #
@@ -6606,9 +6599,9 @@ contains
 	 END SUBROUTINE SETAB_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE WVBRK2_inline(CAB,JBV,II,JM,JJ,om)
 !---------------------------------------------------------------
 !  energy dissipation term is Battjes and Janssen's(1978)
@@ -6682,9 +6675,9 @@ contains
 	  END SUBROUTINE WVBRK2_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE WVBRK4_inline(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
 !  energy dissipation term is Battjes and Janssen's(2007)
@@ -6760,9 +6753,9 @@ contains
 	  end function erf_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE WVBRK_inline(CAB,JBV,II,JM,JJ,um,vm,fc)
 !---------------------------------------------------------------
 !  energy dissipation term is the extended (by Sakai et al.)
@@ -6866,9 +6859,9 @@ contains
       END SUBROUTINE WVBRK_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE WVBRK3_inline(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
 !  energy dissipation term is Chawla and Kirby (2002)
@@ -6922,9 +6915,9 @@ contains
       END SUBROUTINE WVBRK3_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE WVBRK1_inline(CAB,JBV,II,JM,JJ,fc)
 !---------------------------------------------------------------
 !  energy dissipation term is formulated by using a modified
@@ -6982,9 +6975,9 @@ contains
       END subroutine WVBRK1_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  FINDING REFLECTION COEFF.
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       FUNCTION CKR_inline(II,JJ)
 !  ****   FINDING REFLECTION COEFF. CALLED BY SETAB
       USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
@@ -7003,9 +6996,9 @@ contains
       END FUNCTION CKR_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  FINDING structure angle
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       FUNCTION aKR_inline(II,JJ)
 !  ****   FINDING structure angle CALLED BY SETAB
       USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
@@ -7024,9 +7017,9 @@ contains
       END FUNCTION aKR_inline
 
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-!  CALCULATION OF Matrix BY GAUS-SEIDEL METHOD
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
+!  CALCULATION OF Matrix BY GAUSS-SEIDEL METHOD
+!------------------------------------------------
       SUBROUTINE GSM_inline(II,JB,JE,NMX,MARK)
       USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -7127,9 +7120,9 @@ contains
       END subroutine GSM_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!-------------------------------------------------
 !  subroutine to output the results 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!-------------------------------------------------
       SUBROUTINE OUTFILE_inline
       USE GLOBAL_INLINE, ONLY: NPF,MPD,MPD2,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       double precision edate
@@ -7539,10 +7532,8 @@ contains
               if(h13s(ii1,jj1).lt..001.and.t13(ii1,jj1).lt.1.01) a1=0.
               a0=a1+a2+a3+a4
               if(a0.gt..01) then
-                hh13=(h13s(ii,jj)*a4+h13s(ii,jj1)*a2    &
-                     +h13s(ii1,jj)*a3+h13s(ii1,jj1)*a1)/a0
-                tt13=(t13(ii,jj)*a4+t13(ii,jj1)*a2    &
-                     +t13(ii1,jj)*a3+t13(ii1,jj1)*a1)/a0
+                hh13=(h13s(ii,jj)*a4+h13s(ii,jj1)*a2 +h13s(ii1,jj)*a3+h13s(ii1,jj1)*a1)/a0
+                tt13=(t13(ii,jj)*a4+t13(ii,jj1)*a2   +t13(ii1,jj)*a3+t13(ii1,jj1)*a1)/a0
                 uu13=h13s(ii,jj)*cos((dmn(ii,jj)-az1)*rad)*a4   &
                      +h13s(ii,jj1)*cos((dmn(ii,jj1)-az1)*rad)*a2    &
                      +h13s(ii1,jj)*cos((dmn(ii1,jj)-az1)*rad)*a3    &
@@ -7753,8 +7744,7 @@ contains
               eta(i,j)=cc
               if(j.eq.1) then
                 if(ijb(i+1,j).eq.2) go to 55
-                if(eta(i+1,j).ge..01.and.eta(i-1,j).ge..01.and.    &
-                   eta(i,j+1).ge..01) goto 55
+                if(eta(i+1,j).ge..01.and.eta(i-1,j).ge..01.and. eta(i,j+1).ge..01) goto 55
                 cc=2.5*eta(i,j)
                 if(cc.gt.dsss(i,j)) dsss(i,j)=cc
                 go to 55
@@ -7762,8 +7752,7 @@ contains
 
               if(j.eq.jgmx) then
                 if(ijb(i+1,j).eq.2) go to 55
-                if(eta(i+1,j).ge..01.and.eta(i-1,j).ge..01.and.    &
-                   eta(i,j-1).ge..01) goto 55
+                if(eta(i+1,j).ge..01.and.eta(i-1,j).ge..01.and. eta(i,j-1).ge..01) goto 55
                 cc=2.5*eta(i,j)
                 if(cc.gt.dsss(i,j)) dsss(i,j)=cc
                 go to 55
@@ -8883,8 +8872,7 @@ contains
         READ (text2,*,end=200,err=200) x0,y0,azimuth
         cosaz=cos(azimuth*rad)
         sinaz=sin(azimuth*rad)
-        IF (CARD(1:6).EQ.'STWAVE'.OR.CARD(1:5).EQ.'WABED'.OR.  &
-        CARD(1:3).EQ.'CMS') THEN
+        IF (CARD(1:6).EQ.'STWAVE'.OR.CARD(1:5).EQ.'WABED'.OR. CARD(1:3).EQ.'CMS') THEN
 10        READ (41, '(2A)', END = 100) CARD, FileName
           FileName = ADJUSTL(FileName)
           IF (CARD(1:4).EQ.'OPTS') THEN
@@ -9017,8 +9005,7 @@ contains
 ! UNIX - LINUX
 !       IF(FNAME(I:I).EQ.'/') ISLASH = I
 ! END
-        IF(FNAME(I:I).NE.' ' .AND. ISTART.EQ.0    &
-           .AND.  FNAME(I:I).NE.CHAR(9) )ISTART = I
+        IF(FNAME(I:I).NE.' ' .AND. ISTART.EQ.0  .AND.  FNAME(I:I).NE.CHAR(9) )ISTART = I
       END DO
       DO I = 180,1,-1
         IF(FNAME(I:I).NE.' ' .AND. ILAST.EQ.0)ILAST = I
@@ -9580,10 +9567,10 @@ contains
 	  END SUBROUTINE RUNNING_TIME_inline
 	
 
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  CALCULATION OF Matrix BY GAUS-SEIDEL METHOD---revised version
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
       SUBROUTINE GSR_inline(II,JB,JE,NMX,MARK)
       USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
@@ -9693,13 +9680,12 @@ contains
    90 DEALLOCATE (x0)
 
       RETURN
-      END SUBROUTINE GSR_inline
+    END SUBROUTINE GSR_inline
 
-	
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+!------------------------------------------------
 !  CALCULATION OF Matrix BY TDMA and Line by line
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
-!&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&      
+!------------------------------------------------      
       SUBROUTINE ADI_inline(II,JB,JE,NMX,MARK)
       USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
       COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD

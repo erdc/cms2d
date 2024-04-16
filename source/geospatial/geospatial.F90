@@ -36,7 +36,7 @@
 !*************************************************************
     use size_def
     use geo_def
-    use geo_lib, only: proj_default
+    use geo_lib, only: proj_default, assign_proj_names
     use prec_def
     implicit none
     
@@ -129,12 +129,14 @@
     aVertDatum(9) = 'LOCAL'
     
     !Vertical Coordinate Units    
-    projfl%iVertUnits = 2
     aVertUnits(1) = 'FEET'
     aVertUnits(2) = 'METERS'
     aVertUnits(3) = 'US_FEET'
     aVertUnits(4) = 'INTL_FEET'
+    projfl%iVertUnits = 2
     projfl%VertOffset = 0.0  !Vertical offset from datum
+    
+    call assign_proj_names(projfl)
     
     return
     end subroutine geo_default
@@ -296,12 +298,12 @@
 !    write(*,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
 !    write(dgunit,*) 'CMS-Flow Latitudes Dataset: ',LATPATH
       write(iunit(i),888)    '  Horizontal Projection'
-      write(iunit(i),787)    '    Coordinate System:',trim(aHorizCoordSystem(projfl%iHorizCoordSystem))     
+      write(iunit(i),787)    '    Coordinate System:',trim(projfl%aHorizCoordSystem)
       if(projfl%iHorizCoordSystem/=22)then
-        write(iunit(i),787)  '    Datum:',trim(aHorizDatum(projfl%iHorizDatum))
+        write(iunit(i),787)  '    Datum:',trim(projfl%aHorizDatum)
         write(iunit(i),222)  '    Zone:',projfl%iHorizZone
       endif      
-      write(iunit(i),787)    '    Units:',trim(aHorizUnits(projfl%iHorizUnits))
+      write(iunit(i),787)    '    Units:',trim(projfl%aHorizUnits)
       
     enddo
 
@@ -2227,8 +2229,7 @@ di: do i=1,ncellsD
 ! CMS Card file. 
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************
-    use geo_def, only: projection,aHorizDatum,&
-       aHorizCoordSystem,aHorizUnits
+    use geo_def, only: projection,aHorizDatum,aHorizCoordSystem,aHorizUnits
     use diag_lib
     implicit none
     

@@ -82,11 +82,11 @@ module struct_def
     
     !
     integer :: rmblock     !hli(12/11/12)
-    character(len=200) :: arubmoundfile, arubmoundpath       !Points to file that contains non-zero values in cells where there is permeability.  Each number denotes a different structure. 10/27/2023
-    character(len=200) :: arockdiamfile, arockdiampath           
-    character(len=200) :: astructporofile, astructporopath
-    character(len=200) :: astructbaseDfile, astructbaseDpath
-    character(len=200) :: astructmethfile, astructmethpath
+    character(len=200) :: arubmoundfile,    arubmoundpath='Empty'   !Points to file that contains non-zero values in cells where there is permeability.  Each number denotes a different structure. 10/27/2023
+    character(len=200) :: arockdiamfile,    arockdiampath='Empty'           
+    character(len=200) :: astructporofile,  astructporopath='Empty'
+    character(len=200) :: astructbaseDfile, astructbaseDpath='Empty'
+    character(len=200) :: astructmethfile,  astructmethpath='Empty'
     character(len=34)  :: methrm           !hli(12/11/12)
 
 end module struct_def

@@ -40,9 +40,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
-    revision = 8             ! Revision number
+    revision = 9             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '01/08/2024'
+    rdate    = '04/16/2024'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -630,13 +630,14 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     
     implicit none
     integer :: iunit(2),i, first, second
-    character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5
+    character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5,adir*200
 
-341 format(' ',A,T40,A,A)     !Added for vstrlz function results
-342 format(' ',A,T40,I0,'.',I0,A)  
-887 format(' ',A,T40,A)
-764 format(' ',A,T40,F0.3,A)  
+341 format(' ',A,T30,A,A)     !Added for vstrlz function results
+342 format(' ',A,T30,I0,'.',I0,A)  
+887 format(' ',A,T30,A)
+764 format(' ',A,T30,F0.3,A)  
     
+    call getcwd(adir)
     call DATE_AND_TIME (date=adate,time=atime,zone=azone)
     dstring=adate(5:6)//'/'//adate(7:8)//'/'//adate(1:4)
     dstring=trim(dstring)//' '//atime(1:2)//':'//atime(3:4)//' '//azone
@@ -648,6 +649,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       write(iunit(i),*) 
       write(iunit(i),887) 'Actual Start Date/Time: ',trim(dstring)
       if(noptset>=2)then   
+        write(iunit(i),887)  "Working Directory:  ","'"//trim(adir)//"'"
         if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
         call fileparts(ctlfile,apath,aname,aext)
         astring=trim(aname) // '.' // aext
@@ -679,9 +681,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         write(iunit(i),341)    'Steering Interval:',trim(vstrlz(dtsteer/3600.0,'(F0.3)')),' hrs'
         write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Interpolation:','LINEAR'
-        !write(iunit(i),764)      '  Extrapolation Distance:   ',xtrpdistwav,' m'         
-        write(iunit(i),*)
-        write(iunit(i),887)    'Wave-to-Flow Coupling:'
         write(iunit(i),887)    '  Temporal Extrapolation: '
         write(iunit(i),887)    '    Water Level: '
         select case(noptwse)

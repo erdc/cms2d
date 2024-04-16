@@ -26,8 +26,9 @@
     use der_def
     use out_def
     use out_lib
-    use der_lib, only: der_grad_eval
+    use der_lib,    only: der_grad_eval
     use interp_lib, only: interp_scal_cell2face
+    use geo_lib,    only: assign_proj_names
     use diag_def
     use diag_lib
     use const_def
@@ -95,14 +96,14 @@
       if (icount == 1) then                              !First time through process from Input '*.cmcards' file
         call fileparts(ctlfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
+        !write(*,'(x,A)') "Reading CMS-Flow Card File: '"//trim(astring)//"'"
         open(77,file=ctlfile,status='unknown')
       else                                               !Second time through process from Advanced 'advanced.cmcards' file.  Note: this will overwrite previously read cards if they exist in the file.  
         inquire(file=advfile,exist=foundfile)
         if(.not.foundfile) exit  !no advanced cards to use
         call fileparts(advfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
+        !write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
         open(77,file=advfile,status='unknown')
         read_adv = .true.
       endif
@@ -139,6 +140,7 @@
       enddo
       close(77)
     enddo  
+    call assign_proj_names(projfl)
     
     if(nCards > 0) then
       call diag_print_warning('Unknown cards found:')

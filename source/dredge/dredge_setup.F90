@@ -598,7 +598,7 @@
     do i=1,2
       write(iunit(i),*) 
       write(iunit(i),222)       'Dredge Module Setup'  
-      write(iunit(i),445)       '  Number of dredge ops:',ndredge_operations
+      write(iunit(i),445)       '  Number of dredge operations:',ndredge_operations
       do j=1,ndredge_operations
         write(iunit(i),222)     '  Operation name:',trim(dredge_operations(j)%name)
         write(iunit(i),222)     '    Source area file:',trim(dredge_operations(j)%DredgeSourceAreaFile)
@@ -658,7 +658,7 @@
           elseif(dredge_operations(j)%Placement_Approach(k) == 2) then
             write(iunit(i),222) '        Placement method:','SPECIFIED CELL'
             write(iunit(i),445) '        Starting cell:',dredge_operations(j)%Placement_start_cell(k) 
-          endif        
+          endif
           if(dredge_operations(j)%Placement_Depth(k) > -999.0) &
             write(iunit(i),354) '        Depth Limit (m):',trim(vstrlz(dredge_operations(j)%Placement_Depth(k),'(f0.2)'))
           if(dredge_operations(j)%Placement_thickness(k) > -999.0) & 
@@ -667,6 +667,7 @@
             write(iunit(i),354) '        Distribution %:',trim(vstrlz(dredge_operations(j)%DredgePlacementAllocation(k),'(f0.2)'))
         enddo         
       enddo
+      write(iunit(i),222)       "  Note: Most values converted to metric when read from cardfile."
     enddo  
 
     close(dgunit)
@@ -717,8 +718,7 @@
     allocate(dredgeTS_Vars(ndredge_operations,10))
     allocate(DredgeUnit(ndredge_operations))   
 
-    open(2056,file=dredge_diag_file,status='OLD',access='APPEND') 
-
+    if (write_dredge_diag) open(2056,file=dredge_diag_file,status='OLD',access='APPEND') 
     do k=1,ndredge_operations
       if (write_dredge_diag) then  
         write(2056,'(A,i0,A)')'Operation ',k,' in dredge init'

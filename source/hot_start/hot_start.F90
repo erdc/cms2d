@@ -1912,9 +1912,9 @@ loopj:  do j=1,nlay
       write(iunit(i),*)
 
       if(coldstart)then
-        write(iunit(i),222)   'Start Mode:','COLD'
+        write(iunit(i),222)   'Start Mode:','COLD START'
       else
-        write(iunit(i),222)   'Start Mode:','HOT'
+        write(iunit(i),222)   'Start Mode:','HOT START'
         write(iunit(i),222)   '  Initial Conditions File:',trim(icfile)
       endif
 
