@@ -2065,7 +2065,7 @@
 !--- Nested Water Level BC -----------------------------------------------
     do iwse=1,nNHstr
       j = NH_str(iwse)%ncells/2 !Use center cell as approximate value
-      tideiwse = NHV_str(iwse)%wsebnd(j)
+      tideiwse = NH_str(iwse)%wsebnd(j)
       tide2 = tide2 + ramp*tideiwse + (1.0-ramp)*NH_str(iwse)%wsebnd0(j)
       ibnd = ibnd + 1
     enddo
