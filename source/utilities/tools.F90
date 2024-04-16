@@ -1215,8 +1215,7 @@
     end subroutine delete_file
     
 !-----------------------------------------------------------------------
-!   converts a real*4 value with n significant digits to a character 
-!   string
+!   converts a real*4 value with n significant digits to integers
 !-----------------------------------------------------------------------
       subroutine split_real_to_integers (x, n, first, second) 
 
