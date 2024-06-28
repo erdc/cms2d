@@ -207,10 +207,12 @@
               
       case('GRID_ORIGIN_X')
         call card_scalar(77,'m','m',xorigin,ierr)
+        if (doPrint) originxy_found = originxy_found + 1   !Only process if in main section not the Solution Scheme part
           
       case('GRID_ORIGIN_Y')
         call card_scalar(77,'m','m',yorigin,ierr)
-          
+        if (doPrint) originxy_found = originxy_found + 1   !Only process if in main section not the Solution Scheme part
+        
       case('CELL_LATITUDES')
         call card_dataset(77,mpfile,flowpath,latfile,latpath,0)  !0 for Lats and Lons - 05/21/2018
         

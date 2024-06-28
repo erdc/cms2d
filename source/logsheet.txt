@@ -1,3 +1,9 @@
+== Version 5.3.10 (06/28/2024) ==
+* Added compile option for VS2022, Intel OneAPI 2024.1
+* Fix for an erroneous Save Point warning that was always written.
+* Improved status description update for Culverts in CMS.
+* Added ERROR check for missing X/Y Origin cards in .cmcards file.
+
 == Version 5.3.9 (04/16/2024) ==
 * Fix for Dredge module diagnostic file not found.
 * Clarified some diagnostic output regarding simulation duration and computed residuals.

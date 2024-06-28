@@ -149,6 +149,10 @@
       enddo
     endif
     
+    if (originxy_found < 2) then
+      call diag_print_error('Missing GRID_ORIGIN_X and/or GRID_ORIGIN_Y card in .cmcards')
+    endif
+    
     if (c2shore .and. .not. cmswave) call diag_print_error ('The C2SHORE Transport option requires both Waves and Flow to be active')   !meb 05/09/22
 
     if(coldstart .and. hot_out)then
