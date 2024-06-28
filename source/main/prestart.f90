@@ -142,6 +142,7 @@
     enddo  
     call assign_proj_names(projfl)
     
+    !Warn when unknown cards are found in parameter file.
     if(nCards > 0) then
       call diag_print_warning('Unknown cards found:')
       do i=1,nCards
@@ -149,8 +150,15 @@
       enddo
     endif
     
+    !Stop if there is one or more missing GRID_ORIGIN cards.
+    if (originxy_found < 2) then
+      call diag_print_error('Missing GRID_ORIGIN_X and/or GRID_ORIGIN_Y card in .cmcards')
+    endif
+    
+    !Stop if C2Shore is selected but there are no waves present.
     if (c2shore .and. .not. cmswave) call diag_print_error ('The C2SHORE Transport option requires both Waves and Flow to be active')   !meb 05/09/22
 
+    !Remove old hot start files on a new Cold start.
     if(coldstart .and. hot_out)then
       if(hot_timehr) then
         inquire(file=hotfile,exist=foundfile)
