@@ -200,6 +200,7 @@
 !***************************************************************************
     use out_def
     use prec_def
+    use q3d_def,  only: q3d
     use comvarbl, only: etime
     use diag_lib, only: diag_print_warning
     implicit none
@@ -341,12 +342,13 @@
         i=1
         obs(i)%group = 'Time_Series'
         obs(i)%active = .true.
-        obs(i)%nvar = 4 !u,v,eta,velpro
+        obs(i)%nvar = 3 !u,v,eta
+        if (q3d) obs(i)%nvar = 4 !u,v,eta,velpro
         allocate(obs(i)%names(obs(i)%nvar))
         obs(i)%names(1)='u'
         obs(i)%names(2)='v'
         obs(i)%names(3)='eta'
-        obs(i)%names(4)='velpro'
+        if (q3d) obs(i)%names(4)='velpro'
         call read_obs_cells(i)
       
       case('ELEV_OBS_CELLS_END','END') !card should be changed just TIME_SERIES_OBS_CELLS_BEGIN
@@ -2860,7 +2862,7 @@ implicit none
 ! Initializes Observation cell Output
 !
 ! written by Alex, USACE-ERDC-CHL
-! last upated Nov 13, 2009 - added sediment and salinity
+! last updated Nov 13, 2009 - added sediment and salinity
 !********************************************************************************
 #include "CMS_cpp.h"
     use geo_def,  only: idmap
@@ -3213,14 +3215,15 @@ implicit none
               enddo
               kk = ksp !Global index same as local index
             endif
-!            if(savept(i)%cell(j)>0 .and. savept(i)%cell(j)<=ncells .and. savept(i)%cell(j)/=kk)then
-              !write(msg2,*) ' Save point name: ',savept(i)%names(j)
-              write(msg3,*) ' Specified Cell ID: ',savept(i)%cell(j)
-              write(msg4,*) ' Calculated Cell ID: ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
-              !write(msg5,*) ' Specified Coordinates: ',savept(i)%x(j),savept(i)%y(j)' m' !Global coordiantes
-              write(msg5,*) ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
-              call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg3,msg4,msg5)
-!            endif
+            if(idmap(savept(i)%cell(j)) > 0 .and. idmap(savept(i)%cell(j)) <= ncells .and. savept(i)%cell(j)/=kk) then
+              if(savept(i)%id(j) .ne. "") write(msg,'(A,A)')   ' Save point ID:          ',savept(i)%id(j)
+              write(msg2,'(A,A)')  ' Save point type name:   ',savept(i)%names(j)
+              write(msg3,'(A,i0)') ' Specified Cell ID:      ',savept(i)%cell(j)
+              write(msg4,'(A,i0)') ' Calculated Cell ID:     ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
+              write(msg5,'(A,f0.3,x,f0.3,A)') ' Specified Coordinates:  ',savept(i)%x(j),savept(i)%y(j),' m' !Global coordiantes
+              write(msg6,'(A,f0.3,x,f0.3,A)') ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
+              call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg,msg2,msg3,msg4,msg5,msg6)
+            endif
             savept(i)%cell(j) = ksp
           !endif
         enddo
