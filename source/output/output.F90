@@ -204,12 +204,12 @@
     use comvarbl, only: etime
     use diag_lib, only: diag_print_warning
     implicit none
-    integer :: i,j,cell,ierr
+    integer :: i,j,cell,ierr,num_cards
     character(len=37) :: cardname,cdum,ptname
     character(len=37) :: group(ngroups)
     character(len=120) :: saveargs,astring
     real(ikind) :: xsave,ysave
-    logical :: foundcard
+    logical :: foundcard, foundfile
     
     interface
       function toUpper (astr)
@@ -815,10 +815,19 @@
         read(saveargs,*,iostat=ierr) cardname,ptname,cell,xsave,ysave,(group(i),i=1,ngroups)
         call savept_add(ptname,cell,xsave,ysave,ngroups,group)
     
-      !case('SAVE_POINT_FILE') !This would be useful for having many save points
-      !  backspace(77)
-      !  read(77,'(A120)') saveargs
-      !  read(saveargs,*,iostat=ierr) cardname,file,(group(i),i=1,ngroups)
+      case('SAVE_POINT_CARDS') !This will be useful when there are many save points - Added 7/15/2024 MEB
+        backspace(77)
+        read(77,*) cardname, sp_card_file
+        inquire(file=sp_card_file, exist=foundfile)
+        if (foundfile) then
+          open(78,file=sp_card_file)
+          do 
+            read(78,'(A120)',iostat=ierr) saveargs
+            if (ierr .ne. 0) exit
+            read(saveargs,*,iostat=ierr) cdum,ptname,cell,xsave,ysave,(group(i),i=1,ngroups)
+            call savept_add(ptname, cell, xsave, ysave, ngroups, group)
+          enddo
+        endif
         
       case default 
         foundcard = .false.   
