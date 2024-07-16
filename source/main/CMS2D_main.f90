@@ -40,9 +40,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
-    revision = 9             ! Revision number
+    revision = 10            ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '04/16/2024'
+    rdate    = '07/16/2024'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -425,20 +425,18 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 7013  format('                Coastal Modeling System                    ')
 7014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,1X,A,1X,A)
 8014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,'.',I0,1X,A,1X,A)
-7114  format('          This version is for testing purposes only!       ')
+7019  format('    Using Visual Studio 2022 and Intel OneAPI IFX          ')
+7020  format('    Using Visual Studio 2019 and Intel OneAPI IFORT        ')
+7114  format('      This version is for testing purposes only!           ')
 7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
 7016  format('               Last updated - ',A10)
 7017  format('       For the latest version of CMS please visit          ')
 7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
       
-9001  format('      By using this software the user has agreed to the    ')
-9002  format('      terms and conditions of CMS license agreement.       ') 
-9003  format('      A copy of the license can be obtained from the       ')
-9004  format('      website shown above.                                 ')
-     
-8001  format('      This software is distributed on an "AS IS" basis     ')
-8002  format('      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,        ')
-8003  format('      either express or implied.                           ')
+9001  format('    By using this software the user has agreed to the      ')
+9002  format('    terms and conditions of CMS license agreement.         ') 
+9003  format('    A copy of the license can be obtained from the         ')
+9004  format('    website shown above.                                   ')
           
     !Declare file names    
     dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
@@ -468,8 +466,14 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       else
         write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
       endif
- 
+      
+#ifdef VS2022
+      write(iunit(i),7019)  !write the Visual Studio version, VS2022
+#else
+      write(iunit(i),7020)  !write the Visual Studio version, VS2019
+#endif
       write(iunit(i),7016) rdate !Last revision date
+
       write(iunit(i),7017)
       write(iunit(i),7018)
       write(iunit(i),*)
@@ -477,9 +481,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       write(iunit(i),9002)
       write(iunit(i),9003)
       write(iunit(i),9004)
-      !write(iunit(i),8001)
-      !write(iunit(i),8002)
-      !write(iunit(i),8003)
       write(iunit(i),7009)
       write(iunit(i),*)
     enddo
@@ -966,4 +967,3 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     
     return
     end subroutine wave_only_print
-     

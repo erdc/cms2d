@@ -243,6 +243,7 @@ module out_def
     logical :: save_point = .false.
     integer :: maxout                   !Maximum number of output values (set in 'out_default', checked in 'out_cards')
     character(len=100) :: splabel = ' ' !Used for Save Points output path
+    character(len=100) :: sp_card_file  !Used to put many save points into a different file for brevity in the .cmcards.
     
     type save_pt_group
       character(len=10) :: group

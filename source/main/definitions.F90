@@ -55,7 +55,7 @@ module cms_def
     real(8) :: timenow    !Julian time for speed monitor
     character(len=200) :: wavsimfile,wavepath,wavename  !Alex
     character(len=200) :: radpath,wavpath,perpath,dirpath,disspath
-    logical :: ignore_brk_restr = .false.                                      !No longer used in this and future versions.  Now any Wave breaking criteria should work.  MEB  12/07/2021
+    logical :: ignore_brk_restr = .false.                           !No longer used in this and future versions.  Now any Wave breaking criteria should work.  MEB  12/07/2021
     
     !For keeping a list of unknown cards and values
     character(len=200) :: aValue

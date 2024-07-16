@@ -151,5 +151,8 @@ module geo_def
     type(zonetype), allocatable :: zones(:)
     character(len=200) :: HProj,VProj     !added to keep track on projection
     
+    !Origin card test
+    integer :: originxy_found = 0
+
 end module geo_def 
 

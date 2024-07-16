@@ -47,6 +47,7 @@ module struct_def
                                cvheadlossbayexit(:),cvheadlossseaentr(:),cvheadlossseaexit(:), &
                                culvertfrict(:),culvertmann(:),qculvert(:),dqcvdzdown(:),dqcvdzup(:), &
                                uvculvert(:),angleculvertbay(:),angleculvertsea(:)
+    character(len=3), allocatable :: aculverttype(:)
 
     !Rubble mound
     integer :: nrubmoundcells      !refactored 'numrubmound' to 'nrubmoundcells' for clarity.  All of these look so similar.  10/27/2023

@@ -459,7 +459,7 @@
           backspace(77)
           read(77,*) cardname,numculvert
           allocate(strings(numculvert))
-          allocate(idculvert(numculvert,2),iculverttype(numculvert),iculvertflap(numculvert),  &
+          allocate(idculvert(numculvert,2),aculverttype(numculvert),iculverttype(numculvert),iculvertflap(numculvert),  &
                 culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),  &
                    culvertelevbay(numculvert),culvertelevsea(numculvert),culvertlength(numculvert),  &
                    cvheadlossbayentr(numculvert),cvheadlossbayexit(numculvert),cvheadlossseaentr(numculvert),  &
@@ -471,6 +471,7 @@
           dqcvdzdown=0.0
           dqcvdzup=0.0
           iculverttype=2
+          aculverttype='BOX'
           iculvertflap=0
           culvertfrict=0.04
           culvertmann=0.02
@@ -495,6 +496,7 @@
             else 
               iculverttype(icv) = 2
             endif 
+            aculverttype(icv) = trim(cdum)
           enddo   
           
         case('FLAP_GATE')
@@ -1506,15 +1508,15 @@
         write(iunit(i),241) '    Number of Weirs:',numweir
       endif
 
-656 format(I5,I5,2x,2F7.3,1x,1F7.2,1x,2F6.2,4F5.2,F6.3,2x,F6.3,2x,2F7.2)
+656 format(I5,3x,A3,1x,F7.3,4x,F7.3,1x,1F7.2,2x,2F6.2,4F5.2,F6.3,2x,F6.3,4x,2F7.2)
       !---- Culvert --------------------
       if(numculvert>0)then
         write(iunit(i),241) '    Number of Culverts:',numculvert
         write(iunit(i),111) '                                                 Loss Coefficients                     Outflow' 
         write(iunit(i),111) '                                     Elevation    Exit      Entry     Friction         Angles ' 
-        write(iunit(i),111) '    ID, Type, Width, Height, Length, Bay, Sea,  Bay, Sea, Bay, Sea, Darcy, Mannings, Bay,    Sea' 
+        write(iunit(i),111) '  ID, Type,  Rad/Width, Height, Length, Bay,  Sea,  Bay, Sea, Bay, Sea, Darcy,  Mannings, Bay,     Sea' 
         do icv=1,numculvert
-          write(iunit(i),656,iostat=ierr) icv,iculverttype(icv),      &
+          write(iunit(i),656,iostat=ierr) icv,aculverttype(icv),      &
              culvertwidth(icv),culvertheight(icv),culvertlength(icv), &
              culvertelevbay(icv),culvertelevsea(icv),                 &
              cvheadlossbayexit(icv),cvheadlossbayentr(icv),           &
@@ -2336,6 +2338,7 @@
     use diag_def
     use diag_lib
     use prec_def
+    use tool_def, only: vstrlz       
     implicit none
     integer :: i,k,im,itg,iwr,icv,ierr
 
@@ -2400,9 +2403,10 @@
     enddo
 
     !Culvert Screen Output
-461 format('   Culvert ',I4,' Flow',F12.5,' m^3/s')
+461 format('   Culvert ',I0,' Flow, ',A,A)
     do icv=1,numculvert
-      write(msg,461,iostat=ierr) icv,qculvert(icv) !, dqcvdzdown(icv),dqcvdzup(icv),p(idculvert(icv,1))/grav,p(idculvert(icv,2))/grav
+      !write(msg,461,iostat=ierr) icv,qculvert(icv) !, dqcvdzdown(icv),dqcvdzup(icv),p(idculvert(icv,1))/grav,p(idculvert(icv,2))/grav
+      write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
       call diag_print_message(msg)
     enddo
       
