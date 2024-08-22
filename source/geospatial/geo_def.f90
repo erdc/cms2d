@@ -134,6 +134,11 @@ module geo_def
       integer :: iHorizUnits        !Code number for input horizontal coordinate units
       integer :: iVertDatum         !Code number for input vertical coordinate datum
       integer :: iVertUnits         !Code number for input vertical coordinate units
+      character(len=5)  :: aHorizDatum        
+      character(len=40) :: aHorizCoordSystem  
+      character(len=9)  :: aHorizUnits        
+      character(len=6)  :: aVertDatum         
+      character(len=6)  :: aVertUnits         
       real(ikind) :: VertOffset     !Vertical offset from datum
     endtype projection
     type(projection) :: projfl    
@@ -146,5 +151,8 @@ module geo_def
     type(zonetype), allocatable :: zones(:)
     character(len=200) :: HProj,VProj     !added to keep track on projection
     
+    !Origin card test
+    integer :: originxy_found = 0
+
 end module geo_def 
 

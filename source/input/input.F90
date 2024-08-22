@@ -217,10 +217,10 @@
     
     inquire(file=datafile,exist=foundfile)       
     if(.not.foundfile)then !If not found, try adding path
-      datafile  = trim(defaultpath)//datafile
+      if (trim(defaultpath) .ne. trim(datapath)) datafile = trim(defaultpath)//datafile    !Added MEB  02/13/2024 to fix an issue with a datapath being added the beginning of a filename. 
       inquire(file=datafile,exist=foundfile)
       if(.not.foundfile)then
-        call diag_print_error('Could not find file: ',datafile)  
+        call diag_print_error('Could not find file: '//trim(datafile))
       endif  
     endif
     

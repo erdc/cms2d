@@ -1,3 +1,19 @@
+== Version 5.3.11 (08/19/2024) ==
+* Changed to alternate between recurring hot start files.
+* Added folder to start holding test cases for Continuous Integration
+
+== Version 5.3.10 (07/16/2024) ==
+* Added compile option for VS2022, Intel OneAPI 2024.1
+* Fix for an erroneous Save Point warning that was always written.
+* Improved status description update for Culverts in CMS.
+* Added ERROR check for missing X/Y Origin cards in .cmcards file.
+* Implemented an extra file to store Save Point cards when there are more than 10 defined.
+
+== Version 5.3.9 (04/16/2024) ==
+* Fix for Dredge module diagnostic file not found.
+* Clarified some diagnostic output regarding simulation duration and computed residuals.
+* Fix for steering variable (NHV_str to NH_str) possibly related to Flow/Wave steering issue.
+
 == Version 5.3.8 (01/08/2024) == 
 * Update for internal path length for tidal database file locations.
 * Investigating an issue with internal mapping from UTM to Lat/Long in tidal database cases. 

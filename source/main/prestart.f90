@@ -26,8 +26,9 @@
     use der_def
     use out_def
     use out_lib
-    use der_lib, only: der_grad_eval
+    use der_lib,    only: der_grad_eval
     use interp_lib, only: interp_scal_cell2face
+    use geo_lib,    only: assign_proj_names
     use diag_def
     use diag_lib
     use const_def
@@ -95,14 +96,14 @@
       if (icount == 1) then                              !First time through process from Input '*.cmcards' file
         call fileparts(ctlfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,*) 'Reading CMS-Flow Card File: ',trim(astring)
+        !write(*,'(x,A)') "Reading CMS-Flow Card File: '"//trim(astring)//"'"
         open(77,file=ctlfile,status='unknown')
       else                                               !Second time through process from Advanced 'advanced.cmcards' file.  Note: this will overwrite previously read cards if they exist in the file.  
         inquire(file=advfile,exist=foundfile)
         if(.not.foundfile) exit  !no advanced cards to use
         call fileparts(advfile,apath,aname,aext) 
         astring = trim(aname) // '.' // trim(aext)
-        write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
+        !write(*,*) 'Reading CMS-Flow Advanced Card File: ',trim(astring)
         open(77,file=advfile,status='unknown')
         read_adv = .true.
       endif
@@ -139,7 +140,9 @@
       enddo
       close(77)
     enddo  
+    call assign_proj_names(projfl)
     
+    !Warn when unknown cards are found in parameter file.
     if(nCards > 0) then
       call diag_print_warning('Unknown cards found:')
       do i=1,nCards
@@ -147,8 +150,15 @@
       enddo
     endif
     
+    !Stop if there is one or more missing GRID_ORIGIN cards.
+    if (originxy_found < 2) then
+      call diag_print_error('Missing GRID_ORIGIN_X and/or GRID_ORIGIN_Y card in .cmcards')
+    endif
+    
+    !Stop if C2Shore is selected but there are no waves present.
     if (c2shore .and. .not. cmswave) call diag_print_error ('The C2SHORE Transport option requires both Waves and Flow to be active')   !meb 05/09/22
 
+    !Remove old hot start files on a new Cold start.
     if(coldstart .and. hot_out)then
       if(hot_timehr) then
         inquire(file=hotfile,exist=foundfile)
@@ -161,6 +171,12 @@
         inquire(file=autohotfile,exist=foundfile)
         if(foundfile)then
           open(100,file=autohotfile)
+          close(100,status='delete')
+        endif
+        !Added for second autohot start file - MEB 08/19/2024
+        inquire(file=autohotfile(1:13)//'2.h5',exist=foundfile)
+        if(foundfile)then
+          open(100,file=autohotfile(1:13)//'2.h5')
           close(100,status='delete')
         endif
       endif

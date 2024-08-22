@@ -46,10 +46,11 @@
 !  August 10, 2009
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      CONTAINS
+    CONTAINS
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)lamd1.for	1.2	01/28/02"  
+!     SccsID = "$Id: lamd1.for 54964 2011-06-12 01:03:08Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
 !********************************************************************
       SUBROUTINE LAMD1 (FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,E,CM,EO,NB,SINFO,RB,K)
       IMPLICIT DOUBLE PRECISION(A-H,K-Z)
@@ -57,9 +58,9 @@
 !****  LAMBERT CONFORMAL CONIC PROJECTION, 2 STANDARD PARALLELS  !****
 !       CONVERSION OF GEODETIC COORDINATES TO GRID COORDINATES
 !****  Programmed by T. Vincenty in July 1984.
-!**!**!**!**!**!**!**!** SYMBOLS AND DEFINITIONS !**!**!**!**!**!**!**
-!       Latitude positive north, longitude positive west.  All angles
-!         are in radian measure.
+!************************ SYMBOLS AND DEFINITIONS *********************
+!       Latitude positive north, longitude positive west.  
+!       All angles are in radian measure.
 !       FI, LAM are latitude and longitude respectively.
 !       NORTH, EAST are northing and easting coordinates respectively.
 !       NORTH EQUALS Y PLANE AND EAST EQUALS THE X PLANE.
@@ -70,16 +71,11 @@
 !       E is first eccentricity.
 !       CM is the central meridian of the projection zone.
 !       EO is false easting value at the central meridian.
-!       NB is false northing for the southernmost parallel of the
-!           projection, usually zero.
-!       SINFO = SIN(FO), where FO is the central parallel.  This is a
-!         precomputed value.
-!       RB is mapping radius at the southernmost latitude. This is a
-!         precomputed value.
-!       K is mapping radius at the equator.  This is a precomputed
-!         value.
-!
-!********************************************************************
+!       NB is false northing for the southernmost parallel of the projection, usually zero.
+!       SINFO = SIN(FO), where FO is the central parallel.  This is a precomputed value.
+!       RB is mapping radius at the southernmost latitude. This is a precomputed value.
+!       K is mapping radius at the equator.  This is a precomputed value.
+!***********************************************************************
 !
       SINLAT=SIN(FI)
       COSLAT=COS(FI)
@@ -97,14 +93,15 @@
       END SUBROUTINE LAMD1 
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)lamr1.for	1.2	01/28/02"  
+!     SccsID = "$Id: lamr1.for 54965 2011-06-12 01:03:11Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
       SUBROUTINE LAMR1(NORTH,EAST,LAT,LON,CM,EO,NB,SINFO,RB,K,ER,ESQ,CONV,KP)
 !** LAMBERT CONFORMAL CONIC PROJECTION, 2 STD PARALLELS
 !** CONVERSION OF GRID COORDINATES TO GEODETIC COORDINATES
 !** REVISED SUBROUTINE OF T. VINCENTY -- FEB.25, 1985
-!**!**!**!*** SYMBOLS AND DEFINITIONS !**!**!**!**!**!****
-!** LATITUDE POSITIVE NORTH, LONGITUDE POSITIVE WEST.  ALL
-!**          ANGLES ARE IN RADIAN MEASURE.
+!************ SYMBOLS AND DEFINITIONS ********************
+!** LATITUDE POSITIVE NORTH, LONGITUDE POSITIVE WEST.  ALL ANGLES ARE IN RADIAN MEASURE.
 !** FI,LAM ARE LAT. AND LONG. RESPECTIVELY
 !** NORTH,EAST ARE NORTHING AND EASTING COORDINATES RESPECTIVELY
 !** CONV IS CONVERGENCE
@@ -114,8 +111,7 @@
 !** E IS THE 1ST ECCENTRICITY
 !** CM IS THE CENTRAL MERIDIAN OF THE PROJECTION ZONE
 !** EO IS THE FALSE EASTING VALUE AT THE CM
-!** NB IS THE FALSE NORTHING FOR THE SOUTHERNMOST
-!**       PARALLEL OF THE PROJECTION ZONE
+!** NB IS THE FALSE NORTHING FOR THE SOUTHERNMOST PARALLEL OF THE PROJECTION ZONE
 !** SINFO = SIN(FO)=> WHERE FO IS THE CENTRAL PARALLEL
 !** RB IS THE MAPPING RADIUS AT THE SOUTHERNMOST PARALLEL
 !** K IS MAPPING RADIUS AT THE EQUATOR
@@ -133,7 +129,7 @@
       SINE=(TEMP-1.D0)/(TEMP+1.D0)
 
       DO I=1,3            !10   MEB change for Gnu fortran issue
-        F1=(DLOG((1.D0+SINE)/(1.D0-SINE))-E*DLOG((1.D0+E*SINE) /(1.D0-E*SINE)))/2.D0-Q
+        F1=(DLOG((1.D0+SINE)/(1.D0-SINE))-E*DLOG((1.D0+E*SINE) / (1.D0-E*SINE)))/2.D0-Q
         F2=1.D0/(1.D0-SINE*SINE)-ESQ/(1.D0-ESQ*SINE*SINE)
         SINE=SINE-F1/F2
       ENDDO               !10
@@ -154,7 +150,8 @@
       END SUBROUTINE LAMR1
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)lconst.for	1.2	01/28/02"  
+!     SccsID = "$Id: lconst.for 54966 2011-06-12 01:03:14Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/      
 !********************************************************************
       SUBROUTINE LCONST(ER,RF,FIS,FIN,FIB,ESQ,E,SINFO,RB,K,KO,NO,G,NB)
       IMPLICIT DOUBLE PRECISION(A-H,K-Z)
@@ -209,13 +206,13 @@
       END SUBROUTINE LCONST
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)oconst.for	1.2	01/28/02"  
+!     SccsID = "$Id: oconst.for 54967 2011-06-12 01:03:17Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/           
 !********************************************************************
 !
 !     OBLICQUE CONSTANTS
 !
-      SUBROUTINE OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,&
-                       LONO,F0,F2,F4,F6,LATC,LONC,ESQ)
+      SUBROUTINE OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,LONO,F0,F2,F4,F6,LATC,LONC,ESQ)
 
 !**    OBLIQUE MERCATOR PROJECTION                          !**
 !** COMPUTATIONS OF CONSTANTS
@@ -268,10 +265,10 @@
       END SUBROUTINE OCONST
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)skewd.for	1.2	01/28/02"  
+!     SccsID = "$Id: skewd.for 54971 2011-06-12 01:03:28Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
 !********************************************************************
-        SUBROUTINE SKEWD(FI,LAM,U,V,NORTH,EAST,CONV,KP,B,C,D,SGO,CGO,&
-                   GAMC,CGC,SGC,XI,E,ESQ,LONO,FN,FE)
+        SUBROUTINE SKEWD(FI,LAM,U,V,NORTH,EAST,CONV,KP,B,C,D,SGO,CGO,GAMC,CGC,SGC,XI,E,ESQ,LONO,FN,FE)
       IMPLICIT DOUBLE PRECISION(A-H,K-Z)
 !
       E=DSQRT(ESQ)
@@ -293,9 +290,10 @@
       END SUBROUTINE SKEWD
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)skewr.for	1.2	01/28/02"  
-      SUBROUTINE SKEWR(NORTH,EAST,LAT,LON,B,C,D,SGO,CGO,SGC,&
-                  CGC,LONO,FE,FN,F0,F2,F4,F6,ESQ,CONV,KP,GAMC,XI)
+!     SccsID = "$Id: skewr.for 54970 2011-06-12 01:03:25Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
+      SUBROUTINE SKEWR(NORTH,EAST,LAT,LON,B,C,D,SGO,CGO,SGC,CGC,LONO,FE,FN,F0,F2,F4,F6,ESQ,CONV,KP,GAMC,XI)
 !**    OBLIQUE MERCATOR PROJECTION                          ***
 !** CONVERSION OF GRID COORDS TO GEODETIC COORDS
 !** REVISED SUBROUTINE OF T. VINCENTY   FEB. 25, 1985
@@ -336,7 +334,9 @@
       END SUBROUTINE SKEWR
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)tconpc.for	1.2	01/28/02"  
+!     SccsID = "$Id: tconpc.for 54975 2011-06-12 01:03:39Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
       SUBROUTINE TCONPC(SF,OR,EPS,R,SO,V0,V2,V4,V6,ER,ESQ)
 !      
 !**          TRANSVERSE MERCATOR PROJECTION               !**
@@ -382,18 +382,17 @@
       V4=32.D0*(C6-6.D0*C8)
       V6=128.D0*C8
 
-      R=ER*(1.D0-EN)*(1.D0-EN*EN)*(1.D0+2.25D0*EN*EN+&
-          (225.D0/64.D0)*EN4)
+      R=ER*(1.D0-EN)*(1.D0-EN*EN)*(1.D0+2.25D0*EN*EN+(225.D0/64.D0)*EN4)
       COSOR=DCOS(OR)
-      OMO=OR+DSIN(OR)*COSOR*(U0+U2*COSOR*COSOR+U4*COSOR**4+&
-         U6*COSOR**6)
+      OMO=OR+DSIN(OR)*COSOR*(U0+U2*COSOR*COSOR+U4*COSOR**4+U6*COSOR**6)
       SO=SF*R*OMO
 
       RETURN
       END SUBROUTINE TCONPC
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)tconst.for	1.2	01/28/02"  
+!     SccsID = "$Id: tconst.for 54977 2011-06-12 01:03:44Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
 !********************************************************************
       SUBROUTINE TCONST (ER,RF,SF,OR,ESQ,EPS,R,A,B,C,U,V,W,SO,CM,FE,FN)
 !      
@@ -402,7 +401,7 @@
 !**** TRANSVERSE MERCATOR PROJECTION
 !      PRECOMPUTATION OF CONSTANTS
 !**** Programmed by T. Vincenty, NGS, in July 1984.
-!**!**!**!**!**!**** SYMBOLS AND DEFINITIONS  !**!**!**!**!**!**!***
+!******************** SYMBOLS AND DEFINITIONS  **********************
 !   ER is equatorial radius of the ellipsoid (= major semiaxis).
 !   RF is reciprocal of flattening of the ellipsoid.
 !   SF is scale factor of the central meridian.
@@ -433,13 +432,14 @@
       END SUBROUTINE TCONST
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)tmgeod.for	1.2	01/28/02"  
-      SUBROUTINE TMGEOD(N,E,LAT,LON,EPS,CM,FE,SF,SO,R,V0,V2,&
-                       V4,V6,FN,ER,ESQ,CONV,KP)
+!     SccsID = "$Id: tmgeod.for 54976 2011-06-12 01:03:42Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
+      SUBROUTINE TMGEOD(N,E,LAT,LON,EPS,CM,FE,SF,SO,R,V0,V2,V4,V6,FN,ER,ESQ,CONV,KP)
 !**          TRANSVERSE MERCATOR PROJECTION               !**
 !** CONVERSION OF GRID COORDS TO GEODETIC COORDS
 !** REVISED SUBROUTINE OF T. VINCENTY  FEB. 25, 1985
-!**!**!**!*** SYMBOLS AND DEFINITIONS !**!**!**!**!**!**!****
+!************ SYMBOLS AND DEFINITIONS ***********************
 !** LATITUDE POSITIVE NORTH, LONGITUDE POSITIVE WEST.  ALL
 !**          ANGLES ARE IN RADIAN MEASURE.
 !** LAT,LON ARE LAT. AND LONG. RESPECTIVELY
@@ -470,8 +470,7 @@
 
       OM=(N-FN+SO)/(R*SF)
       COSOM=DCOS(OM)
-      FOOT=OM+DSIN(OM)*COSOM*(V0+V2*COSOM*COSOM+V4*COSOM**4+ &
-          V6*COSOM**6)
+      FOOT=OM+DSIN(OM)*COSOM*(V0+V2*COSOM*COSOM+V4*COSOM**4+ V6*COSOM**6)
       SINF=DSIN(FOOT)
       COSF=DCOS(FOOT)
       TN=SINF/COSF
@@ -482,8 +481,7 @@
       QS=Q*Q
       B2=-TN*(1.D0+ETS)/2.D0
       B4=-(5.D0+3.D0*TS+ETS*(1.D0-9.D0*TS)-4.D0*ETS*ETS)/12.D0
-      B6=(61.D0+45.D0*TS*(2.D0+TS)+ETS*(46.D0-252.D0*TS- &
-         60.D0*TS*TS))/360.D0
+      B6=(61.D0+45.D0*TS*(2.D0+TS)+ETS*(46.D0-252.D0*TS- 60.D0*TS*TS))/360.D0
       B1=1.D0
       B3=-(1.D0+TS+TS+ETS)/6.D0
       B5=(5.D0+TS*(28.D0+24.D0*TS)+ETS*(6.D0+8.D0*TS))/120.D0
@@ -515,9 +513,10 @@
       END SUBROUTINE TMGEOD
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)tmgrid.for	1.2	01/28/02"  
-      SUBROUTINE TMGRID(FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,EPS,CM,&
-                       FE,FN,SF,SO,R,A,B,C,U,V,W)
+!     SccsID = "$Id: tmgrid.for 54979 2011-06-12 01:03:50Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
+      SUBROUTINE TMGRID(FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,EPS,CM,FE,FN,SF,SO,R,A,B,C,U,V,W)
 !
       IMPLICIT DOUBLE PRECISION(A-H,K-Z)
 !
@@ -589,21 +588,18 @@
       END SUBROUTINE TMGRID
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)drpcgp.for	1.2	01/28/02"  
+!     SccsID = "$Id: drpcgp.for 54990 2011-06-13 18:12:39Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
       SUBROUTINE DRPCGP_v2(north,east,ICODE,lat,lon)
-!      SUBROUTINE DRPCGP_v2(north,east,ICODE,FILFLAG,FILPRT,lat,lon)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
       DIMENSION SPCC(135,6),IZC(135),UTMC(60),ICODE(3)
-!      LOGICAL FILFLAG,FILPRT
       CHARACTER*1 AP(135)
       CHARACTER*4 ZN(135),ZONE
-!      CHARACTER*80 CARDR
       REAL(8) LAT,LON,NORTH,KP,NB,KC,LATC,LONC,LONO,K,KO,NO
       COMMON/TAB/SPCC,UTMC,IZC
       COMMON/CHAR/ZN,AP
       COMMON/CONST/RAD,ER,RF,ESQ,PI
-!      COMMON/XY/NORTH,EAST
-
 
       DO 10 J=1,3
         IF(ICODE(J).EQ.0) RETURN
@@ -619,8 +615,7 @@
           GO TO 10
         ELSEIF(AP(IZ).EQ.'N') THEN
           WRITE(6,40)ICODE(J)
-   40     FORMAT('0THE ZONE CONSTANTS ARE NOT ',&
-                'YET AVAILABLE FOR -',I4)
+   40     FORMAT('0THE ZONE CONSTANTS ARE NOT YET AVAILABLE FOR -',I4)
           GO TO 10
         ELSEIF(AP(IZ).EQ.'L') THEN
 
@@ -668,8 +663,7 @@
         CALL TCONPC (SF,OR,EPS,R,SO,V0,V2,V4,V6,ER,ESQ)
 
 !       CONVERT PCS TO LAT AND LONG
-        CALL TMGEOD(NORTH,EAST,LAT,LON,EPS,CM,FE,SF,SO,R,V0,V2,&
-                       V4,V6,FN,ER,ESQ,CONV,KP)
+        CALL TMGEOD(NORTH,EAST,LAT,LON,EPS,CM,FE,SF,SO,R,V0,V2,V4,V6,FN,ER,ESQ,CONV,KP)
 
 !       PRINT OUTPUT
 !        CALL FORMPC(CARDR,LAT,LON,FILFLAG,J,FILPRT,ZONE,CONV,KP)
@@ -687,13 +681,11 @@
       ZONE=ZN(IZ)
 
 !      COMPUTE ALL CONSTANCES FOR PROJECTION
-        CALL OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,LONO,&
-                   F0,F2,F4,F6,LATC,LONC,ESQ)
+        CALL OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,LONO,F0,F2,F4,F6,LATC,LONC,ESQ)
 !
 !       CONVERT PCS TO LAT AND LONG
 !
-        CALL SKEWR(NORTH,EAST,LAT,LON,B,C,D,SGO,CGO,SGC,CGC,LONO,&
-                   FE,FN,F0,F2,F4,F6,ESQ,CONV,KP,GAMC,XI)
+        CALL SKEWR(NORTH,EAST,LAT,LON,B,C,D,SGO,CGO,SGC,CGC,LONO,FE,FN,F0,F2,F4,F6,ESQ,CONV,KP,GAMC,XI)
 !       PRINT OUTPUT
 !
 !        CALL FORMPC(CARDR,LAT,LON,FILFLAG,J,FILPRT,ZONE,CONV,KP)
@@ -706,7 +698,9 @@
       END SUBROUTINE DRPCGP_v2
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-!     SccsID = "@(#)drgppc.for	1.2	01/28/02"  
+!     SccsID = "$Id: drgppc.for 54990 2011-06-13 18:12:39Z Srinivas.Reddy $"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
       SUBROUTINE DRGPPC_v2(rlon,rlat,ICODE,EWFLAG,north,east)
 !      SUBROUTINE DRGPPC_v2(rlon,rlat,ICODE,FILFLAG,EWFLAG,north,east)
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
@@ -751,8 +745,7 @@
           GO TO 10
         ELSEIF(AP(IZ).EQ.'N') THEN
           WRITE(6,40)ICODE(J)
-   40     FORMAT(' THE ZONE CONSTANTS ARE NOT ',&
-                'YET AVAILABLE FOR -',I4)
+   40     FORMAT(' THE ZONE CONSTANTS ARE NOT YET AVAILABLE FOR -',I4)
           GO TO 10
         ELSEIF(AP(IZ).EQ.'L') THEN
 
@@ -776,8 +769,7 @@
         CALL LCONST(ER,RF,FIS,FIN,FIB,ESQ,E,SINFO,RB,K,KO,NO,G,NB)
 
 !       CONVERT LAT AND LONG TO PCS
-        CALL LAMD1 (FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,E,CM,EO,&
-                       NB,SINFO,RB,K)
+        CALL LAMD1 (FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,E,CM,EO,NB,SINFO,RB,K)
 
 !       PRINT OUTPUT
 !        CALL FORMGP(CARDR,NORTH,EAST,CONV,KP,ZONE,FILFLAG,J)
@@ -794,7 +786,7 @@
 !** FIND ZONE NAME  ******
       ZONE=ZN(IZ)
 
-        IF(ZONE.EQ.'HI 5') THEN
+        IF(ZONE.EQ.'HI 5') THEN    !At some point this was IF((ZONE.EQ.'HI 5') .OR. (ZONE .EQ. 'GU  ')) THEN
           SF= 1.0D0
         ENDIF
 
@@ -802,8 +794,7 @@
         CALL TCONST (ER,RF,SF,OR,ESQ,EPS,R,A,B,C,U,V,W,SO,CM,FE,FN)
 
 !       CONVERT LAT AND LONG TO PCS
-        CALL TMGRID(FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,EPS,CM,&
-                       FE,FN,SF,SO,R,A,B,C,U,V,W)
+        CALL TMGRID(FI,LAM,NORTH,EAST,CONV,KP,ER,ESQ,EPS,CM,FE,FN,SF,SO,R,A,B,C,U,V,W)
 
 !       PRINT OUTPUT
 !        CALL FORMGP(CARDR,NORTH,EAST,CONV,KP,ZONE,FILFLAG,J)
@@ -821,12 +812,10 @@
       ZONE=ZN(IZ)
 
 !      COMPUTE ALL CONSTANCES FOR PROJECTION
-        CALL OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,LONO,&
-                   F0,F2,F4,F6,LATC,LONC,ESQ)
+        CALL OCONST(ER,RF,A,B,C,D,SGO,CGO,GAMC,SGC,CGC,XI,KC,LONO,F0,F2,F4,F6,LATC,LONC,ESQ)
 
 !       CONVERT LAT AND LONG TO PCS
-        CALL SKEWD(FI,LAM,U,V,NORTH,EAST,CONV,KP,B,C,D,SGO,CGO,&
-                   GAMC,CGC,SGC,XI,E,ESQ,LONO,FN,FE)
+        CALL SKEWD(FI,LAM,U,V,NORTH,EAST,CONV,KP,B,C,D,SGO,CGO,GAMC,CGC,SGC,XI,E,ESQ,LONO,FN,FE)
 !       PRINT OUTPUT
 !        CALL FORMGP(CARDR,NORTH,EAST,CONV,KP,ZONE,FILFLAG,J)
       ENDIF
@@ -840,6 +829,8 @@
 
 !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 !     SccsID = "@(#)tblspc.for	1.2	01/28/02"  
+!     Reconfirmed from source code - 03/05/2024 MEB  https://geodesy.noaa.gov/PC_PROD/SPCS83/
+!********************************************************************
       SUBROUTINE TBLSPC(IZC,AP,SPCC,UTMC,ZN)
 
 !** CREATE THE STATE PLANE COORDINATE TABLES
@@ -2048,11 +2039,17 @@
 
 !***           GUAM
 
-      SPCC(133,1)=213.0D0
-      SPCC(133,2)=500000.0D0
-      SPCC(133,3)=0.0D0
-      SPCC(133,4)=2500.0D0
-      SPCC(133,5)=0.0D0
+!***   SPCC(133,1)=213.0D0
+!***   SPCC(133,2)=500000.0D0
+!***   SPCC(133,3)=0.0D0
+!***   SPCC(133,4)=2500.0D0
+!***   SPCC(133,5)=0.0D0
+!***
+      SPCC(133,1)=T(215.D0,15.D0)
+      SPCC(133,2)=100000.D0
+      SPCC(133,3)=T(13.D0,30.D0)
+      SPCC(133,4)=1.D0
+      SPCC(133,5)=200000.D0
 
 !***           KY ONE
       SPCC(134,1)=85.75D0
@@ -2267,8 +2264,7 @@
       END DO
 
  30   FORMAT('0IMPROPER STATE ZONE CODE-',I4)
- 40   FORMAT('0THE ZONE CONSTANTS ARE NOT ',&
-                'YET AVAILABLE FOR -',I4)
+ 40   FORMAT('0THE ZONE CONSTANTS ARE NOT YET AVAILABLE FOR -',I4)
 
       END SUBROUTINE CHECK_ZONE_CODE
 

@@ -34,7 +34,7 @@ Changes
 
 v5.3.8 (08 January 2024) 
 ------------------------
-
+ 
 Improvements
 ^^^^^^^^^^^^
 * Update for internal path length for tidal database file locations.

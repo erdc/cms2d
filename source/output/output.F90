@@ -177,7 +177,7 @@
     savept(4)%names(4) = 'diss'    ; savept(4)%ounit(4) = 'N/m/s'  ; savept(4)%vals(4) = 1
     
     !Morphology
-    savept(5)%group = 'Morhology'
+    savept(5)%group = 'Morphology'
     savept(5)%time_inc = 0.0                   !5 is Morphology group
     savept(5)%ncells = 0
     savept(5)%active = .false.                     !make sure there are save points listed to make true.
@@ -200,15 +200,16 @@
 !***************************************************************************
     use out_def
     use prec_def
+    use q3d_def,  only: q3d
     use comvarbl, only: etime
     use diag_lib, only: diag_print_warning
     implicit none
-    integer :: i,j,cell,ierr
+    integer :: i,j,cell,ierr,num_cards
     character(len=37) :: cardname,cdum,ptname
     character(len=37) :: group(ngroups)
     character(len=120) :: saveargs,astring
     real(ikind) :: xsave,ysave
-    logical :: foundcard
+    logical :: foundcard, foundfile
     
     interface
       function toUpper (astr)
@@ -341,12 +342,13 @@
         i=1
         obs(i)%group = 'Time_Series'
         obs(i)%active = .true.
-        obs(i)%nvar = 4 !u,v,eta,velpro
+        obs(i)%nvar = 3 !u,v,eta
+        if (q3d) obs(i)%nvar = 4 !u,v,eta,velpro
         allocate(obs(i)%names(obs(i)%nvar))
         obs(i)%names(1)='u'
         obs(i)%names(2)='v'
         obs(i)%names(3)='eta'
-        obs(i)%names(4)='velpro'
+        if (q3d) obs(i)%names(4)='velpro'
         call read_obs_cells(i)
       
       case('ELEV_OBS_CELLS_END','END') !card should be changed just TIME_SERIES_OBS_CELLS_BEGIN
@@ -813,10 +815,19 @@
         read(saveargs,*,iostat=ierr) cardname,ptname,cell,xsave,ysave,(group(i),i=1,ngroups)
         call savept_add(ptname,cell,xsave,ysave,ngroups,group)
     
-      !case('SAVE_POINT_FILE') !This would be useful for having many save points
-      !  backspace(77)
-      !  read(77,'(A120)') saveargs
-      !  read(saveargs,*,iostat=ierr) cardname,file,(group(i),i=1,ngroups)
+      case('SAVE_POINT_CARDS') !This will be useful when there are many save points - Added 7/15/2024 MEB
+        backspace(77)
+        read(77,*) cardname, sp_card_file
+        inquire(file=sp_card_file, exist=foundfile)
+        if (foundfile) then
+          open(78,file=sp_card_file)
+          do 
+            read(78,'(A120)',iostat=ierr) saveargs
+            if (ierr .ne. 0) exit
+            read(saveargs,*,iostat=ierr) cdum,ptname,cell,xsave,ysave,(group(i),i=1,ngroups)
+            call savept_add(ptname, cell, xsave, ysave, ngroups, group)
+          enddo
+        endif
         
       case default 
         foundcard = .false.   
@@ -2860,7 +2871,7 @@ implicit none
 ! Initializes Observation cell Output
 !
 ! written by Alex, USACE-ERDC-CHL
-! last upated Nov 13, 2009 - added sediment and salinity
+! last updated Nov 13, 2009 - added sediment and salinity
 !********************************************************************************
 #include "CMS_cpp.h"
     use geo_def,  only: idmap
@@ -3194,7 +3205,7 @@ implicit none
           !if(savept(i)%cell(j)<=0 .or. savept(i)%cell(j)>ncells)then !Cell ID not specified or invalid
             !Search for nearest cell  
             ksp = 1; distmin = 1.0e10
-            if(ncellpoly==0)then
+            if(ncellpoly == 0)then
               do k=1,ncells  
                 dist = sqrt((savept(i)%x(j)-xc(k))**2+(savept(i)%y(j)-yc(k))**2)
                 if(dist<distmin)then
@@ -3204,22 +3215,23 @@ implicit none
               enddo
               kk = mapid(ksp) !Map to global grid
             else
-               do k=1,ncells  
+              do k=1,ncells  
                 dist = sqrt((savept(i)%x(j)-x(k))**2+(savept(i)%y(j)-y(k))**2)
                 if(dist<distmin)then
                   ksp = k
                   distmin = dist
                 endif
-               enddo
-               kk = ksp !Global index same as local index
+              enddo
+              kk = ksp !Global index same as local index
             endif
-            if(savept(i)%cell(j)>0 .and. savept(i)%cell(j)<=ncells .and. savept(i)%cell(j)/=kk)then
-              !write(msg2,*) ' Save point name: ',savept(i)%names(j)
-              write(msg3,*) ' Specified Cell ID: ',savept(i)%cell(j)
-              write(msg4,*) ' Calculated Cell ID: ',kk
-              !write(msg5,*) ' Specified Coordinates: ',savept(i)%x(j),savept(i)%y(j)' m' !Global coordiantes
-              write(msg5,*) ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
-              call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg3,msg4,msg5)
+            if(idmap(savept(i)%cell(j)) > 0 .and. idmap(savept(i)%cell(j)) <= ncells .and. savept(i)%cell(j)/=kk) then
+              if(savept(i)%id(j) .ne. "") write(msg,'(A,A)')   ' Save point ID:          ',savept(i)%id(j)
+              write(msg2,'(A,A)')  ' Save point type name:   ',savept(i)%names(j)
+              write(msg3,'(A,i0)') ' Specified Cell ID:      ',savept(i)%cell(j)
+              write(msg4,'(A,i0)') ' Calculated Cell ID:     ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
+              write(msg5,'(A,f0.3,x,f0.3,A)') ' Specified Coordinates:  ',savept(i)%x(j),savept(i)%y(j),' m' !Global coordiantes
+              write(msg6,'(A,f0.3,x,f0.3,A)') ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
+              call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg,msg2,msg3,msg4,msg5,msg6)
             endif
             savept(i)%cell(j) = ksp
           !endif
