@@ -1,5 +1,37 @@
 What's New
 ==========
+
+v5.3.11 (19 August 2024)
+------------------------
+
+Changes
+^^^^^^^
+* Changed to alternate between recurring XMDF hot start files. ASCII files TBD.
+* Added folder to start holding test cases for Continuous Integration implementation.
+
+
+v5.3.10 (16 July 2024)
+----------------------
+
+Changes
+^^^^^^^
+* Added compile option for VS2022, Intel OneAPI 2024.x
+* Fix for an erroneous Save Point warning that was always written.
+* Improved status descrition update for Culverts in CMS.
+* Added Error check for missing X/Y Origin cards in .cmcards file (SMS issue).
+* Implemented n extra file to store Save Point cards when there are more than 10 defined.
+
+
+v5.3.9 (16 April 2024)
+----------------------
+
+Changes
+^^^^^^^
+* Fix for Dredge module diagnostic file not found.
+* Clarified some diagnostic output regarding simulation duration and computed residuals.
+* Fix for steering variable (NHV_str to NH_str) possibly related to Flow/Wave steering issue.
+
+
 v5.3.8 (08 January 2024) 
 ------------------------
 
