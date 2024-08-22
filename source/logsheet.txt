@@ -1,3 +1,7 @@
+== Version 5.3.11 (08/19/2024) ==
+* Changed to alternate between recurring hot start files.
+* Added folder to start holding test cases for Continuous Integration
+
 == Version 5.3.10 (07/16/2024) ==
 * Added compile option for VS2022, Intel OneAPI 2024.1
 * Fix for an erroneous Save Point warning that was always written.

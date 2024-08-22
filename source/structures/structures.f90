@@ -1375,9 +1375,8 @@
     allocate(temparray(ncellsfull))
     temparray=0
     
-    !Count total number of permeable cells
     nrubmoundcells = 0
-    if(ierr < 0) call diag_print_error("Cannot open Rubble Mound ID dataset")
+    if(ierr < 0) call diag_print_error("Cannot open one of the Rubble Mound datasets")
     do i=1,ncellsfull
       if(permeability(i).gt.0.0) then
         nrubmoundcells = nrubmoundcells+1

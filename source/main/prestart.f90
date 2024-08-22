@@ -173,6 +173,12 @@
           open(100,file=autohotfile)
           close(100,status='delete')
         endif
+        !Added for second autohot start file - MEB 08/19/2024
+        inquire(file=autohotfile(1:13)//'2.h5',exist=foundfile)
+        if(foundfile)then
+          open(100,file=autohotfile(1:13)//'2.h5')
+          close(100,status='delete')
+        endif
       endif
     endif  
 

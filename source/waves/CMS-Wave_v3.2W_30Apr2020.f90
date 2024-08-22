@@ -1827,10 +1827,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         ENDDO
       ENDDO
 
-      if(sum.lt..0001) then
+      if(sum .lt. .0001) then
         nnf=nf
         ph0=g/ws*.9
-        if(ph0.gt..36) ph0=.36
+        if(ph0 .gt. .36) ph0=.36
         do nn=nnf,1,-1
           if(fcn(nn).gt.ph0) nnf=nn
         end do

@@ -29,18 +29,18 @@
 !$OMP END DO
 
     case(1) ! Falconer method (1980)
-      if(noptset<3)then   
+      if(noptset<3)then      !No waves
 !$OMP DO PRIVATE(i)          
         do i=1,ncells
           vis(i)=cviscon+cvisbot*cfrict(i)*uv(i)*h(i)    !cvisbot=0.578
           vis(i)=min(vis(i),cvismax)
         enddo
 !$OMP END DO      
-      else   
+      else                   !With waves 
 !$OMP DO PRIVATE(i)
-        do i=1,ncells
+        do i=1,ncells        
           vis(i)=cviscon+cvisbot*cfrict(i)*uv(i)*h(i)    !cvisbot=0.578
-          vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i) !Bottom friction contribution
+          vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i)          !Bottom friction contribution
           vis(i)=vis(i)+cviswavbrk*h(i)*(max(wavediss(i),1.0e-15)/rhow)**0.33333 !Breaking contribution  
           vis(i)=min(vis(i),cvismax)
         enddo
@@ -48,14 +48,14 @@
       endif           
           
     case(2) ! Depth-averaged parobolic model
-      if(noptset<3)then   
+      if(noptset<3)then      !No waves 
 !$OMP DO PRIVATE(i)        
         do i=1,ncells
           vis(i)=cviscon+cvisbot*bsvel(i)*h(i)
           vis(i)=min(vis(i),cvismax)
         enddo
 !$OMP END DO
-      else   
+      else                   !With waves
 !$OMP DO PRIVATE(i)            
         do i=1,ncells
           vis(i)=cviscon+cvisbot*bsvel(i)*h(i)  !Bottom current shear contribution
@@ -67,7 +67,7 @@
       endif
           
     case(3) !Wu sub-grid model
-      if(noptset<3)then
+      if(noptset<3)then      !No waves
 !$OMP DO PRIVATE(i,ss12,stens)
         do i=1,ncells
           if(iwet(i)==1)then
@@ -80,14 +80,14 @@
           endif               
         enddo 
 !$OMP END DO
-      else
+      else                   !With waves
 !$OMP DO PRIVATE(i,ss12,stens)
         do i=1,ncells
           if(iwet(i)==1)then
             ss12=0.5*(duy(i)+dvx(i))            
             stens=2.0*(dux(i)*dux(i)+2.0*ss12*ss12+dvy(i)*dvy(i))
             vis(i)=cviscon+sqrt(cvishor2areaavg2*stens+(cvisbot*bsvel(i)*h(i))**2)
-            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i) !Bottom friction contribution
+            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i)                                  !Bottom friction contribution
             vis(i)=vis(i)+cviswavbrk*h(i)*(max(wavediss(i),1.0e-15)/rhow)**0.33333 !Breaking contribution  
             vis(i)=min(vis(i),cvismax)
           else
@@ -98,7 +98,7 @@
       endif
        
     case(4) ! for mixing length model    
-      if(noptset<3)then   
+      if(noptset<3)then      !No waves
 !$OMP DO PRIVATE(i,ss12,stens)                  
         do i=1,ncells
           if(iwet(i)==1)then
@@ -112,7 +112,7 @@
           endif               
         enddo
 !$OMP END DO          
-      else
+      else                   !With waves
 !$OMP DO PRIVATE(i,ss12,stens)                
         do i=1,ncells
           if(iwet(i)==1)then
@@ -120,7 +120,7 @@
             stens=2.0*(dux(i)*dux(i)+2.0*ss12*ss12+dvy(i)*dvy(i))
             vis(i)=cviscon+sqrt((cappa*min(diswall(i),cvishor*h(i)))**4*stens  &
                            +(cvisbot*bsvel(i)*h(i))**2)   
-            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i) !Bottom wave shear contribution
+            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i)                                  !Bottom wave shear contribution
             vis(i)=vis(i)+cviswavbrk*h(i)*(max(wavediss(i),1.0e-15)/rhow)**0.33333 !Breaking contribution  
             vis(i)=min(vis(i),cvismax)
           else
@@ -131,7 +131,7 @@
       endif
 
     case(5) !Subgrid turbulence model - Alex
-      if(noptset<3)then  
+      if(noptset<3)then      !No waves
 !$OMP DO PRIVATE(i,stens)        
         do i=1,ncells
           if(iwet(i)==1)then
@@ -143,13 +143,13 @@
           endif               
         enddo 
 !$OMP END DO
-      else
+      else                   !With waves
 !$OMP DO PRIVATE(i,stens)        
         do i=1,ncells
           if(iwet(i)==1)then
             stens=sqrt(2.0*(dux(i)*dux(i)+dvy(i)*dvy(i))+(duy(i)+dvx(i))**2)
-            vis(i)=cviscon+cvisbot*bsvel(i)*h(i)+cvishor2areaavg*stens !Bottom and horizontal current shear constributions
-            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i) !Bottom wave shear contribution
+            vis(i)=cviscon+cvisbot*bsvel(i)*h(i)+cvishor2areaavg*stens             !Bottom and horizontal current shear contributions
+            vis(i)=vis(i)+cviswav*Whgt(i)*Worb(i)                                  !Bottom wave shear contribution
             vis(i)=vis(i)+cviswavbrk*h(i)*(max(wavediss(i),1.0e-15)/rhow)**0.33333 !Breaking contribution  
             vis(i)=min(vis(i),cvismax)
           else
