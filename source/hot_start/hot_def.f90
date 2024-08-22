@@ -88,13 +88,14 @@ module hot_def
     logical :: hot_vel
     logical :: hot_wet
     logical :: hot_flux
-    logical :: hot_timehr  !Output a hot start file at a specific time
-    real(ikind) :: hotdt   !Recurring hot start interval
-    real(ikind) :: hottime !Time to write hot start file
-    real(ikind) :: timeout !Last output time
-    real(ikind) :: hstarttime   ! MEB - 05/18/2012
-    character(len=15)  :: HotName, AutoHotName      !Hold just the name of the file, not the extension
-    character(len=200) :: hotfile,hotfile2,hotpath  !Output hot start file
+    logical :: hot_timehr     !Output a hot start file at a specific time
+    real(ikind) :: hotdt      !Recurring hot start interval
+    real(ikind) :: hottime    !Time to write hot start file
+    real(ikind) :: timeout    !Last output time
+    real(ikind) :: hstarttime !MEB - 05/18/2012
+    character(len=2)   :: autohot_inc = '_1'           !MEB - 08/19/2024
+    character(len=15)  :: HotName, AutoHotName         !Hold just the name of the file, not the extension
+    character(len=200) :: hotfile,hotpath              !Output hot start file
     character(len=200) :: autohotfile,autohotpath   !Output auto hot start file 2/3/2017 MEB
 
     logical :: add_duration_HS   !When starting from initial condition, add the specified duration_run to the startup time?  Ex. - Run another month from the end of the IC file.  MEB 04/29/2022
