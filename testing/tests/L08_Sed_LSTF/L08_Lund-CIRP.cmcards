@@ -1,0 +1,131 @@
+CMS_VERSION                         5.3
+SMS_VERSION                         13.3
+
+!Grid Geometry
+GRID_ANGLE                          0.0
+GRID_ORIGIN_X                       -0.1
+GRID_ORIGIN_Y                       0.0
+TELESCOPING                         "L08_Lund-CIRP.tel"
+
+!General Parameters
+USE_WALL_FRICTION_TERMS             OFF
+WAVE_MASS_FLUX                      OFF
+ROLLER_MASS_FLUX                    ON
+DRYING_DEPTH                        0.001
+BED_SLOPE_FRICTION_FACTOR           OFF
+WAVE_CURRENT_MEAN_STRESS            QUAD
+WAVE_BOTTOM_FRICTION_COEFFICIENT    0.65
+TURBULENCE_MODEL                    SUBGRID
+SIMULATION_LABEL                    "bench_case_1"
+NUM_THREADS                         2
+
+!Timing
+HYDRO_TIMESTEP                      60 'sec'
+STARTING_DATE_TIME                  2001-01-01 00:00:00 UTC
+DURATION_RUN                        3 'hrs'
+DURATION_RAMP                       2.5 'hrs'
+
+!Hot Start
+HOT_START_TIME                      48 'hrs'
+AUTO_HOT_START_INTERVAL             0.5 'hrs'
+
+!Transport
+CALC_SALINITY                       OFF
+WATER_DENSITY                       1025 'kg/m^3'
+WATER_TEMPERATURE                   15 'deg C'
+CALC_TEMPERATURE                    OFF
+
+!Save Points
+
+!Output Times List
+TIME_LIST_1                         1 0 10 0.1
+TIME_LIST_2                         0
+TIME_LIST_3                         0
+TIME_LIST_4                         0
+WSE_OUT_TIMES_LIST                  1
+VEL_OUT_TIMES_LIST                  1
+MORPH_OUT_TIMES_LIST                1
+TRANS_OUT_TIMES_LIST                1
+WAVE_OUT_TIMES_LIST                 1
+VISC_OUT_TIMES_LIST                 1
+
+!Output
+VEL_MAG_OUTPUT                      OFF
+
+!Files
+OUTPUT_FILE_TYPE                    XMDF
+XMDF_COMPRESSION                    0
+
+!Implicit/Explicit
+SOLUTION_SCHEME                     IMPLICIT
+MATRIX_SOLVER                       GMRES
+SKEWNESS_CORRECTION                 ON
+
+!Wind/Wave
+CMS-WAVE_SIM_FILE                   "Wave_bc1.sim"
+CMS-STEERING_INTERVAL               0.25
+FLOW_EXTRAPOLATION_DISTANCE         -999.0 m
+WAVE_EXTRAPOLATION_DISTANCE         -999.0 m
+WAVE_WATER_LEVEL                    TIDAL_PLUS_VARIATION
+
+!Bottom Friction
+MANNINGS_N_DATASET                  "L08_Lund-CIRP_datasets.h5" "Datasets/ManningsN"
+
+!Sediment Transport
+CALC_SEDIMENT_TRANSPORT             ON
+SED_TRAN_CALC_INTERVAL              60 'sec'
+MORPH_UPDATE_INTERVAL               60 'sec'
+MORPH_START_TIME                    0 'hrs'
+SED_TRANS_FORMULATION               NET
+TRANSPORT_FORMULA                   LUND-CIRP
+CONCENTRATION_PROFILE               EXPONENTIAL
+SEDIMENT_DENSITY                    2650 'kg/m^3'
+SEDIMENT_POROSITY                   0.4
+BED_LOAD_SCALE_FACTOR               1
+SUSP_LOAD_SCALE_FACTOR              1
+MORPH_ACCEL_FACTOR                  0
+BEDSLOPE_COEFFICIENT                1
+HIDING_EXPOSURE_COEFFICIENT         1
+ADAPTATION_METHOD_TOTAL             CONSTANT_LENGTH
+ADAPTATION_LENGTH_TOTAL             10 'm'
+SEDIMENT_SIZE_CLASS_BEGIN
+  DIAMETER                          0.15 'mm'
+  FALL_VELOCITY_FORMULA             SOULSBY
+  CRITICAL_SHEAR_FORMULA            SOULSBY
+SEDIMENT_SIZE_CLASS_END
+BED_LAYERS_MAX_NUMBER               10
+BED_LAYERS_MIN_THICKNESS            0.05 'm'
+BED_LAYERS_MAX_THICKNESS            0.5 'm'
+MIXING_LAYER_FORMULATION            AUTOMATIC
+BED_LAYER_BEGIN
+  LAYER                             1
+  D50_DATASET                       "L08_Lund-CIRP_datasets.h5" "Datasets/D50"
+BED_LAYER_END
+USE_AVALANCHING                     OFF
+AVALANCHE_CRITICAL_BEDSLOPE         32
+AVALANCHE_MAX_ITERATIONS            100
+HARDBOTTOM_DATASET                  "L08_Lund-CIRP_datasets.h5" "Datasets/Hard Bottom"
+
+!Projection
+HORIZONTAL_PROJECTION_BEGIN
+  DATUM                             None
+  COORDINATE_SYSTEM                 NONE
+  UNITS                             METERS
+  ZONE                              -1
+HORIZONTAL_PROJECTION_END
+VERTICAL_PROJECTION_BEGIN
+  DATUM                             LOCAL
+  UNITS                             METERS
+VERTICAL_PROJECTION_END
+
+!Boundary Conditions
+BOUNDARY_BEGIN
+  NAME ""
+  CELLSTRING "L08_Lund-CIRP_mp.h5" "PROPERTIES/Model Params/Boundary_#1"
+  WSE_BEGIN
+    WSE_CURVE "L08_Lund-CIRP_mp.h5" "PROPERTIES/Model Params/Boundary_#1"
+    OFFSET_CONSTANT 0.0 m
+  WSE_END
+BOUNDARY_END
+
+END_PARAMETERS
