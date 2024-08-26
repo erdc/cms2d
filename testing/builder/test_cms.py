@@ -59,6 +59,12 @@ def main():
     repo_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
     test_path = os.path.join(repo_path, 'testing', 'tests')
     files = [str(f.absolute()) for f in Path('.').rglob('*.cmcards')]
+    skip_files = [str(f.absolute()) for f in Path('.').rglob('skip.txt')]
+    skip_set = set()
+    for sf in skip_files:
+        print(f'Skipping {sf}')
+        skip_set.add(os.path.dirname(sf))
+    files = [f for f in files if os.path.dirname(f) not in skip_set]
 
     # Copy 'libiomp5md.dll' and executable to tests directory
     shutil.copyfile(os.path.join(repo_path, 'Intel_vs2022/x64/Release/CMS2d_v5.3.exe'),
@@ -67,7 +73,7 @@ def main():
                     os.path.join(test_path, './libiomp5md.dll'))
 
     runner = process_runner.ProcessRunner()
-    # runner.run_concurrent_processes(files)
+    runner.run_concurrent_processes(files)
     # test CMS outputs
     return_code = _check_outputs(files)
     if os.path.isfile(os.path.join(test_path, 'CMS2d_v5.3.exe')):
