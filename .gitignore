@@ -71,3 +71,5 @@ Intel_vs2022/.vs/CMS2D_V5.3/v17/
 Intel_vs2022/.vs/
 
 .idea/
+
+testing/builder/__pycache__/
