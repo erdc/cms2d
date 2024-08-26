@@ -43,6 +43,7 @@ def build(solution_path=None,
           build_config_names=None,
           project_name=None,
           exe_file_names=None,
+          dev_env=None,
           do_build=None,
           do_test=None,
           test_sub_directory=None,
@@ -54,24 +55,24 @@ def build(solution_path=None,
         build_config_names:  Example: ('Release')
         project_name:        Example: 'CMS2D_V5.3'
         exe_file_names:      Example: ('CMS2D_v5.3.exe')
+        dev_env:             Example: "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.com"
         do_build:            Example: 0 or 1 (0 to skip build)
         do_test:             Example: 0 or 1 (0 to skip test)
         test_sub_directory:  Example: 'testing'
     """
-    if not solution_path or not build_config_names or not project_name or not exe_file_names:
+    if not solution_path or not build_config_names or not project_name or not exe_file_names or not dev_env:
         return False
 
     start = time.time()
 
-    devenv = r'"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.com"'
-    this_file_directory_path = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir))
-    test_subdir = os.path.normpath(os.path.join(this_file_directory_path, test_sub_directory))
+    directory_path = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir))
+    test_subdir = os.path.normpath(os.path.join(directory_path, test_sub_directory))
 
     # build executables
     if do_build:
         for configuration in build_config_names:
-            shell(f'{devenv} {solution_path} /Clean {configuration}')
-            shell(f'{devenv} {solution_path} /Build {configuration}')
+            shell(f'{dev_env} {solution_path} /Clean {configuration}')
+            shell(f'{dev_env} {solution_path} /Build {configuration}')
     else:
         print('Skipping build step.')
 

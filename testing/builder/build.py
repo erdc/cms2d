@@ -38,6 +38,7 @@ def main():
         build_config_names=config['build_config_names'],
         project_name=config['project_name'],
         exe_file_names=config['exe_file_names'],
+        dev_env=config['dev_env'],
         do_build=int(args.build),
         do_test=int(args.test),
         test_sub_directory=args.test_folder,
