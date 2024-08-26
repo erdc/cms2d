@@ -1,0 +1,6 @@
+{
+"solution_path" :"../../Intel_vs2022/CMS2D_v5.3.sln",
+"build_config_names" : ["Release"],
+"project_name" : "CMS2D_v5.3",
+"exe_file_names" : ["CMS2D_v5.3.exe"]
+}
