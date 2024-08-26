@@ -23,10 +23,10 @@ def main():
         config = json.load(f)
 
     parser = argparse.ArgumentParser(description="builder.")
-    parser.add_argument('-b', '--build', help='Enter 0 to skip build', required=False, default=1)
+    parser.add_argument('-b', '--build', help='Enter 0 to skip build', required=False, default=0)
     parser.add_argument('-t', '--test', help='Enter 0 to skip tests.', required=False, default=1)
     parser.add_argument('-tf', '--test_folder', help='Enter directory to search for .cmcards files.', required=False,
-                        default='../tests')
+                        default='testing/tests/L05_Implicit_Test01')
     parser.add_argument('-n_proc', '--number_concurrent_processes', help='Enter number of concurrent processes',
                         required=False, default=2)
     args = parser.parse_args()
@@ -39,6 +39,7 @@ def main():
         project_name=config['project_name'],
         exe_file_names=config['exe_file_names'],
         dev_env=config['dev_env'],
+        dll_path=config['dll_path'],
         do_build=int(args.build),
         do_test=int(args.test),
         test_sub_directory=args.test_folder,

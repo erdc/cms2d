@@ -44,6 +44,7 @@ def build(solution_path=None,
           project_name=None,
           exe_file_names=None,
           dev_env=None,
+          dll_path=None,
           do_build=None,
           do_test=None,
           test_sub_directory=None,
@@ -60,19 +61,22 @@ def build(solution_path=None,
         do_test:             Example: 0 or 1 (0 to skip test)
         test_sub_directory:  Example: 'testing'
     """
-    if not solution_path or not build_config_names or not project_name or not exe_file_names or not dev_env:
+    flags = [solution_path, build_config_names, project_name, exe_file_names, dev_env, dll_path]
+    if any(item is None for item in flags):
         return False
 
     start = time.time()
 
     directory_path = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir))
-    test_subdir = os.path.normpath(os.path.join(directory_path, test_sub_directory))
+    repo_dir = os.path.normpath(os.path.join(directory_path, '..', '..'))
+    test_subdir = os.path.join(repo_dir, test_sub_directory)
+    abs_path_solution = os.path.join(repo_dir, solution_path)
 
     # build executables
     if do_build:
         for configuration in build_config_names:
-            shell(f'{dev_env} {solution_path} /Clean {configuration}')
-            shell(f'{dev_env} {solution_path} /Build {configuration}')
+            shell(f'{dev_env} {abs_path_solution} /Clean {configuration}')
+            shell(f'{dev_env} {abs_path_solution} /Build {configuration}')
     else:
         print('Skipping build step.')
 
@@ -83,7 +87,7 @@ def build(solution_path=None,
         os.chdir(test_subdir)
 
         import test_cms
-        return_code1 = test_cms.main()
+        return_code1 = test_cms.main(os.path.dirname(abs_path_solution), dll_path)
         if return_code1 != 0:
             return_code = 1
 

@@ -54,8 +54,13 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[st
     return ''
 
 
-def main():
-    """Run cms tests."""
+def main(vs_solution_path, dll_path):
+    """Run cms tests.
+
+    Args:
+        vs_solution_path (string): Path to the visual studio solution file.
+        dll_path (string): path to dll for openmp.
+    """
     repo_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
     test_path = os.path.join(repo_path, 'testing', 'tests')
     files = [str(f.absolute()) for f in Path('.').rglob('*.cmcards')]
@@ -67,9 +72,9 @@ def main():
     files = [f for f in files if os.path.dirname(f) not in skip_set]
 
     # Copy 'libiomp5md.dll' and executable to tests directory
-    shutil.copyfile(os.path.join(repo_path, 'Intel_vs2022/x64/Release/CMS2d_v5.3.exe'),
+    shutil.copyfile(os.path.join(repo_path, vs_solution_path, 'x64/Release/CMS2d_v5.3.exe'),
                     os.path.join(test_path, './CMS2D_v5.3.exe'))
-    shutil.copyfile(os.path.join(repo_path, 'libiomp5md.dll'),
+    shutil.copyfile(os.path.join(dll_path, 'libiomp5md.dll'),
                     os.path.join(test_path, './libiomp5md.dll'))
 
     runner = process_runner.ProcessRunner()
