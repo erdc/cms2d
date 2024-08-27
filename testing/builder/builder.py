@@ -11,7 +11,7 @@ import time
 
 # 4. Local modules
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright 2024"
 __license__ = "All rights reserved"
 
 
@@ -25,18 +25,6 @@ def shell(command):
     if result.returncode != 0:
         print('cwd:', os.getcwd())
         raise RuntimeError('Failed to run command: ' + command)
-
-
-def replace_file(src, dst):
-    """Overwrite a file on disk.
-
-    Args:
-        src (str): Path to the source file
-        dst (str): Path to the destination file
-    """
-    if os.path.isfile(dst):
-        os.remove(dst)
-    shutil.copyfile(src, dst)
 
 
 def build(solution_path=None,
@@ -57,6 +45,7 @@ def build(solution_path=None,
         project_name:        Example: 'CMS2D_V5.3'
         exe_file_names:      Example: ('CMS2D_v5.3.exe')
         dev_env:             Example: "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.com"
+        dll_path:            Example: "c:/Program Files (x86)/Common Files/Intel/Shared Libraries/redist/intel64/compiler" Used for finding the 'libiomp5.dll'
         do_build:            Example: 0 or 1 (0 to skip build)
         do_test:             Example: 0 or 1 (0 to skip test)
         test_sub_directory:  Example: 'testing'

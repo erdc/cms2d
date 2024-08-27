@@ -1,4 +1,6 @@
-"""Export an H5 file to text."""
+"""Export an H5 file to text.
+   Copied from XMS tool repository.
+"""
 # 1. Standard python modules
 from dataclasses import dataclass, field
 import io
@@ -13,7 +15,7 @@ import numpy
 
 # 4. Local modules
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright Aquaveo 2024"
 __license__ = "All rights reserved"
 
 

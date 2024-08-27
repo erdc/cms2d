@@ -9,7 +9,7 @@ import shutil
 
 
 def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[str]] = None,
-                     allow_close: bool = False) -> str:
+                     allow_close: bool = False, atol = 1e-08) -> str:
     """Compare two H5 files for testing.
 
     Args:
@@ -17,6 +17,7 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[st
         out_file: The path to the output coverage file.
         to_exclude: Optional list of dataset or attribute names to exclude from printing.
         allow_close: Allow floating point values to be close but not equal.
+        atol: Absolute error tolerance, see Numpy Allclose
     """
     if to_exclude is None:
         to_exclude = []
@@ -39,7 +40,7 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[st
             base_float = isinstance(base_data, numpy.ndarray) and base_data.dtype.kind == 'f'
             out_float = isinstance(out_data, numpy.ndarray) and out_data.dtype.kind == 'f'
             if base_float and out_float:
-                equal = numpy.allclose(base_data, out_data, equal_nan=True)
+                equal = numpy.allclose(base_data, out_data, equal_nan=True, atol=atol)
                 if not equal:
                     message = (f'files differ:\n  {base_txt_file}\n  {out_txt_file}\n'
                                f'{name} not close')
@@ -64,6 +65,8 @@ def main(vs_solution_path, dll_path):
     repo_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
     test_path = os.path.join(repo_path, 'testing', 'tests')
     files = [str(f.absolute()) for f in Path('.').rglob('*.cmcards')]
+
+    # To skip a test, add an empty text file named 'skip.txt' in the test folder.
     skip_files = [str(f.absolute()) for f in Path('.').rglob('skip.txt')]
     skip_set = set()
     for sf in skip_files:
@@ -89,7 +92,7 @@ def main(vs_solution_path, dll_path):
 
 
 def _check_outputs(files):
-    """Check the test outputs.
+    """Check the test outputs. Each test should have a base folder that contains the output datasets for comparisons.
 
     Args:
         files (list(str)): list of files being tested
@@ -106,7 +109,7 @@ def _check_outputs(files):
             if not os.path.isfile(outfile):
                 print(f'TEST FAILED: {f}\n')
                 return_code = 1
-            val = compare_h5_files(basefile, outfile, allow_close=True)
+            val = compare_h5_files(basefile, outfile, allow_close=True, atol=1e-08)
             if val != '':
                 print(f'{val}\n')
                 return_code = 1

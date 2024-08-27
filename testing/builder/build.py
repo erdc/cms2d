@@ -12,13 +12,15 @@ import os
 import builder as builder
 import process_runner as pr
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright 2024"
 __license__ = "All rights reserved"
 
 
 def main():
     """Entry point for the build script."""
     directory_path = os.path.normpath(os.path.dirname(__file__))
+
+    # Configuration file for compiling the project.
     with open(os.path.join(directory_path,'build-config.json')) as f:
         config = json.load(f)
 
