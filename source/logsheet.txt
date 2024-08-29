@@ -1,3 +1,6 @@
+== Version 5.3.12 (08/29/2024) ==
+* Added additional alias to be able to Hot Start CMS.  User can use 'HOT_START_SIMULATION' followed by the appropriate hot start filename.
+
 == Version 5.3.11 (08/19/2024) ==
 * Changed to alternate between recurring hot start files.
 * Added folder to start holding test cases for Continuous Integration

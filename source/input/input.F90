@@ -176,7 +176,7 @@
       read(aline,*,iostat=ierr) cardname, datafile, datapath 
       
       !Ignore hotstarting file  MEB  1/15/2021
-      if(ierr/=0 .and. cardname(1:20)/='INITIAL_STARTUP_FILE' .and. cardname(1:22) /= 'INITIAL_CONDITION_FILE')then
+      if(ierr/=0 .and. cardname(1:20)/='INITIAL_STARTUP_FILE' .and. cardname(1:22) /= 'INITIAL_CONDITION_FILE' .AND. cardname(1:20) /= 'HOT_START_SIMULATION')then
         call diag_print_warning('Path not specified for dataset card: ',cardname)
       endif
       
