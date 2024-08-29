@@ -1,0 +1,20 @@
+CMS-WAVE        19.9000        20.0000       180.0000
+DEP       Wave_bc1.dep
+OPTS      Wave_bc1.std
+CURR      Wave_bc1.cur
+SPEC      Wave_bc1-side1.eng
+SPEC2     Wave_bc1-side3.eng
+WAVE      Wave_bc1.wav
+OBSE      Wave_bc1.obs
+NEST      Wave_bc1.nst
+BREAK     Wave_bc1.brk
+SPGEN     Wave_bc1.txt
+RADS      Wave_bc1.rad
+STRUCT    Wave_bc1.struct
+FRIC      Wave_bc1.fric
+FREF      Wave_bc1.fref
+BREF      Wave_bc1.bref
+ETA       Wave_bc1.eta
+MUD       Wave_bc1.mud
+WIND      Wave_bc1.wind
+SELHTS    Wave_bc1.out

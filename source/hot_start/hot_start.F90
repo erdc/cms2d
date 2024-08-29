@@ -16,7 +16,7 @@
 !******************************************************************    
     subroutine hot_default
 ! Sets hot start default valus
-! writtin by Alex Sanchez, USACE-CHL    
+! written by Alex Sanchez, USACE-CHL    
 !******************************************************************
     use hot_def
     use comvarbl, only: flowpath
@@ -35,7 +35,7 @@
     
     autohotname = 'AutoHotStart'
     hotname     = 'SingleHotStart'
-    autohotfile = trim(AutoHotName)//'.h5'
+    autohotfile = trim(AutoHotName)//autohot_inc//'.h5'    !Adding '_1' to the automatic hot start file name for XMDF, to prepare to alternate writing to the file.
     hotfile     = trim(HotName)//'.h5'
     autohotpath = 'Datasets/'
     hotpath     = 'Datasets/'    
@@ -65,11 +65,12 @@
     use hot_def
     use prec_def
     implicit none
-    integer :: iyrhot,imohot,idayhot,ihrhot,iminhot,isechot,ierr
+    
+    integer     :: iyrhot,imohot,idayhot,ihrhot,iminhot,isechot,ierr
     real(ikind) :: tjuldayhot
+    character   :: apath*200,aname*200,aext*10,atemp*200
+    logical     :: foundcard
     character(len=37) :: cardname    
-    character :: apath*200,aname*200,aext*10,atemp*200
-    logical :: foundcard
     
     foundcard = .true.
     select case(cardname)
@@ -137,11 +138,12 @@
 ! modified by Mitch Brown - 05/18/2012
 !******************************************************************
 #include "CMS_cpp.h"  
-    use flow_def, only: eta,u,v
     use hot_def
-    use comvarbl, only: timehrs,stime,ctime
     use diag_lib
+    use flow_def, only: eta,u,v
+    use comvarbl, only: timehrs,stime,ctime
     implicit none
+
     character(len=10) :: aext
     logical :: ok
     
@@ -222,7 +224,6 @@
     else
       nd = ncells
     endif
-
 
     do while(ierr==0)
       read(kunit,*,iostat=ierr) cardname
@@ -652,23 +653,23 @@
 ! completed by Mitchell Brown, 03/20/2018
 !********************************************************************    
     use size_def
-    use flow_def, only: eta,u,v,h,p,iwet,grav
+    use diag_lib
     use hot_def
     use in_def
-    use in_lib, only: read_dat
-    use comvarbl, only: timehrs
-    use interp_lib, only: interp_scal_node2cell
+    use flow_def,     only: eta,u,v,h,p,iwet,grav
+    use in_lib,       only: read_dat
+    use comvarbl,     only: timehrs
+    use interp_lib,   only: interp_scal_node2cell
     use unitconv_lib, only: unitconv_scal
-    use diag_lib
     implicit none
+    
     integer :: nscal,nvec
     type(scaldattype), pointer :: scaldat(:)
     type(vecdattype),  pointer :: vecdat(:)
     real(4) :: etemp(ncellsfull),utemp(ncellsfull),vtemp(ncellsfull),wtemp(ncellsfull)
     real(ikind) :: wet(ncellsD)
     integer :: i
-    
-    
+        
     call read_dat(icfile,nscal,scaldat,nvec,vecdat)
     
     !--- Water Levels -----
@@ -751,19 +752,19 @@
 #include "CMS_cpp.h"
 #ifdef XMDF_IO
     use size_def
-    use geo_def, only: cell2cell,zb,zb0
-    use flow_def, only: u,v,u1,v1,uv,p,p1,eta,h,iwet,flux,grav,gravinv
-    use sed_def, only: sedtrans,nsed,Ctk,Ctk1,Ctkstar,icapac,nlay,bedlay,&
-        pbk,pbk1,db,db1,d50,d90,diam,diamlim,logdiamlim,dbmax,dmconst,zb1
-    use sal_def, only: saltrans,sal
-    use heat_def, only: heattrans, heat
     use hot_def
-    use in_xmdf_lib, only: readscallasth5,readveclasth5
-    use out_def, only: outlist,simlabel
     use xmdf
-    use DFLIB, only: systemqq
     use diag_lib
     use prec_def
+    use geo_def,  only: cell2cell,zb,zb0
+    use flow_def, only: u,v,u1,v1,uv,p,p1,eta,h,iwet,flux,grav,gravinv
+    use sed_def,  only: sedtrans,nsed,Ctk,Ctk1,Ctkstar,icapac,nlay,bedlay,pbk,pbk1
+    use sed_def,  only: db,db1,d50,d90,diam,diamlim,logdiamlim,dbmax,dmconst,zb1
+    use sal_def,  only: saltrans,sal
+    use heat_def, only: heattrans, heat
+    use out_def,  only: outlist,simlabel
+    use DFLIB,    only: systemqq
+    use in_xmdf_lib, only: readscallasth5,readveclasth5
     
     implicit none
     integer :: res !Added MEB - 05/18/2012 for hot start fixes
@@ -1206,7 +1207,7 @@ loopj:  do j=1,nlay
     
 !******************************************************************    
     subroutine hot_init()
-! Initializes any missing variables icluding Ctk and pbk
+! Initializes any missing variables including Ctk and pbk
 ! and takes care of boundaries
 ! written by Alex Sanchez, USACE-CHL
 !
@@ -1214,76 +1215,42 @@ loopj:  do j=1,nlay
 !******************************************************************    
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: cell2cell,zb
-    use flow_def, only: u,v,u1,v1,uv,p,p1,eta,h,h1,hmin,iwet,iwet1,ponding,grav,gravinv
-    use comvarbl, only: ctime,stime,timehrs,timesecs
-    use sed_def, only: nsed,icapac,Ctk,Ctk1,Ctkstar,CtstarP,pbk,&
-       singlesize,variableD50,d50,diam,mhe,iHidExpForm,varsigma
-    use stat_def, only: calc_stats,tstat
     use bnd_def
     use hot_def
-    use out_def, only: simlabel
     use sal_def
     use heat_def
     use diag_lib
+    use geo_def,  only: cell2cell,zb
+    use flow_def, only: u,v,u1,v1,uv,p,p1,eta,h,h1,hmin,iwet,iwet1,ponding,grav,gravinv
+    use comvarbl, only: ctime,stime,timehrs,timesecs
+    use sed_def,  only: nsed,icapac,Ctk,Ctk1,Ctkstar,CtstarP,pbk,singlesize
+    use sed_def,  only: variableD50,d50,diam,mhe,iHidExpForm,varsigma
+    use stat_def, only: calc_stats,tstat
+    use out_def,  only: simlabel
     implicit none
+    
     integer :: i,j,k,ibnd,nck,iwse,isal,iheat
     character(len=100) :: msg2,msg3
             
-    !if(.not.icwse .and. icpres)then !Only pressure specified
-    !  eta = p*gravinv
-    !elseif(icwse .and. .not.icpres)then !Only water level specified
-    !  p = eta*grav      
-    !elseif(.not.icwse .and. .not.icpres)then
-    !  call  diag_print_warning('Unable to find initial water level/pressure',&
-    !    '    Use one of the following paths and names: ',&
-    !    '      "Datasets\Water_Level" ',&
-    !    '      "Datasets\Water_Elevation" ',&
-    !    '      "Datasets\Water_Surface_Elevation"',&
-    !    !'      "Datasets\Water_Pressure"',&
-    !    '    Setting water level to zero')
-    !  eta = 0.0   
-    !  p = 0.0      
-    !endif   
-    !  
-    !if(.not.icvel)then
-    !  call diag_print_warning('Unable to find current velocities ',&
-    !    '    Use one of the following paths and names: ',&
-    !    '      "Datasets\Current_Velocity" ',&
-    !    '      "Datasets\u" ',&
-    !    '      "Datasets\v" ',&  
-    !    '   Setting current velocities to zero')
-    !  u = 0.0      
-    !  v = 0.0
-    !else
-    !  write(msg,11) 'Read current velocity: ',trim(apath)
-    !  call diag_print_message(msg)
-    !  ictime = temphr !Start time in hours  
-    !endif  
-    
+      
     !--- Hot Start Time ---------------------------------------------
 755 format(1x,A,F10.3,A)    
     !Overwrites time in icfile. The time in icfile may be incorrectly set to zero by SMS
     if(ictime>-1.0e-20)then !if specified
       timehrs = ictime !Initial condition time
-      !call diag_print_message('Initial Condition Time Specified...')
     else 
       if(timeout>-1.0e-20)then !if specified
         timehrs = timeout !Used time in solution file
-        !call diag_print_message('Using last output time as hot start time...')
       else  
         timehrs = 0.0  !no initial condition time estimate available so set to default
-        !call diag_print_warning('Initial Condition Time set to zero...')        
       endif  
     endif
     stime = timehrs*3600.0     !stime is elapsed time in seconds
     ctime = stime
     timesecs = dble(ctime)
     hstarttime = timehrs
-!!    nspinup=max(nspinup,5) !********
     
     write(msg2,755) '  Hot Start Time:   ',timehrs,' hours'
-    !write(msg3,755) '  Last Output Time: ',timeout,' hours'
     call diag_print_message(' ',msg2)   
     
     !--- Simulation Statistics ----
@@ -1297,20 +1264,6 @@ loopj:  do j=1,nlay
       endif   
     endif
     
-    !!!Wetting and drying
-    !call flow_wetdry(0)
-    !!If all cells are dry, then assume closed domain and turn on ponding
-    !if(sum(1-iwet(1:ncells))==ncells)then 
-    !  ponding=.true.
-    !  call flow_wetdry(0)
-    !endif 
-    !iwet1=iwet    
-    !eta = iwet*p*gravinv-999.0*(1-iwet)
-    
-    !call der_grad_eval(goa,0,zb,dzbx,dzby) !Bed-slope
-    !call interp_scal_cell2face(zb,0,zbk,dzbx,dzby)
-    !call flow_grad_interp
-      
     !---- Apply wet/dry ------------
     !Dry nodes     
     do i=1,ncellsD
@@ -1480,12 +1433,12 @@ loopj:  do j=1,nlay
 ! written by Alex Sanchez, USACE-CHL
 !******************************************************************
 #include "CMS_cpp.h"
-    use hot_def, only: hottime,hot_timehr,hot_recur,hotdt,hotname,autohotname,hotfile,hotpath,autohotfile,autohotpath
-    use comvarbl, only: timehrs,casename
     use diag_def
     use diag_lib
     use prec_def
-    use out_def, only: write_sup
+    use hot_def,  only: hottime,hot_timehr,hot_recur,hotdt,hotname,autohotname,hotfile,hotpath,autohotfile,autohotpath,autohot_inc
+    use comvarbl, only: timehrs,casename
+    use out_def,  only: write_sup
 #ifdef _WIN32    
     use IFPORT
 #endif
@@ -1499,7 +1452,7 @@ loopj:  do j=1,nlay
     iSingleHot = .false. ; iAutoHot = .false.
     if(hot_timehr .and. abs(timehrs-hottime)<=eps) iSingleHot = .true.   
     if(hotdt.gt.0.0) then 
-      if(hot_recur  .and. mod(timehrs,hotdt)<=eps)   iAutoHot   = .true.   
+      if(hot_recur  .and. mod(timehrs*60,hotdt*60)<=eps)   iAutoHot   = .true.   !multiplied by 60 so it would output correctly with smaller increments. MEB 08/19/2024
     endif  
     if(.not.iSingleHot .and. .not.iAutoHot) return              
     hotdirpath='ASCII_HotStart'
@@ -1532,6 +1485,15 @@ loopj:  do j=1,nlay
 #endif
     endif
 
+    !added to write out two files - MEB 08/19/2024
+    if (autohot_inc == '_1') then              !First one just written, renumber to second.
+      autohot_inc = '_2'
+      autohotfile = autohotfile(1:13)//'2.h5'
+    else                                       !Second one just written, renumber back to first.
+      autohot_inc = '_1'
+      autohotfile = autohotfile(1:13)//'1.h5'
+    endif
+        
     return
     end subroutine hot_write
 
@@ -1542,15 +1504,15 @@ loopj:  do j=1,nlay
 ! update 06/07/19 - If not hot start, you will not even get into this routine.  
 !***********************************************************************
     use out_lib,  only: write_xy_file
-    use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_timehr, hot_recur, coldstart,icfile
     use comvarbl, only: casename
     use diag_def, only: debug_mode
     use diag_lib, only: diag_print_error
+    use hot_def,  only: autohotfile, hotfile, autohotname, hotname, hot_out, hot_timehr, hot_recur, coldstart,icfile,autohot_inc
 #ifdef _WIN32
     use ifport,   only: makedirqq
 #endif
-    
     implicit none
+    
     character(len=200) :: hotdirpath, aname, filesup, filexy, tfile, astring
     logical            :: iSingleHot, iAutoHot, found, created, res, ok
     integer            :: nunit,ierr,filecopied
@@ -1563,7 +1525,7 @@ loopj:  do j=1,nlay
     hotdirpath='ASCII_HotStart'
 
     !Change from XMDF filename 
-    autohotfile = trim(AutoHotName)//'.sup'
+    autohotfile = trim(AutoHotName)//'.sup'   !keep outputting only 1 ASCII recurring hotstart file for now.
     hotfile     = trim(HotName)//'.sup'
     tfile       = trim(hotdirpath)//'/InitialCondition.sup'
 #ifdef _WIN32    
@@ -1629,7 +1591,6 @@ loopj:  do j=1,nlay
 
     return
     end subroutine hotstart_file_init
-    
 
 !******************************************************************
     subroutine hot_write_xmdf(outfile,outpath)
@@ -1639,20 +1600,18 @@ loopj:  do j=1,nlay
 #include "CMS_cpp.h"
 #ifdef XMDF_IO
     use size_def
-    use hot_def, only: hotfile,hottime,hot_timehr,&
-        hotdt,hot_recur,icfile,hotpath
-    use geo_def, only: zb
+    use prec_def
+    use xmdf
+    use hot_def,  only: hotfile,hottime,hot_timehr,hotdt,hot_recur,icfile,hotpath,autohot_inc
+    use geo_def,  only: zb
     use flow_def, only: u,v,u1,v1,p,p1,eta,iwet,iwet1,flux,flux1,grav
     use comvarbl, only: ctime,timehrs,flowpath,ntsch
-    use sed_def, only: sedtrans,nsed,Ctk,nlay,pbk,db
-    use sal_def, only: saltrans,sal
+    use sed_def,  only: sedtrans,nsed,Ctk,nlay,pbk,db
+    use sal_def,  only: saltrans,sal
     use heat_def, only: heattrans, heat
     use stat_def, only: flowstats,sedstats,salstats,heatstats
-    use out_def, only: simlabel
-    use out_lib, only: writescalh5,writevech5
-    use prec_def
-!!    use ifport  !Only for intel compiler
-    use xmdf
+    use out_def,  only: simlabel
+    use out_lib,  only: writescalh5,writevech5
     implicit none
     
     character(len=*), intent(in) :: outfile, outpath
@@ -1692,23 +1651,9 @@ loopj:  do j=1,nlay
     enddo
 #endif
 
-!    !Second-order temporal scheme
-!    if(ntsch==2)then
-!      call writescalh5(outfile,outpath,'Water_PressureS',p1,'m^2/s^2',timehrs,1)   
-!!      call writescalh5(hotfile,apath,'Water_Elevation',eta,'m',timehrs,1)
-!      call writevech5(outfile,outpath,'Current_VelocityS',u1,v1,'m/s',timehrs,1)
-!      var = iwet1
-!      call writescalh5(outfile,outpath,'WetS',var,'',timehrs,1)    
-!      do k=1,nmaxfaces
-!        var = flux1(:,k)
-!        if(k<=9)then
-!           write(aname,'(A,I1)') 'FluxS',k
-!        else
-!           write(aname,'(A,I1)') 'FluxS',k
-!        endif 
-!        call writescalh5(outfile,outpath,aname,var,'m^3/s',timehrs,1)
-!      enddo  
-!    endif
+62  format('_',I2.2)
+71  format(1x,'(',I1,')')
+72  format(1x,'(',I2,')')
     
     !--- Sediment Transport ----
     if(sedtrans)then      
@@ -1716,21 +1661,15 @@ loopj:  do j=1,nlay
       var = -zb
       call writescalh5(outfile,outpath,'Depth',var,'m',timehrs,1)  
 !      !Initial Water depths
-!      var = -zb0
-!      call writescalh5(hotfile,apath,'Initial_Depth',var,'m',timehrs,1)  
       !Sediment concentrations
       if(nsed==1)then !Single grain size
         aname = 'Concentration'
         call writescalh5(outfile,outpath,aname,Ctk(:,1),'kg/m^3',timehrs,1)  
-      else              !Multiple grain size
-
-62  format('_',I2.2)
-71  format(1x,'(',I1,')')
-72  format(1x,'(',I2,')')        
+      else            !Multiple grain size
         !Concentrations
         do ks=1,nsed
-            write(apbk,62) ks
-            aname = 'Concentration'// apbk
+          write(apbk,62) ks
+          aname = 'Concentration'// apbk
           call writescalh5(outfile,outpath,aname,Ctk(:,ks),'kg/m^3',timehrs,1)  
         enddo
         
@@ -1773,8 +1712,8 @@ loopj:  do j=1,nlay
 ! - starting with individual hotstart files and will eventually write all into one.
 !***********************************************************************
     use size_def
-    use hot_def,  only: hotfile,hottime,hot_timehr,&
-        hotdt,hot_recur,icfile,hotpath
+    use prec_def
+    use hot_def,  only: hotfile,hottime,hot_timehr,hotdt,hot_recur,icfile,hotpath
     use geo_def,  only: zb
     use flow_def, only: u,v,u1,v1,p,p1,eta,iwet,iwet1,flux,flux1,grav
     use comvarbl, only: ctime,timehrs,flowpath,ntsch,casename
@@ -1784,16 +1723,15 @@ loopj:  do j=1,nlay
     use stat_def, only: flowstats,sedstats,salstats,heatstats
     use out_def,  only: simlabel
     use out_lib,  only: write_scal_dat_file,write_vec_dat_file
-    use prec_def
     use diag_lib, only: diag_print_error
     implicit none
 
-    character(len=*), intent(in) :: aname,hotdirpath
+    integer            :: i,j,k,ks,nunit,ierr
+    real(ikind)        :: var(ncellsD)
     character(len=5)   :: apbk,alay    
     character(len=100) :: lname,sname,filesup,filexy,acmd
     character(len=200) :: apath,anarg,aline
-    integer            :: i,j,k,ks,nunit,ierr
-    real(ikind)        :: var(ncellsD)
+    character(len=*), intent(in) :: aname,hotdirpath
     
 101 format('SUPER')
 102 format('SCAT2D  "',A,'"')   
@@ -1826,6 +1764,10 @@ loopj:  do j=1,nlay
       call write_scal_dat_file(aname,lname,lname,var)
 #endif
 
+62  format('_',I2.2)
+71  format(1x,'(',I1,')')
+72  format(1x,'(',I2,')')        
+
     !--- Sediment Transport ----
     if(sedtrans)then      
       !Water depths
@@ -1836,11 +1778,6 @@ loopj:  do j=1,nlay
       if(nsed==1)then !Single grain size
         call write_scal_dat_file(aname,'Concentration','conc',Ctk(:,1))
       else              !Multiple grain size
-
-62  format('_',I2.2)
-71  format(1x,'(',I1,')')
-72  format(1x,'(',I2,')')        
-
         !Concentrations
         do ks=1,nsed
           write(apbk,62) ks
@@ -1881,15 +1818,7 @@ loopj:  do j=1,nlay
 
     return
     end subroutine write_hotstart_sup
-
-
-!!******************************************************************
-!    subroutine hot_write_bins
-!!******************************************************************
-!    
-!    return
-!    end subroutine hot_write_bin
-    
+   
 !***********************************************************************    
     subroutine hot_print()
 ! Prints the Hot Start settings to the screen and diagnostic file
@@ -1899,6 +1828,7 @@ loopj:  do j=1,nlay
     use diag_def, only: dgunit,dgfile
     use tool_def, only: vstrlz
     implicit none
+    
     integer :: i,iunit(2)
     
 645 format(' ',A,T40,F0.2,A)

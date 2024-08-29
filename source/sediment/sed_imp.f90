@@ -88,7 +88,7 @@
     
     !=== Vertical diffusivity =======
     !Note: The vertical diffusivity is used in the total load correction factor calculation.
-    if(icapac/=1)then
+    if(icapac/=1 .AND. q3d)then
       do i=1,ncells  
         call surface_windwave_stress(i,tausx,tausy,ustars)
         epsvk(i,:) = q3d_eddyvert_mean(h(i),bsxy(i),ustars)/schmidt !Assume Schmidt number the same for all size classes
