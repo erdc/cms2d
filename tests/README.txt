@@ -1,1 +1,0 @@
-Placeholder folder for tests to be incorporated into the Continuous Integration for CMS.

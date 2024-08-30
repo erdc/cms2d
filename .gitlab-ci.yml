@@ -1,0 +1,23 @@
+stages:
+  - build
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/pip-cache"
+
+cache:
+  paths:
+    - "$CI_PROJECT_DIR/pip-cache"
+  key: "$CI_PROJECT_ID"
+
+build:
+  stage: build
+  artifacts:
+    when: always
+    expire_in: '18h' # 1 Hour is the minimum time
+    paths:
+       - testing
+  script:
+    - python -m pip install dataclasses h5py typing
+    - python testing/builder/build.py -n_proc 2
+  tags:
+    - WinVM
