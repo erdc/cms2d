@@ -2701,6 +2701,7 @@ d1: do ii=1,30
     use geo_def
     use comvarbl
     use sed_def
+    use tool_def,   only: rround
 #ifdef XMDF_IO
     use xmdf
     use in_xmdf_lib, only: readscalh5
@@ -2710,7 +2711,7 @@ d1: do ii=1,30
     use prec_def
     
     implicit none
-    integer :: i,ih,ierr,idhardtemp(ncellsD)
+    integer :: i,ih,ierr,idhardtemp(ncellsD),icount
     integer :: hbwarn(ncellsD), nhbwarn
     character(len=100) :: msg2,msg3
     character(len=10) :: aext
@@ -2743,6 +2744,16 @@ d1: do ii=1,30
 !Find number and id of hardbottom cells
     nhbwarn=0
     hbwarn=0
+    icount=0
+    do I=1,ncells
+      if (rround(hardzb(I),3) == rround(zb(I),3)) then
+        icount = icount + 1
+      endif
+    enddo
+    if (icount >= 10) then   !If there are a bunch of these, the dataset is probably inverted from what it should be. 
+      call diag_print_warning('There are more than 10 instances where the hardbottom value is exactly inverted from the depth value.','Flipping the sign of the hard bottom dataset.')
+      hardzb = -hardzb  
+    endif
     do i=1,ncells
       if(abs(hardzb(i)+999.0)>1.0e-4)then
         nhard=nhard+1

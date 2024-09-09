@@ -1,5 +1,6 @@
 == Version 5.3.12 (08/29/2024) ==
 * Added additional alias to be able to Hot Start CMS.  User can use 'HOT_START_SIMULATION' followed by the appropriate hot start filename.
+* Added a check for Hardbottom to see if the user saved a negative-down dataset through SMS 13.0-13.3. SMS doesn't flip the sign on export for hardbottom.
 
 == Version 5.3.11 (08/19/2024) ==
 * Changed to alternate between recurring hot start files.
