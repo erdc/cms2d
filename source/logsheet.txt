@@ -1,6 +1,9 @@
-== Version 5.3.12 (08/29/2024) ==
-* Added additional alias to be able to Hot Start CMS.  User can use 'HOT_START_SIMULATION' followed by the appropriate hot start filename.
-* Added a check for Hardbottom to see if the user saved a negative-down dataset through SMS 13.0-13.3. SMS doesn't flip the sign on export for hardbottom.
+== Version 5.3.12 (10/23/2024) ==
+* Added new card to hot start a simulation, 'HOT_START_SIMULATION'.
+* Added error message when either ORIGIN cards are missing.
+* Fixed an issue where the CMS-Wave .wav file cannot be written to multiple times in some situations.  unfinished
+* Implemented new method for weirs and culverts in SMS 13.4+ and improved summary output for those structures.
+!!!Implement structures and improve printed summary.
 
 == Version 5.3.11 (08/19/2024) ==
 * Changed to alternate between recurring hot start files.

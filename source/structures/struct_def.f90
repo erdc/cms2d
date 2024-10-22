@@ -21,6 +21,7 @@ module struct_def
                            orientweirbay(:),orientweirsea(:),orientweir(:) 
     real(ikind),allocatable :: coefweir(:,:),coefweirlateral(:),elevweir(:),qweir(:),   &
                                dqweirdzdown(:),dqweirdzup(:),Qtotweir(:)  
+    character(len=5),allocatable :: aweirtype(:),aorientweirsea(:)
 !Added meb 01/28/2019
     integer :: iweir = 0
     type WR_type
@@ -48,6 +49,33 @@ module struct_def
                                culvertfrict(:),culvertmann(:),qculvert(:),dqcvdzdown(:),dqcvdzup(:), &
                                uvculvert(:),angleculvertbay(:),angleculvertsea(:)
     character(len=3), allocatable :: aculverttype(:)
+    
+    !Added meb 10/22/2024
+    integer :: iculvert = 0
+    type CV_type
+    !This type facilitates reading in of the information from multiple blocks.
+    !Information from this type is assigned other defined arrays.
+      integer :: cell_bay          !Bayside cell id
+      integer :: cell_sea          !Seaside cell id
+      integer :: culvertType       !1= Circle, 2=Box
+      logical :: culvertFlap       !True if ON, False if OFF
+      real    :: radius            !Radius if Type is Circular
+      real    :: height            !Height if Type is Box
+      real    :: width             !Width if Type is Box
+      real    :: length            !Length of culvert
+      real    :: darcyCoef         !
+      real    :: manningsCoef
+      real    :: invertElevBay
+      real    :: invertElevSea
+      real    :: entryCoefWeir_b2s !Bay to Sea
+      real    :: entryCoefWeir_s2b !Sea to Bay
+      real    :: exitCoefWeir_b2s  !Bay to Sea
+      real    :: exitCoefWeir_s2b  !Sea to Bay
+      real    :: outflowAngle_bay
+      real    :: outflowAngle_sea
+    endtype CV_type
+    type(CV_type),allocatable :: CV_struct(:)
+!-------------
 
     !Rubble mound
     integer :: nrubmoundcells      !refactored 'numrubmound' to 'nrubmoundcells' for clarity.  All of these look so similar.  10/27/2023

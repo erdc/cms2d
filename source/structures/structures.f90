@@ -32,8 +32,9 @@
     logical :: foundcard    
     
     foundcard = .true.
-    select case (cardname)        
-      !=== Tidal Gates ====================================            
+    select case (cardname) 
+      
+!=== Tidal Gates ====================================            
       case('TIDE_GATE')         !Wu
         backspace(77)
         read(77,*) cardname,numtidegate    !No. of tide gates
@@ -81,7 +82,7 @@
       case('TIDE_GATE_BEGIN')
         call tide_gate_block
 
-      !=== Weirs ====================================            
+!=== Weirs ====================================            
       case('WEIR')         !Wu
         backspace(77)
         read(77,*) cardname,numweir    !No. of weirs
@@ -120,7 +121,7 @@
       case('WEIR_STRUCT_BEGIN')  !Ver 5.1 and later
         call new_weir_block
 
-      !=== Culverts ====================================            
+!=== Culverts ====================================            
       case('CULVERT')         !Wu
         backspace(77)
         read(77,*) cardname,numculvert    !No. of culverts
@@ -149,8 +150,11 @@
       
       case('CULVERT_BEGIN')
         call culvert_block
+        
+      case('CULVERT_STRUCT_BEGIN')  !Ver 5.3.12 and later (SMS 13.4 and later)
+        call new_culvert_block
     
-      !=== Rubble Mound Structures ====================================            
+!=== Rubble Mound Structures ====================================            
       rmblock=0
       case('RUBBLE_MOUND')         !Wu
         backspace(77)
@@ -249,13 +253,14 @@
     integer :: ival,numids
     real    :: rval
     character(len=34) :: cardname
+    character(len=5)  :: cdum
     logical :: foundcard
 
     foundcard = .true.
     
     call weir_alloc  !increment and initialize multiple weir structure
     
-    do i=1,30
+    do
       read(77,*,iostat=ierr) cardname
       select case(cardname)
         case('WEIR_STRUCT_END','END')
@@ -293,6 +298,22 @@
           endif 
           WR_struct(iweir)%orientWeir = ival
 
+        case('ORIENTATION_SEA')
+          backspace(77)
+          read(77,*) cardname, cdum
+          selectcase(cdum(1:4))
+          case('NORT')
+            WR_struct(iweir)%orientWeir = 1
+          case('EAST')
+            WR_struct(iweir)%orientWeir = 2
+          case('SOUT')
+            WR_struct(iweir)%orientWeir = 3
+          case('WEST')
+            WR_struct(iweir)%orientWeir = 4
+          case default
+            call diag_print_error('Orientation value must be one of the four main cardinal directions')
+          end select
+            
         case('TYPE')
           backspace(77)
           read(77,*) cardname, ival 
@@ -300,13 +321,20 @@
             call diag_print_error('Weir type must be either 1 or 2')
           endif 
           WR_struct(iweir)%weirType = ival
+          
+        case('CREST_TYPE')
+          backspace(77)
+          read(77,*) cardname, cdum
+          ival = 1
+          if (cdum(1:5) == 'BROAD') ival = 2
+          WR_struct(iweir)%weirType = ival          
 
-        case('FLOW_COEFFICIENT_FROM_BAY')
+        case('FLOW_COEFFICIENT_FROM_BAY','FLOW_COEFF_FROM_BAY')
           backspace(77)
           read(77,*) cardname, rval
           WR_struct(iweir)%coefWeir_b2s = rval
           
-        case('FLOW_COEFFICIENT_FROM_SEA')
+        case('FLOW_COEFFICIENT_FROM_SEA','FLOW_COEFF_FROM_SEA')
           backspace(77)
           read(77,*) cardname, rval
           WR_struct(iweir)%coefWeir_s2b = rval
@@ -460,7 +488,7 @@
           read(77,*) cardname,numculvert
           allocate(strings(numculvert))
           allocate(idculvert(numculvert,2),aculverttype(numculvert),iculverttype(numculvert),iculvertflap(numculvert),  &
-                culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),  &
+                   culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),  &
                    culvertelevbay(numculvert),culvertelevsea(numculvert),culvertlength(numculvert),  &
                    cvheadlossbayentr(numculvert),cvheadlossbayexit(numculvert),cvheadlossseaentr(numculvert),  &
                    cvheadlossseaexit(numculvert),culvertfrict(numculvert),culvertmann(numculvert),  &
@@ -597,6 +625,164 @@
     
     return
     end subroutine culvert_block
+  
+!*****************************************************************
+    subroutine culvert_alloc
+! Resizes the culvert structure variables
+!*****************************************************************
+    use struct_def
+    implicit none
+
+    integer :: icv
+    type(CV_type), allocatable :: CV_temp(:)
+    
+    iculvert = iculvert + 1
+    if (iculvert == 1) then
+      allocate(CV_struct(1))
+    else
+      allocate(CV_temp(iculvert-1))
+      do icv=1,iculvert-1
+        CV_temp(icv) = CV_struct(icv)
+      enddo
+      deallocate(CV_struct)
+      allocate(CV_struct(iculvert))
+      do icv=1,iculvert-1
+        CV_struct(icv) = CV_temp(icv)
+      enddo
+      deallocate(CV_temp)
+    endif      
+    
+    !Initialize and set default values
+    CV_struct(iculvert)%cell_bay          = 0
+    CV_struct(iculvert)%cell_sea          = 0
+    CV_struct(iculvert)%culvertType       = 2
+    CV_struct(iculvert)%radius            = 0.0
+    CV_struct(iculvert)%height            = 0.0
+    CV_struct(iculvert)%width             = 0.0
+    CV_struct(iculvert)%length            = 0.0
+    CV_struct(iculvert)%darcyCoef         = 0.04
+    CV_struct(iculvert)%manningsCoef      = 0.025
+    CV_struct(iculvert)%invertElevBay     = 0.0
+    CV_struct(iculvert)%invertElevSea     = 0.0
+    CV_struct(iculvert)%entryCoefWeir_b2s = 0.0
+    CV_struct(iculvert)%entryCoefWeir_s2b = 0.0
+    CV_struct(iculvert)%exitCoefWeir_b2s  = 0.0
+    CV_struct(iculvert)%exitCoefWeir_s2b  = 0.0
+    CV_struct(iculvert)%outflowAngle_bay  = 0.0
+    CV_struct(iculvert)%outflowAngle_sea  = 0.0
+    CV_struct(iculvert)%culvertFlap       = .false.
+    
+    return
+    end subroutine culvert_alloc
+    
+!************************************************************************************
+    subroutine new_culvert_block()
+! Reads the multiple block structure for culverts (meb, 10/22/2024)
+!   Based on new_weir_block
+!************************************************************************************
+    use const_def, only: deg2rad
+    use struct_def
+    use diag_lib
+    implicit none
+    
+    integer :: i,icv,ierr,maxculvert
+    integer :: ival,numids
+    real    :: rval
+    character(len=34) :: cardname
+    character(len=10) :: cdum
+    logical :: foundcard
+
+    foundcard = .true.
+    
+    call culvert_alloc  !increment and initialize multiple culvert structures
+    
+    do
+      read(77,*,iostat=ierr) cardname
+      select case(cardname)
+        case('CULVERT_STRUCT_END','END')
+          exit
+          
+        case('CELLS')
+          backspace(77)
+          read(77,*,iostat=ierr) cardname, CV_struct(iculvert)%cell_bay, CV_struct(iculvert)%cell_sea
+          if(ierr/=0) call diag_print_error('There must be two cells IDs specified.')  
+
+        case('TYPE')
+          backspace(77)
+          read(77,*) cardname, cdum
+          if (cdum(1:3) .eq. 'BOX') then
+            CV_struct(iculvert)%culvertType = 2
+          elseif (cdum(1:3) .eq. 'CIR') then
+            CV_struct(iculvert)%culvertType = 1
+          else
+            call diag_print_error('Culvert type must be either BOX or CIRCLE.')
+          endif 
+
+        case('FLAP_GATE')
+          call card_boolean(77,CV_struct(iculvert)%culvertFlap,ierr)
+
+        case('RADIUS')
+          if (CV_struct(iculvert)%culvertType == 2) call diag_print_error('Culvert type is BOX. RADIUS card encountered.')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%radius
+
+        case('HEIGHT')
+          if (CV_struct(iculvert)%culvertType == 1) call diag_print_error('Culvert type is CIRCLE. HEIGHT card encountered.')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%height
+
+        case('WIDTH')
+          if (CV_struct(iculvert)%culvertType == 1) call diag_print_error('Culvert type is CIRCLE. WIDTH card encountered.')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%width
+
+        case('LENGTH')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%length
+
+        case('DARCY_FRICTION_FACTOR')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%darcyCoef
+
+        case('MANNINGS_COEFFICIENT')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%manningsCoef
+
+        case('INVERT_ELEVATIONS')
+          backspace(77)
+          read(77,*,iostat=ierr) cardname, CV_struct(iculvert)%invertElevBay, CV_struct(iculvert)%invertElevSea
+          if(ierr/=0) call diag_print_error('There must be two invert elevation values specified.')  
+          
+        case('ENTRY_HEAD_LOSS_BAY')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%entryCoefWeir_b2s
+
+        case('ENTRY_HEAD_LOSS_SEA')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%entryCoefWeir_s2b
+
+        case('EXIT_HEAD_LOSS_BAY')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%exitCoefWeir_b2s
+
+        case('EXIT_HEAD_LOSS_SEA')
+          backspace(77)
+          read(77,*) cardname, CV_struct(iculvert)%exitCoefWeir_s2b
+
+        case('OUTFLOW_ANGLES')
+          backspace(77)
+          read(77,*,iostat=ierr) cardname, CV_struct(iculvert)%outflowAngle_Bay, CV_struct(iculvert)%outflowAngle_Sea
+          if(ierr/=0) call diag_print_error('There must be two outflow angles values specified.')  
+          
+        case default
+          write(*,*) 'WARNING: Card ',cardname,' not found'
+          foundcard = .false.
+         
+        end select
+    enddo
+    
+    return
+    end subroutine new_culvert_block
 
 !************************************************************************************
     subroutine tide_gate_block
@@ -944,18 +1130,20 @@
     allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
              coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
              orientweirsea(numweir),Qtotweir(numweir) )
-    do iwr=1,numweir
-      nweir(iwr)=WR_struct(iwr)%ncells
-    enddo
-
+    allocate(aweirtype(numweir),aorientweirsea(numweir))
+    
     nweir(0) = 0
     maxweir = 0
     do iwr=1,numweir
-      maxweir = maxweir + nweir(iwr)
+      maxweir = maxweir + WR_struct(iwr)%ncells
+      nweir(iwr) = maxweir
     enddo
-    do iwr=1,numweir
-      nweir(iwr) = nweir(iwr-1) + nweir(iwr)
-    enddo
+    !do iwr=1,numweir
+    !  maxweir = maxweir + nweir(iwr)           !Combined this into loop above
+    !enddo
+    !do iwr=1,numweir
+    !  nweir(iwr) = nweir(iwr-1) + nweir(iwr)   !Combined this into loop above
+    !enddo
 
     allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
 
@@ -972,6 +1160,12 @@
       coefweir(iwr,2) = WR_struct(iwr)%coefWeir_s2b
       elevweir(iwr)   = WR_struct(iwr)%elevWeir
       methweir(iwr)   = WR_struct(iwr)%methWeir
+      selectcase(iweirtype(iwr))
+      case(1)
+        aweirtype(iwr) = 'SHARP'
+      case(2)
+        aweirtype(iwr) = 'BROAD'
+      end select
     enddo
 
     !Initialize       
@@ -981,18 +1175,92 @@
       orientweirsea(iwr) = orientweir(iwr)   !Define direction of sea side at local coordinate
       if(orientweir(iwr).eq.1) then
         orientweirbay(iwr) = 3
+        aorientweirsea(iwr) = 'NORTH'
       elseif(orientweir(iwr).eq.2) then
         orientweirbay(iwr) = 4
+        aorientweirsea(iwr) = 'EAST '
       elseif(orientweir(iwr).eq.3) then
         orientweirbay(iwr) = 1
+        aorientweirsea(iwr) = 'SOUTH'
       elseif(orientweir(iwr).eq.4) then
         orientweirbay(iwr) = 2
+        aorientweirsea(iwr) = 'WEST '
       endif
     enddo
         
     return
     end subroutine weir_init
+  
+!****************************************************    
+    subroutine culvert_init
+!****************************************************
+#include "CMS_cpp.h"
+    use struct_def
+    use const_def, only: deg2rad    
+    implicit none
+    
+    integer icv, j, kk, maxculvert
+    
+    numculvert = iculvert
+    allocate(idculvert(numculvert,2),aculverttype(numculvert),iculverttype(numculvert),             &
+             iculvertflap(numculvert),culvertrad(numculvert),culvertwidth(numculvert),              &
+             culvertheight(numculvert),culvertelevbay(numculvert),culvertelevsea(numculvert),       &
+             culvertlength(numculvert),cvheadlossbayentr(numculvert),cvheadlossbayexit(numculvert), &
+             cvheadlossseaentr(numculvert),cvheadlossseaexit(numculvert),culvertfrict(numculvert),  &
+             culvertmann(numculvert),qculvert(numculvert),dqcvdzdown(numculvert),                   &
+             dqcvdzup(numculvert),uvculvert(numculvert),angleculvertbay(numculvert),                &
+             angleculvertsea(numculvert) )
+    
+    qculvert=0.0   !by Wu
+    dqcvdzdown=0.0
+    dqcvdzup=0.0
+    iculverttype=2
+    aculverttype='BOX'
+    iculvertflap=0
+    culvertfrict=0.04
+    culvertmann=0.02
+    cvheadlossbayentr=0.5
+    cvheadlossseaentr=0.5
+    cvheadlossbayexit=0.5
+    cvheadlossseaexit=0.5
+    
+    do icv=1,numculvert
+      idculvert(icv,1) = CV_struct(icv)%cell_bay
+      idculvert(icv,2) = CV_struct(icv)%cell_sea
+      if (CV_struct(icv)%culvertType == 1) then
+        iculverttype(icv)  = 1
+        aculverttype(icv)  = 'CIR'
+        culvertrad(icv)    = CV_struct(icv)%radius
+        culvertwidth(icv)  = 2.0 * CV_struct(icv)%radius
+        culvertheight(icv) = 2.0 * CV_struct(icv)%radius
+      else
+        iculverttype(icv)  = 2
+        aculverttype(icv)  = 'BOX'
+        culvertrad(icv)    = 0.5 * CV_struct(icv)%width
+        culvertwidth(icv)  = CV_struct(icv)%width
+        culvertheight(icv) = CV_struct(icv)%height
+      endif
+      if (CV_struct(icv)%culvertFlap) then
+        iculvertflap(icv) = 1
+      else 
+        iculvertflap(icv) = 0
+      endif
+      culvertlength(icv) = CV_struct(icv)%length
+      culvertfrict(icv) = max(CV_struct(icv)%darcyCoef,0.001)
+      culvertmann(icv)  = max(CV_struct(icv)%manningsCoef, 0.001)
+      culvertelevbay(icv) = CV_struct(icv)%invertElevBay
+      culvertelevsea(icv) = CV_struct(icv)%invertElevSea
+      cvheadlossbayentr(icv) = max(CV_struct(icv)%entryCoefWeir_b2s,0.0)
+      cvheadlossseaentr(icv) = max(CV_struct(icv)%entryCoefWeir_s2b,0.0)
+      cvheadlossbayexit(icv) = max(CV_struct(icv)%exitCoefWeir_b2s,0.0)
+      cvheadlossseaexit(icv) = max(CV_struct(icv)%exitCoefWeir_s2b,0.0)
+      angleculvertbay(icv) = CV_struct(icv)%outflowAngle_bay * deg2rad
+      angleculvertsea(icv) = CV_struct(icv)%outflowAngle_sea * deg2rad
+    enddo
         
+    return
+    end subroutine culvert_init
+       
 !****************************************************    
     subroutine struct_init
 !****************************************************
@@ -1085,6 +1353,7 @@
     if(numweir>0) call map_cell_full2active(nweir(numweir),idweir)
     
     !Culverts
+    if(iculvert .gt. 0) call culvert_init
     if(numculvert>0)then
       call map_cell_full2active(numculvert,idculvert(:,1))
       call map_cell_full2active(numculvert,idculvert(:,2))    
@@ -1453,7 +1722,7 @@
     use tool_def, only: vstrlz    
     
     implicit none
-    integer :: i,j,icv,iunit(2),ierr,ival
+    integer :: i,j,icv,iwr,itg,iunit(2),ierr,ival
  
 111 format(' ',A,T40,A)
 112 format(' ',A,I0)
@@ -1502,18 +1771,31 @@
         write(iunit(i),241) '    Number of Tidal Gates:',numtidegate
       endif
 
+      ! '       |             |    Coefficients     |     Sea      |    Crest    |'   
+      ! '    ID |  Crest Type | Distr.   Bay   Sea  | Orientation  |  Elevation  |   Method'
+655 format(I7,' |   ',A5,'    | ',F6.2,x,2(F6.2),'  |    ',A5,'    |  ',F6.2,'   | Approach ',I1)
       !---- Weir --------------------
       if(numweir>0)then
         write(iunit(i),241) '    Number of Weirs:',numweir
+        write(iunit(i),*)   ''
+        write(iunit(i),111) '       |            |     Coefficients     |     Sea     |   Crest   |'   
+        write(iunit(i),111) '    ID | Crest Type |  Distr.   Bay   Sea  | Orientation | Elevation |   Method'
+        do iwr=1,numweir
+          write(iunit(i),655,iostat=ierr) iwr,aweirtype(iwr),      &
+            coefweirlateral(iwr),coefweir(iwr,1),coefweir(iwr,2),  &
+            aorientweirsea(iwr),elevweir(iwr),methweir(iwr)
+        enddo
       endif
-
-656 format(I5,3x,A3,1x,F7.3,4x,F7.3,1x,1F7.2,2x,2F6.2,4F5.2,F6.3,2x,F6.3,4x,2F7.2)
+      
+      ! '       |         |            |           |           |     Elevation     |      Exit       |      Entry      |     Friction       |  Outflow Angles ' 
+      ! '    ID |  Type   |  Rad/Width |  Height   |  Length   |     Bay   Sea     |    Bay   Sea    |    Bay   Sea    |  Darcy  Mannings   |   Bay      Sea' 
+656 format(I7,' |  ',A3,' |  'F6.2,'   | ',F5.2,'  | ',F5.2,'  | ',F5.2,x,F5.2,  ' | ',F4.2,x,F4.2,' | ',F4.2,x,F4.2,' | ',F5.2,3x,F5.2,'   | ',F6.2,2x,F6.2)
       !---- Culvert --------------------
       if(numculvert>0)then
         write(iunit(i),241) '    Number of Culverts:',numculvert
-        write(iunit(i),111) '                                                 Loss Coefficients                     Outflow' 
-        write(iunit(i),111) '                                     Elevation    Exit      Entry     Friction         Angles ' 
-        write(iunit(i),111) '  ID, Type,  Rad/Width, Height, Length, Bay,  Sea,  Bay, Sea, Bay, Sea, Darcy,  Mannings, Bay,     Sea' 
+        write(iunit(i),111) '                                                          |   Loss Coefficients   |' 
+        write(iunit(i),111) '       |      |           |        |        |  Elevation  |   Exit    |   Entry   |    Friction     | Outflow Angles ' 
+        write(iunit(i),111) '    ID | Type | Rad/Width | Height | Length |  Bay   Sea  | Bay   Sea | Bay   Sea | Darcy  Mannings |   Bay    Sea' 
         do icv=1,numculvert
           write(iunit(i),656,iostat=ierr) icv,aculverttype(icv),      &
              culvertwidth(icv),culvertheight(icv),culvertlength(icv), &
@@ -1523,6 +1805,7 @@
              culvertfrict(icv),culvertmann(icv),                      &
              angleculvertbay(icv)*rad2deg,angleculvertsea(icv)*rad2deg
         enddo
+        continue
       endif
     enddo
     
@@ -2360,7 +2643,7 @@
           i=idtidegate(im)
           if(opentidegate(im)==1) then   !Gate open
             do k=1,ncface(i)
-              if(idirface(k,i)==orienttgbay(itg)) then  !Positive  from bay to sea
+              if(idirface(k,i)==orienttgbay(itg)) then  !Positive from bay to sea
                 if(orienttgbay(itg)<=2) then
                   Qtottidegate(itg)=Qtottidegate(itg)-signface(idirface(k,i))*flux(k,i)
                 else
@@ -2390,7 +2673,7 @@
           i=idweir(im)
           do k=1,ncface(i)
             if(idirface(k,i)==orientweirbay(iwr)) then
-              if(orientweirbay(iwr)<=2) then     !Positive  from bay to sea
+              if(orientweirbay(iwr)<=2) then     !Positive from bay to sea
                 Qtotweir(iwr)=Qtotweir(iwr)-signface(idirface(k,i))*flux(k,i)
               else
                 Qtotweir(iwr)=Qtotweir(iwr)+signface(idirface(k,i))*flux(k,i)
@@ -2403,9 +2686,18 @@
 
     !Culvert Screen Output
 461 format('   Culvert ',I0,' Flow, ',A,A)
+462 format('   Weir ',I0,' Flow, ',A,A)
+463 format('   Tide Gate ',I0,' Flow, ',A,A)
     do icv=1,numculvert
-      !write(msg,461,iostat=ierr) icv,qculvert(icv) !, dqcvdzdown(icv),dqcvdzup(icv),p(idculvert(icv,1))/grav,p(idculvert(icv,2))/grav
       write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
+      call diag_print_message(msg)
+    enddo
+    do iwr=1,numweir
+      write(msg,462,iostat=ierr) iwr, trim(vstrlz(qtotweir(iwr),'(f0.5)')),' m^3/s'
+      call diag_print_message(msg)
+    enddo
+    do itg=1,numtidegate
+      write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
       call diag_print_message(msg)
     enddo
       
