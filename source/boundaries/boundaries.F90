@@ -1601,11 +1601,14 @@ if(.not.Tread)then
     use flow_def,   only: grav
     use geo_def,    only: ncface,cell2cell,idirface,x,y,zb,rx,ry,xc,yc,projfl,mapid
     use geo_lib,    only: read_grid14,proj_horiz_conv
-    use nest_lib,   only: read_parent_grid_xmdf, read_parent_cmcards, read_parent_grid_tel, tdb_init
+    use nest_lib,   only: read_parent_cmcards, read_parent_grid_tel, tdb_init
     use prec_def,   only: ikind
     use size_def,   only: ncellsd,ncellpoly,ncells
     use const_def,  only: deg2rad,rad2deg
     use interp_lib, only: interp_coef_tel2pts,interp_coef_tri2pts
+#ifdef XMDF_IO
+    use nest_lib,   only: read_parent_grid_xmdf
+#endif
     implicit none      
 		
     integer :: i,ii,j,k,im,nbndcells,nck,mntp
