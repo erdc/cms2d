@@ -1209,7 +1209,7 @@
       
       case('TIDAL_DATABASE_NAME','DATABASE_NAME','NAME')
         backspace(77)
-        read(77,*) cardname,tdbname         
+        read(77,*) cardname,tdbname
         
       case('TIDAL_DATABASE_PATH','DATABASE_PATH','PATH')
         backspace(77)

@@ -669,6 +669,7 @@
 242 format(' ',A,T40,I0,A)
 243 format(' ',A,T40,F5.2)
 244 format(' ',A,T40,A,A)
+245 format(' ',A,T40,A,T65,A)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
@@ -689,13 +690,13 @@
           write(iunit(i),112) '      Rubble Mound Structure: ',j
           if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 
           write(iunit(i),241) '        Number of cells:',rm_struct(j)%ncells
-          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:',    trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
-          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),111) '        Rock Diameter Dataset File:',trim(rm_struct(j)%rockdia_dset(1))
-          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',         trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
-          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),111) '        Porosity Dataset File:',     trim(rm_struct(j)%structporo_dset(1))
-          if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',       trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
-          if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),111) '        Base Depth Dataset File:',   trim(rm_struct(j)%structbaseD_dset(1))
-          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),111) '        Method Dataset File:',       trim(rm_struct(j)%structmeth_dset(1))
+          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',      trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
+          if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',    trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
+          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:', trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
+          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),245) '        Porosity Dataset:',       trim(rm_struct(j)%structporo_dset(2)), trim(rm_struct(j)%structporo_dset(1))
+          if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),245) '        Base Depth Dataset:',     trim(rm_struct(j)%structbaseD_dset(2)),trim(rm_struct(j)%structbaseD_dset(1))
+          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),245) '        Rock Diameter Dataset:',  trim(rm_struct(j)%rockdia_dset(2)),    trim(rm_struct(j)%rockdia_dset(1))
+          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),245) '        Method Dataset:',         trim(rm_struct(j)%structmeth_dset(2)), trim(rm_struct(j)%structmeth_dset(1))
           if (rm_struct(j)%rubmoundmeth .gt. 0) then
             ival = rm_struct(j)%rubmoundmeth
             if (ival .eq. 1) write(iunit(i),111) '        Method:','Sidiropoulou et al. (2007)'

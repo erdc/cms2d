@@ -342,6 +342,10 @@
       case('TIDAL_DATABASE_BEGIN','DATABASE_BEGIN')  
         call tdb_block(ntcin,namein,tdbname,tdbpath,projtdb,nssi,nssw)
         tdbblockread = .true.
+        if(tdbname(1:6)=='EC2015' .or. tdbname(1:9)=='ENPAC2015') then  !Force using velocities with newer ADCIRC database.  MEB 11/06/24
+          velblockread = .true.  
+        endif
+
        
       case default
         foundcard = .false.

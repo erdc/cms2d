@@ -110,7 +110,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
       CHARACTER*180 SeaFile,  SwellFile, TotalFile                    !Mitch 03/22/2017
       CHARACTER*80 :: cardname                                        !Mitch 10/18/2021
-      logical :: foundfile, foundcard
+      logical :: foundfile, foundcard, is66open
 	  
 ! ... Output file variables
       INTEGER      :: iunit(2)
@@ -980,7 +980,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       endif
 
       if(ixmdf.eq.0) then
-        open (66, file = WaveFile,   status = 'unknown')
+        open (66, file = WaveFile, status = 'unknown')
         write (66, *) ni, nj, dmesh
       end if
 
@@ -7125,6 +7125,7 @@ contains
 !-------------------------------------------------
       SUBROUTINE OUTFILE_inline
       USE GLOBAL_INLINE, ONLY: NPF,MPD,MPD2,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      use diag_lib, only: diag_print_message
       double precision edate
       REAL, ALLOCATABLE :: SPCT(:),SPCT1(:),dep0(:,:),dsss(:,:),tmp(:,:)
       REAL, ALLOCATABLE :: gxx1(:), gyy1(:)
@@ -8225,6 +8226,9 @@ contains
         end if
       end if
 !
+      !Check to see if .wav file is still attached to Unit 66.
+      inquire(66,OPENED=is66open)
+      if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  !File should already be created at this point.
       if(kdate.gt.0) then
         if(idate.le.9999) then
           idate1=mod(kdate,10)*100000+idate
