@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.9)
 
 # CMake control file for building the CMS model
 
@@ -176,6 +176,10 @@ SET( CMS_SOURCE_FILES
   ./structures/struct_def.f90
   ./structures/struct_lib.f90
   ./structures/structures.f90
+  ./structures/struct_culverts.f90
+  ./structures/struct_rubmounds.f90
+  ./structures/struct_tidegates.f90
+  ./structures/struct_weirs.f90
   ./utilities/diag_def.f90
   ./utilities/diag_lib.f90
   ./utilities/diagnostics.f90

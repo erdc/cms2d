@@ -73,3 +73,5 @@ Intel_vs2022/.vs/
 .idea/
 
 testing/builder/__pycache__/
+
+Intel_vs2022/x64/Debug/

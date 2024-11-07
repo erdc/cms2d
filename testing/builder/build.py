@@ -12,18 +12,20 @@ import os
 import builder as builder
 import process_runner as pr
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright 2024"
 __license__ = "All rights reserved"
 
 
 def main():
     """Entry point for the build script."""
     directory_path = os.path.normpath(os.path.dirname(__file__))
+
+    # Configuration file for compiling the project.
     with open(os.path.join(directory_path,'build-config.json')) as f:
         config = json.load(f)
 
     parser = argparse.ArgumentParser(description="builder.")
-    parser.add_argument('-b', '--build', help='Enter 0 to skip build', required=False, default=1)
+    parser.add_argument('-b', '--build', help='Enter 0 to skip build', required=False, default=0)
     parser.add_argument('-t', '--test', help='Enter 0 to skip tests.', required=False, default=1)
     parser.add_argument('-tf', '--test_folder', help='Enter directory to search for .cmcards files.', required=False,
                         default='testing/tests/L05_Implicit_Test01')

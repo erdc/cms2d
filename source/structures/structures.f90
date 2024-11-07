@@ -32,8 +32,9 @@
     logical :: foundcard    
     
     foundcard = .true.
-    select case (cardname)        
-      !=== Tidal Gates ====================================            
+    select case (cardname) 
+      
+!=== Tidal Gates ====================================            
       case('TIDE_GATE')         !Wu
         backspace(77)
         read(77,*) cardname,numtidegate    !No. of tide gates
@@ -81,7 +82,7 @@
       case('TIDE_GATE_BEGIN')
         call tide_gate_block
 
-      !=== Weirs ====================================            
+!=== Weirs ====================================            
       case('WEIR')         !Wu
         backspace(77)
         read(77,*) cardname,numweir    !No. of weirs
@@ -120,7 +121,7 @@
       case('WEIR_STRUCT_BEGIN')  !Ver 5.1 and later
         call new_weir_block
 
-      !=== Culverts ====================================            
+!=== Culverts ====================================            
       case('CULVERT')         !Wu
         backspace(77)
         read(77,*) cardname,numculvert    !No. of culverts
@@ -149,8 +150,11 @@
       
       case('CULVERT_BEGIN')
         call culvert_block
+        
+      case('CULVERT_STRUCT_BEGIN')  !Ver 5.3.12 and later (SMS 13.4 and later)
+        call new_culvert_block
     
-      !=== Rubble Mound Structures ====================================            
+!=== Rubble Mound Structures ====================================            
       rmblock=0
       case('RUBBLE_MOUND')         !Wu
         backspace(77)
@@ -195,804 +199,6 @@
     return
     end subroutine struct_cards
 
-!*****************************************************************
-    subroutine weir_alloc
-! Resizes the weir structure variables
-!*****************************************************************
-    use struct_def
-    implicit none
-
-    integer :: iwr
-    type(WR_type), allocatable :: WR_temp(:)
-    
-    iweir = iweir + 1
-    if (iweir == 1) then
-      allocate(WR_struct(1))
-    else
-      allocate(WR_temp(iweir-1))
-      do iwr=1,iweir-1
-        WR_temp(iwr) = WR_struct(iwr)
-      enddo
-      deallocate(WR_struct)
-      allocate(WR_struct(iweir))
-      do iwr=1,iweir-1
-        WR_struct(iwr) = WR_temp(iwr)
-      enddo
-      deallocate(WR_temp)
-    endif      
-    
-    !Initialize and set default values
-    WR_struct(iweir)%coefWeirLateral = 0.0
-    WR_struct(iweir)%ncells       = 0
-    WR_struct(iweir)%orientWeir   = 1
-    WR_struct(iweir)%weirType     = 1
-    WR_struct(iweir)%coefWeir_b2s = 0.0
-    WR_struct(iweir)%coefWeir_s2b = 0.0
-    WR_struct(iweir)%elevWeir     = 0.0
-    WR_struct(iweir)%methWeir     = 1
-    
-    return
-    end subroutine weir_alloc
-    
-    
-!************************************************************************************
-    subroutine new_weir_block()
-! Reads the multiple block structure for weirs (meb, 01/28/2019)
-!   Based on weir_block (hli, 02/08/13) 
-!************************************************************************************
-    use const_def, only: deg2rad
-    use struct_def
-    use diag_lib
-    implicit none
-    
-    integer :: i,iwr,ierr,maxweir
-    integer :: ival,numids
-    real    :: rval
-    character(len=34) :: cardname
-    logical :: foundcard
-
-    foundcard = .true.
-    
-    call weir_alloc  !increment and initialize multiple weir structure
-    
-    do i=1,30
-      read(77,*,iostat=ierr) cardname
-      select case(cardname)
-        case('WEIR_STRUCT_END','END')
-          exit
-          
-        case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
-          backspace(77)
-          read(77,*) cardname,ival
-          WR_struct(iweir)%ncells = ival
-          allocate(WR_struct(iweir)%cells(ival))
-
-        case('CELLS')
-          backspace(77)
-          ival = WR_struct(iweir)%ncells 
-          read(77,*,iostat=ierr) cardname, (WR_struct(iweir)%cells(iwr),iwr=1,ival)
-          if(ierr/=0) call diag_print_error('Must specify the number of cells for each weir')            !MEB 06/21  better descriptive output without application error
-
-        case('CELL_IDS')
-          backspace(77)
-          read(77,*) cardname,numids    !No. of IDs
-          WR_struct(iweir)%ncells = numids
-          allocate(WR_struct(iweir)%cells(numids))
-          backspace(77)
-          read(77,*) cardname,numids,(WR_struct(iweir)%cells(iwr),iwr=1,numids)
-          
-        case('DISTRIBUTION_COEFFICIENT')
-          backspace(77)
-          read(77,*) cardname, WR_struct(iweir)%coefweirlateral
-
-        case('ORIENTATION')
-          backspace(77)
-          read(77,*) cardname, ival
-          if (ival .lt. 1 .or. ival .gt. 4) then
-            call diag_print_error('Orientation value must be between 1 and 4, inclusively')
-          endif 
-          WR_struct(iweir)%orientWeir = ival
-
-        case('TYPE')
-          backspace(77)
-          read(77,*) cardname, ival 
-          if (ival .lt. 1 .or. ival .gt. 2) then
-            call diag_print_error('Weir type must be either 1 or 2')
-          endif 
-          WR_struct(iweir)%weirType = ival
-
-        case('FLOW_COEFFICIENT_FROM_BAY')
-          backspace(77)
-          read(77,*) cardname, rval
-          WR_struct(iweir)%coefWeir_b2s = rval
-          
-        case('FLOW_COEFFICIENT_FROM_SEA')
-          backspace(77)
-          read(77,*) cardname, rval
-          WR_struct(iweir)%coefWeir_s2b = rval
-          
-        case('CREST_ELEVATION')
-          backspace(77)
-          read(77,*) cardname, rval
-          WR_struct(iweir)%elevWeir = rval
-
-        case('METH','METHOD')
-          backspace(77)
-          read(77,*) cardname, ival 
-          if (ival .lt. 1 .or. ival .gt. 2) then
-            call diag_print_error('Method must be either 1 or 2')
-          endif 
-          WR_struct(iweir)%methWeir = ival
-          
-        case default
-          write(*,*) 'WARNING: Card ',cardname,' not found'
-          foundcard = .false.
-         
-        end select
-    enddo
-    
-    return
-    end subroutine new_weir_block
-    
-    
-!************************************************************************************
-    subroutine weir_block()
-! Reads the block structure for weirs (hli, 02/08/13) 
-!************************************************************************************
-    use const_def, only: deg2rad
-    use struct_def
-    use diag_lib, only: diag_print_error                                                                 !MEB 06/21  better descriptive output without application error
-    implicit none
-    integer :: i,iwr,ierr,maxweir
-    character(len=34) :: cardname
-    logical :: foundcard
-
-    foundcard = .true.
-    do i=1,30
-      read(77,*,iostat=ierr) cardname
-      select case(cardname)
-        case('NUMBER_WEIRS','NUMBER_WEIR')
-          backspace(77)
-          read(77,*) cardname,numweir
-          allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
-                   coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
-                   orientweirsea(numweir),Qtotweir(numweir) )
-
-        case('NUM_CELL_WEIRS','NUM_CELL_WEIR')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(nweir(iwr),iwr=1,numweir)              
-          if(ierr/=0) call diag_print_error('Must specify the number of cells for each weir')            !MEB 06/21  better descriptive output without application error
-          nweir(0) = 0
-          maxweir = 0
-          do iwr=1,numweir
-            maxweir = maxweir + nweir(iwr)
-          enddo
-          do iwr=1,numweir
-            nweir(iwr) = nweir(iwr-1) + nweir(iwr)
-          enddo
-
-          allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
-
-        case('CELLS')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(idweir(iwr),iwr=1,maxweir)     
-          if(ierr/=0) call diag_print_error('Must specify the Cell IDs in each weir')
-
-        case('DISTRIBUTION_COEFFICIENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(coefweirlateral(iwr),iwr=1,maxweir)     
-          if(ierr/=0) call diag_print_error('Must specify the distribution coefficient values for each weir')
-
-        case('ORIENTATION')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(orientweir(iwr),iwr=1,numweir)     
-          if(ierr/=0) call diag_print_error('Must specify the orientation for each weir')
-
-        case('TYPE')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(iweirtype(iwr),iwr=1,numweir)     
-          if(ierr/=0) call diag_print_error('Must specify the type for each weir')
-
-        case('FLOW_COEFFICIENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(coefweir(iwr,1),coefweir(iwr,2),iwr=1,numweir)     
-          if(ierr/=0) call diag_print_error('Must specify the flow coefficient for each weir')
-
-        case('CREST_ELEVATION')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(elevweir(iwr),iwr=1,numweir)     
-          if(ierr/=0) call diag_print_error('Must specify the crest elevation for each weir')
-
-        case('METH')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(methweir(iwr),iwr=1,numweir)     
-          if(ierr/=0) call diag_print_error('Must specify the flux calculation method for each weir')
-
-        !Initialize       
-        dqweirdzdown = 0.0;  dqweirdzup = 0.0  
-     
-        do iwr=1,numweir
-          orientweirsea(iwr) = orientweir(iwr)   !Define direction of sea side at local coordinate
-          if(orientweir(iwr).eq.1) then
-            orientweirbay(iwr) = 3
-          elseif(orientweir(iwr).eq.2) then
-            orientweirbay(iwr) = 4
-          elseif(orientweir(iwr).eq.3) then
-            orientweirbay(iwr) = 1
-          elseif(orientweir(iwr).eq.4) then
-            orientweirbay(iwr) = 2
-          endif
-        enddo
-
-      case('WEIR_END','END')
-        exit
-          
-      case default
-        write(*,*) 'WARNING: Card ',cardname,' not found'
-        foundcard = .false.
-         
-      end select
-    enddo
-    
-    return
-    end subroutine weir_block
-    
-!************************************************************************************
-    subroutine culvert_block()
-! Reads the block structure for a single culvert
-! written by Alex Sanchez, USACE-CHL    
-!************************************************************************************
-    use const_def, only: deg2rad
-    use diag_lib, only: diag_print_error                                                                !MEB 06/21  better descriptive output without application error
-    use struct_def
-    implicit none
-    integer :: i,icv,ierr
-    character(len=37) :: cardname,cdum
-    character(len=37),allocatable :: strings(:)
-    
-    do i=1,20
-      read(77,*,iostat=ierr) cardname      
-      if(ierr/=0) exit
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-      select case(cardname)
-        case('NUMBER_CULVERTS')
-          backspace(77)
-          read(77,*) cardname,numculvert
-          allocate(strings(numculvert))
-          allocate(idculvert(numculvert,2),aculverttype(numculvert),iculverttype(numculvert),iculvertflap(numculvert),  &
-                culvertrad(numculvert),culvertwidth(numculvert),culvertheight(numculvert),  &
-                   culvertelevbay(numculvert),culvertelevsea(numculvert),culvertlength(numculvert),  &
-                   cvheadlossbayentr(numculvert),cvheadlossbayexit(numculvert),cvheadlossseaentr(numculvert),  &
-                   cvheadlossseaexit(numculvert),culvertfrict(numculvert),culvertmann(numculvert),  &
-                   qculvert(numculvert),dqcvdzdown(numculvert),dqcvdzup(numculvert),  &
-                   uvculvert(numculvert),angleculvertbay(numculvert),angleculvertsea(numculvert) ) 
-          !Initialize
-          qculvert=0.0   !by Wu
-          dqcvdzdown=0.0
-          dqcvdzup=0.0
-          iculverttype=2
-          aculverttype='BOX'
-          iculvertflap=0
-          culvertfrict=0.04
-          culvertmann=0.02
-          cvheadlossbayentr=0.5
-          cvheadlossseaentr=0.5
-          cvheadlossbayexit=0.5
-          cvheadlossseaexit=0.5
-          
-        case('CELLS')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(idculvert(icv,1),idculvert(icv,2),icv=1,numculvert)  
-          if(ierr/=0) call diag_print_error('Must specify bay and sea side cell IDs for each culvert')   !MEB 06/21  better descriptive output without application error
-
-        case('TYPE')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(strings(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a BOX or CIR type for each culvert')
-          do icv=1,numculvert
-            cdum = strings(icv)  
-            if(cdum(1:3)=='CIR')then
-              iculverttype(icv) = 1
-            else 
-              iculverttype(icv) = 2
-            endif 
-            aculverttype(icv) = trim(cdum)
-          enddo   
-          
-        case('FLAP_GATE')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(strings(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify Flap Gate ON or OFF value for each culvert')
-          do icv=1,numculvert
-            cdum = strings(icv)  
-            if(cdum(1:2)=='ON')then
-              iculvertflap(icv) = 1
-            else
-              iculvertflap(icv) = 0
-            endif
-          enddo          
-        
-        case('RADIUS')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertrad(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a radius value for each culvert')
-          do icv=1,numculvert
-            culvertwidth(icv)=2.0*culvertrad(icv)
-          enddo
-
-        case('WIDTH')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertwidth(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a width value for each culvert')
-          do icv=1,numculvert
-            culvertrad(icv)=0.5*culvertwidth(icv)
-          enddo
-            
-        case('HEIGHT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertheight(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a height value for each culvert')
-          
-        case('LENGTH')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertlength(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a length value for each culvert')
-          
-        case('DARCY_FRICTION_FACTOR')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertfrict(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a Darcy friction value for each culvert')
-          do icv=1,numculvert
-            culvertfrict(icv)=max(culvertfrict(icv),0.001)
-          enddo 
-          
-        case('MANNINGS_COEFFICIENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertmann(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a Mannings coefficient value for each culvert')
-          do icv=1,numculvert
-            culvertmann(icv)=max(culvertmann(icv),0.001)
-          enddo
-            
-        case('INVERT_ELEVATIONS')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(culvertelevbay(icv),culvertelevsea(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side invert elevation value for each culvert')
-          
-        case('ENTRY_HEAD_LOSSES')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(cvheadlossbayentr(icv),cvheadlossseaentr(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side entry head loss value for each culvert')
-          do icv=1,numculvert
-            cvheadlossbayentr(icv)=max(cvheadlossbayentr(icv),0.0)
-            cvheadlossseaentr(icv)=max(cvheadlossseaentr(icv),0.0)
-          enddo
-            
-        case('EXIT_HEAD_LOSSES')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(cvheadlossbayexit(icv),cvheadlossseaexit(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify a Bay and Sea side exit head loss value for each culvert')
-          do icv=1,numculvert
-            cvheadlossbayexit(icv)=max(cvheadlossbayexit(icv),0.0)
-            cvheadlossseaexit(icv)=max(cvheadlossseaexit(icv),0.0)
-          enddo
-          
-        case('OUTFLOW_ANGLES')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(angleculvertbay(icv),angleculvertsea(icv),icv=1,numculvert)
-          if(ierr/=0) call diag_print_error('Must specify Bay and Sea outflow angle values for each culvert')
-          do icv=1,numculvert
-            angleculvertbay(icv)=angleculvertbay(icv)*deg2rad
-            angleculvertsea(icv)=angleculvertsea(icv)*deg2rad
-          enddo
-          
-        case('CULVERT_END','END')
-          exit
-          
-        case default
-          write(*,*) 'WARNING: Card ',trim(cardname),' not found'
-          
-      end select
-    enddo
-    
-    return
-    end subroutine culvert_block
-
-!************************************************************************************
-    subroutine tide_gate_block
-! Reads tidal gate structures (hli, 02/28/13) 
-!************************************************************************************
-    use const_def, only: deg2rad
-    use struct_def
-    use diag_lib, only: diag_print_error                                                                    !MEB 06/21  better descriptive output without application error
-    implicit none
-    integer :: i,ii,ierr,maxtidegate
-    character(len=34) :: cardname
-    logical :: foundcard
-
-    foundcard = .true.
-    do i=1,30
-      read(77,*,iostat=ierr) cardname
-      select case(cardname)
-        case('NUMBER_TIDE_GATE')
-          backspace(77)
-          read(77,*) cardname,numtidegate
-          allocate(ntidegate(0:numtidegate),orienttidegate(numtidegate),methtidegate(numtidegate),  &
-                   coeftidegate(numtidegate,2),elevtidegate(numtidegate),orienttgbay(numtidegate),  &
-                   orienttgsea(numtidegate),openhgttidegate(numtidegate),Qtottidegate(numtidegate) )
-
-        case('NUM_CELL_TIDE_GATE')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(ntidegate(ii),ii=1,numtidegate)              
-          if(ierr/=0) call diag_print_error('Must specify the number of cells for each tide gate')           !MEB 06/21  better descriptive output without application error
-          
-          ntidegate(0) = 0
-          maxtidegate = 0
-          do ii=1,numtidegate
-            maxtidegate = maxtidegate + ntidegate(ii)
-          enddo
-          do ii=1,numtidegate
-            ntidegate(ii) = ntidegate(ii-1) + ntidegate(ii)
-          enddo
-
-          allocate(idtidegate(maxtidegate),opentidegate(maxtidegate),qtidegate(maxtidegate), &
-                   coeftglateral(maxtidegate),dqtgdzdown(maxtidegate),dqtgdzup(maxtidegate))
-
-        case('CELLS')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(idtidegate(ii),ii=1,maxtidegate)     
-          if(ierr/=0) call diag_print_error('Must specify the Cell IDs for each tide gate')
-          
-        case('DISTRIBUTION_COEFFICIENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(coeftglateral(ii),ii=1,maxtidegate)     
-          if(ierr/=0) call diag_print_error('Must specify the distribution coefficient for each tide gate')          
-
-        case('ORIENTATION')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(orienttidegate(ii),ii=1,numtidegate)     
-          if(ierr/=0) call diag_print_error('Must specify the orientation for each tide gate')
-          
-        case('FLOW_COEFFICIENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(coeftidegate(ii,1),coeftidegate(ii,2),ii=1,numtidegate) 
-          if(ierr/=0) call diag_print_error('Must specify the flow coefficient for each tide gate')
-          
-        case('OPEN_HEIGHT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(openhgttidegate(ii),ii=1,numtidegate) 
-          if(ierr/=0) call diag_print_error('Must specify the gate opening height for each tide gate')
-          
-        case('BOTTOM_ELEVATION')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(elevtidegate(ii),ii=1,numtidegate)  
-          if(ierr/=0) call diag_print_error('Must specify the bottom elevation for each tide gate')
-
-        case('METH')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(methtidegate(ii),ii=1,numtidegate)     
-          if(ierr/=0) call diag_print_error('Must specify the flux calculation method for each tide gate')
-
-        !Initialize       
-        dqtgdzdown = 0.0;  dqtgdzup = 0.0  
-     
-        do ii=1,numtidegate
-          orienttgsea(ii) = orienttidegate(ii)   !Define direction of sea side at local coordinate
-          if(orienttidegate(ii).eq.1) then
-            orienttgbay(ii) = 3
-          elseif(orienttidegate(ii).eq.2) then
-            orienttgbay(ii) = 4
-          elseif(orienttidegate(ii).eq.3) then
-            orienttgbay(ii) = 1
-          elseif(orienttidegate(ii).eq.4) then
-            orienttgbay(ii) = 2
-          endif
-        enddo
-
-      case('SCHEDULE_BEGIN')
-        call tg_schedule_block
-
-      case('TIDE_GATE_END','END')
-        exit
-          
-      case default
-        write(*,*) 'WARNING: Card ',cardname,' not found'
-        foundcard = .false.
-         
-    end select
-    enddo
-    
-    return
-    end subroutine tide_gate_block
-
-!************************************************************************************
-    subroutine tg_schedule_block
-! Reads tidal gate schedule (hli, 02/28/13) 
-!************************************************************************************
-    use const_def, only: deg2rad
-    use struct_def
-    use diag_lib, only: diag_print_error
-    implicit none
-    integer :: i,ii,ierr,k,maxtidegateopt
-    character(len=34) :: cardname
-    character(len=100), allocatable :: operation_type(:)
-    logical :: foundcard
-
-    foundcard = .true.
-    
-    allocate(mtidegateopt(numtidegate),ntidegateopt(0:numtidegate),operation_type(numtidegate))
-
-    do i=1,30
-      read(77,*,iostat=ierr) cardname
-      select case(cardname)
-        case('OPERATION_TYPE')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(operation_type(ii),ii=1,numtidegate)
-          if(ierr/=0) call diag_print_error('Must specify the operation schedule type for each tide gate')
-          do ii=1,numtidegate
-            if(operation_type(ii)(1:3).eq.'REG') then
-              mtidegateopt(ii)=1
-            elseif(operation_type(ii)(1:3).eq.'DES') then
-              mtidegateopt(ii)=2
-            elseif(operation_type(ii)(1:3).eq.'EBB') then
-              mtidegateopt(ii)=3
-            else
-              mtidegateopt(ii)=4
-            endif
-          enddo
-
-        case('NUM_CONTROL_ELEMENT')
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(ntidegateopt(ii),ii=1,numtidegate)  
-          if(ierr/=0) call diag_print_error('Must specify the number of controlling elements for each tide gate')
-          ntidegateopt(0)=0
-          do ii=1,numtidegate
-            ntidegateopt(ii)=ntidegateopt(ii-1)+ntidegateopt(ii)
-          enddo
-          maxtidegateopt=ntidegateopt(numtidegate)
-          allocate(tidegateopt(maxtidegateopt))
-          k=0
-          
-        case('REG_START_TIME')
-          k=k+1
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,tidegateopt(k)    
-          if(ierr/=0) call diag_print_error('Must specify the regular start time (hr) for each tide gate')
-          
-        case('REG_OPEN_FREQUENCY')
-          k=k+1
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,tidegateopt(k) 
-          if(ierr/=0) call diag_print_error('Must specify the regular opening frequency (hr) for each tide gate')
-          
-        case('REG_OPEN_DURATION')
-          k=k+1
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,tidegateopt(k)   
-          if(ierr/=0) call diag_print_error('Must specify the regular opening duration (hr) for each tide gate')
-          
-        case('DES_START_TIME')
-          k=k+1
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)   
-          if(ierr/=0) call diag_print_error('Must specify the designated start time (hr) for each tide gate')
-          
-        case('DES_OPEN_DURATION')
-          k=k+1
-          backspace(77)
-          read(77,*,iostat=ierr) cardname,(tidegateopt(ii),ii=k,maxtidegateopt,2)  
-          if(ierr/=0) call diag_print_error('Must specify the designated opening duration (hr) for each tide gate')
-          
-      case('SCHEDULE_END','END')
-        exit
-          
-      case default
-        write(*,*) 'WARNING: Card ',cardname,' not found'
-        foundcard = .false.
-         
-    end select
-    enddo
-    
-    return
-    end subroutine tg_schedule_block
-    
-!*****************************************************************
-    subroutine rubble_mound_alloc
-! Resizes the rubble mound structure variables
-!*****************************************************************
-    use struct_def
-    implicit none
-
-    integer :: irm
-    type(RM_type), allocatable :: RM_temp(:)
-    
-    irubmound = irubmound + 1
-    if (irubmound == 1) then
-      allocate(RM_struct(1))
-    else
-      allocate(RM_temp(irubmound-1))
-      do irm=1,irubmound-1
-        RM_temp(irm) = RM_struct(irm)
-      enddo
-      deallocate(RM_struct)
-      allocate(RM_struct(irubmound))
-      do irm=1,irubmound-1
-        RM_struct(irm) = RM_temp(irm)
-      enddo
-      deallocate(RM_temp)
-    endif      
-    
-    !Initialize and set default values
-    RM_struct(irubmound)%rockdia_const       = 0.0
-    RM_struct(irubmound)%structporo_const    = 0.0
-    RM_struct(irubmound)%structbaseD_const   = 0.0
-    RM_struct(irubmound)%rubmoundmeth        = 0
-    RM_struct(irubmound)%ncells              = 0
-    RM_struct(irubmound)%name                = ''
-    RM_struct(irubmound)%rockdia_dset(2)     = ''
-    RM_struct(irubmound)%structporo_dset(2)  = ''
-    RM_struct(irubmound)%structbaseD_dset(2) = ''
-    RM_struct(irubmound)%structmeth_dset(2)  = ''
-    RM_struct(irubmound)%inc = 0
-
-    
-    return
-    end subroutine rubble_mound_alloc
-    
-
-!*****************************************************************
-    subroutine read_rubble_mound(cardname,foundcard)
-!*****************************************************************
-    use bnd_def
-    use const_def, only: pi
-    use flow_def, only: grav
-    use struct_def
-    implicit none
-    integer :: k   !hli(11/28/12)
-    integer :: numids, irm  !meb 01/28/2019
-    character(len=34) :: cardname
-    character(len=200) :: aline,adum
-    logical :: foundcard
-        
-    foundcard = .true.
-    rmblock=1
-
-    call rubble_mound_alloc         !added meb 1/28/2019
-
-    do
-      read(77,*) cardname
-      if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
-      
-      select case (cardname) 
-        case('RUBBLE_MOUND_END','END')
-          exit
-          
-        case('RUBBLE_MOUND_DATASET')  !Modify input format for rubble mound structure (hli,11/26/12)
-          backspace(77)
-          read(77,*) cardname, arubmoundfile, arubmoundpath
-
-        case('ROCK_DIAMETER_DATASET')
-          backspace(77)
-          read(77,*) cardname, arockdiamfile, arockdiampath
-          RM_struct(irubmound)%rockdia_dset(1) = arockdiamfile
-          RM_struct(irubmound)%rockdia_dset(2) = arockdiampath
-
-        case('STRUCTURE_POROSITY_DATASET')
-          backspace(77)
-          read(77,*) cardname, astructporofile, astructporopath    
-          RM_struct(irubmound)%structporo_dset(1) = astructporofile
-          RM_struct(irubmound)%structporo_dset(2) = astructporopath
-
-        case('STRUCTURE_BASE_DEPTH_DATASET')
-          backspace(77)
-          read(77,*) cardname, astructbaseDfile, astructbaseDpath    
-          RM_struct(irubmound)%structbaseD_dset(1) = astructbaseDfile
-          RM_struct(irubmound)%structbaseD_dset(2) = astructbaseDpath
-
-        case('FORCHHEIMER_COEFF_METHOD_DATASET')
-          backspace(77)
-          read(77,*) cardname, astructmethfile, astructmethpath    
-          RM_struct(irubmound)%structmeth_dset(1) = astructmethfile
-          RM_struct(irubmound)%structmeth_dset(2) = astructmethpath
-
-        case('CELL_IDS')
-          backspace(77)
-          read(77,*) cardname,numids    !No. of IDs
-          RM_struct(irubmound)%ncells = numids
-          allocate(RM_struct(irubmound)%cells(numids))
-          backspace(77)
-          read(77,*) cardname,numids,(RM_struct(irubmound)%cells(irm),irm=1,numids)
-          
-        case('NAME')
-          backspace(77)
-          read(77,'(A100)') aline
-          read(aline,'(A,A100)') cardname,adum
-          RM_struct(irubmound)%name = adjustl(adum)                    !meb added index 3/17/2020
-          
-        case('ROCK_DIAMETER_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,RM_struct(irubmound)%rockdia_const       !meb added index 1/28/2019
-    
-        case('STRUCTURE_POROSITY_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,RM_struct(irubmound)%structporo_const    !meb added index 1/28/2019
-           
-        case('STRUCTURE_BASE_DEPTH_CONSTANT')
-          backspace(77)
-          read(77,*) cardname,RM_struct(irubmound)%structbaseD_const   !meb added index 1/28/2019
-  
-        case('FORCHHEIMER_COEFF_METHOD')  
-          backspace(77)
-          read(77,*) cardname,RM_struct(irubmound)%rubmoundmeth        !meb added index 1/28/2019   
-          
-        case default
-          foundcard = .false.
-        end select              
-      enddo
-    end subroutine     
-    
-!****************************************************    
-    subroutine weir_init
-!****************************************************
-#include "CMS_cpp.h"
-    use struct_def
-    implicit none
-    
-    integer iwr, j, kk, maxweir
-    
-    numweir = iweir
-    allocate(nweir(0:numweir),orientweir(numweir),iweirtype(numweir),methweir(numweir),  &
-             coefweir(numweir,2),elevweir(numweir),orientweirbay(numweir),  &
-             orientweirsea(numweir),Qtotweir(numweir) )
-    do iwr=1,numweir
-      nweir(iwr)=WR_struct(iwr)%ncells
-    enddo
-
-    nweir(0) = 0
-    maxweir = 0
-    do iwr=1,numweir
-      maxweir = maxweir + nweir(iwr)
-    enddo
-    do iwr=1,numweir
-      nweir(iwr) = nweir(iwr-1) + nweir(iwr)
-    enddo
-
-    allocate(idweir(maxweir),qweir(maxweir),coefweirlateral(maxweir),dqweirdzdown(maxweir),dqweirdzup(maxweir))
-
-    kk=0
-    do iwr=1,numweir
-      do j = 1,WR_struct(iwr)%ncells
-        kk=kk+1
-        idweir(kk) = WR_struct(iwr)%cells(j)
-        coefweirlateral(kk) = WR_struct(iwr)%coefWeirLateral
-      enddo
-      orientweir(iwr) = WR_struct(iwr)%orientWeir
-      iweirtype(iwr)  = WR_struct(iwr)%weirType
-      coefweir(iwr,1) = WR_struct(iwr)%coefWeir_b2s
-      coefweir(iwr,2) = WR_struct(iwr)%coefWeir_s2b
-      elevweir(iwr)   = WR_struct(iwr)%elevWeir
-      methweir(iwr)   = WR_struct(iwr)%methWeir
-    enddo
-
-    !Initialize       
-    dqweirdzdown = 0.0;  dqweirdzup = 0.0  
-     
-    do iwr=1,numweir
-      orientweirsea(iwr) = orientweir(iwr)   !Define direction of sea side at local coordinate
-      if(orientweir(iwr).eq.1) then
-        orientweirbay(iwr) = 3
-      elseif(orientweir(iwr).eq.2) then
-        orientweirbay(iwr) = 4
-      elseif(orientweir(iwr).eq.3) then
-        orientweirbay(iwr) = 1
-      elseif(orientweir(iwr).eq.4) then
-        orientweirbay(iwr) = 2
-      endif
-    enddo
-        
-    return
-    end subroutine weir_init
-        
 !****************************************************    
     subroutine struct_init
 !****************************************************
@@ -1078,13 +284,15 @@
 !   (hli, 12/10/12)
 !--- Map structure ids from full to active grid -----
     !Tidal Gates
+    if(itidegate .gt. 0) call tg_init   !If new multi block tidegate called, then initialize
     if(numtidegate>0) call map_cell_full2active(ntidegate(numtidegate),idtidegate)
 
     !Weirs    
-    if(iweir .gt. 0) call weir_init   !If new multi block weir called, then initialize
+    if(iweir .gt. 0) call weir_init     !If new multi block weir called, then initialize
     if(numweir>0) call map_cell_full2active(nweir(numweir),idweir)
     
     !Culverts
+    if(iculvert .gt. 0) call culvert_init
     if(numculvert>0)then
       call map_cell_full2active(numculvert,idculvert(:,1))
       call map_cell_full2active(numculvert,idculvert(:,2))    
@@ -1453,7 +661,7 @@
     use tool_def, only: vstrlz    
     
     implicit none
-    integer :: i,j,icv,iunit(2),ierr,ival
+    integer :: i,j,icv,iwr,itg,iunit(2),ierr,ival
  
 111 format(' ',A,T40,A)
 112 format(' ',A,I0)
@@ -1461,6 +669,7 @@
 242 format(' ',A,T40,I0,A)
 243 format(' ',A,T40,F5.2)
 244 format(' ',A,T40,A,A)
+245 format(' ',A,T40,A,T65,A)
     
     iunit = (/6, dgunit/)    
     open(dgunit,file=dgfile,access='append') 
@@ -1481,13 +690,13 @@
           write(iunit(i),112) '      Rubble Mound Structure: ',j
           if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 
           write(iunit(i),241) '        Number of cells:',rm_struct(j)%ncells
-          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:',    trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
-          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),111) '        Rock Diameter Dataset File:',trim(rm_struct(j)%rockdia_dset(1))
-          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',         trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
-          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),111) '        Porosity Dataset File:',     trim(rm_struct(j)%structporo_dset(1))
-          if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',       trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
-          if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),111) '        Base Depth Dataset File:',   trim(rm_struct(j)%structbaseD_dset(1))
-          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),111) '        Method Dataset File:',       trim(rm_struct(j)%structmeth_dset(1))
+          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',      trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
+          if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',    trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
+          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:', trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
+          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),245) '        Porosity Dataset:',       trim(rm_struct(j)%structporo_dset(2)), trim(rm_struct(j)%structporo_dset(1))
+          if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),245) '        Base Depth Dataset:',     trim(rm_struct(j)%structbaseD_dset(2)),trim(rm_struct(j)%structbaseD_dset(1))
+          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),245) '        Rock Diameter Dataset:',  trim(rm_struct(j)%rockdia_dset(2)),    trim(rm_struct(j)%rockdia_dset(1))
+          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),245) '        Method Dataset:',         trim(rm_struct(j)%structmeth_dset(2)), trim(rm_struct(j)%structmeth_dset(1))
           if (rm_struct(j)%rubmoundmeth .gt. 0) then
             ival = rm_struct(j)%rubmoundmeth
             if (ival .eq. 1) write(iunit(i),111) '        Method:','Sidiropoulou et al. (2007)'
@@ -1502,18 +711,31 @@
         write(iunit(i),241) '    Number of Tidal Gates:',numtidegate
       endif
 
+      ! '       |             |    Coefficients     |     Sea      |    Crest    |'   
+      ! '    ID |  Crest Type | Distr.   Bay   Sea  | Orientation  |  Elevation  |   Method'
+655 format(I7,' |   ',A5,'    | ',F6.2,x,2(F6.2),'  |    ',A5,'    |  ',F6.2,'   | Approach ',I1)
       !---- Weir --------------------
       if(numweir>0)then
         write(iunit(i),241) '    Number of Weirs:',numweir
+        write(iunit(i),*)   ''
+        write(iunit(i),111) '       |            |     Coefficients     |     Sea     |   Crest   |'   
+        write(iunit(i),111) '    ID | Crest Type |  Distr.   Bay   Sea  | Orientation | Elevation |   Method'
+        do iwr=1,numweir
+          write(iunit(i),655,iostat=ierr) iwr,aweirtype(iwr),      &
+            coefweirlateral(iwr),coefweir(iwr,1),coefweir(iwr,2),  &
+            aorientweirsea(iwr),elevweir(iwr),methweir(iwr)
+        enddo
       endif
-
-656 format(I5,3x,A3,1x,F7.3,4x,F7.3,1x,1F7.2,2x,2F6.2,4F5.2,F6.3,2x,F6.3,4x,2F7.2)
+      
+      ! '       |         |            |           |           |     Elevation     |      Exit       |      Entry      |     Friction       |  Outflow Angles ' 
+      ! '    ID |  Type   |  Rad/Width |  Height   |  Length   |     Bay   Sea     |    Bay   Sea    |    Bay   Sea    |  Darcy  Mannings   |   Bay      Sea' 
+656 format(I7,' |  ',A3,' |  'F6.2,'   | ',F5.2,'  | ',F5.2,'  | ',F5.2,x,F5.2,  ' | ',F4.2,x,F4.2,' | ',F4.2,x,F4.2,' | ',F5.2,3x,F5.2,'   | ',F6.2,2x,F6.2)
       !---- Culvert --------------------
       if(numculvert>0)then
         write(iunit(i),241) '    Number of Culverts:',numculvert
-        write(iunit(i),111) '                                                 Loss Coefficients                     Outflow' 
-        write(iunit(i),111) '                                     Elevation    Exit      Entry     Friction         Angles ' 
-        write(iunit(i),111) '  ID, Type,  Rad/Width, Height, Length, Bay,  Sea,  Bay, Sea, Bay, Sea, Darcy,  Mannings, Bay,     Sea' 
+        write(iunit(i),111) '                                                          |   Loss Coefficients   |' 
+        write(iunit(i),111) '       |      |           |        |        |  Elevation  |   Exit    |   Entry   |    Friction     | Outflow Angles ' 
+        write(iunit(i),111) '    ID | Type | Rad/Width | Height | Length |  Bay   Sea  | Bay   Sea | Bay   Sea | Darcy  Mannings |   Bay    Sea' 
         do icv=1,numculvert
           write(iunit(i),656,iostat=ierr) icv,aculverttype(icv),      &
              culvertwidth(icv),culvertheight(icv),culvertlength(icv), &
@@ -1523,6 +745,7 @@
              culvertfrict(icv),culvertmann(icv),                      &
              angleculvertbay(icv)*rad2deg,angleculvertsea(icv)*rad2deg
         enddo
+        continue
       endif
     enddo
     
@@ -2360,7 +1583,7 @@
           i=idtidegate(im)
           if(opentidegate(im)==1) then   !Gate open
             do k=1,ncface(i)
-              if(idirface(k,i)==orienttgbay(itg)) then  !Positive  from bay to sea
+              if(idirface(k,i)==orienttgbay(itg)) then  !Positive from bay to sea
                 if(orienttgbay(itg)<=2) then
                   Qtottidegate(itg)=Qtottidegate(itg)-signface(idirface(k,i))*flux(k,i)
                 else
@@ -2390,7 +1613,7 @@
           i=idweir(im)
           do k=1,ncface(i)
             if(idirface(k,i)==orientweirbay(iwr)) then
-              if(orientweirbay(iwr)<=2) then     !Positive  from bay to sea
+              if(orientweirbay(iwr)<=2) then     !Positive from bay to sea
                 Qtotweir(iwr)=Qtotweir(iwr)-signface(idirface(k,i))*flux(k,i)
               else
                 Qtotweir(iwr)=Qtotweir(iwr)+signface(idirface(k,i))*flux(k,i)
@@ -2403,9 +1626,18 @@
 
     !Culvert Screen Output
 461 format('   Culvert ',I0,' Flow, ',A,A)
+462 format('   Weir ',I0,' Flow, ',A,A)
+463 format('   Tide Gate ',I0,' Flow, ',A,A)
     do icv=1,numculvert
-      !write(msg,461,iostat=ierr) icv,qculvert(icv) !, dqcvdzdown(icv),dqcvdzup(icv),p(idculvert(icv,1))/grav,p(idculvert(icv,2))/grav
       write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
+      call diag_print_message(msg)
+    enddo
+    do iwr=1,numweir
+      write(msg,462,iostat=ierr) iwr, trim(vstrlz(qtotweir(iwr),'(f0.5)')),' m^3/s'
+      call diag_print_message(msg)
+    enddo
+    do itg=1,numtidegate
+      write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
       call diag_print_message(msg)
     enddo
       
