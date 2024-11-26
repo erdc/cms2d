@@ -196,8 +196,9 @@
     numtidegate = itidegate
     allocate(ntidegate(0:numtidegate),orienttidegate(numtidegate),methtidegate(numtidegate),  &
              coeftidegate(numtidegate,2),elevtidegate(numtidegate),orienttgbay(numtidegate),  &
-             orienttgsea(numtidegate),openhgttidegate(numtidegate),Qtottidegate(numtidegate) )
-    allocate(mtidegateopt(numtidegate),ntidegateopt(0:numtidegate))
+             orienttgsea(numtidegate),openhgttidegate(numtidegate),Qtottidegate(numtidegate))
+    allocate(mtidegateopt(numtidegate),ntidegateopt(0:numtidegate),aschedtype(numtidegate),   &
+             aorienttgsea(numtidegate))
 
     ntidegate(0) = 0
     ntidegateopt(0) = 0
@@ -229,14 +230,19 @@
       elevtidegate(itg)    = TG_struct(itg)%bottom_elev
       methtidegate(itg)    = TG_struct(itg)%method
       orienttgsea(itg)     = TG_struct(itg)%orientTGsea   !Define direction of sea side at local coordinate
+
       if(orienttidegate(itg).eq.1) then
         orienttgbay(itg) = 3
+        aorienttgsea(itg) = 'North'
       elseif(orienttidegate(itg).eq.2) then
         orienttgbay(itg) = 4
+        aorienttgsea(itg) = 'East'
       elseif(orienttidegate(itg).eq.3) then
         orienttgbay(itg) = 1
+        aorienttgsea(itg) = 'South'
       elseif(orienttidegate(itg).eq.4) then
         orienttgbay(itg) = 2
+        aorienttgsea(itg) = 'West'
       endif
       ival = TG_struct(itg)%mtidegateopt
       mtidegateopt(itg) = ival
@@ -244,6 +250,7 @@
         tidegateopt(opts_inc+1) = TG_struct(itg)%reg_start_time
         tidegateopt(opts_inc+2) = TG_struct(itg)%reg_open_freq
         tidegateopt(opts_inc+3) = TG_struct(itg)%reg_open_dur
+        aschedtype(itg) = 'Regular'
         opts_inc = opts_inc + 3
       elseif (ival .eq. 2) then
         do k=1,int(TG_struct(itg)%ntidegateopt/2)
@@ -251,6 +258,11 @@
           tidegateopt(opts_inc+2) = TG_struct(itg)%des_open_dur(k)
           opts_inc = opts_inc + 2
         enddo
+        aschedtype(itg) = 'Designated'
+      elseif (ival .eq. 3) then
+        aschedtype(itg) = 'Open on Ebb'
+      elseif (ival .eq. 4) then
+        aschedtype(itg) = 'Uncontrolled'
       endif
     enddo
       

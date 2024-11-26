@@ -111,7 +111,6 @@ module struct_def
     real(ikind),allocatable :: permeability(:),rockdiam(:),structporo(:),structbaseD(:)  !hli(12/11/12)
     integer,allocatable     :: methrubmoundab(:)
     real(ikind),allocatable :: structmeth(:)  !hli(12/11/12)
-    character(len=200),allocatable :: rubmoundname(:)
 
  !Added meb 1/18/2019
     !This type facilitates reading in of the information from multiple blocks.
