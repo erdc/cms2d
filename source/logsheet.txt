@@ -1,3 +1,6 @@
+== Version 5.3.12.1 (12/10/2024) == 
+* Bug fix for Wind Speed equal to 0.0 in some situations.
+
 == Version 5.3.12 (11/26/2024) ==
 * Added new card to hot start a simulation, 'HOT_START_SIMULATION'.
 * Added error message when either ORIGIN_X/Y card is missing.

@@ -1829,7 +1829,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(sum .lt. .0001) then
         nnf=nf
-        ph0=g/ws*.9
+        ph0 = 0.36
+        if(ws .ge. 0.1) ph0=g/ws*.9
         if(ph0 .gt. .36) ph0=.36
         do nn=nnf,1,-1
           if(fcn(nn).gt.ph0) nnf=nn
@@ -3132,7 +3133,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         a1=0.0002
         cc=a1*g*8./pai
         ccc=a1*g*1.333/pai
-        ph0=g/ws*.9
+        ph0 = pai2
+        if(ws .ge. 0.1) ph0=g/ws*.9
         if(ph0.gt.pai2) ph0=pai2
         cc1=wd+HPAI
         if(iview.ge.1) cc1=cc1+DTH/2.
