@@ -7,10 +7,10 @@
     use struct_def
     implicit none
     
-    numtidegate = 0 !Tidal Gate
-    numweir = 0     !Weirs
-    numculvert = 0  !Culverts
-    nrubmoundcells = 0 !Rubble Mounds
+    numweir = 0        ! Weirs
+    numculvert = 0     ! Culverts
+    numtidegate = 0    ! Tidal Gate
+    nrubmoundcells = 0 ! Rubble Mounds
 
     return
     end subroutine struct_default
@@ -81,6 +81,9 @@
 
       case('TIDE_GATE_BEGIN')
         call tide_gate_block
+        
+      case('TIDEGATE_STRUCT_BEGIN')
+        call new_tg_block
 
 !=== Weirs ====================================            
       case('WEIR')         !Wu
@@ -244,8 +247,6 @@
         rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells), &
         rubmoundbotm(nrubmoundcells),idrubmound(nrubmoundcells))  
 
-      allocate(rubmoundname(nrubmoundcells))  !Added to keep names for rubble mound structures  !meb  03/19/20
-
       do irm=1,nrubmoundcells
         nrubmound(irm)=irm
       enddo
@@ -260,7 +261,6 @@
           rubmoundporo(kk)   = RM_struct(irm)%structporo_const
           rubmoundbotm(kk)   = RM_struct(irm)%structbaseD_const
           methrubmoundab(kk) = RM_struct(irm)%rubmoundmeth
-          rubmoundname(kk)   = RM_struct(irm)%name
         enddo
       enddo
     endif  
@@ -382,7 +382,7 @@
       allocate(nrubmound(0:nrubmoundcells))
       allocate(rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells))
       allocate(rubmoundbotm(nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells))
-      allocate(idrubmound(nrubmoundcells),rubmoundname(nrubmoundcells)) 
+      allocate(idrubmound(nrubmoundcells)) 
       nrubmound = 0; rubmounda = 0.0; rubmoundb = 0.0; methrubmoundab = 0
       rubmoundbotm = 0.0; rubmounddia = 0.0; rubmoundporo = 0.0; idrubmound = 0 
     endif
@@ -532,7 +532,6 @@
     do irm=1,irubmound
       do j=1,RM_struct(irm)%ncells
         kk=kk+1
-        rubmoundname(kk) = RM_struct(irm)%name
         idrubmound(kk)   = RM_struct(irm)%cells(j) !don't convert, already the SMS Cell ID number
         if(RM_struct(irm)%rubmoundmeth .gt. 0)        methrubmoundab(kk) = RM_struct(irm)%rubmoundmeth
         if(RM_struct(irm)%rockdia_const .gt. 0.0)     rubmounddia(kk)    = RM_struct(irm)%rockdia_const
@@ -597,7 +596,7 @@
       allocate(nrubmound(0:nrubmoundcells))
       allocate(rubmounda(nrubmoundcells),rubmoundb(nrubmoundcells),methrubmoundab(nrubmoundcells))
       allocate(rubmoundbotm(nrubmoundcells),rubmounddia(nrubmoundcells),rubmoundporo(nrubmoundcells))
-      allocate(idrubmound(nrubmoundcells),rubmoundname(nrubmoundcells)) 
+      allocate(idrubmound(nrubmoundcells)) 
       nrubmound = 0; rubmounda = 0.0; rubmoundb = 0.0; methrubmoundab = 0
       rubmoundbotm = 0.0; rubmounddia = 0.0; rubmoundporo = 0.0; idrubmound = 0 
     endif
@@ -630,7 +629,6 @@
         ival = int(permeability(i))
         RM_struct(ival)%inc = RM_struct(ival)%inc + 1
         RM_struct(ival)%cells(RM_struct(ival)%inc) = mapid(i)
-        rubmoundname(kk) = RM_struct(ival)%name
       endif
     enddo
     
@@ -658,7 +656,7 @@
     use struct_def
     use diag_def,   only: dgfile,dgunit
     use prec_def
-    use tool_def, only: vstrlz    
+    use tool_def, only: vstrlz, adjustc
     
     implicit none
     integer :: i,j,icv,iwr,itg,iunit(2),ierr,ival
@@ -676,7 +674,7 @@
     do i=1,2
       write(iunit(i),*)  
       if(numtidegate+numweir+numculvert+nrubmoundcells > 0)then
-        write(iunit(i),111) '  Structures:','ON'
+        write(iunit(i),111) '  Structures:'
       else
         write(iunit(i),111) '  Structures:','OFF'  
         cycle
@@ -690,14 +688,15 @@
           write(iunit(i),112) '      Rubble Mound Structure: ',j
           if (rm_struct(j)%name .ne. '') write(iunit(i),111) '        Name:',trim(rm_struct(j)%name) 
           write(iunit(i),241) '        Number of cells:',rm_struct(j)%ncells
-          if (rm_struct(j)%structporo_const .gt. 0.0)  write(iunit(i),244) '        Porosity Constant:',      trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
+          if (rm_struct(j)%structporo_const  .gt. 0.0) write(iunit(i),244) '        Porosity Constant:',      trim(vstrlz(rm_struct(j)%structporo_const,'(f0.2)'))
           if (rm_struct(j)%structbaseD_const .gt. 0.0) write(iunit(i),244) '        Base Depth Constant:',    trim(vstrlz(rm_struct(j)%structbaseD_const,'(f0.2)')),' m'
-          if (rm_struct(j)%rockdia_const .gt. 0.0)     write(iunit(i),244) '        Rock Diameter Constant:', trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
-          if (rm_struct(j)%structporo_const .eq. 0.0)  write(iunit(i),245) '        Porosity Dataset:',       trim(rm_struct(j)%structporo_dset(2)), trim(rm_struct(j)%structporo_dset(1))
+          if (rm_struct(j)%rockdia_const     .gt. 0.0) write(iunit(i),244) '        Rock Diameter Constant:', trim(vstrlz(rm_struct(j)%rockdia_const,'(f0.2)')),' m'
+          if (rm_struct(j)%structporo_const  .eq. 0.0) write(iunit(i),245) '        Porosity Dataset:',       trim(rm_struct(j)%structporo_dset(2)), trim(rm_struct(j)%structporo_dset(1))
           if (rm_struct(j)%structbaseD_const .eq. 0.0) write(iunit(i),245) '        Base Depth Dataset:',     trim(rm_struct(j)%structbaseD_dset(2)),trim(rm_struct(j)%structbaseD_dset(1))
-          if (rm_struct(j)%rockdia_const .eq. 0.0)     write(iunit(i),245) '        Rock Diameter Dataset:',  trim(rm_struct(j)%rockdia_dset(2)),    trim(rm_struct(j)%rockdia_dset(1))
-          if (rm_struct(j)%rubmoundmeth .eq. 0)        write(iunit(i),245) '        Method Dataset:',         trim(rm_struct(j)%structmeth_dset(2)), trim(rm_struct(j)%structmeth_dset(1))
-          if (rm_struct(j)%rubmoundmeth .gt. 0) then
+          if (rm_struct(j)%rockdia_const     .eq. 0.0) write(iunit(i),245) '        Rock Diameter Dataset:',  trim(rm_struct(j)%rockdia_dset(2)),    trim(rm_struct(j)%rockdia_dset(1))
+          if (rm_struct(j)%rubmoundmeth      .eq. 0) then
+            write(iunit(i),245) '        Method Dataset:', trim(rm_struct(j)%structmeth_dset(2)), trim(rm_struct(j)%structmeth_dset(1))
+          else
             ival = rm_struct(j)%rubmoundmeth
             if (ival .eq. 1) write(iunit(i),111) '        Method:','Sidiropoulou et al. (2007)'
             if (ival .eq. 2) write(iunit(i),111) '        Method:','Kadlec and Knight (1996)'
@@ -706,22 +705,36 @@
         enddo
       endif
       
-      !---- Tidal Gate --------------------
+!---- Tidal Gate --------------------
+        ! '       |     Coefficients     |      Sea      |    Opening    |    Bottom    |               |  Schedule   |'
+        ! '    ID |  Distr.   Bay   Sea  |  Orientation  |      Hgt      |     Elev     |     Method    |    Type     |'
+655   format(I7,' |  ',F6.2,x,2(F6.2),'  |    ',A5,'     |   ',F6.2,'    |   ',F6.2,'   |   Approach ',I1,'  |',A12,'|')
       if(numtidegate>0)then
         write(iunit(i),241) '    Number of Tidal Gates:',numtidegate
+        write(iunit(i),*)   ''
+        write(iunit(i),111) '       |      Coefficients     |     Sea      |   Opening   |   Bottom   |               |  Schedule  |'
+        write(iunit(i),111) '    ID |   Distr.   Bay   Sea  | Orientation  |     Hgt     |    Elev    |     Method    |    Type    |'
+        write(iunit(i),111) '    ---------------------------------------------------------------------------------------------------'
+        do itg=1,numtidegate
+          write(iunit(i),655,iostat=ierr) itg, coeftglateral(itg),coeftidegate(itg,1), coeftidegate(itg,2),&
+            trim(aorienttgsea(itg)),openhgttidegate(itg),elevtidegate(itg),methtidegate(itg),adjustc(aschedtype(itg))
+        enddo
       endif
+      continue
 
-      ! '       |             |    Coefficients     |     Sea      |    Crest    |'   
-      ! '    ID |  Crest Type | Distr.   Bay   Sea  | Orientation  |  Elevation  |   Method'
-655 format(I7,' |   ',A5,'    | ',F6.2,x,2(F6.2),'  |    ',A5,'    |  ',F6.2,'   | Approach ',I1)
-      !---- Weir --------------------
+            
+!---- Weir --------------------
+        ! '       |             |    Coefficients     |     Sea      |    Crest    |'   
+        ! '    ID |  Crest Type | Distr.   Bay   Sea  | Orientation  |  Elevation  |   Method'
+656   format(I7,' |   ',A5,'    | ',F6.2,x,2(F6.2),'  |    ',A5,'    |  ',F6.2,'   | Approach ',I1)
       if(numweir>0)then
         write(iunit(i),241) '    Number of Weirs:',numweir
         write(iunit(i),*)   ''
-        write(iunit(i),111) '       |            |     Coefficients     |     Sea     |   Crest   |'   
-        write(iunit(i),111) '    ID | Crest Type |  Distr.   Bay   Sea  | Orientation | Elevation |   Method'
+        write(iunit(i),111) '       |            |     Coefficients     |     Sea     |   Crest   |'
+        write(iunit(i),111) '    ID | Crest Type |  Distr.   Bay   Sea  | Orientation | Elevation |   Method   |'
+        write(iunit(i),111) '    -------------------------------------------------------------------------------'
         do iwr=1,numweir
-          write(iunit(i),655,iostat=ierr) iwr,aweirtype(iwr),      &
+          write(iunit(i),656,iostat=ierr) iwr,aweirtype(iwr),      &
             coefweirlateral(iwr),coefweir(iwr,1),coefweir(iwr,2),  &
             aorientweirsea(iwr),elevweir(iwr),methweir(iwr)
         enddo
@@ -729,15 +742,16 @@
       
       ! '       |         |            |           |           |     Elevation     |      Exit       |      Entry      |     Friction       |  Outflow Angles ' 
       ! '    ID |  Type   |  Rad/Width |  Height   |  Length   |     Bay   Sea     |    Bay   Sea    |    Bay   Sea    |  Darcy  Mannings   |   Bay      Sea' 
-656 format(I7,' |  ',A3,' |  'F6.2,'   | ',F5.2,'  | ',F5.2,'  | ',F5.2,x,F5.2,  ' | ',F4.2,x,F4.2,' | ',F4.2,x,F4.2,' | ',F5.2,3x,F5.2,'   | ',F6.2,2x,F6.2)
+657 format(I7,' |  ',A3,' |  'F6.2,'   | ',F5.2,'  | ',F5.2,'  | ',F5.2,x,F5.2,  ' | ',F4.2,x,F4.2,' | ',F4.2,x,F4.2,' | ',F5.2,3x,F5.2,'   | ',F6.2,2x,F6.2)
       !---- Culvert --------------------
       if(numculvert>0)then
         write(iunit(i),241) '    Number of Culverts:',numculvert
         write(iunit(i),111) '                                                          |   Loss Coefficients   |' 
-        write(iunit(i),111) '       |      |           |        |        |  Elevation  |   Exit    |   Entry   |    Friction     | Outflow Angles ' 
-        write(iunit(i),111) '    ID | Type | Rad/Width | Height | Length |  Bay   Sea  | Bay   Sea | Bay   Sea | Darcy  Mannings |   Bay    Sea' 
+        write(iunit(i),111) '       |      |           |        |        |  Elevation  |   Exit    |   Entry   |    Friction     | Outflow Angles |' 
+        write(iunit(i),111) '    ID | Type | Rad/Width | Height | Length |  Bay   Sea  | Bay   Sea | Bay   Sea | Darcy  Mannings |   Bay    Sea   |' 
+        write(iunit(i),111) '    ------------------------------------------------------------------------------------------------------------------'
         do icv=1,numculvert
-          write(iunit(i),656,iostat=ierr) icv,aculverttype(icv),      &
+          write(iunit(i),657,iostat=ierr) icv,aculverttype(icv),      &
              culvertwidth(icv),culvertheight(icv),culvertlength(icv), &
              culvertelevbay(icv),culvertelevsea(icv),                 &
              cvheadlossbayexit(icv),cvheadlossbayentr(icv),           &
@@ -771,7 +785,7 @@
     real(ikind) :: tgateoptstr,tgateoptperiod,tgateopendura
     
 !--- Tide Gate --------------------------------------------------------
-    if(numtidegate>0) opentidegate=0 !=1, open; =0, close
+    if(numtidegate>0) opentidegate=0            !=1, open; =0, close
     do itg=1,numtidegate
       if(mtidegateopt(itg)==1)then              !1 for constant time period
         tgateoptstr   =tidegateopt(ntidegateopt(itg-1)+1)
@@ -1624,22 +1638,31 @@
       endif
     enddo
 
-    !Culvert Screen Output
+    !Structures Screen Output
 461 format('   Culvert ',I0,' Flow, ',A,A)
 462 format('   Weir ',I0,' Flow, ',A,A)
 463 format('   Tide Gate ',I0,' Flow, ',A,A)
-    do icv=1,numculvert
-      write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
-      call diag_print_message(msg)
-    enddo
-    do iwr=1,numweir
-      write(msg,462,iostat=ierr) iwr, trim(vstrlz(qtotweir(iwr),'(f0.5)')),' m^3/s'
-      call diag_print_message(msg)
-    enddo
-    do itg=1,numtidegate
-      write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
-      call diag_print_message(msg)
-    enddo
+464 format('   Tide Gate ',I0,' CLOSED')
+    if(numculvert > 0 .or. numweir > 0 .or. numtidegate > 0) then
+      call diag_print_message('')
+      do icv=1,numculvert
+        write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
+        call diag_print_message(msg)
+      enddo
+      do iwr=1,numweir
+        write(msg,462,iostat=ierr) iwr, trim(vstrlz(qtotweir(iwr),'(f0.5)')),' m^3/s'
+        call diag_print_message(msg)
+      enddo
+      do itg=1,numtidegate
+        if (qtottidegate(itg) .ne. 0.0) then
+          write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
+        else
+          write(msg,464,iostat=ierr) icv
+        endif
+        call diag_print_message(msg)
+      enddo
+      call diag_print_message('')
+    endif
       
     return
     end subroutine fluxthrustructure
@@ -1708,15 +1731,15 @@
       if(methtidegate(itg)==1)then
         do im=ntidegate(itg-1)+1,ntidegate(itg)
           i=idtidegate(im)
-          if(opentidegate(im)==1)then   !Gate open
+          if(opentidegate(im)==1)then    !Gate open
             do k=1,ncface(i)
               nck=cell2cell(k,i)
               if(mod(idirface(k,i),2)==0)then
                 if(idirface(k,i)==orienttgbay(itg).or.idirface(k,i)==orienttgsea(itg)) &
-                        u(nck)=u(nck)*2.0    !The structure is treated as dry node, cdflux=0
+                   u(nck)=u(nck)*2.0     !The structure is treated as dry node, cdflux=0
               else
                 if(idirface(k,i)==orienttgbay(itg).or.idirface(k,i)==orienttgsea(itg)) &
-                   v(nck)=v(nck)*2.0    !The structure is treated as dry node, cdflux=0
+                   v(nck)=v(nck)*2.0     !The structure is treated as dry node, cdflux=0
               endif  
             enddo
           endif
@@ -1828,7 +1851,7 @@
       if(methtidegate(itg)==1)then
         do im=ntidegate(itg-1)+1,ntidegate(itg)
           i=idtidegate(im)
-          if(opentidegate(im)==1)then   !Gate open
+          if(opentidegate(im)==1)then    !Gate open
             Ctkbay=0.0
             rtkbay=0.0
             snodebay=0.0

@@ -1,11 +1,9 @@
-"""Export an H5 file to text.
-   Copied from XMS tool repository.
-"""
+"""Export an H5 file to text."""
 # 1. Standard python modules
 from dataclasses import dataclass, field
 import io
 import sys
-from typing import Optional, TextIO, Union
+from typing import Dict, List, Optional, TextIO, Union
 
 # 2. Third party modules
 import h5py
@@ -15,7 +13,7 @@ import numpy
 
 # 4. Local modules
 
-__copyright__ = "(C) Copyright Aquaveo 2024"
+__copyright__ = "(C) Copyright Aquaveo 2020"
 __license__ = "All rights reserved"
 
 
@@ -24,8 +22,8 @@ class H5FileWriter:
     """Write an H5 file to text."""
     input_file: str
     output_file: TextIO
-    to_exclude: list[str] = field(default_factory=list)
-    compare_items: dict[str, object] = field(default_factory=dict)
+    to_exclude: List[str] = field(default_factory=list)
+    compare_items: Dict[str, object] = field(default_factory=dict)
     h5_file: Optional[h5py.File] = None
     bool_write_single_attribute: bool = False
 
@@ -141,7 +139,7 @@ class H5FileWriter:
         self.print_h5()
 
 
-def write_h5_as_text_file(input_h5_file: str, output_text_file: str, to_exclude: list[str]) -> H5FileWriter:
+def write_h5_as_text_file(input_h5_file: str, output_text_file: str, to_exclude: List[str]) -> H5FileWriter:
     """Write an H5 file as a text file.
 
     Args:

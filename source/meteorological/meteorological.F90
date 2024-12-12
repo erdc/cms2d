@@ -590,7 +590,7 @@ d1: do ii=1,4
       rain_time = 0.0
       !close(rf_unit)
       !precipevap%val      
-    endif    
+    endif
     
     !Wind and Atmospheric Pressure
     if(windconst) call windcurve_eval    !Spatially constant wind field

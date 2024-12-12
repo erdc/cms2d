@@ -1,15 +1,15 @@
 import os
 import numpy
 import filecmp
-from typing import Optional
+from typing import List, Optional
 from h5_file_to_text import write_h5_as_text_file
 from pathlib import Path
 import process_runner
 import shutil
 
 
-def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[str]] = None,
-                     allow_close: bool = False, atol = 1e-08) -> str:
+def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[List[str]] = None,
+                     allow_close: bool = False) -> str:
     """Compare two H5 files for testing.
 
     Args:
@@ -17,7 +17,6 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[st
         out_file: The path to the output coverage file.
         to_exclude: Optional list of dataset or attribute names to exclude from printing.
         allow_close: Allow floating point values to be close but not equal.
-        atol: Absolute error tolerance, see Numpy Allclose
     """
     if to_exclude is None:
         to_exclude = []
@@ -40,7 +39,7 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[list[st
             base_float = isinstance(base_data, numpy.ndarray) and base_data.dtype.kind == 'f'
             out_float = isinstance(out_data, numpy.ndarray) and out_data.dtype.kind == 'f'
             if base_float and out_float:
-                equal = numpy.allclose(base_data, out_data, equal_nan=True, atol=atol)
+                equal = numpy.allclose(base_data, out_data, equal_nan=True)
                 if not equal:
                     message = (f'files differ:\n  {base_txt_file}\n  {out_txt_file}\n'
                                f'{name} not close')
@@ -64,35 +63,46 @@ def main(vs_solution_path, dll_path):
     """
     repo_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
     test_path = os.path.join(repo_path, 'testing', 'tests')
-    files = [str(f.absolute()) for f in Path('.').rglob('*.cmcards')]
-
-    # To skip a test, add an empty text file named 'skip.txt' in the test folder.
-    skip_files = [str(f.absolute()) for f in Path('.').rglob('skip.txt')]
+    files = [str(f.absolute()) for f in Path(test_path).rglob('*.cmcards')]
+    skip_files = [str(f.absolute()) for f in Path(test_path).rglob('skip.txt')]
     skip_set = set()
     for sf in skip_files:
         print(f'Skipping {sf}')
         skip_set.add(os.path.dirname(sf))
     files = [f for f in files if os.path.dirname(f) not in skip_set]
+    print('List of tests:')
+    for f in files:
+        print(f)
 
+    # search for libiomp5md.dll
+    # search_path = 'c:/Program Files (x86)'
+    # print(f'Path exists "{search_path}": {os.path.exists(search_path)}')
+    # dll_files = [str(f.absolute()) for f in Path(search_path).rglob('libiomp5md.dll')]
+    # print(dll_files)
+
+    path_to_cms = os.path.join(repo_path, vs_solution_path, 'x64/Release/CMS2d_v5.3.exe')
+    if not os.path.isfile(path_to_cms):
+        print(f'ERROR: CMS2d_v5.3.exe not found at {path_to_cms}')
+        return 1
+    # shutil.copyfile(path_to_cms, os.path.join(test_path, './CMS2D_v5.3.exe'))
+    process_runner.ProcessRunner.cms_exe = path_to_cms
     # Copy 'libiomp5md.dll' and executable to tests directory
-    shutil.copyfile(os.path.join(repo_path, vs_solution_path, 'x64/Release/CMS2d_v5.3.exe'),
-                    os.path.join(test_path, './CMS2D_v5.3.exe'))
-    shutil.copyfile(os.path.join(dll_path, 'libiomp5md.dll'),
-                    os.path.join(test_path, './libiomp5md.dll'))
+    # shutil.copyfile(os.path.join(dll_path, 'libiomp5md.dll'),
+    #                 os.path.join(test_path, './libiomp5md.dll'))
 
     runner = process_runner.ProcessRunner()
     runner.run_concurrent_processes(files)
     # test CMS outputs
     return_code = _check_outputs(files)
-    if os.path.isfile(os.path.join(test_path, 'CMS2d_v5.3.exe')):
-        os.remove(os.path.join(test_path, 'CMS2d_v5.3.exe'))
-        os.remove(os.path.join(test_path, 'libiomp5md.dll'))
+    # if os.path.isfile(os.path.join(test_path, 'CMS2d_v5.3.exe')):
+    #     os.remove(os.path.join(test_path, 'CMS2d_v5.3.exe'))
+    #     os.remove(os.path.join(test_path, 'libiomp5md.dll'))
 
     return return_code
 
 
 def _check_outputs(files):
-    """Check the test outputs. Each test should have a base folder that contains the output datasets for comparisons.
+    """Check the test outputs.
 
     Args:
         files (list(str)): list of files being tested
@@ -109,7 +119,7 @@ def _check_outputs(files):
             if not os.path.isfile(outfile):
                 print(f'TEST FAILED: {f}\n')
                 return_code = 1
-            val = compare_h5_files(basefile, outfile, allow_close=True, atol=1e-08)
+            val = compare_h5_files(basefile, outfile, allow_close=True)
             if val != '':
                 print(f'{val}\n')
                 return_code = 1

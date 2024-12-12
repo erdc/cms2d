@@ -8,10 +8,10 @@ Documentation for the CMS is available from the [CIRP Wiki](https://cirpwiki.inf
 # Building/Editing
 ## Windows platform
 Building CMS on Windows requires use of the Microsoft Visual Studio GUI. This repository was created using the Intel Fortran compiler. The versions of the GUI and compiler primarily being used are as follows:
-- MS Visual Studio 2019 Community
-- Intel oneAPI 2021.4
+- MS Visual Studio 2019 or 2022
+- Intel oneAPI 2021.4 (vs2019) or 2024.1 (vs2022)
 
-Once the sofware has been installed, the user should load the **solution file**.  
+Once the sofware has been installed, the user should load the appropriate **solution file** for the UI.
 
 ## Linux platform
 To build CMS On linux you must have CMAKE software above 2.8.
@@ -29,17 +29,21 @@ Note: Linux builds have not been fully tested on HPC platform and some extra con
 # File/Folder structure
 Below is a list of folders and descriptions of the contents.
 - **docs** - this folder contains the documentation files needed for the [CMS Documentation page](https://cms2d.readthedocs.io/) that is in progress.
-- **Intel_vs2019** - this folder contains the solution file needed to load into Visual Studio.
+- **Intel_vs2019** - this folder contains the solution file needed to load into Visual Studio 2019.
+- **Intel_vs2022** - this folder contains the solution file needed to load into Visual Studio 2022.
 - **GCTP** - this project folder contains library code needed to map information between horizontal projections.
 - **SPCS83** - this project folder contains library code needed for changes related to the State Plane coordinate system.
 - **UTM2GEO** - this project folder contains library code needed for converting to/from geographic coordinate space.
 - **source** - contains subfolders for all the main CMS code functionality separated into process type.
 - **external_libraries** - subfolders containing binary libraries to link with (no source).
+- **testing** - contains CI/CD tests
 
 Additional files in the main folder and their descriptions:
 - [README.md](README.md) - this file.
 - [UNLICENSE.md](UNLICENSE.md) - contains information regarding the use of this repository and the third-party licenses.
 - [CMS Terms and Conditions.txt](<CMS Terms and Conditions.txt>) - additional terms and conditions.
+- [.gitlab-ci.yml](.gitlab-ci.yml) - contains needed continuous integration build information.
+- [pyproject.toml](pyproject.toml) - contains needed information for the ReadTheDocs documentation pages.
 
 Additional files in the "source" folder and their descriptions:
 - [CMakeLists.txt](source/CMakeLists.txt) - contains information for compiling on Linux using CMake.

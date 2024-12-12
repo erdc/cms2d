@@ -135,6 +135,36 @@
 
     delimited = "'"//str//"'"
   end function addQuotes
+  
+  
+!************************************************************
+  pure function adjustc(string,length)
+! DESCRIPTION center text using implicit or explicit length
+!************************************************************
+    character(len=*),intent(in)  :: string         ! input string to trim and center
+    integer,intent(in),optional  :: length         ! line length to center text in
+    character(len=:),allocatable :: adjustc        ! output string
+    integer                      :: inlen
+    integer                      :: ileft          ! left edge of string if it is centered
+    
+    if(present(length))then                        ! optional length
+      inlen=length                                 ! length will be requested length
+      if(inlen.le.0)then                           ! bad input length
+        inlen=len(string)                          ! could not use input value, fall back to length of input string
+      endif
+    else                                           ! output length was not explicitly specified, use input string length
+      inlen=len(string)
+    endif
+    allocate(character(len=inlen):: adjustc)       ! create output at requested length
+    adjustc(1:inlen)=' '                           ! initialize output string to all blanks
+
+    ileft =(inlen-len_trim(adjustl(string)))/2     ! find starting point to start input string to center it
+    if(ileft.gt.0)then                             ! if string will fit centered in output
+      adjustc(ileft+1:inlen)=adjustl(string)       ! center the input text in the output string
+    else                                           ! input string will not fit centered in output string
+      adjustc(1:inlen)=adjustl(string)             ! copy as much of input to output as can
+    endif
+  end function adjustc  
 
 
 !************************************************************
