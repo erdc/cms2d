@@ -107,7 +107,7 @@
 		<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 		<File RelativePath="..\source\boundaries\boundaries.F90"/>
-		<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
+		<File RelativePath="..\source\waves\CMS-Wave_v3.3W_30Apr2020.f90">
 			<FileConfiguration Name="Release|x64">
 			<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
@@ -199,8 +199,12 @@
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
 		<File RelativePath="..\source\steering\steering.f90"/>
+      	<File RelativePath="..\source\structures\struct_culverts.f90"/>
 		<File RelativePath="..\source\structures\struct_def.f90"/>
 		<File RelativePath="..\source\structures\struct_lib.f90"/>
+		<File RelativePath="..\source\structures\struct_rubmounds.f90"/>
+		<File RelativePath="..\source\structures\struct_tidegates.f90"/>
+		<File RelativePath="..\source\structures\struct_weirs.f90"/>
 		<File RelativePath="..\source\structures\structures.f90"/>
 		<File RelativePath="..\source\boundaries\tide_fac.f90">
 			<FileConfiguration Name="Debug|x64">
