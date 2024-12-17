@@ -67,7 +67,7 @@ master_doc = 'index'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = u'CMS'
-copyright = u'2023, Coastal Inlets Research Program'
+copyright = u'2024, Coastal Inlets Research Program'
 author = 'Coastal Inlets Research Program'
 
 # The short X.Y version.

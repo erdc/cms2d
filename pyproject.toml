@@ -8,7 +8,7 @@ exclude = [
 
 [project]
 name = "cms2d"
-version = "5.3"
+version = "5.4"
 authors = [
   { name = "Mitchell Brown", email = "mitchell.e.brown@usace.army.mil" },
 ]

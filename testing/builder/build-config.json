@@ -1,8 +1,8 @@
 {
-"solution_path" :"Intel_vs2019/CMS2D_v5.3.sln",
+"solution_path" :"Intel_vs2019/CMS2D_v5.4.sln",
 "build_config_names" : ["Release"],
-"project_name" : "CMS2D_v5.3",
-"exe_file_names" : ["CMS2D_v5.3.exe"],
+"project_name" : "CMS2D_v5.4",
+"exe_file_names" : ["CMS2D_v5.4.exe"],
 "dev_env" : "\"C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/devenv.com\"",
 "dll_path" : "c:/Program Files (x86)/Intel/oneAPI/compiler/2021.4.0/windows/redist/intel64_win/compiler"
 }
