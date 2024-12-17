@@ -9,9 +9,9 @@ Windows
 -------
 - Microsoft Visual Studio 2019 (Community version is fine) 
 - Intel oneAPI Base and HPC kits
-- `Get latest CMS 5.3 64-bit executable <https://cirpwiki.info/wiki/CMS_Releases>`_
+- `Get latest CMS 5.4 64-bit executable <https://cirpwiki.info/wiki/CMS_Releases>`_
 
-1) Install MS Visual Studio 2019
+1) Install MS Visual Studio 2019 or 2022
 	* Make sure **"Desktop development with C++"** is selected at a minimum
 2) Install Intel oneAPI Base kit (C++ language only)
 3) Install Intel oneAPI HPC kit (adds Fortran)
