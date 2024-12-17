@@ -88,7 +88,7 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************    
     use size_def, only: nmaxfaces, ncellpoly
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     
     implicit none
     type(der_go_type) :: go  !Gradient Operator    
@@ -155,7 +155,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************
     use size_def, only: ncells, ncellsimple
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use flow_def, only: iwet
     use geo_def,  only: ncface,cell2cell,x,y
     use diag_def, only: msg2, msg3, msg4, msg5
@@ -275,7 +275,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************
     use size_def, only: nmaxfaces
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use flow_def, only: iwet
     use geo_def,  only: ncface,cell2cell,areap,dsx,dsy
     use interp_def, only: fintp
@@ -385,7 +385,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************************************
     use size_def, only: nmaxfaces, ncells, ncelljoint
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use geo_def,  only: cell2cell, llec2llec, dx, dy, nxface, nyface, kxface, kyface, dsx, dsy, rpx, rpy, areap, ncface
     use flow_def, only: iwet
     use interp_def, only: fintp
@@ -510,7 +510,7 @@ contains
 !*************************************************************************
     use size_def, only: ncellpoly
     use geo_def,  only: ncface, cell2cell, x, y, ncnode, cell2extcell, mapid
-    use der_def,  only: go, der_go_type, npow
+    use der_def,  only: der_go_type, npow
     use diag_def, only: msg2, msg3
     use diag_lib, only: diag_print_warning, diag_print_error
     use flow_def, only: iwet
@@ -730,7 +730,7 @@ contains
 !*******************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
     use geo_def,  only: idcelljoint
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     implicit none
     !Input/Output
@@ -849,7 +849,7 @@ contains
 !*******************************************************
     use size_def, only: ncellsD,ncelljoint,ncellpoly      
     use geo_def,  only: idcelljoint                        
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -940,7 +940,7 @@ contains
 !*****************************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
     use geo_def,  only: idcelljoint                     
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1056,7 +1056,7 @@ contains
 !******************************************************************
     use size_def, only: ncells,ncellsD,ncelljoint,ncellpoly
     use geo_def,  only: idcelljoint                          
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1171,7 +1171,7 @@ contains
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
     use size_def, only: ncellsd
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1197,7 +1197,7 @@ contains
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
     use size_def, only: ncellsd
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1222,7 +1222,7 @@ contains
 !     Changed to use new gradient variables for efficiency
 !***********************************************************************
     use size_def, only: ncellsd
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1279,7 +1279,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*******************************************************
     use size_def, only: ncells,ncellsD
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none
@@ -1306,7 +1306,7 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
     use size_def, only: ncellsD
-    use der_def,  only: go, der_go_type
+    use der_def,  only: der_go_type
     use prec_def, only: ikind
     
     implicit none

@@ -75,7 +75,8 @@
     foundcard = .true.
     select case(cardname)
       !----- Initial Condition (Input) ----------------------------------------
-      case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE')     !If another is added to the list, modify the appropriate line in 'input.F90' for subroutine 'card_dataset'
+      !If another is added to the list, modify the appropriate line in 'input.F90' for subroutine 'card_dataset'
+      case('INITIAL_STARTUP_FILE','INITIAL_CONDITION_FILE','HOT_START_SIMULATION') 
         call card_dataset(77,icfile,flowpath,icfile,icpath,1)
         atemp = icfile
         call uppercase(atemp) 

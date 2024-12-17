@@ -477,7 +477,7 @@ di: do i=1,ni
 dj:   do j=1,nj
         ij = j + (i-1)*nj
         if(mod(ij,50000)==0)then
-          write(*,'(A,F6.2)') '  Percent complete: ',float(ij)*100/float(ni*nj)
+          write(*,'(A,F6.2)') '    Percent complete: ',float(ij)*100/float(ni*nj)
         endif
         
         !if(i==79 .and. j==85)then
@@ -645,7 +645,7 @@ dj:   do j=1,nj
         !cntp(2:4,i,j)=0.0  
       enddo dj !j-wave
     enddo di !i-wave
-    write(*,'(A,F6.2)') '  Percent complete: ',100.0
+    write(*,'(A,F6.2)') '    Percent complete: ',100.0
     
     return
     end subroutine interp_coef_tel2cart
@@ -864,7 +864,7 @@ dj:   do j=1,nj
             
 d1: do ii=1,nc
       if(mod(ii,10000)==0)then
-        write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nc)
+        write(*,'(A,F6.2)') '    Percent complete: ',float(ii)*100/float(nc)
       endif
       
       !if(mapid(ii)==9040)then
@@ -949,7 +949,7 @@ d1: do ii=1,nc
       cntp(1,ii)=xtrapfunc(distmin,xtrapdist)
         cntp(2:4,ii)=0.0
     enddo d1
-    write(*,'(A,F6.2)') '  Percent complete: ',100.0
+    write(*,'(A,F6.2)') '    Percent complete: ',100.0
     
     return
     end subroutine interp_coef_cart2tel
@@ -1191,7 +1191,7 @@ d1: do ii=1,nc
             
 d1: do ii=1,nintp
       if(mod(ii,2000)==0)then
-        write(*,'(A,F6.2)') '  Percent complete: ',float(ii)*100/float(nintp)
+        write(*,'(A,F6.2)') '    Percent complete: ',float(ii)*100/float(nintp)
       endif
       
       !Search or overlapping points

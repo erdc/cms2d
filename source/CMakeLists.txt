@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.9)
 
 # CMake control file for building the CMS model
 
@@ -176,6 +176,10 @@ SET( CMS_SOURCE_FILES
   ./structures/struct_def.f90
   ./structures/struct_lib.f90
   ./structures/structures.f90
+  ./structures/struct_culverts.f90
+  ./structures/struct_rubmounds.f90
+  ./structures/struct_tidegates.f90
+  ./structures/struct_weirs.f90
   ./utilities/diag_def.f90
   ./utilities/diag_lib.f90
   ./utilities/diagnostics.f90
@@ -194,7 +198,7 @@ SET( CMS_SOURCE_FILES
   ./waves/wave_def.f90
   ./waves/wave_lib.F90
   ./waves/wave.F90
-  ./waves/CMS-Wave_v3.2W_30Apr2020.f90
+  ./waves/CMS-Wave_v3.3W_30Apr2020.f90
   ./waves/wave_rad_stress_fl.f90
   ../UTM2GEO/utm2geo.f90
   ../SPCS83/spcs83_combined.f90

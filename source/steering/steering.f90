@@ -80,7 +80,7 @@
         'FLOW-TO-WAVE_WATER_ELEVATION','FLOW_TO_WAVE_WATER_ELEVATION')
         backspace(77)   
         read(77,*) cardname, cdum
-        if(cdum(1:1)=='1' .or. cdum(1:1)=='N' .or. cdum(1:1)=='n')then
+        if(cdum(1:1)=='0' .or. cdum(1:1)=='N' .or. cdum(1:1)=='n')then   !This was '1', but should be '0'. 
           noptwse = 0   !NONE
         elseif(cdum(1:1)=='1' .or. cdum(1:1)=='L')then
           noptwse = 1   !LAST

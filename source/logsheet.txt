@@ -1,3 +1,17 @@
+== Version 5.4.0 (12/17/2024) ==
+* Initial release for SMS 13.4
+* Includes new implementations for CMS-Flow structures (Culverts, Weirs, Tide Gates)
+
+== Version 5.3.12.1 (12/10/2024) == 
+* Bug fix for Wind Speed equal to 0.0 in some situations.
+
+== Version 5.3.12 (11/26/2024) ==
+* Added new card to hot start a simulation, 'HOT_START_SIMULATION'.
+* Added error message when either ORIGIN_X/Y card is missing.
+* Fixed an issue where the CMS-Wave .wav file cannot be written to multiple times in some situations.
+* Implemented new method for weirs, culverts, and tide gates in SMS 13.4+ and improved summary output for those structures.
+* A few minor changes for compiling on Linux
+
 == Version 5.3.11 (08/19/2024) ==
 * Changed to alternate between recurring hot start files.
 * Added folder to start holding test cases for Continuous Integration
