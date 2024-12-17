@@ -106,33 +106,24 @@
 				<File RelativePath="..\source\explicit\Zupdate_wse_Tel.f90"/>
 			</Filter>
 			<Filter Name="Structures">
-				<File RelativePath="..\source\structures\struct_culverts.f90">
-				</File>
-				<File RelativePath="..\source\structures\struct_def.f90">
-				</File>
-				<File RelativePath="..\source\structures\struct_lib.f90">
-				</File>
-				<File RelativePath="..\source\structures\struct_rubmounds.f90">
-				</File>
-				<File RelativePath="..\source\structures\struct_tidegates.f90">
-				</File>
-				<File RelativePath="..\source\structures\struct_weirs.f90">
-				</File>
-				<File RelativePath="..\source\structures\structures.f90">
-				</File>
+				<File RelativePath="..\source\structures\struct_culverts.f90"/>
+				<File RelativePath="..\source\structures\struct_def.f90"/>
+				<File RelativePath="..\source\structures\struct_lib.f90"/>
+				<File RelativePath="..\source\structures\struct_rubmounds.f90"/>
+				<File RelativePath="..\source\structures\struct_tidegates.f90"/>
+				<File RelativePath="..\source\structures\struct_weirs.f90"/>
+				<File RelativePath="..\source\structures\structures.f90"/>
 			</Filter>
 			<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 			<File RelativePath="..\source\boundaries\bnd_def.f90"/>
 			<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
 			<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 			<File RelativePath="..\source\boundaries\boundaries.F90"/>
-			<File RelativePath="..\source\waves\CMS-Wave_v3.2W_30Apr2020.f90">
-				<FileConfiguration Name="Release|x64">
-					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
-				</FileConfiguration>
-				<FileConfiguration Name="Debug|x64">
-					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
-				</FileConfiguration>
+            <File RelativePath="..\source\waves\CMS-Wave_v3.3W_30Apr2020.f90">
+			  <FileConfiguration Name="Release|x64">
+			    <Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+			  <FileConfiguration Name="Debug|x64">
+			    <Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			</File>
 			<File RelativePath="..\source\main\CMS2D_main.f90"/>
 			<File RelativePath="..\source\main\CMS_Flow.f90"/>
@@ -149,8 +140,7 @@
 			<File RelativePath="..\source\dredge\dredge_def.f90"/>
 			<File RelativePath="..\source\dredge\dredge_op.F90"/>
 			<File RelativePath="..\source\dredge\dredge_setup.F90"/>
-			<File RelativePath="..\source\flow\flow.F90">
-			</File>
+			<File RelativePath="..\source\flow\flow.F90"/>
 			<File RelativePath="..\source\flow\flow_def.f90"/>
 			<File RelativePath="..\source\flow\flow_eddyvis.f90"/>
 			<File RelativePath="..\source\flow\flow_imp.F90"/>
@@ -213,8 +203,7 @@
 			<File RelativePath="..\source\sediment\sed_imp.f90"/>
 			<File RelativePath="..\source\sediment\sed_lib.f90"/>
 			<File RelativePath="..\source\sediment\sed_slope.f90"/>
-			<File RelativePath="..\source\sediment\sediment.F90">
-			</File>
+			<File RelativePath="..\source\sediment\sediment.F90"/>
 			<File RelativePath="..\source\stacking\solution_scheme_option.f90"/>
 			<File RelativePath="..\source\solvers\solv_def.f90"/>
 			<File RelativePath="..\source\solvers\solvers.f90"/>
