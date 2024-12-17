@@ -1,5 +1,5 @@
 ## NOTICE:
-CMS Version 5.3.  The CMS code is supplied by the U.S. Army Corps of Engineers, Engineer Research and Development Center (USACE-ERDC). Some portions of this software were written by employees of ERDC-CHL, a laboratory of the U.S. Army Corps of Engineers, and are not under copyright. Other portions are copyright their creators and licensed under licenses listed in the included documentation. USACE-ERDC makes no guarantees about the results, or appropriateness of outputs, obtained from CMS.  
+CMS Version 5.4.  The CMS code is supplied by the U.S. Army Corps of Engineers, Engineer Research and Development Center (USACE-ERDC). Some portions of this software were written by employees of ERDC-CHL, a laboratory of the U.S. Army Corps of Engineers, and are not under copyright. Other portions are copyright their creators and licensed under licenses listed in the included documentation. USACE-ERDC makes no guarantees about the results, or appropriateness of outputs, obtained from CMS.  
 
 ## LIST OF CONDITIONS:
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -16,7 +16,7 @@ This version of CMS uses the following libraries and source code:
 ### XMDF Binary Library [Aquaveo]
 This library allows for input/output using platform-independent binary files to save disk space and for better communication with the Surface-water Modeling System GUI.
 
-Copyright 2023, Aquaveo, LLC
+Copyright 2024, Aquaveo, LLC
 	
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 

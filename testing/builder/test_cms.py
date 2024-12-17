@@ -80,11 +80,11 @@ def main(vs_solution_path, dll_path):
     # dll_files = [str(f.absolute()) for f in Path(search_path).rglob('libiomp5md.dll')]
     # print(dll_files)
 
-    path_to_cms = os.path.join(repo_path, vs_solution_path, 'x64/Release/CMS2d_v5.3.exe')
+    path_to_cms = os.path.join(repo_path, vs_solution_path, 'x64/Release/CMS2d_v5.4.exe')
     if not os.path.isfile(path_to_cms):
-        print(f'ERROR: CMS2d_v5.3.exe not found at {path_to_cms}')
+        print(f'ERROR: CMS2d_v5.4.exe not found at {path_to_cms}')
         return 1
-    # shutil.copyfile(path_to_cms, os.path.join(test_path, './CMS2D_v5.3.exe'))
+    # shutil.copyfile(path_to_cms, os.path.join(test_path, './CMS2D_v5.4.exe'))
     process_runner.ProcessRunner.cms_exe = path_to_cms
     # Copy 'libiomp5md.dll' and executable to tests directory
     # shutil.copyfile(os.path.join(dll_path, 'libiomp5md.dll'),
@@ -94,8 +94,8 @@ def main(vs_solution_path, dll_path):
     runner.run_concurrent_processes(files)
     # test CMS outputs
     return_code = _check_outputs(files)
-    # if os.path.isfile(os.path.join(test_path, 'CMS2d_v5.3.exe')):
-    #     os.remove(os.path.join(test_path, 'CMS2d_v5.3.exe'))
+    # if os.path.isfile(os.path.join(test_path, 'CMS2d_v5.4.exe')):
+    #     os.remove(os.path.join(test_path, 'CMS2d_v5.4.exe'))
     #     os.remove(os.path.join(test_path, 'libiomp5md.dll'))
 
     return return_code

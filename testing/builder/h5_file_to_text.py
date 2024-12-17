@@ -13,7 +13,7 @@ import numpy
 
 # 4. Local modules
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright Aquaveo 2024"
 __license__ = "All rights reserved"
 
 
