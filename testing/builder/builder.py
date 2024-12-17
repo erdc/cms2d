@@ -11,7 +11,7 @@ import time
 
 # 4. Local modules
 
-__copyright__ = "(C) Copyright Aquaveo 2020"
+__copyright__ = "(C) Copyright Aquaveo 2024"
 __license__ = "All rights reserved"
 
 
@@ -52,10 +52,10 @@ def build(solution_path=None,
     r"""Builds the project.
 
     Args:
-        solution_path:       Example: '..\Intel_vs2022\CMS2D_V5.3.sln'
+        solution_path:       Example: '..\Intel_vs2022\CMS2D_V5.4.sln'
         build_config_names:  Example: ('Release')
-        project_name:        Example: 'CMS2D_V5.3'
-        exe_file_names:      Example: ('CMS2D_v5.3.exe')
+        project_name:        Example: 'CMS2D_V5.4'
+        exe_file_names:      Example: ('CMS2D_v5.4.exe')
         dev_env:             Example: "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.com"
         do_build:            Example: 0 or 1 (0 to skip build)
         do_test:             Example: 0 or 1 (0 to skip test)
