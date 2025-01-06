@@ -33,9 +33,10 @@
 		</Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File RelativePath="..\source\CMakeLists.txt"/>
-			<File RelativePath="..\source\logsheet.txt">
-			</File>
+			<File RelativePath="..\source\logsheet.txt"/>
 			<File RelativePath="..\source\readme.txt"/>
+			<File RelativePath="..\UNLICENSE.md">
+			</File>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 			<Filter Name="Explicit Scheme">
@@ -213,10 +214,8 @@
 			<File RelativePath="..\source\solvers\solvers_lib.f90"/>
 			<File RelativePath="..\source\statistics\stat_def.f90"/>
 			<File RelativePath="..\source\statistics\statistics.F90"/>
-			<File RelativePath="..\source\steering\steer_def.f90">
-			</File>
-			<File RelativePath="..\source\steering\steering.f90">
-			</File>
+			<File RelativePath="..\source\steering\steer_def.f90"/>
+			<File RelativePath="..\source\steering\steering.f90"/>
 			<File RelativePath="..\source\boundaries\tide_fac.f90">
 				<FileConfiguration Name="Debug|x64">
 					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
@@ -234,8 +233,7 @@
 			<File RelativePath="..\source\utilities\watch_lib.F90"/>
 			<File RelativePath="..\source\utilities\watch_test.F90"/>
 			<File RelativePath="..\source\waves\wave.F90"/>
-			<File RelativePath="..\source\waves\wave_def.f90">
-			</File>
+			<File RelativePath="..\source\waves\wave_def.f90"/>
 			<File RelativePath="..\source\waves\wave_lib.F90"/>
 			<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>
 			<File RelativePath="..\source\sediment\wuetal.F90"/>

@@ -52,7 +52,7 @@
           read(77,*) cardname, numtidegate,(ntidegate(itg),itg=1,numtidegate),                         &
                      (idtidegate(idtg),idtg=1,maxtidegate),(coeftglateral(idtg),idtg=1,maxtidegate),   &
                      (orienttidegate(itg),coeftidegate(itg,1),coeftidegate(itg,2),openhgttidegate(itg),&
-                      elevtidegate(itg),methtidegate(itg),itg=1,numtidegate)                 
+                     elevtidegate(itg),methtidegate(itg),itg=1,numtidegate)                 
           dqtgdzdown=0.0;  dqtgdzup=0.0   
           do itg=1,numtidegate
              orienttgsea(itg) = orienttidegate(itg)   !Define direction of sea side at local coordinate
@@ -1576,7 +1576,7 @@
     use prec_def
     use tool_def, only: vstrlz       
     implicit none
-    integer :: i,k,im,itg,iwr,icv,ierr
+    integer :: i,k,im,itg,iwr,icv,ierr, counter
 
     !Tidal Gate
     do itg=1,numtidegate
@@ -1643,8 +1643,10 @@
 462 format('   Weir ',I0,' Flow, ',A,A)
 463 format('   Tide Gate ',I0,' Flow, ',A,A)
 464 format('   Tide Gate ',I0,' CLOSED')
+    
     if(numculvert > 0 .or. numweir > 0 .or. numtidegate > 0) then
-      call diag_print_message('')
+      if (numtidegate > 0) counter = count(mtidegateopt .eq. 4)                  !If there are tidegates, find how many are UNCONTROLLED
+      if (counter > 0 .and. numtidegate > counter) call diag_print_message('')   !Print a blank line, except if all tidegates are UNCONTROLLED
       do icv=1,numculvert
         write(msg,461,iostat=ierr) icv, trim(vstrlz(qculvert(icv),'(f0.5)')),' m^3/s'
         call diag_print_message(msg)
@@ -1654,12 +1656,14 @@
         call diag_print_message(msg)
       enddo
       do itg=1,numtidegate
-        if (qtottidegate(itg) .ne. 0.0) then
-          write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
-        else
-          write(msg,464,iostat=ierr) icv
+        if (mtidegateopt(itg) .ne. 4) then                                       !Test if this tidegate is UNCONTROLLED and if it is, then do not print anything out. 
+          if (qtottidegate(itg) .ne. 0.0) then
+            write(msg,463,iostat=ierr) icv, trim(vstrlz(qtottidegate(itg),'(f0.5)')),' m^3/s'
+          else
+            write(msg,464,iostat=ierr) icv
+          endif
+          call diag_print_message(msg)
         endif
-        call diag_print_message(msg)
       enddo
       call diag_print_message('')
     endif
