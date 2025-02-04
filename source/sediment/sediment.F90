@@ -245,6 +245,16 @@
     logical :: foundcard, found           !meb 05/09/22   added 'found'
     character(len=100) :: msg2
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)              
     !----- On Switch -----------------
@@ -1368,6 +1378,16 @@ d1: do ii=1,10
     logical :: foundcard
     character(len=100) :: msg2,msg3,msg4
 
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     nlayinp = nlayinp + 1    
     
     !apbkinp(0) = 'NONE'

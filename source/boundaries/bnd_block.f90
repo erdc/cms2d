@@ -12,7 +12,7 @@
     use sal_def,   only: nsalstr,sal_str
     use geo_def,   only: azimuth_fl,projection
     use geo_lib,   only: proj_default
-    use comvarbl,  only: mpfile,flowpath,tjulday0,iyr
+    use comvarbl,  only: mpfile,flowpath,tjulday0,iyr,bidfile,bidpath
     use time_lib,  only: calendar2julian
     use tide_lib,  only: tidal_data
     use diag_lib,  only: diag_print_error, diag_print_warning
@@ -23,13 +23,13 @@
 
     real(ikind), parameter :: undef = -999.0
     integer, parameter     :: iundef = -999
-    integer				   :: i, k, kk, ierr
+    integer				         :: i, k, kk, ierr
     logical                :: foundcard, foundfile
     character(len=20)      :: qunits
     character(len=37)      :: cardname
     
     !Boundary String
-    character(len=200) :: bidfile,bidpath    !Boundary ID file and path
+    !character(len=200) :: bidfile,bidpath    !Boundary ID file and path
     character(len=100) :: bndname
     integer :: idnum      !Boundary id number
     integer :: istrtype   !Input string type, 1-cellstring, 2-nodestring
@@ -64,25 +64,25 @@
     real(ikind), pointer :: phase(:)      !Phase [rad] (constituent)
     real(ikind), pointer :: f(:)          !Nodal factor [-] (constituent)
     real(ikind), pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
+    character(len=100)   :: station
     character(len=10), pointer :: name(:) !Tidal Consitituent names (constituent)
-    character(len=100) :: station
     
     !WSE Block
-    logical :: wseblockread
-    integer :: minterp       !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
-    integer :: ntiwse        !Interpolation order
+    logical     :: wseblockread
+    integer     :: minterp   !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
+    integer     :: ntiwse    !Interpolation order
     real(ikind) :: wseoffset !wse offset
     real(ikind) :: dwsex     !Regional steady water level gradinet
     real(ikind) :: dwsey     !Regional steady water level gradinet
-    logical :: wseout        !Water level output file
-    logical :: wseadjust     !Turns on or off the wse adjustment/correction due to wind and waves 
+    logical     :: wseout    !Water level output file
+    logical     :: wseadjust !Turns on or off the wse adjustment/correction due to wind and waves 
     character(len=200) :: wsefile,wsepath !Water level data file and path
     
     !Vel Block
-    integer :: ntivel
+    integer     :: ntivel
     real(ikind) :: wseconst
-    logical :: velblockread
-    logical :: velout           !Velocity output file
+    logical     :: velblockread
+    logical     :: velout           !Velocity output file
     character(len=200) :: velfile,velpath  !Velocity data file and path
     
     !Nested Boundary Conditions
@@ -267,7 +267,7 @@
     ntcin  = 0  !Tidal constituents used
     tdbname = ''  !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST, etc
     tdbpath = ''  !Tidal Database file and path
-    nssi = iundef  !Smoothing iterations (along string)
+    nssi = iundef !Smoothing iterations (along string)
     nssw = iundef !Smoothing window width (along string)
     call proj_default(projtdb) !Parent grid projection
     
@@ -345,7 +345,6 @@
         if(tdbname(1:6)=='EC2015' .or. tdbname(1:9)=='ENPAC2015') then  !Force using velocities with newer ADCIRC database.  MEB 11/06/24
           velblockread = .true.  
         endif
-
        
       case default
         foundcard = .false.
@@ -522,6 +521,9 @@
       MH_str(nMHstr)%nssi = nssiwse   !Spatial smoothing iterations
       MH_str(nMHstr)%nssw = nsswwse   !Spatial smoothing window width
       MH_str(nMHstr)%wseoffset = wseoffset
+      MH_str(nMHstr)%offsetfile = offsetfile 
+      MH_str(nMHstr)%offsetpath = offsetpath 
+
     
     case(5) !MHV - Multiple WSE and Vel
       call multiwsevel_alloc
@@ -540,7 +542,6 @@
       MHV_str(nMHVstr)%nsiwse  = nsiwse      !Temporal smoothing iterations
       MHV_str(nMHVstr)%nssiwse = nssiwse     !Spatial smoothing iterations
       MHV_str(nMHVstr)%nsswwse = nsswwse     !Spatial smoothing window width
-      MHV_str(nMHVstr)%wseoffset = wseoffset
       if(len_trim(velfile)==0)then
         velfile = bidfile  
         velpath = bidpath
@@ -551,6 +552,9 @@
       MHV_str(nMHVstr)%nsivel  = nsivel      !Temporal smoothing iterations
       MHV_str(nMHVstr)%nssivel = nssivel     !Spatial smoothing iterations
       MHV_str(nMHVstr)%nsswvel = nsswvel     !Spatial smoothing window width
+      MHV_str(nMHVstr)%wseoffset = wseoffset
+      MHV_str(nMHVstr)%offsetfile = offsetfile 
+      MHV_str(nMHVstr)%offsetpath = offsetpath 
 
     case(7) !NH - Nested WSE
       call nestwse_init

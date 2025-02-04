@@ -72,6 +72,16 @@
     logical     :: foundcard
     character(len=37) :: cardname    
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)
       !----- Initial Condition (Input) ----------------------------------------

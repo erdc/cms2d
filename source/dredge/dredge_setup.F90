@@ -151,6 +151,16 @@
     !Internal
     character :: cardname*37,aline*200,fromunits*10,tounits*10,defunits*10    
 
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     do kk=1,20
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
@@ -309,6 +319,16 @@
     character*200 file,path
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     read(77,*) cardname
     if (cardname(1:13) .ne. 'PLACEMENT_END') then
       backspace(77)  !back up and continue reading block

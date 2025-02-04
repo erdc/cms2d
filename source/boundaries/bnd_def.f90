@@ -163,8 +163,8 @@ module bnd_def
       logical                  :: wseadjust  !Turns on or off the wse adjustment/correction due to wind and waves
       character(len=200)       :: offsetfile !Offset file (hli,01/19/17)
       character(len=200)       :: offsetpath !Offset path     
-      integer                  :: ioffsetmode !1-Constant offset, 2-Offset curve 
-      integer                  :: ntimesoffset!Times in offset curve 
+      integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve 
+      integer                  :: ntimesoffset   !Times in offset curve 
       real(ikind)              :: wsecurveoffset !Interpolated offset Values [m] 
       real(ikind),     pointer :: offsettimes(:) !Offset times [hrs] 
       real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]           
@@ -193,6 +193,13 @@ module bnd_def
       integer                  :: nsw          !Temporal smoothing width
       integer                  :: nssi         !Spatial smoothing iterations
       integer                  :: nssw         !Spatial smoothing window width
+      character(len=200)       :: offsetfile     !Offset file (hli,01/19/17)
+      character(len=200)       :: offsetpath     !Offset path     
+      integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve 
+      integer                  :: ntimesoffset   !Times in offset curve 
+      real(ikind)              :: wsecurveoffset !Interpolated offset Values [m] 
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs] 
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]           
       character(len=200)       :: wsefile,wsepath !Water level data file and path
     endtype MH_type
     type(MH_type), allocatable :: MH_str(:)
@@ -207,32 +214,39 @@ module bnd_def
       integer                  :: ncells       !Cells in string
       integer,         pointer :: cells(:)     !Cell id's
       integer,         pointer :: faces(:)     !Boundary face
-      integer                  :: ntimeswse       !Times in boundary data
-      integer                  :: incwse          !Current time step of boundary data      
+      integer                  :: ntimeswse    !Times in boundary data
+      integer                  :: incwse       !Current time step of boundary data      
       real(ikind)              :: wseoffset    !Water level offset which can be used to convert between vertical datums
       real(ikind), allocatable :: wsebnd(:)    !Interpolated eta at each cell at current time [m]
       real(ikind), allocatable :: wsebnd0(:)   !Initial wse at each cell (may be different from forcing) [m]
-      integer                  :: ntimesvel       !Times in boundary data
-      integer                  :: incvel          !Current time step of boundary data 
+      integer                  :: ntimesvel    !Times in boundary data
+      integer                  :: incvel       !Current time step of boundary data 
       real(ikind), allocatable :: ubnd(:)      !Interpolated u at each cell at current time [m/s]
       real(ikind), allocatable :: ubnd0(:)     !Initial u at each cell (may be different from forcing) [m/s]
       real(ikind), allocatable :: vbnd(:)      !Interpolated u at each cell at current time [m/s]
       real(ikind), allocatable :: vbnd0(:)     !Initial v at each cell (may be different from forcing) [m/s]
-      real(ikind),     pointer :: timeswse(:)     !Times [hrs]
+      real(ikind),     pointer :: timeswse(:)  !Times [hrs]
       real(ikind),     pointer :: wsedata(:,:) !Data Values (time,cell)
-      real(ikind),     pointer :: timesvel(:)     !Times [hrs]
+      real(ikind),     pointer :: timesvel(:)  !Times [hrs]
       real(ikind),     pointer :: udata(:,:)   !Data Values (time,cell)
       real(ikind),     pointer :: vdata(:,:)   !Data Values (time,cell)
-      integer                  :: ntiwse          !Order of temporal interpolation (default=2) (same for vel and wse)
-      integer                  :: ntivel          !Order of temporal interpolation (default=2) (same for vel and wse)
-      integer                  :: nswwse          !Temporal smoothing width
-      integer                  :: nsiwse          !Temporal smoothing iterations
-      integer                  :: nswvel          !Temporal smoothing width
-      integer                  :: nsivel          !Temporal smoothing iterations
-      integer                  :: nssiwse         !Spatial smoothing iterations
-      integer                  :: nsswwse         !Spatial smoothing window width
-      integer                  :: nssivel         !Spatial smoothing iterations
-      integer                  :: nsswvel         !Spatial smoothing window width
+      integer                  :: ntiwse       !Order of temporal interpolation (default=2) (same for vel and wse)
+      integer                  :: ntivel       !Order of temporal interpolation (default=2) (same for vel and wse)
+      integer                  :: nswwse       !Temporal smoothing width
+      integer                  :: nsiwse       !Temporal smoothing iterations
+      integer                  :: nswvel       !Temporal smoothing width
+      integer                  :: nsivel       !Temporal smoothing iterations
+      integer                  :: nssiwse      !Spatial smoothing iterations
+      integer                  :: nsswwse      !Spatial smoothing window width
+      integer                  :: nssivel      !Spatial smoothing iterations
+      integer                  :: nsswvel      !Spatial smoothing window width
+      character(len=200)       :: offsetfile     !Offset file (hli,01/19/17)
+      character(len=200)       :: offsetpath     !Offset path     
+      integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve 
+      integer                  :: ntimesoffset   !Times in offset curve 
+      real(ikind)              :: wsecurveoffset !Interpolated offset Values [m] 
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs] 
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]           
       character(len=200)       :: wsefile,wsepath !Input Water level data file and path
       character(len=200)       :: velfile,velpath !Input Velocity data file and path
     endtype MHV_type

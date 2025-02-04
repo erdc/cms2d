@@ -106,11 +106,9 @@ contains
     integer,         intent(out) :: nstrcells
     integer,         intent(inout),pointer :: icells(:)    
     !Internal variables
-    integer, allocatable :: idtemp(:)
     integer :: pid,gid,ierr    
     character(len=200) :: str1,str2
     
-    allocate(idtemp(10000))
     call XF_OPEN_FILE(bidfile,READONLY,pid,ierr)
     if(ierr<0)then
       call diag_print_error('Could not open XMDF Boundary ID File: ',&
@@ -124,12 +122,11 @@ contains
         str1,str2,'  Check the input and rerun')
     endif
     call XF_GET_PROPERTY_NUMBER(gid,'Cells',nstrcells,ierr)
-    call XF_READ_PROPERTY_INT(gid,'Cells',nstrcells,idtemp(1),ierr)    
+    
+    allocate(icells(nstrcells))
+    call XF_READ_PROPERTY_INT(gid,'Cells',nstrcells,icells(1),ierr)    
     call XF_CLOSE_GROUP(gid,ierr)
     call XF_CLOSE_FILE(pid,ierr)
-    allocate(icells(nstrcells))
-    icells = idtemp(1:nstrcells)
-    deallocate(idtemp)
         
     return
     end subroutine read_cellstr_h5
@@ -758,6 +755,13 @@ contains
     call XF_OPEN_FILE(datfile,READONLY,PID,error)
     call XF_OPEN_GROUP(PID,datpath,GID,error)
     call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)            !call XF_GET_PROPERTY_NUMBER(GID,'Times',ntimes,error)           !MEB change from 'Times' 6/28/2016
+    
+    if(error .lt. 0) then   !if Vel_Times does not exist, use WSE_Times
+      time_dset='WSE_Times'
+      call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)            !call XF_GET_PROPERTY_NUMBER(GID,'Times',ntimes,error)           !MEB change from 'Times' 6/28/2016
+      if(error .lt. 0) call diag_print_error("Cannot find any times for boundary at: "//trim(datpath))
+    endif
+    
     allocate(times(ntimes),udata(ntimes,nstrcells),vdata(ntimes,nstrcells))
     allocate(ftemp(ntimes),ftemp2(ntimes))
     call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)   !call XF_READ_PROPERTY_FLOAT(GID,'Times',ntimes,ftemp(1),error)  !MEB change from 'Times' 6/28/2016

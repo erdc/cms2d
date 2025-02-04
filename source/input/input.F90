@@ -118,33 +118,43 @@
 !    end subroutine card_file
     
 !*****************************************************************************
-    subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim)
-! Reads a dataset card from the CMS conrol/card file
+    subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)
+! Reads a dataset card from the CMS control/card file
 !
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************************
     use diag_lib
+    use comvarbl, only: bidfile,bidpath
     implicit none
     !Input/Output
     integer,intent(in) :: inunit
     character(len=*),intent(in) :: defaultfile,defaultpath
     character(len=*),intent(inout) :: datafile,datapath
     integer, intent(in) :: ndim
+    logical, intent(in), optional :: isboundary
     !Internal Variables
     character(len=10)  :: aext
     character(len=37)  :: cardname
     character(len=200) :: apath,aname
     character(len=400) :: aline,afile
     integer :: ierr, ival,nquotes,aNumber
-    logical :: foundfile
+    logical :: foundfile, boundflag = .false.
 ! added 5/21/2018
     integer :: ival1,ival2,ilen
     logical :: isMP, isLatLong
     
+    if (present(isboundary)) then
+      if(isboundary) then
+        datafile = bidfile
+        datapath = bidpath
+        boundflag = .true.
+      endif
+    endif
+    
     backspace(inunit)
     read(inunit,'(A)') aline
     read(aline,*,iostat=ierr) cardname, datafile    
-    if(ierr/=0)then
+    if(ierr/=0 .and. len_trim(datafile).eq.0)then
       call diag_print_error('Could not read dataset card: ',cardname)
     endif
     call fileparts(datafile,apath,aname,aext)
@@ -177,7 +187,8 @@
       !Ignore hotstarting file  MEB  1/15/2021
       if(ierr/=0 .and. cardname(1:20) /= 'INITIAL_STARTUP_FILE'     &
                  .and. cardname(1:22) /= 'INITIAL_CONDITION_FILE'   &
-                 .and. cardname(1:20) /= 'HOT_START_SIMULATION')then
+                 .and. cardname(1:20) /= 'HOT_START_SIMULATION'     &
+                 .and. .not. boundflag)then
         call diag_print_warning('Path not specified for dataset card: ',cardname)
       endif
       
