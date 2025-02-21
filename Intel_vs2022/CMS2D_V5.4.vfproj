@@ -121,6 +121,10 @@
 			<File RelativePath="..\source\boundaries\bnd_vel.f90"/>
 			<File RelativePath="..\source\boundaries\boundaries.F90"/>
 			<File RelativePath="..\source\waves\CMS-Wave_v3.4W_Jan2025.f90">
+				<FileConfiguration Name="Release|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+				<FileConfiguration Name="Debug|x64">
+				<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
 			</File>
 			<File RelativePath="..\source\main\CMS2D_main.f90"/>
 			<File RelativePath="..\source\main\CMS_Flow.f90"/>
