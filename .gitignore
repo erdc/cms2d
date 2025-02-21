@@ -75,3 +75,5 @@ Intel_vs2022/.vs/
 testing/builder/__pycache__/
 
 Intel_vs2022/x64/Debug/
+
+CMS_DIAG.txt
