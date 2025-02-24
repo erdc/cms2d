@@ -1376,6 +1376,7 @@
     endif
     
     call init_cf_var_list()
+    continue
 
     return
     end subroutine out_init
@@ -1601,7 +1602,8 @@ implicit none
     character(len=5) :: apbk,alay
     character(len=3) :: aperdiam
     character(len=200) :: apath,aname
-    logical :: header,check_time_list
+    logical :: header, check_time_list
+    logical :: enable_cf = .true.  !Enables the writing of extra CF information to known CF datasets
     
 62  format('_',I2.2)
 71  format(1x,'(',I1,')')
@@ -1617,18 +1619,18 @@ implicit none
     !WATER SURFACE ELEVATION GROUP
     if(check_time_list(1))then
       call print_output_header(header)
-      call writescalh5(outlist(1)%afile,apath,'Water_Elevation',eta,'m',timehrs,0,.true.)
+      call writescalh5(outlist(1)%afile,apath,'Water_Elevation',eta,'m',timehrs,0,enable_cf)
       if(write_presres)then !Pressure Residuals
         call writescalh5(outlist(1)%afile,apath,'Pres_Norm_Res',rsp,'none',timehrs,0)
       endif
       if(write_pres)then
-        call writescalh5(outlist(1)%afile,apath,'Pressure',p,'m^2/s^2',timehrs,1)
+        call writescalh5(outlist(1)%afile,apath,'Pressure',p,'m^2/s^2',timehrs,1,enable_cf)
 #ifdef DEV_MODE
         call writescalh5(outlist(1)%afile,apath,'Pressure1',p1,'m^2/s^2',timehrs,1)  
 #endif
       endif
       if(write_totdep)then
-        call writescalh5(outlist(1)%afile,apath,'Total_Water_Depth',h,'m',timehrs,0)
+        call writescalh5(outlist(1)%afile,apath,'Total_Water_Depth',h,'m',timehrs,0,enable_cf)
       endif
       if(write_hpred)then
         call writescalh5(outlist(1)%afile,apath,'Pred_Water_Depth',hpred,'m',timehrs,0)
@@ -1678,9 +1680,9 @@ implicit none
       if(.not. outlist(5)%write_dat) then
         if(dredging) then
           val=-zb
-          call writescalh5(outlist(5)%afile,apath,'Depth',val,'m',timehrs,1)       
+          call writescalh5(outlist(5)%afile,apath,'Depth',val,'m',timehrs,1,enable_cf)
           val=zb-zb0
-          call writescalh5(outlist(5)%afile,apath,'Morphology_Change',val,'m',timehrs,1)  
+          call writescalh5(outlist(5)%afile,apath,'Morphology_Change',val,'m',timehrs,1,enable_cf)
         endif
       endif
     endif
@@ -1689,11 +1691,11 @@ implicit none
     if(check_time_list(2))then 
       call print_output_header(header)
       if(write_velmag)then
-        call writescalh5(outlist(2)%afile,apath,'Current_Magnitude',uv,'m/s',timehrs,0)  !Eulerian current mangitude  
+        call writescalh5(outlist(2)%afile,apath,'Current_Magnitude',uv,'m/s',timehrs,0,enable_cf)  !Eulerian current mangitude  
       endif      
       if(waveflux)then !****************************
         vecx=u-us; vecy=v-vs !Current (Eulerian) velocities    
-        call writevech5(outlist(2)%afile,apath,'Current_Velocity',vecx,vecy,'m/s',timehrs,0)
+        call writevech5(outlist(2)%afile,apath,'Current_Velocity',vecx,vecy,'m/s',timehrs,0,enable_cf)
         if(write_veltotal)then
           call writevech5(outlist(2)%afile,apath,'Total_Flux_Velocity',u,v,'m/s',timehrs,0)
           if(write_veltotalmag)then
@@ -1704,7 +1706,7 @@ implicit none
           endif  
         endif          
       else
-        call writevech5(outlist(2)%afile,apath,'Current_Velocity',u,v,'m/s',timehrs,0)    
+        call writevech5(outlist(2)%afile,apath,'Current_Velocity',u,v,'m/s',timehrs,0,enable_cf)
       endif    
       if(write_velpred)then
         call writevech5(outlist(2)%afile,apath,'Predicted_Current_Velocity',upred,vpred,'m/s',timehrs,0)
@@ -1772,7 +1774,7 @@ implicit none
     !EDDY VISCOSITY GROUP  !Alex, BUG FIX, changed 4 to 3, Aug 24, 2009
     if(check_time_list(3))then 
       call print_output_header(header)
-      call writescalh5(outlist(3)%afile,apath,'Eddy_Viscosity',vis,'m^2/s',timehrs,0)  
+      call writescalh5(outlist(3)%afile,apath,'Eddy_Viscosity',vis,'m^2/s',timehrs,0,enable_cf)
     endif    
     
     !SEDIMENT TRANSPORT GROUP
@@ -1780,25 +1782,25 @@ implicit none
       call print_output_header(header)      
       !Total-load sediment concentration, capacity and transports          
       if(write_conc)then       
-        call writescalh5(outlist(4)%afile,apath,'Concentration',Ct,'kg/m^3',timehrs,0)  
+        call writescalh5(outlist(4)%afile,apath,'Concentration',Ct,'kg/m^3',timehrs,0,enable_cf)
       endif
       if(isedmodel/=3 .and. write_capac)then      
-        call writescalh5(outlist(4)%afile,apath,'Capacity',Ctstar,'kg/m^3',timehrs,0)
+        call writescalh5(outlist(4)%afile,apath,'Capacity',Ctstar,'kg/m^3',timehrs,0,enable_cf)
       endif  
       if(write_concfrac)then  
         do ks=1,nsed
           write(apbk,62) ks
           aname='Concentration' // apbk
-          call writescalh5(outlist(4)%afile,apath,aname,Ctk(:,ks),'kg/m^3',timehrs,0)            
+          call writescalh5(outlist(4)%afile,apath,aname,Ctk(:,ks),'kg/m^3',timehrs,0,enable_cf)
           if(isedmodel/=3)then   
             aname='Capacity' // apbk
-            call writescalh5(outlist(4)%afile,apath,aname,Ctkstar(:,ks),'kg/m^3',timehrs,0)
+            call writescalh5(outlist(4)%afile,apath,aname,Ctkstar(:,ks),'kg/m^3',timehrs,0,enable_cf)
           endif
         enddo !ks
       endif
-      call writevech5(outlist(4)%afile,apath,'Total_Sediment_Transport',qtx,qty,'kg/m/s',timehrs,0)
+      call writevech5(outlist(4)%afile,apath,'Total_Sediment_Transport',qtx,qty,'kg/m/s',timehrs,0,enable_cf)
       if(write_fracsusp)then
-        call writescalh5(outlist(4)%afile,apath,'Fraction_Suspended',rs,'none',timehrs,0)  
+        call writescalh5(outlist(4)%afile,apath,'Fraction_Suspended',rs,'none',timehrs,0,enable_cf)
       endif
       if(debug_mode)then
         call writescalh5(outlist(4)%afile,apath,'Conc_Res',rsCtkmax,'-',timehrs,0)  
@@ -1840,59 +1842,40 @@ implicit none
     if(check_time_list(5))then 
       call print_output_header(header)
       val=-zb
-      call writescalh5(outlist(5)%afile,apath,'Depth',val,'m',timehrs,1)
+      call writescalh5(outlist(5)%afile,apath,'Depth',val,'m',timehrs,1,enable_cf)
       if(write_morph)then   
         val=zb-zb0
-        call writescalh5(outlist(5)%afile,apath,'Morphology_Change',val,'m',timehrs,1)
+        call writescalh5(outlist(5)%afile,apath,'Morphology_Change',val,'m',timehrs,1,enable_cf)
       endif   
     endif
     
     !SALINITY GROUP
     if(check_time_list(6))then       
-      call writescalh5(outlist(6)%afile,apath,'Salinity',sal,'ppt',timehrs,0)
+      call writescalh5(outlist(6)%afile,apath,'Salinity',sal,'ppt',timehrs,0,enable_cf)
     endif
     
     !TEMPERATURE GROUP
     if(check_time_list(14))then
-      call writescalh5(outlist(14)%afile,apath,'Temperature',heat,'c',timehrs,0)
+      call writescalh5(outlist(14)%afile,apath,'Temperature',heat,'c',timehrs,0,enable_cf)
     endif
     
     !WAVE GROUP
     if(check_time_list(7))then 
       call print_output_header(header)            
-      call writescalh5(outlist(7)%afile,apath,'Wave_Height',Whgt,'m',timehrs,0)         
-      call writescalh5(outlist(7)%afile,apath,'Wave_Period',Wper,'s',timehrs,0)      
+      call writescalh5(outlist(7)%afile,apath,'Wave_Height',Whgt,'m',timehrs,0,enable_cf)
+      call writescalh5(outlist(7)%afile,apath,'Wave_Period',Wper,'s',timehrs,0,enable_cf)
       vecx=Whgt*Wunitx
       vecy=Whgt*Wunity
-      call writevech5(outlist(7)%afile,apath,'Wave_Height_Vec',vecx,vecy,'m',timehrs,0)
+      call writevech5(outlist(7)%afile,apath,'Wave_Height_Vec',vecx,vecy,'m',timehrs,0,enable_cf)
       if(write_wavbrkdiss)then
-        call writescalh5(outlist(7)%afile,apath,'Wave_Dissipation',wavediss,'none',timehrs,0)   
+        call writescalh5(outlist(7)%afile,apath,'Wave_Dissipation',wavediss,'none',timehrs,0,enable_cf)
       endif
-      !!****************** for testing ******************************************************
-      !do i=1,ncells
-      !  val(i) = h(i)*sqrt(dpx(i)*dpx(i)+dpy(i)*dpy(i))
-      !enddo
-      !call writescalh5(outlist(7)%afile,apath,'hdpxy',val,'s',timehrs,0)  
-      !!****************** for testing ******************************************************
-      !Fraction of broken waves and dissipation coefficient
-      !if(write_fracbreak .or. write_wavdisscoef)then
-        !call wavebreaking(Whgt,Wper,Wang,h,u,v,vecx,vecy) !Qb=vecx,cbr=vecy
-      !endif  
-      !if(write_fracbreak)then
-      !  call writescalh5(outlist(7)%afile,apath,'Frac_Broken_Waves',vecx,'-',timehrs,0)
-      !endif
-      !if(write_wavbrkind)then
-      !  call writescalh5(outlist(7)%afile,apath,'Wave_Breaking',waveibr,'none',timehrs,0)  
-      !endif
-      !if(write_wavdisscoef)then
-      !  call writescalh5(outlist(7)%afile,apath,'Dissipation_Coeff',vecy,'-',timehrs,0)   
-      !endif
       if(write_wavstress)then
-        call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str',wavestrx,wavestry,'m^2/s^2',timehrs,0)
+        call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str',wavestrx,wavestry,'m^2/s^2',timehrs,0,enable_cf)
         do i=1,ncells
           val(i) = sqrt(wavestrx(i)*wavestrx(i) + wavestry(i)*wavestry(i))
         enddo
-        call writescalh5(outlist(7)%afile,apath,'Wave_Rad_Str_Mag',val,'m^2/s^2',timehrs,0)
+        call writescalh5(outlist(7)%afile,apath,'Wave_Rad_Str_Mag',val,'m^2/s^2',timehrs,0,enable_cf)
         !!**************** For testing ******************************************************************
         !call writevech5(outlist(7)%afile,apath,'Wave_Rad_Str2',wavstrx,wavstry,'none',timehrs,0)
         !do i=1,ncells
@@ -1935,33 +1918,33 @@ implicit none
       if(windvar .or. windsta)then
         call print_output_header(header)
         if(windformat/=7)then
-          call writevech5(outlist(8)%afile,apath,'Wind_Velocity',uwind,vwind,'m/s',timehrs,1) 
+          call writevech5(outlist(8)%afile,apath,'Wind_Velocity',uwind,vwind,'m/s',timehrs,1,enable_cf)
           do i=1,ncells
             val(i) = sqrt(uwind(i)*uwind(i) + vwind(i)*vwind(i))
           enddo
           if(write_wndmag)then
             val(ncells+1:ncellsD)=0.0
-            call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1)
+            call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1,enable_cf)
           endif
         endif
         if(write_wndstress)then
-          call writevech5(outlist(8)%afile,apath,'Wind_Stress',tauwindx,tauwindy,'N/m^2',timehrs,1)
+          call writevech5(outlist(8)%afile,apath,'Wind_Stress',tauwindx,tauwindy,'N/m^2',timehrs,1,enable_cf)
         endif
         if(write_wndstressmag)then
           do i=1,ncells
             val(i) = sqrt(tauwindx(i)*tauwindx(i) + tauwindy(i)*tauwindy(i))
           enddo
-          call writescalh5(outlist(8)%afile,apath,'Wind_Stress_Magnitude',val,'N/m^2',timehrs,1)  
+          call writescalh5(outlist(8)%afile,apath,'Wind_Stress_Magnitude',val,'N/m^2',timehrs,1,enable_cf)
         endif
       elseif(windconst)then
         call print_output_header(header)
         vecx = wndx; vecy = wndy               
-        call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1)          
+        call writevech5(outlist(8)%afile,apath,'Wind_Velocity',vecx,vecy,'m/s',timehrs,1,enable_cf)
         val = sqrt(wndx*wndx + wndy*wndy)  !scalar to vector 
-        call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1)        
+        call writescalh5(outlist(8)%afile,apath,'Wind_Magnitude',val,'m/s',timehrs,1,enable_cf)
       endif
       if(write_atmpres)then
-        call writescalh5(outlist(8)%afile,apath,'Atm_Pressure',pressatm,'Pa',timehrs,1)
+        call writescalh5(outlist(8)%afile,apath,'Atm_Pressure',pressatm,'Pa',timehrs,1,enable_cf)
       endif
       if(write_atmpresgrad)then
         call writescalh5(outlist(8)%afile,apath,'Atm_Pressure_GradX',pressatmdx,'Pa/m',timehrs,1)
@@ -3202,39 +3185,37 @@ implicit none
     do i=1,ngroups
       if(savept(i)%active)then
         do j=1,savept(i)%ncells
-          !if(savept(i)%cell(j)<=0 .or. savept(i)%cell(j)>ncells)then !Cell ID not specified or invalid
-            !Search for nearest cell  
-            ksp = 1; distmin = 1.0e10
-            if(ncellpoly == 0)then
-              do k=1,ncells  
-                dist = sqrt((savept(i)%x(j)-xc(k))**2+(savept(i)%y(j)-yc(k))**2)
-                if(dist<distmin)then
-                  ksp = k
-                  distmin = dist
-                endif
-              enddo
-              kk = mapid(ksp) !Map to global grid
-            else
-              do k=1,ncells  
-                dist = sqrt((savept(i)%x(j)-x(k))**2+(savept(i)%y(j)-y(k))**2)
-                if(dist<distmin)then
-                  ksp = k
-                  distmin = dist
-                endif
-              enddo
-              kk = ksp !Global index same as local index
-            endif
-            if(idmap(savept(i)%cell(j)) > 0 .and. idmap(savept(i)%cell(j)) <= ncells .and. savept(i)%cell(j)/=kk) then
-              if(savept(i)%id(j) .ne. "") write(msg,'(A,A)')   ' Save point ID:          ',savept(i)%id(j)
-              write(msg2,'(A,A)')  ' Save point type name:   ',savept(i)%names(j)
-              write(msg3,'(A,i0)') ' Specified Cell ID:      ',savept(i)%cell(j)
-              write(msg4,'(A,i0)') ' Calculated Cell ID:     ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
-              write(msg5,'(A,f0.3,x,f0.3,A)') ' Specified Coordinates:  ',savept(i)%x(j),savept(i)%y(j),' m' !Global coordiantes
-              write(msg6,'(A,f0.3,x,f0.3,A)') ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
-              call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg,msg2,msg3,msg4,msg5,msg6)
-            endif
-            savept(i)%cell(j) = ksp
-          !endif
+          !Search for nearest cell  
+          ksp = 1; distmin = 1.0e10
+          if(ncellpoly == 0)then
+            do k=1,ncells  
+              dist = sqrt((savept(i)%x(j)-xc(k))**2+(savept(i)%y(j)-yc(k))**2)
+              if(dist<distmin)then
+                ksp = k
+                distmin = dist
+              endif
+            enddo
+            kk = mapid(ksp) !Map to global grid
+          else
+            do k=1,ncells  
+              dist = sqrt((savept(i)%x(j)-x(k))**2+(savept(i)%y(j)-y(k))**2)
+              if(dist<distmin)then
+                ksp = k
+                distmin = dist
+              endif
+            enddo
+            kk = ksp !Global index same as local index
+          endif
+          if(idmap(savept(i)%cell(j)) > 0 .and. idmap(savept(i)%cell(j)) <= ncells .and. savept(i)%cell(j)/=kk) then
+            if(savept(i)%id(j) .ne. "") write(msg,'(A,A)')   ' Save point ID:          ',savept(i)%id(j)
+            write(msg2,'(A,10A)') ' Save point type names:  ',(savept(i)%names(k), k=1,savept(i)%nvar)
+            write(msg3,'(A,i0)') ' Specified Cell ID:      ',savept(i)%cell(j)
+            write(msg4,'(A,i0)') ' Calculated Cell ID:     ',idmap(kk)            !kk was already map to internal cell, write out SMS cell id.  MEB  02/07/2024
+            write(msg5,'(A,f0.3,x,f0.3,A)') ' Specified Coordinates:  ',savept(i)%x(j),savept(i)%y(j),' m' !Global coordiantes
+            write(msg6,'(A,f0.3,x,f0.3,A)') ' Calculated Coordinates: ',xc(ksp),yc(ksp),' m' !Global coordiantes
+            call diag_print_warning('Specific cell ID for Save Point may be incorrect',msg,msg2,msg3,msg4,msg5,msg6)
+          endif
+          savept(i)%cell(j) = ksp
         enddo
       endif
     enddo
@@ -3247,9 +3228,9 @@ implicit none
     !    enddo
     !  endif
     !enddo
-    
+   
     return
-    
+   
     contains
 !**********************************************************************    
       subroutine cleanup_savept_files
