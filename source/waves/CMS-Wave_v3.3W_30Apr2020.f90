@@ -1867,7 +1867,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             if(idate.lt.itms) idate=itms
             if(idate.lt.iidate) idate=iidate
           end if
-422		  continue
+422		    continue
 		  
           if(ws1.gt.ws) ws=ws1
           if(fp1.lt.fp) fp=fp1
