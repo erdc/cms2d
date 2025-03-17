@@ -290,6 +290,16 @@
     character :: cardname*37,qunits*40,aline*200
     logical	  :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     ibndtype = 0 !Q-1
     
     !Default units
@@ -303,7 +313,7 @@
       if(cardname(1:1)=='!' .or. cardname(1:1)=='#' .or. cardname(1:1)=='*') cycle
       select case(cardname)
       case('RATING_CURVE','STAGE_FLOW_CURVE','STAGE_FLUX_CURVE')
-        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1)
+        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1, .true.)  !.true. means this is a boundary dataset.
         ibndtype = 1 !Q-1
         ifluxmode = 3
         
@@ -315,7 +325,7 @@
         ifluxmode = 1
         
       case('FLUX_CURVE','FLUX_DATA','FLUX_TIMESERIES','CURVE')
-        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1)
+        call card_dataset(77,mpfile,flowpath,fluxfile,fluxpath,1, .true.)  !.true. means this is a boundary dataset.
         ibndtype = 1 !Q-1
         ifluxmode = 2
         
@@ -415,6 +425,16 @@
     real(ikind) :: cosang,sinang,vecx,vecy
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     ibndtype = 0  !Undefined
     
     do !  Removed the limit of only reading 20 cards in this block.  !kk=1,20  MEB 06/27/2018
@@ -435,12 +455,12 @@
         nti = 0
         
       case('WSE_CURVE','CURVE')
-        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1)
+        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1, .true.)  !.true. means this is a boundary dataset.
         ibndtype = 3
         istidal = .false.
         
-      case('WSE_DATA','WSE_DATASET','DATASET','DATA','CURVES')      
-        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1)
+      case('WSE_DATA','WSE_DATASET','DATASET','DATA','CURVES','EXTRACTED_WSE')      
+        call card_dataset(77,mpfile,flowpath,wsefile,wsepath,1, .true.)  !.true. means this is a boundary dataset.
         ibndtype = 4
         istidal = .false.
         
@@ -501,7 +521,7 @@
         ioffsetmode=1
         
       case('WSE_OFFSET_CURVE','OFFSET_WSE_CURVE','OFFSET_CURVE')
-        call card_dataset(77,mpfile,flowpath,offsetfile,offsetpath,1)   
+        call card_dataset(77,mpfile,flowpath,offsetfile,offsetpath,1, .true.)   !.true. means this is a boundary dataset.
         ioffsetmode=2
       
       case('WSE_ADJUSTMENT','ADJUSTMENT','WIND_WAVE_CORRECTION',&
@@ -575,6 +595,16 @@
     character :: cardname*37,cdum*40
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     ibndtype = 0  !Undefined
     
     do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
@@ -586,8 +616,8 @@
       case('VEL_BOUNDARY_END','VEL_END','VEL_FORCING_END','END')
         exit
           
-      case('VEL_DATA','VEL_DATASET','DATASET','DATA','CURVES')  
-        call card_dataset(77,mpfile,flowpath,velfile,velpath,2)
+      case('VEL_DATA','VEL_DATASET','DATASET','DATA','CURVES','EXTRACTED_VEL')  
+        call card_dataset(77,mpfile,flowpath,velfile,velpath,2, .true.)  !.true. means this is a boundary dataset.
         ibndtype = 5 !=MHV
         
       case('VEL_NEST','VEL_PARENT','SIMULATION','SOLUTION','VEL_SOLUTION')
@@ -666,7 +696,7 @@
     implicit none
 	
     !Input/Output
-	integer,intent(inout) :: ibndtype
+    integer,intent(inout) :: ibndtype
     integer,intent(out)   :: nti                            !(hli,10/06/17)
     character(len=*),intent(inout) :: offsetfile,offsetpath !(hli,10/04/17)
     integer,         intent(out)   :: ioffsetmode           !(hli,10/04/17)
@@ -692,6 +722,16 @@
     character(len=10) :: nametemp(ntf)
     character(len=10) :: nameyr(ntf),astr  
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
 !   Get constituent names, speeds, nodal corrections and equilibrium phases (relative to Greenwich)
     call tidal_data(iyr,nameyr,speedtemp,mcyctemp,ftemp,vutemp)
 
@@ -1104,6 +1144,16 @@
     character(len=200) :: mpfilepar,flowpathpar,flownamepar
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     do !  Removed the limit of only reading 10 cards in this block.  !kk=1,10  MEB 06/27/2018
       foundcard = .true.  
       read(77,*,iostat=ierr) cardname
@@ -1351,7 +1401,7 @@
     subroutine multiwse_alloc
 ! Resizes the multiple water level boundary condition variables    
 !****************************************************************
-    use bnd_def, only: MH_str,nMHstr,MH_type
+    use bnd_def, only: MH_str,nMHstr,MH_type,ioffsetmode
     implicit none
 	
     integer :: i
@@ -1374,6 +1424,10 @@
     endif    
     
     !Initialize values
+    MH_str(nMHstr)%ioffsetmode = ioffsetmode  !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    MH_str(nMHstr)%offsetfile = ''
+    MH_str(nMHstr)%offsetpath = ''    
+    MH_str(nMHstr)%wsecurveoffset = 0.0
     MH_str(nMHstr)%wseoffset = 0.0
     MH_str(nMHstr)%bidfile = ''
     MH_str(nMHstr)%bidpath = ''
@@ -1395,7 +1449,7 @@
 ! Resizes the multiple water level and velocity boundary
 ! condition variable
 !**********************************************************
-    use bnd_def, only: MHV_str,nMHVstr,MHV_type
+    use bnd_def, only: MHV_str,nMHVstr,MHV_type,ioffsetmode
     implicit none
 	
     integer :: i
@@ -1418,7 +1472,11 @@
     endif    
     
     !Initialize values
-    MHV_str(nMHVstr)%wseoffset = 0.0 !Can be useful to convert between datums
+    MHV_str(nMHVstr)%ioffsetmode = ioffsetmode  !1-Constant offset, 2-Offset curve (hli,01/18/17)
+    MHV_str(nMHVstr)%offsetfile = ''
+    MHV_str(nMHVstr)%offsetpath = ''    
+    MHV_str(nMHVstr)%wsecurveoffset = 0.0
+    MHV_str(nMHVstr)%wseoffset = 0.0
     MHV_str(nMHVstr)%bidfile = ''
     MHV_str(nMHVstr)%bidpath = ''
     MHV_str(nMHVstr)%wsefile = ''
@@ -1444,7 +1502,7 @@
     MHV_str(nMHVstr)%nsivel = 0  !Temporal smoothing iterations
     MHV_str(nMHVstr)%nssivel = 0 !Spatial smoothing iterations
     MHV_str(nMHVstr)%nsswvel = 0 !Spatial smoothing width
-    
+        
     return
     end subroutine multiwsevel_alloc
 
@@ -2604,7 +2662,7 @@ if(.not.Tread)then
 
       !--- Multiple Water Level BC (Type 4=MH) -----------------------------------------------
       do iwse=1,nMHstr
-        write(iunit(i),241)     '    Multi WSE Boundary: ',iwse
+        write(iunit(i),241)     '    Extracted WSE Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(MH_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(MH_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',MH_str(iwse)%ncells
@@ -2614,17 +2672,30 @@ if(.not.Tread)then
           write(iunit(i),141)   '        Path:',trim(MH_str(iwse)%wsepath)
         endif
         write(iunit(i),261)     '        Data Points:',MH_str(iwse)%ntimes
-        write(iunit(i),141)     '        Temporal Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nsi
-        write(iunit(i),261)     '          Width:',MH_str(iwse)%nsw
-        write(iunit(i),141)     '        Spatial Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nssi
-        write(iunit(i),261)     '          Width:',MH_str(iwse)%nssw
+        if (MH_str(iwse)%nsi .gt. 0) then
+          write(iunit(i),141)     '        Temporal Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nsi
+          write(iunit(i),261)     '          Width:',MH_str(iwse)%nsw
+        else 
+          write(iunit(i),141)     '        Temporal Smoothing:','OFF'
+        endif
+        if (MH_str(iwse)%nssi .gt. 0) then
+          write(iunit(i),141)     '        Spatial Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MH_str(iwse)%nssi
+          write(iunit(i),261)     '          Width:',MH_str(iwse)%nssw
+        else
+          write(iunit(i),141)     '        Spatial Smoothing:','OFF'
+        endif
+        if (MH_str(iwse)%ioffsetmode.eq.1) then
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',trim(vstrlz(MH_str(iwse)%wseoffset,'(f0.3)')),' m'
+        elseif (MH_str(iwse)%ioffsetmode.eq.2)then
+          write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(MH_str(iwse)%offsetfile)    
+        endif
       enddo !i-str
     
       !--- Multiple Water Level and Velocity BC (Type 5=MHV) -----------------------------------
       do iwse=1,nMHVstr
-        write(iunit(i),241)     '    Multi WSE and Velocity Boundary: ',iwse
+        write(iunit(i),241)     '    Extracted WSE/Velocity Boundary: ',iwse
         write(iunit(i),141)     '      Cellstring File:',trim(MHV_str(iwse)%bidfile)        
         write(iunit(i),141)     '      Cellstring Path:',trim(MHV_str(iwse)%bidpath)
         write(iunit(i),261)     '      Boundary Cells:',MHV_str(iwse)%ncells
@@ -2633,25 +2704,46 @@ if(.not.Tread)then
         if(len_trim(MHV_str(iwse)%wsepath)>0)then
           write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%wsepath)
         endif
-        write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimeswse
-        write(iunit(i),141)     '        Temporal Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsiwse
-        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswwse
-        write(iunit(i),141)     '        Spatial Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssiwse
-        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswwse
+        write(iunit(i),261)     '        Data Points:',MHV_str(iwse)%ntimeswse
+        if (MHV_str(iwse)%nsiwse .gt. 0) then
+          write(iunit(i),141)     '        Temporal Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsiwse
+          write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswwse
+        else
+          write(iunit(i),141)     '        Temporal Smoothing:','OFF'
+        endif
+        if (MHV_str(iwse)%nssiwse .gt. 0) then
+          write(iunit(i),141)     '        Spatial Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssiwse
+          write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswwse
+        else
+          write(iunit(i),141)     '        Spatial Smoothing:','OFF'
+        endif
         write(iunit(i),141)     '      Velocity Data:'
         write(iunit(i),141)     '        File:',trim(MHV_str(iwse)%velfile)
         if(len_trim(MHV_str(iwse)%velpath)>0)then
           write(iunit(i),141)   '        Path:',trim(MHV_str(iwse)%velpath)
         endif
-        write(iunit(i),261)     '        Time Steps:',MHV_str(iwse)%ntimesvel
-        write(iunit(i),141)     '        Temporal Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsivel
-        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswvel
-        write(iunit(i),141)     '        Spatial Smoothing:'
-        write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssivel
-        write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswvel
+        write(iunit(i),261)     '        Data Points:',MHV_str(iwse)%ntimesvel
+        if (MHV_str(iwse)%nsivel .gt. 0) then
+          write(iunit(i),141)     '        Temporal Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nsivel
+          write(iunit(i),261)     '          Width:',MHV_str(iwse)%nswvel
+        else
+          write(iunit(i),141)     '        Temporal Smoothing:','OFF'
+        endif          
+        if (MHV_str(iwse)%nssivel .gt. 0) then
+          write(iunit(i),141)     '        Spatial Smoothing:'
+          write(iunit(i),261)     '          Iterations:',MHV_str(iwse)%nssivel
+          write(iunit(i),261)     '          Width:',MHV_str(iwse)%nsswvel
+        else
+          write(iunit(i),141)     '        Spatial Smoothing:','OFF'
+        endif
+        if (MHV_str(iwse)%ioffsetmode.eq.1) then
+          write(iunit(i),341)   '      Water/Sea Level Change Offset:',trim(vstrlz(MHV_str(iwse)%wseoffset,'(f0.3)')),' m'
+        elseif (MHV_str(iwse)%ioffsetmode.eq.2) then
+          write(iunit(i),141)   '      Water/Sea Level Change Curve File:',trim(MHV_str(iwse)%offsetfile)    
+        endif
       enddo !i-str
 
       !--- Cross-shore BC (Type 6=CS) -------------------------------------------------

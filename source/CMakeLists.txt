@@ -172,7 +172,7 @@ SET( CMS_SOURCE_FILES
   ./statistics/stat_def.f90
   ./statistics/statistics.F90
   ./steering/steer_def.f90
-  ./steering/steering.f90
+  ./steering/steering_Jan2025.f90
   ./structures/struct_def.f90
   ./structures/struct_lib.f90
   ./structures/structures.f90
@@ -195,10 +195,10 @@ SET( CMS_SOURCE_FILES
   ./utilities/watch_test.F90
   ./vegetation/veg_def.f90
   ./vegetation/vegetation.F90
-  ./waves/wave_def.f90
+  ./waves/wave_def_Jan2025.f90
   ./waves/wave_lib.F90
   ./waves/wave.F90
-  ./waves/CMS-Wave_v3.3W_30Apr2020.f90
+  ./waves/CMS-Wave_v3.4W_Jan2025.f90
   ./waves/wave_rad_stress_fl.f90
   ../UTM2GEO/utm2geo.f90
   ../SPCS83/spcs83_combined.f90

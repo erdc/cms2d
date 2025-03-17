@@ -163,6 +163,16 @@
     character(len=10) :: aext
     character(len=37) :: cdum
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)        
       case('GRID_MODIFICATION_NUMBER')

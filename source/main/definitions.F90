@@ -124,6 +124,8 @@ module comvarbl
     character(len=200) :: ctlfile              !Control File
     character(len=200) :: mpfile               !Model parameters file     
     character(len=200) :: advfile              !Advanced card file - added MEB 07/29/2019
+    character(len=200) :: bidfile              !File for CMS-Flow boundaries
+    character(len=200) :: bidpath              !Path of CMS-Flow boundaries
     logical            :: read_adv = .false.   !Switched to True if file exists and is read
 
     !Timing

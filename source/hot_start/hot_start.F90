@@ -72,6 +72,16 @@
     logical     :: foundcard
     character(len=37) :: cardname    
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)
       !----- Initial Condition (Input) ----------------------------------------
@@ -1479,7 +1489,7 @@ loopj:  do j=1,nlay
         call hot_write_xmdf (hotfile,hotpath)         !XMDF single hot file
       endif
       if (iAutoHot)   then
-        write(msg,'(A,F13.4,A)') 'Writing Recurring Hotstart File at: ',timehrs,' hrs'
+        write(msg,'(A,F13.4,A)') 'Writing '//autohotfile(1:14)//' File at: ',timehrs,' hrs'
         call diag_print_message(' ',msg)
         call hot_write_xmdf (autohotfile,autohotpath) !XMDF recurring hot file
       endif

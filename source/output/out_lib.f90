@@ -776,7 +776,7 @@ contains
     
 #ifdef XMDF_IO
 !**************************************************************************
-    subroutine writescalh5(afile,apath,aname,var,aunits,timehr,iwritedry,writecf)
+    subroutine writescalh5(afile,apath,aname,var,aunits,timehr,iwritedry,writecf_var)
 ! writes a scalar dataset to the xmdf file with id number PID
 !
 ! written by Alex Sanchez, USACE-ERDC-CHL  
@@ -792,7 +792,8 @@ contains
     character(len=*),intent(in) :: afile,apath,aname,aunits
     real(ikind),intent(in) :: var(ncellsD),timehr
     integer,intent(in) :: iwritedry
-    logical,intent(in), optional :: writecf
+    logical,intent(in), optional :: writecf_var   !This logical indicates whether to pull from the 'cf_vals' list and writes extra attributes to the dataset.
+    
     
     !Internal variables
     integer :: fid,gid,ierr    
@@ -810,9 +811,10 @@ contains
     call XF_OPEN_FILE(trim(afile),readwrite,fid,ierr) !Open XMDF file
     if(ierr<0)then
       call XF_CREATE_FILE(trim(afile),readwrite,fid,ierr)
-!      call write_general_cf_info(afullpath) !Write general CF attributes on new file creation  MEB 10/02/2023
     endif                         
-    call OPEN_CREATE_DATASET(fid,trim(afullpath),gid,1,aunits,ierr)  !Open/create dataset          
+    call OPEN_CREATE_DATASET(fid,trim(afullpath),gid,1,aunits,ierr)  !Open/create dataset
+    if(present(writecf_var) .and. ierr == -666) call write_h5_general_cf_info(gid, trim(aname)) !Write general CF attributes on new file creation  MEB 02/21/2025
+
     timed = dble(timehr)
     call XF_WRITE_SCALAR_TIMESTEP(gid,timed,ncellsfull,scalout,ierr) !Write data to XMDF file
     call XF_CLOSE_GROUP(gid,ierr)  !Close dataset    
@@ -821,9 +823,60 @@ contains
     return
     end subroutine writescalh5
     
+!**************************************************************************
+    subroutine write_h5_general_cf_info (a_Id, aname)
+! when a new XMDF file is create, writes the appropriate CF compliance attributes
+!
+! Mitchell Brown, USACE-ERDC-CHL  02/21/2025
+!**************************************************************************
+    use xmdf,     only: XF_WRITE_PROPERTY_STRING, XF_CLOSE_GROUP
+    use out_def,  only: cf_vars,ncf_vars
+    use diag_lib, only: diag_print_warning
+    implicit none
+    
+    integer, intent(in) :: a_Id
+    character(len=*), intent(in) :: aname
+    
+    integer             :: error, pid, i, list_item
+    character(len=50)   :: output_name
+    character(len=100)  :: long_name
+    character(len=100)  :: standard_name
+    character(len=20)   :: units
+    character(len=10)   :: positive
+    
+    list_item = -1
+    do i=1,ncf_vars
+      if (trim(cf_vars(i)%output_name) == aname) then
+        list_item = i
+        exit
+      endif
+    enddo
+    
+    if (list_item < 0) then
+      call diag_print_warning('Could not find CF match to: '//trim(aname))
+      return
+    endif
+    
+    output_name = cf_vars(list_item)%output_name
+    long_name = cf_vars(list_item)%long_name
+    standard_name = cf_vars(list_item)%standard_name
+    units = cf_vars(list_item)%units
+    positive = cf_vars(list_item)%positive
+    
+    call OPEN_CREATE_DATASET(a_Id,'PROPERTIES',pid,1,'',error)                   !Open dataset (this dataset should already have been created).
+    call XF_WRITE_PROPERTY_STRING (pid, 'short_name', output_name, error)
+    call XF_WRITE_PROPERTY_STRING (pid, 'long_name', long_name, error)
+    call XF_WRITE_PROPERTY_STRING (pid, 'standard_name', standard_name, error)
+    call XF_WRITE_PROPERTY_STRING (pid, 'units', units, error)
+    call XF_WRITE_PROPERTY_STRING (pid, 'positive', positive, error)
+    call XF_CLOSE_GROUP(pid,error)  !Close dataset    
+    
+    return
+    end subroutine write_h5_general_cf_info
+    
     
 !**************************************************************************
-    subroutine writevech5(afile,apath,aname,varx,vary,aunits,timehr,iwritedry)
+    subroutine writevech5(afile,apath,aname,varx,vary,aunits,timehr,iwritedry,writecf_var)
 ! writes a vector dataset to the xmdf file with id ncellsfull PID
 !
 ! written by Alex Sanchez, USACE-ERDC-CHL  
@@ -833,10 +886,13 @@ contains
     use interp_lib, only: interp_vec_cell2node
     use prec_def
     implicit none
+    
     !Input/Output    
-    character(len=*),intent(in) :: afile,apath,aname,aunits
-    real(ikind),     intent(in) :: varx(ncellsD),vary(ncellsD),timehr
-    integer,         intent(in) :: iwritedry    
+    character(len=*),intent(in)  :: afile,apath,aname,aunits
+    real(ikind),     intent(in)  :: varx(ncellsD),vary(ncellsD),timehr
+    integer,         intent(in)  :: iwritedry
+    logical,intent(in), optional :: writecf_var   !This logical indicates whether to pull from the 'cf_vals' list and writes extra attributes to the dataset.
+
     !Internal Variables
     integer :: pid,did,ierr
     real*8 :: timed !Must be double for XMDF subs    
@@ -854,7 +910,9 @@ contains
     if(ierr<0)then
       call XF_CREATE_FILE(trim(afile),readwrite,pid,ierr)
     endif 
-    call OPEN_CREATE_DATASET(PID,trim(afullpath),did,2,aunits,ierr) !Open/create dataset      
+    call OPEN_CREATE_DATASET(PID,trim(afullpath),did,2,aunits,ierr) !Open/create dataset
+    if(present(writecf_var) .and. ierr == -666) call write_h5_general_cf_info(did, trim(aname)) !Write general CF attributes on new file creation  MEB 02/21/2025
+
     timed = dble(timehr)
     call XF_WRITE_VECTOR_TIMESTEP(did,timed,ncellsfull,2,vecout,ierr) !Write data to XMDF file    
     call XF_CLOSE_GROUP(did,ierr) !Close dataset   
@@ -886,14 +944,17 @@ contains
     use diag_lib
     use XMDF
     implicit none
-    integer OCERR,OCDID,DIM,OCDPID,OCID
-    character(LEN=*) STRING1,OUNITS    
+    
+    integer, intent(in)    :: DIM,OCID
+    integer, intent(inout) :: OCERR,OCDID
+    character(LEN=*), intent(in) :: STRING1,OUNITS    
+
+    integer          :: OCDPID
       
     SELECT CASE (DIM)
       CASE (1)
         CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
         IF(OCERR<0)THEN
-          !CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
           !Note: Time units always in hours (hard-wired from SMS)
           CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR)
           IF(OCERR<=0)THEN
@@ -903,12 +964,12 @@ contains
           CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
           CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
           CALL XF_SCALAR_DATA_LOCATION(OCDID,GRID_LOC_CENTER,OCERR)
+          OCERR = -666  !Something specific to test if the dataset was newly created  !MEB 02/24/2025
         ENDIF
       
       CASE (2)
         CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
         IF(OCERR<0)THEN
-          !CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
           !Note: Time units always in hours (hard-wired from SMS)
           CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR) 
           IF(OCERR<=0)THEN
@@ -918,8 +979,8 @@ contains
           CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
           CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
           CALL XF_VECTORS_IN_LOCAL_COORDS(OCDID,OCERR)
-!          CALL XF_VECTOR_2D_DATA_LOCS (OCDID,GRID_LOC_FACE_I,GRID_LOC_FACE_J,OCERR)
           CALL XF_VECTOR_2D_DATA_LOCS(OCDID,GRID_LOC_CENTER,GRID_LOC_CENTER,OCERR)
+          OCERR = -666  !Something specific to test if the dataset was newly created  !MEB 02/24/2025
         ENDIF
       
       END SELECT
@@ -927,7 +988,6 @@ contains
      RETURN
     END SUBROUTINE OPEN_CREATE_DATASET
 #endif
-
 
 
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -969,8 +1029,7 @@ contains
     if(sedtrans) write (ictec,*) ',"sed"'
     if(saltrans) write (ictec,*) ',"sal"'
     if(heattrans) write (ictec,*) ',"temperature"'
-    if(noptset==3) write (ictec,*) ',"wavestrx","wavestry", &
-                "waveh","wavet","waveob","waveangle","wavediss"'
+    if(noptset==3) write (ictec,*) ',"wavestrx","wavestry","waveh","wavet","waveob","waveangle","wavediss"'
     if(windconst .or. windvar) write(ictec,*) ',"tauwindx","tauwindy"'
     if(presvar) write(ictec,*) ',"pressatm"'
     write (ictec,*) 'zone f=block,'
@@ -1038,8 +1097,7 @@ contains
     if(sedtrans) write (ictec,*) ',"sed"'
     if(saltrans) write (ictec,*) ',"sal"'
     if(heattrans) write (ictec,*) ',"temperature"'
-    if(noptset==3) write (ictec,*) ',"wavestrx","wavestry",  &
-             "waveh","wavet","waveob","wavangle","wavediss"'
+    if(noptset==3) write (ictec,*) ',"wavestrx","wavestry","waveh","wavet","waveob","wavangle","wavediss"'
     if(windconst .or. windvar) write(ictec,*) ',"tauwindx","tauwindy"'
     if(presvar) write(ictec,*) ',"pressatm"'
     write (ictec,*) 'zone t="',ctime/3600.0, '",    f=block,'
@@ -1082,21 +1140,39 @@ contains
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
 
 !*******************************************************************
-    subroutine add_item_to_cf_list(number, name, long, standard, units, positive)
+    subroutine add_item_to_cf_list(name, long, standard, units, positive)
 ! Adds items to the cf compliance list of variables
 ! written by Mitchell Brown, USACE-CHL  10/02/2023
 !*******************************************************************
-    use out_def, only: cf_vars
+    use out_def, only: cf_vars,cf_var_type,ncf_vars
     implicit none
     
-    integer, intent(in) :: number
-    character(len=*),intent(in) :: name, long, standard, units, positive
+    integer icf
     
-    cf_vars(number)%output_name = name
-    cf_vars(number)%long_name = long
-    cf_vars(number)%standard_name = standard
-    cf_vars(number)%units = units
-    cf_vars(number)%positive = positive
+    character(len=*),intent(in) :: name, long, standard, units, positive
+    type(cf_var_type), allocatable :: temp(:)
+    
+    ncf_vars = ncf_vars + 1
+    if(ncf_vars == 1) then              !Add first element to list
+      allocate(cf_vars(1))              
+    else                                !Extend list, move old elements to larger list using a temp.
+      allocate(temp(ncf_vars - 1))      
+      do icf=1,ncf_vars - 1
+        temp(icf) = cf_vars(icf)
+      enddo
+      deallocate(cf_vars)
+      allocate(cf_vars(ncf_vars))
+      do icf=1,ncf_vars-1
+        cf_vars(icf) = temp(icf)
+      enddo
+      deallocate(temp)
+    endif
+    
+    cf_vars(ncf_vars)%units = units
+    cf_vars(ncf_vars)%long_name = long
+    cf_vars(ncf_vars)%output_name = name
+    cf_vars(ncf_vars)%positive = positive
+    cf_vars(ncf_vars)%standard_name = standard
     
     return
     end subroutine add_item_to_cf_list
@@ -1106,54 +1182,39 @@ contains
 ! Initializes the cf compliance list of variables
 ! written by Mitchell Brown, USACE-CHL  10/02/2023
 !*******************************************************************
-    use out_def, only: cf_vars
+    use out_def, only: cf_vars, ncf_vars
     implicit none
     
-    allocate(cf_vars(19))
-    
-    call add_item_to_cf_list(1, 'Water_Elevation', 'sea surface elevation', &
-                                'surface_elevation', 'm', 'up')
-    call add_item_to_cf_list(2, 'Total_Water_Depth', 'bathymetry plus surface elevation', &
-                                'total_water_depth', 'm', 'down')
-    call add_item_to_cf_list(3, 'Current_Velocity', 'vertical averaged velocity vector', &
-                                'u/v_velocity', 'm/s', 'x/y_direction')
-    call add_item_to_cf_list(4, 'Current_Magnitude', 'magnitude of vertical averaged velocity', &
-                                'velocity_magnitude', 'm/s', 'up')
-    call add_item_to_cf_list(5, 'Depth', 'bathymetry plus change due to sediment transport', &
-                                'depth_through_time', 'm', 'down')
-    call add_item_to_cf_list(6, 'Morphology_Change', 'change due to sediment transport', &
-                                'depth_change_through_time', 'm', 'up')
-    call add_item_to_cf_list(7, 'Eddy_Viscosity', 'diffusivity due to eddy advection', &
-                                'ocean_tracer_diffusivity_due_to_parameterized_mesoscale_eddy_advection', &
-                                'm^2/s', 'up')
-    call add_item_to_cf_list(8, 'Concentration', 'concentration of suspended sediment', &
-                                'mass_concentration_of_suspended_sediment_in_sea_water', &
-                                'kg/m^3','up')
-    call add_item_to_cf_list(9, 'Capacity', 'maximum capacity of sea water to hold sediment', &
-                                'maximum_capacity_of_sea_water_to_hold_suspended_sediment', &
-                                'kg/m^3', 'up')
-    call add_item_to_cf_list(10,'Total_Sediment_Transport', 'total sediment transport across unit distance in ocean', &
-                                'total_sediment_transport_across_unit_distance_in_ocean', 'kg/m/s', 'x/y_direction')
-    call add_item_to_cf_list(11,'Fraction_Suspended','fraction of suspended sediment of specific grain size', &
-                                'fraction_suspended_sediment_for_specific_grain_size_in_sea_water', 'nondimensional', 'up')
-    call add_item_to_cf_list(12,'Salinity', 'concentration of salinity', &
-                                'mass_concentration_of_salinity_in_sea_water', 'ppt', 'up')
-    call add_item_to_cf_list(13,'Temperature', 'sea water conservative temperature', &
-                                'sea_water_redistributed_conservative_temperature', 'degree C', 'up')
-    call add_item_to_cf_list(14,'Wave_Height', 'significant wave height', &
-                                'sea_surface_wave_significant_height', 'm', 'up') 
-    call add_item_to_cf_list(15,'Wave_Period', 'parabolic fit to the period of the peak of the energy', &
-                                'sea_surface_wave_period_at_variance_spectral_density_maximum', 's', 'up') 
-    call add_item_to_cf_list(16,'Wave_Height_Vec', 'significant wave height vectors', &
-                                'sea_surface_wave_significant_height_vectors', 'm', 'up')
-    call add_item_to_cf_list(17,'Wave_Dissipation', 'reduction in stress due to dissipation of waves', &
-                                'sea_surface_downward_stress_due_to_dissipation_of_sea_surface_waves', 'm^2/s', 'down') 
-    call add_item_to_cf_list(18,'Wave_Rad_Str', 'wave xy radiation stress vectors', &
-                                'sea_surface_wave_xy_radiation_stress', 'm^2/s^2', 'up')
-    call add_item_to_cf_list(19,'Wave_Rad_Str_Mag', 'wave xy radiation stress magnitude', &    
-                                'sea_surface_wave_xy_radiation_stress', 'm^2/s^2', 'up')
-
-
+    ncf_vars = 0
+    call add_item_to_cf_list('Water_Elevation','sea surface elevation','surface_elevation','m','up')
+    call add_item_to_cf_list('Total_Water_Depth','bathymetry plus surface elevation','total_water_depth','m','down')
+    call add_item_to_cf_list('Current_Velocity','vertical averaged velocity vector','u/v_velocity','m/s','x/y_direction')
+    call add_item_to_cf_list('Current_Magnitude','magnitude of vertical averaged velocity','velocity_magnitude','m/s','up')
+    call add_item_to_cf_list('Depth','bathymetry plus change due to sediment transport','depth_through_time','m','down')
+    call add_item_to_cf_list('Morphology_Change','change due to sediment transport','depth_change_through_time','m','up')
+    call add_item_to_cf_list('Eddy_Viscosity','diffusivity due to eddy advection','ocean_tracer_diffusivity_due_to_parameterized_mesoscale_eddy_advection','m^2/s','up')
+    call add_item_to_cf_list('Concentration','concentration of suspended sediment','mass_concentration_of_suspended_sediment_in_sea_water','kg/m^3','up')
+    call add_item_to_cf_list('Capacity','maximum capacity of sea water to hold sediment','maximum_capacity_of_sea_water_to_hold_suspended_sediment','kg/m^3','up')
+    call add_item_to_cf_list('Total_Sediment_Transport','total sediment transport across unit distance in ocean', &
+                             'total_sediment_transport_across_unit_distance_in_ocean','kg/m/s','x/y_direction')
+    call add_item_to_cf_list('Fraction_Suspended','fraction of suspended sediment of specific grain size', &
+                             'fraction_suspended_sediment_for_specific_grain_size_in_sea_water','nondimensional','up')
+    call add_item_to_cf_list('Salinity','concentration of salinity','mass_concentration_of_salinity_in_sea_water','ppt','up')
+    call add_item_to_cf_list('Temperature','sea water conservative temperature','sea_water_redistributed_conservative_temperature','degree C','up')
+    call add_item_to_cf_list('Wave_Height','significant wave height','sea_surface_wave_significant_height','m','up')
+    call add_item_to_cf_list('Wave_Period','parabolic fit to the period of the peak of the energy', &
+                             'sea_surface_wave_period_at_variance_spectral_density_maximum','s','up')
+    call add_item_to_cf_list('Wave_Height_Vec','significant wave height vectors','sea_surface_wave_significant_height_vectors','m','up')
+    call add_item_to_cf_list('Wave_Dissipation','reduction in stress due to dissipation of waves', &
+                             'sea_surface_downward_stress_due_to_dissipation_of_sea_surface_waves','m^2/s','down')
+    call add_item_to_cf_list('Wave_Rad_Str','wave xy radiation stress vectors','sea_surface_wave_xy_radiation_stress','m^2/s^2','up')
+    call add_item_to_cf_list('Wave_Rad_Str_Mag','wave xy radiation stress magnitude','sea_surface_wave_xy_radiation_stress','m^2/s^2','up')
+    call add_item_to_cf_list('Pressure','sea water pressure','sea_water_pressure_due_to_sea_water','m^2/s^2','up')
+    call add_item_to_cf_list('Wind_Velocity','wind_velocity_vector','wind_u/v_velocity','m/s','u/v_direction')
+    call add_item_to_cf_list('Wind_Magnitude','magnitude of wind u/v velocity','velocity_magnitude','m/s','up')
+    call add_item_to_cf_list('Wind_Stress','wind xy stress vectors','wind_xy_stress','N/m^2','x/y_direction')
+    call add_item_to_cf_list('Wind_Stress_Magnitude','magnitude of wind xy stress','wind_xy_stress_magnitude','N/m^2','up')
+    call add_item_to_cf_list('Atm_Pressure','atmospheric pressure at sea level','air_pressure_at_mean_sea_level','Pa','up')
     
     return
     end subroutine init_cf_var_list

@@ -106,11 +106,9 @@ contains
     integer,         intent(out) :: nstrcells
     integer,         intent(inout),pointer :: icells(:)    
     !Internal variables
-    integer, allocatable :: idtemp(:)
     integer :: pid,gid,ierr    
     character(len=200) :: str1,str2
     
-    allocate(idtemp(10000))
     call XF_OPEN_FILE(bidfile,READONLY,pid,ierr)
     if(ierr<0)then
       call diag_print_error('Could not open XMDF Boundary ID File: ',&
@@ -124,12 +122,11 @@ contains
         str1,str2,'  Check the input and rerun')
     endif
     call XF_GET_PROPERTY_NUMBER(gid,'Cells',nstrcells,ierr)
-    call XF_READ_PROPERTY_INT(gid,'Cells',nstrcells,idtemp(1),ierr)    
+    
+    allocate(icells(nstrcells))
+    call XF_READ_PROPERTY_INT(gid,'Cells',nstrcells,icells(1),ierr)    
     call XF_CLOSE_GROUP(gid,ierr)
     call XF_CLOSE_FILE(pid,ierr)
-    allocate(icells(nstrcells))
-    icells = idtemp(1:nstrcells)
-    deallocate(idtemp)
         
     return
     end subroutine read_cellstr_h5
@@ -689,6 +686,7 @@ contains
     use xmdf
     use prec_def, only: ikind
     use comvarbl, only: input_ver
+    use diag_lib, only: diag_print_error
     implicit none
 	
     !Input/Output
@@ -708,18 +706,20 @@ contains
     if (input_ver >= 5.0) time_dset = 'WSE_Times'
     call XF_OPEN_FILE(datfile,READONLY,PID,error)
     call XF_OPEN_GROUP(PID,datpath,GID,error)
-    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)             !call XF_GET_PROPERTY_NUMBER(GID,'Times',ntimes,error)           !MEB change from 'Times' 6/28/2016
+    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)
+    if (error<0) call diag_print_error("Cannot find times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
+    
     allocate(ftemp(ntimes),times(ntimes),wsedata(ntimes,nstrcells))
-    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)    !call XF_READ_PROPERTY_FLOAT(GID,'Times',ntimes,ftemp(1),error)  !MEB change from 'Times' 6/28/2016
+    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)
+    if (error<0) call diag_print_error("Cannot read times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
+    
     times = ftemp
     call XF_OPEN_GROUP(GID,"WSE",WID,error)
     do j=1,nstrcells
       write(unit=astring,fmt='(I0)') mapid(icells(j))
       card = 'WaterLevel_'//trim(astring)
       call XF_READ_PROPERTY_FLOAT(WID,trim(card),ntimes,ftemp(1),error)
-      if(error<0)then
-        call error_invalid_dataset(datfile,datpath,card)            
-      endif
+      if(error<0) call diag_print_error('Problem reading Multiple WSE values')
       wsedata(:,j) = ftemp(:)
     enddo
     call XF_CLOSE_GROUP(GID,error)
@@ -757,10 +757,18 @@ contains
     
     call XF_OPEN_FILE(datfile,READONLY,PID,error)
     call XF_OPEN_GROUP(PID,datpath,GID,error)
-    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)            !call XF_GET_PROPERTY_NUMBER(GID,'Times',ntimes,error)           !MEB change from 'Times' 6/28/2016
+    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)
+    
+    if(error .lt. 0) then   !if Vel_Times does not exist, use WSE_Times
+      time_dset='WSE_Times'
+      call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)
+      if (error<0) call diag_print_error("Cannot find times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
+    endif
+    
     allocate(times(ntimes),udata(ntimes,nstrcells),vdata(ntimes,nstrcells))
     allocate(ftemp(ntimes),ftemp2(ntimes))
-    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)   !call XF_READ_PROPERTY_FLOAT(GID,'Times',ntimes,ftemp(1),error)  !MEB change from 'Times' 6/28/2016
+    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)
+    if (error<0) call diag_print_error("Cannot read times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
     times = ftemp
     call XF_OPEN_GROUP(GID,"Left",LID,error)
     call XF_OPEN_GROUP(GID,"Right",RID,error)
@@ -769,24 +777,22 @@ contains
     do j=1,nstrcells
       write(unit=astring,fmt='(I0)') mapid(icells(j))
       card = 'Velocity_'//trim(astring)
-      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error) !Left face
-      if(error<0)then
-        call error_invalid_dataset(datfile,datpath,card)
-      endif
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Left face')
       udata(:,j) = ftemp(:)
-      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error) !Right face      
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')         
-      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error) !Top face
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      
+      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Right face')
+      
+      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Top face')
       vdata(:,j) = ftemp2(:)
-      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error) !Bot face  
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      
+      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Bottom face')
                            
-      !Average Left and Right faces
-      udata(:,j)=0.5*(ftemp(:)+udata(:,j))            
-      !Average Top and Bottom faces
-      vdata(:,j)=0.5*(ftemp2(:)+vdata(:,j))     
+      udata(:,j)=0.5*(ftemp(:)+udata(:,j))      !Average Left and Right faces
+      vdata(:,j)=0.5*(ftemp2(:)+vdata(:,j))     !Average Top and Bottom faces
     enddo !j     
     call XF_CLOSE_GROUP(LID,error)
     call XF_CLOSE_GROUP(RID,error)
@@ -830,10 +836,14 @@ contains
     
     call XF_OPEN_FILE(datfile,READONLY,PID,error)
     call XF_OPEN_GROUP(PID,datpath,GID,error)
-    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)            !call XF_GET_PROPERTY_NUMBER(GID,'Times',ntimes,error)            !MEB change from 'Times' 6/28/2016
+    call XF_GET_PROPERTY_NUMBER(GID,time_dset,ntimes,error)
+    if (error<0) call diag_print_error("Cannot find times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
+
     allocate(times(ntimes),wsevel(ntimes,nstrcells,3))
     allocate(ftemp(ntimes),ftemp2(ntimes))
-    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)   !call XF_READ_PROPERTY_FLOAT(GID,'Times',ntimes,ftemp(1),error)   !MEB change from 'Times' 6/28/2016
+    call XF_READ_PROPERTY_FLOAT(GID,time_dset,ntimes,ftemp(1),error)
+    if (error<0) call diag_print_error("Cannot read times for boundary at: "//trim(datpath)//"/"//trim(time_dset))
+    
     times = ftemp
     call XF_OPEN_GROUP(GID,"Left",LID,error)
     call XF_OPEN_GROUP(GID,"Right",RID,error)
@@ -843,25 +853,27 @@ contains
     do j=1,nstrcells
       write(unit=astring,fmt='(I0)') mapid(icells(j))
       card = 'Velocity_'//trim(astring)
-      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error)         !Left face
-      if(error<0)then
-        call error_invalid_dataset(datfile,datpath,card)
-      endif
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      call XF_READ_PROPERTY_FLOAT(LID,trim(card),ntimes,ftemp(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Left face')
       wsevel(:,j,1) = ftemp(:)
-      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error)         !Right face      
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')         
-      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error)        !Top face
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      
+      call XF_READ_PROPERTY_FLOAT(RID,trim(card),ntimes,ftemp(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Right face')
+      
+      call XF_READ_PROPERTY_FLOAT(TID,trim(card),ntimes,ftemp2(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Top face')
       wsevel(:,j,2) = ftemp2(:)
-      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error)        !Bot face  
-      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC')
+      
+      call XF_READ_PROPERTY_FLOAT(BID,trim(card),ntimes,ftemp2(1),error)
+      if(error<0) call diag_print_error('Problem reading Multiple WSE-Vel BC - Bottom face')
                            
       wsevel(:,j,1)=0.5*(ftemp(:)+wsevel(:,j,1))   !Average Left and Right faces
       wsevel(:,j,2)=0.5*(ftemp2(:)+wsevel(:,j,2))  !Average Top and Bottom faces
                    
       card = 'WaterLevel_'//trim(astring) 
       call XF_READ_PROPERTY_FLOAT(WID,trim(card),ntimes,ftemp(1),error) !WSE
+      if(error<0) call diag_print_error('Problem reading Multiple WSE values')
+
       wsevel(:,j,3) = ftemp(:) !WSE     
     enddo !j     
     call XF_CLOSE_GROUP(LID,error)

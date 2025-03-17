@@ -79,6 +79,16 @@
     character(len=37) :: cardname,cdum
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)    
     !=== Wall friction ======================
@@ -144,7 +154,6 @@
       case default
         call diag_print_error('Invalid wave ripple method')
       end select
-         
          
     !case('WAVE_RIPPPLE_METHOD','RIPPLE_WAVE_METHOD')  
     !  backspace(77)
