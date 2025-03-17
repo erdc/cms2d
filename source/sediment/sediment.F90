@@ -2731,6 +2731,7 @@ d1: do ii=1,30
     use prec_def
     
     implicit none
+    real    :: val
     integer :: i,ih,ierr,idhardtemp(ncellsD),icount
     integer :: hbwarn(ncellsD), nhbwarn
     character(len=100) :: msg2,msg3
@@ -2815,10 +2816,13 @@ d1: do ii=1,30
       allocate(hardbed(nhard),idhard(nhard))
       do ih=1,nhard
         idhard(ih)=idhardtemp(ih) !No mapping necessary
-        if(hardzb(idhard(ih))<-900.0)then
-          write(msg2,*) '  Cell: ',idhard(ih)
-          write(msg3,*) '  Hard bottom: ',hardzb(idhard(ih))  
-          call diag_print_error('Could not calculate hard bottom ID',msg2,msg3)
+        val = hardzb(idhard(ih))
+        if(val >= -999.1 .and. val <= -998.9) then   !Ignore around the -999 flag for fully erodible.  This should have already been handled.
+          !write(msg2,*) '  Cell: ',idhard(ih)
+          !write(msg3,*) '  Hard bottom: ',hardzb(idhard(ih))  
+          !call diag_print_error('Could not calculate hard bottom ID',msg2,msg3)
+          continue 
+          cycle  !skip to the next value in the list
         endif
         hardbed(ih)=hardzb(idhardtemp(ih))  
       enddo   

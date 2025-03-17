@@ -4326,7 +4326,7 @@ contains
           if(k3(k).ge.6) then
             cc=dstruc33(k)
             if(cc.lt.0.) cc=0.
-            c1=0.64*(h13(iii-1,jop)/c3)**0.31+0.4*cc/(h13(iii-1,jop)+.01)
+            c1=0.64 * (h13(iii-1,jop)/c3)**0.31 + 0.4*cc/(h13(iii-1,jop)+.01)
             c2=cflat*sqrt(sj(jop))/(h13(iii-1,jop)+.01)
             if(c1.gt..99) c1=.99
             if(c1.lt..01) c1=.01
@@ -5720,7 +5720,7 @@ contains
 
 !--------------------------------------------------------
 !  at this stage si(jbe,nn,mm) is obtained
-!  revison of spectral energy at no wave solutioin 
+!  revison of spectral energy at no wave solution 
 !  for frequency components
 !    1. integration of si(jbe,nn,mm) with respect to mm
 !    2. spectral form of f^-5 is assumed
