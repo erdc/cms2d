@@ -1,22 +1,23 @@
 Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
-! Note: Presently used for Inline Steering, MEB 10/4/2018
+! Note: Presently used for Inline Steering
 !       Adding '_inline' to all subroutines (and references), MEB 10/9/2018
-!***************************************************************C
-!                      CMS-Wave (ver.3.3)                       C
-!   (Wave Action Balance Equation with Diffraction effect)      C
-!     SPECTRAL WAVE TRANSFORMATION MODEL IN SHALLOW WATER       C
-!                INCLUDING WAVE DIFFRACTION                     C
-!             in wave-current co-existing field                 C
-!    PROGRAMED BY H.MASE and T.TAKAYAMA, JULY 1998, FEB 2001    C
-!    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   C
-!    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           C
-!***************************************************************C
+!***************************************************************
+!                      CMS-Wave (ver.3.4)                       
+!   (Wave Action Balance Equation with Diffraction effect)      
+!     SPECTRAL WAVE TRANSFORMATION MODEL IN SHALLOW WATER       
+!                INCLUDING WAVE DIFFRACTION                     
+!             in wave-current co-existing field                 
+!    PROGRAMED BY H.MASE and T.TAKAYAMA, JULY 1998, FEB 2001    
+!    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   
+!    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           
+!    Dynamic allocation of arrays implemeded by W.Wu, Nov 2024  
+!***************************************************************
 !  Basic equation to be solved is wave action balance equation
 !  with independent variables of x, y, q (angle).  
 !  Intrinsic frequency is treated as a dependent variable.  
 !  Energy dissipation term is formulated by using a modified
 !  Miche's breaker index in order to include current effects.
-!***************************************************************C
+!***************************************************************
 #include "CMS_cpp.h"
       use GLOBAL_INLINE
       use cms_def, only: noptset,nsteer,dtsteer,wavsimfile,wavepath
@@ -24,102 +25,32 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use comvarbl, only: ctime
       use diag_lib, only: diag_print_message, diag_print_error
       use diag_def, only: dgunit
-
+      use wave_def                                                   !Wu, Nov. 2024  
       double precision edate, jdate, iwind_date, icur_date, ieta_date
-      common /depreflx/dep0(ipmx,jpmx),fsp(npf),xc(komx),yc(komx), &
-                       wc(komx),wcd(komx),hs13(komx),              &
-                       refltx(ipmx,jpmx),reflty(ipmx,jpmx),        &  !Wu
-                       exx(igpx,jgpx),eyy(igpx,jgpx)
-      common /dxxdyy/dvarxx(ipmx),dvaryy(jpmx)                        !Wu
-      common /fl2wav/depin(ipmx,jpmx),etain(ipmx,jpmx),            &  !Alex
-             uin(ipmx,jpmx),vin(ipmx,jpmx)                            !Alex
-      common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
-      common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
-      common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
-      common /rsd/ sxyy(ipmx,jpmx),syyy(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      common /rsz/ igetfile20,nship,disx(ipmx),disy(jpmx)
-      common /ship/ShipL(30),ShipB(30),ShipD(30),ShipS(30)
-      common /struc0/ijstruc1,ijstruc2,ijstruc3,ijstruc4,ismall
-      common /struc1/istruc1(komx),jstruc1(komx),dstruc1(komx)
-      common /struc2/istruc2(NOMX),jstruc2(NOMX),dstruc2(NOMX)
-      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx),    &  
-                     k3(komx),dstruc33(komx)
-      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx),    &
-                     kstruc4(komx),k4(komx),dstruc44(komx)
-      common /swell/sw13(igpx,jgpx),sa13(igpx,jgpx),               &
-                    tw13(igpx,jgpx),ta13(igpx,jgpx),               &
-                    dw13(igpx,jgpx),da13(igpx,jgpx)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,    &
-                   iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,       &
-                   iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
-      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),     &
-                   cmn(jgpx),sigm(jgpx),IWVBK,ibk3
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /WAVF/H13F(IGPX,JGPX),DMNF(IGPX,JGPX),T13F(IGPX,JGPX),T13MIN
-      COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-      COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /uvwind/u10(ipmx,jpmx),v10(ipmx,jpmx)
-      common /fric/bfric(ipmx,jpmx),amud(ipmx,jpmx)
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,   &
-                         WaveFile, ObsFile, EngOutFile, NestFile,  &
-                         BreakFile, RadsFile, StrucFile, SurgeFile,&
-                         MudFile, FricFile, FrflFile, BrflFile,    &
-                         SpecFile, WindFile, XMDFFile, SetupFile,  &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                 !Mitch 3/22/2017
-      common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      common /wavegrid/ ni,nj                                         !Wu
-      common /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr                !Wu
-      common /variables/hsmin,hs13n,inest1,nestin,nestin1,nestin2,azimnest      !Wu/Zhan/Alex
-      common /logicalva/getfile4,getfile5,getfile7,getfile8           !Wu/Zhang 8/1/2009
-
-      logical getfile,getfile1,getfile2,getfile3,getfile4,getfile5
-      logical getfile6,getfile7,getfile8,getfile9,getfile10
+      logical getfile,getfile1,getfile2,getfile3
+      logical getfile6,getfile9,getfile10  
       logical getfile11,getfile12,getfile15,getfile16,getfile17
       logical getfile18,getfile19,getfile20,getfile21
-      CHARACTER*180 WaveFile,ObsFile,EngOutFile,BreakFile,RadsFile
       character*180 text
       character*30 text1
-      REAL ITER_START, ITER_END
+      !REAL ITER_START, ITER_END      !variables are not used, Closed by Wu
       INTEGER IOS  ! (IOS < 0) == END OF FILE; (IOS > 0) == IO ERROR
       INTEGER II,JJ,KK, INV
       integer numthreads,NTHR
 
 ! ... Input file variables
-      CHARACTER*180  SimFile, OptsFile, DepFile, CurrFile, EngInFile
-! ... Output/Input variable
-      CHARACTER*180 NestFile, StrucFile, SurgeFile
-      CHARACTER*180 MudFile,  FricFile,  FrflFile,  BrflFile, WindFile
-      CHARACTER*180 SpecFile, XMDFFile,  SetupFile, ShipFile
-      CHARACTER*180 SeaFile,  SwellFile, TotalFile                    !Mitch 03/22/2017
+      CHARACTER*180  SimFile   
       CHARACTER*80 :: cardname                                        !Mitch 10/18/2021
-      logical :: foundfile, foundcard, is66open
+      logical :: foundfile, foundcard
 	  
 ! ... Output file variables
       INTEGER      :: iunit(2)
       
-      SAVE dvarxxt, dvaryyt                        !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
+      SAVE dvarxxt, dvaryyt                  !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
  
       iunit = (/6,dgunit/)
       iwbk = 0
-      if(noptset.eq.3.and.nsteer.gt.1) then        !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
+      if(noptset.eq.3.and.nsteer.gt.1) then  !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
         iwbk = iwvbk
         hs13nn = hs13n
         goto 70                              !Wu/Zhang
@@ -138,7 +69,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(noptset.ne.3) call diag_print_message(' ')
       call diag_print_message('**********************************************')
-      call diag_print_message('CMS-Wave V-3.3 Inline, last update 19 Oct 2021')
+      call diag_print_message('CMS-Wave V-3.4 Inline, last update Jan 2025')
       call diag_print_message('**********************************************')
       if(noptset.ne.3)then
         call diag_print_message('  Point of Contact:')
@@ -333,12 +264,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
                 goto 139
               else if(text(k:kk4).eq.'!kout') then
                 read(text,*)kout
+                allocate( ijsp(2,iabs(kout)) )   !Dynamic allocation  added by Wu Sept 2024
+                                         !if itxt=0, this is repeated below. possible problem
                 if(iabs(kout).ge.1) then
                   read (11,*) (ijsp(1,nn),ijsp(2,nn),nn=1,iabs(kout))
                 end if
                 goto 139
               else if(text(k:kk5).eq.'!inest') then
                 read(text,*)nest
+                allocate( inest(nest),jnest(nest) ) !Dynamic allocation  added by Wu Sept 2024
+                                          !if itxt=0, this is repeated below. possible problem
                 if(nest.ge.1) then
                   read (11,*) (inest(nn),jnest(nn),nn=1,nest)
                 end if
@@ -466,7 +401,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end do
       if(l.lt.12) l=12
       if (SimFile(l-11:l-5).eq.'swsteer') ixmdf=0
-
+      
       if(iabs(kout).ge.1.and.ixmdf.ne.2) then
         if(kout.ge.1) open (10, file = EngOutFile, status = 'unknown')
         open (12, file = ObsFile,status='unknown',access='append')
@@ -480,17 +415,52 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       read(15,'(a150)') text
       read(text,*,end=330,err=330) ni,nj,dmesh,dindex
 330   continue
-
-      if (ni.gt.ipmx .or. nj.gt.jpmx) then
-        print*,'****************************************************'
-        print*,'This version of CMS-Wave is statically dimensioned'
-        print*,'and has a limit of NI = 2500, NJ = 2500'
-        print*,'in the near future a dynamically dimensioned version'
-        print*,'will become available. '
-        print*,'****************************************************'
-        stop
-      endif
-
+      
+      !Dynamic allocation added by Wu, Nov. 2024
+      !nodexy=max(ni,nj)+1         !CMS-Wave grid rotates or flips over when imod=1,3
+      nodexy=max(ni,nj)+2         !updated nodexy to include one additional cell in each direction.  MEB 03/17/2025
+      !There is some code that needs it in veloc_inline and probably other locations.
+      
+      ipmx=nodexy
+      jpmx=nodexy
+      igpx=ipmx-1
+      jgpx=jpmx-1
+      ijpmx=ipmx*jpmx
+      ijgpx=igpx*jgpx    
+      allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
+      allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
+      allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
+      allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
+      allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
+      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
+      allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
+      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
+      allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
+      allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
+      allocate( disx(ipmx),disy(jpmx) )
+      allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
+      allocate( tw13(igpx,jgpx),ta13(igpx,jgpx) )
+      allocate( dw13(igpx,jgpx),da13(igpx,jgpx) )
+      allocate( aslop(ipmx) )
+      allocate( wcc(jgpx),hsb(jgpx),hsg(jgpx),dcd(jgpx) )
+      allocate( dvarx(igpx),dvary(jgpx),eta(igpx,jgpx),hsk(jgpx) )
+      allocate( ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),dbig(ipmx) )
+      allocate( kr(2,6*ipmx),rk(6*ipmx),yangl(6*ipmx) )
+      allocate( kcr(2,6*ipmx),rkr(6*ipmx),xangl(6*ipmx) )
+      allocate( depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx) )
+      allocate( cmn(jgpx),sigm(jgpx) )
+      allocate( h13(igpx,jgpx),t13(igpx,jgpx),dmn(igpx,jgpx) )
+      allocate( h13r(igpx,jgpx),t13r(igpx,jgpx),dmnr(igpx,jgpx) )
+      allocate( h13s(igpx,jgpx),ibr(igpx,jgpx),diss(igpx,jgpx) )
+      allocate( h13f(igpx,jgpx),dmnf(igpx,jgpx),t13f(igpx,jgpx) )     
+      allocate( ix1(igpx),ix2(igpx) )
+      allocate( u(ipmx,jpmx),v(ipmx,jpmx) )
+      allocate( u1(ipmx,jpmx),v1(ipmx,jpmx) )
+      allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
+      allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
+      allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
+      !End dynamic sallocation
+      
 !  read/write initial depths dep(i, j):
       depmax=0.
       depmax0=0.
@@ -561,8 +531,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         enddo
       enddo      
       
-      dvarxx=dmesh
-      dvaryy=dmesh
+      dvarxx=dmesh   
+      dvaryy=dmesh    
 
       if(dindex.ne.0..and.dindex.ne.999.) then
         dvaryy=dindex
@@ -609,11 +579,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         dvaryyt=dvaryyt+dvaryy(j)
       end do
       disy(j)=dvaryyt
-!
+
+      !
       ijstruc1=0
       ijstruc3=0
       ijstruc4=0
       read(23,*,IOSTAT=IOS) instruc
+
+      !Dynamic allocation added by Wu, Nov. 2024
+      komx=instruc   
+      allocate( istruc1(komx),jstruc1(komx),dstruc1(komx),          &
+                istruc3(komx),jstruc3(komx),dstruc3(komx),          &  
+                k3(komx),dstruc33(komx),                            &
+                istruc4(komx),jstruc4(komx),dstruc4(komx),          &
+                kstruc4(komx),k4(komx),dstruc44(komx) )
+      nomx=max(instruc,ni*nj)       !Wu, Nov. 2024. 
+      allocate( istruc2(nomx),jstruc2(nomx),dstruc2(nomx) )          
+      !End adding    
+      
       DO ijk=1,instruc
         jstruc=0
         kstruc=0
@@ -765,7 +748,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         endif 
         irs=2
       end if
-
+      
       if(ijstruc3.ge.1) then
         ic3=0
         ic6=0
@@ -956,6 +939,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(itxt.eq.0) then
         !  read in special output points
         if (iabs(kout) .ge. 1) then
+          allocate( ijsp(2,iabs(kout)) )   !Dynamic allocation  added by Wu, Nov. 2024
           do nn = 1, iabs(kout)
             read (11, *) ijsp(1,nn), ijsp(2,nn)
           enddo
@@ -963,7 +947,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
         !  read in nesting output points
         nest=0
-        read (11,*,end=109) nest
+        read (11,*,end=109) nest            !This may read nest again, Check Line 454
+        allocate( inest(nest),jnest(nest) ) !Dynamic allocation  added by Wu, Nov. 2024
         do nn = 1, nest
           read (11, *) inest(nn), jnest(nn)
         enddo
@@ -1109,7 +1094,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           read(24,*,end=280,err=280) (cc,nn=1,nff)
         end if
 280     continue
-
+        
         iwave1=0
         inquire(file='wave1.dat',exist=getfile19)
         if(getfile19) then
@@ -1165,16 +1150,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 
       if(iprpp.eq.1.and.iwave.eq.0) iview=0
-
+    
       if(ibnd.eq.0) then
-        READ(8,*) NFF,MDD
-        if(NFF.GT.NPF)THEN
-          write(*,*) 'ERROR: Number of input frequencies ',NFF,' is larger than then maximum value of ',NPF
-          write(9,*) 'ERROR: Number of input frequencies ',NFF,' is larger than then maximum value of ',NPF
-          write(*,*) '  Press <enter> key to continue'
-          read(*,*)
-          stop
-        endif
+        READ(8,*) NFF,MDD      
       else
         inquire(file='nest.dat',exist=getfile5)
         if(getfile5) then
@@ -1215,6 +1193,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
 
         read(8,*) NFF,MDD,NESTIN1,azimnest
+
         if(azimuth.ge.330..and.abs(azimnest).le.10.) then
           azimnest=azimnest+360.
         end if
@@ -1222,6 +1201,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           azimnest=azimnest-360.
         end if
       end if
+
+      !Added for dynamic allocation    by Wu,  Nov. 2024
+      knest=max(nestin1,nestin2)+2
+      allocate( xc(knest),yc(knest),wc(knest),wcd(knest),hs13(knest) )        !Wu 
+        !allocate( xc(komx),yc(komx),wc(komx),wcd(komx),hs13(komx) )          !Wu 
+
+      npf=nff+1                !Wu   
+      mpd=mdd+1
+      allocate( ffcn(npf),dsfd(npf,mpd) )
 
       READ(8,*) (FFCN(NN),NN=1,NFF)
 
@@ -1381,6 +1369,24 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
       end if
 
+      !Added for dynamic allocation    by Wu,  Nov. 2024
+      mpmx=mpd*jgpx  
+      koutnest=kout+nest
+      allocate( fsp(npf) )
+      allocate( cosa(mpd),sina(mpd),wk2(jpmx,npf,mpd) )
+      allocate( wdd(mpd) )
+      allocate( fcn(npf),dcm(mpd) )
+      allocate( df(npf),dfinp(npf),pl1e(npf),pl1t(npf) )
+      allocate( scp(jgpx,mpd),si(jgpx,npf,mpd) )
+      allocate( simax(jgpx,npf,mpd),sjj(jgpx) )
+      allocate( sop(koutnest,npf,mpd2),sr(2*ipmx,npf,mpd) )   
+      !allocate( sop(komx,npf,mpd2),sr(2*ipmx,npf,mpd) )   
+      allocate( sj(jgpx),sjf(jgpx,npf),fjf(jgpx) )
+      allocate( aa(5,mpmx),ia(5,mpmx),b(mpmx),x(mpmx) )
+      allocate( sgma0(jgpx,mpd),sgma1(jgpx,mpd) )
+      allocate( cwk(jpmx,2,mpd),cgk(jpmx,2,mpd) )           
+      !End adding                      by Wu, Nov. 2024
+      
       itms = 0 + n  !N is number of times that were skipped during hot start or 0 if cold start.
       imod = 0
       igetfile20 = 0
@@ -1393,6 +1399,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         igetfile20=1
         open(unit=39,file=ShipFile,status='old')
         read(39,*) nship
+        allocate( ShipL(nship),ShipB(nship),ShipD(nship),ShipS(nship) )   !Added by Wu, Nov. 2024
         if(nship.eq.0) then
           write(*,*) 'Wrong Shiptrack file'
           close(39)
@@ -1529,7 +1536,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       print *, 'inside time loop, itms = ', itms
       write(*,*) ' '
       if(noptset.eq.3) write(9,*) 'inside time loop, itms = ', itms
-
+      
       nf=nff
       md=mdd
       fcn=ffcn
@@ -1706,7 +1713,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,'("Wave Input Index =",i8)') idate
       end if
       write(*,*) ' '
-
+      
       if(imod.eq.1.or.imod.eq.3) then
         nc=ni
         ni=nj
@@ -1829,9 +1836,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(sum .lt. .0001) then
         nnf=nf
-        ph0 = 0.36
-        if(ws .ge. 0.1) ph0=g/ws*.9
-        if(ph0 .gt. .36) ph0=.36
+        !ph0=g/ws*.9
+        ph0=g/max(ws, 0.00000000000000000001)*0.9   !Suggested by Mitch, changed by Wu to avoid division by zero
+        if(ph0 .gt. 0.36) ph0=0.36
         do nn=nnf,1,-1
           if(fcn(nn).gt.ph0) nnf=nn
         end do
@@ -1867,7 +1874,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             if(idate.lt.itms) idate=itms
             if(idate.lt.iidate) idate=iidate
           end if
-422		    continue
+422		  continue
 		  
           if(ws1.gt.ws) ws=ws1
           if(fp1.lt.fp) fp=fp1
@@ -2286,7 +2293,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           dvary(j)=dvaryy(j)
         enddo
         do i=1,ni
-         dvarx(i)=dvarxx(i)
+          dvarx(i)=dvarxx(i)
         end do
       end if
 
@@ -3133,8 +3140,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         a1=0.0002
         cc=a1*g*8./pai
         ccc=a1*g*1.333/pai
-        ph0 = pai2
-        if(ws .ge. 0.1) ph0=g/ws*.9
+        !ph0=g/ws*.9
+        ph0=g/max(ws, 0.00000000000000000001)*0.9   !Suggested by Mitch, changed by Wu to avoid division by zero
+
         if(ph0.gt.pai2) ph0=pai2
         cc1=wd+HPAI
         if(iview.ge.1) cc1=cc1+DTH/2.
@@ -3477,8 +3485,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       DO JJ=1,JGMX
         DMNJ(JJ)=DBAR
-	  enddo
-	  
+      enddo
+
 !-----------------------------------------------------
 !  initial integrated energy density for each region
 !-----------------------------------------------------
@@ -3487,15 +3495,16 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !  calculation of wave action balance equation
 !  (main of calculation including subroutine calc) 
 !---------------------------------------------------
+
       CALL SETIN_inline(IKAP)
 !--------------------------------
 !  output of calculated results
 !--------------------------------
 80    continue
       if (ibreak.ge.2) call dfds_inline
+      
       if (irs.ge.1.and.irs0.eq.0) call rstress_inline
 90    continue
-
       
       CALL OUTFILE_inline
 
@@ -3556,62 +3565,22 @@ contains
 !********************************************************************************
       subroutine xmdfout_inline
 !********************************************************************************      
+      use prec_def     
       use comvarbl, only: reftime
       use xmdf
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,MPD2,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
       use cms_def, only: noptset,noptzb,nsteer,dtsteer           !Alex
       use comvarbl, only: ctime
-      REAL, ALLOCATABLE :: height(:),period(:),dir(:),brkdiss(:),radstr(:)  !Alex 
-      REAL, ALLOCATABLE :: wave(:),depth(:),surge(:),currents(:)            !Alex      
-      REAL, ALLOCATABLE :: surgew(:)            !Alex      
-    
-      common /fl2wav/depin(ipmx,jpmx),etain(ipmx,jpmx), &        !Alex
-             uin(ipmx,jpmx),vin(ipmx,jpmx)                       !Alex
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,   &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /SPECB/SOP(KOMX,NPF,MPD2),SR(2*IPMX,NPF,MPD)
-      COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-      COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /struc0/ijstruc1,ijstruc2,ijstruc3,ijstruc4,ismall
-      common /struc1/istruc1(komx),jstruc1(komx),dstruc1(komx)
-      common /struc2/istruc2(NOMX),jstruc2(NOMX),dstruc2(NOMX)
-      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx), &
-                     k3(komx),dstruc33(komx)
-      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx), &
-                     kstruc4(komx),k4(komx),dstruc44(komx)
-      common /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr       !Wu
-      common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,    &
-                         WaveFile, ObsFile, EngOutFile, NestFile,   &
-                         BreakFile, RadsFile, StrucFile, SurgeFile, &
-                         MudFile, FricFile, FrflFile, BrflFile,     &
-                         SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
+      implicit none       !Added by Wu 2025_Jan
+      integer ibeg,iend,iinc,jbeg,jend,jinc,NIJ
+      real(ikind) cosazz,sinazz
+      
+      REAL(ikind), ALLOCATABLE :: height(:),period(:),dir(:),brkdiss(:),radstr(:)  !Alex 
+      REAL(ikind), ALLOCATABLE :: wave(:),depth(:),surge(:),currents(:)            !Alex      
+      REAL(ikind), ALLOCATABLE :: surgew(:)            !Alex       
       logical*2 :: FOUND=.FALSE.
-      CHARACTER*180 WaveFile,ObsFile,EngOutFile,BreakFile,RadsFile
-      CHARACTER*180 OptsFile,DepFile,CurrFile,EngInFile
-      CHARACTER*180 NestFile,StrucFile,SurgeFile
-      CHARACTER*180 MudFile,FricFile,FrflFile,BrflFile,WindFile
-      CHARACTER*180 SpecFile, XMDFFile,SetupFile,ShipFile
-      CHARACTER*180 SeaFile, SwellFile                                 !Mitch 3/22/2017
       CHARACTER*20  PREFIX
       REAL*8 TIME2
       INTEGER ERROR, PID, DID, DGID, COUNT
-      real :: cosaz,sinaz
       
       ALLOCATE (height(IGMX*JGMX),period(IGMX*JGMX),dir(IGMX*JGMX))
       ALLOCATE (brkdiss(IGMX*JGMX),radstr(2*IGMX*JGMX),wave(2*IGMX*JGMX))
@@ -3954,22 +3923,13 @@ contains
 !--------------------------------------------------
 !  setup of mesh size, angular-frequency spectrum
 !--------------------------------------------------
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /SPECD/SIMAX(JGPX,NPF,MPD),SJJ(JGPX)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-
+      use prec_def     
+      use wave_def, only: NF,MD,JGMX,HS0,PRD,IBND,DX,DY,DXX,DMESH,WCC,HSB,HSG,DCD,  &
+                          DVARX,SI,SIMAX,SJJ,DSFD,DMNJ,SLF,imd,cflat
+      implicit none       !Added by Wu 2025_Jan
+      integer :: MM,NN,JJ,mmdcd,m1
+      real(ikind) ::  dcdmm,c1
+      
 ! ** mesh size
       DX=DMESH
       DY=DX
@@ -4050,51 +4010,39 @@ contains
 !  in this subroutine, calc(ii) is the main subroutine 
 !    which calculates wave action balance equation
 !-------------------------------------------------------
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,MPD2,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      use prec_def     
+      use global_inline, only: ipmx,igpx,jgpx
       use wave_lib, only: wave_Hmax
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /SPECB/SOP(KOMX,NPF,MPD2),SR(2*IPMX,NPF,MPD)
-      COMMON /SPECC/SJ(JGPX),SJF(JGPX,NPF),FJF(JGPX)
-      COMMON /SPECD/SIMAX(JGPX,NPF,MPD),SJJ(JGPX)
-      COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-      COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
-      COMMON /REFB/KRF,KCR(2,6*IPMX),RKR(6*IPMX),xangl(6*IPMX)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /WAVF/H13F(IGPX,JGPX),DMNF(IGPX,JGPX),T13F(IGPX,JGPX),T13MIN
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /struc0/ijstruc1,ijstruc2,ijstruc3,ijstruc4,ismall
-      common /struc2/istruc2(NOMX),jstruc2(NOMX),dstruc2(NOMX)
-      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx), &
-                     k3(komx),dstruc33(komx)
-      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx), &
-                     kstruc4(komx),k4(komx),dstruc44(komx)
-      common /swell/sw13(igpx,jgpx),sa13(igpx,jgpx), &
-                    tw13(igpx,jgpx),ta13(igpx,jgpx), &
-                    dw13(igpx,jgpx),da13(igpx,jgpx)
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
+      use wave_def, only: island,imd,imod,hpai,pai,rad,nf,md,imax,jmax,igmx,jgmx
+      use wave_def, only: ick3,ick4,hs0,wd,ws,aslop  
+      use wave_def, only: tp,ibnd,tide,kpeak,iback,nblock,dxx,dth,depmax
+      use wave_def, only: ibk,hsb,hsg,dvarx,dvary,eta,hsk    
+      use wave_def, only: scp,sop,sr,si,sj,simax,sjj,sjf,fjf      
+      use wave_def, only: kout,ijsp,irs,ibreak,iwet,nest,inest,jnest
+      use wave_def, only: krmx,kr,krf,kcr,rkr,xangl,yangl
+      use wave_def, only: ijb,dep,deps,dbig,u,v      
+      use wave_def, only: h13,t13,dmn,h13r,t13r,dmnr,ibr,t13min      
+      use wave_def, only: dmnj,iwvbk,ibk3,fcn,dcm,df
+      use wave_def, only: sxx,sxy,cosa,sina,d1,wk2,cgp,u1,v1     
+      use wave_def, only: ijstruc2,ijstruc3,ijstruc4,ismall
+      use wave_def, only: istruc2,jstruc2,dstruc2
+      use wave_def, only: istruc3,jstruc3,dstruc3,k3,dstruc33
+      use wave_def, only: istruc4,jstruc4,dstruc4,kstruc4,k4 
+      use wave_def, only: sw13,sa13,tw13,ta13,dw13,da13,iplane,cflat     
+      implicit none       !Added by Wu 2025_Jan
+      integer ikap
+      integer i,j,k,l,leap,mm,mm1,nn,kkpeak,ipeak,i1,iii,jop,nn13
+      integer j1,m2,n1,n2,ic,ic1,ic2,i3,nbig,jk,jc,ni2,inv
+      integer IRC,IJBV,IJBV1,IJB1,IJTR,KI,KJ,mmd,iadd,jja1,jjc1,ishift
+      real(ikind) cc,ss,hsi,h0,sum1,ssum1,sum2,c1,c2,c3,small,fp,slx,sly,slj
+      real(ikind) dep11,dep12,dep21,dep22
+      real(ikind) cc1,cc2,edplim,edplim1,tc,hj1,h13ave,h13add
+      real(ikind) amari,estlim,wkpeak,estlim1,sum,ssum,big,cx,cy,cdw13,cda13
+      real(ikind) sumx,sumy,sbig,cc3,cc4,ctw13,cta13,qp,d11
+      real(ikind) alpha,deplow,dd,cc0,deg,pd,wskeep
 !
       INTEGER, ALLOCATABLE :: KRC(:),JR(:)
-      REAL, ALLOCATABLE :: RKK(:),angl(:),hsgg(:),ijbp(:,:),   &
+      REAL(ikind), ALLOCATABLE :: RKK(:),angl(:),hsgg(:),ijbp(:,:),   &
                            h13a(:),h13b(:),dd11(:)
       INTEGER II,JJ,KK,iddd
 !
@@ -4379,7 +4327,7 @@ contains
           if(k3(k).ge.6) then
             cc=dstruc33(k)
             if(cc.lt.0.) cc=0.
-            c1=0.64*(h13(iii-1,jop)/c3)**0.31+0.4*cc/(h13(iii-1,jop)+.01)
+            c1=0.64 * (h13(iii-1,jop)/c3)**0.31 + 0.4*cc/(h13(iii-1,jop)+.01)
             c2=cflat*sqrt(sj(jop))/(h13(iii-1,jop)+.01)
             if(c1.gt..99) c1=.99
             if(c1.lt..01) c1=.01
@@ -5481,25 +5429,18 @@ contains
 !  independent variables are x,y,q(angle)
 !  intrinsic frequency is obtained form dispersion relation
 !------------------------------------------------------------
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /SPECC/SJ(JGPX),SJF(JGPX,NPF),FJF(JGPX)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      common /brek/depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      common /sgma01/sgma0(jgpx,mpd),sgma1(jgpx,mpd)
-      common /ccg/cwk(jpmx,2,mpd),cgk(jpmx,2,mpd)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      REAL, ALLOCATABLE :: scpp(:,:),ssmax(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: MPD,JGPX
+      use wave_def, only: akap,imd,isolv,NF,MD,MDD,JGMX,ICHOICE,ws,IBACK
+      use wave_def, only: FCN,DCM,IJB,SCP,SI,SJ,DF,sgma0,sgma1,d1       !Dynamic allocation by Wu, 2025-Jan     
+      implicit none
+      integer II,IKAP
+      integer IFC,k,JCP,JJ,JJB,JB,JE,MM,JJSI,large,md1,md4
+      integer NMX,JBE,mb,me,MARK
+      real(ikind) eliml,FC,DFC,aakap,amd2,slarge,alarge,cc,sum,cc1
+      real(ikind) c1,c2,c3,dscp,DC,sjm
+
+      REAL(ikind), ALLOCATABLE :: scpp(:,:),ssmax(:)
       ALLOCATE (scpp(jgpx,mpd),ssmax(jgpx))
 
 ! -- small lower limit value
@@ -5780,7 +5721,7 @@ contains
 
 !--------------------------------------------------------
 !  at this stage si(jbe,nn,mm) is obtained
-!  revison of spectral energy at no wave solutioin 
+!  revison of spectral energy at no wave solution 
 !  for frequency components
 !    1. integration of si(jbe,nn,mm) with respect to mm
 !    2. spectral form of f^-5 is assumed
@@ -5804,17 +5745,13 @@ contains
 !    for determination of wave action
 !    and for check of wave existing
 !--------------------------------------
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
-      common /vpai/pai2,pai,hpai,rad,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /data/nf,md,imax,jmax,igmx,jgmx,jcpb,jcpe,jcb,JCE,NFF,MDD
-      common /ijbp/ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),DBIG(IPMX)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /sgma01/sgma0(jgpx,mpd),sgma1(jgpx,mpd)
-      common /fds/fcn(npf),dcm(mpd),dsfd(npf,mpd)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
+      use prec_def     
+      use wave_def, only: pai2,imd,md,d1,u1,v1,sgma0,sgma1,fcn,dcm,wk2   !Dynamic allocation by Wu, 2025-Jan      
+      implicit none           !Added by Wu 2025_Jan
+      integer ii,jb,je,nn
+      integer jj,mm,i1
+      real(ikind) om,depm,um,vm,cw,cg,sig,akk
+ 
       om=pai2*fcn(nn)
 
 ! -- The following ii and ii-1 routines are better than original
@@ -5868,23 +5805,14 @@ contains
 !  variables needed for determination of
 !   wave breaking dissipation are also calculated
 !---------------------------------------------------
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,igpx,jgpx
-      common /data/nf,md,imax,jmax,igmx,jgmx,jcpb,jcpe,jcb,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      common /fds/fcn(npf),dcm(mpd),dsfd(npf,mpd)
-      common /vpai/pai2,pai,hpai,rad,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      common /ijbp/ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),DBIG(IPMX)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /ccg/cwk(jpmx,2,mpd),cgk(jpmx,2,mpd)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /wavi/h13(igpx,jgpx),t13(igpx,jgpx),dmn(igpx,jgpx)
+      use prec_def     
+      use wave_def, only: md,ICK3,ICK4,TP,DVARX,DVARY,dcm,pai2,imd,depmax0,  &     !Dynamic allocation by Wu, 2025-Jan
+                      ijb,dep,d1,cwk,cgk,DEPM,DMNJ,SLF,wlmn,cmn,sigm,u,v,u1,v1,t13     
+      implicit none           !Added by Wu 2025_Jan
+      integer ii,jb,je,i1,mm,jj,jjb,jje,jj1,jjb1
+      real(ikind) fc,g,om,cw,cg,sig,akk
+      real(ikind) dep11,u11,v11,dep12,u12,v12,dep21,u21,v21,dep22,u22,v22
+      real(ikind) t3,omt3,dep1,dep2,slx,sly,depb,um,vm,dmean
 
       g=9.806
       jje=je-jb+1
@@ -5944,7 +5872,7 @@ contains
   130   continue
 
 !------------------------------------------------------------
-!  mean values bellow are used in wave breaking dissipation
+!  mean values below are used in wave breaking dissipation
 !    omt3 is angular frequency corresponding to T3
 !    dmnj(jjb) is mean direction at (ii-1) location
 !------------------------------------------------------------
@@ -5997,7 +5925,8 @@ contains
 !-----------------------------------------------------
 !  when no solution and cg+u<0, sg=-1,....., are set
 !-----------------------------------------------------
-      real k,kn
+      use prec_def     
+      real(ikind) k,kn
       g=9.806
       eps=1.0e-05
       icon=0
@@ -6067,33 +5996,27 @@ contains
 !------------------------------------------------
       SUBROUTINE SETAB_inline(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
 !  akap= coefficient of diffraction term
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX,MPMX
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /CCG/CWK(JPMX,2,MPD),CGK(JPMX,2,MPD)
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /AB/AA(5,MPMX),IA(5,MPMX),B(MPMX),X(MPMX)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /uvp/u(ipmx,jpmx),v(ipmx,jpmx)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /uvwind/u10(ipmx,jpmx),v10(ipmx,jpmx)
-      common /fric/bfric(ipmx,jpmx),amud(ipmx,jpmx)
-      common /sgma01/sgma0(jgpx,mpd),sgma1(jgpx,mpd)
-      COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
+      use prec_def     
+      use wave_def, only: PAI2,PAI,HPAI,RAD,akap,iprp,igrav,imd,nonln,imud,   &
+                          NF,MD,MDD,ICK3,ICHOICE,HS0,wd,ws,ph0,wdd,      &
+                          TP,IBACK,IWIND,WSMAG,DTH,DXX,depmax0,HSG,      &
+                          DVARX,DVARY,IJB,DEP,DBIG,CWK,CGK,SCP,SI,       &
+                          AA,IA,B,DCM,IWVBK,d1,u,v, u1,v1, u10,v10,      &
+                          cosa,sina,bfric,amud,ix1,H13,T13,g,iview         !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JB,JE,NMX,IFC,IKAP,JMESH,NN,M,N,jgrav,jm,JJ
+      integer nln,JBV,J1,II1,JBM,JJM,KK,na2,na3
+      real(ikind) FC,DFC,g2,om,om2,om4,om8,om5,om2g,om35,wss,winp1,deca1
+      real(ikind) winp2,aakap,afact,winln,ph00,om51,gamma1,gamma2,t3,om1
+      real(ikind) cc,cc1,cc2,om52,om81,hsij,aamud,gam,hx1,hx2,hy1,hy2,ht
+      real(ikind) ux1,ux2,uy1,uy2,vx1,vx2,vy1,vy2,um,vm,dhx,dhy,dux,dvx,duy,dvy
+      real(ikind) cab,thc,CWX1,CWX2,CWY1,CWY2,CGX1,CGX2,CGY1,CGY2
+      real(ikind) ccg1,ccg2,ccgm,ccgn,cgu1,cgu2,cgv1,cgv2,ccgt
+      real(ikind) uuu1,uuu2,vvv1,vvv2,q1,cw1,cg1,sg1,akk1,rkd1,sgh1
+      real(ikind) q2,cw2,cg2,sg2,akk2,rkd2,sgh2,rkd,akk,cgg,agg,ann,aan,bbn
+      real(ikind) sin2q1,sin2q2,vt1,vt2,ccg,winp,sinp,fd1,ac,fd2,deca
+      real(ikind) f1,f2,f3,cc3,amp,fric,a1,c1,c2,a2,a3,a4,a5,vkr,agl
+      real(ikind) :: ckr_inline,akr_inline    !Functions 
 
       g2=g/2.
       om=pai2*fc
@@ -6232,7 +6155,7 @@ contains
         dvy=vy2-vy1
         JJM=JM
         if(jj .ge. je-1) dhy = 0 !bdj 2023-11-02
-
+        
 ! -- setup of energy dissipation term
 ! -- JJM= local #, JJ= GLOBAL_INLINE #
         cab=0.
@@ -6612,14 +6535,12 @@ contains
 !  parameters used in this subroutine are calculated 
 !    in subroutine veloc
 !---------------------------------------------------------------
-      USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
+      use prec_def     
       USE global_inline, ONLY: gamma_bj78                    !added MEB 10/19/2021
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      use wave_def, only: IBK,HSB,DEPM,SLF,wlmn,sigm,PAI2    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,om,slj,gama,alfabj,H13,hrms,dep,wnk,sig,hmax,B,Q0,Qb,B2,EQ0,Dab    
 
 ! --- ibk=1 and jbv>=6 means no wave breaking
       IF(IBK.EQ.1) GOTO 10
@@ -6685,15 +6606,14 @@ contains
 !  energy dissipation term is Battjes and Janssen's(2007)
 !    also based on Alsina and Baldock (2007)
 !---------------------------------------------------------------
-      USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      common /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-    
+      use prec_def     
+      USE GLOBAL_inline, ONLY: JGPX
+      use wave_def, only: IBK,HSB,DEPM,wlmn,sigm,PAI2,IBR    !Dynamic allocation by Wu, 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ,i,j,j2,ijbr
+      real(ikind) CAB,wnk,y2,y,Hmax,fp,Hrms,R,Qb,Db
+      real(ikind) :: erf_inline          !Function                       
+         
       cab=0.0
     
 ! --- ibk=1 and jbv>=6 means no wave breaking
@@ -6708,8 +6628,9 @@ contains
 
       y2=0.76*wnk*depm(jm)+0.29  !Grasmeijer
       y=max(0.64,y2) 
-	
-      Hmax=0.88/wnk*tanh(y*wnk*d/0.88)       
+
+      !Hmax=0.88/wnk*tanh(y*wnk*d/0.88)       
+      Hmax=0.88/wnk*tanh(y*wnk*depm(jm)/0.88)      !Changed by Wu, 2025-Jan 
       Hmax=max(Hmax,0.64*depm(jm))
       if(Hsb(jj).le.0.72*Hmax.and.ijbr.eq.0) return  !Alex, for random waves
 
@@ -6766,14 +6687,13 @@ contains
 !  parameters used in this subroutine are calculated 
 !    in subroutine veloc
 !---------------------------------------------------------------
-      USE GLOBAL_inline, ONLY: A,NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      use prec_def     
+      USE GLOBAL_inline, ONLY: A
+      use wave_def, only: TP,DXX,IBK,WL0,HSB,DEPM,SLF,cmn,PAI    !!Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,um,vm,fc,ced,slj,ALF,g,qstar,ed,SL43,TANB,EXD,HB
+      real(ikind) DLHB,H13,X1,X2,PR1,PX1,PR2,PX2
 
 ! -- ibk=1 and jbv>=6 means no wave breaking
       ced=1.0
@@ -6872,13 +6792,11 @@ contains
 !    following Thornton and Guza's approach (1983)
 !  parameters used in this subroutine are calculated in subroutine velo!  
 !---------------------------------------------------------------
-      USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      use prec_def     
+      use wave_def, only: IBK,HSB,DEPM,SLF,wlmn,sigm,PAI2      !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,slj,g,gama,beta,H13,hrms,dep,wnk,sig,tkh,ab,dab1,dab2,dab3,dab      
 
 ! -- ibk=1 and jbv>=6 means no wave breaking
       IF(IBK.EQ.1) GOTO 10
@@ -6927,13 +6845,11 @@ contains
 !  parameters used in this subroutine are calculated 
 !    in subroutine veloc
 !---------------------------------------------------------------
-      USE GLOBAL_inline, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DATG/IBK,DBAR,WL0,WCC(JGPX),HSB(JGPX),HSG(JGPX),DCD(JGPX)
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx),  &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      use prec_def     
+      use wave_def, only: DXX,IBK,HSB,DEPM,SLF,wlmn,cmn    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,fc,gmh,ALF,SLJ,gm,HB,DLHB,H13,X1,X2,PX1,PR1,PX2,PR2    
 
 ! -- skip of large wavenumber
       if(wlmn(jm).le.0.0) go to 10
@@ -6980,10 +6896,11 @@ contains
 !------------------------------------------------
 !  FINDING REFLECTION COEFF.
 !------------------------------------------------
-      FUNCTION CKR_inline(II,JJ)
+      real FUNCTION CKR_inline(II,JJ)
 !  ****   FINDING REFLECTION COEFF. CALLED BY SETAB
-      USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
-      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
+      use wave_def, only: KRMX,KR,RK      !Dynamic allocation by Wu, 2024-11
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JJ,K
 	  
       K=1
    20 IF(KR(1,K).EQ.II) GOTO 10
@@ -7001,10 +6918,11 @@ contains
 !------------------------------------------------
 !  FINDING structure angle
 !------------------------------------------------
-      FUNCTION aKR_inline(II,JJ)
+      real FUNCTION aKR_inline(II,JJ)
 !  ****   FINDING structure angle CALLED BY SETAB
-      USE GLOBAL_INLINE, ONLY: KOMX,NOMX,IPMX,JPMX
-      COMMON /REFA/KRMX,KR(2,6*IPMX),RK(6*IPMX),yangl(6*IPMX)
+      use wave_def, only: KRMX,KR,yangl    !Dynamic allocation by Wu, 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JJ,K
 	  
       K=1
    20 IF(KR(1,K).EQ.II) GOTO 10
@@ -7023,15 +6941,15 @@ contains
 !  CALCULATION OF Matrix BY GAUSS-SEIDEL METHOD
 !------------------------------------------------
       SUBROUTINE GSM_inline(II,JB,JE,NMX,MARK)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /AB/AA(5,MPMX),IA(5,MPMX),B(MPMX),X(MPMX)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      REAL,ALLOCATABLE :: x0(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: MPMX
+      use wave_def, only: MD,ws,DMESH,SCP,AA,IA,B,X,imd    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JB,JE,NMX,MARK
+      integer LIM,JUDG,I,ICC,IP,K,J,M
+      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,MX,PX
+
+      REAL(ikind),ALLOCATABLE :: x0(:)
       ALLOCATE (x0(mpmx))
 
       LIM=1000
@@ -7126,68 +7044,51 @@ contains
 !  subroutine to output the results 
 !-------------------------------------------------
       SUBROUTINE OUTFILE_inline
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,MPD2,IPMX,JPMX,KOMX,NOMX,IGPX,JGPX
+      use prec_def     
       use diag_lib, only: diag_print_message
+      use wave_def, only: PAI2,PAI,HPAI,RAD,imod,iprp,igrav,ixmdf,    &
+                          NF,MD,IMAX,JMAX,IGMX,JGMX,NFF,MDD,          &
+                          ICK4,ICHOICE,HS0,wd,ws,TIDE,NBLOCK,         &
+                          kdate,idate,depmax,DVARX,DVARY,ETA,SOP,     &
+                          KOUT,IJSP,IRS,IBREAK,ICUR,IWET,INST,        &
+                          nest,inest,jnest,ix1,ix2,IJB,H13,T13,DMN,   &
+                          H13R,T13R,DMNR,H13S,IBR,DISS,H13F,DMNF,T13F,T13MIN,    &
+                          FCN,FFCN,DFINP,PL1E,PL1T,dvarxx,dvaryy,wxrs,wyrs,      &
+                          d1,igetfile20,nship,disx,disy,ShipL,ShipB,ShipD,ShipS,  &
+                          u1,v1,ijstruc1,ijstruc2,ijstruc4,istruc1,   &
+                          jstruc1,dstruc1,istruc2,jstruc2,dstruc2,    &
+                          istruc4,jstruc4,dstruc4,dstruc44,           &
+                          sw13,sa13,tw13,ta13,dw13,da13,              &
+                          x0,y0,azimuth,isteer,iidate,sinaz,cosaz,    &
+                          DepFile,g,iview,iplane,irunup,wavefile
+      USE GLOBAL_INLINE, ONLY: NPF,MPD2,IPMX,JPMX
+      implicit none           !Added by Wu 2025_Jan
+      
+      integer mddd,kk,i,j,kn,ki,kj,idate1,kdate1,n00,n0,mm,m1,m2,NN,nn1
+      integer imax1,jmax1,kblock,k,iblock,jblock,ksim,ii,jj,isim,jsim
+      integer is,js,ii1,jj1,nj2,ibrij,ni,nj,n,nix,niy,kni,knj,kii,kjj
+      integer inear,kni201,knj201,ll,i14,ij
+      real(ikind) ammd,wdrad,xdis,ydis,xc,yc,fpp,h13ij,c0,c1,c2,c3,c4
+      real(ikind) sum,sum1,sum0,cc,h13fij,cx,cy,cc1,cc2,x00,y00,az0,smesh
+      real(ikind) cosaz0,sinaz0,az1,cosaz1,sinaz1,gsi,gsj,gxs,gys,gxs1,gys1
+      real(ikind) a1,a2,a3,a4,hh13,tt13,dmn13,a0,uu13,vv13,gxrr,gyrr
+      real(ikind) t13ij,dmnij,dissij,wxrsij,wyrsij,dep00,sum2,t13fij
+      real(ikind) tship1,tship2,xship0,yship0,aship0,vship0,tship0,shipR
+      real(ikind) ship20LD,cb,alpha,dship0,Fstar,beta,cship0,hship0
+      real(ikind) xshipc,yshipc,zshipc,ashipc,c5,dx2,dy2,h13cij,ccc,uu1,vv1
+
       double precision edate
-      REAL, ALLOCATABLE :: SPCT(:),SPCT1(:),dep0(:,:),dsss(:,:),tmp(:,:)
-      REAL, ALLOCATABLE :: gxx1(:), gyy1(:)
+      REAL(ikind), ALLOCATABLE :: SPCT(:),SPCT1(:),dep0(:,:),dsss(:,:),tmp(:,:)
+      REAL(ikind), ALLOCATABLE :: gxx1(:), gyy1(:)
       
       !Change the following variables to allocatable and then allocate later   MEB  11/16/21
-      real, allocatable :: sp1(:,:),aship(:,:),eship(:,:)
-      real, allocatable :: xship1(:),yship1(:),xship2(:),yship2(:)
-      
-      
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /SPECB/SOP(KOMX,NPF,MPD2),SR(2*IPMX,NPF,MPD)
-      COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-      COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
-      COMMON /IJBP/IJB(IGPX,JGPX),DEP(IPMX,JPMX),DEPS(IPMX),DBIG(IPMX)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVR/H13R(IGPX,JGPX),T13R(IGPX,JGPX),DMNR(IGPX,JGPX)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /WAVF/H13F(IGPX,JGPX),DMNF(IGPX,JGPX),T13F(IGPX,JGPX),T13MIN
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      common /dxxdyy/dvarxx(ipmx),dvaryy(jpmx)                              !Wu
-      common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsz/ igetfile20,nship,disx(ipmx),disy(jpmx)
-      common /ship/ShipL(30),ShipB(30),ShipD(30),ShipS(30)
-      common /uv1/u1(ipmx,jpmx),v1(ipmx,jpmx)
-      common /struc0/ijstruc1,ijstruc2,ijstruc3,ijstruc4,ismall
-      common /struc1/istruc1(komx),jstruc1(komx),dstruc1(komx)
-      common /struc2/istruc2(NOMX),jstruc2(NOMX),dstruc2(NOMX)
-      common /struc3/istruc3(komx),jstruc3(komx),dstruc3(komx), &
-                     k3(komx),dstruc33(komx)
-      common /struc4/istruc4(komx),jstruc4(komx),dstruc4(komx), &
-                     kstruc4(komx),k4(komx),dstruc44(komx)
-      common /swell/sw13(igpx,jgpx),sa13(igpx,jgpx), &
-                    tw13(igpx,jgpx),ta13(igpx,jgpx), &
-                    dw13(igpx,jgpx),da13(igpx,jgpx)
-      common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,    &
-                         WaveFile, ObsFile, EngOutFile, NestFile,   &
-                         BreakFile, RadsFile, StrucFile, SurgeFile, &
-                         MudFile, FricFile, FrflFile, BrflFile,     &
-                         SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll                         
-      logical getfile22
-      CHARACTER*180 WaveFile,ObsFile,EngOutFile,BreakFile,RadsFile
-      CHARACTER*180 OptsFile,DepFile,CurrFile,EngInFile
-      CHARACTER*180 NestFile,StrucFile,SurgeFile
-      CHARACTER*180 MudFile,FricFile,FrflFile,BrflFile,WindFile
-      CHARACTER*180 SpecFile, XMDFFile,SetupFile,ShipFile
-      CHARACTER*180 SeaFile, SwellFile, TotalFile                      !Mitch 3/22/2017
+      real(ikind), allocatable :: sp1(:,:),aship(:,:),eship(:,:)
+      real(ikind), allocatable :: xship1(:),yship1(:),xship2(:),yship2(:)
+      logical getfile22, is66open
+
       ALLOCATE (SPCT(MPD2),SPCT1(MPD2),dep0(ipmx,jpmx),dsss(ipmx,jpmx))
       ALLOCATE (gxx1(ipmx),gyy1(jpmx),tmp(ipmx,jpmx))
-
+      
       g=9.806
       ammd=float(mdd-1)/float(md-1)
 
@@ -7196,11 +7097,14 @@ contains
       else
         mddd=mdd*2
       end if
-        
+      
       allocate(sp1(npf,mddd))         !This variable normally is of dimension: npf, mpd.  That is too small in some cases with backward reflection.
-      allocate(aship(410,410),eship(410,410))
-      allocate(xship1(mpd),yship1(mpd),xship2(mpd),yship2(mpd))
-        
+      
+      allocate(aship(410,410),eship(410,410))   !This 410 needs to be checked.  Wu
+      
+  !these variables have highest dimension of nship in the code. possible problem  !Wu Spt 2024
+      allocate(xship1(nship),yship1(nship),xship2(nship),yship2(nship))   !Wu 
+      
       wdrad=wd
       if(iprp.ne.1) wdrad=wd/rad
       IF(nest.GE.1) THEN
@@ -7268,7 +7172,7 @@ contains
               WRITE(30,9014) idate,ws,wdrad,fpp,Tide,xc,yc,h13ij
             end if
           end if
-
+          
           n00=0
           DO n0=1,NFF    !935 
             if(ffcn(n0).lt.fcn(1)) then
@@ -7363,7 +7267,7 @@ contains
             ENDDO
   930       CONTINUE
           ENDDO
-  935     CONTINUE
+935       CONTINUE
 
           sum=0.
           sum1=0.
@@ -7406,7 +7310,7 @@ contains
             end if
           enddo
   920   CONTINUE
-      END IF
+      END IF    
 !
 ! -- total significant wave height
 !
@@ -7477,8 +7381,9 @@ contains
   190     continue
           close(35)
         end if
-
+        
         if(iplane.eq.1) go to 430
+
         if(ksim.eq.1) then
           open(25,file='wave.pts',status='unknown')
           if(kdate.gt.0) then
@@ -7577,7 +7482,7 @@ contains
       end if
 
 !     End special output for imod = 0 and simgrid.dat exists
-430   continue
+430 continue
 
       if(icur.ge.1) go to 291
       if(wd.ne.0.) go to 291
@@ -7628,7 +7533,7 @@ contains
         end if
 290   continue
 291   continue
-
+      
       if(iplane.eq.1) go to 431
       if(ibreak.ge.2.and.ixmdf.eq.0) then
         if(kdate.gt.0) then
@@ -7990,8 +7895,9 @@ contains
   238       continue
   220     CONTINUE
         END IF
-
+        
         if(igetfile20.eq.1) then
+            
           read(39,*) tship1,(xship1(n),yship1(n),n=1,nship)
           read(39,*) tship2,(xship2(n),yship2(n),n=1,nship)
           backspace(39)
@@ -8130,7 +8036,7 @@ contains
             enddo
           enddo  
   299     continue
-        end if
+        end if    
 !
 !***** There is need to reset back reflection variables here
 !
@@ -8228,9 +8134,10 @@ contains
         end if
       end if
 !
-      !Check to see if .wav file is still attached to Unit 66.
-      inquire(66,OPENED=is66open)
-      if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  !File should already be created at this point.
+      !Check to see if .wav file is still attached to Unit 66. 
+      inquire(66,OPENED=is66open) 
+      if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  !File should already be created at this point. 
+
       if(kdate.gt.0) then
         if(idate.le.9999) then
           idate1=mod(kdate,10)*100000+idate
@@ -8332,7 +8239,7 @@ contains
           if(irs.ge.2.and.kout.ge.0) write(98,699) (dmn(i,j)+sign(90.,eta(i,j))-90.,i=1,igmx)
         ENDDO
       end if
-
+      
       if(imod.eq.2) then
         DO J=1,JGMX   !2050 
           if(depmax.ge.1..and.irs.le.1) then
@@ -8378,7 +8285,7 @@ contains
           if(irs.ge.2.and.kout.ge.0) write(98,699) (dmn(i,j)+sign(90.,eta(i,j))-90.,i=igmx,1,-1)
         ENDDO   
       end if
-
+      
       if(imod.eq.1) then
         DO I=IGMX,1,-1   !1050 
           if(depmax.ge.1..and.irs.le.1) then
@@ -8424,7 +8331,7 @@ contains
           if(irs.ge.2.and.kout.ge.0) write(98,699) (dmn(i,j)+sign(90.,eta(i,j))-90.,j=jgmx,1,-1)
         ENDDO   
       end if
-
+      
       if(imod.eq.3) then
         DO I=1,IGMX   !3050 
           if(depmax.ge.1..and.irs.le.1) then
@@ -8457,7 +8364,7 @@ contains
           end if
           if(irs.ge.2.and.kout.ge.0) write(98,97)(dsss(i,j),j=1,jgmx)
         ENDDO   
-        
+      
         DO I=1,IGMX   !3052 
           write(66,69)  (DMN(I,J),J=1,JGMX)
           if(iwet.lt.0) then
@@ -8770,8 +8677,9 @@ contains
           end if
   120   CONTINUE
       end if
-
+      
       DEALLOCATE (SPCT,SPCT1,dep0,dsss,gxx1,gyy1,tmp)
+      deallocate (sp1,aship,eship,xship1,yship1,xship2,yship2)      !Added by Wu, Nov. 2024
 	  
       RETURN
       END SUBROUTINE OUTFILE_inline
@@ -8798,6 +8706,16 @@ contains
 ! VARIABLES IN OTHER MODULES TO USE
       USE diag_lib, only: diag_print_error
       USE diag_def, only: msg, msg2, msg3
+      use wave_def, only: OptsFile, DepFile, CurrFile, EngInFile,    &   !Dynamic allocation by Wu, 2024
+                          WaveFile, ObsFile, EngOutFile, NestFile,   &
+                          BreakFile, RadsFile, StrucFile, SurgeFile, &
+                          MudFile, FricFile, FrflFile, BrflFile,     &
+                          SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
+                          SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
+      use wave_def, only: RAD,x0,y0,azimuth,sinaz,cosaz  !Dynamic allocation by Wu, 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer ILOC
+      
 ! ARGUMENT DECLARATIONS
       CHARACTER     SimFile*180
       CHARACTER     Name*180
@@ -8807,27 +8725,8 @@ contains
       CHARACTER     FileName*180
       CHARACTER     ThePath*180
       CHARACTER     CARD*6
-!     Input file variables
-      CHARACTER*180  OptsFile, DepFile, CurrFile, EngInFile, StrucFile
       CHARACTER*10  text1
       CHARACTER*80  text2
-!     Output/Input file variable
-      CHARACTER *180 NestFile, SurgeFile
-!     Output file variables
-      CHARACTER*180 WaveFile,ObsFile,EngOutFile,BreakFile,RadsFile 
-      CHARACTER*180 MudFile, FricFile, FrflFile, BrflFile, WindFile
-      CHARACTER*180 SpecFile, XMDFFile,SetupFile,ShipFile
-      CHARACTER*180 SeaFile, SwellFile, TotalFile                      !Mitch 3/22/2017
-      common /FileNames/ OptsFile, DepFile, CurrFile, EngInFile,    &
-                         WaveFile, ObsFile, EngOutFile, NestFile,   &
-                         BreakFile, RadsFile, StrucFile, SurgeFile, &
-                         MudFile, FricFile, FrflFile, BrflFile,     &
-                         SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                         SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,   &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /origin/x0,y0,azimuth,isteer,iidate,sinaz,cosaz
-
       character(len=100) :: apath,aname,aext
       character :: delimeter
       
@@ -9065,18 +8964,14 @@ contains
 
 !********************************************************************************
       subroutine dissip1_inline(i)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /rse/ex(ipmx,jpmx),ey(ipmx,jpmx)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,   &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      REAL, ALLOCATABLE :: exx(:),eyy(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: IPMX,JPMX
+      use wave_def, only: cosa,sina,d1,wk2,NF,MD,JGMX,SI,FCN,ex,ey,PAI2,imd,iplane   !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer i,j,l,k
+      real(ikind) sumxx,sumyy,d1ij,cc,tkd,fns
+      
+      REAL(ikind), ALLOCATABLE :: exx(:),eyy(:)
       ALLOCATE (exx(ipmx),eyy(jpmx))
 
       do j=2,jgmx-1
@@ -9132,21 +9027,15 @@ contains
 
 !********************************************************************************
       subroutine dissip_inline(i)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /rse/ex(ipmx,jpmx),ey(ipmx,jpmx)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,    &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(jgpx), &
-                   sigm(jgpx),IWVBK,ibk3
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      REAL, ALLOCATABLE :: exx(:),eyy(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: IPMX,JPMX
+      use wave_def, only: d1,wk2,MD,JGMX,KPEAK,DTH,ex,ey,HPAI,  &     !Dynamic allocation by Wu 2025-Jan
+                          imd,DMNJ,H13,T13,iplane
+      implicit none           !Added by Wu 2025_Jan
+      integer i,j,ipeak
+      real(ikind) cgpeak,d1ij,cc,wkpeak,tkd
+
+      REAL(ikind), ALLOCATABLE :: exx(:),eyy(:)
       ALLOCATE (exx(ipmx),eyy(jpmx))
 
       do j=2,jgmx-1
@@ -9196,16 +9085,14 @@ contains
 	
 !********************************************************************************
       subroutine dfds_inline
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /FDS/FCN(NPF),DCM(MPD),DSFD(NPF,MPD)
-      COMMON /DFCN/DF(NPF),FFCN(NPF),DFINP(NPF),PL1E(NPF),PL1T(NPF)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /rse/ex(ipmx,jpmx),ey(ipmx,jpmx)
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      REAL, ALLOCATABLE :: exx(:,:),eyy(:,:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: IPMX,JPMX
+      use wave_def, only: IMAX,JMAX,IGMX,JGMX,DVARX,DVARY,DISS,ex,ey,g,iplane   !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer i,j,ni1,nj1
+      real(ikind) dx2,dx2ni,dy2,dy2nj
+
+      REAL(ikind), ALLOCATABLE :: exx(:,:),eyy(:,:)
       ALLOCATE (exx(ipmx,jpmx),eyy(ipmx,jpmx))
 
       ni1=igmx-1
@@ -9250,7 +9137,7 @@ contains
         diss(i,1) =diss(i,2)
         diss(i,jgmx)=diss(i,nj1)
       end do
-
+      
       diss=diss*g
 
       if(iplane.eq.1) then
@@ -9272,19 +9159,12 @@ contains
 
 !********************************************************************************
       subroutine sxycalc_inline(i)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX
-      common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
-      common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
-      common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
-      common /rsd/ sxyy(ipmx,jpmx),syyy(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
+      use prec_def     
+      use wave_def, only: sxx,sxy,syy,cosa,sina,d1,wk2,NF,MD,JGMX,IBACK,SI,imd  !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer i,j,nj1,l,k
+      real(ikind) g,sumxx,sumyy,sumxy,d1ij,cc,tkd,fns
+      
       g=9.806
       nj1=jgmx-1
 
@@ -9332,25 +9212,17 @@ contains
 
 !********************************************************************************
       subroutine rstress_inline
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,KOMX
-      common /rsa/ sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx)
-      common /rsb/ wxrs(ipmx,jpmx),wyrs(ipmx,jpmx)
-      common /rsc/ sxxx(ipmx,jpmx),sxyx(ipmx,jpmx)
-      common /rsd/ sxyy(ipmx,jpmx),syyy(ipmx,jpmx)
-      common /rsm/ cosa(mpd),sina(mpd),d1(ipmx,jpmx)
-      common /rsw/ wk2(jpmx,npf,mpd),cgp(ipmx,jpmx)
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /DVAR/DVARX(IGPX),DVARY(JGPX),ETA(IGPX,JGPX),HSK(JGPX)
-      COMMON /WAVI/H13(IGPX,JGPX),T13(IGPX,JGPX),DMN(IGPX,JGPX)
-      COMMON /WAVS/H13S(IGPX,JGPX),IBR(IGPX,JGPX),DISS(IGPX,JGPX)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-      common /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-      REAL, ALLOCATABLE :: exx(:,:),eyy(:,:),sr(:,:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: IPMX,JPMX
+      use wave_def, only: sxx,sxy,syy,wxrs,wyrs,sxxx,sxyx,sxyy,syyy,d1,cgp,   &
+                          IMAX,JMAX,IGMX,JGMX,HS0,DVARX,DVARY,H13,T13,DMN,    &
+                          IBR,DISS,PAI2,RAD,IBREAK,g,iplane,iroll          !Dynamic allocation by Wu 2025-Jan  
+      implicit none           !Added by Wu 2025_Jan
+      integer i,j,ni1,nj1,i1,iadd1,isub1,jadd1,jsub1
+      real(ikind) br,ceff,wkpeak,c1,dy2,cyij1,cyijp1,DcySrDy,Dr,Dw,Wij
+      real(ikind) cxij,cxi1j,dx2,dx2ni,dy2nj,cc,ss,sdis,ssc,cc1
+
+      REAL(ikind), ALLOCATABLE :: exx(:,:),eyy(:,:),sr(:,:)
       ALLOCATE (exx(ipmx,jpmx),eyy(ipmx,jpmx),sr(ipmx,jpmx))
 
       br = 0.025
@@ -9361,12 +9233,12 @@ contains
 !     ceff is the fraction of the broken wave energy into roller
 !     Dally and Brown put 1 but Tajima used 0.5
 !     For iroll=4, br = 0.1 & ceff = 1
-
+      
       Sr=0.0
       ni1=igmx-1
       nj1=jgmx-1
 
-      if(ibreak.le.1) go to 111
+      if(ibreak.le.1) go to 111     
       if(iroll.eq.0) go to 111
       br=br*float(iroll)
       ceff=ceff*float(iroll)
@@ -9556,10 +9428,10 @@ contains
 
 !********************************************************************************
       SUBROUTINE RUNNING_TIME_inline(TIME_BEGIN,TIME_END)
-
-      REAL TIME_BEGIN,TIME_END,RTIME
+      use prec_def     
+      REAL(ikind) TIME_BEGIN,TIME_END,RTIME
       INTEGER HH,MM
-	  REAL SS
+	  REAL(ikind) SS
 
       RTIME=TIME_END-TIME_BEGIN
       HH=RTIME/3600.
@@ -9578,15 +9450,15 @@ contains
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
 !------------------------------------------------
       SUBROUTINE GSR_inline(II,JB,JE,NMX,MARK)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /AB/AA(5,MPMX),IA(5,MPMX),B(MPMX),X(MPMX)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,    &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      REAL,ALLOCATABLE :: X0(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: MPMX
+      use wave_def, only: MD,ws,DMESH,SCP,AA,IA,B,X,imd     !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JB,JE,NMX,MARK,MX
+      integer I,J,M,LIM,JUDG,ICC,IO,IP,I0
+      real(ikind) DLTA,ws1000,XXMAX,ABXX,XLIM,XMAX,PPX,PX,XX,S
+
+      REAL(ikind),ALLOCATABLE :: X0(:)
       ALLOCATE (X0(mpmx))
 
       LIM=1000
@@ -9693,17 +9565,17 @@ contains
 !  By Zhang & Wu, NCCHE, Oct. 1, 2009
 !------------------------------------------------      
       SUBROUTINE ADI_inline(II,JB,JE,NMX,MARK)
-      USE GLOBAL_INLINE, ONLY: NPF,MPD,IPMX,JPMX,IGPX,JGPX,MPMX
-      COMMON /DATA/NF,MD,IMAX,JMAX,IGMX,JGMX,JCPB,JCPE,JCB,JCE,NFF,MDD
-      COMMON /DATB/ICK3,ICK4,ICHOICE,HS0,wd,ws,ph0,wdd(mpd),aslop(ipmx)
-      COMMON /DATD/DX,DY,DXX,DMESH,DTH,kdate,idate,depmax,depmax0
-      COMMON /SPECA/SCP(JGPX,MPD),SI(JGPX,NPF,MPD)
-      COMMON /AB/AA(5,MPMX),IA(5,MPMX),B(MPMX),X(MPMX)
-      COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                   nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-      REAL, ALLOCATABLE :: AN(:,:), AS(:,:), AE(:,:), AW(:,:), AP(:,:)
-      REAL, ALLOCATABLE :: SU(:,:), F(:,:), F0(:,:)
-      REAL, ALLOCATABLE :: AA1(:), BB1(:), CC1(:), DD1(:)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: MPD,JPMX
+      use wave_def, only: MD,DMESH,SCP,AA,IA,B,imd       !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JB,JE,NMX,MARK
+      integer J,M,LIM,MX,JUDG,Iter
+      real(ikind) DLTA,XMAX,TERM1,TERM,PPX
+
+      REAL(ikind), ALLOCATABLE :: AN(:,:), AS(:,:), AE(:,:), AW(:,:), AP(:,:)
+      REAL(ikind), ALLOCATABLE :: SU(:,:), F(:,:), F0(:,:)
+      REAL(ikind), ALLOCATABLE :: AA1(:), BB1(:), CC1(:), DD1(:)
       INTEGER,ALLOCATABLE :: JJ(:,:), MM(:,:), NE(:,:), NW(:,:)      
       ALLOCATE (AN(JPMX,MPD),AS(JPMX,MPD),AE(JPMX,MPD),AW(JPMX,MPD),      &
                 AP(JPMX,MPD),SU(JPMX,MPD),F(0:JPMX,0:MPD),F0(0:JPMX,0:MPD))
@@ -9841,19 +9713,13 @@ contains
 ! written by Mitchell Brown, USACE-CHL  10/18/2021
 !***********************************************************************
     use diag_lib,      only: diag_print_warning, diag_print_error
-    use global_inline, only: gamma_bj78, KOMX, JGPX, IGPX, suppress_obs
-    
-    implicit integer (i-n), real (a-h,o-z)
-    
-    COMMON /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp,     &
-                 nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
-    COMMON /OUTP/KOUT,IJSP(2,KOMX),IRS,IBREAK,ICUR,IWET,INST
-    COMMON /DATC/TP,PRD,IBND,VL,TIDE,KPEAK,IBACK,NBLOCK,IWIND,WSMAG
-    COMMON /wavenum/ itms,ibf,iark,iarkr,bf,ark,arkr                 !Wu
-    COMMON /BREK/DEPM(JGPX),DMNJ(JGPX),SLF(JGPX),wlmn(JGPX),cmn(JGPX),  &
-                 sigm(JGPX),IWVBK,ibk3    
-    COMMON /comsav/depmin,g,iview,iplane,iwave,cflat,irunup,iroll
-    COMMON /OUTN/nest,inest(komx),jnest(komx),ix1(igpx),ix2(igpx)
+    use global_inline, only: gamma_bj78, suppress_obs
+    use wave_def, only: akap,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,    &
+                        KOUT,IJSP,IRS,IBREAK,ICUR,IWET,IBND,ibf,iark,iarkr,    &
+                        bf,ark,arkr,IWVBK,iview,irunup,iroll,nest,inest,jnest 
+                                                                         !Dynamic allocation by Wu, 2025-Jan
+    implicit none           !Added by Wu 2025_Jan
+    integer nn
     
     character(len=*),intent(inout) :: aCard
     logical,intent(out)            :: foundcard

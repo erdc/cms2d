@@ -67,6 +67,16 @@
     real :: rdum
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
     foundcard = .true.
     select case(cardname)
     case('WATER_HEAT')                              !Not implemented
@@ -154,6 +164,16 @@
     character(len=32) :: cardname
     logical :: foundcard
     
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim,isboundary)	  
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+        logical, intent(in), optional :: isboundary
+      end subroutine
+    end interface
+        
 !    call heatstr_resize
     
     foundcard = .true.
@@ -190,49 +210,6 @@ d1: do k=1,10
       
     return
     end subroutine heat_bnd_block
-    
-!!**********************************************************    
-!    subroutine heat_block(iheattype,heatfile,heatpath,heatbnd)
-!!**********************************************************
-!    use comvarbl, only: mpfile,flowpath
-!    use prec_def
-!    implicit none
-!    !Input/Output
-!    integer,intent(inout) :: iheattype
-!    character(len=*),intent(inout) :: heatfile,heatpath
-!    real(ikind),intent(inout) :: heatbnd
-!    !Internal Variables
-!    integer :: k,ierr
-!    character(len=32) :: cardname
-!    logical :: foundcard
-!    
-!    foundcard = .true.
-!d1: do k=1,10
-!      foundcard = .true.
-!      read(77,*,iostat=ierr) cardname
-!      if(ierr/=0) exit
-!      if(cardname(1:1)=='!' .or. cardname(1:1)=='#') cycle
-!      select case(cardname)  
-!      case('HEAT_CURVE')
-!        call card_dataset(77,mpfile,flowpath,heatfile,heatpath)
-!        iheattype = 2
-!        
-!      case('HEAT_CONSTANT')
-!        backspace(77)
-!        read(77,*) cardname,heatbnd
-!        iheattype = 1
-!        
-!      case('HEAT_END','END')
-!          exit d1
-!            
-!      case default
-!        foundcard = .false.
-!        
-!      end select
-!    enddo d1
-!      
-!    return
-!    end subroutine heat_block
     
 !************************************************************    
     subroutine heatstr_resize

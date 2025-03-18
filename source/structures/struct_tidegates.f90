@@ -137,7 +137,7 @@
             case ('EBB')
               TG_struct(itidegate)%mtidegateopt = 3
               !no options added for this type
-            case ('UCG')
+            case ('UCG','UNC')
               TG_struct(itidegate)%mtidegateopt = 4
               !no options added for this type
             case default

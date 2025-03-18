@@ -24,7 +24,7 @@
     use cms_def,    only: noptset, dtsteer
     use prec_def,   only: ikind
     use diag_def,   only: dgunit, dgfile
-    use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version, minor_version, bugfix
+    use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version,minor_version,bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
     use sed_def,    only: db,d50,nlay,d90,pbk,nsed
@@ -40,9 +40,9 @@
     !Code version - moved here for easier modification when new descriptions are added
     !NOTE: Change variables Below to update header information
     version  = 5.4           ! CMS version         !For interim version
-    revision = 0            ! Revision number
+    revision = 2             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '12/17/2024'
+    rdate    = '03/17/2025'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
