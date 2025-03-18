@@ -1,5 +1,5 @@
 Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
-! Note: Presently used for Inline Steering, MEB 10/4/2018
+! Note: Presently used for Inline Steering
 !       Adding '_inline' to all subroutines (and references), MEB 10/9/2018
 !***************************************************************
 !                      CMS-Wave (ver.3.4)                       
@@ -46,11 +46,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 ! ... Output file variables
       INTEGER      :: iunit(2)
       
-      SAVE dvarxxt, dvaryyt                        !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
+      SAVE dvarxxt, dvaryyt                  !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
  
       iunit = (/6,dgunit/)
       iwbk = 0
-      if(noptset.eq.3.and.nsteer.gt.1) then        !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
+      if(noptset.eq.3.and.nsteer.gt.1) then  !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
         iwbk = iwvbk
         hs13nn = hs13n
         goto 70                              !Wu/Zhang
@@ -417,37 +417,38 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 330   continue
       
       !Dynamic allocation added by Wu, Nov. 2024
-      nodexy=max(ni,nj)+1         !CMS-Wave grid rotates or flips over when imod=1,3
+      !nodexy=max(ni,nj)+1         !CMS-Wave grid rotates or flips over when imod=1,3
+      nodexy=max(ni,nj)+2         !updated nodexy to include one additional cell in each direction.  MEB 03/17/2025
+      !There is some code that needs it in veloc_inline and probably other locations.
+      
       ipmx=nodexy
       jpmx=nodexy
-      !ipmx=ni+1
-      !jpmx=nj+1
       igpx=ipmx-1
       jgpx=jpmx-1
       ijpmx=ipmx*jpmx
       ijgpx=igpx*jgpx    
-      allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx),        &  
-                exx(igpx,jgpx),eyy(igpx,jgpx) )
+      allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
+      allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
       allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
-      allocate( depin(ipmx,jpmx),etain(ipmx,jpmx),                  &  !Alex
-                uin(ipmx,jpmx),vin(ipmx,jpmx) )                        !Alex
-      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx),       &
-                wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
-      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx),                    & 
-                sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
+      allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
+      allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
+      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
+      allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
+      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
+      allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
       allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
       allocate( disx(ipmx),disy(jpmx) )
-      allocate( sw13(igpx,jgpx),sa13(igpx,jgpx),               &
-                    tw13(igpx,jgpx),ta13(igpx,jgpx),               &
-                    dw13(igpx,jgpx),da13(igpx,jgpx) )
+      allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
+      allocate( tw13(igpx,jgpx),ta13(igpx,jgpx) )
+      allocate( dw13(igpx,jgpx),da13(igpx,jgpx) )
       allocate( aslop(ipmx) )
       allocate( wcc(jgpx),hsb(jgpx),hsg(jgpx),dcd(jgpx) )
       allocate( dvarx(igpx),dvary(jgpx),eta(igpx,jgpx),hsk(jgpx) )
       allocate( ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),dbig(ipmx) )
       allocate( kr(2,6*ipmx),rk(6*ipmx),yangl(6*ipmx) )
       allocate( kcr(2,6*ipmx),rkr(6*ipmx),xangl(6*ipmx) )
-      allocate( depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx),     &
-                cmn(jgpx),sigm(jgpx) )
+      allocate( depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx) )
+      allocate( cmn(jgpx),sigm(jgpx) )
       allocate( h13(igpx,jgpx),t13(igpx,jgpx),dmn(igpx,jgpx) )
       allocate( h13r(igpx,jgpx),t13r(igpx,jgpx),dmnr(igpx,jgpx) )
       allocate( h13s(igpx,jgpx),ibr(igpx,jgpx),diss(igpx,jgpx) )
@@ -458,7 +459,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
       allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
       allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
-      !End adding
+      !End dynamic sallocation
       
 !  read/write initial depths dep(i, j):
       depmax=0.
@@ -5871,7 +5872,7 @@ contains
   130   continue
 
 !------------------------------------------------------------
-!  mean values bellow are used in wave breaking dissipation
+!  mean values below are used in wave breaking dissipation
 !    omt3 is angular frequency corresponding to T3
 !    dmnj(jjb) is mean direction at (ii-1) location
 !------------------------------------------------------------

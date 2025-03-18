@@ -64,13 +64,9 @@
     maxunit = 10                                          
     call ReadCardFile_EXP                                    !read in control file 
 
-    !CALL compute_reftime (IYR,IMO,IDAY,IHR,JDAYS,REFTIME)
-    !CALL XF_CALENDAR_TO_JULIAN (0,IYR,IMO,IDAY,IHR,IMIN,ISEC,REFTIME,ERROR)
-
     Call prestart_EXP      
       
     Call initialize_flow_arrays_Tel          !read in grid file and allocate variables       
-    !CALL PRINT_STATUS                        !print out status information about CMS parameters
     call Initialize_ActivityArray_Tel
     CALL INITIALIZE_BC_Tel                   !ALL Q AND SAL  - WILL NEED WORK FOR TELE                                    
     CALL INITIALIZE_WABC_Tel                 !initialize wind, rad, and wave stresses'

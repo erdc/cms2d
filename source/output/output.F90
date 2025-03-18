@@ -1032,7 +1032,8 @@
     
 #ifdef XMDF_IO
     call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)       !Set reference time for XMDF from month, day, year, hour, minute and second.
-    !call XF_JULIAN_TO_CALENDAR(0,iyr,imo,iday,ihr,imin,isec,reftime,error)
+    !call XF_CALENDAR_TO_JULIAN(1,iyr,imo,iday,ihr,imin,isec,reftime,ierr)        !0 was for BCE, 1 is for CE.  Just finding this out 03/17/2025. MEB
+    !Keeping the old for now, but this should change.
 #endif
 
     npath = len_trim(outpath)

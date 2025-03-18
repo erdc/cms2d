@@ -793,7 +793,8 @@
         
         write(*,'(A)') 'Enter date (yyyy-mm-dd hh:mm:ss)'
         call card_datetime(5,iyr,imo,iday,ihr,imin,isec) 
-        call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)
+        call XF_CALENDAR_TO_JULIAN(0,iyr,imo,iday,ihr,imin,isec,reftime,ierr)         !Set reference time for XMDF from month, day, year, hour, minute and second.
+        !call XF_CALENDAR_TO_JULIAN(1,iyr,imo,iday,ihr,imin,isec,reftime,ierr)        !0 was for BCE, 1 is for CE.  Just finding this out 03/17/2025. MEB
         write(*,*)''
         write(*,'(A,F0.6)') 'RT_JULIAN date is: ',reftime
         write(*,'(A)') 'Press <enter> key to continue.'
