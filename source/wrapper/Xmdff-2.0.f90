@@ -10046,6 +10046,7 @@ SUBROUTINE XF_SET_WKT(a_Id, a_WKT, error)
 INTEGER,          INTENT(IN)  :: a_Id
 CHARACTER(LEN=*), INTENT(IN)  :: a_WKT
 INTEGER,          INTENT(OUT) :: error
+INTEGER                       :: StrLen
 
 !            INTEGER, EXTERNAL :: _xfsetwkt_f
 !  MS FORTRAN needs explicit interface for C functions called here.
@@ -10061,8 +10062,8 @@ INTEGER,          INTENT(OUT) :: error
     END FUNCTION xfsetwkt_f
   END INTERFACE
   
-  a_StrLen = LEN_TRIM(a_WKT)
-  error = xfsetwkt_f(a_Id, a_WKT, a_StrLen)
+  StrLen = LEN_TRIM(a_WKT)
+  error = xfsetwkt_f(a_Id, a_WKT, StrLen)
   
   return
   
@@ -10078,6 +10079,7 @@ SUBROUTINE XF_SET_ATTRIBUTE_STRING(a_Id, a_Name, a_String, error)
 INTEGER,          INTENT(IN)  :: a_Id
 CHARACTER(LEN=*), INTENT(IN)  :: a_Name, a_String
 INTEGER,          INTENT(OUT) :: error
+INTEGER                       :: name_len, str_len
 
 !            INTEGER, EXTERNAL :: _xfsetattributestring_f
 !  MS FORTRAN needs explicit interface for C functions called here.
