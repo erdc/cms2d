@@ -1,6 +1,16 @@
 What's New
 ==========
 
+v5.4.2 (17 March 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* Upgraded CMS-Wave variables to Dynamic allocation
+* Implemented new extracted boundary condition for use with SMS 13.4+.
+* Implemented partial CF compliance by adding HDF5 descriptive attributes for many solution types.
+* Bug fix for deep water hard bottom values (deeper than 900m)
+
 v5.4.0 (17 December 2024)
 -------------------------
 
