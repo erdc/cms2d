@@ -32,13 +32,12 @@
    > CMS2D_V5.4.exe  tools           !Case doesn't matter
 
 
- Compiling in Microsoft Visual Studio (2010 or greater)
+ Compiling in Microsoft Visual Studio (2017 or greater)
     Release Configuration Properties: 
        Project Settings:
-          Linker | Input - Additional Dependencies (replace <###> with working version)
-		     => "..\external_libraries\XMDF\xmdf<###>.lib"    (for 32 bit) 
-             => "..\external_libraries\XMDF\xmdf<###>x64.lib" (for 64 bit)
-          Linker | System - Stack Reserve Size => 46214400
+          Linker | Input - Additional Dependencies 
+             => "..\libraries\XMDF\xmdf2.0x64_####.lib" (replace #### with Visual studio version - 2017 or 2022)
+          Linker | System - Stack Reserve Size => 92428800
           Fortran | Optimization - Optimization => Maximum Speed plus Higher Level Optimizations
           Fortran | Optimization - Global Optimizations => Yes (/Og) 
           Fortran | Language - Process OpenMP Directives => Generate Parallel Code (/Qopenmp)
@@ -54,10 +53,9 @@
 
     Debug Configuration Properties:
        Project Settings:
-          Linker | Input - Additional Dependencies (replace <###> with working version)
-		     => "..\libraries\XMDF\xmdf<###>.lib"  (for 32 bit) 
-             => "..\libraries\XMDF\xmdf<###>x64.lib" (for 64 bit)
-          Linker | System - Stack Reserve Size => 46214400
+          Linker | Input - Additional Dependencies 
+             => "..\libraries\XMDF\xmdf2.0dx64_####.lib" (replace #### with Visual studio version - 2017 or 2022)
+          Linker | System - Stack Reserve Size => 92428800
           Linker | Debugging - Generate Debug Infor =>Yes (/DEBUG)
           Linker | Input - Ignore specific library => LIBCMT.lib (bug in Visual Studio 2010+)
           Fortran | Debugging - Debug Information Format => Full(/debug:full)
@@ -67,7 +65,7 @@
           Fortran | Preprocessor - Additional include directories => ..\source\main\
        Specific file Properties:
 	     for the following files:
-           - CMS-Wave_v3.3W_30Apr2020.f90
+           - CMS-Wave_v3.4W_Jan2025.f90
            Fortran | Diagnostics - Compile time diagnostics => Disable All (/warn:none) 
      
  CMake Compiling (mainly for Linux)

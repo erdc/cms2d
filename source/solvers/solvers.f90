@@ -240,8 +240,6 @@ d1: do k=1,10
     rmom(n)=sqrt(adak(ncells,res)/real(ncells,kind=ikind))   !RMS of normalized residuals   
     
     select case(nsolv)
-!!      case(0)
-!!        call tdma2d(phi,ap,n)
       case(1)
         call gauss_seidel(nswp(n),acoef,ap,ss,phi)
       case(2)
