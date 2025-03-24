@@ -829,7 +829,7 @@ contains
 !
 ! Mitchell Brown, USACE-ERDC-CHL  02/21/2025
 !**************************************************************************
-    use xmdf,     only: XF_WRITE_PROPERTY_STRING, XF_CLOSE_GROUP
+    use xmdf,     only: XF_SET_ATTRIBUTE_STRING, XF_CLOSE_GROUP
     use out_def,  only: cf_vars,ncf_vars
     use diag_lib, only: diag_print_warning
     implicit none
@@ -864,11 +864,11 @@ contains
     positive = cf_vars(list_item)%positive
     
     call OPEN_CREATE_DATASET(a_Id,'PROPERTIES',pid,1,'',error)                   !Open dataset (this dataset should already have been created).
-    call XF_WRITE_PROPERTY_STRING (pid, 'short_name', output_name, error)
-    call XF_WRITE_PROPERTY_STRING (pid, 'long_name', long_name, error)
-    call XF_WRITE_PROPERTY_STRING (pid, 'standard_name', standard_name, error)
-    call XF_WRITE_PROPERTY_STRING (pid, 'units', units, error)
-    call XF_WRITE_PROPERTY_STRING (pid, 'positive', positive, error)
+    call XF_SET_ATTRIBUTE_STRING (pid, 'short_name', output_name, error)
+    call XF_SET_ATTRIBUTE_STRING (pid, 'long_name', long_name, error)
+    call XF_SET_ATTRIBUTE_STRING (pid, 'standard_name', standard_name, error)
+    call XF_SET_ATTRIBUTE_STRING (pid, 'units', units, error)
+    call XF_SET_ATTRIBUTE_STRING (pid, 'positive', positive, error)
     call XF_CLOSE_GROUP(pid,error)  !Close dataset    
     
     return

@@ -1,6 +1,15 @@
 What's New
 ==========
 
+v5.4.3 (18 March 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* Optimized ADAK and ADBK dot product routines
+* Found that time reference has been set to BCE instead of CE. Changing reference time to CE.
+
+
 v5.4.2 (17 March 2025)
 -------------------------
 

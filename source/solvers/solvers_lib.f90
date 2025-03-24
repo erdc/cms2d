@@ -2,9 +2,9 @@
     subroutine pbicgstab(nmaxiter,acoef,ap,su,phi)
 !   this is bicgstab solver       
 !***********************************************************************      
-    use size_def, only: ncells,ncellsD,nmaxfaces
-    use geo_def, only: cell2cell,ncface
-    use flow_def, only: iwet
+    use size_def,  only: ncells,ncellsD,nmaxfaces
+    use geo_def,   only: cell2cell,ncface
+    use flow_def,  only: iwet
     use const_def, only: small
     use solv_def 
     use prec_def
@@ -39,10 +39,9 @@
 
     !..ITERATION LOOPS BEGIN
     do iter=1,nmaxiter
-       !bet=sum(r(1:ncells)*r0(1:ncells))
-       bet=adbk(ncells,r,r0)
-       omg=bet*gam/(alf*bet0+small)
-       bet0=bet
+      bet=adbk(ncells,r,r0)
+      omg=bet*gam/(alf*bet0+small)
+      bet0=bet
 
       !..CALCULATE pk
 !$OMP PARALLEL DO PRIVATE(i)          
@@ -480,18 +479,11 @@
     
     do itr=1,nmaxiter
       !--- Initial residual vector --------------------------  
-      !call ceaambk(ncells,aa_matrix,ja,ia,phi,vv(:,1))
-      !vv(1:ncells,1) = su(1:ncells) - vv(1:ncells,1)
-      !ro = sqrt(adak(ncells,vv(1:ncells,1)))
-      
       ro=0.0
 !!$OMP PARALLEL DO PRIVATE(ii,term) REDUCTION(+:ro)   
       do ii=1,ncells
         term=sum(acoef(1:ncface(ii),ii)*phi(cell2cell(1:ncface(ii),ii)))
         vv(ii,1)=term+su(ii)-ap(ii)*phi(ii)
-!        if (isnan(vv(ii,1))) then
-!          stop '"vv(ii,1)" is a NaN'
-!        endif
         ro=ro+vv(ii,1)*vv(ii,1)
       enddo 
 !!$OMP END PARALLEL DO 
@@ -503,8 +495,6 @@
       
       !---Initialize first term of RHS of Hessenberg system
       rs1(1)=ro
-!       rs1(2:kmax+1)=0.0
-!       hh(2:kmax+1,1:kmax+1)=0.0
 
       i=0
  4    i=i+1
@@ -1689,7 +1679,6 @@
       k1=ia(i)
       k2=ia(i+1)-1
       c(i)=sum(aa(k1:k2)*b(ja(k1:k2)))
-      !c(i)=dot_product(aa(k1:k2),b(ja(k1:k2))
     enddo
 !$OMP END PARALLEL DO 
 
