@@ -1,6 +1,10 @@
+== Version 5.4.3 (03/20/2025) ==
+* Optimized ADAK and ADBK dot product routines
+* Found that time reference has been set to BCE instead of CE. Changing reference time to CE.
+
 == Version 5.4.2 (02/24/2025) ==
 * Added new block for extracted WSE or WSE/Vel boundary conditions to be added to SMS 13.4+
-* Now writes CF descriptive information for each known CF Dataset (25 in total at present) inside the PROPERTIES group.
+* Now writes CF descriptive information for each known CF Dataset (25 in total at present) as attributes to the PROPERTIES group.
 ** CF data is located in "out_lib.f90" within the "init_cf_var_list" subroutine.
 * Add tests for reading Multiple WSE and Velocity datasets correctly.   
 * Add print statement with name of recurring hot start file for each write.
