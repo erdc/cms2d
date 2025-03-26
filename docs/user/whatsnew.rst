@@ -1,6 +1,14 @@
 What's New
 ==========
 
+v5.4.4 (26 March 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* Minor changes to wave code to initialize a few variables.
+
+
 v5.4.3 (18 March 2025)
 -------------------------
 

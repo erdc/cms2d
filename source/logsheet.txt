@@ -1,3 +1,6 @@
+== Version 5.4.4 (03/26/2025) ==
+* Minor changes to wave code to initialize a few variables.
+
 == Version 5.4.3 (03/20/2025) ==
 * Optimized ADAK and ADBK dot product routines
 * Found that time reference has been set to BCE instead of CE. Changing reference time to CE.

@@ -10,7 +10,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !    PROGRAMED BY H.MASE and T.TAKAYAMA, JULY 1998, FEB 2001    
 !    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   
 !    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           
-!    Dynamic allocation of arrays implemeded by W.Wu, Nov 2024  
+!    Dynamic allocation of arrays implemented by W.Wu, Nov 2024  
 !***************************************************************
 !  Basic equation to be solved is wave action balance equation
 !  with independent variables of x, y, q (angle).  
@@ -427,39 +427,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       jgpx=jpmx-1
       ijpmx=ipmx*jpmx
       ijgpx=igpx*jgpx    
-      allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
-      allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
-      allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
-      allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
-      allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
-      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
-      allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
-      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
-      allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
-      allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
-      allocate( disx(ipmx),disy(jpmx) )
-      allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
-      allocate( tw13(igpx,jgpx),ta13(igpx,jgpx) )
-      allocate( dw13(igpx,jgpx),da13(igpx,jgpx) )
-      allocate( aslop(ipmx) )
-      allocate( wcc(jgpx),hsb(jgpx),hsg(jgpx),dcd(jgpx) )
-      allocate( dvarx(igpx),dvary(jgpx),eta(igpx,jgpx),hsk(jgpx) )
-      allocate( ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),dbig(ipmx) )
-      allocate( kr(2,6*ipmx),rk(6*ipmx),yangl(6*ipmx) )
-      allocate( kcr(2,6*ipmx),rkr(6*ipmx),xangl(6*ipmx) )
-      allocate( depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx) )
-      allocate( cmn(jgpx),sigm(jgpx) )
-      allocate( h13(igpx,jgpx),t13(igpx,jgpx),dmn(igpx,jgpx) )
-      allocate( h13r(igpx,jgpx),t13r(igpx,jgpx),dmnr(igpx,jgpx) )
-      allocate( h13s(igpx,jgpx),ibr(igpx,jgpx),diss(igpx,jgpx) )
-      allocate( h13f(igpx,jgpx),dmnf(igpx,jgpx),t13f(igpx,jgpx) )     
-      allocate( ix1(igpx),ix2(igpx) )
-      allocate( u(ipmx,jpmx),v(ipmx,jpmx) )
-      allocate( u1(ipmx,jpmx),v1(ipmx,jpmx) )
-      allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
-      allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
-      allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
-      !End dynamic sallocation
+      
+      call allocate_initialize_vars (ipmx,jpmx,igpx,jgpx)
+      
+      nestin=1   !Trying to define a valid number for this variable for later.
       
 !  read/write initial depths dep(i, j):
       depmax=0.
@@ -1201,7 +1172,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           azimnest=azimnest-360.
         end if
       end if
-
+      
       !Added for dynamic allocation    by Wu,  Nov. 2024
       knest=max(nestin1,nestin2)+2
       allocate( xc(knest),yc(knest),wc(knest),wcd(knest),hs13(knest) )        !Wu 
@@ -1480,8 +1451,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iview.ge.1) iplane=iplane+1
       if(iplane.eq.1) imod = 0
       ibk3=0
-      nestin=nestin1
-      if(iplane.eq.2) nestin=nestin2
+
+      nestin=max(nestin1,1)                      !Making sure nestin is never 0
+      if(iplane.eq.2) nestin=max(nestin2,1)
 
       aslop=1.
       ijb=1
@@ -1874,7 +1846,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             if(idate.lt.itms) idate=itms
             if(idate.lt.iidate) idate=iidate
           end if
-422		  continue
+422       continue
 		  
           if(ws1.gt.ws) ws=ws1
           if(fp1.lt.fp) fp=fp1
@@ -1913,10 +1885,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           wdy=wdy+wcy
           wcd(kn)=atan2(wcy,wcx)
         end do
+        
         wwd=atan2(wdy,wdx)
         do mm=imd,md
           do nn=1,nf
-            dsfd(nn,mm)=dsfd(nn,mm)/float(nestin)
+            dsfd(nn,mm)=dsfd(nn,mm)/float(nestin)             !Here you will get a divide by zero if nestin is 0
           end do
         end do
         sum=0.
@@ -3130,7 +3103,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       endif        
 
 	  if(fp.eq.0.) fp=fcn(ibig)
-
       if(ws.gt.10.) iwvbk=2
       if(iwind.ge.1) iwvbk=2
 
@@ -3175,8 +3147,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 
       sum=0.
+      !ibig is index of peak frequency
       do nn=1,ibig-2
-        if(fsp(nn)/big.gt..05) exit  !go to 61
+        if(fsp(nn)/big .gt. 0.05) go to 61
         cc=df(nn)/df(ibig)
         sum=sum+fsp(nn)*cc
         do mm=imd,md
@@ -10034,4 +10007,82 @@ contains
     end select
     
     return
-    end subroutine cmswave_cards
+  end subroutine cmswave_cards
+
+  subroutine allocate_initialize_vars (ipmx,jpmx,igpx,jgpx)
+  !Moved all these allocataions and initializations to a subroutine
+  !MEB  03/25/2025
+  use wave_def
+  implicit none 
+  
+  integer, intent(in) :: ipmx,jpmx,igpx,jgpx
+      
+    allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
+    allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
+    allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
+    allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
+    allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
+    allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
+    allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
+    allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
+    allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
+    allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
+    allocate( disx(ipmx),disy(jpmx) )
+    allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
+    allocate( tw13(igpx,jgpx),ta13(igpx,jgpx) )
+    allocate( dw13(igpx,jgpx),da13(igpx,jgpx) )
+    allocate( aslop(ipmx) )
+    allocate( wcc(jgpx),hsb(jgpx),hsg(jgpx),dcd(jgpx) )
+    allocate( dvarx(igpx),dvary(jgpx),eta(igpx,jgpx),hsk(jgpx) )
+    allocate( ijb(igpx,jgpx),dep(ipmx,jpmx),deps(ipmx),dbig(ipmx) )
+    allocate( kr(2,6*ipmx),rk(6*ipmx),yangl(6*ipmx) )
+    allocate( kcr(2,6*ipmx),rkr(6*ipmx),xangl(6*ipmx) )
+    allocate( depm(jgpx),dmnj(jgpx),slf(jgpx),wlmn(jgpx) )
+    allocate( cmn(jgpx),sigm(jgpx) )
+    allocate( h13(igpx,jgpx),t13(igpx,jgpx),dmn(igpx,jgpx) )
+    allocate( h13r(igpx,jgpx),t13r(igpx,jgpx),dmnr(igpx,jgpx) )
+    allocate( h13s(igpx,jgpx),ibr(igpx,jgpx),diss(igpx,jgpx) )
+    allocate( h13f(igpx,jgpx),dmnf(igpx,jgpx),t13f(igpx,jgpx) )     
+    allocate( ix1(igpx),ix2(igpx) )
+    allocate( u(ipmx,jpmx),v(ipmx,jpmx) )
+    allocate( u1(ipmx,jpmx),v1(ipmx,jpmx) )
+    allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
+    allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
+    allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
+
+    !At some point, we should initialize these variables. Deferring to the wave gurus. MEB
+    !!Now initialize
+    !dep0 = 0.0; refltx = 0.0; reflty = 0.0
+    !exx = 0.0;  eyy = 0.0
+    !dvarxx = 0.0; dvaryy = 0.0
+    !depin = 0.0; etain = 0.0 
+    !uin = 0.0; vin = 0.0
+    !sxx = 0.0; sxy = 0.0; syy = 0.0
+    !wxrs = 0.0; wyrs = 0.0
+    !sxxx = 0.0; sxyx = 0.0
+    !sxyy = 0.0; syyy = 0.0
+    !d1 = 0.0;   cgp = 0.0
+    !disx = 0.0; disy = 0.0
+    !sw13 = 0.0; sa13 = 0.0
+    !tw13 = 0.0; ta13 = 0.0
+    !dw13 = 0.0; da13 = 0.0
+    !aslop = 0.0
+    !wcc = 0.0; hsb = 0.0; hsg = 0.0; dcd = 0.0
+    !dvarx = 0.0; dvary = 0.0; eta = 0.0; hsk = 0.0
+    !ijb = 0; dep = 0.0; deps = 0.0; dbig = 0.0
+    !kr = 0;  rk = 0.0;  yangl = 0.0
+    !kcr = 0; rkr = 0.0; xangl = 0.0
+    !depm = 0.0; dmnj = 0.0; slf = 0.0; wlmn = 0.0
+    !cmn = 0.0;  sigm = 0.0
+    !h13 = 0.0;  t13 = 0.0;  dmn = 0.0
+    !h13r = 0.0; t13r = 0.0; dmnr = 0.0
+    !h13s = 0.0; ibr = 0.0;  diss = 0.0
+    !h13f = 0.0; dmnf = 0.0; t13f = 0.0
+    !ix1 = 0.0;  ix2 = 0.0
+    !u = 0.0;    v = 0.0
+    !u1 = 0.0;   v1 = 0.0
+    !u10 = 0.0;  v10 = 0.0
+    !bfric = 0.0; amud = 0.0
+    !ex = 0.0; ey = 0.0
+
+      end subroutine
