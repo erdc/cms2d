@@ -6,6 +6,12 @@ CMS is developed by the USACE - Coastal and Hydraulics Laboratory
 Documentation for the CMS is available from the [CIRP Wiki](https://cirpwiki.info/wiki/CMS).
 
 # Building/Editing
+## Obtain the source code using the OpenSource GitHub repository.
+- Go the location you wish to place the source.
+- If using a command prompt with Git, run `git clone https://github.com/erdc/cms2d.git`
+- If using a browser, retrieve a zip file with the source the following URL and unzip.
+  - https://github.com/erdc/cms2d/archive/refs/heads/master.zip
+
 ## Windows platform
 Building CMS on Windows requires use of the Microsoft Visual Studio GUI. This repository was created using the Intel Fortran compiler. The versions of the GUI and compiler primarily being used are as follows:
 - MS Visual Studio 2019 or 2022
@@ -14,16 +20,13 @@ Building CMS on Windows requires use of the Microsoft Visual Studio GUI. This re
 Once the sofware has been installed, the user should load the appropriate **solution file** for the UI.
 
 ## Linux platform
-To build CMS On linux you must have CMAKE software above 2.8.
-1. `cd source`
+To build CMS On linux you must have CMAKE software above 2.9 and 'gfortran' installed.
+1. `cd cms2d/source`
 2. `cmake .`
 3. `make`
 
-This will leave you with an executable named 'cms' in your local working directory 
-
-To clean all of the intermediate files and old executable, type 'make clean' from the 
-"source" directory.
-
+- This will leave you with an executable named 'cms' in your the "source" directory. 
+- To clean all of the intermediate files and old executable, type 'make clean' from the "source" directory.
 Note: Linux builds have not been fully tested on HPC platform and some extra configuration may be necessary.
 
 # File/Folder structure
