@@ -58,7 +58,7 @@ module wave_def
     real(ikind)   :: hsmin,hs13n,azimnest                            
     character*180 :: OptsFile,  DepFile,  CurrFile,  EngInFile, WaveFile, ObsFile,   EngOutFile, NestFile
     character*180 :: BreakFile, RadsFile, StrucFile, SurgeFile, MudFile,  FricFile,  FrflFile, BrflFile
-    character*180 :: SpecFile,  WindFile, XMDFFile,  SetupFile, SeaFile,  SwellFile, ShipFile          
+    character*180 :: SpecFile,  WindFile, XMDFFile,  SetupFile, SeaFile,  SwellFile, ShipFile, TotalFile          
     logical :: getfile4,getfile5,getfile7,getfile8           !Wu/Zhang 8/1/2009  
 
     real(ikind),allocatable :: dep0(:,:),fsp(:),xc(:),yc(:),wc(:),wcd(:)
