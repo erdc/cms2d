@@ -8711,7 +8711,7 @@ contains
                           BreakFile, RadsFile, StrucFile, SurgeFile, &
                           MudFile, FricFile, FrflFile, BrflFile,     &
                           SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                          SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
+                          SeaFile, SwellFile, ShipFile, TotalFile       !Mitch 3/22/2017
       use wave_def, only: RAD,x0,y0,azimuth,sinaz,cosaz  !Dynamic allocation by Wu, 2025-Jan
       implicit none           !Added by Wu 2025_Jan
       integer ILOC
