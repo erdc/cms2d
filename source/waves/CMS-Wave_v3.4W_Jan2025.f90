@@ -1003,7 +1003,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if (isteer.eq.1) then
           if(SimFile(l-13:l-12).eq.'\1') then
             if(iwet.ne.-1) then
-              open(95,file='totalFile',status='unknown')
+              open(95,file=TotalFile,status='unknown')
               write (95, *) ni, nj, dmesh
             end if
             if(iwet.ne.-2) then
@@ -1014,7 +1014,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end if
           else
             if(iwet.ne.-1) then
-              open(95,file='totalFile',status='unknown',access='append')
+              open(95,file=TotalFile,status='unknown',access='append')
             end if
             if(iwet.ne.-2) then
               open(96,file=SwellFile,status='unknown',access='append') !Mitch 03/22/2017
@@ -1023,7 +1023,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
         else
           if(iwet.ne.-1) then
-            open(95,file='totalFile',status='unknown')
+            open(95,file=TotalFile,status='unknown')
             write (95, *) ni, nj, dmesh
           end if
           if(iwet.ne.-2) then
@@ -8760,6 +8760,7 @@ contains
       SetupFile  = 'setup.wav'
       SeaFile    = 'sea.wav'
       SwellFile  = 'swell.wav'
+      TotalFile  = 'total.wav'
 !
       IF (SimFile(1:4) .NE. 'none') THEN
         !Adding some extra diagnostic checks and better output than just waiting for a bad application error.  MEB  01/18/2022
