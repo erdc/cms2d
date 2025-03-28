@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.9)
-
+project(cms2d)
 # CMake control file for building the CMS model
 
 # Gather library requirements-- these are a Fortran compiler, a recent
