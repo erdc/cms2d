@@ -6945,9 +6945,9 @@ contains
       USE GLOBAL_INLINE, ONLY: MPMX
       use wave_def, only: MD,ws,DMESH,SCP,AA,IA,B,X,imd    !Dynamic allocation by Wu 2025-Jan
       implicit none           !Added by Wu 2025_Jan
-      integer II,JB,JE,NMX,MARK
+      integer II,JB,JE,MX,NMX,MARK
       integer LIM,JUDG,I,ICC,IP,K,J,M
-      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,MX,PX
+      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,PX
 
       REAL(ikind),ALLOCATABLE :: x0(:)
       ALLOCATE (x0(mpmx))
@@ -7024,7 +7024,7 @@ contains
       DO J=JB,JE   !80
         DO M=imd,MD
           MX=MX+1
-          if(x(mx).gt.5000.) x(mx)=0.
+          if(x(mx) .gt. 5000.0) x(mx)=0.
           SCP(J,M)=X(MX)
         ENDDO
       ENDDO
