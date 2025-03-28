@@ -974,7 +974,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if (isteer.eq.1) then
           if(SimFile(l-13:l-12).eq.'\1') then
             if(iwet.ne.-1) then
-              open(95,file='totalFile',status='unknown')
+              open(95,file=TotalFile,status='unknown')
               write (95, *) ni, nj, dmesh
             end if
             if(iwet.ne.-2) then
@@ -985,7 +985,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end if
           else
             if(iwet.ne.-1) then
-              open(95,file='totalFile',status='unknown',access='append')
+              open(95,file=TotalFile,status='unknown',access='append')
             end if
             if(iwet.ne.-2) then
               open(96,file=SwellFile,status='unknown',access='append') !Mitch 03/22/2017
@@ -994,7 +994,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           end if
         else
           if(iwet.ne.-1) then
-            open(95,file='totalFile',status='unknown')
+            open(95,file=TotalFile,status='unknown')
             write (95, *) ni, nj, dmesh
           end if
           if(iwet.ne.-2) then
@@ -6918,9 +6918,9 @@ contains
       USE GLOBAL_INLINE, ONLY: MPMX
       use wave_def, only: MD,ws,DMESH,SCP,AA,IA,B,X,imd    !Dynamic allocation by Wu 2025-Jan
       implicit none           !Added by Wu 2025_Jan
-      integer II,JB,JE,NMX,MARK
+      integer II,JB,JE,MX,NMX,MARK
       integer LIM,JUDG,I,ICC,IP,K,J,M
-      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,MX,PX
+      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,PX
 
       REAL(ikind),ALLOCATABLE :: x0(:)
       ALLOCATE (x0(mpmx))
@@ -6997,7 +6997,7 @@ contains
       DO J=JB,JE   !80
         DO M=imd,MD
           MX=MX+1
-          if(x(mx).gt.5000.) x(mx)=0.
+          if(x(mx) .gt. 5000.0) x(mx)=0.
           SCP(J,M)=X(MX)
         ENDDO
       ENDDO
@@ -8684,7 +8684,7 @@ contains
                           BreakFile, RadsFile, StrucFile, SurgeFile, &
                           MudFile, FricFile, FrflFile, BrflFile,     &
                           SpecFile, WindFile, XMDFFile, SetupFile,   &  !Mitch 3/22/2017
-                          SeaFile, SwellFile, ShipFile                  !Mitch 3/22/2017
+                          SeaFile, SwellFile, ShipFile, TotalFile       !Mitch 3/22/2017
       use wave_def, only: RAD,x0,y0,azimuth,sinaz,cosaz  !Dynamic allocation by Wu, 2025-Jan
       implicit none           !Added by Wu 2025_Jan
       integer ILOC
@@ -8733,6 +8733,7 @@ contains
       SetupFile  = 'setup.wav'
       SeaFile    = 'sea.wav'
       SwellFile  = 'swell.wav'
+      TotalFile  = 'total.wav'
 !
       IF (SimFile(1:4) .NE. 'none') THEN
         !Adding some extra diagnostic checks and better output than just waiting for a bad application error.  MEB  01/18/2022
