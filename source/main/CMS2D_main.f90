@@ -10,12 +10,13 @@
 ! written by     
 !   Weiming Wu   NCCHE     - hydrodynamics + sediment transport
 !   Alex Sanchez USACE-CHL - sediment transport + hydrodynamics
-!   Mitch Brown  USACE-CHL - auxiliary subroutines
 !   Lihwa Lin    USACE-CHL - wave transformation
+!   Honghai Li   USACE-CHL - auxiliary subroutines
+!   Mitch Brown  USACE-CHL - auxiliary subroutines
 ! notes
-!   noptset==1 - CMS Wave only
-!   noptset==2 - CMS Flow only
-!   noptset==3 - CMS Flow/Wave Steering
+!   noptset == 1 - CMS Wave only            nfsch == 0 - Implicit solver
+!   noptset == 2 - CMS Flow only            nfsch == 1 - Explicit solver
+!   noptset == 3 - CMS Flow/Wave Steering
 !****************************************************************************************
 #include "CMS_cpp.h"
 #ifdef UNIT_TEST
@@ -23,7 +24,8 @@
 #endif
     use cms_def,    only: noptset, dtsteer
     use prec_def,   only: ikind
-    use diag_def,   only: dgunit, dgfile
+    use diag_def,   only: dgunit, dgfile, msg, msg2
+    use diag_lib,   only: diag_print_error
     use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version,minor_version,bugfix
     use hot_def,    only: coldstart
     use geo_def,    only: idmap,zb,x
@@ -36,13 +38,18 @@
     character(len=20) :: astr,first,second
     real depthT
     real(ikind), allocatable :: dper(:)
+    
+    interface
+      character(len=20) function Int2Str(k)
+        integer, intent(in) :: k
+      end function
+    end interface
 
-    !Code version - moved here for easier modification when new descriptions are added
-    !NOTE: Change variables Below to update header information
+    !NOTE: Change variables below to update CMS header information
     version  = 5.4           ! CMS version         !For interim version
-    revision = 3             ! Revision number
+    revision = 4             ! Revision number
     bugfix   = 0             ! Bugfix number
-    rdate    = '03/20/2025'
+    rdate    = '04/07/2025'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -74,36 +81,19 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 
     if(noptset==1) then   !CMS-Wave only
       call sim_start_print  !start timer here
-
-      !Might check to see if dtsteer already set
       dtsteer=3.0
       ctime=0.0
       coldstart=.true.
-
       open(dgunit,file=dgfile,access='append') !Note: Needs to be open for CMS-Wave
-
-      ! Lihwa fixed issues requiring two separate wave models (inline and stand-alone).  Only calling 'inline' option now.
       call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
-!      if (inlinewave) then
-!        call CMS_Wave_inline  !added to be able to run inline wave model for checking results.
-!      else
-!        call CMS_Wave !(noptset,nsteer,dtsteer,ctime,coldstart)
-!      endif
-      
       close(dgunit)
-
       call sim_end_print
-      
     else !if(noptset==2 .or. noptset==3) then
-      !if(n2Dor3D==2) then
-    !STACK:  OPEN & READ FLOW CARD FILE TO SEE IF IT EXPLICIT OR IMPLICIT
-      !nfsch = 0, implicit     !STACK:
-      !nfsch = 1, explicit     !STACK:        
-      !nfsch = 0  !STACK:  implicit is defualt, nfsch updated from card file in SOLUTION_SCHEME_OPTION
-      call SOLUTION_SCHEME_OPTION()       !STACK:
-      if(nfsch.lt.0.or.nfsch.gt.1) then
-        write(*,*)'error in determnining flow mode (EXP or IMP)'  !STACK:
-        write(*,*)'solution scheme option nfsch = ',nfsch  !STACK:
+      call SOLUTION_SCHEME_OPTION()                               !STACK:
+      if(nfsch < 0 .or. nfsch > 1) then
+        msg  = 'Cannot determine flow mode (EXP or IMP)'
+        msg2 = 'Solution scheme option nfsch = '//Int2Str(nfsch)
+        call diag_print_error(msg, msg2)                          !STACK:
       endif
 
       IF(nfsch.eq.1) then   !CALL EXPLICIT
@@ -111,10 +101,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       ELSE                  !CALL IMPLICIT
         call CMS_Flow
       ENDIF
-         !call CMS_Flow_Shock
-      !else
-         !call CMS3D_Flow
-      !endif
     endif
 #endif
 
@@ -406,7 +392,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       if (aext /= 'cart') telfile  = flowpath(1:nlenflow) // casename(1:ncase) // '.tel'         !If gridfile extension is 'cart', leave TELFILE = ' '
     endif
     
-    return
     end subroutine get_com_arg
         
 !************************************************************************    
@@ -486,7 +471,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     enddo
     close(dgunit)        
     
-    return
     end subroutine print_header
 
 !*************************************************************
@@ -537,7 +521,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     call watch_start('Simulation')
 #endif
 
-    return
     end subroutine sim_start_print
         
 !************************************************************************
@@ -613,7 +596,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     call watch_destroy
 #endif   
     
-    return
     end subroutine sim_end_print
 
 !********************************************************************************
@@ -728,7 +710,6 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     enddo
     close(dgunit)
     
-    return
     end subroutine cms_print
     
 !********************************************************************************
@@ -965,5 +946,4 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     write(dgunit,*) '*** Starting CMS-Wave Run ***'
     close(dgunit)
     
-    return
     end subroutine wave_only_print

@@ -384,7 +384,6 @@
         write(*,*) ' '
         write(*,*) 'Press the Enter key to continue'
         read(*,*) 
-        
 
       return
       end subroutine ExtractMultiDatasets_toText
@@ -912,45 +911,7 @@
 
     return
     end subroutine fileparts
-    
-!!******************************************************
-!    subroutine fileparts(astr,apath,aname,aext)    
-!! Determines the parts of a file name
-!! written by Alex Sanchez, USACE-CHL
-!!******************************************************    
-!    implicit none
-!    !Input/Output
-!    character(len=*),intent(in) :: astr
-!    character(len=*),intent(inout) :: apath
-!    character(len=*),intent(inout),optional :: aname,aext
-!    !Internal
-!    integer :: i,k,nn    
-!    
-!    nn = len_trim(astr)    
-!    !Determmin path
-!    apath = ''   
-!    do k=nn,1,-1
-!      if(astr(k:k)=='\' .or. astr(k:k)=='/')then
-!        apath = astr(1:k)     
-!        exit
-!      endif
-!    enddo    
-!    
-!    if(.not.present(aname)) return
-!    
-!    !Determine name and extension
-!    aname = astr(max(k+1,1):nn)
-!    if(present(aext)) aext = ''    
-!    do i=nn,k+1,-1
-!      if(astr(i:i)=='.')then
-!        if(present(aext)) aext = astr(i+1:nn)    
-!        aname = trim(astr(max(k+1,1):i-1))
-!        return
-!      endif
-!    enddo          
-!
-!    return
-!    end subroutine fileparts
+  
     
 !******************************************************
     subroutine filepath(astr,apath)  
@@ -1243,9 +1204,8 @@
       end if
 
       lstring = len_trim(string)
-!
-!     remove trailing zeros 
-!
+
+      !remove trailing zeros 
       idot = index (string(1:lstring),'.')
  
       do i = lstring, idot+2, -1
