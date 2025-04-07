@@ -1863,7 +1863,7 @@ loopj:  do j=1,nlay
         if(hot_timehr)then 
           write(iunit(i),222) 'Single Hot Start Output: '
           write(iunit(i),222) '  File:',trim(hotfile)
-          write(iunit(i),222) '  Time:',trim(vstrlz(hottime,'(f0.2)')),' hrs'
+          write(iunit(i),222) '  Single Output Time:',trim(vstrlz(hottime,'(f0.2)')),' hrs'
         endif
         if(hot_recur)then
           write(iunit(i),222) 'Recurring Hot Start Output: '

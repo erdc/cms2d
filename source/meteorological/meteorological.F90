@@ -1836,7 +1836,7 @@ d1: do ii=1,20
     use diag_lib
     use prec_def
     implicit none
-    integer :: i,ista,niter,nwin,ndat
+    integer :: i,ista,niter,nwin,ndat, nn
     real(ikind) :: ang,wspd,wdir,tjuldaybegwnd,tjulend,fac
     real(ikind), allocatable :: xmetsta(:),ymetsta(:)
     real(ikind), pointer :: dat(:,:)
@@ -1894,9 +1894,15 @@ d1: do ii=1,20
       !Read Files
       if(aext(1:2)=='h5')then
 #ifdef XMDF_IO
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Times',     metsta(ista)%ntimes,metsta(ista)%times)
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Magnitude', metsta(ista)%ntimes,metsta(ista)%wndvalsx)
-        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Direction', metsta(ista)%ntimes,metsta(ista)%wndvalsy)
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Times',     nn,metsta(ista)%times)
+        metsta(ista)%ntimes = nn
+        
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Magnitude', nn,metsta(ista)%wndvalsx)
+        if (nn .ne. metsta(ista)%ntimes) call diag_print_error('Different number of times found in datasets for met station'//trim(metsta(ista)%name))
+        
+        call read_dataseth5(metsta(ista)%file,metsta(ista)%path,'Direction', nn,metsta(ista)%wndvalsy)
+        if (nn .ne. metsta(ista)%ntimes) call diag_print_error('Different number of times found in datasets for met station'//trim(metsta(ista)%name))
+
 #else
         call diag_print_error('Cannot read wind time series from *.h5 file without XMDF libraries')
 #endif

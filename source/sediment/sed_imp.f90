@@ -58,7 +58,7 @@
     case(5); call HidExpHayashi       !Hayashi et al. 1980
     end select
     
-    !=== Incipient Motion Correction for Bedslop ======
+    !=== Incipient Motion Correction for Bedslope ======
     if(ibedslope==1) call bedslopecor_dey
     
     !write(*,*)'bdj in sed_imp,ready to go to sedcapac, icapac=',icapac
