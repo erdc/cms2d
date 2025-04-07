@@ -344,6 +344,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           enddo
         endif  
       case default                     !Very first format - all parameters specified on one line
+        allocate( ijsp(2,20000), inest(20000), jnest(20000) )   !for this earliest format, the 'kout' and 'nest' values are unknown. Just use old dimensioning.
         read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd,  &
           iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
           imud,iwnd,isolv,ixmdf,iproc,iview,iroll
@@ -9822,20 +9823,22 @@ contains
       read(11,*) aCard, akap                       !limit 0.0 <= akap < 4.0
     case('WV_NUM_THREADS')
       backspace(11)
-      read(11,*) aCard, iproc        
+      read(11,*) aCard, iproc
     case('WV_NESTING_CELLS') 
       backspace(11)
       read(11,*) aCard, nest                       !0 - no nest cells
-      if(nest.ge.1) then                           !n - list of nesting cells to read in  
+      if(nest >= 1) then                           !n - list of nesting cells to read in  
+        allocate( inest(nest), jnest(nest) )  !Dynamic allocation added by Wu (MBrown added to this routine 04/07/2025)
         backspace(11)
         read (11,*) aCard, nest, (inest(nn),jnest(nn),nn=1,nest)   !This reads card, total, and all values from one line
       end if
     case('WV_OBSERVATION_CELLS') 
       backspace(11)
       read(11,*) aCard, kout                       !0 - no obs output
-      if(kout.ge.1) then                           !n - output of spectra and parameters at 'n' selected cells
+      if(kout >= 1) then                           !n - output of spectra and parameters at 'n' selected cells
+        allocate( ijsp(2,iabs(kout)) )        !Dynamic allocation added by Wu (MBrown added to this routine 04/07/2025)
         backspace(11)
-        read (11,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)  !This reads card, total, and all values from one line
+        read (11,*) aCard, kout, (ijsp(1,nn),ijsp(2,nn),nn=1,kout)   !This reads card, total, and all values from one line
       end if
     case('WV_LIMIT_OBSERVATION_OUTPUT')
       backspace(11)

@@ -1,7 +1,7 @@
 What's New
 ==========
 
-v5.4.4 (26 March 2025)
+v5.4.4 (07 April 2025)
 -------------------------
 
 Changes
@@ -10,6 +10,7 @@ Changes
 * Added test to ensure initial mixing layer thickness is always less than thicknesses for bed layers.
 * Added test for met station wind data import.
 * Test fix for divide by zero in SHEARLUND routine.
+* Added allocation for Observation and Nest points when using the newest format.
 
 
 v5.4.3 (18 March 2025)

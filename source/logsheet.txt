@@ -3,6 +3,7 @@
 * Added test to ensure initial mixing layer thickness is always less than thicknesses for bed layers.
 * Added test for met station wind data import.
 * Test fix for divide by zero in SHEARLUND routine.
+* Added allocation for Observation and Nest points when using the newest format.
 
 == Version 5.4.3 (03/20/2025) ==
 * Optimized ADAK and ADBK dot product routines
