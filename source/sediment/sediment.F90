@@ -1639,7 +1639,7 @@ d1: do ii=1,30
     real(ikind), allocatable :: d16lay(:),d35lay(:),d50lay(:),d84lay(:),d90lay(:)
     character(len=200) :: file,path
     character(len=100) :: msg2
-    character(len=10) :: aext
+    character(len=10)  :: aext
     
     !Internal variables
     solid = 1.0-poros
@@ -1963,6 +1963,7 @@ d1: do ii=1,30
       
       !Bed layer thickness
       allocate(db(ncellsD,nlay),db1(ncellsD,nlay))
+
       do j=1,nlay
         select case(bedlay(j)%idbinp)
         case(0) !None specified
@@ -2012,19 +2013,22 @@ d1: do ii=1,30
       !Recalculate layers
       do i=1,ncells
         !Determine if first layer is thick enough to split
-        if(db1(i,1)+1.0e-6>=2.0*dbmin)then !Split first layer
+        if(db1(i,1) + 1.0e-6 >= 2.0*dbmin)then !Split first layer
           !First merge last two layers   
-          db(i,nlay)=db1(i,nlay)+db1(i,nlay-1)     
-          pbk(i,:,nlay)=(db1(i,nlay)*pbk(i,:,nlay)+db1(i,nlay-1)*pbk(i,:,nlay-1))/db(i,nlay)
+          db(i,nlay) = db1(i,nlay) + db1(i,nlay-1)     
+          pbk(i,:,nlay) = (db1(i,nlay)*pbk(i,:,nlay) + db1(i,nlay-1)*pbk(i,:,nlay-1)) / db(i,nlay)
+          
           !Move index of layers 3 to nlay-1        
-          db(i,3:nlay-1)=db1(i,2:nlay-2)
-          pbk(i,:,3:nlay-1)=pbk(i,:,2:nlay-2)
+          db(i,3:nlay-1) = db1(i,2:nlay-2)
+          pbk(i,:,3:nlay-1) = pbk(i,:,2:nlay-2)
+          
           !Recalculate layers 1 and 2
-          db(i,2)=db1(i,1)-db(i,1)          
-          pbk(i,:,2)=pbk(i,:,1)          
+          db(i,2) = db1(i,1) - db(i,1)          
+          pbk(i,:,2) = pbk(i,:,1)          
           !Note: Mixing layer composition does not change   
+          
         else !Layer too thin to split, revert back to initial value
-          db(i,1)=db1(i,1)  
+          db(i,1) = db1(i,1)  
         endif
       enddo
       db1 = db !Make sure they are the same

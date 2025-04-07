@@ -47,6 +47,7 @@
     character(len=37) :: cardname,aext
     character(len=200) :: aname,apath,astring
     logical :: foundcard, foundfile, foundtel, foundgrid
+    real :: valtemp  !test for bedlayer thicknesses
     
     !Get CMS Version number for setting defaults
     open(77,file=ctlfile,status='unknown')
@@ -149,6 +150,11 @@
         call diag_print_message('  '//trim(cardList(i)%cardname))
       enddo
     endif
+    
+    !Stop if the constant mixing layer thickness is not smaller than other bed layer thicknesses
+    valtemp = minval(bedlay(:)%dbconst)
+    if (dmconst >= valtemp) call diag_print_error('Beginning mixing layer thickness must be smaller than other bed layers')
+
     
     !Stop if there is one or more missing GRID_ORIGIN cards.
     if (originxy_found < 2) then

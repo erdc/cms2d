@@ -7,6 +7,9 @@ v5.4.4 (26 March 2025)
 Changes
 ^^^^^^^
 * Minor changes to wave code to initialize a few variables.
+* Added test to ensure initial mixing layer thickness is always less than thicknesses for bed layers.
+* Added test for met station wind data import.
+* Test fix for divide by zero in SHEARLUND routine.
 
 
 v5.4.3 (18 March 2025)

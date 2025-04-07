@@ -26,15 +26,16 @@
                RKWF,RKCF,RKS,XI,PSI,RKTW,RKTC,&
                Z0S,Z0FW,Z0FC,Z0TW,Z0TC,Z0W,Z0C,Z0CB,Z0WB,&
                FCFB,FCWFB,RRR,RRRB,FWFB,X,TAUWTB,TAUWMTB
+      
 
 ! IRIPPLE=0 : DO NOT INCLUDE RIPPLES
 ! IRIPPLE=1 : INCLUDE RIPPLES
 
 ! BOTTOM EXCURSION AMPLITUDE
       IF(UW.GT.0.0)THEN 
-         AW=UW*T/(2.0*PI)
+        AW=UW*T/(2.0*PI)
       ELSE
-         AW=0.0
+        AW=0.0
       ENDIF
       IF(IRIPPLE.EQ.1)THEN
 
@@ -46,43 +47,43 @@
 ! (UNDER IRREGULAR WAVES)
 !
 ! ESTIMATE VALUE ON NON-DIMENSIONAL PARAMETER PSI
-         IF(UW.GT.0.0)THEN
-            PW=UW**2/((RHOS/RHOW-1.0)*GRAV*D50)
-            IF(PW.LE.10.D0)THEN
-               RIPWH=0.22*AW
-               RIPWL=1.25*AW
-               RHRWL=RIPWH/RIPWL
-            ELSEIF(PW.LT.250.0)THEN                  !Chris Reed - Changed from .LE. to .LT. - 10/18/2016
-               RIPWH=2.8e-13 *(250.0-PW)**5.0*AW
-               RIPWL=1.4e-6 *(250.0-PW)**2.5*AW
-               RHRWL=RIPWH/RIPWL
-            ELSE
-               RIPWH=0.D0
-               RIPWL=0.D0
-               RHRWL=0.D0
-            ENDIF
+        IF(UW.GT.0.0)THEN
+          PW=UW**2/((RHOS/RHOW-1.0)*GRAV*D50)
+          IF(PW.LE.10.D0)THEN
+            RIPWH=0.22*AW
+            RIPWL=1.25*AW
+            RHRWL=RIPWH/RIPWL
+          ELSEIF(PW.LT.250.0)THEN                  !Chris Reed - Changed from .LE. to .LT. - 10/18/2016
+            RIPWH=2.8e-13 *(250.0-PW)**5.0*AW
+            RIPWL=1.4e-6 *(250.0-PW)**2.5*AW
+            RHRWL=RIPWH/RIPWL
+          ELSE
+            RIPWH=0.D0
+            RIPWL=0.D0
+            RHRWL=0.D0
+          ENDIF
 
 ! ROUGHNESS FROM WAVE RIPPLES (RKWF)
-            RKWF=30.0*0.25*RIPWH*RHRWL
-         ELSE
-            RKWF=0.0
-         ENDIF
+          RKWF=30.0*0.25*RIPWH*RHRWL
+        ELSE
+          RKWF=0.0
+        ENDIF
 
 ! CURRENT
 ! -------
-         IF(UC.GT.0.0)THEN
-            RIPCL=1000.0*D50
-            RIPCH=RIPCL/7.0
-            RHRCL=RIPCH/RIPCL
+        IF(UC.GT.0.0)THEN
+          RIPCL=1000.0*D50
+          RIPCH=RIPCL/7.0
+          RHRCL=RIPCH/RIPCL
 
 ! ROUGHNESS FROM CURRENT RIPPLES (RKCF)
-            RKCF=30.0*0.25*RIPCH*RHRCL
-         ELSE
-            RKCF=0.0
-         ENDIF
+          RKCF=30.0*0.25*RIPCH*RHRCL
+        ELSE
+          RKCF=0.0
+        ENDIF
       ELSE
-         RKCF=0.0
-         RKWF=0.0
+        RKCF=0.0
+        RKWF=0.0
       ENDIF
 
 ! ROUGHNESS RELATED TO GRAIN SIZE AND SEDIMENT TRANSPORT
@@ -98,19 +99,18 @@
 !
 
 ! WAVES (RKTW)
-      IF(UW.GT.0.0 .AND. T.GT.0.0)THEN
-         XI=LOG(UW/(RHOS/RHOW-1.0)/GRAV/T)
-         IF(XI.LT.-5.0)THEN
-            PSI=0.58184+1.62956*XI+0.03004*XI**2
-         ELSEIF(XI.GE.-5.0.AND.XI.LT.-3.0)THEN
-            PSI=3.23319+2.70983*XI+0.14110*XI**2
-         ELSE
-            PSI=51.59618+56.02861*XI+19.85308*XI**2  &
-                +2.43875*XI**3
-         ENDIF
-         RKTW=EXP(PSI)*AW
+      IF(UW > 0.0 .AND. T > 0.0)THEN
+        XI=LOG(UW/(RHOS/RHOW-1.0)/GRAV/T)
+        IF(XI < -5.0)THEN
+          PSI=0.58184 + 1.62956*XI + 0.03004*XI**2
+        ELSEIF(XI > -5.0 .AND. XI < -3.0)THEN
+          PSI=3.23319 + 2.70983*XI + 0.14110*XI**2
+        ELSE
+          PSI=51.59618 + 56.02861*XI + 19.85308*XI**2 + 2.43875*XI**3
+        ENDIF
+        RKTW=EXP(PSI)*AW
       ELSE
-         RKTW=0.d0
+        RKTW=0.d0
       ENDIF
 
 ! CURRENT (RKTC)
@@ -118,58 +118,58 @@
 ! ROUGHNESS DETERMINED BY SOLVING THE WILSON FORMULA ASSUMING A LOG
 ! PROFILE FOR THE CURRENT VELOCITY - NUMERICALLY DETERMINED SOLUTION 
 ! IN NON-DIMENSIONAL TERMS APPROXIMATED BY POLYNOMIALS (FLAT BED)
-      IF(UC.GT.0.001 .and. dep .ge. 0.001)THEN
-         XI=LOG(UC**2/(RHOS/RHOW-1.0)/GRAV/DEP)
-         IF(XI.LT.-4.0)THEN
-            PSI=-4.167248+1.269405*XI+0.0083*XI**2
-         ELSEIF(XI.GE.-4.0.AND.XI.LT.-1.0)THEN
-            PSI=-3.958030+1.376399*XI+0.022333*XI**2
-         ELSE
-            PSI=-3.907731+1.461098*XI+0.086438*XI**2+0.028461*XI**3
-         ENDIF
-         RKTC=EXP(PSI)*DEP
+      IF(UC > 0.001 .and. dep >= 0.001)THEN
+        XI=LOG(UC**2 / (RHOS/RHOW-1.0) / GRAV / DEP)
+        IF(XI < -4.0)THEN
+          PSI=-4.167248 + 1.269405*XI + 0.0083*XI**2
+        ELSEIF(XI >= -4.0 .AND. XI < -1.0)THEN
+          PSI=-3.958030 + 1.376399*XI + 0.022333*XI**2
+        ELSE
+          PSI=-3.907731 + 1.461098*XI + 0.086438*XI**2 + 0.028461*XI**3
+        ENDIF
+        RKTC=EXP(PSI)*DEP
       ELSE
-         RKTC=0.0
+        RKTC=0.0
       ENDIF
 
 ! ROUGHNESS HEIGHTS
-      Z0S=RKS/30.0
-      Z0FW=RKWF/30.0
-      Z0FC=RKCF/30.0
-      Z0TW=RKTW/30.0
-      Z0TC=RKTC/30.0
-      Z0W=Z0S+Z0FW+Z0TW
-      Z0C=Z0S+Z0FC+Z0TC
+      Z0S = RKS/30.0
+      Z0FW = RKWF/30.0
+      Z0FC = RKCF/30.0
+      Z0TW = RKTW/30.0
+      Z0TC = RKTC/30.0
+      Z0W = Z0S + Z0FW + Z0TW
+      Z0C = Z0S + Z0FC + Z0TC
 
 ! ROUGHNESS FOR BED LOAD CALCULATIONS
-      Z0CB=Z0S+Z0TC
-      Z0WB=Z0S+Z0TW
+      Z0CB = Z0S + Z0TC
+      Z0WB = Z0S + Z0TW
 
 ! FRICTION FACTORS
 ! ****************
 ! CURRENT FRICTION FACTOR (LOG PROFILE)
-      IF(DEP.GT.0.0)THEN
-         FCF=MIN(2.0*(KAPPA/(1.0+LOG(Z0C/DEP)))**2,0.30)  !0.05 cutoff added by C. Reed
-         FCFB=MIN(2.0*(KAPPA/(1.0+LOG(Z0CB/DEP)))**2,0.30)  !0.05 cutoff added by C. Reed
+      IF(DEP > 0.0)THEN
+        FCF  = MIN(2.0 * (KAPPA/(tiny(z0c)  + 1.0 + LOG(Z0C/DEP)))**2, 0.30)   !0.05 cutoff added by C. Reed, MEB added tiny to this value to avoid divide by zero 03/31/2025.
+        FCFB = MIN(2.0 * (KAPPA/(tiny(z0cb) + 1.0 + LOG(Z0CB/DEP)))**2, 0.30)  !0.05 cutoff added by C. Reed, MEB added tiny to this value to avoid divide by zero 03/31/2025.
       ELSE
-         FCF=0.0
-         FCFB=0.0
+        FCF = 0.0
+        FCFB = 0.0
       ENDIF
 ! WAVE FRICTION FACTOR (SWART)
-      IF(AW.GT.0.0)THEN
-         RRR=MAX(AW/(30.0*Z0W),1.0)
-         RRRB=MAX(AW/(30.0*Z0WB),1.0)
-         FWF=MIN(EXP(-5.98+5.2*RRR**(-0.194)),0.30)
-         FWFB=MIN(EXP(-5.98+5.2*RRRB**(-0.194)),0.30)
+      IF(AW > 0.0)THEN
+        RRR = MAX(AW/(30.0*Z0W),1.0)
+        RRRB = MAX(AW/(30.0*Z0WB),1.0)
+        FWF = MIN(EXP(-5.98+5.2*RRR**(-0.194)),0.30)
+        FWFB = MIN(EXP(-5.98+5.2*RRRB**(-0.194)),0.30)
       ELSE
-         FWF=0.0
-         FWFB=0.0
+        FWF = 0.0
+        FWFB = 0.0
       ENDIF
 ! FRICTION WEIGHTING FUNCTION
       IF(ABS(UC).GT.0.0)THEN
-         X=ABS(UC)/(ABS(UC)+UW)
+        X=ABS(UC)/(ABS(UC)+UW)
       ELSE
-         X=0.0
+        X=0.0
       END IF
 ! WEIGHTED FRICTION VALUE (WAVE AND CURRENT COMBINED)
       FCWF=X*FCF+(1.0-X)*FWF

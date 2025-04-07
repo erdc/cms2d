@@ -47,7 +47,7 @@ contains
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(pid,thepath,gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     msg = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
     if (ierr < 0) call diag_print_error (msg)
 

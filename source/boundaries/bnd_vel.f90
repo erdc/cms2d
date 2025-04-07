@@ -1,6 +1,6 @@
 !*************************************************************
     subroutine bnd_vel_flux(nbndcells,icells,kfaces)
-! Calculatest the velocity at a flux boundary condition
+! Calculates the velocity at a flux boundary condition
 !*************************************************************     
     use geo_def,  only: dsxy,cell2cell
     use flow_def, only: visk,hk,flux,iwet,u,v,su,sv,sp,acoef
