@@ -56,8 +56,6 @@
     foundcard = .true.
     select case(cardname)    
     case('DREDGE_UPDATE_INTERVAL')         
-      !backspace(77)
-      !read(77,*)cardname,dredge_interval
       call card_scalar(77,'min','min',dredge_interval,ierr)   !Default read-in units if not specified - minutes, convert to units - minutes
 
     case('DREDGE_OPERATION_BEGIN')
@@ -306,10 +304,11 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Chris Reed
 !********************************************************************
-    use dredge_def, only: dredge_operations, write_dredge_diag, num_place_areas, ndredge_operations, method, dredge_diag_file
     use geo_def,    only: grdfile
     use comvarbl,   only: flowpath
     use prec_def,   only: ikind
+    use diag_lib,   only: diag_print_error
+    use dredge_def, only: dredge_operations, write_dredge_diag, num_place_areas, ndredge_operations, method, dredge_diag_file
    
     implicit none
 

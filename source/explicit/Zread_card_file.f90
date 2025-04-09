@@ -8,7 +8,9 @@
       use EXP_Structures_def, only: srm, structures, srm_on, srm, cul, cul_on
       use prec_def, only: ikind
       use flow_def, only: hmin
-      use comvarbl, only: ctlfile,dtime  
+      use comvarbl, only: ctlfile,dtime 
+      use diag_def, only: msg, msg2
+      use diag_lib, only: diag_print_error
                  
       implicit none
       !local vars

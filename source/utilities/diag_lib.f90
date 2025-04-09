@@ -178,7 +178,7 @@ contains
 ! Prints a error message(s) to the screen and diagnostic file    
 ! written by Alex Sanchez, USACE-CHL       
 !******************************************************************************
-    use diag_def, only: dgfile,dgunit
+    use diag_def, only: dgfile,dgunit,interactive
     
     implicit none
     !Input/Output
@@ -210,8 +210,10 @@ contains
       if(present(msg13)) write(iunit(i),111) trim(msg13)
     enddo
     close(dgunit)  
-    write(*,111) 'Press <enter> key to continue.'
-    read(*,*)
+    if (interactive) then 
+      write(*,111) 'Press <enter> key to continue.'
+      read(*,*)
+    endif
     stop
     
     return

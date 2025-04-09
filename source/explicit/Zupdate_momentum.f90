@@ -13,6 +13,7 @@
       use fric_def,  only: cfrict,uelwc
       use prec_def,  only: ikind
       use size_def,  only: ncells
+      use diag_lib,  only: diag_print_error
       
       implicit none
       integer i,j,id
@@ -147,7 +148,7 @@
 !!$omp end parallel do       
 !      endif   
     
-      if (any(eta.gt.1.0e+3)) call diag_print_error('ETA values greater than 100 are evident.  Reduce the timestep.')
+      if (any(eta.gt.1.0e+3)) call diag_print_error('ETA values greater than 100 are evident. Reduce the timestep.')
 
 !$omp parallel do private(ncw,deltax,hplus,hmnexp,detadx,tauwind,coriolis,hgt,spd,cd)
       do i=1,ncells

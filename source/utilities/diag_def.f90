@@ -8,6 +8,7 @@ module diag_def
     character(len=200) :: dgfile  !Diagnostic file    
     logical :: debug_mode  !Turns on or off the debug mode    
     integer :: debug_level !Placeholder. Not implemented yet
+    logical :: interactive = .true.
     
     character(len=200) :: msg,msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9,msg10,msg11,msg12,msg13
     
