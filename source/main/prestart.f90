@@ -153,7 +153,7 @@
     
     !Stop if the constant mixing layer thickness is not smaller than other bed layer thicknesses
     valtemp = minval(bedlay(:)%dbconst)
-    if (dmconst >= valtemp) call diag_print_error('Beginning mixing layer thickness must be smaller than other bed layers')
+    if (dmconst >= valtemp .and. valtemp .ne. -999.0) call diag_print_error('Beginning mixing layer thickness must be smaller than other bed layers')
 
     
     !Stop if there is one or more missing GRID_ORIGIN cards.

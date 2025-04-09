@@ -2059,7 +2059,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************************
     use prec_def
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2
     implicit none
+    
     !Input/Output
     integer,    intent(in) :: nns     !Number of nodes on the sub grid
     integer,    intent(in) :: kns(nns)  !Node mapping from subgrid to full grid
@@ -2091,11 +2094,9 @@ contains
     open(105,file=tdbfile)
     read(105,*) ntctdb
     if(ntctdb>ntcmax)then
-      write(*,*) 'ERROR: Maximum number of constituents exceeded in'
-      write(*,*) 'Tidal Database File: ',tdbfile
-      write(*,*) 'Press <enter> key to continue.'
-      read(*,*)
-      stop
+      msg = 'Maximum number of constituents exceeded in'
+      msg2 = 'Tidal Database File: '//trim(tdbfile)
+      call diag_print_error(msg, msg2)
     endif
     
     !Read header
@@ -2396,7 +2397,9 @@ contains
 ! written by Alex Sanchez, USACE-CHL  
 !******************************************************************************    
     use prec_def
+    use diag_lib, only: diag_print_error
     implicit none
+    
     !--- Input/Output -------------
     integer,    intent(in)      :: npts
     real(ikind),intent(in)      :: xpts(npts),ypts(npts)
@@ -2456,13 +2459,8 @@ contains
         name(11) = 'P1'
         name(12) = 'L2'
         name(13) = 'K2'
-        
       else
-        write(*,*) 'ERROR: Invalid Tidal Database Name '
-        write(*,*) 'Press <enter> key to continue.'
-        read(*,*)
-        stop
-        
+        call diag_print_error('Invalid Tidal Database Name ')
       endif    
     else
       ntc = ntcin  
@@ -2516,6 +2514,7 @@ contains
     use diag_lib, only: diag_print_error
     use prec_def
     implicit none
+    
     !PARAMETERS
     real(ikind), parameter :: deg2rad = atan(1.0)/45.0
     real(ikind), parameter :: rad2deg = 45.0/atan(1.0)      
@@ -2570,9 +2569,7 @@ contains
       read(11,*) nlon,nlat
       read(11,*) UNDEFa,UNDEFp
       if(abs(UNDEFa-UNDEFp)>1.0e-5) then
-         write(*,*) ' FATAL ERROR: UNDEFa <> UNDEFp '
-         read(*,*)
-         stop
+        call diag_print_error('UNDEFa <> UNDEFp ')
       else
          UNDEF=UNDEFa
       endif

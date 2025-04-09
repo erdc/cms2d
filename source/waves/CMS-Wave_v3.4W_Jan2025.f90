@@ -345,7 +345,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         endif  
       case default                     !Very first format - all parameters specified on one line
         allocate( ijsp(2,20000), inest(20000), jnest(20000) )   !for this earliest format, the 'kout' and 'nest' values are unknown. Just use old dimensioning.
-        read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd,  &
+        read(text,*,iostat=ierr)iprpp, icur, ibreak, irs, kout, ibnd,     &
           iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
           imud,iwnd,isolv,ixmdf,iproc,iview,iroll
       end select
@@ -356,7 +356,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         open(unit=20,file='std.dat',status='old')
         read(20,'(a150)') text
         close(20)
-        read(text,*,end=133,err=133)icc, icc, iibreak, icc, icc1, icc,  &
+        read(text,*,end=133,err=133)icc, icc, iibreak, icc, icc1, icc,    &
           iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
           imud,iwnd,isolv,ixmdf,iproc,iview,iroll
         kout=icc1
@@ -662,16 +662,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if(jstruc.eq.0) CYCLE
           if(kstruc.eq.2) then
             ijstruc2=ijstruc2+1
-            if(ijstruc2.gt.149999) then
-              print*,' '
-              print*,'***************************************************'
-              print*,'This version of CMS-Wave is statically dimensioned.'
-              print*,'It has a limit of total wave run-up cells  = 150000.'
-              print*,'The input total wave run-up cells is over the limit'
-              print*,'Please revise the data in *.struct file and re-run.'
-              print*,'***************************************************'
-              stop
-            end if
             istruc2(ijstruc2)=istruc
             jstruc2(ijstruc2)=jstruc
             if(dummy.ge.0.) then
@@ -813,9 +803,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           open(unit=18,file=FrflFile,status='old')
           read(18,*) kbi,kbj,qmesh
           if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-            write(*,*) 'Wrong forward reflection field file'
             close(18)
-            stop
+            call diag_print_error('Wrong forward reflection field file')
           end if
           do j=nj,1,-1
             read(18,*) (reflty(i,j),i=1,ni)
@@ -842,12 +831,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           open(unit=18,file=BrflFile,status='old')
           read(18,*) kbi,kbj,qmesh
           if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-            write(*,*) 'Wrong backward reflection field file'
-            if(noptset.eq.3)then
-              write(9,*) 'Wrong backward reflection field file'
-            endif
             close(18)
-            stop
+            call diag_print_error('Wrong backward reflection field file')
           end if
           do j=nj,1,-1
             read(18,*) (refltx(i,j),i=1,ni)
@@ -872,12 +857,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         open(unit=29,file=MudFile,status='old')
         read(29,*,end=190,err=190) kbi,kbj,qmesh
         if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-          write(*,*) 'Wrong mud field file'
-          if(noptset.eq.3)then
-            write(9,*) 'Wrong mud field file'
-          endif
           close(29)
-          stop
+          call diag_print_error('Wrong mud field file')
         end if
         close(29)
         go to 191
@@ -896,15 +877,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           open(unit=28,file=FricFile,status='old')
           read(28,*) kbi,kbj
           if(kbi.ne.ni.or.kbj.ne.nj) then
-            write(*,*) 'Wrong friction field file'
             close(28)
-            stop
+            call diag_print_error('Wrong friction field file')
           end if
           close(28)
         else
           write(*,*) '' 
-          write(*,*) ' *** Friction File expected but NOT FOUND ***'
-          stop
+          call diag_print_error(' *** Friction File expected but NOT FOUND ***')
         end if
       end if
 
@@ -1373,9 +1352,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         read(39,*) nship
         allocate( ShipL(nship),ShipB(nship),ShipD(nship),ShipS(nship) )   !Added by Wu, Nov. 2024
         if(nship.eq.0) then
-          write(*,*) 'Wrong Shiptrack file'
           close(39)
-          stop
+          call diag_print_error('Wrong Shiptrack file')
         end if
         read(39,*) (shipL(n),shipB(n),shipD(n),shipS(n),n=1,nship)
       end if
@@ -2450,15 +2428,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             read(16,*) nic, njc
           end if
           if(imod.eq.0.or.imod.eq.2) then
-            if ((nic .ne. ni) .or. (njc .ne. nj)) then
-              print *,' Error: current field size does not match depth grid size'
-              stop
-            endif
+            if ((nic .ne. ni) .or. (njc .ne. nj)) call diag_print_error('Current field size does not match depth grid size')
           else
-            if ((njc .ne. ni) .or. (nic .ne. nj)) then
-              print *,' Error: current field size does not match depth grid size'
-              stop
-            endif
+            if ((njc .ne. ni) .or. (nic .ne. nj)) call diag_print_error('Current field size does not match depth grid size')
           endif
           
           ! read constant current field
@@ -2495,8 +2467,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           read(16,'(a150)',end=161,err=165) text
           READ(text,*) icur_date
           go to 162
-165       write(*,*) 'Current Input Index Error'
-          stop
+165       call diag_print_error('Current Input Index Error')
 161       close(16)
           icur=3
           go to 163
@@ -2935,24 +2906,23 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       krmx=0
       do j=2,nj1
         do i=2,ni1
-          if(ijb(i,j).eq.4.or.ijb(i,j).eq.5) then
+          if(ijb(i,j)==4 .or. ijb(i,j)==5) then
             i1=i+1
             j1=j+1
             ib=i-1
             jb=j-1
             krmx=krmx+1
-            if(krmx.gt.6*ipmx) go to 5000                      !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
             kr(1,krmx)=i
             kr(2,krmx)=j
             yangl(krmx)=0.
-            if(ijb(ib,jb).ge.4.and.ijb(i1,jb).lt.4) yangl(krmx)=45.
-            if(ijb(ib,j1).ge.4.and.ijb(i1,j1).lt.4) yangl(krmx)=-45.
-            if(ijb(i1,jb).ge.4.and.ijb(ib,jb).lt.4) yangl(krmx)=-45.
-            if(ijb(i1,j1).ge.4.and.ijb(ib,j1).lt.4) yangl(krmx)=45.
-            if(ijb(ib,j).ge.4.and.ijb(i1,j1).ge.4) yangl(krmx)=30.
-            if(ijb(ib,j).ge.4.and.ijb(i1,jb).ge.4) yangl(krmx)=-30.
-            if(ijb(i1,j).ge.4.and.ijb(ib,j1).ge.4) yangl(krmx)=-30.
-            if(ijb(i1,j).ge.4.and.ijb(ib,jb).ge.4) yangl(krmx)=30.
+            if(ijb(ib,jb).ge.4 .and. ijb(i1,jb).lt.4) yangl(krmx) =  45.
+            if(ijb(ib,j1).ge.4 .and. ijb(i1,j1).lt.4) yangl(krmx) = -45.
+            if(ijb(i1,jb).ge.4 .and. ijb(ib,jb).lt.4) yangl(krmx) = -45.
+            if(ijb(i1,j1).ge.4 .and. ijb(ib,j1).lt.4) yangl(krmx) =  45.
+            if(ijb(ib,j) .ge.4 .and. ijb(i1,j1).ge.4) yangl(krmx) =  30.
+            if(ijb(ib,j) .ge.4 .and. ijb(i1,jb).ge.4) yangl(krmx) = -30.
+            if(ijb(i1,j) .ge.4 .and. ijb(ib,j1).ge.4) yangl(krmx) = -30.
+            if(ijb(i1,j) .ge.4 .and. ijb(ib,jb).ge.4) yangl(krmx) =  30.
             if(iark.eq.0 .or. iark.eq.1) then
               rk(krmx)=ark
             else
@@ -2966,12 +2936,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(iark.ge.1) then
         write(*,*) 'Total forward reflection cells  =',krmx
-        if(krmx.gt.6*ipmx) then                                    !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
-          write(*,*) 'Total forward reflection cells >',6*ipmx
-          write(*,*) 'Need to increase total reflection cells'
-          write(*,*) 'or turn off reflection calc -- Run Terminated'
-          stop
-        end if
         write(*,*) ' '
       end if
 
@@ -2987,7 +2951,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             jb=j-1
             if(jb.lt.1) jb=1
             krf=krf+1
-            if(krf.gt.6*ipmx) go to 5001                        !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
             kcr(1,krf)=i
             kcr(2,krf)=j
             xangl(krf)=0.
@@ -3005,17 +2968,17 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
               rkr(krf)=arkr
             else
               rkr(krf)=refltx(i,j)
-              if(rkr(krf).gt.1.) rkr(krf)=arkr
+              if(rkr(krf).gt.1.) rkr(krf) = arkr
             end if
             if(j.eq.1) then
               xangl(krf)=0.
-              if(ijb(i,j1) .eq.0) xangl(krf)=-30.
-              if(ijb(ib,j1).eq.0) xangl(krf)=-45.
+              if(ijb(i,j1) .eq.0) xangl(krf) = -30.
+              if(ijb(ib,j1).eq.0) xangl(krf) = -45.
             end if
             if(j.eq.nj) then
               xangl(krf)=0.
-              if(ijb(i,jb) .eq.0) xangl(krf)=30.
-              if(ijb(ib,jb).eq.0) xangl(krf)=45.
+              if(ijb(i,jb) .eq.0) xangl(krf) = 30.
+              if(ijb(ib,jb).eq.0) xangl(krf) = 45.
             end if
           end if
         enddo
@@ -3024,12 +2987,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(iarkr.ge.1) then
         write(*,*) 'Total backward reflection cells =',krf
-        if(krf.gt.6*ipmx) then                                     !Changed to 6*ipmx to duplicate the inline limits - MEB 02/02/2020
-          write(*,*) 'Total backward reflection cells >',6*ipmx
-          write(*,*) 'Need to increase total reflection cells'
-          write(*,*) 'allowed -- Stop run'
-          stop
-        end if
         write(*,*) ' '
       end if
       
@@ -3066,9 +3023,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
       endif  
 
-      if(hs0.lt..0001) then
+      if(hs0 < .0001) then
         mwd=md2
-        if(ws.ge..1) then
+        if(ws >= .1) then
           mwd=(hpai+wd*rad)/dth
           if(mwd.gt.md) mwd=md
           if(mwd.lt.imd) mwd=imd
@@ -3113,7 +3070,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         a1=0.0002
         cc=a1*g*8./pai
         ccc=a1*g*1.333/pai
-        !ph0=g/ws*.9
         ph0=g/max(ws, 0.00000000000000000001)*0.9   !Suggested by Mitch, changed by Wu to avoid division by zero
 
         if(ph0.gt.pai2) ph0=pai2
@@ -3539,12 +3495,15 @@ contains
 !********************************************************************************
       subroutine xmdfout_inline
 !********************************************************************************      
+      use xmdf
       use prec_def     
       use comvarbl, only: reftime
-      use xmdf
-      use cms_def, only: noptset,noptzb,nsteer,dtsteer           !Alex
+      use cms_def,  only: noptset,noptzb,nsteer,dtsteer           !Alex
       use comvarbl, only: ctime
+      use diag_def, only: msg
+      use diag_lib, only: diag_print_error
       implicit none       !Added by Wu 2025_Jan
+      
       integer ibeg,iend,iinc,jbeg,jend,jinc,NIJ
       real(ikind) cosazz,sinazz
       
@@ -3699,8 +3658,8 @@ contains
         CALL XF_CREATE_FILE (TRIM(XMDFFile),READWRITE,PID,ERROR)
         WRITE(*,*) ' '
         IF (ERROR.LT.0) THEN
-          WRITE(*,*) 'ERROR CREATING XMDF FILE ',TRIM(XMDFFile)
-          STOP
+          WRITE(msg,*) 'ERROR CREATING XMDF FILE ',TRIM(XMDFFile)
+          call diag_print_error(msg)
          ELSE
           WRITE(*,*) 'BINARY FILE CREATED: ',TRIM(XMDFFile)
         ENDIF
@@ -3710,8 +3669,8 @@ contains
       IF (ERROR.LT.0) THEN 
         CALL XF_CREATE_GENERIC_GROUP (PID, 'Dataset', DGID, ERROR)
         IF (ERROR < 0) THEN
-          WRITE(*,*) 'COULD NOT CREATE DATASET - '//'Dataset'
-          STOP
+          WRITE(msg,*) 'COULD NOT CREATE DATASET - '//'Dataset'
+          call diag_print_error(msg)
         ENDIF
       ENDIF
 
@@ -3723,8 +3682,8 @@ contains
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
         ELSE
-          WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-          STOP
+          WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+          call diag_print_error(msg)
 		ENDIF
         CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
 	  ENDIF
@@ -3742,10 +3701,10 @@ contains
           IF (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
           ELSE
-            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-            STOP
-		  ENDIF
-		  CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
+            WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            call diag_print_error(msg)
+          ENDIF
+		      CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_CENTER,ERROR)
         ENDIF
         IF(noptset.eq.3) CALL XF_DATASET_REFTIME(DID,REFTIME,ERROR)
         CALL XF_WRITE_VECTOR_TIMESTEP(DID,TIME2,NIJ,2,radstr,ERROR)
@@ -3760,8 +3719,8 @@ contains
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
       	ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	  STOP
+      	  WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+          call diag_print_error(msg)
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3777,8 +3736,8 @@ contains
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
         ELSE
-          WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-          STOP
+          WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+          call diag_print_error(msg)
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3794,8 +3753,8 @@ contains
         if (error.gt.0) THEN
           WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
       	ELSE
-      	  WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-      	  STOP
+      	  WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+          call diag_print_error(msg)
         ENDIF
         CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
       ENDIF
@@ -3812,8 +3771,8 @@ contains
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
           ELSE
-            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-            STOP
+            WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            call diag_print_error(msg)
           ENDIF
           CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
         ENDIF
@@ -3834,8 +3793,8 @@ contains
             if (error.gt.0) THEN
               WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
             ELSE
-              WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-              STOP
+              WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+              call diag_print_error(msg)
             ENDIF
             CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
           ENDIF
@@ -3851,8 +3810,8 @@ contains
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
           ELSE
-            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-            STOP
+            WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            call diag_print_error(msg)
           ENDIF
           CALL XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ERROR)
         ENDIF
@@ -3867,8 +3826,8 @@ contains
           if (error.gt.0) THEN
             WRITE(*,*) 'CREATED DATASET - '//TRIM(PREFIX)
           ELSE
-            WRITE(*,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
-            STOP
+            WRITE(msg,*) 'COULD NOT CREATE DATASET - '//TRIM(PREFIX)
+            call diag_print_error(msg)
           ENDIF
           CALL XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_CENTER,GRID_LOC_FACE_J,ERROR)
         ENDIF
@@ -3881,9 +3840,8 @@ contains
       CALL XF_CLOSE_FILE (PID,ERROR)
       return
 
-956   write(*,'(A,A50)') 'ERROR: Could not access: ',XMDFFile
-      write(*,'(A)') 'Press <RETURN> to continue'
-      read(*,*)
+956   write(msg,*) 'Could not access: ',XMDFFile
+      call diag_print_error(msg)
 	  
       return 
       end subroutine xmdfout_inline

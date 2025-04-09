@@ -1,7 +1,7 @@
 What's New
 ==========
 
-v5.4.4 (07 April 2025)
+v5.4.4 (09 April 2025)
 -------------------------
 
 Changes
@@ -11,6 +11,7 @@ Changes
 * Added test for met station wind data import.
 * Test fix for divide by zero in SHEARLUND routine.
 * Added allocation for Observation and Nest points when using the newest format.
+* Bug fix (5.4.4.1) for mixing layer thickess error.
 
 
 v5.4.3 (18 March 2025)

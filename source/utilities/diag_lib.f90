@@ -174,7 +174,7 @@ contains
     end subroutine diag_print_var 
 
 !******************************************************************************    
-    subroutine diag_print_error(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9)
+    subroutine diag_print_error(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9,msg10,msg11,msg12,msg13)
 ! Prints a error message(s) to the screen and diagnostic file    
 ! written by Alex Sanchez, USACE-CHL       
 !******************************************************************************
@@ -183,7 +183,7 @@ contains
     implicit none
     !Input/Output
     character(len=*),intent(in) :: msg1
-    character(len=*),intent(in),optional :: msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9
+    character(len=*),intent(in),optional :: msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9,msg10,msg11,msg12,msg13
     !Internal variables
     integer :: iunit(2),i
     logical :: dgopen
@@ -204,6 +204,10 @@ contains
       if(present(msg7)) write(iunit(i),111) trim(msg7)
       if(present(msg8)) write(iunit(i),111) trim(msg8)
       if(present(msg9)) write(iunit(i),111) trim(msg9)
+      if(present(msg10)) write(iunit(i),111) trim(msg10)
+      if(present(msg11)) write(iunit(i),111) trim(msg11)
+      if(present(msg12)) write(iunit(i),111) trim(msg12)
+      if(present(msg13)) write(iunit(i),111) trim(msg13)
     enddo
     close(dgunit)  
     write(*,111) 'Press <enter> key to continue.'
@@ -244,7 +248,6 @@ contains
       if(present(msg6)) write(iunit(i),111) trim(msg6)
       if(present(msg7)) write(iunit(i),111) trim(msg7)
       if(present(msg8)) write(iunit(i),111) trim(msg8)
-      !write(iunit(i),*)
     enddo
     if(.not.dgopen) close(dgunit)
     

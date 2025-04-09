@@ -2,34 +2,6 @@
 !      program gctp
 !!Uses NAD27 Datums      
 !!***********************************************************      
-!      IMPLICIT REAL*8 (A-Z)
-!      integer :: INSYS,JNZONE,INUNIT,INSPH,IPR,JPR
-!      integer :: IOSYS,IOZONE,IOUNIT,IOSPH,IFLG
-!      DIMENSION CRDIN(2),CRDIO(2),TPARIN(15),TPARIO(15)
-!      
-!      !Input Coordinates
-!      CRDIN(1)=208390.0
-!      CRDIN(2)=190031.0
-!      INSYS = 2 !State Plane
-!      JNZONE = 4602 !Zone
-!      INUNIT = 2 !meters
-!      INSPH = 0 !Sphere 
-!      IPR = 0 !Print error messages 0-yes, 1-no
-!      JPR = 0 !Print parameters 0-yes, 1-no
-!      
-!      !Output Coordinates
-!      IOSYS = 0
-!      IOZONE = 0
-!      IOUNIT = 4 !Degrees
-!      IOSPH = 0
-!      call GTPZ0(CRDIN,INSYS,JNZONE,TPARIN,INUNIT,INSPH,IPR,JPR,  
-!     .                 CRDIO,IOSYS,IOZONE,TPARIO,IOUNIT,IOSPH,IFLG)    
-!
-!      write(*,*) CRDIO
-!
-!      stop      
-!      endprogram
-
 !     GCTP  GENERAL CARTOGRAPHIC COORDINATES TRANSFORMATION PACKAGE
 !                   ADJLZ0
 !                                                  FIPS CODES 6-10-82
@@ -1097,10 +1069,6 @@
 ! ERROR DETECTED IN DMS FORM.
 !
   20  continue
-! 020 PRINT 2000, ANG
-!2000 FORMAT (' ERROR PAKSZ0'/
-!    .        ' ILLEGAL DMS FIELD =',F15.3)
-!     STOP 16
 !
       paksz0 = -999
       return

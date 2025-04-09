@@ -1489,7 +1489,7 @@
 #ifdef XMDF_IO
       call readscalsteph5(wgrdfile,wavpath,nsteer,tswave2,Whgt2,ierr)                 !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021 
 #else
-      call diag_print_error('ERROR: Cannot read initial wave condition without XMDF')
+      call diag_print_error('Cannot read initial wave condition without XMDF')
 #endif     
       if(ierr>=0)then
 #ifdef XMDF_IO

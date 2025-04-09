@@ -2138,10 +2138,7 @@ di:   do i=1,ncells
         endif
       enddo !k
       if(iconv==0 .and. .not.debug_write)then       
-        call write_debug       
-        !write(*,*) 'Press <RETURN> to continue'
-        !read(*,*)    
-        !stop
+        call write_debug
         debug_write = .true.
       endif
     enddo !i    

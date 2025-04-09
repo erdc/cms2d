@@ -754,10 +754,7 @@
         call diag_print_message(msg2)
       enddo
       write(msg,103)
-      call diag_print_message(msg)
-      write(*,*) 'Press <enter> key to continue.'
-      read(*,*)
-      stop
+      call diag_print_error(msg)
     endif
         
 !    if(debug_mode)then
@@ -2290,7 +2287,7 @@ d1: do k=1,10
               matched=.true.
             else
               write(*,*)  
-              write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Datum: '
+              write(*,*) 'WARNING: Invalid Input Horizontal Coordinate Datum: '
               write(*,*) trim(aline)
               write(*,*) '- Will run as LOCAL Datum'
               write(*,*)
@@ -2307,13 +2304,6 @@ d1: do k=1,10
             proj%iHorizCoordSystem = i
             exit
           endif
-          !if(i==21)then
-          !  write(*,*)  
-          !  write(*,*) 'ERROR: Invalid Input Horizontal Coordinate System: '
-          !  write(*,*) trim(aline)
-          !  read(*,*)
-          !  stop
-          !endif
         enddo
         
       case('COORDINATE_ZONE','ZONE')
@@ -2345,19 +2335,12 @@ d1: do k=1,10
             proj%iHorizUnits = i
             exit
           endif
-          !if(i==4)then
-          !  write(*,*)  
-          !  write(*,*) 'ERROR: Invalid Input Horizontal Coordinate Units: '
-          !  write(*,*) trim(aline)
-          !  read(*,*)
-          !  stop
-          !endif
         enddo
         
       case('HORIZONTAL_PROJECTION_BEGIN','HORIZ_PROJ_BEGIN')
         call diag_print_error('Found a horizontal projection block within another ',&
           '  horizontal projection block')
-          
+        
       case default
         foundcard = .false.
         

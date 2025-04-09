@@ -827,24 +827,19 @@
 !*******************************************************************************
     subroutine dper_read_error_msg(afile,apath)
 !*******************************************************************************
-    use diag_def, only: dgfile,dgunit
+    use diag_def, only: dgfile,dgunit, msg, msg2, msg3, msg4
+    use diag_lib, only: diag_print_error
     implicit none
+    
     integer :: i,iunit(2)
     character(len=200) :: afile,apath    
     
-    iunit = (/6,dgunit/)    
-    open(dgunit,file=dgfile,access='append')    
-    do i=1,2
-      write(iunit(i),*) 'ERROR: Could not find percentile dataset '
-      write(iunit(i),*) '       File: ',trim(afile)
-      write(iunit(i),*) '       Path: ',trim(apath)
-      write(iunit(i),*) 'Check input files and restart'
-    enddo    
-    close(dgunit)
-    write(*,*) 'Press <RETURN> to continue...'
-    read(*,*)
+    write(msg,*)  'Could not find percentile dataset '
+    write(msg2,*) '       File: ',trim(afile)
+    write(msg3,*) '       Path: ',trim(apath)
+    write(msg4,*) 'Check input files and restart'
+    call diag_print_error(msg, msg2, msg3, msg4)
     
-    stop
     end subroutine dper_read_error_msg
     
 !*******************************************************************************

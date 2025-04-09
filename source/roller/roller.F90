@@ -490,10 +490,12 @@
     subroutine rol_write
 !*****************************************************************************
 #include "CMS_cpp.h"
-    use wave_wavegrid_def, only: nwavei,nwavej,wxrs1,wyrs1,wheight,wdiss
+    use cms_def,  only: nsteer,dtsteer
+    use rol_def,  only: Sr,rxrs,ryrs
     use comvarbl, only: reftime
-    use cms_def, only: nsteer,dtsteer
-    use rol_def, only: Sr,rxrs,ryrs
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg
+    use wave_wavegrid_def, only: nwavei,nwavej,wxrs1,wyrs1,wheight,wdiss
 #ifdef XMDF_IO
     use xmdf
 #endif
@@ -545,10 +547,8 @@
         call XF_CREATE_FILE (trim(XMDFFile),READWRITE,PID,ierr)
         write(*,*) ' '
         if(ierr<0)then
-          write(*,*) 'ERROR CREATING XMDF FILE ',trim(XMDFFile)
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'ERROR CREATING XMDF FILE ',trim(XMDFFile)
+          call diag_print_error(msg)
          else
           write(*,*) 'BINARY FILE CREATED: ',trim(XMDFFile)
         endif
@@ -558,25 +558,20 @@
       if(ierr<0)then 
         call XF_CREATE_GENERIC_GROUP(PID,'Dataset',DGID,ierr)
         if(ierr < 0)then
-          write(*,*) 'COULD NOT CREATE DATASET - '//'Dataset'
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'COULD NOT CREATE DATASET - '//'Dataset'
+          call diag_print_error(msg)
         endif        
       endif
       
       prefix='Roller_Energy'
       call XF_OPEN_GROUP(DGID,trim(prefix),DID,ierr)
       if(ierr<0)then
-        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none', &
-               TS_HOURS,0,DID,ierr)
+        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none', TS_HOURS,0,DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
         else
-          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          call diag_print_error(msg)
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
         call XF_SCALAR_DATA_LOCATION (DID,GRID_LOC_CENTER,ierr)
@@ -587,15 +582,12 @@
       prefix='Roller_Stress_Mag'
       call XF_OPEN_GROUP (DGID,trim(prefix),DID,ierr)
       if(ierr<0)then
-        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none',  &
-               TS_HOURS,0, DID,ierr)
+        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none', TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
         else
-          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          call diag_print_error(msg)
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
         call XF_SCALAR_DATA_LOCATION(DID,GRID_LOC_CENTER,ierr)
@@ -606,13 +598,12 @@
       PREFIX='Dissipation'
       call XF_OPEN_GROUP(DGID,trim(prefix),DID,ierr)
       if(ierr<0)then
-        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none',  &
-               TS_HOURS,0, DID,ierr)
+        call XF_CREATE_SCALAR_DATASET(DGID,trim(prefix),'none', TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
           else
-            write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-          stop
+            write(msg,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+            call diag_print_error(msg)
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
         call XF_SCALAR_DATA_LOCATION(DID,GRID_LOC_CENTER,ierr)
@@ -623,18 +614,14 @@
       prefix='Roller_Stress'
       call XF_OPEN_GROUP(DGID,trim(prefix),DID,ierr)
       if(ierr<0)then
-        call XF_CREATE_VECTOR_DATASET(DGID,trim(prefix),'none',  &
-               TS_HOURS,0, DID,ierr)
+        call XF_CREATE_VECTOR_DATASET(DGID,trim(prefix),'none', TS_HOURS,0, DID,ierr)
         if(ierr>0)then
           write(*,*) 'CREATED DATASET - '//trim(prefix)
         else
-          write(*,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'COULD NOT CREATE DATASET - '//trim(prefix)
+          call diag_print_error(msg)
         endif
         call XF_DATASET_REFTIME(DID,reftime,ierr)
-! removed XF_VECTORS_IN_LOCAL_COORDS (DID,ierr) for proper vector direction
         call XF_VECTOR_2D_DATA_LOCS(DID,GRID_LOC_FACE_I,GRID_LOC_FACE_J,ierr)
       endif
       call XF_WRITE_VECTOR_TIMESTEP(DID,TIME2,NIJ,2,radstr,ierr)

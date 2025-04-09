@@ -1425,22 +1425,12 @@ d1: do ii=1,30
           elseif (jlay==0) then
             jlay=1
           endif  
-          !if(jlay>nlay)then
-          !  write(*,*) 'ERROR: Increase maximum number of bed layers'
-          !  write(*,*) ' before specifying the bed layer information'
-          !  write(*,*) '   Press any key to continue'
-          !  read(*,*)
-          !  stop
-          !endif          
           
         case('INITIAL_THICKNESS_VALUE','INITIAL_THICKNESS','THICKNESS_VALUE','THICKNESS','THICKNESS_CONSTANT')
           call card_scalar(77,'m','m',bedlay(jlay)%dbconst,ierr)  
           bedlay(jlay)%idbinp = 1
         
         case('INITIAL_THICKNESS_DATASET','THICKNESS_DATASET')
-!          backspace(77)
-!          read(77,*) cardname, bedlay(jlay)%dbfile, bedlay(jlay)%dbpath 
-
           call card_dataset(77,grdfile,flowpath,file,path,1)
           bedlay(jlay)%dbfile = file
           bedlay(jlay)%dbpath = path
@@ -1516,42 +1506,6 @@ d1: do ii=1,30
       call diag_print_error('Problem specify sediment bed layers',msg2)
     endif
     bedlay(jlay)%inppbk = .true.  
-    
-    !!Check bed composition input
-    !if(bedlay(jlay)%ipbkinp/=0) return
-    !
-    !!Count number of input percentile datasets   
-    !nperinp = 0    
-    !do i=1,nperdiam
-    !  if(bedlay(jlay)%perdiam(i)%inp)then
-    !    nperinp = nperinp + 1
-    !  endif
-    !enddo
-    !!Set input composition mode
-    !select case(nperinp)
-    !case(0)
-    !   bedlay(jlay)%ipbkinp = 4 !SIZE_CLASS_FRACTIONS
-    !case(1)
-    !  bedlay(jlay)%ipbkinp = 1 !D50_SIGMA
-    !case(2)
-    !  write(*,*) 'ERROR: Invalid number of input percentile diameter datasets'
-    !  write(*,*) '  for bed layer ',jlay
-    !  write(*,*) '  Press any key to continue'
-    !  read(*,*)
-    !  stop
-    !case(3)
-    !  if(bedlay(jlay)%perdiam(ipd(16))%inp .and. &
-    !     bedlay(jlay)%perdiam(ipd(84))%inp)then
-    !    bedlay(jlay)%ipbkinp = 2 !D16_D50_D84  
-    !  elseif(bedlay(jlay)%perdiam(ipd(35))%inp .and. &
-    !         bedlay(jlay)%perdiam(ipd(90))%inp)then 
-    !    bedlay(jlay)%ipbkinp = 3  !D35_D50_D90
-    !  else
-    !    bedlay(jlay)%ipbkinp = 6  !PERCENTILES 
-    !  endif
-    !case default
-    !  bedlay(jlay)%ipbkinp = 6  !PERCENTILES   
-    !end select
     
     return
     end subroutine bedlay_block

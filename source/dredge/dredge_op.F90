@@ -182,10 +182,6 @@
       bed_change(i) = 0.0
     enddo     
     
-    ! write(*,*)'------------------------------------------------------'
-    ! write(*,*)'ncnt = ',ncnt
-    ! write(777,*)'vol_tot = ',vol_tot
-    
     !remove volume from cells based on selected approach
     select case(dredge_operations(k)%dredge_approach)
         
@@ -201,7 +197,6 @@
       !limit volume by less of dredge rate and potential volume
       vol_limit = dredge_operations(k)%rate*dredge_time_lapse
       vol_tot = min(vol_limit,vol_tot)
-      !dredge_operations(k)%placement_vol = vol_tot
       DredgeTS_Vars(k,9) = vol_tot     !for printing       
         
       call sort2DP(bed,cells,ncnt)
@@ -220,12 +215,9 @@
         area = area + dx(cells(i))*dy(cells(i))
         diff = area*del(i)
         tmp_vol = tmp_vol + diff
-        !write(777,"(i5,)")i,tmp_vol,vol_tot,del(i),bed(i+1),bed(i)
         if(tmp_vol > vol_tot) then  !found cells
           ival = i
           dep = bed(i) + (vol_tot - (tmp_vol-diff))/area
-          !delta = (vol_tot - (tmp_vol-diff))/area
-          !write(777,*)'dep = ',dep
           go to 100    !This should probably be an EXIT
         endif
       enddo
@@ -233,21 +225,14 @@
       if(ival == 0) then  !depth is set as remaining volume below last cell
         ival = ncnt
         dep = bed(ncnt) + (vol_tot - tmp_vol)/area
-        !delta = (vol_tot - tmp_vol)/area
       endif
-      !write(777,*)'ival= ',ival
       tot_vol_dredged = 0
       do i=1,ival
         area = dx(cells(i))*dy(cells(i))
-        !dep_inc = dep-bed(i)
         bed_change(i) = dep-bed(i)
-        !tot_vol_dredged = tot_vol_dredged + dep_inc*area
         tot_vol_dredged = tot_vol_dredged + bed_change(i)*area        
-        !bed(i) = bed(i) + dep_inc
         bed(i) = bed(i) + bed_change(i)
-        !zb(cells(i)) = zb(cells(i)) - dep_inc
         zb(cells(i)) = zb(cells(i)) - bed_change(i)      
-        !write(777,"(i5,4e15.7)")i,bed(i),zb(cells(i)),tot_vol_dredged        
       enddo
         
       !dredge_operations(k)%placement_vol = tot_vol_dredged
@@ -274,7 +259,6 @@
       !limit volume by less of dredge rate and potential volume
       vol_limit = dredge_operations(k)%rate*dredge_time_lapse
       vol_tot = min(vol_limit,vol_tot)
-      !dredge_operations(k)%placement_vol = vol_tot
       DredgeTS_Vars(k,9) = vol_tot     !for printing      
       
       bed1=bed
@@ -284,16 +268,12 @@
           if(bed(i) < dredge_operations(k)%Dredge_Depth(i)) then ! this cell still needs dredging
             vol_cell = dx(cells(i))*dy(cells(i))*(dredge_operations(k)%Dredge_Depth(i) -  bed(i))
             if(vol_cell > vol_available) then
-              !zb(cells(i)) = zb(cells(i)) - vol_available/(dx(cells(i))*dy(cells(i)))
-              !bed(i) = bed(i) + vol_available/(dx(cells(i))*dy(cells(i)))
               bed_change(i) = vol_available/(dx(cells(i))*dy(cells(i)))
               zb(cells(i)) = zb(cells(i)) - bed_change(i)
               bed(i) = bed(i) + bed_change(i)              
               vol_available = 0.0
               cell_inc = i               
             else
-              !zb(cells(i)) = zb(cells(i)) - vol_cell/(dx(cells(i))*dy(cells(i)))
-              !bed(i) = bed(i) +  vol_cell/(dx(cells(i))*dy(cells(i)))  
               bed_change(i) = vol_available/(dx(cells(i))*dy(cells(i))) 
               zb(cells(i)) = zb(cells(i)) - bed_change(i)
               bed(i) = bed(i) +  bed_change(i)               
@@ -328,7 +308,6 @@
         sumvol=sumvol + (bed1(i)-bed(i))*dx(cells(i))*dy(cells(i))
       enddo        
       DredgeTS_Vars(k,1) = -sumvol  !tot_vol_dredged         
-      !DredgeTS_Vars(k,1) = vol_tot - vol_available       
       dredge_operations(k)%placement_vol = -sumvol   
       dredge_operations(k)%total_dredged_vol = dredge_operations(k)%total_dredged_vol - sumvol                
         
@@ -364,7 +343,6 @@
     if(dredge_operations(k)%NumPlacementAreas == 0) then
       excess = dredge_operations(k)%placement_vol
       DredgeTS_Vars(k,3) = excess
-      !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
     endif
      
     IF(dredge_operations(k)%NumPlacementAreas == 1) THEN   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -387,7 +365,6 @@
           dredge_operations(k)%total_placed_by_area(j) = dredge_operations(k)%total_placed_by_area(j) + amount_placed
           dredge_operations(k)%total_placed_vol = dredge_operations(k)%total_placed_vol + amount_placed    
         enddo 
-        !DredgeTS_Vars(k,2) = amount_placed  !dredge_operations(k)%placement_vol - excess
         DredgeTS_Vars(k,3) = excess
         dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess      
       elseif(dredge_operations(k)%PAmethod .eq. 2) then  ! allocate by percentage!!!!!!!!!!!!!!!!!!!!!!!
@@ -417,9 +394,7 @@
             enddo  
             if(sum_percentage .gt. 0.0) then !reallocate
               do m=j+1,dredge_operations(k)%NumPlacementAreas
-                !write(*,*)'reall1: ',m,PAallocation(m),excess              
                 PAallocation(m) = 100*PAallocation(m)/sum_percentage
-                !write(*,*)'reall2: ',m,PAallocation(m)
               enddo 
             else
               do m=j+1,dredge_operations(k)%NumPlacementAreas
@@ -428,7 +403,6 @@
             endif
           endif
         enddo
-        !DredgeTS_Vars(k,2) = amount_placed  !dredge_operations(k)%placement_vol - excess
         DredgeTS_Vars(k,3) = excess
         dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess
       endif
@@ -474,9 +448,6 @@
         
       call sort2(bed,cells,ncnt) !this sorting facilitates looking for depth limit exceedances
       bed1 = bed
-      !write(*,*)'in placement'
-      !write(*,*)k,j,dredge_operations(k)%placement_vol        
-      !write(*,*)k,j,dredge_operations(k)%placement_area(j)
 
       !calculate capacity of area
       capacity = 0.0
@@ -485,28 +456,14 @@
         capacity = capacity + max(diff,0.0)*dx(cells(i))*dy(cells(i))
       enddo 
         
-      !write(77,*)'capacity = ',capacity
-        
       if(capacity .le. 0) then
         excess = placement_vol
-        !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + dredge_operations(k)%placement_vol            
-        !DredgeTS_Vars(k,2) = 0.0
-        !DredgeTS_Vars(k,3) = placement_vol
-        !DredgeTS_Vars(k,6) = dredge_operations(k)%placement_excess  
-        !write(77,*)'zero cap, returning'
         return
       endif
         
       !there is capacity but not enough, then calculate what can be placed
       if(capacity > placement_vol) then  !capacity limited
-        !excess = placement_vol  - capacity
-        !dredge_operations(k)%placement_vol  = capacity
-        !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + excess 
-        !write(77,*)'cap is limiting palcement: ',excess
-        !else  ! entire placement_vol can be placed in area
-        !excess = 0.0
         capacity = placement_vol
-        !write(77,*)'room for all:',dredge_operations(k)%placement_vol,capacity
       endif
         
       !work form shallowest cell to deepest cell to place material
@@ -517,7 +474,6 @@
           area =area + dx(cells(m))*dy(cells(m))
         enddo
         dump_depth = capacity/area
-        !write(77,*)'dumpdepth = ',dump_depth,capacity,area
         !see if depth is OK for ith cell
         if(bed(i) - dump_depth < dredge_operations(k)%placement_limit(j,i)) then  !need to truncate cells placement
           diff = bed(i) - dredge_operations(k)%placement_limit(j,i)
@@ -544,39 +500,24 @@
       do i=1,ncnt
         amount_placed=amount_placed + (bed1(i)-bed(i))*dx(cells(i))*dy(cells(i))
       enddo   
-        
-      !if(k == 1 .and. j == 1 .and. amount_placed < 30) then
-      !  write(*,*)'amount_placed = ',amount_placed,placement_vol, dredge_operations(k)%DredgePlacementAllocation(j)
-      !  stop
-      !endif
-        
       excess = placement_vol - amount_placed
-      !DredgeTS_Vars(k,2) = sumvol
-      !DredgeTS_Vars(k,3) = excess
-      !DredgeTS_Vars(k,6) = dredge_operations(k)%placement_excess
         
     case(2) !place at cell closest to starting cell first, up to thikness, and do not exceed limits
             !cells ranked by proximity in dredge_init()
-            
       bed1 = bed
       placement_vol_remaining = placement_vol
-      !placement_vol = dredge_operations(k)%placement_vol
       cell_inc = dredge_operations(k)%placement_cell_inc(j)                   !added by Chris Reed
       do i=dredge_operations(k)%placement_cell_inc(j),ncnt  
         if(placement_vol_remaining > 0.0) then  !place material into cell 
           if(bed(i) > dredge_operations(k)%placement_limit(j,i)) then ! this cell still has capacity
             capacity = dx(cells(i))*dy(cells(i))*(bed(i) - dredge_operations(k)%placement_limit(j,i))
             if(capacity > placement_vol_remaining) then
-              !zb(cells(i)) = zb(cells(i)) + placement_vol_remaining/(dx(cells(i))*dy(cells(i)))
-              !bed(i) = bed(i) - placement_vol_remaining/(dx(cells(i))*dy(cells(i)))
               bed_change(i) = placement_vol_remaining/(dx(cells(i))*dy(cells(i)))
               zb(cells(i)) = zb(cells(i)) + bed_change(i)
               bed(i) = bed(i) - bed_change(i)              
               placement_vol_remaining = 0.0
               cell_inc = i               
             else
-              !zb(cells(i)) = zb(cells(i)) + capacity/(dx(cells(i))*dy(cells(i)))
-              !bed(i) = bed(i) - capacity/(dx(cells(i))*dy(cells(i)))
               bed_change(i) = capacity/(dx(cells(i))*dy(cells(i)))
               zb(cells(i)) = zb(cells(i)) + bed_change(i)
               bed(i) = bed(i) - bed_change(i)              
@@ -592,7 +533,6 @@
       !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + placement_vol         
 200   continue        
       dredge_operations(k)%placement_cell_inc(j)  = cell_inc 
-      !excess = placement_vol
         
       !for printing
       amount_placed=0.0
@@ -600,10 +540,6 @@
         amount_placed=amount_placed + (bed1(i)-bed(i))*dx(cells(i))*dy(cells(i))
       enddo   
       excess = placement_vol - amount_placed              
-      !DredgeTS_Vars(k,2) = sumvol
-      !DredgeTS_Vars(k,3) = placement_vol_init - sumvol
-      !dredge_operations(k)%placement_excess = dredge_operations(k)%placement_excess + dredge_operations(k)%placement_vol - sumvol       
-      !DredgeTS_Vars(k,6) = dredge_operations(k)%placement_excess
         
     case default
       write(*,*)'Approach specified for dredge material placement is not recognized'
@@ -646,7 +582,6 @@
     do i=1,ncells
       val=h(i)                        !save old total water depth
       h(i)=max(hmin,p(i)/grav-zb(i))  !New total water depth
-      !if(h(i)>2*hmin .and. val>2*hmin .and. abs(dzb(i))<0.25*hmin)then
       if(h(i)>2*hmin .and. val>2*hmin)then
         Ctk(i,:) = val*Ctk(i,:)/h(i)
       endif
@@ -885,7 +820,6 @@
         
         !adjust layer thickness if needed
         if(db(i,2)<=dbmax .and. db(i,2)>=dbmin)then !Second layer ok
-          !db(i,3:nlay) = db1(i,3:nlay) 
         elseif(db(i,2)>dbmax)then !Second layer too thick, split into two              
           !First merge last two layers   
           pbk(i,:,nlay) = (db(i,nlay)*pbk(i,:,nlay) + & 
@@ -908,7 +842,6 @@
             db(i,nlay-1) = 0.5*db(i,nlay)
             db(i,nlay) = db(i,nlay-1)
             pbk(i,:,nlay-1) = pbk(i,:,nlay)
-            !pbk(i,:,nlay) = pbk(i,:,nlay) stays the same
           else !add bottom layer
             db(i,3:nlay-1) = db(i,4:nlay)
             pbk(i,:,3:nlay-1) = pbk(i,:,4:nlay)
@@ -924,18 +857,13 @@
         !adjust layer thickness if needed     
         ! no need to adjust layers
       endif
-     
-      !write(*,"(2i4,8e10.3)")id,i,bed_change(id),db(i,1),pbk(i,:,1)
-         
     ENDDO
      
     sum2 = sum(sum1(:))
-    !write(*,"(2i4,5e10.3)")id,i,sum2,sum1(:)
     
     if (sum2 .ne. 0.0) then 
       dredge_mat_gradation(:) = sum1(:)/sum2  !normalized  
     endif
-    !write(*,*)'dregmatgrad: ',dredge_mat_gradation(:)
 
     return
     end subroutine dredge_bed_sort
@@ -987,8 +915,6 @@
         !Second and third layer compositions equal
         pbk(i,:,3) = pbk(i,:,2)                                           
       endif   
-      
-      !write(*,"(2i4,6e10.3)")id,i,bed_change(id),dbinit(id),db(i,1),pbk(i,:,1)
     ENDDO
      
     return
@@ -1016,7 +942,6 @@
     
 !$OMP PARALLEL DO PRIVATE(i,ks,kks,ks0,ks2,pbcum,fac)           
     do i=1,ncells
-      !call sed_dper(nsed,diam,diamlim,logdiamlim,pbk(i,:,1),per,dper(i))    
       dper(i) = diamlim(1) 
       pbcum(1) = 0.0
       do ks=1,nsed
@@ -1028,8 +953,6 @@
       endif
       do ks=1,nsed
         if(pbcum(ks+1)>=per .and. pbcum(ks)<per)then
-          !fac = (pbcum(ks+1)-per)/(pbcum(ks+1)-pbcum(ks))
-          !dper(i) = exp((1.0-fac)*logdiamlim(ks+1)+fac*logdiamlim(ks))
           !Transverse duplicate diameters
           do kks=ks,1,-1
             if(abs(diam(kks)-diam(ks))<1.0e-6)then

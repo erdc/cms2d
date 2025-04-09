@@ -2,14 +2,17 @@
     subroutine wave_rad_stress_fl
 ! Calculates the wave radiation stresses on the flow grid    
 !*************************************************************************
-    use size_def, only: ncells,ncellsD
-    use wave_flowgrid_def, only: wavstrx,wavstry,whgt,wper,wlen,wunitx,wunity
-    use flow_def, only: u,v,h,rhow,grav
-    use const_def, only: twopi
-    use der_lib, only: dx2d,dy2d
-    use der_def, only: gow
     use prec_def
+    use size_def,  only: ncells,ncellsD
+    use flow_def,  only: u,v,h,rhow,grav
+    use const_def, only: twopi
+    use der_lib,   only: dx2d,dy2d
+    use der_def,   only: gow
+    use diag_def,  only: msg,msg2,msg3,msg4,msg5,msg6,msg7,msg8,msg9,msg10,msg11,msg12,msg13
+    use diag_lib,  only: diag_print_error
+    use wave_flowgrid_def, only: wavstrx,wavstry,whgt,wper,wlen,wunitx,wunity
     implicit none
+
     integer :: i
     real(ikind) :: Sxx(ncellsD),Sxy(ncellsD),Syy(ncellsD)
     real(ikind) :: c,cn,hwkw,E,dvarx,dvary
@@ -34,23 +37,21 @@
       call dx2d(gow,i,Sxy,dvarx)         
       call dy2d(gow,i,Syy,dvary)
       wavstry(i) = - dvarx - dvary
-      if(isnankind(wavstrx(i)) .or. isnankind(wavstry(i)) .or. &
-          abs(wavstrx(i))>10.0 .or. abs(wavstry(i))>10.0)then
-        write(*,*) 'ERROR: Found NaN'
-        write(*,*) 'i:          ',i
-        write(*,*) 'h(i):       ',h(i) 
-        write(*,*) 'wavstrx(i): ',wavstrx(i)
-        write(*,*) 'wavstry(i): ',wavstry(i)
-        write(*,*) 'whgt(i):    ',whgt(i)
-        write(*,*) 'wunitx(i):  ',wunitx(i)
-        write(*,*) 'wunity(i):  ',wunity(i)
-        write(*,*) 'wlen(i):    ',wlen(i)
-        write(*,*) 'wper(i):    ',wper(i)
-        write(*,*) 'Sxx(i):     ',Sxx(i)
-        write(*,*) 'Sxy(i):     ',Sxy(i)
-        write(*,*) 'Syy(i):     ',Syy(i)
-        write(*,*) '  Press <enter> key to continue'
-        read(*,*)
+      if(isnankind(wavstrx(i)) .or. isnankind(wavstry(i)) .or. abs(wavstrx(i))>10.0 .or. abs(wavstry(i))>10.0)then
+        write(msg,*)  'ERROR: Found NaN'
+        write(msg2,*)  'i:          ',i
+        write(msg3,*) 'h(i):       ',h(i) 
+        write(msg4,*) 'wavstrx(i): ',wavstrx(i)
+        write(msg5,*) 'wavstry(i): ',wavstry(i)
+        write(msg6,*) 'whgt(i):    ',whgt(i)
+        write(msg7,*) 'wunitx(i):  ',wunitx(i)
+        write(msg8,*) 'wunity(i):  ',wunity(i)
+        write(msg9,*) 'wlen(i):    ',wlen(i)
+        write(msg10,*) 'wper(i):    ',wper(i)
+        write(msg11,*) 'Sxx(i):     ',Sxx(i)
+        write(msg12,*) 'Sxy(i):     ',Sxy(i)
+        write(msg13,*) 'Syy(i):     ',Syy(i)
+        call diag_print_error(msg, msg2, msg3, msg4, msg5, msg6, msg7, msg8, msg9, msg10, msg11, msg12, msg13)
       endif
     enddo
     

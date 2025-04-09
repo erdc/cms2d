@@ -147,16 +147,7 @@
 !!$omp end parallel do       
 !      endif   
     
-      if (any(eta.gt.1.0e+3)) then
-        print*,'ETA values greater than 100 are evident.  Reduce the timestep'
-        stop
-        !do i=1,ncells
-        !  if (eta(i) .gt. 1.0e+3) then
-        !    ncw=cell2cell(4,i)
-        !    print*,I, cell2cell(4,i), dx(i), dx(ncw), zb(i), eta(i), zb(ncw), eta(ncw)
-        !  endif
-        !enddo
-          endif
+      if (any(eta.gt.1.0e+3)) call diag_print_error('ETA values greater than 100 are evident.  Reduce the timestep.')
 
 !$omp parallel do private(ncw,deltax,hplus,hmnexp,detadx,tauwind,coriolis,hgt,spd,cd)
       do i=1,ncells

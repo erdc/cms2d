@@ -230,7 +230,6 @@
          call solve(acoef,su,sp,rsCtk,Ctk(:,ks),4)
          if(iconv==0)then 
            call write_debug
-           stop
          endif    
          errCtk = max(rmom(4),errCtk)
          do i=1,ncells

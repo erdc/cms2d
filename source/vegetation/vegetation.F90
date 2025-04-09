@@ -10,7 +10,6 @@
     Dv = 0.0064   !Stem diameter in meters
     alphac = 0.75
     
-    return
     end subroutine veg_default
 
 !***********************************************************************    
@@ -45,15 +44,15 @@
 
     end select
     
-    return
     end subroutine veg_cards
     
 !***********************************************************************
     subroutine veg_init
 !***********************************************************************    
 #include "CMS_cpp.h"    
-    use size_def
     use veg_def
+    use size_def
+    use diag_lib, only: diag_print_error
 #ifdef XMDF_IO  
     use in_xmdf_lib, only: readscalh5
 #endif   
@@ -65,12 +64,9 @@
 #ifdef XMDF_IO   
     call readscalh5(vegdensfile,vegdenspath,nv,ierr)
 #else
-    write(*,*) 'ERROR: Cannot read vegetation density without XMDF'
-    read(*,*)
-    stop
+    call diag_print_error('Cannot read vegetation density without XMDF')
 #endif
     
-    return
     end subroutine veg_init
     
 !***********************************************************************
@@ -96,7 +92,6 @@
     enddo       
     close(dgunit)
     
-    return
     end subroutine veg_print    
     
 !***********************************************************************
@@ -117,9 +112,4 @@
       sp(i)=sp(i)-cd*uv(i)*areap(i)
     enddo
     
-    return
     end subroutine veg_drag
-    
-!    if(veg)then !Vegetation drag
-!       cdx(i)=cdx(i)+alphac*0.5*Cdv*nv(i)*Dv*(min(hv,Have)**2)/Have
-!    endif

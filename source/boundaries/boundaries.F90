@@ -3253,7 +3253,7 @@ if(.not.Tread)then
             exit
           endif
         enddo
-        if(correctID .lt. 0) call diag_print_error('Error: Could not locate correct Boundary string')
+        if(correctID .lt. 0) call diag_print_error('Could not locate correct Boundary string')
 		
         !Write curve information for correct boundary
         write(abnd,'(I0)') h_str(correctID)%idnum  !Use ID number from SMS (Boundary_#2 = 2) as the number to write out.          
