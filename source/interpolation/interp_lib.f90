@@ -88,7 +88,10 @@ contains
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************* 
     use prec_def
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2
     implicit none
+    
     integer,intent(in):: m
     integer,intent(inout):: inc
     integer:: i
@@ -119,10 +122,9 @@ contains
           if(x(inc)<=xi) exit  
         enddo 
         if(xi<x(inc) .or. xi>x(inc+1))then !Check
-          write(*,*) 'ERROR: Problem calculating starting location in plagr_fit'
-          write(*,*) '  Using Bisection search'
-          read(*,*)
-          stop
+          msg = 'Problem calculating starting location in plagr_fit'
+          msg2 = '  Using Bisection search'
+          call diag_print_error(msg, msg2)
         endif
       endif
     endif
@@ -183,7 +185,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
     use prec_def
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2, msg3, msg4, msg5, msg6, msg7, msg8
     implicit none
+    
     !Input/Output
     real(ikind),intent(in) :: xt(3),yt(3),xi,yi
     real(ikind),intent(out) :: w(3)
@@ -209,17 +214,15 @@ contains
     sumw = sum(w)
     w = w/sum(w)
     if(abs(sumw-1.0)>1.0e-5)then
-      write(*,*) 'ERROR: Problem calculating interpolation coefficients'
-      write(*,*) 'w = ',w
-      write(*,*) 'sum = w(1:3) = ',sumw
-      write(*,*) 'xt(1:3) = ',xt
-      write(*,*) 'yt(1:3) = ',yt
-      write(*,*) 'xi = ',xi
-      write(*,*) 'yi = ',yi
-      write(*,*) 'd = ',d      
-      write(*,*) '  Press <enter> key to continue.'
-      read(*,*)
-      stop
+      msg = 'Problem calculating interpolation coefficients'
+      write(msg2,*) 'w = ',w
+      write(msg3,*) 'sum = w(1:3) = ',sumw
+      write(msg4,*) 'xt(1:3) = ',xt
+      write(msg5,*) 'yt(1:3) = ',yt
+      write(msg6,*) 'xi = ',xi
+      write(msg7,*) 'yi = ',yi
+      write(msg8,*) 'd = ',d
+      call diag_print_error(msg, msg2, msg3, msg4, msg5, msg6, msg7, msg8)      
     endif
 
     return
@@ -238,7 +241,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
     use prec_def
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2, msg3, msg4, msg5, msg6, msg7
     implicit none
+    
     !Input/Output
     real(ikind),intent(in) :: xq(4),yq(4),xi,yi
     real(ikind),intent(out) :: w(4)
@@ -267,16 +273,14 @@ contains
     w=w/wsum !Normalize
     wsum=sum(w)
     if(abs(wsum-1.0)>1.0e-4)then
-      write(*,*) 'ERROR: Problem calculating quadrilateral interpolation coefficients'
-      write(*,*) 'w(1:4) = ',w
-      write(*,*) 'wsum = ',wsum
-      write(*,*) 'xq(1:4) = ',xq
-      write(*,*) 'yq(1:4) = ',yq
-      write(*,*) 'xi = ',xi
-      write(*,*) 'yi = ',yi
-      write(*,*) '  Press <enter> key to continue.'
-      read(*,*)
-      stop
+      msg = 'Problem calculating quadrilateral interpolation coefficients'
+      write(msg2,*) 'w(1:4) = ',w
+      write(msg3,*) 'wsum = ',wsum
+      write(msg4,*) 'xq(1:4) = ',xq
+      write(msg5,*) 'yq(1:4) = ',yq
+      write(msg6,*) 'xi = ',xi
+      write(msg7,*) 'yi = ',yi
+      call diag_print_error(msg, msg2, msg3, msg4, msg5, msg6, msg7)
     endif    
 
     return
@@ -289,7 +293,10 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !****************************************************************************   
     use prec_def
+    use diag_def, only: msg, msg2, msg3, msg4, msg5, msg6, msg7
+    use diag_lib, only: diag_print_error
     implicit none
+    
     !Input/Output
     integer,    intent(in) :: ns,np
     real(ikind),intent(in) :: xi,yi,xp(ns),yp(ns)
@@ -320,43 +327,19 @@ contains
       wsum = wsum + w(j)
     enddo
         
-    !!Least-squares  
-    !Rx=0.0; Ry=0.0
-    !Exx=0.0; Exy=0.0; Eyy=0.0
-    !do j=1,np
-    !  delx=xn(j)-xin
-    !  dely=yn(j)-yin
-    !  Rx=Rx+delx
-    !  Ry=Ry+dely
-    !  Exx=Exx+delx*delx
-    !  Eyy=Eyy+dely*dely
-    !  Exy=Exy+delx*dely     
-    !enddo !k
-    !Emag=Exx*Eyy-Exy**2
-    !Gx=(Exy*Ry-Exy*Rx)/Emag
-    !Gy=(Exy*Rx-Exy*Ry)/Emag
-    !do j=1,np
-    !  delx=xn(j)-xin
-    !  dely=yn(j)-yin 
-    !  w(j)=1.0+Gx*delx+Gy*dely  
-    !  wsum=wsum+w(j)
-    !enddo !k
-    
     !Normalize weights
     w(1:np) = w(1:np)/wsum !Normalize
     wsum = sum(w(1:np))
     
     if(abs(wsum-1.0)>1.0e-4)then
-      write(*,*) 'ERROR: Problem calculating polygon interpolation coefficients'
-      write(*,*) 'w(1:np) = ',w
-      write(*,*) 'wsum = ',wsum
-      write(*,*) 'xp(1:np) = ',xp(1:np)
-      write(*,*) 'yp(1:np) = ',yp(1:np)
-      write(*,*) 'xi = ',xi
-      write(*,*) 'yi = ',yi
-      write(*,*) '  Press <enter> key to continue.'
-      read(*,*)
-      stop
+      msg = 'Problem calculating polygon interpolation coefficients'
+      write(msg2,*) 'w(1:np) = ',w
+      write(msg3,*) 'wsum = ',wsum
+      write(msg4,*) 'xp(1:np) = ',xp(1:np)
+      write(msg5,*) 'yp(1:np) = ',yp(1:np)
+      write(msg6,*) 'xi = ',xi
+      write(msg7,*) 'yi = ',yi
+      call diag_print_error(msg, msg2, msg3, msg4, msg5, msg6, msg7)
     endif
     
     return
@@ -2493,11 +2476,6 @@ d2:   do j=1,nj
         else
           vec1(ii) = defval
         endif
-        !if(abs(mat1(i+in,j+jm)-undef)<1.0e-3)then
-        !  write(*,*) 'ERROR: No defined neighboring points found'
-        !  write(*,*) 'i=',i,', j=',j
-        !  stop               
-        !endif
       enddo           
 !$OMP END PARALLEL DO
     
@@ -2515,6 +2493,7 @@ d2:   do j=1,nj
 !**********************************************************************
     use prec_def
     implicit none
+    
     !Input/Output
     integer,    intent(in) :: ni,nj                   !Curvilinear grid dimensions
     real(ikind),intent(in) :: mat1(ni,nj),mat2(ni,nj) !Curvilinear grid matrix
@@ -2561,13 +2540,6 @@ d2:   do j=1,nj
           vec1(ii) = defval
           vec2(ii) = defval
         endif
-        !if(abs(mat1(i+in,j+jm)-undef)<1.0e-3 .or. &
-        !       abs(mat2(i+in,j+jm)-undef)<1.0e-3)then
-        !  write(*,*) 'ERROR: No defined neighboring points found'
-        !  write(*,*) 'i=',i,', j=',j
-        !  read(*,*)
-        !  stop               
-        !endif               
       enddo           
 !$OMP END PARALLEL DO
     
@@ -2633,13 +2605,6 @@ d2:   do j=1,nj
           vec1(ii) = defval
           vec2(ii) = defval
         endif
-        !if(abs(mat1(i+in,j+jm)-undef)<1.0e-3 .or. &
-        !       abs(mat2(i+in,j+jm)-undef)<1.0e-3)then
-        !  write(*,*) 'ERROR: No defined neighboring points found'
-        !  write(*,*) 'i=',i,', j=',j
-        !  read(*,*)
-        !  stop               
-        !endif               
       enddo           
       !$OMP END PARALLEL DO
     else
@@ -2670,11 +2635,6 @@ d2:   do j=1,nj
         else
           vec1(ii) = defval
         endif
-        !if(abs(mat1(i+in,j+jm)-undef)<1.0e-3)then
-        !  write(*,*) 'ERROR: No defined neighboring points found'
-        !  write(*,*) 'i=',i,', j=',j
-        !  stop               
-        !endif
       enddo           
       !$OMP END PARALLEL DO
     endif

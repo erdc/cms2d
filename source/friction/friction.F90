@@ -439,33 +439,34 @@
 !**************************************************    
     subroutine rough_read_error_msg(afile,apath)
 !**************************************************
-    use diag_lib
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2, msg3, msg4
     implicit none
+    
     character(len=200),intent(in) :: afile
     character(len=200),intent(in) :: apath
-    character(len=200) :: msg2,msg3
     
+    write(msg, *) 'Could not find roughness dataset '
     write(msg2,*) '       File: ',trim(afile)
     write(msg3,*) '       Path: ',trim(apath)    
-    call diag_print_error('Could not find roughness dataset ',msg2,msg3,&
-      '  Check input files and restart')
+    write(msg4,*) '  Check input files and restart'
+    call diag_print_error(msg,msg2,msg3,msg4)
     
-    stop         
     end subroutine
 
 !**************************************************    
     subroutine rough_read_error_msg2(afile)
 !**************************************************
-    use diag_lib
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2, msg3
     implicit none
     character(len=200),intent(in) :: afile
-    character(len=200) :: msg2,msg3
     
+    write(msg, *) 'Could not find roughness dataset '
     write(msg2,*) '       File: ',trim(afile)
-    call diag_print_error('Could not find roughness dataset ',msg2,&
-      '  Check input files and restart')
+    write(msg3,*) '  Check input files and restart'
+    call diag_print_error(msg,msg2,msg3)
     
-    stop         
     end subroutine
 
 !**************************************************
@@ -477,6 +478,7 @@
 !**************************************************   
     use fric_def
     use diag_def, only: dgunit,dgfile
+    use diag_lib, only: diag_print_error
     use cms_def,  only: noptset
     use tool_def, only: vstrlz
     implicit none
@@ -540,8 +542,7 @@
           if(constbotfric)then
             write(iunit(i),354) '    Constant Linear Friction Coeff:',trim(vstrlz(cbotfric,'(F0.3)'))
           else
-            write(iunit(i),787) 'ERROR: Linear bottom friction must be spatially constant'          
-            stop
+            call diag_print_error('Linear bottom friction must be spatially constant')
           endif    
       end select    
       if(wallfric)then

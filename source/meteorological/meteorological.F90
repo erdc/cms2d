@@ -647,26 +647,13 @@ d1: do ii=1,4
     use xmdf
     use in_xmdf_lib, only: read_dataseth5
 #endif
-
     implicit none
+    
     integer :: i,ndat
     real(ikind) :: ang,fac,wndspd,wnddir,tjulend,tjuldaybegwnd
     real(ikind),pointer :: wdat(:,:)
     character :: aext*10,aname*100,atype*100
     character :: apath*100,awindcurve*100       !Added for new format since WindCurve isn't a folder holding other datasets.
-    !logical :: foundfile
-    
-    !call fileparts(windfile,apath,aname,aext)
-    !if(len_trim(apath)==0 .and. len_trim(flowpath)>0)then
-    !  windfile = trim(flowpath) // windfile
-    !endif       
-    !inquire(file=windfile,exist=foundfile)
-    !if(.not.foundfile)then
-    !  write(*,*) 'ERROR: Oceanweather Pressure File: ',trim(windfile),' not found'
-    !  write(*,*) '  Press any key to continue.'
-    !  read(*,*)
-    !  stop
-    !endif    
     
     call fileext(windfile,aext)
     
@@ -698,8 +685,7 @@ d1: do ii=1,4
       call read_xys(windfile,nwtimes,wndtimes,wndvalsx)
       call read_xys(windpath,i,wndtimes,wndvalsy)
       if(i/=nwtimes)then
-        call diag_print_error('Time series length in wind speed and direction ',&
-          '  files do not match')  
+        call diag_print_error('Time series length in wind speed and direction files do not match')  
       endif    
       
     case default

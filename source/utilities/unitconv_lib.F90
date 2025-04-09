@@ -172,8 +172,10 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !*********************************************************************
-    !use diag_lib
+    use diag_lib, only: diag_print_error
+    use diag_def, only: msg, msg2, msg3
     implicit none
+    
     !Input/Output
     character(len=*),intent(in) :: fromunits,tounits
     real(ikind),intent(out) :: fac
@@ -185,24 +187,21 @@ contains
     
     call unitcodes(fromunits,ifromunits,ifromtype,ierr)
     if(ierr==-1)then
-      write(*,*) 'Unit conversion error: Unknown "from" unit type: ',trim(fromunits)  
-      read(*,*)
-      stop
+      write(msg,*) 'Unit conversion error: Unknown "from" unit type: ',trim(fromunits)  
+      call diag_print_error(msg)
     endif
     call unitcodes(tounits,itounits,itotype,ierr)
     if(ierr==-1)then
-      write(*,*) 'Unit conversion error: Unknown "to" unit type: ',trim(tounits)
-      read(*,*)
-      stop
+      write(msg,*) 'Unit conversion error: Unknown "to" unit type: ',trim(tounits)
+      call diag_print_error(msg)
     endif
     
     !Check unit types
     if(ifromtype/=itotype)then
-      write(*,*) 'Unit conversion error: "To" and "from" units do not match '
-      write(*,*)  '   "To" Units: ',trim(tounits)
-      write(*,*) '   "From" Units: ',trim(fromunits)
-      read(*,*)
-      stop
+      write(msg,*)  'Unit conversion error: "To" and "from" units do not match '
+      write(msg2,*) '   "To" Units:   ',trim(tounits)
+      write(msg3,*) '   "From" Units: ',trim(fromunits)
+      call diag_print_error(msg, msg2, msg3)
     endif
     
     !Early exit for dimensionless variables

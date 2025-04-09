@@ -329,10 +329,11 @@ d1: do k=1,10
 ! Alex Sanchez, USACE-CHL; Weiming Wu, NCCHE
 !**************************************************************        
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def, only: grdfile
-    use comvarbl, only:  ntsch
     use sal_def
+    use size_def
+    use geo_def,  only: grdfile
+    use comvarbl, only: ntsch
+    use diag_lib, only: diag_print_error
 #ifdef XMDF_IO
     use in_xmdf_lib, only: readscalh5
 #endif   
@@ -373,14 +374,9 @@ d1: do k=1,10
         call readscalTxt(salfile,sal,ierr)
       end select
       
-      if(ierr/=0)then
-        write(*,*) 'ERROR: Check path for salinity initial concentration dataset'
-        write(*,*) 'Press <enter> key to continue.'
-        read(*,*)
-        stop
-      endif
+      if(ierr/=0) call diag_print_error('Check path for salinity initial concentration dataset')
     else              !Laplace interpolation of scatter set        
-     call sal_laplace
+      call sal_laplace
     endif
     
     !--- Previous Time Step Salinities -------------

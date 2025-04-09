@@ -56,8 +56,6 @@
     foundcard = .true.
     select case(cardname)    
     case('DREDGE_UPDATE_INTERVAL')         
-      !backspace(77)
-      !read(77,*)cardname,dredge_interval
       call card_scalar(77,'min','min',dredge_interval,ierr)   !Default read-in units if not specified - minutes, convert to units - minutes
 
     case('DREDGE_OPERATION_BEGIN')
@@ -306,10 +304,11 @@
 ! Reads an wse boundary condition block from the card file
 ! written by Chris Reed
 !********************************************************************
-    use dredge_def, only: dredge_operations, write_dredge_diag, num_place_areas, ndredge_operations, method, dredge_diag_file
     use geo_def,    only: grdfile
     use comvarbl,   only: flowpath
     use prec_def,   only: ikind
+    use diag_lib,   only: diag_print_error
+    use dredge_def, only: dredge_operations, write_dredge_diag, num_place_areas, ndredge_operations, method, dredge_diag_file
    
     implicit none
 
@@ -372,15 +371,12 @@
             dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)=2      
             
           case default
-            write(*,*)'PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED'
-            STOP
+            call diag_print_error ('PLACEMENT_METHOD CARD INPUT NOT RECOGNIZED')
           end select  
          
         case('DISTRIBUTION_PERCENTAGE')         
           backspace(77)
-          !write(*,*)"DP2",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
           read(77,*)cardname,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
-          !write(*,*)"DP3",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)
          
         case('START_CELL')         
           backspace(77)          
@@ -406,7 +402,7 @@
 
       if (write_dredge_diag) close(2056)
     
-    else                     !NO CARDS INSIDE THE PLACEMENT_BEGIN/END BLOCK   MEB  03/29/2022
+    else           !NO CARDS INSIDE THE PLACEMENT_BEGIN/END BLOCK   MEB  03/29/2022
       continue     !DO NOTHING
     endif
     
@@ -469,7 +465,6 @@
     dredge_operations(ndredge_operations)%Trigger_Vol = 0.0 
     dredge_operations(ndredge_operations)%Trigger_Percentage = 0.0            
     dredge_operations(ndredge_operations)%Trigger_Approach = 1 
-!    dredge_operations(ndredge_operations)%Dredge_Depth(1) = 0.0   !m               !This isn't allocated now and is reallocated later.  Commenting out.  MEB 052516
     dredge_operations(ndredge_operations)%Rate = 0  !m3/day
     dredge_operations(ndredge_operations)%Dredge_Approach = 1
     dredge_operations(ndredge_operations)%dredge_start_cell = 1
@@ -487,7 +482,6 @@
     dredge_operations(ndredge_operations)%Placement_Depth(1) = -999 !m                   
     allocate(dredge_operations(ndredge_operations)%DredgePlacementAllocation(1))
     dredge_operations(ndredge_operations)%DredgePlacementAllocation(1)  = -999 !percent
-    !write(*,*)"DP0",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(1)           
     num_place_areas = 0
            
     if (write_dredge_diag) close(2056)
@@ -511,8 +505,7 @@
     character*200, allocatable :: DredgePlaceAreaFile(:)
     character*200, allocatable :: DredgePlaceAreaPath(:)          
     integer, allocatable :: Placement_Approach(:) 
-    integer, allocatable :: Placement_Start_Cell(:)          
-    !real, allocatable :: Placement_Limit(:) 
+    integer, allocatable :: Placement_Start_Cell(:)    
     real, allocatable :: Placement_Thickness(:)          
     real, allocatable :: Placement_Depth(:)           
     real, allocatable :: DredgePlacementAllocation(:) 
@@ -521,8 +514,7 @@
       allocate(DredgePlaceAreaFile(num_place_areas-1))
       allocate(DredgePlaceAreaPath(num_place_areas-1))          
       allocate(Placement_Approach(num_place_areas-1)) 
-      allocate(Placement_Start_Cell(num_place_areas-1))          
-      !allocate(Placement_Limit(num_place_areas-1)) 
+      allocate(Placement_Start_Cell(num_place_areas-1))  
       allocate(Placement_Thickness(num_place_areas-1))          
       allocate(Placement_Depth(num_place_areas-1))           
       allocate(DredgePlacementAllocation(num_place_areas-1))
@@ -532,7 +524,6 @@
         DredgePlaceAreaPath(i)=dredge_operations(ndredge_operations)%DredgePlaceAreaPath(i)          
         Placement_Approach(i)=dredge_operations(ndredge_operations)%Placement_Approach(i) 
         Placement_Start_Cell(i)=dredge_operations(ndredge_operations)%Placement_Start_Cell(i)          
-        !Placement_Limit(i)=dredge_operations(ndredge_operations)%Placement_Limit(i) 
         Placement_Thickness(i)=dredge_operations(ndredge_operations)%Placement_Thickness(i)          
         Placement_Depth(i)=dredge_operations(ndredge_operations)%Placement_Depth(i)           
         DredgePlacementAllocation(i)=dredge_operations(ndredge_operations)%DredgePlacementAllocation(i)   
@@ -542,7 +533,6 @@
       deallocate(dredge_operations(ndredge_operations)%DredgePlaceAreaPath)          
       deallocate(dredge_operations(ndredge_operations)%Placement_Approach) 
       deallocate(dredge_operations(ndredge_operations)%Placement_Start_Cell)          
-      !deallocate(dredge_operations(ndredge_operations)%Placement_Limit) 
       deallocate(dredge_operations(ndredge_operations)%Placement_Thickness)          
       deallocate(dredge_operations(ndredge_operations)%Placement_Depth)           
       deallocate(dredge_operations(ndredge_operations)%DredgePlacementAllocation)  
@@ -551,7 +541,6 @@
       allocate(dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas))          
       allocate(dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas)) 
       allocate(dredge_operations(ndredge_operations)%Placement_Start_Cell(num_place_areas))          
-      !allocate(dredge_operations(ndredge_operations)%Placement_Limit(num_place_areas)) 
       allocate(dredge_operations(ndredge_operations)%Placement_Thickness(num_place_areas))          
       allocate(dredge_operations(ndredge_operations)%Placement_Depth(num_place_areas))           
       allocate(dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas))          
@@ -561,27 +550,16 @@
         dredge_operations(ndredge_operations)%DredgePlaceAreaPath(i)= DredgePlaceAreaPath(i)      
         dredge_operations(ndredge_operations)%Placement_Approach(i)= Placement_Approach(i)
         dredge_operations(ndredge_operations)%Placement_Start_Cell(i)= Placement_Start_Cell(i)    
-        !dredge_operations(ndredge_operations)%Placement_Limit(i)= Placement_Limit(i)
         dredge_operations(ndredge_operations)%Placement_Thickness(i)= Placement_Thickness(i)      
         dredge_operations(ndredge_operations)%Placement_Depth(i)= Placement_Depth(i)     
         dredge_operations(ndredge_operations)%DredgePlacementAllocation(i)=  DredgePlacementAllocation(i)
       enddo
          
-      !allocate(dredge_operations(ndredge_operations)%DredgePlaceAreaFile(num_place_areas))
-      !allocate(dredge_operations(ndredge_operations)%DredgePlaceAreaPath(num_place_areas))                            
-      !allocate(dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas))          
       dredge_operations(ndredge_operations)%Placement_Approach(num_place_areas) = 1  
-      !allocate(dredge_operations(ndredge_operations)%Placement_Start_cell(num_place_areas))          
       dredge_operations(ndredge_operations)%Placement_Start_cell(num_place_areas) = 1                  
-      !allocate(dredge_operations(ndredge_operations)%Placement_Limit(num_place_areas))          
-      !dredge_operations(ndredge_operations)%Placement_Limit(1) = 99999.0 !m 
-      !allocate(dredge_operations(ndredge_operations)%Placement_Thickness(num_place_areas))          
       dredge_operations(ndredge_operations)%Placement_Thickness(num_place_areas) = -999 !m            
-      !allocate(dredge_operations(ndredge_operations)%Placement_Depth(num_place_areas))          
       dredge_operations(ndredge_operations)%Placement_Depth(num_place_areas) = -999 !m                   
-      !allocate(dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas))
       dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)  = -999  !percent
-      !write(*,*)"DP1",ndredge_operations,num_place_areas,dredge_operations(ndredge_operations)%DredgePlacementAllocation(num_place_areas)           
     endif
            
     return

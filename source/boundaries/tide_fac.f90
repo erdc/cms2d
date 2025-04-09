@@ -1,6 +1,7 @@
       subroutine tide_fac(IYR,IMO,IDAY,BHR,XDAYS,NCONST,NAME,SPD,FACNOD,EQARG)
 ! PROGRAM TO COMPUTE NODAL FACTORS AND EQUILIBRIUM ARGUEMENTS
-!
+      use diag_lib, only: diag_print_error
+       
       !Input
       integer :: IDAY,IMO,IYR
       real :: XDAYS,BHR
@@ -51,11 +52,7 @@
         DO JC=1,NCNST
           IF(NAME(IC).EQ.CNAME(JC))EXIT
         ENDDO
-        IF(JC.GT.NCNST)THEN
-          WRITE(*,*) 'ERROR: Constituent not found'
-          READ(*,*)
-          STOP
-        ENDIF
+        IF(JC.GT.NCNST) call diag_print_error('Constituent not found')
         NAME(IC)=CNAME(JC)
         SPD(IC)=SPEED(JC)
         FACNOD(IC)=NODFAC(JC)

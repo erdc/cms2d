@@ -23,17 +23,17 @@
     use CMS_test
 #endif
     use cms_def,    only: noptset, dtsteer
+    use hot_def,    only: coldstart
+    use geo_def,    only: idmap,zb,x
+    use sed_def,    only: db,d50,nlay,d90,pbk,nsed
     use prec_def,   only: ikind
     use diag_def,   only: dgunit, dgfile, msg, msg2
     use diag_lib,   only: diag_print_error
     use comvarbl,   only: ctime,Version,Revision,release,developmental,rdate,nfsch,machine,major_version,minor_version,bugfix
-    use hot_def,    only: coldstart
-    use geo_def,    only: idmap,zb,x
-    use sed_def,    only: db,d50,nlay,d90,pbk,nsed
     use size_def,   only: ncellsD
     use dredge_def, only: dredging
-
     implicit none
+    
     integer k,j,ID,i,jlay,iper,loc,lstr
     character(len=20) :: astr,first,second
     real depthT
@@ -48,8 +48,8 @@
     !NOTE: Change variables below to update CMS header information
     version  = 5.4           ! CMS version         !For interim version
     revision = 4             ! Revision number
-    bugfix   = 0             ! Bugfix number
-    rdate    = '04/07/2025'
+    bugfix   = 2             ! Bugfix number
+    rdate    = '04/09/2025'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -113,15 +113,16 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
 ! or runs an interactive input
 !*************************************  
     use geo_def,   only: grdfile,telfile
-    use cms_def,   only: cmsflow, cmswave, wavsimfile, wavepath, wavename, noptset, inlinewave, dtsteer, noptwse, noptvel, noptzb
+    use cms_def,   only: cmsflow, cmswave, wavsimfile, wavepath, wavename, noptset, dtsteer, noptwse, noptvel, noptzb
     use comvarbl,  only: casename, flowpath, mpfile, ctlfile
-    use diag_def,  only: dgfile
+    use diag_def,  only: dgfile, msg, interactive
+    use diag_lib,  only: diag_print_error
     use hot_def,   only: coldstart
     use out_def,   only: write_sup,write_tecplot,write_ascii_input
     use steer_def, only: auto_steer
     
     implicit none
-    integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr
+    integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr,iloc
     character :: cardname*37,aext*10, answer,laext*10   !added variable to hold lowercase version of the extension for the case statement.
     character(len=200) :: astr,apath,aname
     logical :: ok
@@ -141,6 +142,14 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     end interface    
       
     narg = command_argument_count()
+    
+    !Parse for --non-interactive flag
+    call getarg(narg,astr)
+    iloc = index(astr,'--non-interactive')
+    if (iloc > 0) then
+      interactive = .false.
+      narg = narg - 1
+    endif
     
     do i=0,min(narg,2)
       if(i==0 .and. narg==0)then      !CMS was called with no arguments
@@ -165,10 +174,8 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           casename = aname
           inquire(file=ctlfile,exist=ok)
           if(.not.ok)then
-            write(*,*) 'ERROR: ',trim(ctlfile),' does not exist'
-            write(*,*) 'Press <enter> key to continue.'
-            read(*,*)
-            stop
+            write(msg,*) trim(ctlfile),' does not exist'
+            call diag_print_error(msg)
           endif    
           cmsflow = .true.
           !Search for Steering Cards
@@ -185,18 +192,12 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           Wavepath=apath
           wavename=aname
           inquire(file=WavSimFile,exist=ok)
-            if(.not.ok) then
-            write(*,*) 'ERROR: ',trim(astr),' does not exist'
-            write(*,*) 'Press <enter> key to continue.'
-            read(*,*)
-            stop
+          if(.not.ok) then
+            write(msg,*) trim(astr),' does not exist'
+            call diag_print_error(msg)
           endif    
           cmswave = .true.          
           noptset = 3 
-          
-        case('inline')
-          inlinewave = .true.
-          narg = narg -1
           
         case('tools')
           call CMS_tools_dialog
@@ -206,10 +207,8 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           flowpath = apath
           inquire(file=astr,exist=ok)
           if(.not.ok) then
-            write(*,*) 'ERROR: ',trim(astr),' does not exist'
-            write(*,*) 'Press <enter> key to continue.'
-            read(*,*)
-            stop
+            write(msg,*) trim(astr),' does not exist'
+            call diag_print_error(msg)
           endif    
           cmsflow = .true.
           coldstart = .true.  
@@ -217,10 +216,8 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
           write_tecplot = .true.
           write_ascii_input = .false.  ! Not overwrite input
         case default
-          write(*,*) 'File not found: ',trim(astr)
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) 'File not found: ',trim(astr)
+          call diag_print_error(msg)
       end select      
     enddo
 
@@ -233,11 +230,9 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       if(astr(1:1)/='0' .and. astr(1:4)/='none')then
         call fileparts(astr,apath,aname,aext)          
         inquire(file=astr,exist=ok)
-          if(.not.ok) then
-          write(*,*) 'ERROR: ',trim(astr),' does not exist'
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+        if(.not.ok) then
+          write(msg,*) trim(astr),' does not exist'
+          call diag_print_error(msg)
         endif
         WavSimFile = trim(aname) // '.sim'
         Wavepath=apath
@@ -255,10 +250,8 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
       if(astr(1:1)/='0' .and. astr(1:4)/='none')then
         inquire(file=astr,exist=ok)
         if(.not.ok) then
-          write(*,*) 'ERROR: ',trim(astr),' does not exist'
-          write(*,*) 'Press <enter> key to continue.'
-          read(*,*)
-          stop
+          write(msg,*) trim(astr),' does not exist'
+          call diag_print_error(msg)
         endif
         ctlfile = trim(aname) // '.cmcards'
         flowpath = apath

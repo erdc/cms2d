@@ -26,7 +26,8 @@
 ! Spatial Derivative cards
 ! Author: Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use der_def, only: nder, npow, nlim, alim
+    use der_def,  only: nder, npow, nlim, alim
+    use diag_lib, only: diag_print_error
     
     implicit none
     integer :: i
@@ -57,9 +58,7 @@
       case('CBFD','CELL-BASED_FINITE-DIFFERENCE')  
         nder = 8  
       case default
-        write(*,*) 'ERROR: Invalid spatial derivative method or scheme'             
-        read(*,*)
-        stop
+        call diag_print_error('Invalid spatial derivative method or scheme')
       end select
       
     case('INVERSE_DISTANCE_POWER')

@@ -293,9 +293,10 @@ d1: do k=1,10
 !**************************************************************        
 #include "CMS_cpp.h"
     use size_def
-    use geo_def, only: grdfile
-    use comvarbl, only:  ntsch
     use heat_def
+    use geo_def,  only: grdfile
+    use comvarbl, only: ntsch
+    use diag_lib, only: diag_print_error
 #ifdef XMDF_IO
     use in_xmdf_lib, only: readscalh5
 #endif   
@@ -336,14 +337,9 @@ d1: do k=1,10
         call readscalTxt(heatfile,heat,ierr)
       end select
       
-      if(ierr/=0)then
-        write(*,*) 'ERROR: Check path for temperature initial concentration dataset'
-        write(*,*) 'Press <enter> key to continue.'
-        read(*,*)
-        stop
-      endif
+      if(ierr/=0) call diag_print_error('Check path for temperature initial concentration dataset')
     else              !Laplace interpolation of scatter set        
-     call heat_laplace
+      call heat_laplace
     endif
     
     !--- Previous Time Step Temperatures -------------

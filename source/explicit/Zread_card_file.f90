@@ -8,7 +8,9 @@
       use EXP_Structures_def, only: srm, structures, srm_on, srm, cul, cul_on
       use prec_def, only: ikind
       use flow_def, only: hmin
-      use comvarbl, only: ctlfile,dtime  
+      use comvarbl, only: ctlfile,dtime 
+      use diag_def, only: msg, msg2
+      use diag_lib, only: diag_print_error
                  
       implicit none
       !local vars
@@ -298,15 +300,15 @@
             RF_unit=maxunit
             RAINFALL=.true.
             open(unit=RF_unit,FILE=trim(RF_FILENAME),STATUS='old')
-            write(*,*)'rainfall enabled using file =',trim(RF_FILENAME)
+            write(*,*)'Rainfall enabled using file =',trim(RF_FILENAME)
             write(*,*)'thus rainfall set to ',rainfall
           
           CASE ('RF_FRAC_RO')
             READ (1,*) CARDNAME, RF_FRAC_RO
             if(RF_FRAC_RO.gt.1.0) then
-              write(*,*)'RF_FRAC_RO 0 <= and <= 1.0'
-              stop
-              write(*,*)'dry cell rainfall ro set to ',rf_frac_ro
+              write(msg,*)'RF_FRAC_RO 0 <= and <= 1.0'
+              write(msg2,*)'dry cell rainfall ro set to ',rf_frac_ro
+              call diag_print_error(msg, msg2)
             endif
  
           CASE ('END_PARAMETERS      ')
@@ -314,7 +316,6 @@
 
           CASE DEFAULT
             READ(1,*) CARDNAME
-            !WRITE(*,*)' WARNING: UNRECOGNIZED CARD: '//TRIM(CARDNAME)
             UNRECOGNIZED = .TRUE.
          
         END SELECT

@@ -239,7 +239,7 @@
             call XF_GET_VECTOR_DATASETS_INFO (gid, nVDsets, vMaxPathLength, ierr)
             nDsets = nSDsets + nVDsets
             if (nDsets .eq. 0) then
-              call diag_print_message('Error: no datasets found within the selected file. Preset try again')
+              call diag_print_message('Error: No datasets found within the selected file. Try again')
               write(*,*) 'Press the Enter key to continue'
               read(*,*) 
               return
@@ -453,7 +453,7 @@
             call XF_GET_VECTOR_DATASETS_INFO (gid, nVDsets, vMaxPathLength, ierr)
             nDsets = nSDsets + nVDsets
             if (nDsets .eq. 0) then
-              call diag_print_message('Error: no datasets found within the selected file. Preset try again')
+              call diag_print_message('Error: No datasets found within the selected file. Try again')
               write(*,*) 'Press the Enter key to continue'
               read(*,*) 
               return

@@ -366,11 +366,13 @@ contains
 !
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************
-    use const_def, only: twopi
-    use diag_def
-    use flow_def, only: grav
+    use diag_def,  only: msg, msg2, msg3, msg4, msg5, msg6
+    use diag_lib,  only: diag_print_error
     use prec_def
+    use const_def, only: twopi
+    use flow_def,  only: grav
     implicit none
+    
     !Input
     real(ikind),intent(in) :: wa,wd,h,u,v
     real(ikind),intent(in),optional :: tolinp
@@ -408,24 +410,17 @@ contains
       fp = grav*(tanhkh - h*wk*(tanhkh**2-1.0)) + 2*uk*sig
       wk = wki - f/fp
       if(wk<1.0e-6 .or. wk>1.0e6)then !Did not converge
-          !wk = 0.0 !Set to zero
-          !wk = yi/h !Use initial guess
-          wk = yi/h*2.0 !Use a small wave length (large wave number) to avoid divide by zeros
-          return
+        wk = yi/h*2.0 !Use a small wave length (large wave number) to avoid divide by zeros
+        return
       elseif(isnankind(wk))then
-         wk = yi/h !Use a small wave length (large wave number) to avoid divide by zeros
-         kunit = (/6,dgunit/)
-         open(dgunit,file=dgfile,access='append') 
-         do k=1,2
-           write(kunit(k),*) 'ERROR: Calculated NaN value for wk in wavenumber'
-           write(kunit(k),*) 'wa=',wa
-           write(kunit(k),*) 'wd=',wd
-           write(kunit(k),*) 'h=',h
-           write(kunit(k),*) 'u=',u
-           write(kunit(k),*) 'v=',v
-         enddo
-         close(dgunit)
-         return 
+        wk = yi/h !Use a small wave length (large wave number) to avoid divide by zeros
+        write(msg,*) 'Calculated NaN value for wk in wavenumber'
+        write(msg2,*) 'wa=',wa
+        write(msg3,*) 'wd=',wd
+        write(msg4,*) 'h=',h
+        write(msg5,*) 'u=',u
+        write(msg6,*) 'v=',v
+        call diag_print_error(msg, msg2, msg3, msg4, msg5, msg6)
       endif          
       err = abs(wk-wki)
       if(err < tol) return
@@ -462,6 +457,7 @@ contains
     use flow_def, only: grav
     use prec_def
     implicit none
+    
     integer :: i
     !Input/Output
     real(ikind),intent(in) :: Hgt,h,T

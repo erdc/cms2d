@@ -7,6 +7,7 @@
       use flow_def, only: eta, vis
       use geo_def,  only: dx, dy, zb 
       use prec_def, only: ikind
+      use diag_lib, only: diag_print_error
       
       implicit none
       integer i,j,id,id1,id2,id3,ii,istop   !Chris Reed - 10/20/2016
@@ -94,47 +95,43 @@
           endif
         
 !Chris Reed - 10/20/2016 - testing for issues
-        istop =0
-        if(c15 .eq. 0) then
-            write(*,*)'c15 ',i
-            istop=1
-            endif
-        if(c25 .eq. 0) then
-            write(*,*)'c25 ',i
-            istop = 1
-            endif
-         if(cadvf1  .eq. 0) then
-            write(*,*)'cadvf1  ',i
-            istop=1
-            endif
-        if(cadvf2  .eq. 0) then
-            write(*,*)'cadvf2  ',i
-            istop = 1
-            endif       
-          if(cadvf5  .eq. 0) then
-            write(*,*)'cadvf5  ',i
-            istop=1
-            endif
-        if(cadvf3  .eq. 0) then
-            write(*,*)'cadvf3  ',i
-            istop = 1
-            endif        
-          if(cadvf7  .eq. 0) then
-            write(*,*)'cadvf7  ',i
-            istop=1
-            endif
-        if(cadvf8  .eq. 0) then
-            write(*,*)'cadvf8  ',i
-            istop = 1
-        endif 
-        
-        if(istop .eq. 1) stop
-        
-        
+          !istop = 0
+          !if(c15 .eq. 0) then
+          !    write(*,*)'c15 ',i
+          !    istop=1
+          !    endif
+          !if(c25 .eq. 0) then
+          !    write(*,*)'c25 ',i
+          !    istop = 1
+          !    endif
+          ! if(cadvf1  .eq. 0) then
+          !    write(*,*)'cadvf1  ',i
+          !    istop=1
+          !    endif
+          !if(cadvf2  .eq. 0) then
+          !    write(*,*)'cadvf2  ',i
+          !    istop = 1
+          !    endif       
+          !  if(cadvf5  .eq. 0) then
+          !    write(*,*)'cadvf5  ',i
+          !    istop=1
+          !    endif
+          !if(cadvf3  .eq. 0) then
+          !    write(*,*)'cadvf3  ',i
+          !    istop = 1
+          !    endif        
+          !  if(cadvf7  .eq. 0) then
+          !    write(*,*)'cadvf7  ',i
+          !    istop=1
+          !     endif
+          !if(cadvf8  .eq. 0) then
+          !    write(*,*)'cadvf8  ',i
+          !    istop = 1
+          !endif 
+          !
+          !if(istop .eq. 1) call diag_print_error(End of test variables)
         
           xface_advdif_C(i) = IADV*UADVECTM3 - DIFF_P
-         
-          !Qyc(i) = (Qy(xface_CadvF(1,i))+Qy(xface_CadvF(2,i))+Qy(xface_CadvF(3,i))+Qy(xface_CadvF(4,i)))/4.0         
         endif
       enddo
 !!$omp end do  
@@ -181,11 +178,6 @@
          
           yface_advdif_I(1,i) = IADV*VADVECTP1 + DIff_P1
           yface_advdif_I(2,i) = IADV*VADVECTP2 + DIff_P2
-         
-          !if(i.eq.cellfaces(5,6805)) write(*,*)i,yface_advdif_I(1,i),yface_advdif_I(2,i)
-          !if(i.eq.cellfaces(5,6806)) write(*,*)i,yface_advdif_I(1,i),yface_advdif_I(2,i)
-          !if(i.eq.cellfaces(5,4020)) write(*,*)i,yface_advdif_I(1,i),yface_advdif_I(2,i)          
-          !if(i.eq.cellfaces(5,3973)) write(*,*)i,yface_advdif_I(1,i),yface_advdif_I(2,i)           
         endif  !north boundary faces filter
 
         if(.not. yface_wall(i)) then      
@@ -222,7 +214,6 @@
           endif
         
           yface_advdif_C(i) = IADV*VADVECTM3 - DIFF_P
-          !Qxc(i) = (Qx(yface_CadvF(1,i))+Qx(yface_CadvF(2,i))+Qx(yface_CadvF(3,i))+Qx(yface_CadvF(4,i)))/4.0           
         endif
       enddo
 !!$omp end do    

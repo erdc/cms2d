@@ -831,10 +831,7 @@ contains
           write(msg3,*) '  Speed: ',speed(k)
           write(msg4,*) '  Setting nodal factor to 1.0'
           write(msg5,*) '  Setting equilibrium argument to 0.0'
-          call diag_print_warning('Invalid tidal constituent ',&
-            '  speed found in tidal database',msg2,msg3,msg4,msg5)
-          read(*,*)
-          stop
+          call diag_print_warning('Invalid tidal constituent speed found in tidal database',msg2,msg3,msg4,msg5)
         endif
       endif
     enddo
