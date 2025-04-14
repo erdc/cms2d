@@ -41,8 +41,8 @@
     !NOTE: Change variables Below to update header information
     version  = 5.3           ! CMS version         !For interim version
     revision = 12            ! Revision number
-    bugfix   = 1             ! Bugfix number
-    rdate    = '12/10/2024'
+    bugfix   = 2             ! Bugfix number
+    rdate    = '04/14/2025'
 
     !Manipulate to get major and minor versions - MEB  09/15/20
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
@@ -129,13 +129,13 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     use geo_def,   only: grdfile,telfile
     use cms_def,   only: cmsflow, cmswave, wavsimfile, wavepath, wavename, noptset, inlinewave, dtsteer, noptwse, noptvel, noptzb
     use comvarbl,  only: casename, flowpath, mpfile, ctlfile
-    use diag_def,  only: dgfile
+    use diag_def,  only: dgfile, interactive
     use hot_def,   only: coldstart
     use out_def,   only: write_sup,write_tecplot,write_ascii_input
     use steer_def, only: auto_steer
     
     implicit none
-    integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr
+    integer :: i,k,narg,nlenwav,nlenflow,ncase,ierr, iloc
     character :: cardname*37,aext*10, answer,laext*10   !added variable to hold lowercase version of the extension for the case statement.
     character(len=200) :: astr,apath,aname
     logical :: ok
@@ -155,7 +155,16 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     end interface    
       
     narg = command_argument_count()
-    
+     
+    !Parse for --non-interactive flag 
+    call getarg(narg,astr) 
+    iloc = index(astr,'--non-interactive') 
+    if (iloc > 0) then 
+      print*,'Found --non-interactive flag, skipping read from keyboard on Errors'
+      interactive = .false. 
+      narg = narg - 1 
+    endif 
+     
     do i=0,min(narg,2)
       if(i==0 .and. narg==0)then      !CMS was called with no arguments
         write(*,*) ' '
