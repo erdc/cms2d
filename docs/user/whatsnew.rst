@@ -1,6 +1,21 @@
 What's New
 ==========
 
+v5.3.12.2 (04 April 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* (5.3.12.2) Bug fix to handle a '--non-interactive' flag as final argument to avoid the "Press any key to continue" message after errors. 
+** Necessary if users run this version with SMS 13.4+.
+* (5.3.12.1) Bug fix for Wind Speed equal to 0.0 in some situations.
+* (5.3.12) Added new card to hot start a simulation, 'HOT_START_SIMULATION'.
+* (5.3.12) Added error message when either ORIGIN_X/Y card is missing.
+* (5.3.12) Fixed an issue where the CMS-Wave .wav file cannot be written to multiple times in some situations.
+* (5.3.12) Implemented new method for weirs, culverts, and tide gates in SMS 13.4+ and improved summary output for those structures.
+* (5.3.12) A few minor changes for compiling on Linux
+
+
 v5.3.11 (19 August 2024)
 ------------------------
 

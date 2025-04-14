@@ -13,7 +13,7 @@ contains
     use flow_def,  only: iwet, iwet1, u, v, uv, u1, v1, p, pp, h, h1, gravinv, flux, acoef, hk, visk
     use flow_def,  only: su, sp, vis, dpx, dpy, dppx, dppy, dux, duy, dvx, dvy, us, vs
     use fric_def,  only: cfrict, uelwc
-    use diag_def,  only: dgunit, dgfile
+    use diag_def,  only: dgunit, dgfile, interactive
     use comvarbl,  only: niter
     use sed_def,   only: singlesize, alphat, dzb, wsfall, varsigma, sb, btk, btk1, ctstarp, ctkstar, ctk, ctk1, nsed, dzbk, pbk, pbk1, db, db1, rsk
     use cms_def,   only: noptset
@@ -178,7 +178,7 @@ contains
 ! Prints a error message(s) to the screen and diagnostic file    
 ! written by Alex Sanchez, USACE-CHL       
 !******************************************************************************
-    use diag_def, only: dgfile,dgunit
+    use diag_def, only: dgfile,dgunit, interactive
     
     implicit none
     !Input/Output
@@ -206,8 +206,10 @@ contains
       if(present(msg9)) write(iunit(i),111) trim(msg9)
     enddo
     close(dgunit)  
-    write(*,111) 'Press <enter> key to continue.'
-    read(*,*)
+    if (interactive) then  
+      write(*,111) 'Press <enter> key to continue.' 
+      read(*,*) 
+    endif 
     stop
     
     return

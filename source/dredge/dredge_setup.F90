@@ -150,6 +150,15 @@
     logical :: foundcard
     !Internal
     character :: cardname*37,aline*200,fromunits*10,tounits*10,defunits*10    
+    
+    interface
+      subroutine card_dataset(inunit,defaultfile,defaultpath,datafile,datapath,ndim)
+        integer,intent(in) :: inunit
+        character(len=*),intent(in) :: defaultfile,defaultpath
+        character(len=*),intent(inout) :: datafile,datapath
+        integer, intent(in) :: ndim
+      end subroutine
+    end interface
 
     do kk=1,20
       foundcard = .true.  

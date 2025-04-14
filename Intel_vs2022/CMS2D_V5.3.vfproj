@@ -36,6 +36,8 @@
 			<File RelativePath="..\source\logsheet.txt">
 			</File>
 			<File RelativePath="..\source\readme.txt"/>
+			<File RelativePath="..\docs\user\whatsnew.rst">
+			</File>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 			<Filter Name="Explicit Scheme">
@@ -137,8 +139,10 @@
 			<File RelativePath="..\source\derivatives\der_def.f90"/>
 			<File RelativePath="..\source\derivatives\der_lib.f90"/>
 			<File RelativePath="..\source\derivatives\derivatives.f90"/>
-			<File RelativePath="..\source\utilities\diag_def.f90"/>
-			<File RelativePath="..\source\utilities\diag_lib.f90"/>
+			<File RelativePath="..\source\utilities\diag_def.f90">
+			</File>
+			<File RelativePath="..\source\utilities\diag_lib.f90">
+			</File>
 			<File RelativePath="..\source\utilities\diagnostics.f90"/>
 			<File RelativePath="..\source\dredge\dredge_def.f90"/>
 			<File RelativePath="..\source\dredge\dredge_op.F90"/>
@@ -213,10 +217,8 @@
 			<File RelativePath="..\source\solvers\solvers_lib.f90"/>
 			<File RelativePath="..\source\statistics\stat_def.f90"/>
 			<File RelativePath="..\source\statistics\statistics.F90"/>
-			<File RelativePath="..\source\steering\steer_def.f90">
-			</File>
-			<File RelativePath="..\source\steering\steering.f90">
-			</File>
+			<File RelativePath="..\source\steering\steer_def.f90"/>
+			<File RelativePath="..\source\steering\steering.f90"/>
 			<File RelativePath="..\source\boundaries\tide_fac.f90">
 				<FileConfiguration Name="Debug|x64">
 					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
@@ -234,8 +236,7 @@
 			<File RelativePath="..\source\utilities\watch_lib.F90"/>
 			<File RelativePath="..\source\utilities\watch_test.F90"/>
 			<File RelativePath="..\source\waves\wave.F90"/>
-			<File RelativePath="..\source\waves\wave_def.f90">
-			</File>
+			<File RelativePath="..\source\waves\wave_def.f90"/>
 			<File RelativePath="..\source\waves\wave_lib.F90"/>
 			<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>
 			<File RelativePath="..\source\sediment\wuetal.F90"/>

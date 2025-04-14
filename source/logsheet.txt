@@ -1,3 +1,7 @@
+== Version 5.3.12.2 (04/14/2025) ==
+* (5.3.12.2) Bug fix to handle a '--non-interactive' flag as final argument to avoid the "Press any key to continue" message after errors. 
+** Necessary if users run this version with SMS 13.4+.
+
 == Version 5.3.12.1 (12/10/2024) == 
 * Bug fix for Wind Speed equal to 0.0 in some situations.
 
