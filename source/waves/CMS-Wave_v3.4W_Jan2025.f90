@@ -1160,6 +1160,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       npf=nff+1                !Wu   
       mpd=mdd+1
+      
+      !Added by MBrown, 04/21/2025.  This was never assigned a value but then used to allocate space in some arrays.
+      ! Previous versions had MPD = 50 and MPD2 = 75.  I am just assigning (MPD + 1) to MPD2 for now just in case it needs to be larger than mpd.
+      mpd2 = mpd + 1  
+      
       allocate( ffcn(npf),dsfd(npf,mpd) )
 
       READ(8,*) (FFCN(NN),NN=1,NFF)
@@ -1330,12 +1335,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       allocate( df(npf),dfinp(npf),pl1e(npf),pl1t(npf) )
       allocate( scp(jgpx,mpd),si(jgpx,npf,mpd) )
       allocate( simax(jgpx,npf,mpd),sjj(jgpx) )
-      allocate( sop(koutnest,npf,mpd2),sr(2*ipmx,npf,mpd) )   
-      !allocate( sop(komx,npf,mpd2),sr(2*ipmx,npf,mpd) )   
+      allocate( sop(koutnest,npf,mpd2) )   
       allocate( sj(jgpx),sjf(jgpx,npf),fjf(jgpx) )
-      allocate( aa(5,mpmx),ia(5,mpmx),b(mpmx),x(mpmx) )
       allocate( sgma0(jgpx,mpd),sgma1(jgpx,mpd) )
       allocate( cwk(jpmx,2,mpd),cgk(jpmx,2,mpd) )           
+      
+      allocate ( sr(2*ipmx,npf,mpd),ia(5,mpmx) )
+      allocate ( aa(5,mpmx) )
+      allocate ( b(mpmx) )
+      allocate ( x(mpmx) )
       !End adding                      by Wu, Nov. 2024
       
       itms = 0 + n  !N is number of times that were skipped during hot start or 0 if cold start.

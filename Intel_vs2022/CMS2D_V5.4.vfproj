@@ -33,11 +33,9 @@
 		</Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File RelativePath="..\source\CMakeLists.txt"/>
-			<File RelativePath="..\source\logsheet.txt">
-			</File>
+			<File RelativePath="..\source\logsheet.txt"/>
 			<File RelativePath="..\source\readme.txt"/>
-			<File RelativePath="..\docs\user\whatsnew.rst">
-			</File>
+			<File RelativePath="..\docs\user\whatsnew.rst"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 			<Filter Name="Explicit Scheme">
