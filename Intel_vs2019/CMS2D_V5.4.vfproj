@@ -4,9 +4,9 @@
 		<Platform Name="x64"/>
 	</Platforms>
 	<Configurations>
-		<Configuration Name="Debug|x64" UseCompiler="ifortCompiler">
-			<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qdiag-disable:10448" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2017.lib"/>
+		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2022.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -15,9 +15,9 @@
 			<Tool Name="VFPostBuildEventTool"/>
 			<Tool Name="VFManifestTool" SuppressStartupBanner="true"/>
 		</Configuration>
-		<Configuration Name="Release|x64" UseCompiler="ifortCompiler">
-			<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qdiag-disable:10448" SuppressStartupBanner="true" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
-			<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRT" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2017.lib"/>
+		<Configuration Name="Release|x64" UseCompiler="ifxCompiler">
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugLineInfoOnly" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
+			<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRT" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2022.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -29,11 +29,14 @@
 	</Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
-		<File RelativePath="..\source\main\CMS_cpp.h"/></Filter>
+			<File RelativePath="..\source\main\CMS_cpp.h"/>
+		</Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 		<File RelativePath="..\source\CMakeLists.txt"/>
 		<File RelativePath="..\source\logsheet.txt"/>
-		<File RelativePath="..\source\readme.txt"/></Filter>
+			<File RelativePath="..\source\readme.txt"/>
+			<File RelativePath="..\docs\user\whatsnew.rst"/>
+		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<Filter Name="Explicit Scheme">
 		<File RelativePath="..\source\explicit\ZBalanceCheck.f90"/>
@@ -101,7 +104,17 @@
 		<File RelativePath="..\source\explicit\Zupdate_wetdry_tel.f90"/>
 		<File RelativePath="..\source\explicit\Zupdate_wse.f90"/>
 		<File RelativePath="..\source\explicit\Zupdate_wse_bc.f90"/>
-		<File RelativePath="..\source\explicit\Zupdate_wse_Tel.f90"/></Filter>
+				<File RelativePath="..\source\explicit\Zupdate_wse_Tel.f90"/>
+			</Filter>
+			<Filter Name="Structures">
+				<File RelativePath="..\source\structures\struct_culverts.f90"/>
+				<File RelativePath="..\source\structures\struct_def.f90"/>
+				<File RelativePath="..\source\structures\struct_lib.f90"/>
+				<File RelativePath="..\source\structures\struct_rubmounds.f90"/>
+				<File RelativePath="..\source\structures\struct_tidegates.f90"/>
+				<File RelativePath="..\source\structures\struct_weirs.f90"/>
+				<File RelativePath="..\source\structures\structures.f90"/>
+			</Filter>
 		<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_def.f90"/>
 		<File RelativePath="..\source\boundaries\bnd_lib.f90"/>
@@ -109,9 +122,12 @@
 		<File RelativePath="..\source\boundaries\boundaries.F90"/>
 		<File RelativePath="..\source\waves\CMS-Wave_v3.4W_Jan2025.f90">
 			<FileConfiguration Name="Release|x64">
-			<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration>
+					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
+				</FileConfiguration>
 			<FileConfiguration Name="Debug|x64">
-			<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
+				</FileConfiguration>
+			</File>
 		<File RelativePath="..\source\main\CMS2D_main.f90"/>
 		<File RelativePath="..\source\main\CMS_Flow.f90"/>
 		<File RelativePath="..\source\main\CMS_test.F90"/>
@@ -199,16 +215,11 @@
 		<File RelativePath="..\source\statistics\statistics.F90"/>
 		<File RelativePath="..\source\steering\steer_def.f90"/>
 		<File RelativePath="..\source\steering\steering_Jan2025.f90"/>
-      	<File RelativePath="..\source\structures\struct_culverts.f90"/>
-		<File RelativePath="..\source\structures\struct_def.f90"/>
-		<File RelativePath="..\source\structures\struct_lib.f90"/>
-		<File RelativePath="..\source\structures\struct_rubmounds.f90"/>
-		<File RelativePath="..\source\structures\struct_tidegates.f90"/>
-		<File RelativePath="..\source\structures\struct_weirs.f90"/>
-		<File RelativePath="..\source\structures\structures.f90"/>
 		<File RelativePath="..\source\boundaries\tide_fac.f90">
 			<FileConfiguration Name="Debug|x64">
-			<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/></FileConfiguration></File>
+					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
+				</FileConfiguration>
+			</File>
 		<File RelativePath="..\source\boundaries\tide_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_lib.F90"/>
 		<File RelativePath="..\source\utilities\time_test.F90"/>
@@ -225,7 +236,8 @@
 		<File RelativePath="..\source\waves\wave_lib.F90"/>
 		<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>
 		<File RelativePath="..\source\sediment\wuetal.F90"/>
-		<File RelativePath="..\source\wrapper\Xmdff-2.0.f90"/></Filter>
+			<File RelativePath="..\source\wrapper\Xmdff-2.0.f90"/>
+		</Filter>
 	</Files>
 	<Globals/>
 </VisualStudioProject>

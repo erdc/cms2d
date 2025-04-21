@@ -96,10 +96,11 @@ module wave_def
     real(ikind),allocatable :: SIMAX(:,:,:),SJJ(:)     
     real(ikind),allocatable :: SOP(:,:,:),SR(:,:,:)     
     real(ikind),allocatable :: SJ(:),SJF(:,:),FJF(:)         
-    real(ikind),allocatable :: AA(:,:),B(:),X(:)        
+    real(ikind),allocatable :: AA(:,:),B(:),X(:) 
     real(ikind),allocatable :: sgma0(:,:),sgma1(:,:)       
     real(ikind),allocatable :: cwk(:,:,:),cgk(:,:,:)        
-    real(ikind),allocatable :: ex(:,:),ey(:,:)        
+    real(ikind),allocatable :: ex(:,:),ey(:,:)  
+
 
     integer,allocatable :: IJB(:,:)
     integer,allocatable :: KR(:,:)
