@@ -352,7 +352,7 @@ contains
         xpar(id) = dxxpar(i) - 0.5*dxpar(id)  !Local x-coordinate 
         ypar(id) = dyypar(j) - 0.5*dypar(id)  !Local y-coordinate
         activepar(id)=min(activepar(id),1)
-        idfpar(id,1:4)=(/1:4/)
+        idfpar(id,1:4)=(/1,2,3,4/) 
         ncfpar(id)=4
       enddo
     enddo
@@ -363,57 +363,75 @@ contains
     return
     end subroutine read_parent_grid_xmdf
 
-!********************************************************************************
-    subroutine readparscalsteph5(afile,apath,nptspar,inc,thrs,var,ierr)
-! Reads a vector from a parent CMS XMDF solution file.
-! Because the whole dataset has to be read in, there is no point in mapping the
-! data from the full grid (SMS grid with all cells) to the active grid 
-! (CMS grid with only active ocean cells).
-! written by Alex Sanchez, USACE-CHL
-!********************************************************************************
-    use xmdf
-    use prec_def
-    implicit none
-    !Input/Output
-    integer, intent(in) :: nptspar
-    integer, intent(in) :: inc !Time step index
-    integer, intent(out) :: ierr
-    integer :: fid,gid,ntimes
-    real(ikind), intent(inout) :: var(nptspar),thrs
-    character(len=*),intent(in) :: afile,apath
-    !Internal
-    real*8,allocatable :: timesd(:)
-    real*4 :: vtemp(nptspar) !Must be single    
-
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-4   if(ierr<0) return
-          
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
-    if(ierr<0) return    
+!******************************************************************************** 
+    subroutine readparscalsteph5(afile,apath,nptspar,inc,thrs,var,ierr) 
+! Reads a vector from a parent CMS XMDF solution file. 
+! Because the whole dataset has to be read in, there is no point in mapping the 
+! data from the full grid (SMS grid with all cells) to the active grid  
+! (CMS grid with only active ocean cells). 
+! written by Alex Sanchez, USACE-CHL 
+!******************************************************************************** 
+    use xmdf 
+    use prec_def 
+    use diag_lib, only: diag_print_error 
+    implicit none 
+     
+    interface 
+      character(len=20) function Int2Str(k) 
+        integer, intent(in) :: k 
+      end function 
+    end interface 
+ 
+     
+    !Input/Output 
+    integer, intent(in) :: nptspar 
+    integer, intent(in) :: inc !Time step index 
+    integer, intent(out) :: ierr 
+    integer :: fid,gid,ntimes 
+    real(ikind), intent(inout) :: var(nptspar),thrs 
+    character(len=*),intent(in) :: afile,apath 
+    !Internal 
+    real*8,allocatable :: timesd(:) 
+    real*4 :: vtemp(nptspar) !Must be single     
+ 
+    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)         
+    if(ierr<0) then 
+      call diag_print_error ('Cannot open parent file: '//trim(afile))  
+    endif 
+           
+    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr) 
+    if(ierr<0) then 
+      call diag_print_error ('Cannot open dataset path: '//trim(apath)) 
+    endif 
+     
+    call XF_GET_PROPERTY_NUMBER(gid,'Times',ntimes,ierr) 
+    if(ierr<0) then 
+      call diag_print_error ('Cannot get number of times from dataset: '//trim(apath)) 
+    endif 
+     
+    if(inc > ntimes)then 
+      ierr = -999  !Set a flag for now, then test to see if the run can end safely 
+      call diag_print_error ('Not enough times in the solution file to continue.') 
+    endif 
+     
+    allocate(timesd(ntimes)) 
+    call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr) 
+    if(ierr<0) then 
+      call diag_print_error ('Unable to retrieve the list of times from the dataset: ',trim(apath)) 
+    endif 
+    thrs = real(timesd(inc)) !Hours 
+    deallocate(timesd) 
+     
+    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,inc,nptspar,vtemp,ierr) 
+    if(ierr<0) return 
+    var = vtemp 
+     
+    call XF_CLOSE_GROUP(gid,ierr) 
+    call XF_CLOSE_FILE(fid,ierr) 
+       
+    return 
+    end subroutine readparscalsteph5 
     
-    call XF_GET_PROPERTY_NUMBER(gid,'Times',ntimes,ierr)
-    if(ierr<0) return
-    if(inc>ntimes)then
-      ierr = -999
-      return
-    endif
-    
-    allocate(timesd(ntimes))
-    call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr)
-    if(ierr<0) return
-    thrs = real(timesd(inc)) !Hours
-    deallocate(timesd)
-    
-    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,inc,nptspar,vtemp,ierr)
-    if(ierr<0) return
-    var = vtemp
-    
-    call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
-      
-    return
-    end subroutine readparscalsteph5
-
 !********************************************************************************
     subroutine readparvecsteph5(afile,apath,inc,nptspar,thrs,vecx,vecy,ierr)
 ! Reads a vector from a parent CMS XMDF solution file
@@ -425,7 +443,9 @@ contains
 !********************************************************************************
     use xmdf
     use prec_def
+    use diag_lib, only: diag_print_error 
     implicit none
+    
     !Input/Output
     integer, intent(in) :: nptspar
     integer, intent(in) :: inc !Time step index
@@ -437,22 +457,32 @@ contains
     real*8,allocatable :: timesd(:)
     real*4 :: vtemp(nptspar*2) !Must be single
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-    if(ierr<0) return
+    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)         
+    if(ierr<0) then 
+      call diag_print_error ('Cannot open parent file: '//trim(afile))  
+    endif 
           
     call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)
-    if(ierr<0) return    
+    if(ierr<0) then 
+      call diag_print_error ('Cannot open parent file: '//trim(afile))  
+    endif 
     
     call XF_GET_PROPERTY_NUMBER(gid,'Times',ntimes,ierr)
-    if(ierr<0) return
+    if(ierr<0) then
+      call diag_print_error ('Cannot get number of times from dataset: '//trim(apath)) 
+    endif
+
     if(inc>ntimes)then
-      ierr = -999
-      return
+      ierr = -999  !Set a flag for now, then test to see if the run can end safely 
+      call diag_print_error ('Not enough times in the solution file to continue.') 
     endif
     
     allocate(timesd(ntimes))
     call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr)
-    if(ierr<0) return
+    if(ierr<0) then 
+      call diag_print_error ('Unable to retrieve the list of times from the dataset: ',trim(apath)) 
+    endif 
+
     thrs = real(timesd(inc)) !Hours
     deallocate(timesd)
     

@@ -1,4 +1,4 @@
-== Version 5.4.4 (04/21/2025) ==
+== Version 5.4.4 (05/19/2025) ==
 * Minor changes to wave code to initialize a few variables.
 * Added test to ensure initial mixing layer thickness is always less than thicknesses for bed layers.
 * Added test for met station wind data import.
@@ -7,6 +7,7 @@
 * (5.4.4.1) Bug fix for mixing layer thickness error.
 * (5.4.4.2) Handles a '--non-interactive' flag as final argument to avoid the "Press any key to continue" message after errors.
 * (5.4.4.3) Bug fix for array out of bounds when nesting is used.
+* (5.4.4.4) Bug fix for mixing layer change in 5.4.4.1 when checking after reading in cards.
 
 == Version 5.4.3 (03/20/2025) ==
 * Optimized ADAK and ADBK dot product routines

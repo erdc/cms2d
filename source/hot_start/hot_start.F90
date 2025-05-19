@@ -1829,7 +1829,46 @@ loopj:  do j=1,nlay
 
     return
     end subroutine write_hotstart_sup
-   
+    
+!***********************************************************************     
+    subroutine get_IC_start_date(date) 
+! Opens the initial condition file and grabs the reference time and elapsed time for the output 
+! written by Mitchell Brown, USACE-CHL 
+!***********************************************************************     
+    use xmdf 
+    use hot_def 
+    implicit none 
+     
+    character(23),intent(out) :: date 
+     
+    character(100) :: apath 
+    integer :: fid, gid, ierr, npath, ntimes, era 
+    integer :: year,month,day,hour,minute,second 
+    real(8), allocatable :: timed(:) 
+    real(8) :: a_reftime 
+     
+225 format(I2.2,'/',I2.2,'/',I4.4,' ',I2.2,':',I2.2,':',I2.2,' UTC') 
+     
+    call XF_OPEN_FILE(trim(icfile),READONLY,fid,ierr)    
+    npath = len_trim(icpath) 
+    apath = icpath(1:npath) // 'Water_Elevation' 
+    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr) 
+    call XF_GET_DATASET_REFTIME(gid, a_reftime, ierr) 
+     
+    call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr) 
+    allocate(timed(ntimes)) 
+    call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr) 
+     
+    !The reference time needed by the XMDF routine is in days.  Convert elapsed time to days before adding. 
+    a_reftime = a_reftime + (timed(ntimes)/24) 
+    call XF_JULIAN_TO_CALENDAR(era,year,month,day,hour,minute,second,a_reftime,ierr) 
+    write(date,225) month, day, year, hour, minute, second 
+       
+    deallocate(timed) 
+    call XF_CLOSE_FILE(fid,ierr) 
+     
+    end subroutine get_IC_start_date 
+        
 !***********************************************************************    
     subroutine hot_print()
 ! Prints the Hot Start settings to the screen and diagnostic file
@@ -1841,23 +1880,27 @@ loopj:  do j=1,nlay
     implicit none
     
     integer :: i,iunit(2)
+    character(23) :: date
     
 645 format(' ',A,T40,F0.2,A)
 222 format(' ',A,T40,A,A)
 223 format(' ',A)
+224 format(' ',A,T40,A,A)     
     
     iunit = (/6, dgunit/)
-    
+    if(.not.coldstart) call get_IC_start_date(date)  !Do this outside the loop so CMS just gets the date once 
+     
     open(dgunit,file=dgfile,access='append') 
     do i=1,2    
       write(iunit(i),*)
 
       if(coldstart)then
         write(iunit(i),222)   'Start Mode:','COLD START'
-      else
-        write(iunit(i),222)   'Start Mode:','HOT START'
-        write(iunit(i),222)   '  Initial Conditions File:',trim(icfile)
-      endif
+      else 
+        write(iunit(i),222)   'Start Mode:','HOT START' 
+        write(iunit(i),222)   '  Initial Condition File:',trim(icfile) 
+        write(iunit(i),224)   '  Initial Condition date/time: ',trim(date) 
+      endif 
 
       if(hot_out)then
         if(hot_timehr)then 
