@@ -251,8 +251,7 @@
     implicit none
     character(len=*) :: afile,apath,adataset
           
-    call diag_print_error('Dataset not found: ',adataset,&
-      '   File: ',afile,' Path: ',apath)
+    call diag_print_error('Dataset not found: '//trim(adataset),'   File: '//trim(afile),'   Path: '//trim(apath))
 
     return
     end subroutine error_invalid_dataset 
