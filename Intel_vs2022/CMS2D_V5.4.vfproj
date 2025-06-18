@@ -6,7 +6,7 @@
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
 			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0dx64_2022.lib"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.2dx64.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -17,7 +17,7 @@
 		</Configuration>
 		<Configuration Name="Release|x64" UseCompiler="ifxCompiler">
 			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugLineInfoOnly" Optimization="optimizeFull" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" FloatingPointExceptionHandling="fpe0" FloatingPointModel="strict" FloatingPointSpeculation="fpSpeculationOff" Traceback="true" RuntimeChecks="rtChecksNone" BoundsCheck="true" UninitializedVariablesCheck="true"/>
-			<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRT" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.0x64_2022.lib"/>
+			<Tool Name="VFLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRT" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.2x64.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -34,7 +34,8 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File RelativePath="..\source\CMakeLists.txt"/>
 			<File RelativePath="..\source\logsheet.txt"/>
-			<File RelativePath="..\source\readme.txt"/>
+			<File RelativePath="..\source\readme.txt">
+			</File>
 			<File RelativePath="..\docs\user\whatsnew.rst"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
@@ -114,6 +115,14 @@
 				<File RelativePath="..\source\structures\struct_tidegates.f90"/>
 				<File RelativePath="..\source\structures\struct_weirs.f90"/>
 				<File RelativePath="..\source\structures\structures.f90"/>
+			</Filter>
+			<Filter Name="XMDFtests">
+				<File RelativePath="..\source\tests\TestDatasets.f90"/>
+				<File RelativePath="..\source\tests\TestGeomPaths.F90"/>
+				<File RelativePath="..\source\tests\TestGrid.f90"/>
+				<File RelativePath="..\source\tests\TestMesh.f90"/>
+				<File RelativePath="..\source\tests\Tests.f90"/>
+				<File RelativePath="..\source\tests\TestTimestep.f90"/>
 			</Filter>
 			<File RelativePath="..\source\boundaries\bnd_block.f90"/>
 			<File RelativePath="..\source\boundaries\bnd_def.f90"/>
@@ -236,7 +245,7 @@
 			<File RelativePath="..\source\waves\wave_lib.F90"/>
 			<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>
 			<File RelativePath="..\source\sediment\wuetal.F90"/>
-			<File RelativePath="..\source\wrapper\Xmdff-2.0.f90"/>
+			<File RelativePath="..\source\wrapper\Xmdff.f90"/>
 		</Filter>
 	</Files>
 	<Globals/>

@@ -1,0 +1,204 @@
+changes.txt
+
+                           XMDF Release Notes
+
+     This file describes changes introduced into XMDF with each release.
+     
+     Note that VisualStudio 8 is required for building, Fortran is
+     required for some builds, Doxygen is required for some builds to
+     recreate documentation.  Release DLLs are provided pre-built.
+
+================================================================
+Version 2.2b 19-May-2025 changes since 17-Jan-2017 for CMS and PTM
+- Missing functions in Xmdf_f.c were added.
+	- xfsetwkt_f_
+	- xfgetwktstringsize_f_
+	- xfgetwkt_f_
+	- xfGetCoordVersion_f_
+- Added function to Xmdf_f.c for use in CMS to allow adding attribute strings for CF compliance.
+	- xfSetAttributeString_f_
+- Missing interface for functions that were missing or added in Xmdf_f.c as indicated above.
+	- XF_SET_WKT
+	- XF_GET_WKT_STRING_SIZE
+	- XF_GET_WKT
+	- XF_GET_COORD_VERSION
+	- XF_SET_ATTRIBUTE_STRING
+- Added interfaces to Xmdff.f90 for PTM to read mutliple string atts at one time.
+	- XF_READ_PROPERTIES_INT
+	- XF_READ_PROPERTIES_FLOAT
+- Added missing variable declaration in xmdf_timestep.h
+	- xftReadWriteDsetFloatIndices
+- Changed C++ function in xmdf_private.c to avoid deprecated HDF5 functions
+	- xfpHDF5ErrorWalk_cb
+
+
+
+Version 2.2 17-Jan-2017 changes since 27-Jul-2012 for SMS 12.2
+
+\\\\\\
+FIXES:
+\\\\\\
+
+- Fix memory leak in xfpReadDatasetString() which reads a dataset consisting of 1 string.
+- Implement XF_GET_DATASET_UNITS as documented.
+- Note that xfReadScalarValuesTimestep() is much faster than xfReadScalarValuesAtIndicesFloat().
+- Add support for VisualStudio 2013, keep VS2010, and drop VS2008.
+
+Version 2.1 27-Jul-2012 changes since 30-Apr-2012 for SMS 11.1
+
+\\\\\\
+FIXES:
+\\\\\\
+
+- Ignore libcmt(d) in 4 build configurations.
+
+Version 2.0 30-Apr-2012 changes since 11-Jul-2011 for SMS 11.0 release
+
+\\\\\\
+FIXES:
+\\\\\\
+
+- Remove H5_USE_16_API compatibility mode.
+- Remove Release_MTD build configurations.
+- Provide more consistent library names.
+
+Version 1.9 11-Jul-2011 changes since 05-Apr-2011 for SMS 11.0 release
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+
+- Added undocumented methods to take "taking a slightly different tack to how
+ we write the data to HDF5.":  xfCreateInMemoryFile, xfSetupToWriteDatasets2,
+ xfSetDatasetTimestepMinMax, xftReadWriteDset2DFloatIndices
+
+Version 1.8 05-Apr-2011 changes since 10-Dec-2010 for SMS 11.0 release
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+
+- Added xfSetDatasetTimestepMinMax method.
+
+Version 1.7 10-Dec-2010 changes since 12-Mar-2009 for SMS 11.0 release
+
+\\\\\\
+FIXES:
+\\\\\\
+
+- More precision when converting from/to different dates.
+
+- 64-bit release and debug libs build now.
+
+- Fix doc for XF_WRITE_ELEM_NODE_IDS and other minor issues.
+
+Version 1.6 12-Mar-2009 changes since 7-Mar-2008
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+
+- Added 64-bit support.
+
+- Changed Intel Fortran from 9.10 to 11.0.
+
+- Probably many more undocumented changes in source control.
+
+\\\\\\
+FIXES:
+\\\\\\
+
+- Change HDF5 from 1.6.6 to 1.8.1 for 64-bit support.
+
+- Remove Fortran 11.0 optimization because it crashes when returning from 
+  xfgetnumopenidentifiers_f
+  
+- Changed to hsize_t not int to avoid data loss within XMDF
+
+- Deprecated Detect64BitPortabilityProblems.
+
+- Define H5_USE_16_API in H5version.h to avoid additional changes just yet.
+
+Version 1.5 internal release for WMS 8.1
+
+Version 1.4 7-Mar-2008 changes since 03-Oct-2006.
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+
+- Undocumented functions were added to the public interface.
+
+- No longer includes a multi-platform Unix build process.
+
+- Includes prebuilt Win32 release DLLs of all libraries.
+
+- XMDF library names now include a version number.
+
+- Includes sources and projects in the VS solution for other required libraries
+  such as HDF5.
+
+\\\\\\\\\\
+BUG FIXES:
+\\\\\\\\\\
+
+- Documentation was improved in some areas.
+
+================================================================
+
+Version 1.3 03-Oct-2006 changes since Mar-2006.
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+
+- Now includes a multi-platform Unix build process.
+
+- Includes precompiled HDF5 1.6.5 libraries for Mac, CrayXT3, and IRIX.
+
+- Documentation is moved to Doxygen and is included with the source distribution.
+
+\\\\\\\\\\
+BUG FIXES:
+\\\\\\\\\\
+
+- Parallel XMDF speed enhancement.
+
+- Documentation was corrected in some areas.
+
+================================================================
+
+Changes since 20December2005 to XMDF version 1.2
+
+\\\\\\\\\\\\\
+NEW FEATURES:
+\\\\\\\\\\\\\
+Upgraded for compatibility to HDF5 version 1.6.5.  This version of XMDF should not be used with older versions of HDF5.
+
+Added timestep deletion. Added the function xfSetDatasetNumTimes to override the actual number of timesteps stored in the file.
+
+Added a reference directory of test output files.
+
+
+\\\\\\\\\\
+BUG FIXES:
+\\\\\\\\\\
+
+The library was designed to use 1 based indices.  The following functions were using 0 based indices and have been converted to 1 based indices:
+xfReadScalarValuesTimestep
+xfReadActivityTimestep
+xfReadScalarValuesAtIndex
+xfReadVectorValuesTimestep
+xfReadActivityValuesAtIndex
+
+It seems there was a change to how HDF5 treats the function H5Topen.  Accordingly the following functions were changed.  This should not impact library users.
+xfGetLibraryVersion
+xfGetPropertyStringLength
+xfReadPropertyString
+
+Changed the Fortran versions of xfReadActivityTimestep, xfReadActivityValuesAtIndex, and xfReadVectorValuesAtIndex to translate correctly from 1 based to 0 based array indices.
+
+Changed various Fortran function arguments from OUT to IN.
+
+Changed char* conversions from Fortran functions to terminate the strings using the Fortran string length argument.
+

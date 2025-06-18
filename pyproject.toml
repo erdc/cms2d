@@ -16,7 +16,7 @@ maintainers = [
   { name = "Mitchell Brown", email = "mitchell.e.brown@usace.army.mil"},
   { name = "Honghai Li" },
   { name = "Lihwa Lin" },
-  ( name = "Elizabeth Holzenthal" },
+  { name = "Elizabeth Holzenthal" },
 ]
 description = "A coastal modeling system that couples a wave, circulation, and morphology model together to get better predictions in the near-shore."
 readme = "README.md"

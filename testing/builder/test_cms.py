@@ -55,14 +55,14 @@ def compare_h5_files(base_file: str, out_file: str, to_exclude: Optional[List[st
 
 
 def main(vs_solution_path, dll_path):
-    """Run cms tests.
+    """Run CMS tests
 
     Args:
-        vs_solution_path (string): Path to the visual studio solution file.
-        dll_path (string): path to dll for openmp.
+        vs_solution_path (string): Path to the Visual Studio solution file
+        dll_path (string): path to dll for openmp
     """
     repo_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    test_path = os.path.join(repo_path, 'testing', 'tests')
+    test_path = os.path.join(repo_path, 'testing', 'tests_flow')
     files = [str(f.absolute()) for f in Path(test_path).rglob('*.cmcards')]
     skip_files = [str(f.absolute()) for f in Path(test_path).rglob('skip.txt')]
     skip_set = set()

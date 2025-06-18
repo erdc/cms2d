@@ -782,10 +782,12 @@ contains
 ! written by Alex Sanchez, USACE-ERDC-CHL  
 ! added optional argument, Mitchell Brown, USACE-ERDC-CHL  10/02/2023
 !**************************************************************************
-    use size_def, only: ncellsD,ncellsfull,ncellpoly
     use xmdf
-    use interp_lib, only: interp_scal_cell2node
     use prec_def
+    use size_def, only: ncellsD,ncellsfull,ncellpoly
+    use const_def, only: READWRITE
+    use interp_lib, only: interp_scal_cell2node
+
     implicit none
     
     !Input/Output
@@ -796,7 +798,8 @@ contains
     
     
     !Internal variables
-    integer :: fid,gid,ierr    
+    integer(XID) :: fid,gid
+    integer ::ierr    
     real(8) :: timed  !Must be double    
     real(4) :: scalout(ncellsfull) !Must be single
     character(len=200) :: afullpath
@@ -830,14 +833,16 @@ contains
 ! Mitchell Brown, USACE-ERDC-CHL  02/21/2025
 !**************************************************************************
     use xmdf,     only: XF_SET_ATTRIBUTE_STRING, XF_CLOSE_GROUP
+    use XMDFDEFS, only: XID
     use out_def,  only: cf_vars,ncf_vars
     use diag_lib, only: diag_print_warning
     implicit none
     
-    integer, intent(in) :: a_Id
+    integer(XID), intent(in) :: a_Id
     character(len=*), intent(in) :: aname
     
-    integer             :: error, pid, i, list_item
+    integer(XID) :: pid
+    integer             :: error, i, list_item
     character(len=50)   :: output_name
     character(len=100)  :: long_name
     character(len=100)  :: standard_name
@@ -885,6 +890,7 @@ contains
     use xmdf
     use interp_lib, only: interp_vec_cell2node
     use prec_def
+    use const_def, only: READWRITE
     implicit none
     
     !Input/Output    
@@ -894,7 +900,8 @@ contains
     logical,intent(in), optional :: writecf_var   !This logical indicates whether to pull from the 'cf_vals' list and writes extra attributes to the dataset.
 
     !Internal Variables
-    integer :: pid,did,ierr
+    integer(XID) :: pid,did
+    integer :: ierr
     real*8 :: timed !Must be double for XMDF subs    
     real*4 :: vecout(ncellsfull*2) !Must be single 
     character :: afullpath*100    
@@ -945,11 +952,14 @@ contains
     use XMDF
     implicit none
     
-    integer, intent(in)    :: DIM,OCID
-    integer, intent(inout) :: OCERR,OCDID
+    integer(XID), intent(in) :: OCID !Parent group/file id
+    integer(XID), intent(out) :: OCDID  !Child group id
+    integer, intent(in)    :: DIM
+    integer, intent(inout) :: OCERR
     character(LEN=*), intent(in) :: STRING1,OUNITS    
 
-    integer          :: OCDPID
+    integer(XID)          :: OCDPID  !Property group id
+
       
     SELECT CASE (DIM)
       CASE (1)

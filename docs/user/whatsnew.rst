@@ -1,7 +1,18 @@
 What's New
 ==========
 
-v5.4.4.3 (21 April 2025)
+v5.4.5 (18 June 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* Bug fix - need to test for enabled sediment after reading in cards in prestart
+* Enabled XMDF compilation on Linux. Updated workflow to compile CMS including XMDF libraries.
+* Add canned test cases for XMDF that should work on Linux or Windows
+* Moved third-party libraries from root folder to be under the 'external_libraries' folder.
+
+
+v5.4.4.4 (19 May 2025)
 -------------------------
 
 Changes
@@ -14,6 +25,7 @@ Changes
 * (5.4.4.1) Bug fix for mixing layer thickness error.
 * (5.4.4.2) Handles a '--non-interactive' flag as final argument to avoid the "Press any key to continue" message after errors.
 * (5.4.4.3) Bug fix for array out of bounds when nesting is used.
+* (5.4.4.4) Bug fix for mixing layer change in 5.4.4.1 when checking after reading in cards. 
 
 
 v5.4.3 (18 March 2025)

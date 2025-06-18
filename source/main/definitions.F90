@@ -94,6 +94,8 @@ module const_def
     real(ikind),parameter :: great = 1.0e15    
     real(ikind),parameter :: omega = twopi/86400.0_ikind   !Earth's rotation speed, 7.2722e-5 rad/s
     real(ikind),parameter :: earthRadius = 6371000.0_ikind !Earth's radius, m
+    LOGICAL*2 :: READONLY  = .true., READWRITE = .false.   !Moved from XMDFF.f90 since it is not in recent XMDF versions.
+    LOGICAL*2 :: OVERWRITE = .true.
     
 end module const_def
 

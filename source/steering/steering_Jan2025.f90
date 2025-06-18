@@ -988,9 +988,13 @@
     write(*,'(A)') ' Starting wave-to-flow interpolation'
     write(*,'(A,I3)') '  imod=', imod
     
- !This was giving the incorrect date.  Modified  MEB  01/12/2022
-    idatewave = kdate*1000
-    idatewave = idatewave + (idate/100)     !idatewave limited to 10 digits, dropped the seconds off the end
+ !This was giving the incorrect date.  Modified  MEB  01/12/2022 and again 05/07/2025
+    if (kdate > 0) then     ! This means that the date stamp is 12 digits
+      idatewave = kdate*1000
+      idatewave = idatewave + (idate/100)   !idatewave limited to 10 digits, dropped the seconds off the end
+    else                    ! This means that the date stamp is 8 digits
+      idatewave = idate
+    endif
 
 100 FORMAT ('  Wave date = ',I4,2('-',I2.2),1x,I2.2,':',I2.2,'.',I2.2,' UTC')
     
@@ -1499,8 +1503,8 @@
         call readvecsteph5 (wgrdfile,wavpath,nsteer,tswave2,wavestrx2,wavestry2,ierr)
 #endif       
 !$OMP PARALLEL DO PRIVATE(i)
-          do i=1,ncellsD
-            Wunitx2(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
+        do i=1,ncellsD
+          Wunitx2(i) = cos((Wang(i)-azimuth_fl)*deg2rad)
           Wunity2(i) = sin((Wang(i)-azimuth_fl)*deg2rad)
           wavediss2(i) = -rhow*wavediss2(i)  !Flip sign and change units [N/m/s]
         enddo

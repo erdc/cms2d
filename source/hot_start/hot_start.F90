@@ -266,15 +266,8 @@
           enddo
 
           eta = etemp
-   !Reading input for "ncellsD" (Active) cells already.  Removing this section.  meb  02/21/2019
-          !if(ncellpoly>0)then
-          !  call interp_scal_node2cell(etemp,eta) !Interpolate node to cell centers
-          !else
-          !  call map_scal_full2active(etemp,eta) !Convert from full to active grid 
-          !endif
-          
-          !write(*,*) 'IC - Before P assignment, p(1) = ',p(1)
-       !section added 07/06/2018  meb
+
+        !section added 07/06/2018  meb
           if (.not.icpres) then 
             p = eta*grav           !don't overwrite the pressures if already read in.  
           endif
@@ -304,24 +297,12 @@
             vtemp(i) = vecdat(1)%val(i,2,vecdat(1)%nt)        
           enddo
           do i=nd+1,ncellsd   !If nd==ncellsD, do nothing more
-            !etemp(i) = 0.0   !removed 03/25/21  Copied from scalar, but not correctly modified for vector  MEB
             utemp(i) = 0.0    !added
             vtemp(i) = 0.0    !added
           enddo
           
           u=utemp
           v=vtemp
-
-          !umax = maxval(u)   !added for testing purposes  03/25/2021  MEB
-          !vmax = maxval(v)
-          
-          !if(ncellpoly>0)then
-          !  call interp_scal_node2cell(utemp,u) !Interpolate node to cell centers
-          !  call interp_scal_node2cell(vtemp,v) !Interpolate node to cell centers
-          !else
-          !  call map_scal_full2active(utemp,u) !Convert from full to active grid 
-          !  call map_scal_full2active(vtemp,v) !Convert from full to active grid 
-          !endif
 
           if(ictime < 0) then
             ictime = vecdat(1)%time(vecdat(1)%nt)  !Modify start time to match the initial conditions file.
@@ -349,12 +330,6 @@
             enddo
 
             p=etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,p) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,p) !Convert from full to active grid 
-            !endif
-            
             eta = p*gravinv
           endif  
 
@@ -384,11 +359,6 @@
           enddo
 
           temp = etemp
-          !if(ncellpoly>0)then
-          !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-          !else
-          !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-          !endif
           
           do i=1,nd
             iwet(i) = int(temp(i))
@@ -414,11 +384,6 @@
           enddo
           
           temp = etemp
-          !if(ncellpoly>0)then
-          !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-          !else
-          !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-          !endif
           
           !Should be more than one face.  Determine which one this is
           istart = index(datfile,'Flux')+4
@@ -448,11 +413,6 @@
             enddo
             
             zb=etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,zb) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,zb) !Convert from full to active grid 
-            !endif
             
             deallocate(scaldat)
             zb = -zb
@@ -477,11 +437,6 @@
             enddo
             
             temp = etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            !endif
             deallocate(scaldat)
           
             if(nsed==1 .and. .not.icsingle) then  !Single Grain Size
@@ -518,11 +473,6 @@
             enddo
             
             temp = etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            !endif
             deallocate(scaldat)
           
             !Multiple Grain Sizes
@@ -560,11 +510,6 @@
             enddo
             
             temp = etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,temp) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,temp) !Convert from full to active grid 
-            !endif
             deallocate(scaldat)
           
             !Multiple Grain Sizes
@@ -613,11 +558,6 @@
             enddo
             
             sal = etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,sal) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,sal) !Convert from full to active grid 
-            !endif
             deallocate(scaldat)
           endif  
 
@@ -640,11 +580,6 @@
             enddo
             
             heat = etemp
-            !if(ncellpoly>0)then
-            !  call interp_scal_node2cell(etemp,heat) !Interpolate node to cell centers
-            !else
-            !  call map_scal_full2active(etemp,heat) !Convert from full to active grid 
-            !endif
             deallocate(scaldat)
           endif  
 
@@ -767,23 +702,26 @@
     use xmdf
     use diag_lib
     use prec_def
-    use geo_def,  only: cell2cell,zb,zb0
-    use flow_def, only: u,v,u1,v1,uv,p,p1,eta,h,iwet,flux,grav,gravinv
-    use sed_def,  only: sedtrans,nsed,Ctk,Ctk1,Ctkstar,icapac,nlay,bedlay,pbk,pbk1
-    use sed_def,  only: db,db1,d50,d90,diam,diamlim,logdiamlim,dbmax,dmconst,zb1
-    use sal_def,  only: saltrans,sal
-    use heat_def, only: heattrans, heat
-    use out_def,  only: outlist,simlabel
-    use DFLIB,    only: systemqq
+    use geo_def,   only: cell2cell,zb,zb0
+    use flow_def,  only: u,v,u1,v1,uv,p,p1,eta,h,iwet,flux,grav,gravinv
+    use sed_def,   only: sedtrans,nsed,Ctk,Ctk1,Ctkstar,icapac,nlay,bedlay,pbk,pbk1
+    use sed_def,   only: db,db1,d50,d90,diam,diamlim,logdiamlim,dbmax,dmconst,zb1
+    use sal_def,   only: saltrans,sal
+    use heat_def,  only: heattrans, heat
+    use out_def,   only: outlist,simlabel
+    use const_def, only: READONLY
     use in_xmdf_lib, only: readscallasth5,readveclasth5
+#ifdef _WIN32
+    use DFLIB,    only: systemqq 
+#endif
     
     implicit none
     integer :: res !Added MEB - 05/18/2012 for hot start fixes
-    integer :: i,j,k,ks,fid,gid,nn,ierr,ntimes,npath,fileCopied
+    integer(XID) :: fid,gid
+    integer :: i,j,k,ks,nn,ierr,ntimes,npath,fileCopied
     real(ikind) :: temphr,temp(ncellsD)
     real(8), allocatable :: timesd(:)
     real(ikind), allocatable :: d35(:)
-    !real(ikind) :: var(ncellsD)
     character(len=200) :: apath,thepath,thename,tfile !Added tfile MEB - 05/18/2012 for hot start fixes
     character(len=5) :: apbk,alay
     character(len=10) :: theext 
@@ -806,10 +744,13 @@
     endif
 
     ! Make a copy of ICFILE to temp.h5 and read from that. 
-!This may need to change for linux MEB 10/16/2018
-    !res = system('copy '//trim(icfile)//' '//trim(tfile)//' > file')
     astring = 'copy "' // trim(icfile) // '" "' // trim(tfile) // '" > file'
+    
+#ifdef _WIN32
     res = systemqq(trim(astring))
+#else
+    res = system(trim(astring))
+#endif
 
     inquire(file='file', exist=ok)
     !Checking for existence of 'file' is not good enough.  
@@ -852,7 +793,6 @@
       write(msg,'(A,A)') 'Read water level: ',trim(apath)
       call diag_print_message(msg)
       p = eta*grav
-      !ictime = temphr !Start time in hours 
     endif
     if(ntimes>1)then
       write(msg,'(A,A)') 'Found multiple time steps in: ',trim(icfile)
@@ -945,25 +885,6 @@
         zb = -zb
         zb1 = zb        
       endif
-      
-!      !Initial Water depths
-!      apath = string(1:nn) // 'Initial_Depth'  
-!      call readscalsteph5(icfile,apath,1,temphr,zb0,ierr)    
-!      if(ierr<0)then
-!        open(dgunit,file=dgfile,access='append') 
-!        write(*,*)      'WARNING: Unable to find initial depths'
-!        write(dgunit,*) 'WARNING: Unable to find initial depths'
-!        write(*,*)      '   Using grid depths as initial depths'
-!        write(dgunit,*) '   Using grid depths as initial depths'    
-!        close(dgunit)
-!        zb0 = zb
-!      else
-!        open(dgunit,file=dgfile,access='append') 
-!        write(*,747)       '  Read initial water depths: ',apath
-!        write(dgunit,747)  '  Read initial water depths: ',apath
-!        close(dgunit)
-!        zb0 = -zb0
-!      endif
       
       !Sediment concentrations
       if(nsed==1)then !Single grain size
@@ -1103,12 +1024,6 @@ loopj:  do j=1,nlay
         apath = icpath(1:npath) // 'Concentration'  
         call readscallasth5(tfile,apath,ntimes,Ctk(:,1),reftimehot,temphr,ierr)
         if(ierr<0)then
-!          open(dgunit,file=dgfile,access='append') 
-!          write(*,*)      'WARNING: Unable to find initial sediment concentrations'
-!          write(dgunit,*) 'WARNING: Unable to find initial sediment concentrations'
-!          write(*,*)      '   Setting initial sediment concentrations to equilibrium concentration'
-!          write(dgunit,*) '   Setting initial sediment concentrations to equilibrium concentration'
-!          close(dgunit)     
           do ks=1,nsed
             write(apbk,62) ks
             apath = icpath(1:npath) // 'Concentration' // apbk                         !The underscore is already added with the '62' format  MEB  03/15/2021
@@ -1195,19 +1110,9 @@ loopj:  do j=1,nlay
       call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr)
       timeout = timesd(ntimes) !Hours
       deallocate(timesd)
-!    call XF_CHANGE_SCALAR_VALUES_TIMESTEP_FLOAT(FileId, TimestepIndex, NumValsToEdit, &
-!                                                  Indices, NewValues, ierr)    
       call XF_CLOSE_GROUP(gid,ierr)  !Close dataset    
       call XF_CLOSE_FILE(fid,ierr)   !Close XMDF file        
     endif
-    
-    !if(.not.fluxreadin)then       
-    !  call diag_print_message('Determining fluxes from water levels and current velocities')
-    !  call interp_scal_cell2face(p,1,pk,dpx,dpy)
-    !  hk = max(hmin,pk*gravinv-zbk)
-    !  where(hk<hmin) hk = hmin
-    !  call flow_convflux
-    !endif
     
 !--- Delete Temporary file ---------------------
     call delete_file(tfile)
@@ -1602,7 +1507,7 @@ loopj:  do j=1,nlay
 
     return
     end subroutine hotstart_file_init
-
+  
 !******************************************************************
     subroutine hot_write_xmdf(outfile,outpath)
 ! Writes hot start h5 file for restarting CMS
@@ -1830,45 +1735,47 @@ loopj:  do j=1,nlay
     return
     end subroutine write_hotstart_sup
     
-!***********************************************************************     
-    subroutine get_IC_start_date(date) 
-! Opens the initial condition file and grabs the reference time and elapsed time for the output 
-! written by Mitchell Brown, USACE-CHL 
-!***********************************************************************     
-    use xmdf 
-    use hot_def 
-    implicit none 
-     
-    character(23),intent(out) :: date 
-     
-    character(100) :: apath 
-    integer :: fid, gid, ierr, npath, ntimes, era 
-    integer :: year,month,day,hour,minute,second 
-    real(8), allocatable :: timed(:) 
-    real(8) :: a_reftime 
-     
-225 format(I2.2,'/',I2.2,'/',I4.4,' ',I2.2,':',I2.2,':',I2.2,' UTC') 
-     
-    call XF_OPEN_FILE(trim(icfile),READONLY,fid,ierr)    
-    npath = len_trim(icpath) 
-    apath = icpath(1:npath) // 'Water_Elevation' 
-    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr) 
-    call XF_GET_DATASET_REFTIME(gid, a_reftime, ierr) 
-     
-    call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr) 
-    allocate(timed(ntimes)) 
-    call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr) 
-     
-    !The reference time needed by the XMDF routine is in days.  Convert elapsed time to days before adding. 
-    a_reftime = a_reftime + (timed(ntimes)/24) 
-    call XF_JULIAN_TO_CALENDAR(era,year,month,day,hour,minute,second,a_reftime,ierr) 
-    write(date,225) month, day, year, hour, minute, second 
-       
-    deallocate(timed) 
-    call XF_CLOSE_FILE(fid,ierr) 
-     
-    end subroutine get_IC_start_date 
+!***********************************************************************      
+    subroutine get_IC_start_date(date)  
+! Opens the initial condition file and grabs the reference time and elapsed time for the output  
+! written by Mitchell Brown, USACE-CHL  
+!***********************************************************************      
+    use xmdf  
+    use hot_def  
+    use const_def, only: READONLY
+    implicit none  
+      
+    character(23),intent(out) :: date  
+      
+    character(100) :: apath  
+    integer(XID) :: fid, gid
+    integer :: ierr, npath, ntimes, era  
+    integer :: year,month,day,hour,minute,second  
+    real(8), allocatable :: timed(:)  
+    real(8) :: a_reftime  
+      
+225 format(I2.2,'/',I2.2,'/',I4.4,' ',I2.2,':',I2.2,':',I2.2,' UTC')  
+      
+    call XF_OPEN_FILE(trim(icfile),READONLY,fid,ierr)     
+    npath = len_trim(icpath)  
+    apath = icpath(1:npath) // 'Water_Elevation'  
+    call XF_OPEN_GROUP(fid,trim(apath),gid,ierr)  
+    call XF_GET_DATASET_REFTIME(gid, a_reftime, ierr)  
+      
+    call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr)  
+    allocate(timed(ntimes))  
+    call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)  
+      
+    !The reference time needed by the XMDF routine is in days.  Convert elapsed time to days before adding.  
+    a_reftime = a_reftime + (timed(ntimes)/24)  
+    call XF_JULIAN_TO_CALENDAR(era,year,month,day,hour,minute,second,a_reftime,ierr)  
+    write(date,225) month, day, year, hour, minute, second  
         
+    deallocate(timed)  
+    call XF_CLOSE_FILE(fid,ierr)  
+      
+    end subroutine get_IC_start_date  
+   
 !***********************************************************************    
     subroutine hot_print()
 ! Prints the Hot Start settings to the screen and diagnostic file
@@ -1885,22 +1792,21 @@ loopj:  do j=1,nlay
 645 format(' ',A,T40,F0.2,A)
 222 format(' ',A,T40,A,A)
 223 format(' ',A)
-224 format(' ',A,T40,A,A)     
+224 format(' ',A,T40,A,A)
     
     iunit = (/6, dgunit/)
-    if(.not.coldstart) call get_IC_start_date(date)  !Do this outside the loop so CMS just gets the date once 
-     
+    if(.not.coldstart) call get_IC_start_date(date)  !Do this outside the loop so CMS just gets the date once
+    
     open(dgunit,file=dgfile,access='append') 
     do i=1,2    
       write(iunit(i),*)
-
       if(coldstart)then
         write(iunit(i),222)   'Start Mode:','COLD START'
-      else 
-        write(iunit(i),222)   'Start Mode:','HOT START' 
-        write(iunit(i),222)   '  Initial Condition File:',trim(icfile) 
-        write(iunit(i),224)   '  Initial Condition date/time: ',trim(date) 
-      endif 
+      else
+        write(iunit(i),222)   'Start Mode:','HOT START'
+        write(iunit(i),222)   '  Initial Condition File:',trim(icfile)
+        write(iunit(i),224)   '  Initial Condition date/time: ',trim(date)
+      endif
 
       if(hot_out)then
         if(hot_timehr)then 

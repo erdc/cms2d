@@ -26,8 +26,9 @@ contains
 !*************************************************************  
     use xmdf
     use prec_def
-    use diag_lib, only: diag_print_error
-    use diag_def, only: msg
+    use diag_def,  only: msg
+    use diag_lib,  only: diag_print_error
+    use const_def, only: READONLY
     implicit none
     
     !Input/Output
@@ -36,7 +37,8 @@ contains
     real(ikind),intent(inout),pointer :: vec(:)
     
     !Internal variables
-    integer :: pid,gid,ierr,iloc
+    integer(XID) :: pid,gid
+    integer :: ierr,iloc
     real(4),allocatable :: ftemp(:) !Should be single    
     character(100) :: thepath
        
@@ -80,6 +82,7 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def, only: READONLY
     implicit none
     
     !Input/Output
@@ -87,7 +90,8 @@ contains
     real(ikind), intent(out) :: var(ncellsD)
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: fid,gid,iloc
+    integer(XID) :: fid,gid
+    integer :: iloc
     real(4) :: vtemp(ncellsfull)
     character(len=200) :: msg2,msg3,thepath
 
@@ -140,14 +144,17 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def,  only: READONLY
     implicit none
+    
     !Input/Output
     character(len=*), intent(in) :: afile,apath
     integer, intent(in) :: itsind !Time step index
     real(ikind), intent(out):: var(ncellsD),thrs
     integer, intent(out) :: ierr    
     !Internal Variables
-    integer :: fid,gid,ntimes,iloc
+    integer(XID) :: fid,gid
+    integer :: ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull) !Must be single
     character(100) :: thepath
@@ -220,14 +227,17 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def,  only: READONLY
     implicit none
+    
     !Input/Output
     character(len=*), intent(in) :: afile,apath
     real(ikind), intent(out) :: var(ncellsD),thrs    
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer :: fid,gid,iloc
+    integer(XID) :: fid,gid
+    integer :: iloc
     real(8), allocatable :: timed(:) !Output time
     real(4) :: vtemp(ncellsfull) !Must be single
     character(100) :: thepath
@@ -241,9 +251,6 @@ contains
     call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
     if(ierr<0)then
       call XF_CLOSE_FILE(fid,ierr)
-!      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-!      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-!      call diag_print_warning('Could not open dataset from ',msg2,msg3)
       ierr = -2
       return
     endif
@@ -315,7 +322,9 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def, only: READONLY
     implicit none
+    
     !Input
     character(len=*), intent(in) :: afile,apath
     real(ikind), intent(in) :: thrs
@@ -324,7 +333,8 @@ contains
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: i,fid,gid,nstep,ntimes,iloc
+    integer(XID) :: fid,gid
+    integer :: i,nstep,ntimes,iloc
     real(8), allocatable :: timed(:) !Output time
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull) !Must be single
@@ -427,13 +437,16 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def,  only: READONLY
     implicit none
+    
     !Input/Output
     character(len=200), intent(in) :: afile,apath
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD)
     integer, intent(out) :: ierr
     !Internal
-    integer :: fid,gid,iloc
+    integer(XID) :: fid,gid
+    integer :: iloc
     real(4) :: vtemp(ncellsfull*2) !Must be single
     character(len=200) :: msg2,msg3,thepath
 
@@ -485,14 +498,17 @@ contains
     use diag_lib
     use xmdf
     use prec_def
+    use const_def,  only: READONLY
     implicit none
+    
     !Input/Output
     character(len=*), intent(in) :: afile,apath
     integer, intent(in) :: itsind !Time step index
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD),thrs
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: fid,gid,ntimes,iloc
+    integer(XID) :: fid,gid
+    integer :: ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
     character(len=200) :: msg2,msg3,msg4,thepath
@@ -565,14 +581,17 @@ contains
     use diag_lib
     use prec_def
     use xmdf
+    use const_def,  only: READONLY
     implicit none
+    
     !Input/Output
     character(len=*), intent(in) :: afile,apath
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD),thrs
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer :: fid,gid,iloc
+    integer(XID) :: fid,gid
+    integer :: iloc
     real(8), allocatable :: timed(:)  !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
     character(100) :: thepath
@@ -666,7 +685,9 @@ contains
     use diag_lib
     use prec_def
     use xmdf
+    use const_def,  only: READONLY
     implicit none
+    
     !Input
     character(len=*), intent(in) :: afile,apath
     real(ikind), intent(in) :: thrs
@@ -675,7 +696,8 @@ contains
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr
     !Internal Variables
-    integer :: i,fid,gid,nstep,ntimes,iloc
+    integer(XID) :: fid,gid
+    integer :: i,nstep,ntimes,iloc
     real(8), allocatable :: timed(:)  !Output times
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull*2) !Must be single

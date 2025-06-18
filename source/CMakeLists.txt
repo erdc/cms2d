@@ -1,10 +1,12 @@
-cmake_minimum_required(VERSION 2.9)
-project(cms2d)
+cmake_minimum_required(VERSION 3.5)
+project(cms)
 # CMake control file for building the CMS model
 
 # Gather library requirements-- these are a Fortran compiler, a recent
 # version of the HDF5 library and the XMDF library.
 ENABLE_LANGUAGE( Fortran )
+
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/CMakeFiles/modules)
 
 # Source
 SET( CMS_SOURCE_FILES
@@ -108,6 +110,7 @@ SET( CMS_SOURCE_FILES
   ./hot_start/hot_def.f90
   ./hot_start/hot_start.F90
   ./input/in_def.F90
+  ./input/in_xmdf_lib.f90
   ./input/in_lib.f90
   ./input/input.F90
   ./interpolation/interp_def.f90
@@ -180,6 +183,12 @@ SET( CMS_SOURCE_FILES
   ./structures/struct_rubmounds.f90
   ./structures/struct_tidegates.f90
   ./structures/struct_weirs.f90
+  ./tests/TestDatasets.f90
+  ./tests/TestGeomPaths.F90
+  ./tests/TestGrid.f90
+  ./tests/TestMesh.f90
+  ./tests/TestTimestep.f90
+  ./tests/Tests.f90
   ./utilities/diag_def.f90
   ./utilities/diag_lib.f90
   ./utilities/diagnostics.f90
@@ -200,8 +209,9 @@ SET( CMS_SOURCE_FILES
   ./waves/wave.F90
   ./waves/CMS-Wave_v3.4W_Jan2025.f90
   ./waves/wave_rad_stress_fl.f90
-  ../UTM2GEO/utm2geo.f90
-  ../SPCS83/spcs83_combined.f90
+  ./wrapper/Xmdff.f90
+  ../external_libraries/UTM2GEO/utm2geo.f90
+  ../external_libraries/SPCS83/spcs83_combined.f90
 )
 
 IF("${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU")
@@ -223,14 +233,29 @@ ENDIF()
 INCLUDE_DIRECTORIES( main )
 
 # Does not work
-# SET(Fortran_MODULE_DIRECTORY 
-#	${PROJECT_BINARY_DIR}/build
-# 	CACHE PATH
-# 	"Single directory for all modules.")
+# SET(Fortran_MODULE_DIRECTORY
+#       ${PROJECT_BINARY_DIR}/build
+#       CACHE PATH
+#       "Single directory for all modules.")
 
-ADD_EXECUTABLE( cms ${CMS_SOURCE_FILES} )
+ADD_EXECUTABLE( ${PROJECT_NAME} ${CMS_SOURCE_FILES} )
 
-INSTALL( 
-  TARGETS cms
-  RUNTIME DESTINATION build
+# Link to XMDF
+FIND_LIBRARY( HDF5_LIB NAMES hdf5 PATHS ${CMAKE_SOURCE_DIR}/../external_libraries/HDF5 )
+FIND_LIBRARY( ZLIB_LIB NAMES z PATHS ${CMAKE_SOURCE_DIR}/../external_libraries/zlib )
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME}
+  PUBLIC
+  XMDF
+  PRIVATE
+  ${HDF5_LIB}
+  ${ZLIB_LIB}
+)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+#  target_compile_options(${PROJECT_NAME} PRIVATE "-fdefault-integer-8")
+endif()
+
+INSTALL(
+  TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
 )

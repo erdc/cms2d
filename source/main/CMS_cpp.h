@@ -11,11 +11,11 @@
 /* Turn ON/OFF Developmental Code */
 #undef DEV_MODE
 
+#define   XMDF_IO 
+
 /* Checks */
 #ifdef  _WIN32
-#define   XMDF_IO 
 #define   PROJ_CONV
 #else
-#undef    XMDF_IO
 #undef    PROJ_CONV 
 #endif
