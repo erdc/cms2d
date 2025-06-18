@@ -1346,10 +1346,11 @@
 #include "CMS_cpp.h"
     use size_def
     use stat_def
-    use geo_def, only: zb
-    use flow_def, only: eta
-    use comvarbl, only: timehrs
-    use sed_def, only: sedtrans
+    use geo_def,   only: zb
+    use flow_def,  only: eta
+    use comvarbl,  only: timehrs
+    use sed_def,   only: sedtrans
+    use const_def, only: READONLY
     use diag_lib
 #ifdef XMDF_IO
     use in_xmdf_lib, only: readscalh5,readvech5
@@ -1359,7 +1360,8 @@
     use out_def, only: simlabel
     
     implicit none    
-    integer :: nn,error,fid,gid,kunit
+    integer(XID) :: fid,gid
+    integer :: nn,error,kunit
     character(len=200) :: apath
     character(len=10)  :: aext
      

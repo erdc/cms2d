@@ -92,14 +92,15 @@
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
 #include "CMS_cpp.h"
-    use size_def
-    use prec_def, only: ikind
-    use geo_def, only: cell2cell,ncface
-    use comvarbl, only: mpfile
-    use in_lib, only: read_xys
-    use diag_lib
     use sal_def
     use bnd_def
+    use diag_lib
+    use size_def
+    use in_lib,    only: read_xys
+    use geo_def,   only: cell2cell,ncface
+    use prec_def,  only: ikind
+    use comvarbl,  only: mpfile
+    use const_def, only: READONLY
 #ifdef XMDF_IO
     use xmdf
 #endif
@@ -110,7 +111,8 @@
     integer, intent(in) :: icells(nbndcells),kfaces(nbndcells)
     integer, intent(inout) :: isal
     !Internal Variables
-    integer :: nstimes,ierr,PID,GID
+    integer(XID) :: PID,GID
+    integer :: nstimes,ierr
     character(len=100) :: apath,afile,aext,abnd
     character(len=200) :: asalfile
     real(ikind),pointer :: stimes(:),sval(:)

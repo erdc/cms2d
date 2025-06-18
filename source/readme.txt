@@ -32,12 +32,12 @@
    > CMS2D_V5.4.exe  tools           !Case doesn't matter
 
 
- Compiling in Microsoft Visual Studio (2017 or greater)
+ Compiling in Microsoft Visual Studio (2019 or greater)
     Release Configuration Properties: 
        Project Settings:
-          Linker | Input - Additional Dependencies 
-             => "..\libraries\XMDF\xmdf2.0x64_####.lib" (replace #### with Visual studio version - 2017 or 2022)
-          Linker | System - Stack Reserve Size => 92428800
+          Linker  | Input - Additional Dependencies 
+             => "..\external_libraries\XMDF\xmdf2.2x64.lib"
+          Linker  | System - Stack Reserve Size => 92428800
           Fortran | Optimization - Optimization => Maximum Speed plus Higher Level Optimizations
           Fortran | Optimization - Global Optimizations => Yes (/Og) 
           Fortran | Language - Process OpenMP Directives => Generate Parallel Code (/Qopenmp)
@@ -53,11 +53,11 @@
 
     Debug Configuration Properties:
        Project Settings:
-          Linker | Input - Additional Dependencies 
-             => "..\libraries\XMDF\xmdf2.0dx64_####.lib" (replace #### with Visual studio version - 2017 or 2022)
-          Linker | System - Stack Reserve Size => 92428800
-          Linker | Debugging - Generate Debug Infor =>Yes (/DEBUG)
-          Linker | Input - Ignore specific library => LIBCMT.lib (bug in Visual Studio 2010+)
+          Linker  | Input - Additional Dependencies 
+             => "..\external_libraries\XMDF\xmdf2.2dx64.lib"
+          Linker  | System - Stack Reserve Size => 92428800
+          Linker  | Debugging - Generate Debug Infor =>Yes (/DEBUG)
+          Linker  | Input - Ignore specific library => LIBCMT.lib (bug in Visual Studio 2010+)
           Fortran | Debugging - Debug Information Format => Full(/debug:full)
           Fortran | Debugging - Information for PARAMETER Constants => All(/debug-parameters:all)
           Fortran | Diagnostics - Compile time diagnostics => Show All (/warn:all)
@@ -69,11 +69,16 @@
            Fortran | Diagnostics - Compile time diagnostics => Disable All (/warn:none) 
      
  CMake Compiling (mainly for Linux)
-   To build CMS On linux you must have CMAKE software above 3.4
-   
-   Instructions:
-     1. Go to the directory containing the "source" subdirectory (generally "source"). 
-     2. Type `cmake .` at the prompt    !(do not enter the ` character)
-     3. Type `make clean`
-     4. Type `make`
-     5. If no errors, an exectuable named 'cms' will be in the working directory. Rename the executable as needed.
+   To build CMS On linux:
+     - You must have CMAKE software 3.5 or above
+     - You must have the HDF5 (and Zlib) libraries installed on your system.
+        
+   Instructions (updated 06/18/25):
+     1. Clone repository or unzip CMS Source into a folder.
+     2. Go to the root directory of the repo. 
+     3. Type `cmake .` at the prompt    !(do not enter the ` characters)
+     4. Type `make clean`
+     5. Type `make`
+        - This will make the XMDF library and the CMS executable using the XMDF library.
+        - There may be a few warnings during XMDF compilation, but it should still create a library.
+     6. If no errors, an exectuable named 'cms' will be in the 'source' directory. Move and rename the executable as needed.

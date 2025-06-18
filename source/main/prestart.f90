@@ -152,11 +152,10 @@
     endif
     
     !Stop if the constant mixing layer thickness is not smaller than other bed layer thicknesses
-    if (sedtrans) then
+    if(sedtrans) then
       valtemp = minval(bedlay(:)%dbconst)
       if (dmconst >= valtemp .and. valtemp .ne. -999.0) call diag_print_error('Beginning mixing layer thickness must be smaller than other bed layers')
     endif
-
     
     !Stop if there is one or more missing GRID_ORIGIN cards.
     if (originxy_found < 2) then
@@ -372,13 +371,15 @@
     use geo_def, only: lat,latpath,idmap,latfile
     use geo_def, only: lon,lonpath,lonfile
     use comvarbl, only: mpfile
+    use const_def, only: READONLY
 #ifdef XMDF_IO    
     use xmdf
 #endif
     use diag_lib
     use prec_def
     implicit none
-    integer :: i,LFILE_ID,LAT_ID,LON_ID, iloc,ierr
+    integer(XID) :: LFILE_ID,LAT_ID,LON_ID
+    integer :: i,iloc,ierr
     integer :: ival, ndim, j
     real(4) :: vtemp(ncellsfull)
     real(4),      intent(inout) :: dset(*)

@@ -1,0 +1,20 @@
+CMS-WAVE    437930.0000     70040.0000       111.5176
+DEP       Half Plane-Struct.dep
+OPTS      Half Plane-Struct.std
+CURR      Half Plane-Struct.cur
+SPEC      Half Plane-Struct-side1.eng
+SPEC2     Half Plane-Struct-side3.eng
+WAVE      Half Plane-Struct.wav
+OBSE      Half Plane-Struct.obs
+NEST      Half Plane-Struct.nst
+BREAK     Half Plane-Struct.brk
+SPGEN     Half Plane-Struct.txt
+RADS      Half Plane-Struct.rad
+STRUCT    Half Plane-Struct.struct
+FRIC      Half Plane-Struct.fric
+FREF      Half Plane-Struct.fref
+BREF      Half Plane-Struct.bref
+ETA       Half Plane-Struct.eta
+MUD       Half Plane-Struct.mud
+WIND      Half Plane-Struct.wind
+SELHTS    Half Plane-Struct.out

@@ -80,3 +80,13 @@ Intel_vs2022/x64/Debug/
 CMS_DIAG.txt
 
 *.xlsx
+
+build/
+.vscode/
+external_libraries/GCTP/x64/Debug/
+
+external_libraries/SPCS83/x64/Debug/
+
+external_libraries/UTM2GEO/x64/Debug/
+
+external_libraries/XMDF/libXMDF.a

@@ -688,6 +688,7 @@
     use diag_lib,   only: diag_print_error
     use diag_def,   only: msg
     use prec_def,   only: ikind
+    use const_def,  only: READONLY
 #ifdef XMDF_IO
     use xmdf
     use in_xmdf_lib, only: readscalh5
@@ -695,7 +696,8 @@
     
     implicit none
 
-    integer       :: error,dfile_id,dcell_id,sumcells,k,i,j,summax,kk,ii,jj,ncnt
+    integer(XID)  :: dfile_id, dcell_id
+    integer       :: error,sumcells,k,i,j,summax,kk,ii,jj,ncnt
     integer       :: n,m,mm
     real(ikind)   :: value_1,value_2
     character*200 :: datapath,datafile

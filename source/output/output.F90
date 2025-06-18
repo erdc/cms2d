@@ -1021,8 +1021,11 @@
     use wave_flowgrid_def, only: constant_waves
 #ifdef XMDF_IO
     use xmdf
-    use IFPORT  !XMDF infers on Windows
 #endif   
+
+#ifndef __linux
+    use IFPORT
+#endif
 
     implicit none      
     integer :: i,ierr,ncase,npath,nn

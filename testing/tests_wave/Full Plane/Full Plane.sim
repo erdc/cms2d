@@ -1,0 +1,20 @@
+CMS-WAVE    437930.0000     70040.0000       111.5176
+DEP       Full Plane.dep
+OPTS      Full Plane.std
+CURR      Full Plane.cur
+SPEC      Full Plane-side1.eng
+SPEC2     Full Plane-side3.eng
+WAVE      Full Plane.wav
+OBSE      Full Plane.obs
+NEST      Full Plane.nst
+BREAK     Full Plane.brk
+SPGEN     Full Plane.txt
+RADS      Full Plane.rad
+STRUCT    Full Plane.struct
+FRIC      Full Plane.fric
+FREF      Full Plane.fref
+BREF      Full Plane.bref
+ETA       Full Plane.eta
+MUD       Full Plane.mud
+WIND      Full Plane.wind
+SELHTS    Full Plane.out

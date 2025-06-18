@@ -42,6 +42,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       CHARACTER*180  SimFile   
       CHARACTER*80 :: cardname                                        !Mitch 10/18/2021
       logical :: foundfile, foundcard
+      logical :: is66open
 	  
 ! ... Output file variables
       INTEGER      :: iunit(2)
@@ -50,12 +51,18 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
  
       iunit = (/6,dgunit/)
       iwbk = 0
-      if(noptset.eq.3.and.nsteer.gt.1) then  !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
+      if(noptset == 3 .and. nsteer > 1) then  !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
         iwbk = iwvbk
         hs13nn = hs13n
-        goto 70                              !Wu/Zhang
+        goto 70                              
+      else                                   !if first time through, delete this pesky file
+        inquire(file='nest1.dat',exist=getfile6)
+        if (getfile6) then
+          open(unit=7,file='nest1.dat',status='old')  
+          close(7, status='DELETE')
+        endif
       endif
-  
+      
       rk =0.5
       rkr=0.3
       eta=0.0
@@ -916,8 +923,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       endif
 
       if(ixmdf.eq.0) then
-        open (66, file = WaveFile, status = 'unknown')
-        write (66, *) ni, nj, dmesh
+        if (coldstart) then
+          open (66, file = WaveFile, status = 'unknown')
+          write (66, *) ni, nj, dmesh
+        else
+          inquire(66,OPENED=is66open) 
+          if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  
+        endif
       end if
 
 ! ***
@@ -1378,6 +1390,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
 
       iwbk=iwvbk
+      
+!=======================================================================
+! If subsequent steering interval, code picks up here
 70    continue
       iwvbk=iwbk
       hs13n=hs13nn
@@ -3505,11 +3520,11 @@ contains
 !********************************************************************************      
       use xmdf
       use prec_def     
-      use comvarbl, only: reftime
-      use cms_def,  only: noptset,noptzb,nsteer,dtsteer           !Alex
-      use comvarbl, only: ctime
-      use diag_def, only: msg
-      use diag_lib, only: diag_print_error
+      use comvarbl,  only: reftime, ctime
+      use cms_def,   only: noptset,noptzb,nsteer,dtsteer           !Alex
+      use diag_def,  only: msg
+      use diag_lib,  only: diag_print_error
+      use const_def, only: READWRITE
       implicit none       !Added by Wu 2025_Jan
       
       integer ibeg,iend,iinc,jbeg,jend,jinc,NIJ
@@ -3521,7 +3536,8 @@ contains
       logical*2 :: FOUND=.FALSE.
       CHARACTER*20  PREFIX
       REAL*8 TIME2
-      INTEGER ERROR, PID, DID, DGID, COUNT
+      INTEGER(XID) PID, DID, DGID
+      INTEGER ERROR, COUNT
       
       ALLOCATE (height(IGMX*JGMX),period(IGMX*JGMX),dir(IGMX*JGMX))
       ALLOCATE (brkdiss(IGMX*JGMX),radstr(2*IGMX*JGMX),wave(2*IGMX*JGMX))
@@ -8707,7 +8723,7 @@ contains
         call fileparts(SimFile,apath,aname,aext)           !Split the path and files out before conditional to use later.  MEB  01/26/2022
         INQUIRE(FILE = SimFile, EXIST=ExistFile)
         if (.not.ExistFile) then
-          msg  = "Wave file not found: "//trim(SimFile)
+          msg  = "Wave .sim file not found: "//trim(SimFile)
           call diag_print_error (msg)
         endif
         

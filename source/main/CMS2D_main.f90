@@ -47,11 +47,11 @@
 
     !NOTE: Change variables below to update CMS header information
     version  = 5.4           ! CMS version         !For interim version
-    revision = 4             ! Revision number
-    bugfix   = 4             ! Bugfix number
-    rdate    = '05/19/2025'
+    revision = 5             ! Revision number
+    bugfix   = 0             ! Bugfix number
+    rdate    = '06/18/2025'
 
-    !Manipulate to get major and minor versions - MEB  09/15/20
+    !Manipulate to get major and minor versions - MEB  09/15/2020
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
   
 #ifdef _WIN32
@@ -147,6 +147,7 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
     call getarg(narg,astr)
     iloc = index(astr,'--non-interactive')
     if (iloc > 0) then
+      print*,'Found --non-interactive flag, skipping read from keyboard on Errors'
       interactive = .false.
       narg = narg - 1
     endif
@@ -445,10 +446,13 @@ developmental = .false.      !Change this to .false. for truly RELEASE code   me
         write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
       endif
       
-#ifdef VS2022
+!only do VS prints if on a windows machine, use nested compile-time flags.
+#ifdef _WIN32
+ #ifdef VS2022
       write(iunit(i),7019)  !write the Visual Studio version, VS2022
-#else
+ #else
       write(iunit(i),7020)  !write the Visual Studio version, VS2019
+ #endif
 #endif
       write(iunit(i),7016) rdate !Last revision date
 

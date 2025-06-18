@@ -23,8 +23,6 @@
 !   Horizontal and Vertical Projections
 !     proj_horiz_block - Reads a horizontal projection block
 !     proj_vert_block  - Reads a vertical projection block
-!     get_coord_info - Reads the horizontal projection information from the
-!                      CMS-Flow XMDF grid file *_grid.h5
 !
 ! written by Alex Sanchez, USACE-CHL
 !=================================================================================
@@ -344,6 +342,7 @@
     use geo_def
     use diag_lib
     use comvarbl
+    use const_def, only: READONLY
 #ifdef XMDF_IO  
     use xmdf
 #endif
@@ -351,7 +350,7 @@
     use bnd_def      
     implicit none
     integer :: ILOC,Icheck,ierr
-    integer :: FILE_ID,TYPES_ID,DSET_ID,ROOT_ID
+    integer(XID) :: FILE_ID,TYPES_ID,DSET_ID,ROOT_ID
     
     nmaxfaces = 4  !Maximum # of faces in all directions
     ndmaxfaces = 2 !Maximum # of faces in each direction
@@ -1641,8 +1640,6 @@ loopj: do j=1,numnode  !number of faces
     enddo
 
 !--- Projection ----------------------------------------------
-    !if(len_trim(hproj)==0) call get_coord_info     
-    
     !Construct strings
 757 format('"',A,', ',A,', ZONE ',I4,', ',A,'"')
 151 format('"',A,', ',A,'"')    
@@ -2432,126 +2429,6 @@ d1: do k=1,10
     return
     end subroutine proj_vert_block
 
-!**********************************************************************
-    subroutine get_coord_info
-! Written by Mitch Brown, USACE-CHL    
-! modified by Alex Sanchez, USACE-CHL
-!**********************************************************************
-#include "CMS_cpp.h"
-#ifdef XMDF_IO
-    use geo_def, only: projfl,aHorizDatum,grdfile,proppath,typespath,HProj,VProj
-    use geo_lib, only: zone2fip
-    use diag_lib
-    use xmdf
-    
-    implicit none
-    integer             :: COORD_ID, CID, FILE_ID, ILOC
-    integer             :: coordVersion, nn, istart, iend, ierr
-    integer             :: HunitsNo, VdatumNo, VunitsNo
-    character(len=200)  :: COORDPATH, ProjCS, Hunits, Vdatum, Vunits
-    character(len=100)  :: Hdatum, HZone,aHfip
-    character(len=1000) :: WKT
-      
-    call XF_OPEN_FILE(GRDFILE,READONLY,FILE_ID,ierr)
-    ILOC=INDEX(TYPESPATH,'/',BACK=.TRUE.)
-    PROPPATH = TYPESPATH(1:ILOC-1)
-    ILOC=INDEX(PROPPATH,'/',BACK=.TRUE.)
-    COORDPATH = PROPPATH(1:ILOC-1)
-    call XF_OPEN_GROUP(FILE_ID,TRIM(COORDPATH),COORD_ID,ierr)
-    call XF_OPEN_COORDINATE_GROUP(COORD_ID,CID,ierr)
-    if(ierr<0)then     !NO COORDINATE GROUP EXISTS, ASSUME LOCAL, m, LOCAL, m
-      HPROJ  = '"Local, m"'
-      VDATUM = "Local"
-      VUNITS = "m"
-    else        
-      call XF_GET_HORIZ_UNITS(CID,HunitsNo,ierr)  !0 = US Feet, 1 = Intl. Feet, 2 = meters
-      select case(HUNITSNO)
-        case(0)
-          HUNITS="US ft"
-          projfl%iHorizUnits=1
-        case(1)
-          HUNITS="Intl ft"  
-          projfl%iHorizUnits=1
-        case default !(2)
-          HUNITS="m"  
-          projfl%iHorizUnits=2
-      end select
-    
-      call XF_GET_VERT_UNITS(CID,VunitsNo,ierr)   !2 = meters
-      select case(VunitsNo)
-        case(0)
-          VUNITS="US ft"
-          projfl%iVertUnits=1
-        case(1)
-          VUNITS="Intl ft"  
-          projfl%iVertUnits=1
-        case(2)
-          VUNITS="m"  
-          projfl%iVertUnits=2
-      end select
-      
-      call XF_GET_VERT_DATUM(CID,VdatumNo,ierr)   !0 = Local, 1 = NGVD29, 2 = NAVD88
-      select case(VdatumNo)
-        case(0)
-          VDATUM="Local"
-          projfl%iVertDatum=9
-        case(1)
-          VDATUM="NGVD29"  
-          projfl%iVertDatum=8
-        case(2)
-          VDATUM="NAVD88"  
-          projfl%iVertDatum=7
-      end select
-      
-      !call XF_GET_HORIZ_DATUM(CID,coordVersion,ierr)
-      coordVersion = 1
-      call xf_Get_Coord_Version (CID, coordVersion, ierr)
-      call XF_GET_WKT_STRING_SIZE(CID,nn,ierr)
-      if(ierr==0)then
-        call XF_GET_WKT(CID,WKT(1:nn),ierr)
-        ISTART = INDEX(WKT,'PROJCS')
-        IEND = INDEX(WKT,'GEOGCS')
-        PROJCS = WKT(ISTART+8:IEND-3)
-        IEND = INDEX(WKT,'_')
-        PROJCS = WKT(ISTART+8:IEND-1)
-        ISTART = IEND        
-        HZone = WKT(ISTART+1:IEND-3)
-        if(PROJCS(1:3)=='UTM')then
-          projfl%iHorizCoordSystem = 1
-          IEND = INDEX(HZone(6:),'_')
-          HZone = HZone(6:IEND+4)
-          read(HZone,'(I4)') projfl%iHorizZone
-        elseif(PROJCS(1:5)=='NAD83' .or. PROJCS(1:5)=='NAD27')then
-          PROJCS = 'State Plane'  
-          projfl%iHorizCoordSystem = 2 !State Plane          
-          call zone2fip(HZone,aHfip)
-          read(aHfip(1:4),'(I4)') projfl%iHorizZone
-        endif
-        ISTART = INDEX(WKT,'DATUM')
-        IEND = INDEX(WKT,'SPHEROID')
-        HDatum = WKT(ISTART+7:IEND-3)
-        select case(HDatum)
-          case('NAD83','D_NORTH_AMERICAN_1983')
-            projfl%iHorizDatum=1
-            HDatum='NAD83'          
-          case('NAD27','D_NORTH_AMERICAN_1927')
-            projfl%iHorizDatum=0
-            HDatum='NAD27'  
-        end select
-      else
-        call diag_print_error('Error reading WKT_STRING_SIZE')
-      endif
-    endif    
-    call XF_CLOSE_FILE(FILE_ID,ierr)    
-    
-    !Construct strings
-    HPROJ = '"'//trim(HDatum)//', '//trim(PROJCS)//', '//trim(Hzone)//', '//trim(HUNITS)//'"'
-    VPROJ = '"'//trim(VDATUM)//', '//trim(VUNITS)//'"'
-
-#endif
-    return
-    end subroutine get_coord_info
-    
 !***************************************************************************************
     subroutine grid_cart_write_ascii()
 ! Writes the CMS-Flow regular and nonuniform Cartesian grid ASCII files

@@ -490,11 +490,12 @@
     subroutine rol_write
 !*****************************************************************************
 #include "CMS_cpp.h"
-    use cms_def,  only: nsteer,dtsteer
-    use rol_def,  only: Sr,rxrs,ryrs
-    use comvarbl, only: reftime
-    use diag_lib, only: diag_print_error
-    use diag_def, only: msg
+    use cms_def,   only: nsteer,dtsteer
+    use rol_def,   only: Sr,rxrs,ryrs
+    use comvarbl,  only: reftime
+    use diag_lib,  only: diag_print_error
+    use diag_def,  only: msg
+    use const_def, only: READWRITE
     use wave_wavegrid_def, only: nwavei,nwavej,wxrs1,wyrs1,wheight,wdiss
 #ifdef XMDF_IO
     use xmdf
@@ -516,7 +517,8 @@
     character(len=180) :: SpecFile,WindFile,XMDFFile,SetupFile
     character(len=20) :: PREFIX
     real(8) :: TIME2
-    integer :: ierr,PID,DID,DGID,NIJ
+    integer(8) :: PID, DID, DGID
+    integer :: ierr,NIJ
     common /VPAI/PAI2,PAI,HPAI,RAD,akap,imod,iprp,island,imd,iprpp     &
                    ,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd,depmin0
     integer :: imod,iprp,island,imd,iprpp,nonln,igrav,isolv,ixmdf,iproc,imud,iwnd

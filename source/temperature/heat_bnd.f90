@@ -90,12 +90,13 @@
 ! for temperature information
 !************************************************************************
 #include "CMS_cpp.h"
-    use size_def
-    use geo_def, only: cell2cell,ncface
-    use comvarbl, only: mpfile
+    use bnd_def
     use diag_lib
     use heat_def
-    use bnd_def
+    use size_def
+    use geo_def,   only: cell2cell,ncface
+    use comvarbl,  only: mpfile
+    use const_def, only: READONLY
 #ifdef XMDF_IO
     use xmdf
 #endif
@@ -106,7 +107,8 @@
     integer, intent(in) :: icells(nbndcells),kfaces(nbndcells)
     integer, intent(inout) :: iheat
     !Internal Variables
-    integer :: nstimes,ierr,PID,GID
+    integer(XID) :: PID,GID
+    integer :: nstimes,ierr
     
 #ifdef XMDF_IO
     call XF_OPEN_FILE(bidfile,READONLY,PID,ierr)

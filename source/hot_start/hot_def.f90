@@ -9,46 +9,6 @@ module hot_def
     !Initial Condition (input)
     logical :: coldstart   !Coldstart for current simulation
     
-    !type hot_init_time_type
-    !  real(ikind) :: start  !hrs
-    !  real(8)     :: reference !Must be double
-    !endtype hot_init_time_type
-    !
-    !type hot_init_var_type
-    !  type(hot_init_time_type) :: time
-    !  character(len=200) :: filename,datapath
-    !  integer :: istat
-    !endtype hot_init_var_type
-    !
-    !type hot_init_type
-    !  type(hot_init_var_type) :: wse
-    !  type(hot_init_var_type) :: vel
-    !  type(hot_init_var_type) :: wet
-    !  type(hot_init_var_type) :: depth
-    !  type(hot_init_var_type) :: sal
-    !  type(hot_init_var_type) :: Ctk
-    !  type(hot_init_var_type) :: db
-    !  type(hot_init_var_type) :: pbk
-    !endtype hot_init_type
-    !
-    !type(hot_init_type) :: hotinit !hotinit%wse%time
-    
-    !type init_cond_type
-    !  real(ikind) :: start  !hrs
-    !  real(8)     :: reference !Must be double
-    !  character(len=200) :: filename,datapath
-    !  integer :: istat
-    !endtype init_cond_type
-    !type(init_cond_type) :: wseic
-    !type(init_cond_type) :: velic
-    !type(init_cond_type) :: wetic
-    !type(init_cond_type) :: depthic
-    !type(init_cond_type) :: fluxic
-    !type(init_cond_type) :: Ctkic
-    !type(init_cond_type) :: pbkic
-    !type(init_cond_type) :: dbic
-    !type(init_cond_type) :: saltic
-    
     real(ikind) :: ictime      !Initial condition time
     real(ikind) :: icwsetime   !WSE initial condition time
     real(ikind) :: icveltime   !Velocity initial condition time
