@@ -366,7 +366,7 @@ XMDF_API void xfpAllocateErrorStack();
 XMDF_API void xfpAddXMDFError(const char * a_Error);
 XMDF_API void xfpClearErrors();
 XMDF_API herr_t xfpHDF5ErrorHandler (void* client_data);
-XMDF_API herr_t xfpHDF5ErrorWalk_cb (int n, H5E_error_t *err_desc, void *client_data);
+XMDF_API int xfpHDF5ErrorWalk_cb (unsigned int n, const H5E_error_t *err_desc, void *client_data);
 
 /* close open identifiers when closing a file */
 XMDF_API xid xfpCloseOpenIdentifiers(xid a_File);

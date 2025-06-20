@@ -312,6 +312,9 @@ XMDF_API xid xfReadPropertyDouble(xid a_Id, const char *a_Name,
                     int a_Number, double *a_Properties);
 XMDF_API xid xfReadPropertyFloat(xid a_Id, const char *a_Name,
                     int a_Number, float *a_Properties);
+XMDF_API xid xfSetAttributeString(xid a_Id, const char* a_Name, 
+                    const char* a_String);
+
 
   /* group functions */
 XMDF_API xid xfCreateGenericGroup(xid a_FileId, const char *a_Path,

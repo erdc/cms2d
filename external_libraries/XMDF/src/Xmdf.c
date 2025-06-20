@@ -70,7 +70,7 @@ BOOL WINAPI DllMain( HANDLE hModule,
 #endif
 
 #define DBG Dbg(__FILE__,__LINE__);
-extern void Dbg();
+#extern void Dbg();
 
 static xid xfiCreateFile (const char * a_Filename, xid *Id, xmbool a_Overwrite,
                           xmbool a_inMemory);
@@ -269,7 +269,7 @@ XMDF_API xid xfGetErrorMessages (int a_Num, char **a_Errors)
 /* FUNCTION  xfGetNumOpenIdentifiers */
 /*! PURPOSE:   Get the number of open identifiers in a file.
  *  - NOTES: */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetNumOpenIdentifiers(xid a_Id, int *a_Num)
 { 
   *a_Num = H5Fget_obj_count(a_Id, H5F_OBJ_ALL);
@@ -399,7 +399,7 @@ XMDF_API xid xfCreatePropertyGroup(xid a_ParentId, xid *Id)
  * FUNCTION  xfWritePropertyString */
  /*! PURPOSE:   writes a string attribute (really a dataset) to the folder
   * - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWritePropertyString (xid a_Id, const char *a_Name,
                   int a_Number, int a_StringLength, const char *a_Attributes)
 { 
@@ -561,7 +561,7 @@ XMDF_API xid xfWritePropertyFloat (xid a_Id, const char *a_Name,
 /*   FUNCTION  xfDoesPropertyWithNameExist */
 /*! PURPOSE:   Looks to see if an Property with a given name exists
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfDoesPropertyWithNameExist(xid a_Id, const char *a_Name,
                                              xmbool *a_Exists)
 {
@@ -593,7 +593,7 @@ XMDF_API xid xfDoesPropertyWithNameExist(xid a_Id, const char *a_Name,
 /*   FUNCTION  xfGetPropertyNumber */
 /*! PURPOSE:   Gets the number of items in a property array
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetPropertyNumber(xid a_Id, const char *a_Name, int *a_Number)
 {
   hid_t   DsetId, DataspaceId;
@@ -640,7 +640,7 @@ XMDF_API xid xfGetPropertyNumber(xid a_Id, const char *a_Name, int *a_Number)
 /*   FUNCTION  xfGetPropertyStringLength */
 /*! PURPOSE:   Gets the string length from a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetPropertyStringLength(xid a_Id, const char *a_Name,
                                      int *a_Number, int *a_MaxLength)
 {
@@ -778,14 +778,14 @@ XMDF_API xid xfGetPropertyType(xid a_GroupId, const char *a_Name, int *a_Type)
  *   - NOTES:     the variable does not need to be allocated before calling
  *             this function.  After this function is called, the variable needs
  *             to be free'd. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfAllocateReadPropertyString (xid a_Id, const char *a_Name,
                                            int *a_Number, int *a_MaxLength,
                                            char **a_Properties)
 {
   int status;
 
-  if (status = xfGetPropertyStringLength(a_Id, a_Name, a_Number,
+  if (status == xfGetPropertyStringLength(a_Id, a_Name, a_Number,
       a_MaxLength)) {
     if (*a_Number > 0 && *a_MaxLength > 0) {
       *a_Properties = (char *)malloc(*a_Number*(*a_MaxLength+1)*
@@ -807,7 +807,7 @@ XMDF_API xid xfAllocateReadPropertyString (xid a_Id, const char *a_Name,
 /*! PURPOSE:   Reads the string dataset from the attributes directory
  *   - NOTES:     the variable attributes must already be allocated
  *             to a_Number*a_MaxLength*/
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadPropertyString(xid a_Id, const char *a_Name, 
                   int a_Number, int a_MaxLength, char *a_Properties)
 {
@@ -910,7 +910,7 @@ XMDF_API xid xfReadPropertyString(xid a_Id, const char *a_Name,
 /*   FUNCTION  xfReadPropertyUnsignedInt */
 /*! PURPOSE:   Reads the unsigned int dataset from the properties directory
  *   - NOTES:     the variable properties must already be allocated to a_Number.*/
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadPropertyUnsignedInt(xid a_Id, const char *a_Name, 
                                        int a_Number, unsigned int *a_Properties)
 {
@@ -925,7 +925,7 @@ XMDF_API xid xfReadPropertyUnsignedInt(xid a_Id, const char *a_Name,
 /*   FUNCTION  xfReadPropertyInt */
 /*! PURPOSE:   Reads the int dataset from the properties directory
  *   - NOTES:     the variable properties must already be allocated to a_Number.*/
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadPropertyInt(xid a_Id, const char *a_Name, 
                                        int a_Number, int *a_Properties)
 {
@@ -939,7 +939,7 @@ XMDF_API xid xfReadPropertyInt(xid a_Id, const char *a_Name,
 /*   FUNCTION  xfReadPropertyDouble */
 /*! PURPOSE:   Reads the double dataset from the properties directory
  *   - NOTES:     the variable properties must already be allocated to a_Number.*/
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadPropertyDouble(xid a_Id, const char *a_Name, 
                                        int a_Number, double *a_Properties)
 {
@@ -953,7 +953,7 @@ XMDF_API xid xfReadPropertyDouble(xid a_Id, const char *a_Name,
 /*   FUNCTION  xfReadPropertyFloat */
 /*! PURPOSE:   Reads the float dataset from the properties directory
  *   - NOTES:     the variable properties must already be allocated to a_Number. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadPropertyFloat(xid a_Id, const char *a_Name, 
                                        int a_Number, float *a_Properties)
 {
@@ -991,7 +991,7 @@ XMDF_API xid xfCreateGroupForMatSim (xid a_FileId, const char *a_Path,
 /*   FUNCTION  xfCreateGroupForMesh */
 /*! PURPOSE:   Create an Xformat group to store a mesh
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateGroupForMesh(xid a_FileId, const char *a_Path,
                                      xid *a_GroupId)
 {
@@ -1024,7 +1024,7 @@ XMDF_API xid xfCreateGroupForMesh(xid a_FileId, const char *a_Path,
 /*   FUNCTION  xfCreateGroupForGrid */
 /*! PURPOSE:   Create an Xformat group to store a grid
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateGroupForGrid(xid a_FileId, const char *a_Path, xid *a_GroupId)
 {
   *a_GroupId = xfpCreateGroup(a_FileId, a_Path, GROUP_TYPE_GRID); 
@@ -1035,7 +1035,7 @@ XMDF_API xid xfCreateGroupForGrid(xid a_FileId, const char *a_Path, xid *a_Group
 /*   FUNCTION  xfCreateStationForGrid */
 /*! PURPOSE:   Create an Xformat group to store a station for a grid
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateStationForGrid(xid a_FileId, const char *a_Path, xid *a_GroupId)
 {
   *a_GroupId = xfpCreateGroup(a_FileId, a_Path, GROUP_TYPE_STATION); 
@@ -1047,7 +1047,7 @@ XMDF_API xid xfCreateStationForGrid(xid a_FileId, const char *a_Path, xid *a_Gro
 /*   FUNCTION  xfCreateGroupForXsec */
 /*! PURPOSE:   Create an Xformat group to store a xsec
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateGroupForXsec(xid a_FileId, const char *a_Path,
                                      xid *a_GroupId)
 {
@@ -1107,7 +1107,7 @@ XMDF_API xid xfCreateGroupForXsec(xid a_FileId, const char *a_Path,
 /*   FUNCTION  xfOpenGroup */
 /*! PURPOSE:   Open an Xformat group
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfOpenGroup (xid a_ParentId, const char *a_Path, xid *a_GroupId)
 {
   *a_GroupId = H5Gopen1(a_ParentId, a_Path);
@@ -1127,7 +1127,7 @@ XMDF_API xid xfCloseGroup(xid a_GroupId)
 /*! PURPOSE:   Find the number and maximum size for paths to datasets in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsSizeForMeshes(xid a_FileId, int *a_Number,
                                                int *a_Maxsize)
 {
@@ -1139,7 +1139,7 @@ XMDF_API xid xfGetGroupPathsSizeForMeshes(xid a_FileId, int *a_Number,
 /*! PURPOSE:   Find the number and maximum size for paths to datasets in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsForMeshes (xid a_FileId, int a_Num,
                                               int a_Maxsize, char *a_Paths)
 {
@@ -1151,7 +1151,7 @@ XMDF_API xid xfGetGroupPathsForMeshes (xid a_FileId, int a_Num,
 /*! PURPOSE:   Find the number and maximum size for paths to Grids in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsSizeForGrids(xid a_FileId, int *a_Number,
                                                int *a_Maxsize)
 {
@@ -1163,7 +1163,7 @@ XMDF_API xid xfGetGroupPathsSizeForGrids(xid a_FileId, int *a_Number,
 /*! PURPOSE:   Find the number and maximum size for paths to datasets in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsForGrids (xid a_FileId, int a_Num,
                                               int a_Maxsize, char *a_Paths)
 {
@@ -1175,7 +1175,7 @@ XMDF_API xid xfGetGroupPathsForGrids (xid a_FileId, int a_Num,
 /*! PURPOSE:   Find the number and maximum size for paths to Xsecs in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsSizeForXsecs (xid a_FileId, int *a_Num,
                                           int *Maxsize)
 {
@@ -1187,7 +1187,7 @@ XMDF_API xid xfGetGroupPathsSizeForXsecs (xid a_FileId, int *a_Num,
 /*! PURPOSE:   Find the number and maximum size for paths to Xsecs in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsForXsecs (xid a_FileId, int a_Num, int a_Maxsize,
                                       char *a_Paths)
 {
@@ -1199,7 +1199,7 @@ XMDF_API xid xfGetGroupPathsForXsecs (xid a_FileId, int a_Num, int a_Maxsize,
 /*! PURPOSE:   Find the number and maximum size for paths to datasets in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsSizeForGeomPaths(xid a_FileId, int *a_Number,
                                                int *a_Maxsize)
 {
@@ -1211,7 +1211,7 @@ XMDF_API xid xfGetGroupPathsSizeForGeomPaths(xid a_FileId, int *a_Number,
 /*! PURPOSE:   Find the number and maximum size for paths to datasets in an
  *             Xmdf file
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetGroupPathsForGeomPaths (xid a_FileId, int a_Num,
                                               int a_Maxsize, char *a_Paths)
 {
@@ -7494,7 +7494,7 @@ XMDF_API xid xfCreateScalarDataset(xid a_DatasetsGroupId, const char *a_Path,
 /*   FUNCTION  xfCreateScalarDatasetExtendable */
 /*! PURPOSE:   Create a scalar dataset that can be extended
  *   - NOTES:     The intermediate groups in the path may or may not be created. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateScalarDatasetExtendable(xid a_DatasetsGroupId, const char *a_Path,
                     const char *a_Units, const char *a_TimeUnits, float a_FillVal,
                     int a_Compression, xid *a_DatasetId)
@@ -7518,7 +7518,7 @@ XMDF_API xid xfCreateScalarDatasetExtendable(xid a_DatasetsGroupId, const char *
 /*   FUNCTION  xfExtendScalarDataset */
 /*! PURPOSE:   Create a scalar dataset that can be extended
  *   - NOTES:     The intermediate groups in the path may or may not be created. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfExtendScalarDataset (xid a_Id, int aNewSize)
 {
   xid      ValsId;
@@ -7570,7 +7570,7 @@ XMDF_API xid xfExtendScalarDataset (xid a_Id, int aNewSize)
 /*   FUNCTION  xfCreateVectorDataset */
 /*! PURPOSE:   Create a vector dataset
  *   - NOTES:     The intermediate groups in the path may or may not be created. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfCreateVectorDataset(xid a_DatasetsGroupId, const char *a_Path,
                     const char *a_Units, const char *a_TimeUnits,
                     int a_Compression, xid *a_DatasetId)
@@ -7667,7 +7667,7 @@ XMDF_API xid xfCreateVectorDataset(xid a_DatasetsGroupId, const char *a_Path,
 /*   FUNCTION  xfWriteScalarTimestep */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float scalar dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestep(xid a_Id, double a_Time, int 
                     a_NumValues, const float *a_Values)
 {
@@ -7681,7 +7681,7 @@ XMDF_API xid xfWriteScalarTimestep(xid a_Id, double a_Time, int
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float scalar dataset. 
  *             The min and max should be set to the min or max of the timestep*/
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepMinMax (xid a_Id, double a_Time, int 
                     a_NumValues, const float *a_Values, float a_Min, 
                     float a_Max)
@@ -7695,7 +7695,7 @@ XMDF_API xid xfWriteScalarTimestepMinMax (xid a_Id, double a_Time, int
 /*   FUNCTION  xfWriteScalarTimestepFloat */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float scalar dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepFloat(xid a_Id, double a_Time, int 
                     a_NumValues, const float *a_Values)
 {
@@ -7709,7 +7709,7 @@ XMDF_API xid xfWriteScalarTimestepFloat(xid a_Id, double a_Time, int
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float scalar dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepMinMaxFloat (xid a_Id, double a_Time, int 
                     a_NumValues, const float *a_Values, float a_Min, 
                     float a_Max)
@@ -7723,7 +7723,7 @@ XMDF_API xid xfWriteScalarTimestepMinMaxFloat (xid a_Id, double a_Time, int
 /*   FUNCTION  xfWriteScalarTimestepDouble */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a double scalar dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepDouble(xid a_Id, double a_Time, int 
                     a_NumValues, const double *a_Values)
 {
@@ -7737,7 +7737,7 @@ XMDF_API xid xfWriteScalarTimestepDouble(xid a_Id, double a_Time, int
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a double scalar dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepMinMaxDouble (xid a_Id, double a_Time, int 
                     a_NumValues, const double *a_Values, double a_Min, 
                     double a_Max)
@@ -7749,8 +7749,8 @@ XMDF_API xid xfWriteScalarTimestepMinMaxDouble (xid a_Id, double a_Time, int
 } /* xfWriteScalarTimestepMinMaxDouble */
 /******************************************************************************/
 /*   FUNCTION  xfiCreateFile */
-/*! PURPOSE:
-/******************2***********************************************************/
+/*! PURPOSE: */
+/******************************************************************************/
 xid xfiCreateFile (const char * a_Filename, xid *Id, xmbool a_Overwrite,
                    xmbool a_inMemory)
 {
@@ -7818,7 +7818,7 @@ xid xfiCreateFile (const char * a_Filename, xid *Id, xmbool a_Overwrite,
 /*! PURPOSE:
  *   - NOTES:     Determine the minimum and maximum values for a dataset
                   Pass NULL for a_NullValue if not using a NULL value */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiDetermineTimestepMinsAndMaxs (xid a_Id, int a_NumValues, 
             const void *a_Values, int a_DataType, double *a_min, double *a_max)
 {
@@ -7889,7 +7889,7 @@ static xid xfiDetermineTimestepMinsAndMaxs (xid a_Id, int a_NumValues,
 /*   FUNCTION  xfWriteScalarTimestep */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a scalar dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteScalarTimestep (xid a_Id, double a_Time, int a_NumValues,
                                      const void *a_Values, int a_DataType)
 {
@@ -7910,7 +7910,7 @@ static xid xfiWriteScalarTimestep (xid a_Id, double a_Time, int a_NumValues,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a scalar dataset but not write values
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiInitializeScalarTimestep (xid a_Id, double a_Time,int a_NumValues,
               int a_DataType, double a_Min, double a_Max, hsize_t *a_timestepId)
 {
@@ -8141,7 +8141,7 @@ static xid xfiInitializeScalarTimestep (xid a_Id, double a_Time,int a_NumValues,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a scalar dataset but not write values
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteScalarTimestepPortion (xid a_id, hsize_t a_timeId,
               int a_NumValues, int a_startIndex, int a_DataType,
               const void *a_values)
@@ -8166,8 +8166,8 @@ static xid xfiWriteScalarTimestepPortion (xid a_id, hsize_t a_timeId,
 /*! PURPOSE:   overwrite min/max values for a specific timestep
  *   - NOTES:     A negative error is returned if the write fails
  *                timestepId is a 1 based index into the dataset and is returned
- *                from the Initialize function
-/******************2***********************************************************/
+ *                from the Initialize function */
+/******************************************************************************/
 static xid xfiSetDatasetTimestepMinMax(xid xDatasetId, int timestepId,
                          int a_DataType, double minvalue, double maxvalue)
 { 
@@ -8206,7 +8206,7 @@ static xid xfiSetDatasetTimestepMinMax(xid xDatasetId, int timestepId,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a scalar dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteScalarTimestepMinMax (xid a_Id, double a_Time, int a_NumValues,
                                            const void *a_Values, int a_DataType,
                                            double a_Min, double a_Max)
@@ -8230,7 +8230,7 @@ static xid xfiWriteScalarTimestepMinMax (xid a_Id, double a_Time, int a_NumValue
 /*   FUNCTION  xfWriteVectorTimestep */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a vector dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestep(xid a_Id, double a_Time, int 
                     a_NumValues, int a_NumComponents, const float *a_Values)
 {
@@ -8243,7 +8243,7 @@ XMDF_API xid xfWriteVectorTimestep(xid a_Id, double a_Time, int
  *   - NOTES:     Append a timestep to a vector dataset. 
  *             The min and max should be set to the min or max (magnitude)
  *             of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepMinMax(xid a_Id, double a_Time, int 
                     a_NumValues, int a_NumComponents, const float *a_Values,
                     float a_Min, float a_Max)
@@ -8256,7 +8256,7 @@ XMDF_API xid xfWriteVectorTimestepMinMax(xid a_Id, double a_Time, int
 /*   FUNCTION  xfWriteVectorTimestepFloat */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float Vector dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepFloat(xid a_Id, double a_Time,
                                         int a_NumValues, int a_NumComponents,
                                         const float *a_Values)
@@ -8271,7 +8271,7 @@ XMDF_API xid xfWriteVectorTimestepFloat(xid a_Id, double a_Time,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a float Vector dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepMinMaxFloat (xid a_Id, double a_Time,
                                                int a_NumValues, int a_NumComponents,
                                                const float *a_Values,
@@ -8287,7 +8287,7 @@ XMDF_API xid xfWriteVectorTimestepMinMaxFloat (xid a_Id, double a_Time,
 /*   FUNCTION  xfWriteVectorTimestepDouble */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a double Vector dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepDouble(xid a_Id, double a_Time, int a_NumValues,
                                          int a_NumComponents, const double *a_Values)
 {
@@ -8301,7 +8301,7 @@ XMDF_API xid xfWriteVectorTimestepDouble(xid a_Id, double a_Time, int a_NumValue
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a double Vector dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepMinMaxDouble (xid a_Id, double a_Time, 
                                                 int  a_NumValues, int a_NumComponents,
                                                 const double *a_Values,
@@ -8317,7 +8317,7 @@ XMDF_API xid xfWriteVectorTimestepMinMaxDouble (xid a_Id, double a_Time,
 /*! PURPOSE:
  *   - NOTES:  Initialize and setup the datasets for a new vector timestep
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfInitializeVectorTimestep (xid a_Id, double a_Time, 
                int  a_NumValues, int a_NumComponents, float a_Min, float a_Max,
                hsize_t *a_timestepId)
@@ -8332,7 +8332,7 @@ XMDF_API xid xfInitializeVectorTimestep (xid a_Id, double a_Time,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a double Vector dataset. 
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteVectorTimestepPortion (xid a_Id, int timestepId,
                     int numValuesToWrite, int nComponentsToWrite,
                     int startIndex, int startComponent, const float *a_values)
@@ -8346,7 +8346,7 @@ XMDF_API xid xfWriteVectorTimestepPortion (xid a_Id, int timestepId,
 /*   FUNCTION  xfWriteVectorTimestep */
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a vector dataset. */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteVectorTimestep(xid a_Id, double a_Time, 
                                     int a_NumValues, int a_NumComponents, 
                                     const void *a_Values, int a_DataType)
@@ -8424,7 +8424,7 @@ static xid xfiWriteVectorTimestep(xid a_Id, double a_Time,
  *   - NOTES:     Append a timestep to a vector dataset. 
  *             The min and max should be set to the min or max (magnitude)
  *             of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteVectorTimestepMinMax (xid a_Id, double a_Time, 
                                           int a_NumValues, int a_NumComponents,
                                           const void *a_Values, int a_DataType,
@@ -8451,7 +8451,7 @@ static xid xfiWriteVectorTimestepMinMax (xid a_Id, double a_Time,
  *   - NOTES:     Append a timestep to a vector dataset. 
  *             The min and max should be set to the min or max (magnitude)
  *             of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiInitializeVectorTimestep (xid a_Id, double a_Time, 
               int a_NumValues, int a_NumComponents, int a_DataType,
               double a_Min, double a_Max, hsize_t *a_timestepId)
@@ -8668,7 +8668,7 @@ static xid xfiInitializeVectorTimestep (xid a_Id, double a_Time,
 /*! PURPOSE:
  *   - NOTES:     Append a timestep to a scalar dataset but not write values
  *             The min and max should be set to the min or max of the timestep */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiWriteVectorTimestepPortion (xid a_id, hsize_t a_timeId,
               int a_NumValuesToWrite, int a_NumComponentsToWrite, 
               int a_startIndex, int a_startComponent, int a_DataType,
@@ -8695,7 +8695,7 @@ static xid xfiWriteVectorTimestepPortion (xid a_id, hsize_t a_timeId,
 /*   FUNCTION  xfWriteActivityTimestep */
 /*! PURPOSE:
  *   - NOTES:     Write dataset activity information. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteActivityTimestep (xid a_Id, int a_NumActive, 
                                       const unsigned char *a_Active)
 {
@@ -8716,7 +8716,7 @@ XMDF_API xid xfWriteActivityTimestep (xid a_Id, int a_NumActive,
 /*   FUNCTION  xfInitializeActivityTimestep */
 /*! PURPOSE:
  *   - NOTES:     Write dataset activity information. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfInitializeActivityTimestep (xid a_Id, int a_NumActive,
                                            hsize_t *a_timestepId)
 {
@@ -8809,7 +8809,7 @@ XMDF_API xid xfInitializeActivityTimestep (xid a_Id, int a_NumActive,
 /*   FUNCTION  xfWriteActivityTimestepPortion */
 /*! PURPOSE:
  *   - NOTES:     Write dataset activity information. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteActivityTimestepPortion (xid a_Id, hsize_t a_timestepId,
                int a_NumValuesToWrite, int a_startIndex, 
                const unsigned char *a_activityValues)
@@ -8827,7 +8827,7 @@ XMDF_API xid xfWriteActivityTimestepPortion (xid a_Id, hsize_t a_timestepId,
 /*   FUNCTION  xfDatasetReftime */
 /*! PURPOSE:   Set a reference time for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfDatasetReftime (xid a_Id, double a_Reftime)
 {
   int    status;
@@ -8840,7 +8840,7 @@ XMDF_API xid xfDatasetReftime (xid a_Id, double a_Reftime)
 /*   FUNCTION  xfUseDatasetReftime */
 /*! PURPOSE:   See if a reference time exists for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfUseDatasetReftime (xid a_Id, xmbool *a_bUseReftime)
 {
   int    status;
@@ -8853,7 +8853,7 @@ XMDF_API xid xfUseDatasetReftime (xid a_Id, xmbool *a_bUseReftime)
 /*   FUNCTION  xfReadDatasetReftime */
 /*! PURPOSE:   Read a reference time for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadDatasetReftime (xid a_Id, double *a_dReftime)
 {
   int    status;
@@ -8866,7 +8866,7 @@ XMDF_API xid xfReadDatasetReftime (xid a_Id, double *a_dReftime)
 /*   FUNCTION  xfGetScalarDatasetsInfo */
 /*! PURPOSE:
  *   - NOTES:     Get the number and max path length of scalar datasets in the path. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetScalarDatasetsInfo (xid a_Id, int *a_Number,
                                          int *a_MaxPathLength)
 {
@@ -8881,7 +8881,7 @@ XMDF_API xid xfGetScalarDatasetsInfo (xid a_Id, int *a_Number,
 /*   FUNCTION  xfGetScalarDatasetPaths */
 /*! PURPOSE:   Get the paths to scalar datasets under a starting group
  *   - NOTES:     The Path array must already be allocated to a size Number by Maxlength. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetScalarDatasetPaths (xid a_Id, int a_Number, 
                                          int a_MaxPathLength, char *a_Paths)
 {
@@ -8896,7 +8896,7 @@ XMDF_API xid xfGetScalarDatasetPaths (xid a_Id, int a_Number,
 /*   FUNCTION  xfGetStationInfo */
 /*! PURPOSE:
  *   - NOTES:     Get the number and max path length of station datasets in the path. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetStationInfo (xid a_Id, int *a_Number, 
                                          int *a_MaxPathLength)
 {
@@ -8911,7 +8911,7 @@ XMDF_API xid xfGetStationInfo (xid a_Id, int *a_Number,
 /*   FUNCTION  xfGetStationPaths */
 /*! PURPOSE:   Get the paths to station datasets (3D Grid) under a starting group
  *   - NOTES:     The Path array must already be allocated to a size Number by Maxlength. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetStationPaths (xid a_Id, int a_Number, 
                                          int a_MaxPathLength, char *a_Paths)
 {
@@ -8926,7 +8926,7 @@ XMDF_API xid xfGetStationPaths (xid a_Id, int a_Number,
 /*   FUNCTION  xfGetVectorDatasetsInfo */
 /*! PURPOSE:
  *   - NOTES:     Get the number and max path length of scalar datasets in the path. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetVectorDatasetsInfo (xid a_Id, int *a_Number, 
                                          int *a_MaxPathLength)
 {
@@ -8941,7 +8941,7 @@ XMDF_API xid xfGetVectorDatasetsInfo (xid a_Id, int *a_Number,
 /*   FUNCTION  xfGetVectorDatasetPaths */
 /*! PURPOSE:   Get the paths to scalar datasets under a starting group
  *   - NOTES:     The Path array must already be allocated to a size Number by Maxlength. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetVectorDatasetPaths (xid a_Id, int a_Number, 
                                          int a_MaxPathLength, char *a_Paths)
 {
@@ -8956,7 +8956,7 @@ XMDF_API xid xfGetVectorDatasetPaths (xid a_Id, int a_Number,
 /*   FUNCTION  xfGetScalarDatasetGroupId */
 /*! PURPOSE:
  *   - NOTES:     Open the Scalar datasets for a Mesh or Grid. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetScalarDatasetGroupId (xid a_Id)
 {
 /*   int    status; */
@@ -8970,7 +8970,7 @@ XMDF_API xid xfGetScalarDatasetGroupId (xid a_Id)
 /*   FUNCTION  xfGetVectorDatasetGroupId */
 /*! PURPOSE:
  *   - NOTES:     Open the Scalar datasets for a Mesh or Grid. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetVectorDatasetGroupId (xid a_Id)
 {
 /*   int    status; */
@@ -9064,7 +9064,7 @@ XMDF_API xid xfChangeScalarValuesTimestepFloat (xid a_Id, int a_TimestepIndex,
 /*   FUNCTION  xfGetDatasetNumTimes */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetNumTimes (xid a_Id, int *a_Numtimes)
 {
   int     status = XTRUE;
@@ -9142,7 +9142,7 @@ XMDF_API xid xfGetDatasetNumTimes (xid a_Id, int *a_Numtimes)
  *    the number of time steps in the dataset.
  *    If NumTimes does not exist in the file or is negative, then
  *    all stored time steps are used by default. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfSetDatasetNumTimes(xid a_Id, int a_NumTimes)
 {
   int        status;
@@ -9201,8 +9201,8 @@ XMDF_API xid xfSetDatasetNumTimes(xid a_Id, int a_NumTimes)
  *                timestepId is returned and can be used to write data in the
  *                timestep
  *                minvalue and maxvalue need to be set to the minimum and 
- *                maximum values of the timestep
-/******************2***********************************************************/
+ *                maximum values of the timestep */
+/******************************************************************************/
 XMDF_API xid xfInitializeScalarTimestep(xid xScalarAId, double dTime,
                     int nValues, float minvalue, float maxvalue, 
                     hsize_t *timestepId)
@@ -9221,8 +9221,8 @@ XMDF_API xid xfInitializeScalarTimestep(xid xScalarAId, double dTime,
 /*! PURPOSE:   Write values into a precreated xmdf scalar dataset
  *   - NOTES:     A negative error is returned if the write fails
  *                timestepId is a 1 based index into the dataset and is returned
- *                from the Initialize function
-/******************2***********************************************************/
+ *                from the Initialize function */
+/******************************************************************************/
 XMDF_API xid xfWriteScalarTimestepPortion(xid xScalarId, int timestepId,
                     int numValuesToWrite, int startIndex, const float *a_values)
 {
@@ -9234,8 +9234,8 @@ XMDF_API xid xfWriteScalarTimestepPortion(xid xScalarId, int timestepId,
 /*! PURPOSE:   overwrite min/max values for a specific timestep
  *   - NOTES:     A negative error is returned if the write fails
  *                timestepId is a 1 based index into the dataset and is returned
- *                from the Initialize function
-/******************2***********************************************************/
+ *                from the Initialize function */
+/******************************************************************************/
 XMDF_API xid xfSetDatasetTimestepMinMax(xid xDatasetId, int timestepId,
                                         float minvalue, float maxvalue)
 { 
@@ -9246,7 +9246,7 @@ XMDF_API xid xfSetDatasetTimestepMinMax(xid xDatasetId, int timestepId,
 /*   FUNCTION  xfGetDatasetNumVals */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetNumVals (xid a_Id, int *a_Numvals)
 {
   int       status = XTRUE;
@@ -9438,7 +9438,7 @@ XMDF_API xid xfGetDatasetNumVals (xid a_Id, int *a_Numvals)
 /*   FUNCTION  xfGetDatasetNumActive */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetNumActive (xid a_Id, int *a_NumActivevals)
 {
   int    status = XTRUE;
@@ -9507,7 +9507,7 @@ XMDF_API xid xfGetDatasetNumActive (xid a_Id, int *a_NumActivevals)
 /*   FUNCTION  xfGetDatasetVecNumComponents */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetVecNumComponents (xid a_Id, int *a_NumComponents)
 {
   int    status = XTRUE;
@@ -9570,7 +9570,7 @@ XMDF_API xid xfGetDatasetVecNumComponents (xid a_Id, int *a_NumComponents)
 /*! PURPOSE:
  *   - NOTES:     The units variable should arleady be allocated. 
  *             size >= TIME_UNITS_MAXLENGTH */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetTimeUnits (xid a_Id, char *Units)
 {
   int    status;
@@ -9602,7 +9602,7 @@ XMDF_API xid xfGetDatasetTimeUnits (xid a_Id, char *Units)
 /*! PURPOSE:
  *   - NOTES:     The units variable should arleady be allocated. 
  *             size >= UNITS_MAXLENGTH */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetUnits (xid a_Id, char *Units)
 {
   int    status;
@@ -9632,7 +9632,7 @@ XMDF_API xid xfGetDatasetUnits (xid a_Id, char *Units)
 /*   FUNCTION  xfGetDatasetTimes */
 /*! PURPOSE:
  *   - NOTES:     The times array must already be allocated to the correct number. */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetTimes (xid a_Id, int a_NumTimes, double *a_Times)
 {
   int    status;
@@ -9651,7 +9651,7 @@ XMDF_API xid xfGetDatasetTimes (xid a_Id, int a_NumTimes, double *a_Times)
 /*   FUNCTION  xfGetDatasetMins */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMins(xid a_Id, int a_NumTimes, float *a_Mins)
 {
   return xfGetDatasetMinsFloat(a_Id, a_NumTimes, a_Mins);
@@ -9661,7 +9661,7 @@ XMDF_API xid xfGetDatasetMins(xid a_Id, int a_NumTimes, float *a_Mins)
 /*   FUNCTION  xfGetDatasetMaxs */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMaxs (xid a_Id, int a_NumTimes, float *a_Maxs)
 {
   return xfGetDatasetMaxsFloat(a_Id, a_NumTimes, a_Maxs);
@@ -9671,7 +9671,7 @@ XMDF_API xid xfGetDatasetMaxs (xid a_Id, int a_NumTimes, float *a_Maxs)
 /*   FUNCTION  xfGetDatasetMinsFloat */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMinsFloat (xid a_Id, int a_NumTimes, float *a_Mins)
 {
   int    status;
@@ -9691,7 +9691,7 @@ XMDF_API xid xfGetDatasetMinsFloat (xid a_Id, int a_NumTimes, float *a_Mins)
 /*   FUNCTION  xfGetDatasetMaxsFloat */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMaxsFloat (xid a_Id, int a_NumTimes, float *a_Maxs)
 {
   int    status;
@@ -9711,7 +9711,7 @@ XMDF_API xid xfGetDatasetMaxsFloat (xid a_Id, int a_NumTimes, float *a_Maxs)
 /*   FUNCTION  xfGetDatasetMinsDouble */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMinsDouble (xid a_Id, int a_NumTimes, double *a_Mins)
 {
   int    status;
@@ -9731,7 +9731,7 @@ XMDF_API xid xfGetDatasetMinsDouble (xid a_Id, int a_NumTimes, double *a_Mins)
 /*   FUNCTION  xfGetDatasetMaxsDouble */
 /*! PURPOSE:
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfGetDatasetMaxsDouble (xid a_Id, int a_NumTimes, double *a_Maxs)
 {
   int    status;
@@ -9751,7 +9751,7 @@ XMDF_API xid xfGetDatasetMaxsDouble (xid a_Id, int a_NumTimes, double *a_Maxs)
 /*   FUNCTION  xfGetDatasetActivityTimestep */
 /*! PURPOSE:   Read the activity values for a specific timestep
  *   - NOTES:     a_Values must already be allocated of size a_NumVals.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadActivityTimestep (xid a_Id, 
                   int a_TimestepIndex, int a_NumVals,
                   xmbool *a_Values)
@@ -9774,7 +9774,7 @@ XMDF_API xid xfReadActivityTimestep (xid a_Id,
 /*   FUNCTION  xfReadActivityValuesAtIndex */
 /*! PURPOSE:   Read the activity values for specific indices
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadActivityValuesAtIndex (xid a_Id, 
                   int a_Index, int a_FirstTime, int a_NumTimes,
                   xmbool *a_Values)
@@ -9796,7 +9796,7 @@ XMDF_API xid xfReadActivityValuesAtIndex (xid a_Id,
 /*   FUNCTION  xfReadScalarValuesTimestep */
 /*! PURPOSE:   Read the scalar values for a specific timestep
  *   - NOTES:     a_Values must already be allocated of size a_NumVals.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadScalarValuesTimestep (xid a_Id, 
                   int a_TimestepIndex, int a_NumVals, float *a_Values)
 {
@@ -9823,7 +9823,7 @@ XMDF_API xid xfReadScalarValuesTimestepFloat (xid a_Id,
 /*   FUNCTION  xfReadScalarValuesTimestepFloatPortion */
 /*! PURPOSE:   Read the scalar values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadScalarValuesTimestepFloatPortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   float *a_Values)
@@ -9843,7 +9843,7 @@ XMDF_API xid xfReadScalarValuesTimestepDouble (xid a_Id,
 /*   FUNCTION  xfReadScalarValuesTimestepFloatPortion */
 /*! PURPOSE:   Read the scalar values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadScalarValuesTimestepDoublePortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   double *a_Values)
@@ -9856,7 +9856,7 @@ XMDF_API xid xfReadScalarValuesTimestepDoublePortion (xid a_Id,
 /*   FUNCTION  xfiReadScalarValuesTimestepPortion */
 /*! PURPOSE:   Read the scalar values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiReadScalarValuesTimestepPortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   double *a_dValues, float *a_fValues)
@@ -10002,7 +10002,7 @@ XMDF_API xid xfReadScalarValuesTimestepInt (xid a_Id,
 /*   FUNCTION  xfReadScalarValuesAtIndex */
 /*! PURPOSE:   Read the scalar values for a specific index
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadScalarValuesAtIndex (xid a_Id, 
                     int a_Index, int a_FirstTime, int a_NumTimes,
                     float *a_Values)
@@ -10122,7 +10122,7 @@ XMDF_API xid xfReadScalarValuesAtIndexInt (xid a_Id,
 /*   FUNCTION  xfiReadWriteScalarValuesFloatAtIndices */
 /*! PURPOSE:   Read the scalar values for a specific index
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiReadWriteScalarValuesFloatAtIndices (xid a_Id, 
                     ReadWrite_enum a_readWrite,
                     int a_nIndices, const int *a_Indices, int a_FirstTime,
@@ -10167,7 +10167,7 @@ static xid xfiReadWriteScalarValuesFloatAtIndices (xid a_Id,
  *             out if it came from the parallel world
 
  *   - NOTES:         */
-/******************2***********************************************************/
+/******************************************************************************/
 static void xfiGetParIndexFromIndex (xid a_Id, int a_TimestepIndex,
                              int a_index, int *a_parindex)
 {
@@ -10230,7 +10230,7 @@ static void xfiGetParIndexFromIndex (xid a_Id, int a_TimestepIndex,
 /*   FUNCTION  xfReadScalarValuesAtIndices */
 /*! PURPOSE:   Read the scalar values for a specific index
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadScalarValuesAtIndices (xid a_Id, 
                     int a_nIndices, const int *a_Indices, int a_FirstTime,
                     int a_NumTimes, float *a_Values)
@@ -10251,7 +10251,7 @@ XMDF_API xid xfReadScalarValuesAtIndicesFloat (xid a_Id,
 /*! PURPOSE:   Read the vector values for a specific timestep
  *   - NOTES:     a_Values must already be allocated to size
  *             a_NumVals * a_NumComponents */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadVectorValuesTimestep (xid a_Id, 
                   int a_TimestepIndex, int a_NumVals, int a_NumComponents, 
                   float *a_Values)
@@ -10281,7 +10281,7 @@ XMDF_API xid xfReadVectorValuesTimestepFloat (xid a_Id,
 /*   FUNCTION  xfReadVectorValuesTimestepFloatPortion */
 /*! PURPOSE:   Read the vector values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadVectorValuesTimestepFloatPortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   int a_NumComponents, float *a_Values)
@@ -10306,7 +10306,7 @@ XMDF_API xid xfReadVectorValuesTimestepDouble (xid a_Id,
 /*   FUNCTION  xfReadVectorValuesTimestepDoublePortion */
 /*! PURPOSE:   Read the vector values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadVectorValuesTimestepDoublePortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   int a_NumComponents, double *a_Values)
@@ -10319,7 +10319,7 @@ XMDF_API xid xfReadVectorValuesTimestepDoublePortion (xid a_Id,
 /*   FUNCTION  xfReadVectorValuesTimestepDoublePortion */
 /*! PURPOSE:   Read the vector values for a specific timestep
  *   - NOTES:    */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiReadVectorValuesTimestepPortion (xid a_Id, 
                   int a_TimestepIndex, int a_Start, int a_NumVals,
                   int a_NumComponents, double *a_dValues, float *a_fValues)
@@ -10441,7 +10441,7 @@ static xid xfiReadVectorValuesTimestepPortion (xid a_Id,
 /*! PURPOSE:   Read the vector values for specific indices
  *   - NOTES:     a_Values must already be allocated of size
  *             a_NumTimes * a_NumComponents      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadVectorValuesAtIndex (xid a_Id, int a_Index,
                     int a_FirstTime, int a_NumTimes, int a_NumComponents,
                     float *a_Values)
@@ -10525,7 +10525,7 @@ XMDF_API xid xfReadVectorValuesAtIndexDouble (xid a_Id, int a_Index,
 /*   FUNCTION  xfiReadWriteVectorValuesFloatAtIndices */
 /*! PURPOSE:   Read the scalar values for a specific index
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 static xid xfiReadWriteVectorValuesFloatAtIndices (xid a_Id, 
                          ReadWrite_enum a_readWrite,
                          int a_nIndices, const int *a_Indices, int a_FirstTime,
@@ -10573,7 +10573,7 @@ static xid xfiReadWriteVectorValuesFloatAtIndices (xid a_Id,
 /*   FUNCTION  xfReadVectorValuesAtIndices */
 /*! PURPOSE:   Read the vector values for a specific index
  *   - NOTES:     a_Values must already be allocated of size a_NumTimes.      */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadVectorValuesAtIndices (xid a_Id, 
                     int a_nIndices, const int *a_Indices, int a_FirstTime,
                     int a_NumTimes, int a_NumComponents, float *a_Values)
@@ -11213,7 +11213,7 @@ XMDF_API xid xfSetMinorR (xid a_CoordId, double a_val)
 /*   FUNCTION  xfWriteReftime */
 /*! PURPOSE:   Set a reference time for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfWriteReftime (xid a_Id, double a_Reftime)
 {
   int    status;
@@ -11226,7 +11226,7 @@ XMDF_API xid xfWriteReftime (xid a_Id, double a_Reftime)
 /*   FUNCTION  xfUseReftime */
 /*! PURPOSE:   See if a reference time exists for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfUseReftime (xid a_Id, xmbool *a_bUseReftime)
 {
   int    status;
@@ -11239,7 +11239,7 @@ XMDF_API xid xfUseReftime (xid a_Id, xmbool *a_bUseReftime)
 /*   FUNCTION  xfReadReftime */
 /*! PURPOSE:   Read a reference time for a dataset
  *   - NOTES:     */
-/******************2***********************************************************/
+/******************************************************************************/
 XMDF_API xid xfReadReftime (xid a_Id, double *a_dReftime)
 {
   int    status;

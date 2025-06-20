@@ -852,7 +852,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
 
   DatasetId = H5Dopen1(a_Id, a_Name);
   if (DatasetId < 0) {
-    printf("%s:%d: ERROR in %s: H5Dopen = %d\n",
+    printf("%s:%d: ERROR in %s: H5Dopen = %ld\n",
            __FILE__,__LINE__,func,DatasetId);
     return ERROR_DATASET_INVALID;
   }
@@ -860,7 +860,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
   /* Make sure the datatype is a float datatype */
   DatatypeId = H5Dget_type(DatasetId);
   if (DatatypeId < 0) {
-    printf("%s:%d: ERROR in %s: H5Dget_type = %d\n",
+    printf("%s:%d: ERROR in %s: H5Dget_type = %ld\n",
            __FILE__,__LINE__,func,DatatypeId);
     H5Dclose(DatasetId);
     return DatatypeId;
@@ -868,7 +868,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
   Classtype = H5Tget_class(DatatypeId);
   H5Tclose(DatatypeId);
   if (Classtype != H5T_FLOAT) {
-    printf("%s:%d: ERROR in %s: H5Tget_class H5T_FLOAT != %d\n",
+    printf("%s:%d: ERROR in %s: H5Tget_class H5T_FLOAT != %ld\n",
            __FILE__,__LINE__,func,Classtype);
     H5Dclose(DatasetId);
     return ERROR_DATASET_INVALID;
@@ -940,7 +940,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
      */
     MemspaceId = H5Screate_simple(2, MemDims, NULL);
     if (MemspaceId < 0) {
-      printf("%s:%d: ERROR in %s: H5Screate_simple %d < 0\n",
+      printf("%s:%d: ERROR in %s: H5Screate_simple %ld < 0\n",
              __FILE__,__LINE__,func,MemspaceId);
       H5Sclose(SpaceId);
       H5Dclose(DatasetId);

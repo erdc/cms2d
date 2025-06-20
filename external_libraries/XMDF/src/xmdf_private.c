@@ -157,7 +157,7 @@ FUNCTION  xfpHDF5ErrorWalk_cb
 PURPOSE   
 NOTES     
 ----------------------------------------------------------------------------*/
-XMDF_API herr_t xfpHDF5ErrorWalk_cb (int n, H5E_error_t *err_desc, 
+XMDF_API int xfpHDF5ErrorWalk_cb (unsigned int n, const H5E_error_t *err_desc, 
                                      void *client_data)
 {
   char           *maj_str = NULL;
@@ -179,12 +179,12 @@ XMDF_API herr_t xfpHDF5ErrorWalk_cb (int n, H5E_error_t *err_desc,
       err_desc->func_name, err_desc->desc);
   xfpAddXMDFError(error);
 
-  sprintf (error, "%*smajor(%02d): %s\n",
-      indent * 2, "", err_desc->maj_num, maj_str);
+  sprintf (error, "%*smajor(%02ld): %s\n",
+      indent * 2, "", err_desc->maj_num, maj_str_buf);
   xfpAddXMDFError(error);
 
-  sprintf (error, "%*sminor(%02d): %s\n",
-      indent * 2, "", err_desc->min_num, min_str);
+  sprintf (error, "%*sminor(%02ld): %s\n",
+      indent * 2, "", err_desc->min_num, min_str_buf);
   xfpAddXMDFError(error);
 
   /* No need to free the strings as they are stack-allocated buffers */
@@ -5348,13 +5348,13 @@ XMDF_API xid* xfpStridedToContinousInt (const int *a_OldArray,
                                 const int a_NumPerStride, const int a_StartLoc)
 {
     char          *ptru;
-    int           *ptrd;
+    xid           *ptrd;
     int            i;
-    int           *NewArray;
+    xid           *NewArray;
 
 
   /*malloc the new array*/
-  NewArray = (int*) malloc(a_NumValues*a_NumPerStride*sizeof(int));
+  NewArray = (xid*) malloc(a_NumValues*a_NumPerStride*sizeof(xid));
 
   /*get a new array with the stride*/
 

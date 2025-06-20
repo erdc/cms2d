@@ -102,6 +102,11 @@ XMDF_API xid xftReadWriteDset2DFloatIndices (xid a_Id,
                 size_t a_nIndices, hsize_t *a_indices2D,
                 float *a_Array);
 
+XMDF_API xid xftReadWriteDsetFloatIndices(xid a_Id,
+                ReadWrite_enum a_readWrite, const char* a_Name,
+                size_t a_nIndices, hsize_t* a_indices,
+                int a_expectedRank, float* a_Array)
+
   /* Write arrays to datasets */
 XMDF_API xid xftAppendDset1DDouble(xid a_Id, const char *a_Name,
                                   hsize_t NewTimes, const double *a_Array);
