@@ -86,6 +86,7 @@
        use const_def, only: pi
        use comvarbl, only: flowpath
        use prec_def, only: ikind
+       use diag_lib, only: diag_print_warning
        implicit none
 
        integer :: ierr  !Wu
@@ -105,20 +106,28 @@
        case ('QDRIVER_CELLSTRING')        !Flux BC
           !Note: when using this card, the id and data files are assumed to be same
           !To allow them to be different a block structure input format must be used
-          call flux_alloc
-
-          call card_bid(flowpath, Q_str(nQstr)%bidfile, Q_str(nQstr)%bidpath, Q_str(nQstr)%idnum)
-          !Note: when this card is used, it is assumed that the id file is the same as the data file
-          Q_str(nQstr)%fluxfile = Q_str(nQstr)%bidfile
-          Q_str(nQstr)%fluxpath = Q_str(nQstr)%bidpath
-          Q_str(nQstr)%istrtype = 1
+         
+          if (nQstr > 0) then
+            call diag_print_warning('Older QDRIVER cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            call flux_alloc
+            call card_bid(flowpath, Q_str(nQstr)%bidfile, Q_str(nQstr)%bidpath, Q_str(nQstr)%idnum)
+            !Note: when this card is used, it is assumed that the id file is the same as the data file
+            Q_str(nQstr)%fluxfile = Q_str(nQstr)%bidfile
+            Q_str(nQstr)%fluxpath = Q_str(nQstr)%bidpath
+            Q_str(nQstr)%istrtype = 1
+          endif
 
        case ('TIDAL_CELLSTRING')          !Tidal BC
-          if (.not. tide_read) call tidal_alloc
-          call card_bid(flowpath, TH_str(nTHstr)%bidfile, TH_str(nTHstr)%bidpath, TH_str(nTHstr)%idnum)
-          Tread = .true.
-          if (tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
-          TH_str(nTHstr)%istrtype = 1
+          if (nTHstr > 0) then
+            call diag_print_warning('Older TIDAL cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            if (.not. tide_read) call tidal_alloc
+            call card_bid(flowpath, TH_str(nTHstr)%bidfile, TH_str(nTHstr)%bidpath, TH_str(nTHstr)%idnum)
+            Tread = .true.
+            if (tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
+            TH_str(nTHstr)%istrtype = 1
+          endif
 
        case ('TIDAL_CONSTITUENTS_BEGIN')
           tide_read = .true.
@@ -131,12 +140,16 @@
        case ('TIDAL_CONSTITUENTS_END', 'END')
 
        case ('HARMONIC_CELLSTRING')          !Harmonic BC
-          if (.not. tide_read) call tidal_alloc
-          call card_bid(flowpath, TH_str(nTHstr)%bidfile, TH_str(nTHstr)%bidpath, TH_str(nTHstr)%idnum)
-          Tread = .true.
-          if (tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
-          TH_str(nTHstr)%istidal = .false.
-          TH_str(nTHstr)%istrtype = 1
+          if (nTHstr > 0) then
+            call diag_print_warning('Older HARMONIC cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            if (.not. tide_read) call tidal_alloc
+            call card_bid(flowpath, TH_str(nTHstr)%bidfile, TH_str(nTHstr)%bidpath, TH_str(nTHstr)%idnum)
+            Tread = .true.
+            if (tide_read) Tread = .false.; tide_read = .false. !Both read in, prepare for next string
+            TH_str(nTHstr)%istidal = .false.
+            TH_str(nTHstr)%istrtype = 1
+          endif
 
        case ('HARMONIC_BEGIN', 'HARMONICS_BEGIN', 'HARMONIC_COMPONENTS_BEGIN')
           tide_read = .true.
@@ -150,30 +163,42 @@
           call card_boolean(77, TH_str(nTHstr)%istidal, ierr)
 
        case ('HDRIVER_CELLSTRING')        !Single Water Level BC
-          call singlewse_alloc
-          call card_bid(flowpath, H_str(nHstr)%bidfile, H_str(nHstr)%bidpath, H_str(nHstr)%idnum)
-          !Note: when this card is used, it is assumed that the id file is the same as the data file
-          H_str(nHstr)%wsefile = H_str(nHstr)%bidfile
-          H_str(nHstr)%wsepath = H_str(nHstr)%bidpath
-          H_str(nHstr)%istrtype = 1
+          if (nHstr > 0) then
+            call diag_print_warning('Older HDRIVER cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            call singlewse_alloc
+            call card_bid(flowpath, H_str(nHstr)%bidfile, H_str(nHstr)%bidpath, H_str(nHstr)%idnum)
+            !Note: when this card is used, it is assumed that the id file is the same as the data file
+            H_str(nHstr)%wsefile = H_str(nHstr)%bidfile
+            H_str(nHstr)%wsepath = H_str(nHstr)%bidpath
+            H_str(nHstr)%istrtype = 1
+          endif
 
        case ('MULTI_HDRIVER_CELLSTRING')  !Multiple Water Level BC (Type 4)
-          call multiwse_alloc
-          call card_bid(flowpath, MH_str(nMHstr)%bidfile, MH_str(nMHstr)%bidpath, MH_str(nMHstr)%idnum)
-          !Note: when this card is used, it is assumed that the id file is the same as the data file
-          MH_str(nMHstr)%wsefile = MH_str(nMHstr)%bidfile
-          MH_str(nMHstr)%wsepath = MH_str(nMHstr)%bidpath
-          MH_str(nMHstr)%istrtype = 1
+          if (nMHstr > 0) then
+            call diag_print_warning('Older MULTI_ cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            call multiwse_alloc
+            call card_bid(flowpath, MH_str(nMHstr)%bidfile, MH_str(nMHstr)%bidpath, MH_str(nMHstr)%idnum)
+            !Note: when this card is used, it is assumed that the id file is the same as the data file
+            MH_str(nMHstr)%wsefile = MH_str(nMHstr)%bidfile
+            MH_str(nMHstr)%wsepath = MH_str(nMHstr)%bidpath
+            MH_str(nMHstr)%istrtype = 1
+          endif
 
        case ('MULTI_VDRIVER_CELLSTRING', 'MULTI_HVDRIVER_CELLSTRING') !Multiple Water Level and Velocity BC (Type 5)
-          call multiwsevel_alloc
-          call card_bid(flowpath, MHV_str(nMHVstr)%bidfile, MHV_str(nMHVstr)%bidpath, MHV_str(nMHVstr)%idnum)
-          !Note: when this card is used, it is assumed that the id file is the same as the data file
-          MHV_str(nMHVstr)%wsefile = MHV_str(nMHVstr)%bidfile
-          MHV_str(nMHVstr)%wsepath = MHV_str(nMHVstr)%bidpath
-          MHV_str(nMHVstr)%velfile = MHV_str(nMHVstr)%bidfile
-          MHV_str(nMHVstr)%velpath = MHV_str(nMHVstr)%bidpath
-          MHV_str(nMHVstr)%istrtype = 1
+          if (nMHVstr > 0) then
+            call diag_print_warning('Older MULTI_ cellstring found after newer boundaries setup. Skipping',addLineReturn=.false.)
+          else
+            call multiwsevel_alloc
+            call card_bid(flowpath, MHV_str(nMHVstr)%bidfile, MHV_str(nMHVstr)%bidpath, MHV_str(nMHVstr)%idnum)
+            !Note: when this card is used, it is assumed that the id file is the same as the data file
+            MHV_str(nMHVstr)%wsefile = MHV_str(nMHVstr)%bidfile
+            MHV_str(nMHVstr)%wsepath = MHV_str(nMHVstr)%bidpath
+            MHV_str(nMHVstr)%velfile = MHV_str(nMHVstr)%bidfile
+            MHV_str(nMHVstr)%velpath = MHV_str(nMHVstr)%bidpath
+            MHV_str(nMHVstr)%istrtype = 1
+          endif
 
        case ('CROSS-SHORE_CELLSTRING', 'CROSS_SHORE_CELLSTRING')    !Cross-shore BC (Type 6)
           call xshore_alloc

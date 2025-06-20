@@ -74,15 +74,15 @@ module sed_def
     !Sediment size class
     type sed_size_class
       character(len=100) :: name !Name  
-      integer :: idiam          !1-Characteristic diameter, 2-Diameter bounds
-      real(ikind) :: diam       !Characteristic diameter
-      real(ikind) :: diamlim(2) !Diameter bounds
-      integer :: iws            !Fall velocity formula, 0-User-specified, 1-Soulsby, 2-Wu-Wang
-      real(ikind) :: wsfall     !Fall velocity [m/s]
-      integer :: icr            !Inicipient motion, 0-User-specified thetacr,1-User-specified taucr, 2-Soulsby
-      real(ikind) :: thetacr    !Critical shields parameter
-      real(ikind) :: taucr      !Critical shear stress [N/m^2]
-      real(ikind) :: shape      !Corey shape factor
+      integer     :: idiam       !1-Characteristic diameter, 2-Diameter bounds
+      real(ikind) :: diam        !Characteristic diameter
+      real(ikind) :: diamlim(2)  !Diameter bounds
+      integer     :: iws         !Fall velocity formula, 0-User-specified, 1-Soulsby, 2-Wu-Wang
+      real(ikind) :: wsfall      !Fall velocity [m/s]
+      integer     :: icr         !Inicipient motion, 0-User-specified thetacr,1-User-specified taucr, 2-Soulsby
+      real(ikind) :: thetacr     !Critical shields parameter
+      real(ikind) :: taucr       !Critical shear stress [N/m^2]
+      real(ikind) :: shape       !Corey shape factor
       !logical :: existcoverage
       !logical, allocatable :: coverage(:) !true - exists, false - does not exist
       !character(len=200) :: covpath,covfile 

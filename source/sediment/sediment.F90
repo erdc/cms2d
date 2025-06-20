@@ -307,6 +307,7 @@
     !---- Hardbottom --------------------  
     case('HARDBOTTOM_DATASET')
       call card_dataset(77,grdfile,flowpath,hbfile,hbpath,1) 
+      if (grdfile .eq. '') grdfile = hbfile
       if(hbpath(1:4)/='NONE')then 
         hardbottom = .true.
       else
@@ -676,35 +677,47 @@
         
     !---- Since Grain Size -----------------------------   
     case('CONSTANT_GRAIN_SIZE')
-      call card_scalar(77,'mm','mm',singleD50,ierr)
-      nsed = 1; nlay = 1 
-      call sedclass_resize
-      call bedlay_resize
-      sedclass(1)%diam = singleD50
-      singlesize = .true.
-      variableD50 = .false.
-      constd50 = .true.
-      calcd50 = .false.
-            
+      if (nsed > 0) then
+        call diag_print_warning('"'//trim(cardname)//'" card encountered. Grain size has already been handled. Skipping',addLineReturn=.false.)  
+      else
+        call card_scalar(77,'mm','mm',singleD50,ierr)
+        nsed = 1; nlay = 1 
+        call sedclass_resize
+        call bedlay_resize
+        sedclass(1)%diam = singleD50
+        singlesize = .true.
+        variableD50 = .false.
+        constd50 = .true.
+        calcd50 = .false.
+      endif
+        
     case('SEDIMENT_GRAIN_SIZE')  !For old input files
-      call card_scalar(77,'mm','mm',singleD50,ierr)
-      nsed = 1; nlay = 1
-      call sedclass_resize
-      call bedlay_resize
-      sedclass(1)%diam = singleD50
-      singlesize = .true.
-      variableD50 = .false.            
+      if (nsed > 0) then
+        call diag_print_warning('"'//trim(cardname)//'" card encountered. Grain size has already been handled. Skipping',addLineReturn=.false.)  
+      else
+        call card_scalar(77,'mm','mm',singleD50,ierr)
+        nsed = 1; nlay = 1
+        call sedclass_resize
+        call bedlay_resize
+        sedclass(1)%diam = singleD50
+        singlesize = .true.
+        variableD50 = .false.            
+      endif
            
     case('TRANSPORT_GRAIN_SIZE')
-      call card_scalar(77,'mm','mm',singleD50,ierr)
-      nsed = 1; nlay = 1
-      call sedclass_resize
-      call bedlay_resize
-      sedclass(1)%diam = singleD50
-      singlesize = .true.
-      variableD50 = .true.              !Shouldn't this be False?  MEB 9/30/19
-      transd50 = .true.
-      calcd50 = .false.
+      if (nsed > 0) then
+        call diag_print_warning('"'//trim(cardname)//'" card encountered. Grain size has already been handled. Skipping',addLineReturn=.false.)  
+      else
+        call card_scalar(77,'mm','mm',singleD50,ierr) 
+        nsed = 1; nlay = 1
+        call sedclass_resize
+        call bedlay_resize
+        sedclass(1)%diam = singleD50
+        singlesize = .true.
+        variableD50 = .true.              
+        transd50 = .true.
+        calcd50 = .false.
+      endif
       
     !---- Multiple Grain sizes ------------------      
     case('BED_COMPOSITION_INPUT') !used for surface layer only here
@@ -1131,22 +1144,13 @@
       bedlay(:)%perdiam(i)%inp = .true.
             
     case default  
-      if(cardname(4:11)=='_DATASET')then                    
+      if(cardname(4:11)=='_DATASET')then
         call card_dataset(77,grdfile,flowpath,afile,apath,1)
-        read(cardname(2:3),'(I2)') ipr
-        do i=1,nperdiam
-          if(ipr==iper(i))then
-            if(iper(i)==50) variabled50 = .true.  
-            exit
-          endif
-        enddo
-        nlay = max(nlay,1) !At least one layer required
-        call bedlay_resize
-        bedlay(:)%perdiam(i)%file = afile
-        bedlay(:)%perdiam(i)%path = apath
-        bedlay(:)%perdiam(i)%inp = .true.
-      else            
-        foundcard = .false.
+        if(cardname(1:1) == 'D') then
+          call diag_print_warning('Main level D##_DATASET cards no longer supported. Skipping',addLineReturn=.false.)
+        else
+          call diag_print_warning('Unknown method to handle card: '//trim(cardname))
+        endif
       endif
         
     end select               
@@ -1477,6 +1481,8 @@ d1: do ii=1,30
         case default
           if(cardname(4:11)=='_DATASET')then   
             call card_dataset(77,grdfile,flowpath,file,path,1)
+            if (grdfile .eq. '') grdfile = file
+
             if(len_trim(file)>0 .and. len_trim(path)>0)then !Make sure card is not empty  
               read(cardname(2:3),'(I2)') ipr
               do i=1,nperdiam

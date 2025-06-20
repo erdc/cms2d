@@ -155,6 +155,7 @@
     endif  
 
 !--- Read Grid File and setup geometric variables ------------------------------
+    write(*,*) ''
     write(*,*) 'Reading Grid'
     inquire(file=telfile,exist=foundfile)
     if(foundfile) igridtype = 1

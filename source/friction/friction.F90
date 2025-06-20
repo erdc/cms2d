@@ -201,6 +201,7 @@
     case('MANNINGS_N_DATASET','MANNING_N_DATASET','MANNINGS_DATASET','MANNNING_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       if (fricfile .eq. '') call diag_print_error("User did not associate a Manning's N dataset. Please correct and restart.")  !MEB  04/07/2022
+      if (grdfile .eq. '') grdfile = fricfile
       mbedfric = 2     
       constbotfric = .false.
     
@@ -213,6 +214,7 @@
     case('BOTTOM_FRICTION_COEF_DATASET','BOTTOM_FRICTION_DATASET','FRICTION_COEFFICIENT_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       if (fricfile .eq. '') call diag_print_error("User did not associate a Bottom Friction Coefficient dataset. Please correct and restart.")  !MEB  04/07/2022
+      if (grdfile .eq. '') grdfile = fricfile
       mbedfric = 1 
       constbotfric = .false.
         
@@ -232,6 +234,7 @@
     case('ROUGHNESS_HEIGHT_DATASET','ROUGHNESS_DATASET')
       call card_dataset(77,grdfile,flowpath,fricfile,fricpath,1)
       if (fricfile .eq. '') call diag_print_error("User did not associate a Roughness Height dataset. Please correct and restart.")  !MEB  04/07/2022
+      if (grdfile .eq. '') grdfile = fricfile
       mbedfric = 3    
       constbotfric = .false.
         

@@ -220,7 +220,7 @@ contains
     end subroutine diag_print_error
     
 !******************************************************************************    
-    subroutine diag_print_warning(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8)
+    subroutine diag_print_warning(msg1,msg2,msg3,msg4,msg5,msg6,msg7,msg8,addLineReturn)
 ! Prints a warning message(s) to the screen and diagnostic file    
 ! written by Alex Sanchez, USACE-CHL    
 !******************************************************************************
@@ -230,6 +230,7 @@ contains
     !Input/Output
     character(len=*),intent(in) :: msg1
     character(len=*),intent(in),optional :: msg2,msg3,msg4,msg5,msg6,msg7,msg8
+    logical, intent(in), optional :: addLineReturn
     !Internal variables
     integer :: iunit(2),i
     logical :: dgopen
@@ -241,7 +242,11 @@ contains
     inquire(file=dgfile,opened=dgopen)
     if(.not.dgopen) open(dgunit,file=dgfile,access='append') 
     do i=1,2
-      write(iunit(i),*)
+      if(present(addLineReturn)) then
+        if(addLineReturn) write(iunit(i),*)
+      else
+        write(iunit(i),*)
+      endif
       write(iunit(i),222) 'WARNING: ',trim(msg1)
       if(present(msg2)) write(iunit(i),111) trim(msg2)
       if(present(msg3)) write(iunit(i),111) trim(msg3)

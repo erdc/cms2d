@@ -190,6 +190,7 @@
     endif  
 
 !--- Read Grid File and setup geometric variables ------------------------------
+    write(*,*) ''
     write(*,*) 'Reading Grid'
     inquire(file=telfile, exist=foundtel)
     inquire(file=grdfile, exist=foundgrid)

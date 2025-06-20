@@ -407,7 +407,9 @@
 ! written by Alex Sanchez, USACE-CHL
 !*****************************************************************
     use diag_lib
+    use comvarbl, only: mpfile
     implicit none
+    
     !Input
     character(len=*),intent(in)    :: defpath  !Default input path
     character(len=*),intent(inout) :: bidfile  !Boundary ID File (*.h5, *.2dm, *,bid) (including directory path)
@@ -419,7 +421,7 @@
     character(len=200) :: aname,apath
     character(len=300) :: aFile
     integer            :: ilen
-    logical            :: foundfile
+    logical            :: foundfile, mpfilefound = .false.
     
     !Read file and path
     backspace(77)
@@ -436,13 +438,21 @@
       bidfile = trim(aFile)
     endif
 
-    !Check file exists and guess path if necessary
+    !Check file exists and try mpfile path if necessary
     inquire(file=bidfile,exist=foundfile)  
-    if(.not.foundfile .and. len_trim(apath)==0)then
+    if(.not. foundfile)then
+      inquire(file=trim(mpfile), exist=mpfilefound)
+      if(mpfilefound) bidfile = mpfile
+      foundfile = .true.
+    endif
+    
+    !If still not found, guess path and try again.
+    if(.not. mpfilefound .and. len_trim(apath)==0) then
       bidfile = trim(defpath) // trim(bidfile)
       inquire(file=bidfile,exist=foundfile) 
     endif
-    if(.not.foundfile)then
+    
+    if(.not. foundfile)then
       call diag_print_error('Could not find Boundary ID file: ',bidfile)
     endif  
     

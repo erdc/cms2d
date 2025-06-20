@@ -90,3 +90,8 @@ external_libraries/SPCS83/x64/Debug/
 external_libraries/UTM2GEO/x64/Debug/
 
 external_libraries/XMDF/libXMDF.a
+external_libraries/GCTP/x64/Release/
+
+external_libraries/SPCS83/x64/Release/
+
+external_libraries/UTM2GEO/x64/Release/
