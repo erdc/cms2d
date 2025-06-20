@@ -105,11 +105,11 @@
     write_tecplot     = .false.  !Tecplot files 
     write_netcdf      = .false.  !NetCDF files   !Just Preparing to add this feature  MEB 10/03/2019
 
-#ifdef _WIN32
-    write_xmdf_output = .true.   !By default, turns on writing XMDF output files on Windows
+#ifdef XMDF_IO
+    write_xmdf_output = .true.   !Turns on writing XMDF output files
     write_sup = .false.          !  and turns off Super ASCII files
 #else    
-    write_xmdf_output = .false.  !By default, turns off writing XMDF output files on Linux
+    write_xmdf_output = .false.  !Turns off writing XMDF output files
     write_sup = .true.           !  and turns on Super ASCII files
 #endif
     
@@ -1413,8 +1413,10 @@
       write(iunit(i),787)       'Global Output'
       write(iunit(i),787)       '  Simulation Label:',trim(simlabel)
       if(.not.write_xmdf_output) then
+        write(iunit(i),787)     '  Output Type:','ASCII'
         write(iunit(i),787)     '  Output Path:','ASCII_Solutions/'
       else
+        write(iunit(i),787)     '  Output Type:','XMDF'
         if(len_trim(outpath)>0)then
           write(iunit(i),787)   '  Output Path:',trim(outpath)
         endif
@@ -1472,7 +1474,6 @@
         endif      
       endif
       if(obs_cell)then
-        !write(iunit(i),*)  
         write(iunit(i),787)     'Observation Cells:','ON' 
         if(obs(1)%active)then    
           write(iunit(i),485)   '  Time series increment:',obs(1)%time_inc,' sec'
