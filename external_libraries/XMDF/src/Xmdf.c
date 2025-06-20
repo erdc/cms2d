@@ -70,7 +70,7 @@ BOOL WINAPI DllMain( HANDLE hModule,
 #endif
 
 #define DBG Dbg(__FILE__,__LINE__);
-#extern void Dbg();
+/* extern void Dbg(); */
 
 static xid xfiCreateFile (const char * a_Filename, xid *Id, xmbool a_Overwrite,
                           xmbool a_inMemory);

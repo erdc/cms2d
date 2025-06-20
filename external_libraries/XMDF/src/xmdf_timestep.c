@@ -868,7 +868,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
   Classtype = H5Tget_class(DatatypeId);
   H5Tclose(DatatypeId);
   if (Classtype != H5T_FLOAT) {
-    printf("%s:%d: ERROR in %s: H5Tget_class H5T_FLOAT != %ld\n",
+    printf("%s:%d: ERROR in %s: H5Tget_class H5T_FLOAT != %d\n",
            __FILE__,__LINE__,func,Classtype);
     H5Dclose(DatasetId);
     return ERROR_DATASET_INVALID;
@@ -876,7 +876,7 @@ XMDF_API xid xftReadDset2DDoublePortion (xid a_Id, const char *a_Name,
 
   SpaceId = H5Dget_space(DatasetId);
   if (SpaceId < 0) {
-    printf("%s:%d: ERROR in %s: H5Dget_space %d < 0\n",
+    printf("%s:%d: ERROR in %s: H5Dget_space %ld < 0\n",
            __FILE__,__LINE__,func,SpaceId);
     H5Dclose(DatasetId);
     H5Sclose(SpaceId);
