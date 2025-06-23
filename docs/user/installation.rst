@@ -20,16 +20,20 @@ Note: It has been mentioned there may be an Intel oneAPI Fortran only build whic
 
 Linux
 -----
+- You must have CMAKE software 3.5 or above 
+- You must have the HDF5 (and Zlib) libraries installed on your system. 
 - Gnu compiler (tested with gcc 4.8.5)
-- CMake 2.8 or higher
 - `Download latest CMS source <https://github.com/erdc/cms2d>`_
 
-1) Clone a copy of the CMS source from the repository.
-2) Change directories to the "source" directory
-3) Run the command **`cmake  .`**
-4) Run the command **`make cms`**
+1) Clone repository or unzip CMS Source into a folder. 
+2) Go to the root directory of the repo.  
+3) Type `cmake .` at the prompt    !(do not enter the ` characters) 
+4) Type `make clean` 
+5) Type `make` 
+    - This will make the XMDF library and the CMS executable using the XMDF library. 
+    - There may be a few warnings during XMDF compilation, but it should create a working library. 
 
-This will leave an executable named 'cms' in the local working directory.
+If no errors, an exectuable named 'cms' will be in the 'source' directory. Move and rename the executable as needed. 
 
 To clean all of the intermediate files and old executable, type 'make clean' from the 
 "source" directory.
