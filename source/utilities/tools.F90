@@ -20,7 +20,6 @@
     
 50  continue
     
-#ifdef _WIN32        
     write(*,*) '*****************************************************************'
     write(*,*) 'Make a choice from the following CMS Tools'
     write(*,*) '1 - Print RT_JULIAN/REFTIME corresponding to actual date'
@@ -68,36 +67,6 @@
       call diag_print_message ('Selection not available, make another selection')
       goto 100
     end select
-#else    
-    write(*,*) '*****************************************************************'
-    write(*,*) 'Make a choice from the following CMS Tools (limited on Linux)'
-    write(*,*) '3 - Read WSE Dataset and output a Max WSE dataset for all times'
-    write(*,*) '6 - Test XMDF libraries'
-    write(*,*) '9 - Exit'
-    write(*,*) '*****************************************************************'
-    write(*,*) ''
-
-200 read (*,*) ichoice
-    
-    select case (ichoice)    
-    case (3)
-      write(dgunit,888)    '  Read WSE Dataset and output a Max WSE dataset for all times'
-      call CMS_MaxWSE
-      call clear_screen
-    case (6)
-      write(dgunit,888)    '  Test XMDF libraries'
-      call XMDF_TESTS
-      write(*,*) 'Press Enter to return to menu'
-      read(*,*)
-      call clear_screen
-    case (9)
-      close(dgunit)
-      STOP
-    case default
-      call diag_print_message ('Selection not available, make another selection')
-      goto 200
-    end select
-#endif
 
     goto 50
     
@@ -163,7 +132,6 @@
       return
       end subroutine find_in_output_strings
       
-#ifdef _WIN32		
 !******************************************************
 ! Read input from the keyboard to choose number of files/datasets to extract data for one cell ID into a text file
 ! written by Mitchell Brown, USACE-CHL  3/16/2022
@@ -613,7 +581,6 @@
         
       return
     end subroutine MultiDatasets_toOne
-#endif            
       
 !******************************************************
       subroutine CMS_MaxWSE
@@ -637,11 +604,7 @@
         call fileext (filename,aext)
         select case (aext)
           case('h5')
-#ifdef _WIN32            
             call CMS_MaxWSE_h5(trim(filename))
-#else
-            call diag_print_message("XMDF/H5 file functionality is missing for Linux")
-#endif
           case('dat')
             call CMS_MaxWSE_dat(trim(filename))
           case default
@@ -714,7 +677,6 @@
         return
       end subroutine CMS_MaxWSE_dat
       
-#ifdef _WIN32      
 !*************************************************************
       subroutine CMS_MaxWSE_h5 (filename)
         use XMDF
@@ -856,7 +818,6 @@
         
         return
       end subroutine CMS_reftime2date
-#endif
       
     end subroutine CMS_Tools_Dialog
 !******************************************************    

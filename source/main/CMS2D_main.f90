@@ -54,10 +54,9 @@
     !Manipulate to get major and minor versions - MEB  09/15/2020
     call split_real_to_integers (version, 2, major_version, minor_version)  !Convert version to two integer portions before and after the decimal considering 2 digits of precision.
   
+    machine='Linux'
 #ifdef _WIN32
     machine='Windows'
-#elif defined (__linux)
-    machine='Linux'
 #else
     machine='Unknown'
 #endif

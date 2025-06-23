@@ -3015,9 +3015,7 @@
 
        !All boundary information has been read in, write the appropriate information out at this time.
        if (write_ascii_input) then
-#ifdef _WIN32
           call write_datasets_to_ascii()   !added 02/21/18 meb        !Only possible on Windows
-#endif
           call write_boundary_to_ascii()   !added 02/15/18 meb
           call write_wind_to_ascii()       !added 02/28/18 meb
           if (allocated(wndspeed)) deallocate (wndspeed, wnddirection)   !Free up memory no longer needed
@@ -3098,8 +3096,6 @@
        return
     end subroutine write_wind_to_ascii
 
-#ifdef _WIN32
-!only possible on Windows with XMDF
 !****************************************************
     subroutine write_datasets_to_ascii()
 ! Write separate files containing grid-specific datasets that may be used in a CMS run.
@@ -3162,7 +3158,6 @@
 
        return
     end subroutine write_datasets_to_ascii
-#endif
 
 !****************************************************
     subroutine write_boundary_to_ascii()

@@ -61,19 +61,14 @@
     case('DREDGE_OPERATION_BEGIN')
       ndredge_operations = ndredge_operations + 1 
       dredging = .true.
-!#ifdef _WIN32        
       call dredge_operation_increment()         
       call dredge_op_block()
-!#else
-!      call diag_print_error('Dredge Operation not presently possible with ASCII-only input')
-!#endif
       
     case('OUTPUT_DREDGE_DIAGNOSTICS')
       call card_boolean(77,write_dredge_diag,ierr)        
     
     case default
       foundcard = .false.
-!      write(*,*)trim(cardname)," not recognized"
        
     end select
     
