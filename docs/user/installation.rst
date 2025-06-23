@@ -40,10 +40,6 @@ To clean all of the intermediate files and old executable, type 'make clean' fro
 
 Note: Linux builds have not been fully tested on HPC platform and some extra configuration may be necessary.
 
-         
-   Instructions (updated 06/18/25): 
-
-
 Running CMS
 ===========
 CMS can be run on Windows from within the SMS interface or from the command prompt. On Linux, CMS is run from the command prompt. 
