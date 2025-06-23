@@ -1151,6 +1151,8 @@
         else
           call diag_print_warning('Unknown method to handle card: '//trim(cardname))
         endif
+      else             
+        foundcard = .false. 
       endif
         
     end select               

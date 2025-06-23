@@ -6,7 +6,6 @@
 #include "CMS_cpp.h"
     use size_def
     use geo_def
-    !use case_size_3D   !For 3D
     use flow_def
     use struct_def
     use met_def
@@ -15,7 +14,6 @@
     use cms_def
     use flow_wavegrid_def
     use wave_flowgrid_def
-    !use wavestress3D     !For 3D
     use bnd_def
     use sed_def
     use sal_def
