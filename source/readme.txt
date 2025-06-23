@@ -80,5 +80,5 @@
      4. Type `make clean`
      5. Type `make`
         - This will make the XMDF library and the CMS executable using the XMDF library.
-        - There may be a few warnings during XMDF compilation, but it should still create a library.
+        - There may be a few warnings during XMDF compilation, but it should create a working library.
      6. If no errors, an exectuable named 'cms' will be in the 'source' directory. Move and rename the executable as needed.

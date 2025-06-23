@@ -1,7 +1,7 @@
 What's New
 ==========
 
-v5.4.5 (18 June 2025)
+v5.4.5 (23 June 2025)
 -------------------------
 
 Changes
@@ -10,7 +10,10 @@ Changes
 * Enabled XMDF compilation on Linux. Updated workflow to compile CMS including XMDF libraries.
 * Add canned test cases for XMDF that should work on Linux or Windows
 * Moved third-party libraries from root folder to be under the 'external_libraries' folder.
-
+* Modified CI for CMS-Flow and added a few CMS-Wave tests (still to be added to CI)
+* Add extra print line for Hot Start indicating the starting date/time.
+* Bug fix in steering for printing out correct timestamp when it has only 8 digits instead of 12.
+* Ignore certain Advanced cards if they are already handled. Print warning message.
 
 v5.4.4.4 (19 May 2025)
 -------------------------

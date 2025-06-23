@@ -20,25 +20,30 @@ Building CMS on Windows requires use of the Microsoft Visual Studio GUI. This re
 Once the sofware has been installed, the user should load the appropriate **solution file** for the UI.
 
 ## Linux platform
-To build CMS On linux you must have CMAKE software above 2.9 and 'gfortran' installed.
-1. `cd cms2d/source`
-2. `cmake .`
-3. `make`
-
+To build CMS On linux:
+     - You must have CMAKE software 3.5 or above
+     - You must have the HDF5 (and Zlib) libraries installed on your system.
+        
+Instructions (updated 06/18/25):
+1. Clone repository or unzip CMS Source into a folder.
+2. Go to the root directory of the repo. 
+3. Type `cmake .` at the prompt    !(do not enter the ` characters)
+4. Type `make clean`
+5. Type `make`
+	- This will make the XMDF library and the CMS executable using the XMDF library.
+    - There may be a few warnings during XMDF compilation, but it should create a working library.
+	
+- If no errors, an executable named 'cms' will be in the 'source' directory. Move and rename the executable as needed.
 - This will leave you with an executable named 'cms' in your the "source" directory. 
-- To clean all of the intermediate files and old executable, type 'make clean' from the "source" directory.
 Note: Linux builds have not been fully tested on HPC platform and some extra configuration may be necessary.
 
 # File/Folder structure
 Below is a list of folders and descriptions of the contents.
 - **docs** - this folder contains the documentation files needed for the [CMS Documentation page](https://cms2d.readthedocs.io/) that is in progress.
+- **external_libraries** - subfolders containing third-party source and binary libraries to link with.
 - **Intel_vs2019** - this folder contains the solution file needed to load into Visual Studio 2019.
 - **Intel_vs2022** - this folder contains the solution file needed to load into Visual Studio 2022.
-- **GCTP** - this project folder contains library code needed to map information between horizontal projections.
-- **SPCS83** - this project folder contains library code needed for changes related to the State Plane coordinate system.
-- **UTM2GEO** - this project folder contains library code needed for converting to/from geographic coordinate space.
 - **source** - contains subfolders for all the main CMS code functionality separated into process type.
-- **external_libraries** - subfolders containing binary libraries to link with (no source).
 - **testing** - contains CI/CD tests
 
 Additional files in the main folder and their descriptions:
