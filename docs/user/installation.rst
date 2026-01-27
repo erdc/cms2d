@@ -58,6 +58,7 @@ If steering is desired with both Flow and Wave, there are two options:
 	* CMS-WAVE_SIM_FILE	 <wave>.sim  (include a path if the files aren't in the same folder)
 	* STEERING_INTERVAL  <value>     (<value> is in hours)
 	* WAVE_WATER_LEVEL   <value>     ('LAST TIME STEP', 'TIDAL', or 'TIDAL_PLUS_VARIATION')
+
 	Then run the Flow model only as indicated above.
 2) Specify both the flow and wave paramter files and give additional arguments at the end.
 	> <executable>  <flow>.cmcards  <wave>.sim  <interval>  
