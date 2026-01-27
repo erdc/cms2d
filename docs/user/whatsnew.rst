@@ -1,5 +1,12 @@
 What's New
 ==========
+v5.4.6 (03 July 2025)
+-------------------------
+
+Changes
+^^^^^^^
+* If hardbottom dataset seems inverted (elevations instead of depths), give warning and write out cells unless there are > 250. 
+* Fix potential rounding issue on hard bottom check if above Z.  Tel file keeps only 3 significant digits for Z but HB has more. 
 
 v5.4.5 (23 June 2025)
 -------------------------
