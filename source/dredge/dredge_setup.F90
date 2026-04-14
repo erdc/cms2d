@@ -328,7 +328,7 @@
       backspace(77)  !back up and continue reading block
       
       if (write_dredge_diag) then 
-        open(unit=2056,file=dredge_diag_file,status='OLD',access='APPEND')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
+        open(unit=2056,file=dredge_diag_file,status='OLD',position='APPEND')   !Moved default write statements to a diagnostic type file.  MEB 04/24/2017
         write(2056,'(A,i0)')'IN placement block num areas = ',num_place_areas
       endif
     
@@ -713,7 +713,7 @@
     allocate(dredgeTS_Vars(ndredge_operations,10))
     allocate(DredgeUnit(ndredge_operations))   
 
-    if (write_dredge_diag) open(2056,file=dredge_diag_file,status='OLD',access='APPEND') 
+    if (write_dredge_diag) open(2056,file=dredge_diag_file,status='OLD',position='APPEND') 
     do k=1,ndredge_operations
       if (write_dredge_diag) then  
         write(2056,'(A,i0,A)')'Operation ',k,' in dredge init'

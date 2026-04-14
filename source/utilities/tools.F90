@@ -328,7 +328,7 @@
           allocate(Times(a_NumTimes))
           Times = 0.0
           
-          open(11, file=newfile, ACCESS='APPEND')
+          open(11, file=newfile, position='APPEND')
           select case (Dims(i))
           case (1)
             write(11,'(2(i0,2x),A)') i, a_NumTimes, trim(dsets(i))

@@ -1,3 +1,7 @@
+== Version 5.4.7.2 (04/14/2026) ==
+* Corrected a few APPEND statements for compiler that is now more strict.
+* Added vs2026 solution
+
 == Version 5.4.7.1 (02/26/2026) ==
 * Added functionality to write new naming convention for pertinent output datasets (See 5.4.7).
 * Added CF Compliance attributes to output datasets written bed layer thickness, bed layer fractions, and sediment percentiles

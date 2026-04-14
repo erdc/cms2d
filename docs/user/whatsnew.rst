@@ -1,6 +1,14 @@
 What's New
 ==========
 
+v5.4.7.2 (14 April 2026)
+-------------------------
+
+Changes
+^^^^^^^
+* Corrected a few APPEND statements for compiler that is now more strict.
+* Added vs2026 solution
+
 v5.4.7.1 (26 February 2026)
 -------------------------
 

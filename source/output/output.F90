@@ -3191,7 +3191,7 @@ implicit none
             npts=savept(i)%ncells
             iunit = savept(i)%funits(j)
             if (ok) then
-              open(unit=iunit,file=savept(i)%files(j),access='APPEND')
+              open(unit=iunit,file=savept(i)%files(j),position='APPEND')
             else
               open(unit=iunit,file=savept(i)%files(j),status='NEW')
               call write_savept_header(iunit,npts,i,j)

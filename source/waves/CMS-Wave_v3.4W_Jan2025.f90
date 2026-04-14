@@ -928,7 +928,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write (66, *) ni, nj, dmesh
         else
           inquire(66,OPENED=is66open) 
-          if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  
+          if (.not.is66open) open (66, file = WaveFile, status = 'old', position='APPEND')  
         endif
       end if
 
@@ -8092,7 +8092,7 @@ contains
 !
       !Check to see if .wav file is still attached to Unit 66. 
       inquire(66,OPENED=is66open) 
-      if (.not.is66open) open (66, file = WaveFile, status = 'old', ACCESS='APPEND')  !File should already be created at this point. 
+      if (.not.is66open) open (66, file = WaveFile, status = 'old', position='APPEND')  !File should already be created at this point. 
 
       if(kdate.gt.0) then
         if(idate.le.9999) then
