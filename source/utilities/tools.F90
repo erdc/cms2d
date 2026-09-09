@@ -446,7 +446,7 @@
         call XF_GET_VECTOR_DATASETS_INFO (fid, nVDsets, vMaxPathLength, ierr)
         nDsets = nSDsets + nVDsets
           
-        !If not available datasets, try looking under the 'Datasets' folder (this file probably written by SMS, not CMS)  MEB 08/11/22
+          !If no available datasets, try looking under the 'Datasets' folder (this file probably written by SMS, not CMS)  MEB 08/11/22
         gid = -1
         if (nDsets .eq. 0) then 
           call XF_OPEN_GROUP(fid, 'Datasets', gid, ierr)

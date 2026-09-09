@@ -101,7 +101,6 @@ module wave_def
     real(ikind),allocatable :: cwk(:,:,:),cgk(:,:,:)        
     real(ikind),allocatable :: ex(:,:),ey(:,:)  
 
-
     integer,allocatable :: IJB(:,:)
     integer,allocatable :: KR(:,:)
     integer,allocatable :: KCR(:,:)

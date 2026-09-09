@@ -174,7 +174,7 @@
       case(2) !Constant Time
         !$omp parallel do private(i)  
         do i=1,ncells  
-          vLsus(i) = h(i)/Tsus
+          vLsus(i) = h(i)/Tsus                !This expression is not homogeneous in dimension,  Comment by Wu 2025-8-24
           vLsus(i) = max(vLsus(i),vLsusmin)
         enddo  
         !$omp end parallel do
@@ -200,7 +200,8 @@
         !$omp end parallel do
           
       case(5) !Armanini and di Silvio (1986)  
-        !$omp parallel do private(i)  
+        !!$omp parallel do private(i)   
+        !$omp parallel do private(i,alphas)  !added alphas,  by Wu, 2026-2-16
         do i=1,ncells
           alphas = adaptsusp_armanini_disilvio(sqrtgrav,h(i),d90(i),wf(i),bsvel(i))
 !!          alphas = armanini_disilvio_test(h(i),z0(i),wf(i),bsvel(i))
@@ -210,7 +211,8 @@
         !$omp end parallel do
         
       case(6) !Lin (1984)
-        !$omp parallel do private(i)    
+        !!$omp parallel do private(i)    
+        !$omp parallel do private(i,alphas)    !added alphas,  by Wu, 2026-2-16  
         do i=1,ncells
           alphas = adaptsusp_lin(wf(i),bsvel(i)) 
           vLsus(i) = uv(i)*h(i)/(alphas*wf(i))
@@ -219,7 +221,8 @@
         !$omp end parallel do
         
       case(7) !Gallappatti (1983)
-        !$omp parallel do private(i)    
+        !!$omp parallel do private(i)    
+        !$omp parallel do private(i,Ts)   ! added Ts, by Wu, 2026-2-16
         do i=1,ncells 
           Ts = adaptsusp_gallappatti(h(i),uv(i),wf(i),bsvel(i))
           vLsus(i) = uv(i)*Ts
@@ -228,7 +231,8 @@
         !$omp end parallel do
         
       case(8) !Xbeach
-        !$omp parallel do private(i)    
+        !!$omp parallel do private(i)    
+        !$omp parallel do private(i,Ts)    ! added Ts, by Wu, 2026-2-16
         do i=1,ncells 
           Ts = max(0.05*h(i)/wf(i),0.2)
           vLsus(i) = uv(i)*Ts

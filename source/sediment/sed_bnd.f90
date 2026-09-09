@@ -368,8 +368,9 @@
        use const_def, only: eps
        use prec_def
        implicit none
-       integer :: i, ii, j, k, ks, nck, ntimes, inc, ised, ibnd
-       real(ikind) :: fac, qstartot, qstarcell, qsedtot
+    integer :: i,ii,j,k,ks,nck,ntimes,inc,ised,ibnd,iriv
+    real(ikind) :: fac,qstartot,qstarcell,qsedtot,Qlogir
+    real(ikind) :: CtFract(nsed)
 
 !--- All forcing boundaries -----------------------------
        do ibnd = 1, nbndstr
@@ -378,17 +379,83 @@
              k = bnd_str(ibnd)%faces(j)
              nck = cell2cell(k, i)
              if (flux(k, i) < 0.0) then !Inflow
-                if (isedinflowbc == 1) then
-                   CtstarP(nck, :) = facQtotin*CtstarP(i, :) !Capacity times loading factor
-                elseif (isedinflowbc == 2) then
-                   CtstarP(nck, :) = Qtotin/(uv(i)*h(i))/rhosed  !Qtotin in kg/m/sec
-                end if
+          !if(isedinflowbc==1)then
+            !CtstarP(nck,:) = facQtotin*CtstarP(i,:) !Capacity times loading factor     
+            Ctk(nck,:)=pbk(i,:,1)*CtstarP(i,:)*facQtotin    !Changed by Wu, 2026-6-14
+          !!elseif(isedinflowbc==2)then     !Closed by Wu  !Moved, because inflow sediment on all open boundary           
+          !!  !CtstarP(nck,:) = Qtotin/(uv(i)*h(i))/rhosed  !Qtotin in kg/m/sec
+          !!  CtstarP(nck,:) = Qtotin/(uv(i)*h(i))          !Qtotin in kg/m/sec, Ctstarp in kg/m^3    Changed by Wu  4/4/2025
+          !endif 
 !        else
 !          pbk(nck,:,:) = pbk(i,:,:)
 !          pbk1(nck,:) = pbk1(i,:)
-             end if
-          end do !j
-       end do !ibnd
+        endif   
+      enddo !j
+    enddo !ibnd
+
+    do iriv=1,nQstr                       !Added by Wu, Apr 15, 2025   !only on river inflow bnd        
+      if(isedinflowbc==3)then                   
+        CtFract(:) = CtotinMultRiv(iriv)*psinMultRiv(iriv,:)          !CtotinMultRiv in kg/m^3    added by Wu, 3/16/2026
+      elseif(isedinflowbc==5)then   
+        CtFract(:) = QtQa(iriv)*(Q_str(iriv)%qflux)**(QtQb(iriv)-1.0)  &
+                                       *psinMultRiv(iriv,:)            !Rating Curve    added by Wu, 3/16/2026
+      elseif(isedinflowbc==7)then         !Fractional Rating Curve    added by Wu, 5/14/2026          
+        CtFract(:) = QtQaFract(iriv,:)*(Q_str(iriv)%qflux)**(QtQbFract(iriv,:)-1.0)  
+      elseif(isedinflowbc==9)then        !Interpolation from Fractional Rating Curve    added by Wu, 5/14/2026           
+        Qlogir=alog10(Q_str(iriv)%qflux)
+        if(Qlogir.lt.Qseg(iriv,1)) then
+          fac = (Qlogir-Qseg(iriv,1))/(Qseg(iriv,2)-Qseg(iriv,1))      
+          CtFract(:) = (1.0-fac)*CtFractSeg(iriv,1,:) + fac*CtFractSeg(iriv,2,:)
+        endif
+        do inc=1,nQseg-1
+          if((Qlogir.ge.Qseg(iriv,inc)).and.(Qlogir.lt.Qseg(iriv,inc+1))) then
+            fac = (Qlogir-Qseg(iriv,inc))/(Qseg(iriv,inc+1)-Qseg(iriv,inc))      
+            CtFract(:) = (1.0-fac)*CtFractSeg(iriv,inc,:) + fac*CtFractSeg(iriv,inc+1,:) 
+          endif
+        enddo
+        if(Qlogir.ge.Qseg(iriv,nQseg)) then
+          fac = (Qlogir-Qseg(iriv,nQseg-1))/(Qseg(iriv,nQseg)-Qseg(iriv,nQseg-1))      
+          CtFract(:) = (1.0-fac)*CtFractSeg(iriv,nQseg-1,:) + fac*CtFractSeg(iriv,nQseg,:) 
+          CtFract(:) = max(CtFractSeg(iriv,nQseg,:),CtFract(:))
+        endif
+        CtFract(:) = 10.0**CtFract(:) 
+        !if(Q_str(iriv)%qflux.lt.Qseg(iriv,1)) then
+        !  fac = (Q_str(iriv)%qflux-Qseg(iriv,1))/(Qseg(iriv,2)-Qseg(iriv,1))      
+        !  CtFract(:) = (1.0-fac)*CtFractSeg(iriv,1,:) + fac*CtFractSeg(iriv,2,:)
+        !endif
+        !do inc=1,nQseg-1
+        !  if((Q_str(iriv)%qflux.ge.Qseg(iriv,inc)).and.(Q_str(iriv)%qflux.lt.Qseg(iriv,inc+1))) then
+        !    fac = (Q_str(iriv)%qflux-Qseg(iriv,inc))/(Qseg(iriv,inc+1)-Qseg(iriv,inc))      
+        !    CtFract(:) = (1.0-fac)*CtFractSeg(iriv,inc,:) + fac*CtFractSeg(iriv,inc+1,:) 
+        !  endif
+        !enddo
+        !if(Q_str(iriv)%qflux.ge.Qseg(iriv,nQseg)) then
+        !  fac = (Q_str(iriv)%qflux-Qseg(iriv,nQseg-1))/(Qseg(iriv,nQseg)-Qseg(iriv,nQseg-1))      
+        !  CtFract(:) = (1.0-fac)*CtFractSeg(iriv,nQseg-1,:) + fac*CtFractSeg(iriv,nQseg,:) 
+        !  CtFract(:) = max(CtFractSeg(iriv,nQseg,:),CtFract(:))
+        !endif
+        !CtFract(:) = max(0.0,CtFract(:)) 
+      endif
+      do j=1,Q_str(iriv)%ncells
+        i=Q_str(iriv)%cells(j)
+        k=Q_str(iriv)%faces(j)
+        nck=cell2cell(k,i)
+        if(flux(k,i)<0.0)then !Inflow
+          if(isedinflowbc==2)then                   
+            !CtstarP(nck,:) = Qtotin/(uv(i)*h(i))          !Qtotin in kg/m/sec, Ctstarp in kg/m^3    Changed by Wu  4/4/2025
+            Ctk(nck,:) = pbk(i,:,1)*Qtotin/(uv(i)*h(i))          !Qtotin in kg/m/sec, Ctstarp in kg/m^3    Changed by Wu  4/4/2025
+          elseif(isedinflowbc==3)then                   
+            Ctk(nck,:) = CtFract(:) 
+          elseif(isedinflowbc==5)then   
+            Ctk(nck,:) = CtFract(:) 
+          elseif(isedinflowbc==7)then         !Fractional Rating Curve    added by Wu, 5/14/2026          
+            Ctk(nck,:) = CtFract(:) 
+          elseif(isedinflowbc==9)then        !Fractional Rating Curve    added by Wu, 5/14/2026           
+            Ctk(nck,:) = CtFract(:) 
+          endif     
+        endif        
+      enddo
+    enddo                                 !block end, Added by Wu, Apr 15, 2025
 
        !Sediment flux boundaries, will overide river boundary conditions
        do ised = 1, nsedflux
@@ -447,10 +514,6 @@
 
           write (msg, *) 'Specified Total Inflow Sediment Transport Rate: ', qsedtot, ' kg/sec'
           call diag_print_message(msg)
-!      write(*,*) 'Fractional Inflow Sediment Transport Rates, mm, kg/sec'
-!      do ks=1,nsed
-!        write(*,*) diam(ks)*1000.0, sedbnd(ised,ks)
-!      enddo !ks
 
           qsedtot = 0.0
           do ks = 1, nsed
@@ -478,10 +541,12 @@
                    qstarcell = 1.0
                    qstarcell = max(qstarcell, 0.0001)
                    fac = qstarcell/(h(i)*uv(i)*qstartot)
-                   Ctkstar(nck, ks) = fac*sedbnd(ised, ks) !convert kg/sec to kg/m^3
-                   !HLI 01/13/2017
-                   CtstarP(nck, ks) = Ctkstar(nck, ks)/max(pbk(i, ks, 1), 1.0e-20) !Note i index in pbk, used in bound_c, pbk(i,ks,1)*CtstarP(nck,ks) used as boundary condition
-                   qsedtot = qsedtot + ds(k, i)*h(i)*uv(i)*Ctkstar(nck, ks)  !kg/sec
+            Ctk(nck,ks) = fac*sedbnd(ised,ks) !convert kg/sec to kg/m^3   !Changed by Wu, 2026-6-14
+            !Ctkstar(nck,ks) = fac*sedbnd(ised,ks) !convert kg/sec to kg/m^3
+            !!HLI 01/13/2017
+            !CtstarP(nck,ks) = Ctkstar(nck,ks)/max(pbk(i,ks,1),1.0e-20) !Note i index in pbk, used in bound_c, pbk(i,ks,1)*CtstarP(nck,ks) used as boundary condition
+            qsedtot = qsedtot + ds(k,i)*h(i)*uv(i)*Ctk(nck,ks)  !kg/sec   !Changed by Wu, 2026-6-14
+            !qsedtot = qsedtot + ds(k,i)*h(i)*uv(i)*Ctkstar(nck,ks)  !kg/sec  
                 else
                    Ctkstar(nck, :) = Ctkstar(i, :)
                    CtstarP(nck, :) = CtstarP(i, :)

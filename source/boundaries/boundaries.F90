@@ -372,7 +372,8 @@
           case ('CONVEYANCE_COEFFICIENT', 'CONVEYANCE_COEF', 'CONVEYANCE')
              backspace (77)
              read (77, *) cardname, cmvel
-             cmvel = max(min(cmvel, 1.0), 0.5) !Limit values
+             !cmvel = max(min(cmvel, 1.0), 0.5) !Limit values
+			 cmvel = max(min(cmvel,1.0),0.0) !Limit values        !Changed by Wu, Apr 20, 2025
 
           case ('TEMPORAL_INTERPOLATION_ORDER', 'ORDER', 'ORDER_INTERP')
              backspace (77)
@@ -3948,7 +3949,7 @@ call bnd_wse_adjust(NTHV_str(iwse)%ncells, NTHV_str(iwse)%cells, NTHV_str(iwse)%
        use geo_def, only: areap
        use met_def, only: windconst, windvar, tauwx, tauwindx, iwndlagr, cdWndareap, wndx, uwind, presvar, pressatmdx
        use prec_def, only: ikind
-       use q3d_def, only: q3d, q3d_to_flow, f3dxx, f3dxy, f3dyy
+       !use q3d_def, only: q3d, q3d_to_flow, f3dxx, f3dxy, f3dyy
        use wave_flowgrid_def, only: wavestrx, worbrep, wper, wlen, wunitx
 
        implicit none
@@ -3966,11 +3967,11 @@ call bnd_wse_adjust(NTHV_str(iwse)%ncells, NTHV_str(iwse)%cells, NTHV_str(iwse)%
              fx = fx + taustr*wunitx(i)/rhow
           end if
           !Dispersion and wave-current interaction terms (beta)
-          if (q3d .and. q3d_to_flow) then
-             call dx2d(gow, i, f3dxx, dvarx)
-             call dy2d(gow, i, f3dxy, dvary)
-             fx = fx - (dvarx + dvary)*ramp
-          end if
+          !if (q3d .and. q3d_to_flow) then
+          !  call dx2d(gow, i, f3dxx, dvarx)
+          !  call dy2d(gow, i, f3dxy, dvary)
+          !  fx = fx - (dvarx + dvary)*ramp
+          !end if
           !Wave velocity forcing
           if (waveflux) fx = fx + cbcfuwcap(i)*us(i)/areap(i) !Note: cbcfuwcap may contain bed slope term
        end if
@@ -4006,7 +4007,7 @@ call bnd_wse_adjust(NTHV_str(iwse)%ncells, NTHV_str(iwse)%cells, NTHV_str(iwse)%
        use geo_def, only: areap
        use met_def, only: windconst, windvar, tauwy, tauwindy, iwndlagr, cdWndareap, wndy, vwind, presvar, pressatmdy
        use prec_def, only: ikind
-       use q3d_def, only: q3d, q3d_to_flow, f3dxx, f3dxy, f3dyy
+       !use q3d_def, only: q3d, q3d_to_flow, f3dxx, f3dxy, f3dyy
        use wave_flowgrid_def, only: wavestry, worbrep, wper, wlen, wunity
 
        implicit none
@@ -4026,11 +4027,11 @@ call bnd_wse_adjust(NTHV_str(iwse)%ncells, NTHV_str(iwse)%cells, NTHV_str(iwse)%
              fy = fy + taustr*wunity(i)/rhow
           end if
           !Dispersion and wave-current interaction terms (beta)
-          if (q3d .and. q3d_to_flow) then
-             call dx2d(gow, i, f3dxy, dvarx)
-             call dy2d(gow, i, f3dyy, dvary)
-             fy = fy - (dvarx + dvary)*ramp
-          end if
+          !if (q3d .and. q3d_to_flow) then
+          !  call dx2d(gow, i, f3dxy, dvarx)
+          !  call dy2d(gow, i, f3dyy, dvary)
+          !  fy = fy - (dvarx + dvary)*ramp
+          !end if
           !Wave velocity forcing
           if (waveflux) fy = fy + cbcfuwcap(i)*vs(i)/areap(i) !Note: cbcfuwcap may contain bed slope term
        end if

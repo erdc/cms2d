@@ -80,7 +80,8 @@
     enddo     
 !$OMP END PARALLEL DO
 
-!$OMP PARALLEL DO PRIVATE(i,k,nck)  
+!!$OMP PARALLEL DO PRIVATE(i,k,nck)     !Changed by Wu, 2026-2-26
+!$OMP PARALLEL DO PRIVATE(i,k)  
     do i=1,ncells    
       dphix(i)=0.0; dphiy(i)=0.0
       do k=1,ncface(i)

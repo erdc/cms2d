@@ -27,7 +27,6 @@
                Z0S,Z0FW,Z0FC,Z0TW,Z0TC,Z0W,Z0C,Z0CB,Z0WB,&
                FCFB,FCWFB,RRR,RRRB,FWFB,X,TAUWTB,TAUWMTB
       
-
 ! IRIPPLE=0 : DO NOT INCLUDE RIPPLES
 ! IRIPPLE=1 : INCLUDE RIPPLES
 
@@ -197,7 +196,8 @@
       END SUBROUTINE !SHEARLUND
 
 ! *****************************************************************
-      SUBROUTINE SUSPLUND(DEP,UC,UW,RHOS,RHOW,D50,                  &
+      !SUBROUTINE SUSPLUND(DEP,UC,UW,RHOS,RHOW,D50,                  &
+      SUBROUTINE SUSPLUND(DEP,UC,HW,UW,RHOS,RHOW,D50,                  &      !HW added by Wu
                           WS,DST,TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT, &
                           FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
                           BDpart,USTC,USTW)
@@ -212,7 +212,8 @@
       use prec_def
       implicit none
       real(ikind),parameter:: kappa=0.4
-      real(ikind):: DEP,UC,UW,RHOS,RHOW,D50,         &
+      !real(ikind):: DEP,UC,UW,RHOS,RHOW,D50,         &         !Closed by Wu
+      real(ikind):: DEP,UC,HW,UW,RHOS,RHOW,D50,         &       !HW, added by Wu, July 2025
            WS,DST,TAUCT,TAUWT,TAUWMT,TAUCWT,TAUCWMT, &
            FCF,FWF,DB,TAUCR,CRCW,EPSCW,QSS,          &
            BDpart,USTC,USTW,USTCR,KC,KB,KW,Y,        &
@@ -269,7 +270,8 @@
       DC=TAUCT*USTC
       DW=TAUWMT*USTW
 ! TOTAL WEIGHTED ENERGY DISSIPATION
-      DTOT=KB**3*DB+KC**3*DC+KW**3*DW
+      !DTOT=KB**3*DB+KC**3*DC+KW**3*DW    !Closed by Wu, July 2025, to eliminate oscillations in deep zones
+      DTOT=KB**3*DB+KC**3*DC+KW**3*DW*(1.6*HW/DEP)**3    !added by Wu
 ! SEDIMENT MIXING COEFFICIENT
       EPSCW=(DTOT/RHOW)**(1.0/3.0)*DEP
 ! AVOID ZERO MIXING

@@ -65,8 +65,8 @@ module bnd_def
       character(len=200)   :: bidfile     !Boundary ID file
       character(len=200)   :: bidpath     !Boundary ID path
       integer              :: ncells      !Cells in string
-      integer, pointer :: cells(:)    !Cell id's
-      integer, pointer :: faces(:)    !Boundary face
+      integer,     pointer :: cells(:)    !Cell id's
+      integer,     pointer :: faces(:)    !Boundary face
       integer              :: ntimes      !Times in boundary data
       integer              :: inc         !Current time step of boundary data
       real(ikind)          :: cmvel       !Coefficient [-]
@@ -97,37 +97,37 @@ module bnd_def
       integer                       :: ncells      !Cells in string
       character(len=200)            :: bidfile     !Boundary ID file
       character(len=200)            :: bidpath     !Boundary ID path
-      integer, pointer :: cells(:)    !Cell id's (cell)
-      integer, pointer :: faces(:)    !Boundary face (cell)
+      integer,              pointer :: cells(:)    !Cell id's (cell)
+      integer,              pointer :: faces(:)    !Boundary face (cell)
       logical                       :: istidal     !true for tidal, false for harmonic
       character(len=100)            :: station     !Name of station
       integer                       :: ntc         !Tidal constituents used
       integer                       :: nti         !Order of temporal interpolation (default=2) !hli(10/6/17)
       integer                       :: inc         !Current time step of boundary data  !hli(10/6/17)
-      real(ikind), allocatable :: amp(:)      !Amplitude [m] (constituent)
-      real(ikind), allocatable :: speed(:)    !Speed [rad/hrs] (constituent)
-      real(ikind), allocatable :: phase(:)    !Phase [rad] (constituent)
-      real(ikind), allocatable :: f(:)        !Nodal factor [-] (constituent)
-      real(ikind), allocatable :: vu(:)       !Equilibrium argument [rad] (constituent)
-      character(len=10), allocatable :: name(:)     !Tidal Consitituent names (constituent)
+      real(ikind),      allocatable :: amp(:)      !Amplitude [m] (constituent)
+      real(ikind),      allocatable :: speed(:)    !Speed [rad/hrs] (constituent)
+      real(ikind),      allocatable :: phase(:)    !Phase [rad] (constituent)
+      real(ikind),      allocatable :: f(:)        !Nodal factor [-] (constituent)
+      real(ikind),      allocatable :: vu(:)       !Equilibrium argument [rad] (constituent)
+      character(len=10),allocatable :: name(:)     !Tidal Consitituent names (constituent)
       real(ikind)                   :: angle       !Incident angle of tidal wave
       logical                       :: specified   !True when a user specifies the angle in the parameter file.
-      real(ikind), allocatable :: psi(:, :)    !Phase difference due to incident wave angle (cell,constituent)
+      real(ikind),      allocatable :: psi(:, :)    !Phase difference due to incident wave angle (cell,constituent)
       real(ikind)                   :: dwsex       !Regional steady water level gradinet
       real(ikind)                   :: dwsey       !Regional steady water level gradinet
       real(ikind)                   :: wseoffset   !wse offset [m]
-      real(ikind), allocatable :: wsebnd0(:)  !Initial wse at each cell (may be different from forcing value) [m] (cell)
-      real(ikind), allocatable :: wsebnd(:)   !Wse at each cell (may be different from forcing value) [m]
-      real(ikind), allocatable :: wsevar(:)   !Temporally constant spatially variation along boundary [m] (cell)
-      real(ikind), allocatable :: wseadj(:)   !Current wse adjusted for wave and wind setup [m] (cell)
+      real(ikind),      allocatable :: wsebnd0(:)  !Initial wse at each cell (may be different from forcing value) [m] (cell)
+      real(ikind),      allocatable :: wsebnd(:)   !Wse at each cell (may be different from forcing value) [m]
+      real(ikind),      allocatable :: wsevar(:)   !Temporally constant spatially variation along boundary [m] (cell)
+      real(ikind),      allocatable :: wseadj(:)   !Current wse adjusted for wave and wind setup [m] (cell)
       logical                       :: wseadjust   !Turns on or off the wse adjustment/correction due to wind and waves
       character(len=200)            :: offsetfile  !Offset file           (hli,10/04/17)
       character(len=200)            :: offsetpath  !Offset path
       integer                       :: ioffsetmode !1-Constant offset, 2-Offset curve
       integer                       :: ntimesoffset!Times in offset curve
       real(ikind)                   :: wsecurveoffset !Interpolated offset Values [m]
-      real(ikind), pointer :: offsettimes(:) !Offset times [hrs]
-      real(ikind), pointer :: offsetcurve(:) !Input offset Values [m]
+      real(ikind),          pointer :: offsettimes(:) !Offset times [hrs]
+      real(ikind),          pointer :: offsetcurve(:) !Input offset Values [m]
    end type TH_type
    type(TH_type), allocatable :: TH_str(:)
 
@@ -139,8 +139,8 @@ module bnd_def
       character(len=200)       :: bidfile    !Boundary ID file
       character(len=200)       :: bidpath    !Boundary ID path
       integer                  :: ncells     !Cells in string
-      integer, pointer :: cells(:)   !Cell id's
-      integer, pointer :: faces(:)   !Boundary face
+      integer,         pointer :: cells(:)   !Cell id's
+      integer,         pointer :: faces(:)   !Boundary face
       integer                  :: ntimes     !Times in boundary data
       integer                  :: inc        !Current time step of boundary data
       real(ikind)              :: wseconst   !Constant wse [m]
@@ -151,10 +151,10 @@ module bnd_def
       real(ikind), allocatable :: wsebnd(:)  !Wse at each cell (may be different from forcing value) [m]
       real(ikind), allocatable :: wsevar(:)  !Temporally constant spatially variation along boundary [m] (cell)
       real(ikind), allocatable :: wseadj(:)  !Current wse adjusted for wave and wind setup [m]
-      real(ikind), pointer :: times(:)   !Times [hrs]
-      real(ikind), pointer :: wsecurv(:) !Data Values (time) [m]
+      real(ikind),     pointer :: times(:)   !Times [hrs]
+      real(ikind),     pointer :: wsecurv(:) !Data Values (time) [m]
       integer                  :: minterp    !Method for interpolation, 1-Piecewise polynomial, 2-cubic spline
-      real(ikind), pointer :: d2wse(:)   !Second-derivative used for spline interpolation
+      real(ikind),     pointer :: d2wse(:)   !Second-derivative used for spline interpolation
       integer                  :: nti        !Order of temporal interpolation (default=2)
       integer                  :: nsw        !Temporal smoothing width
       integer                  :: nsi        !Temporal smoothing iterations
@@ -166,8 +166,8 @@ module bnd_def
       integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve
       integer                  :: ntimesoffset   !Times in offset curve
       real(ikind)              :: wsecurveoffset !Interpolated offset Values [m]
-      real(ikind), pointer :: offsettimes(:) !Offset times [hrs]
-      real(ikind), pointer :: offsetcurve(:) !Input offset Values [m]
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs]
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]
    end type H_type
    type(H_type), allocatable :: H_str(:)
 
@@ -179,15 +179,15 @@ module bnd_def
       character(len=200)       :: bidfile      !Boundary ID file
       character(len=200)       :: bidpath      !Boundary ID path
       integer                  :: ncells       !Cells in string
-      integer, pointer :: cells(:)     !Cell id's
-      integer, pointer :: faces(:)     !Boundary face
+      integer,         pointer :: cells(:)     !Cell id's
+      integer,         pointer :: faces(:)     !Boundary face
       integer                  :: ntimes       !Times in boundary data
       integer                  :: inc          !Current time step of boundary data
       real(ikind)              :: wseoffset    !Water level offset which can be used to convert between vertical datums
       real(ikind), allocatable :: wsebnd(:)    !Interpolated eta at each cell at current time [m]
       real(ikind), allocatable :: wsebnd0(:)   !Initial wse at each cell (may be different from forcing) [m]
-      real(ikind), pointer :: times(:)     !Times [hrs]
-      real(ikind), pointer :: wsedata(:, :) !Data Values (time,cell)
+      real(ikind),     pointer :: times(:)     !Times [hrs]
+      real(ikind),     pointer :: wsedata(:, :) !Data Values (time,cell)
       integer                  :: nti          !Order of temporal interpolation (default=2)
       integer                  :: nsi          !Temporal smoothing iterations
       integer                  :: nsw          !Temporal smoothing width
@@ -198,8 +198,8 @@ module bnd_def
       integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve
       integer                  :: ntimesoffset   !Times in offset curve
       real(ikind)              :: wsecurveoffset !Interpolated offset Values [m]
-      real(ikind), pointer :: offsettimes(:) !Offset times [hrs]
-      real(ikind), pointer :: offsetcurve(:) !Input offset Values [m]
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs]
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]
       character(len=200)       :: wsefile, wsepath !Water level data file and path
    end type MH_type
    type(MH_type), allocatable :: MH_str(:)
@@ -212,8 +212,8 @@ module bnd_def
       character(len=200)       :: bidfile      !Boundary ID file
       character(len=200)       :: bidpath      !Boundary ID path
       integer                  :: ncells       !Cells in string
-      integer, pointer :: cells(:)     !Cell id's
-      integer, pointer :: faces(:)     !Boundary face
+      integer,         pointer :: cells(:)     !Cell id's
+      integer,         pointer :: faces(:)     !Boundary face
       integer                  :: ntimeswse    !Times in boundary data
       integer                  :: incwse       !Current time step of boundary data
       real(ikind)              :: wseoffset    !Water level offset which can be used to convert between vertical datums
@@ -225,11 +225,11 @@ module bnd_def
       real(ikind), allocatable :: ubnd0(:)     !Initial u at each cell (may be different from forcing) [m/s]
       real(ikind), allocatable :: vbnd(:)      !Interpolated u at each cell at current time [m/s]
       real(ikind), allocatable :: vbnd0(:)     !Initial v at each cell (may be different from forcing) [m/s]
-      real(ikind), pointer :: timeswse(:)  !Times [hrs]
-      real(ikind), pointer :: wsedata(:, :) !Data Values (time,cell)
-      real(ikind), pointer :: timesvel(:)  !Times [hrs]
-      real(ikind), pointer :: udata(:, :)   !Data Values (time,cell)
-      real(ikind), pointer :: vdata(:, :)   !Data Values (time,cell)
+      real(ikind),     pointer :: timeswse(:)  !Times [hrs]
+      real(ikind),     pointer :: wsedata(:, :) !Data Values (time,cell)
+      real(ikind),     pointer :: timesvel(:)  !Times [hrs]
+      real(ikind),     pointer :: udata(:, :)   !Data Values (time,cell)
+      real(ikind),     pointer :: vdata(:, :)   !Data Values (time,cell)
       integer                  :: ntiwse       !Order of temporal interpolation (default=2) (same for vel and wse)
       integer                  :: ntivel       !Order of temporal interpolation (default=2) (same for vel and wse)
       integer                  :: nswwse       !Temporal smoothing width
@@ -245,8 +245,8 @@ module bnd_def
       integer                  :: ioffsetmode    !1-Constant offset, 2-Offset curve
       integer                  :: ntimesoffset   !Times in offset curve
       real(ikind)              :: wsecurveoffset !Interpolated offset Values [m]
-      real(ikind), pointer :: offsettimes(:) !Offset times [hrs]
-      real(ikind), pointer :: offsetcurve(:) !Input offset Values [m]
+      real(ikind),     pointer :: offsettimes(:) !Offset times [hrs]
+      real(ikind),     pointer :: offsetcurve(:) !Input offset Values [m]
       character(len=200)       :: wsefile, wsepath !Input Water level data file and path
       character(len=200)       :: velfile, velpath !Input Velocity data file and path
    end type MHV_type
@@ -260,8 +260,8 @@ module bnd_def
       character(len=200)       :: bidfile   !Boundary ID file
       character(len=200)       :: bidpath   !Boundary ID path
       integer                  :: ncells    !Cells in string
-      integer, pointer :: cells(:)  !Cell id's
-      integer, pointer :: faces(:)  !Boundary face
+      integer,         pointer :: cells(:)  !Cell id's
+      integer,         pointer :: faces(:)  !Boundary face
       real(ikind), allocatable :: wsecsh(:) !wse along cell string
       real(ikind), allocatable :: ucsh(:)   !u-velocity along cell string
       real(ikind), allocatable :: vcsh(:)   !v-velocity along cell string
@@ -286,7 +286,7 @@ module bnd_def
       real(ikind), allocatable :: upar(:, :)     !U-velocity data (pt,time)
       real(ikind), allocatable :: vpar(:, :)     !V-velocity data (pt,time)
       integer                  :: nptspar       !Size of parent grid output points
-      integer, pointer :: activepar(:)  !Size of parent grid output points
+      integer,         pointer :: activepar(:)  !Size of parent grid output points
       character(len=200)       :: ctlfilepar    !Parent control file and path
       character(len=200)       :: grdfilepar    !Parent grid file and path
       character(len=200)       :: wsefilepar, wsepathpar  !Water level data file and path
@@ -299,13 +299,13 @@ module bnd_def
       real(ikind)              :: xoriginpar    !Global x-origin of parent grid (if Cartesian)
       real(ikind)              :: yoriginpar    !Global y-origin of parent grid (if Cartesian)
       real(ikind)              :: orientpar     !Orientation (grid angle) of parent grid
-      integer, pointer :: c2cpar(:, :)   !Cell-to-cells connectivity
-      integer, pointer :: idfpar(:, :)   !Direction of cell face (1-N,2-E,3-South,4-West)
-      integer, pointer :: ncfpar(:)     !Number of cell faces on each cell
+      integer,         pointer :: c2cpar(:, :)   !Cell-to-cells connectivity
+      integer,         pointer :: idfpar(:, :)   !Direction of cell face (1-N,2-E,3-South,4-West)
+      integer,         pointer :: ncfpar(:)     !Number of cell faces on each cell
       integer                  :: nelemsfullpar !Active grid size of parent grid
-      integer, pointer :: elem2node(:, :) !Element to node connectivity
-      real(ikind), pointer :: dxpar(:), dypar(:)  !Cell dimensiones of full parent grid
-      real(ikind), pointer :: xpar(:), ypar(:), zpar(:)   !Global coordinates and elevation of full parent grid
+      integer,         pointer :: elem2node(:, :) !Element to node connectivity
+      real(ikind),     pointer :: dxpar(:), dypar(:)  !Cell dimensiones of full parent grid
+      real(ikind),     pointer :: xpar(:), ypar(:), zpar(:)   !Global coordinates and elevation of full parent grid
    end type ParSim_type
    type(ParSim_type), allocatable :: ParSim(:)
 
@@ -317,8 +317,8 @@ module bnd_def
       character(len=200)       :: bidfile       !Boundary ID file
       character(len=200)       :: bidpath       !Boundary ID path
       integer                  :: ncells        !Cells in string
-      integer, pointer :: cells(:)      !Cell id's
-      integer, pointer :: faces(:)      !Boundary face
+      integer,         pointer :: cells(:)      !Cell id's
+      integer,         pointer :: faces(:)      !Boundary face
       real(ikind), allocatable :: xbnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind), allocatable :: ybnd(:)       !Global x-coordinate of boundary cell centroid
       integer                  :: ntiwse        !Temporal interpolation order (1-3)
@@ -328,8 +328,8 @@ module bnd_def
       real(ikind), allocatable :: wsebnd(:)     !Interpolated eta at each cell at current time [m] (cell)
       real(ikind), allocatable :: wsedata(:, :)  !WSE data [m] (time,cell)
       integer                  :: mntp          !Maximum number of interpolation points (used for allocation)
-      integer, pointer :: intp(:, :)     !Interpolation id's (local grid id, interp mesh id's)
-      real(ikind), pointer :: cntp(:, :)     !Interpolation coefficients
+      integer,         pointer :: intp(:, :)     !Interpolation id's (local grid id, interp mesh id's)
+      real(ikind),     pointer :: cntp(:, :)     !Interpolation coefficients
       integer                  :: nssiwse       !Spatial smoothing iterations
       integer                  :: nsswwse       !Spatial smoothing window width
       logical                  :: wseout        !Output wse time-series
@@ -346,8 +346,8 @@ module bnd_def
       character(len=200)       :: bidfile       !Boundary ID file
       character(len=200)       :: bidpath       !Boundary ID path
       integer                  :: ncells        !Cells in string
-      integer, pointer :: cells(:)      !Cell id's
-      integer, pointer :: faces(:)      !Boundary face
+      integer,         pointer :: cells(:)      !Cell id's
+      integer,         pointer :: faces(:)      !Boundary face
       real(ikind), allocatable :: xbnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind), allocatable :: ybnd(:)       !Global x-coordinate of boundary cell centroid
       integer                  :: ntiwse        !Temporal interpolation order (1-3)
@@ -365,8 +365,8 @@ module bnd_def
       real(ikind), allocatable :: timewsehrs(:) !Times for wse data [hrs] (time)
       real(ikind), allocatable :: timevelhrs(:) !Times for velocity data [hrs] (time)
       integer                  :: mntp          !Maximum number of interpolation points (used for allocation)
-      integer, pointer :: intp(:, :)     !Interpolation id's (local grid id, interp mesh id's)
-      real(ikind), pointer :: cntp(:, :)     !Interpolation coefficients
+      integer,         pointer :: intp(:, :)     !Interpolation id's (local grid id, interp mesh id's)
+      real(ikind),     pointer :: cntp(:, :)     !Interpolation coefficients
       integer                  :: nssiwse       !Smoothing iterations
       integer                  :: nsswwse       !Smoothing window width
       integer                  :: nssivel       !Smoothing iterations
@@ -388,8 +388,8 @@ module bnd_def
       character(len=200)        :: bidfile       !Boundary ID file
       character(len=200)        :: bidpath       !Boundary ID path
       integer                   :: ncells        !Cells in string
-      integer, pointer  :: cells(:)      !Cell id's
-      integer, pointer  :: faces(:)      !Boundary face
+      integer,         pointer  :: cells(:)      !Cell id's
+      integer,         pointer  :: faces(:)      !Boundary face
       real(ikind), allocatable  :: xbnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind), allocatable  :: ybnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind)               :: wseoffset     !wse offset
@@ -397,14 +397,14 @@ module bnd_def
       real(ikind), allocatable  :: wseadj(:)     !Adjusted eta for wave and wind setup at each cell at current time [m/s]
       real(ikind), allocatable  :: wsebnd0(:)    !Interpolated eta at each cell at initial time [m/s]
       integer                   :: ntcin         !Tidal constituents used
-      character(len=10), pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
+      character(len=10),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
       integer                   :: ntc           !Tidal constituents used
-      real(ikind), pointer  :: amp(:, :)      !Amplitude [m] (cell,constituent)
-      real(ikind), pointer  :: phase(:, :)    !Phase [rad] (cell,constituent)
-      real(ikind), pointer  :: f(:)          !Nodal factor [-] (constituent)
-      real(ikind), pointer  :: vu(:)         !Equilibrium argument [rad] (constituent)
-      real(ikind), pointer  :: speed(:)      !Speed [rad/hrs] (constituent)
-      character(len=10), pointer :: name(:)       !Tidal Consitituent names (constituent)
+      real(ikind),      pointer :: amp(:, :)      !Amplitude [m] (cell,constituent)
+      real(ikind),      pointer :: phase(:, :)    !Phase [rad] (cell,constituent)
+      real(ikind),      pointer :: f(:)          !Nodal factor [-] (constituent)
+      real(ikind),      pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
+      real(ikind),      pointer :: speed(:)      !Speed [rad/hrs] (constituent)
+      character(len=10),pointer :: name(:)       !Tidal Consitituent names (constituent)
       character(len=10)         :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST
       character(len=200)        :: tdbpath       !Tidal Database file and path
       type(projection)          :: projtdb       !Parent grid projection
@@ -424,8 +424,8 @@ module bnd_def
       character(len=200)        :: bidfile       !Boundary ID file
       character(len=200)        :: bidpath       !Boundary ID path
       integer                   :: ncells        !Cells in string
-      integer, pointer  :: cells(:)      !Cell id's
-      integer, pointer  :: faces(:)      !Boundary face
+      integer,         pointer  :: cells(:)      !Cell id's
+      integer,         pointer  :: faces(:)      !Boundary face
       real(ikind), allocatable  :: xbnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind), allocatable  :: ybnd(:)       !Global x-coordinate of boundary cell centroid
       real(ikind)               :: wseoffset     !wse offset
@@ -437,18 +437,18 @@ module bnd_def
       real(ikind), allocatable  :: vbnd0(:)      !v at each cell at initial time [m/s]
       real(ikind), allocatable  :: vbnd(:)       !Interpolated eta at each cell at initial time [m/s]
       integer                   :: ntcin         !Tidal constituents used
-      character(len=10), pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
+      character(len=10),pointer :: namein(:)     !Input Tidal Consitituent names (constituent)
       integer                   :: ntc           !Tidal constituents used
-      real(ikind), pointer  :: amp(:, :)      !Amplitude [m | m/s] (cell,constituent)
-      real(ikind), pointer  :: ampu(:, :)     !Amplitude [m | m/s] (cell,constituent)
-      real(ikind), pointer  :: ampv(:, :)     !Amplitude [m | m/s] (cell,constituent)
-      real(ikind), pointer  :: phase(:, :)    !Phase [rad] (cell,constituent)
-      real(ikind), pointer  :: phaseu(:, :)   !Phase [rad] (cell,constituent)
-      real(ikind), pointer  :: phasev(:, :)   !Phase [rad] (cell,constituent)
-      real(ikind), pointer  :: f(:)          !Nodal factor [-] (constituent)
-      real(ikind), pointer  :: vu(:)         !Equilibrium argument [rad] (constituent)
-      real(ikind), pointer  :: speed(:)      !Speed [rad/hrs] (cell,constituent)
-      character(len=10), pointer :: name(:)       !Tidal Consitituent names (constituent)
+      real(ikind),      pointer :: amp(:, :)      !Amplitude [m | m/s] (cell,constituent)
+      real(ikind),      pointer :: ampu(:, :)     !Amplitude [m | m/s] (cell,constituent)
+      real(ikind),      pointer :: ampv(:, :)     !Amplitude [m | m/s] (cell,constituent)
+      real(ikind),      pointer :: phase(:, :)    !Phase [rad] (cell,constituent)
+      real(ikind),      pointer :: phaseu(:, :)   !Phase [rad] (cell,constituent)
+      real(ikind),      pointer :: phasev(:, :)   !Phase [rad] (cell,constituent)
+      real(ikind),      pointer :: f(:)          !Nodal factor [-] (constituent)
+      real(ikind),      pointer :: vu(:)         !Equilibrium argument [rad] (constituent)
+      real(ikind),      pointer :: speed(:)      !Speed [rad/hrs] (cell,constituent)
+      character(len=10),pointer :: name(:)       !Tidal Consitituent names (constituent)
       character(len=10)         :: tdbname       !Tidal Database Name, EC2001, ENPAC2003, LEPROVOST,
       character(len=200)        :: tdbpath       !Tidal Database file and path
       type(projection)          :: projtdb       !Parent grid projection

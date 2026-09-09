@@ -3,7 +3,6 @@
 !     by Chris Reed, R&R, June, 2012
 !***********************************************************************
     use prec_def
-    !use size_def_3D   !For 3D
 !    use flow_def
 !    use bnd2d
 !    use qwsbnd2d
@@ -13,7 +12,6 @@
 !    use cms_def
 !    use fl_wavegrid
 !    use wave_flgrid
-    !use wavestress3D     !For 3D
     use comvarbl, only: ctlfile,nfsch   !STACK:
     use geo_def, only: telfile,igridtype
 !    use bnd_def
@@ -37,7 +35,6 @@
     integer :: k,ierr
     character*37 :: cardname
     logical :: foundcard,foundfile,isopen
-    
     
 !--- Set defaults -------------------------
     call geo_default   !Geospatial
@@ -95,7 +92,6 @@
     enddo
 171 close(77)   
     
-
     inquire(file=telfile,exist=foundfile)
     if(foundfile) igridtype = 1  
     
@@ -104,7 +100,6 @@
 !    write(*,*)'nfsch =',nfsch
 !    write(*,*)'igridtype = ',igridtype
 !    write(*,*)
-    
 
     return
     end subroutine    

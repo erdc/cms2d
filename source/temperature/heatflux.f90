@@ -23,15 +23,11 @@
        vpair=6.108*exp(17.27*dewpt/(dewpt+273.3))    !VPair in mb and T in oC      
 
        do i=1,ncells
- !        write(40,*)ctime,wndx,wndy
          if(windvar) then
             velwind=sqrt(uwind(i)**2+vwind(i)**2)
          else
             velwind=sqrt(wndx*wndx+wndy*wndy)
- !           write(40,*)ctime,wndx,wndy,velwind
          endif
- !         velwind=10.0
- !         velwind=2.0
           evapwind=6.9+0.345*velwind**2       ! Edinger et al. 1974   !wind speed at 7 m above 
 
           hsensib=0.62*evapwind*airtmp        ! in W/m2   Linearization
@@ -161,7 +157,6 @@
                      *(theat-dathtflux(iht)) / (dathtflux(iht+1)-dathtflux(iht))
          endif
        enddo       
-       !write(*,*) ctime,airtmp,dewpt, cloud, solarms         
     return
     end subroutine heatdatainterpol
     

@@ -21,7 +21,7 @@
     use diag_lib, only: diag_print_warning, diag_print_message, diag_print_error
     use geo_lib,  only: assign_proj_names
 #ifdef DEV_MODE
-    use q3d_def
+    !use q3d_def
     use veg_def
 #endif
 #ifdef PROFILE
@@ -68,7 +68,7 @@
     call diag_default
     call wave_default
 #ifdef DEV_MODE
-    call q3d_default    !Quasi-3D 
+    !call q3d_default    !Quasi-3D 
     call veg_default    !Vegetation
 #endif
 
@@ -115,7 +115,7 @@
         call diag_cards(cardname,foundcard);          if(foundcard) cycle
         call wave_cards(cardname,foundcard);          if(foundcard) cycle
 #ifdef DEV_MODE
-        call q3d_cards(cardname,foundcard);    if(foundcard) cycle
+        !call q3d_cards(cardname,foundcard);    if(foundcard) cycle
         call veg_cards(cardname,foundcard);    if(foundcard) cycle
 #endif
         call dredge_cards(cardname,foundcard); if(foundcard) cycle
@@ -221,7 +221,7 @@
     call out_print         !Output
     call stat_print        !Simulation statistics
 #ifdef DEV_MODE
-    if(q3d) call q3d_print !Quasi-3D
+    !if(q3d) call q3d_print !Quasi-3D
     if(veg) call veg_print !Vegetation
 #endif
 
@@ -280,9 +280,9 @@
     endif
     call fric_eval  
     call flow_eddyvis
-#ifdef DEV_MODE
-    if(q3d) call q3d_flow
-#endif
+!#ifdef DEV_MODE
+!    if(q3d) call q3d_flow
+!#endif
 
     return
     endsubroutine prestart_EXP_shared

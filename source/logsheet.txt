@@ -1,3 +1,11 @@
+== Version 5.4.8.0 (07/16/2026) ==
+* Integrated changes from Wu (Clarkson BAA)
+** Implement sediment influx (Cohesive/Non-cohesive mixtures) on river boundary
+** A few OpenMP directive improvements
+** A few improvements for stability (relax(8) in flow.f90 amd other)
+** Eliminate oscillations in deep water when using Lund-CIRP formula
+* Test each sediment percentile dataset when reading cards to ensure all non-negative values.
+
 == Version 5.4.7.3 (09/09/2026) ==
 * Change fractional dataset names from "Datasets/Fraction_01 (1)" to "Datasets/Fraction_S1_L1" for updates in SMS for sediment mapping for readability in the input files.
 ** Retain previous format for backward compatibility

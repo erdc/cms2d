@@ -47,5 +47,5 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/erdc/cms2d"
-Documentation = "https://cms.readthedocs.io"
+Documentation = "https://cms2d.readthedocs.io"
 "Bug Tracker" = "https://github.com/erdc/cms2d/issues"

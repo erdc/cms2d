@@ -1016,7 +1016,8 @@
     enddo
 !$OMP END DO
 !--- All cells --------------------------------------------------------------------
-!$OMP DO PRIVATE(i,j,k,nck,jcn,uvnorm,uc,vc,ud,vd,uu,vu,dndun,dndvn,rnu,rpu,rpv,rnv)
+!!$OMP DO PRIVATE(i,j,k,nck,jcn,uvnorm,uc,vc,ud,vd,uu,vu,dndun,dndvn,rnu,rpu,rpv,rnv)
+!$OMP DO PRIVATE(i,j,k,nck,jcn,uvnorm,uc,vc,ud,vd,uu,vu,dndun,dndvn,rnu,rpu,rpv,rnv,nckk)   !added nckk, by Wu
     do i=1,ncells
       if(iwet(i)==0) cycle
       do j=1,nxyface(i) !no repeat sides

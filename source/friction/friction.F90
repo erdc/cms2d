@@ -711,7 +711,7 @@
 !!#endif
     
 !Note: The methods below except 1 were designed for regular waves but
-! but are being implimented here for random waves. 
+! but are being implemented here for random waves. 
 ! The bottom orbital velocity is specified here based on the significant
 ! wave height and not the root-mean-squared wave like like Delft-3D
     if(noptset>=3)then
@@ -788,11 +788,6 @@
 !$OMP END PARALLEL DO
     endif
     
-    !!cfrict=0.0
-    !!uelwc=0.0
-    !!bsxy=0.0
-    !!bsvel=0.0
-    
     return
     end subroutine fric_eval
     
@@ -822,7 +817,6 @@
         Tw = wper(i)
         Dw = wang(i)
       endif
-      !rhos,d50,d90,rhow,vsk,h,Uc,U,V,Uw,Tw,Wx,Wy
       dx = sqrt(areap(i))
       call fric_roughness(rhosed,d50(i),d90(i),&    !Sediment
         rhow,viscos,h(i),uv(i),u(i),v(i),&  !Hydro

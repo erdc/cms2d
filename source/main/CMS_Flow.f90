@@ -49,20 +49,14 @@
       if(mbedfric == 0) call fric_rough_eval
 #endif 
 
-!Temporary to match Chris' Files for choosing Explicit/Implicit
-!!      if(nfsch==0)then !Implicit                     !Temporarily commented
         call flow_imp !u,v,p,eta,h,flux,vis,etc
-!!      elseif(nfsch==1)then !Explicit                 !Temporarily commented
-!!        call flow_exp !u,v,p,eta,h,flux,vis,etc      !Temporarily commented
-!!      elseif(nfsch==2)then !Semi-implicit            !Temporarily commented
-!!        call flow_semi !u,v,p,eta,h,flux,vis,etc     !Temporarily commented
-!!      endif                                          !Temporarily commented
 !#ifdef DEV_MODE
 !      if(iFlow1D>0) call makeflow1D !Constant flow conditions in column direction, for testing only       
 !#endif       
-      if(sedtrans) call sed_imp !Sediment transport, implicit solution
-      if(saltrans) call sal_imp !Salinity transport, implicit solution
+      !if(sedtrans) call sed_imp    !Sediment transport, implicit solution    !after salinity and temperature
+      if(saltrans) call sal_imp    !Salinity transport, implicit solution
       if(heattrans) call heat_imp  !Heat transfer, implicit solution
+      if(sedtrans) call sed_imp    !Sediment transport, implicit solution    !Moved by Wu, Feb 5, 2026
       if(dredging)then
         call dredge_eval
         if(sedtrans) call sed_concdepthchange !Correct concentrations for depth changes
@@ -184,7 +178,6 @@
       jtime = jtime+1
       deltime = dtimebeg/2**jtime !Avoids precision errors, Use double precision
       dtime = real(deltime,kind=ikind) !Arbitrary precision for numerical compuations
-      !write(*,*) jtime,dtime,dtime2
     elseif(jtime>=1)then
       if((mtime>=2 .and. rmom(1)<rmomtargetp/100.0) .or. &
          (mtime>=4 .and. rmom(1)<rmomtargetp/10.0))then
@@ -199,7 +192,6 @@
           dtime = real(deltime,kind=ikind)
           mtime = 0
           jtime = jtime-1 !>=0
-          !write(*,*) jtime,dtimetemp,dtimetemp2
         endif
       endif        
     endif
@@ -251,7 +243,8 @@
     use flow_def, only: maxeta, u2, v2, p2, h2, u1, v1, p1, h1, iwet, iwet1,flux, flux1
     use flow_def, only: u, v, p, h, pp, dppx, dppy, eta
     use comvarbl, only: dtime,dtime1,wtsch,ntime,nspinup,nfsch
-    use sed_def,  only: sedtrans, zb1, btk, btk1, btk2, ctk, ctk1, ctk2, ibt, singlesize, pbk, pbk1, db, db1
+    use sed_def,  only: sedtrans, zb1, btk, btk1, btk2, ctk, ctk1, ctk2, ibt, singlesize, pbk, pbk1, db, db1 &
+                        ,cohesivesed,dbms1,dbms,consolidation,tconsolid1,tconsolid 
     use sal_def,  only: saltrans, sal, sal1, sal2
     use heat_def, only: heattrans, heat, heat1, heat2
     use prec_def, only: ikind
@@ -260,54 +253,6 @@
     integer :: i
 
     dtime1 = dtime
-    
-!#ifdef DEV_MODE
-!    if(ntime<=nspinup)then
-!!$OMP PARALLEL
-!!--- Hydro -------------------
-!!!$OMP DO PRIVATE(i)
-!!    do i=1,ncellsD
-!!      !iwet(i)=iwet1(i)
-!!      !flux(:,i)=flux1(:,i)
-!!      !u(i)=u1(i) 
-!!      !v(i)=v1(i)
-!!      p(i)=p1(i)
-!!      h(i)=h1(i)
-!!      !pp(i)=0.0
-!!      !dppx(i)=0.0
-!!      !dppy(i)=0.0
-!!    enddo
-!!!$OMP END DO NOWAIT
-!
-!!--- Sediment -------------------
-!    if(sedtrans)then
-!!$OMP DO PRIVATE(i)
-!      do i=1,ncellsD        
-!        zb(i)=zb1(i)
-!        Ctk(i,:)=Ctk1(i,:)
-!        if(ibt>0)then
-!          btk(i,:)=btk1(i,:)
-!        endif  
-!        if(.not.singlesize)then        
-!          pbk(i,:,1)=pbk1(i,:) !Mixing layer
-!          db(i,:)=db1(i,:)     !Bed layer thickness
-!        endif      
-!      enddo
-!!$OMP END DO NOWAIT
-!    endif
-!    
-!!--- Salinity -----------------------      
-!    if(saltrans)then
-!!$OMP DO PRIVATE(i)      
-!      do i=1,ncellsD
-!        sal(i)=sal1(i)      
-!      enddo
-!!$OMP END DO        
-!    endif
-!!$OMP END PARALLEL
-!      return
-!    endif
-!#endif
     
 !$OMP PARALLEL
 !--- Hydro -------------------
@@ -368,6 +313,8 @@
         if(.not.singlesize)then        
           pbk1(i,:)=pbk(i,:,1) !Mixing layer
           db1(i,:)=db(i,:)     !Bed layer thickness
+          if(cohesivesed) dbms1(i,:)=dbms(i,:)  !Bed layer mass    Added by Wu
+          if(consolidation) tconsolid1(i,:)=tconsolid(i,:)
         endif      
       enddo
 !$OMP END DO NOWAIT

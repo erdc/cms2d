@@ -51,8 +51,6 @@
 !**************************************************************
     subroutine heat_cards(cardname,foundcard)
 ! Reads the heat cards.
-! meb 05/03/2016 - I don't like the term HEAT.  Using TEMPERATURE 
-!   for INPUT/OUTPUT cards as much as possible
 !**************************************************************    
     use geo_def, only: grdfile
     use comvarbl, only: flowpath
@@ -697,7 +695,8 @@ d1: do k=1,10
     dtimeinv=1.0/dtime
     schmidtheatinv=1.0/schmidtheat   !Warning:  The 'schmidtheat' variable has not been initialized.   MEB - 062016
     if(ntsch==1)then
-!$OMP PARALLEL DO PRIVATE(i,k,ddk)
+!!$OMP PARALLEL DO PRIVATE(i,k,ddk)      !Changed by Wu, 2026-2-26
+!$OMP PARALLEL DO PRIVATE(i,k,ddk,fac1)
       do i=1,ncells
         fac1=areap(i)*h1(i)*dtimeinv
         sp(i)=-fac1

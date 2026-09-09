@@ -772,11 +772,11 @@
       allocate (dredge_operations(k)%DredgeAreaCells(sumcells),dredge_operations(k)%Dredge_depth(sumcells))
       dredge_operations(k)%dredge_depth = 0.0
       kk=0
-      if (write_dredge_diag) write(2056,'(A,T12,A,T19,A)') 'Operation','Cell','Cell ID'
+      if (write_dredge_diag) write(2056,'(A,T12,A,T19,A)') 'Operation','Cell','SMS Cell ID'   !,'Internal CMS ID'
       do i = 1,ncellsfull
         if(TMPARRAY(i) > 1.0e-20) then
           kk=kk+1
-          if (write_dredge_diag) write(2056,'(3x,i0,T12,i0,T19,i0)')k,kk,idmap(i)
+          if (write_dredge_diag) write(2056,'(3x,i0,T12,i0,T19,i0)')k,kk,i                    !,idmap(i)
           dredge_operations(k)%DredgeAreaCells(kk) = idmap(i) 
           dredge_operations(k)%dredge_depth(kk) = TMPARRAY(i)
         endif
@@ -860,10 +860,11 @@
         end select
 
         kk=0
+        if (write_dredge_diag) write(2056,'(A,T12,A,T19,A)') 'Operation','Cell','SMS Cell ID'   !,'Internal CMS ID'
         do i = 1,ncellsfull
           if(TMPARRAY(i) > 1.0e-20) then
             kk=kk+1
-            if (write_dredge_diag) write(2056,*)j,i,kk,idmap(i)
+            if (write_dredge_diag) write(2056,'(3x,i0,T12,i0,T19,i0)')j,kk,i                    !,idmap(i)
             dredge_operations(k)%PlacementAreaCells(j,kk) = idmap(i)  
           endif
         enddo 
@@ -874,7 +875,6 @@
           write(2056,'(A,i0)')'PA # of cells: ',dredge_operations(k)%NumPlacementAreaCells(j)
         endif
         do i=1,dredge_operations(k)%NumPlacementAreaCells(j)
-          if (write_dredge_diag) write(2056,'(A,i0,x,i0)')'j,i = ',j,i
           ii=dredge_operations(k)%PlacementAreaCells(j,i)
           dredge_operations(k)%Placement_Area(j)=dredge_operations(k)%Placement_Area(j)+dx(ii)*dy(ii)
         enddo
@@ -892,13 +892,14 @@
             else
               dredge_operations(k)%placement_limit(j,i)=value_1
             endif
-            if (write_dredge_diag) write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
+            if (write_dredge_diag) write(2056,'(3x,I0,T9,I0,T14,I0,T18,2(F9.6,2x),F11.6)')k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
           enddo
         else
+          if (write_dredge_diag) write(2056,'(T18,A,T29,A,T40,A)')' Limit',' Thickness',' Depth'
           do i=1,dredge_operations(k)%NumPlacementAreaCells(j)
             ii=dredge_operations(k)%PlacementAreaCells(j,i)    
             dredge_operations(k)%placement_limit(j,i)=-zb(ii) - dredge_operations(k)%placement_thickness(j)
-            if (write_dredge_diag) write(2056,*)k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
+            if (write_dredge_diag) write(2056,'(3x,I0,T9,I0,T14,I0,T18,2(F9.6,2x),F11.6)')k,j,i,dredge_operations(k)%placement_limit(j,i),dredge_operations(k)%placement_thickness(j),zb(ii)
           enddo            
         endif
       enddo
@@ -914,7 +915,7 @@
     
       !processing for dredge approach 2  (sort cells from closest to farthest from start cell)
       if(dredge_operations(k)%dredge_approach == 2) then  !sort cells by proximity to start cell
-        if (write_dredge_diag) write(2056,'(A,i0,x,i0)')"srt cell ",k, dredge_operations(k)%dredge_start_cell
+        if (write_dredge_diag) write(2056,'(A,i0,x,i0)')"Sort cell ",k, dredge_operations(k)%dredge_start_cell
         dredge_operations(k)%dredge_start_cell = idmap(dredge_operations(k)%dredge_start_cell)
         ii=dredge_operations(k)%dredge_start_cell 
         ncnt=dredge_operations(k)%NumDredgeAreaCells

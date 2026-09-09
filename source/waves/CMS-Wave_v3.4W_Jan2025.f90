@@ -33,7 +33,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       logical getfile18,getfile19,getfile20,getfile21
       character*180 text
       character*30 text1
-      !REAL ITER_START, ITER_END      !variables are not used, Closed by Wu
       INTEGER IOS  ! (IOS < 0) == END OF FILE; (IOS > 0) == IO ERROR
       INTEGER II,JJ,KK, INV
       integer numthreads,NTHR
@@ -1987,40 +1986,40 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) 'Child Grid total rotation bin(s) =', nint(azim)
         write(*,*) ' '
         iazim=int(azim)
-        DO nn=1,nf  !do 28
+        DO nn=1,nf
           if(iabs(iazim).lt.1) go to 24
           wk2=0.
-          do mm=imd,md  !do 23
+          do mm=imd,md  
             m1=mm+iazim
             if(m1.lt.imd) m1=imd
             if(m1.gt.md) m1=md
             wk2(1,nn,m1)=wk2(1,nn,m1)+dsfd(nn,mm)
-          ENDDO  !23 continue
-          do mm=imd,md  !do 25
+          ENDDO  
+          do mm=imd,md  
             dsfd(nn,mm)=wk2(1,nn,mm)
-          ENDDO  !25 continue
+          ENDDO  
    24     continue
           dcdmm=azim-float(iazim)
           if(abs(dcdmm).lt..01) go to 30
           if(dcdmm.gt.0.) then
             c1=1.-dcdmm
-            do mm=imd+1,md  ! do 37
+            do mm=imd+1,md  
               wk2(1,nn,mm)=dsfd(nn,mm)*c1+dsfd(nn,mm-1)*dcdmm
-            ENDDO  !37 continue
+            ENDDO  
             wk2(1,nn,imd)=dsfd(nn,imd)*c1
           else
             dcdmm=-dcdmm
             c1=1.-dcdmm
-            do mm=imd,md-1  !do 27
+            do mm=imd,md-1  
               wk2(1,nn,mm)=dsfd(nn,mm)*c1+dsfd(nn,mm+1)*dcdmm
-            ENDDO  ! 27 continue
+            ENDDO  
             wk2(1,nn,md)=dsfd(nn,md)*c1
           end if
-          do mm=imd,md  !do 29
+          do mm=imd,md  
             dsfd(nn,mm)=wk2(1,nn,mm)
-          ENDDO  ! 29 continue
+          ENDDO  
    30     continue
-        ENDDO  ! 28 continue
+        ENDDO  
    21   continue
       end if
 
@@ -3130,7 +3129,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       sum=0.
       !ibig is index of peak frequency
       do nn=1,ibig-2
-        if(fsp(nn)/big .gt. 0.05) go to 61
+        if(fsp(nn)/big > 0.05) exit  !go to 61
         cc=df(nn)/df(ibig)
         sum=sum+fsp(nn)*cc
         do mm=imd,md
@@ -8725,7 +8724,7 @@ contains
         call fileparts(SimFile,apath,aname,aext)           !Split the path and files out before conditional to use later.  MEB  01/26/2022
         INQUIRE(FILE = SimFile, EXIST=ExistFile)
         if (.not.ExistFile) then
-          msg  = "Wave .sim file not found: "//trim(SimFile)
+          msg  = "Wave file not found: "//trim(SimFile)
           call diag_print_error (msg)
         endif
         

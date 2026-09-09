@@ -32,7 +32,7 @@
     integer :: i,ks
     real(ikind) :: zap,phip,taup,cnp,bbk
   
-!$OMP PARALLEL DO PRIVATE(i,KS,zap,phip,bbk,taup,cnp)
+!$OMP PARALLEL DO PRIVATE(i,ks,zap,phip,bbk,taup,cnp)
     do i=1,ncells
       if(iwet(i)==0)then
         btk(i,:)=1.0

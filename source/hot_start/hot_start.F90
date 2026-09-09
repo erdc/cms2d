@@ -271,7 +271,6 @@
           if (.not.icpres) then 
             p = eta*grav           !don't overwrite the pressures if already read in.  
           endif
-          !write(*,*) 'IC - After P assignment,  p(1) = ',p(1)
           if(ictime < 0) then
             ictime = scaldat(1)%time(scaldat(1)%nt)  !Modify start time to match the initial conditions file.
             call unitconv_scal(scaldat(1)%time_units,'hrs',ictime)          
@@ -1244,7 +1243,6 @@ loopj:  do j=1,nlay
       case(5); call wucapac           !Wu et al. 2000 (under testing)
       case(6); call sedcapac_c2shore   !C2SHORE (bdj)
       end select   
-!!      CtstarP = 0.0
       !Concentrations
       Ctkstar = CtstarP*pbk(:,:,1)
       Ctk = Ctkstar    

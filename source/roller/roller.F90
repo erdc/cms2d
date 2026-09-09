@@ -202,8 +202,6 @@
     use wave_wavegrid_def, only: nwaveij,nwavei,nwavej,xwave,ywave,&
         !dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1,wibr
         dxwav,dywav,wheight,wperiod,wdiss,wcos,wsin,wxrs1,wyrs1
-    !use wavestress3D     !Wu, 8/5/2011
-    !use fl3d, only: dsigma   !Wu
     use const_def, only: twopi,pi,deg2rad,small
     use prec_def  
     implicit none
@@ -214,9 +212,6 @@
     real(ikind) :: cySrdy,cxSrdx,fac,hminlim,val    
     real(ikind) :: rn,rn1,dtrol,densitinv
     character(len=100) :: msg
-    !real(ikind) :: ratiozroller(numlaywavegrid)   !Wu
-    !real(ikind) :: ratioz    !Wu,
-    !integer :: klay   !Wu
     
     call diag_print_message(' ','*** Starting Roller ****')
 
@@ -268,9 +263,6 @@
       rn=0.0
       do i=2,nwavei-1
       do j=1,nwavej    
-!!        if(i==37 .and. j==1)then
-!!          continue
-!!        endif    
         if(irxy(i,j)==0) cycle
         select case(irolscheme)
           case(1) !First Order Upwind scheme
@@ -397,7 +389,6 @@
         !wdiss(i,j) = wdiss(i,j) + roldiss(i,j) !********** IMPORTANT ****************** commented by bdj 2021-01-13 
         !wdiss(i,j) = roldiss(i,j)                        ! 1st fix, replaced by next. by bdj 2021-01-13
         wdiss(i,j) = (1.0-ceff)*wdiss(i,j) + roldiss(i,j) ! new statement by bdj 2021-02-03 as suggested by A Sanchez
-        !write(*,*) 'bdj ceff = ',ceff
       enddo
     enddo
 !$OMP END PARALLEL DO
@@ -465,22 +456,6 @@
 
     call rol_write
     
-    !do i=1,nwavei    !Wu, 8/5/2011
-    !   do j=1,nwavej
-    !       ratioz=0.0
-    !   do klay=1,numlaywavegrid
-    !      ratiozroller(klay)=1.0-tanh((2.0*sigmawave(klay)*hwave(i,j)   &
-    !                                   /(wheight(i,j)+0.00001))**4)+0.00000000001
-    !      ratioz=ratioz+ratiozroller(klay)*dsigma(klay)
-    !   enddo  
-    !   ratiozroller(:)=ratiozroller(:)/ratioz
-    !   do klay=1,numlaywavegrid
-    !      wxrs3D1(i,j,klay)=wxrs3D1(i,j,klay)+rxrs(i,j)/hwave(i,j)*ratiozroller(klay)        
-    !      wyrs3D1(i,j,klay)=wyrs3D1(i,j,klay)+ryrs(i,j)/hwave(i,j)*ratiozroller(klay)        
-    !   enddo    
-    !enddo    
-    !enddo    !Wu
-
     call diag_print_message('*** Roller Finished ****',' ')
     
     return

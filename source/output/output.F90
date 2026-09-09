@@ -203,7 +203,7 @@
 !***************************************************************************
     use out_def
     use prec_def
-    use q3d_def,  only: q3d
+    !use q3d_def,  only: q3d
     use comvarbl, only: etime
     use diag_lib, only: diag_print_warning
     implicit none
@@ -346,12 +346,12 @@
         obs(i)%group = 'Time_Series'
         obs(i)%active = .true.
         obs(i)%nvar = 3 !u,v,eta
-        if (q3d) obs(i)%nvar = 4 !u,v,eta,velpro
+        !if (q3d) obs(i)%nvar = 4 !u,v,eta,velpro
         allocate(obs(i)%names(obs(i)%nvar))
         obs(i)%names(1)='u'
         obs(i)%names(2)='v'
         obs(i)%names(3)='eta'
-        if (q3d) obs(i)%names(4)='velpro'
+        !if (q3d) obs(i)%names(4)='velpro'
         call read_obs_cells(i)
       
       case('ELEV_OBS_CELLS_END','END') !card should be changed just TIME_SERIES_OBS_CELLS_BEGIN
@@ -1600,9 +1600,9 @@
     use size_def
     use wave_flowgrid_def, only: wunitx,wunity,whgt,wper,Wang,wavediss,Worb,wlen,wavestrx,wavestry,Ssr,wavstrx,wavstry
     use dredge_def
-#ifdef DEV_MODE
-    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
-#endif
+!#ifdef DEV_MODE
+!    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
+!#endif
 
 implicit none    
     integer :: i,ii,j,ks,nn
@@ -1741,38 +1741,38 @@ implicit none
         enddo
         call writescalh5(outlist(2)%afile,apath,'Streamwise_Curvature',val,'1/m',timehrs,0)
       endif  
-#ifdef DEV_MODE
-      if(q3d)then
-        call writescalh5(outlist(2)%afile,apath,'f3dxx',f3dxx,'m',timehrs,0)
-        call writescalh5(outlist(2)%afile,apath,'f3dxy',f3dxy,'m',timehrs,0)
-        call writescalh5(outlist(2)%afile,apath,'f3dyy',f3dyy,'m',timehrs,0)
-        call writescalh5(outlist(2)%afile,apath,'f3du',f3du,'m',timehrs,0)
-        call writescalh5(outlist(2)%afile,apath,'f3dv',f3dv,'m',timehrs,0)
-        if(q3d_lay)then !Velocity layers
-          call q3d_vel_lay !uzplay,vzplay
-          do j=1,nzplay
-            if(j<=9)then
-              write(alay,'(I1)') j
-            else
-              write(alay,'(I2)') j
-            endif 
-            aname = 'Current_Velocity_Lay' // trim(alay)
-            vecx(1:ncellsD) = uzplay(j,1:ncellsD)
-            vecy(1:ncellsD) = vzplay(j,1:ncellsD)
-            call writevech5(outlist(2)%afile,apath,aname,vecx,vecy,'m/s',timehrs,0)  
-            do i=1,ncells
-              val(i) = sqrt(vecx(i)*vecx(i) + vecy(i)*vecy(i))
-            enddo
-            aname = trim(aname) // '_mag'
-            call writescalh5(outlist(2)%afile,apath,aname,val,'m/s',timehrs,0)
-          enddo
-        endif    
-        if(wavcurint)then
-          call writescalh5(outlist(2)%afile,apath,'udsx',udsx,'m',timehrs,0)
-          call writescalh5(outlist(2)%afile,apath,'udsy',udsy,'m',timehrs,0)
-        endif
-      endif
-#endif      
+!#ifdef DEV_MODE
+      !if(q3d)then
+      !  call writescalh5(outlist(2)%afile,apath,'f3dxx',f3dxx,'m',timehrs,0)
+      !  call writescalh5(outlist(2)%afile,apath,'f3dxy',f3dxy,'m',timehrs,0)
+      !  call writescalh5(outlist(2)%afile,apath,'f3dyy',f3dyy,'m',timehrs,0)
+      !  call writescalh5(outlist(2)%afile,apath,'f3du',f3du,'m',timehrs,0)
+      !  call writescalh5(outlist(2)%afile,apath,'f3dv',f3dv,'m',timehrs,0)
+      !  if(q3d_lay)then !Velocity layers
+      !    call q3d_vel_lay !uzplay,vzplay
+      !    do j=1,nzplay
+      !      if(j<=9)then
+      !        write(alay,'(I1)') j
+      !      else
+      !        write(alay,'(I2)') j
+      !      endif 
+      !      aname = 'Current_Velocity_Lay' // trim(alay)
+      !      vecx(1:ncellsD) = uzplay(j,1:ncellsD)
+      !      vecy(1:ncellsD) = vzplay(j,1:ncellsD)
+      !      call writevech5(outlist(2)%afile,apath,aname,vecx,vecy,'m/s',timehrs,0)  
+      !      do i=1,ncells
+      !        val(i) = sqrt(vecx(i)*vecx(i) + vecy(i)*vecy(i))
+      !      enddo
+      !      aname = trim(aname) // '_mag'
+      !      call writescalh5(outlist(2)%afile,apath,aname,val,'m/s',timehrs,0)
+      !    enddo
+      !  endif    
+      !  if(wavcurint)then
+      !    call writescalh5(outlist(2)%afile,apath,'udsx',udsx,'m',timehrs,0)
+      !    call writescalh5(outlist(2)%afile,apath,'udsy',udsy,'m',timehrs,0)
+      !  endif
+      !endif
+!#endif      
       if(write_velres)then !Velocity Residuals
         call writescalh5(outlist(2)%afile,apath,'Vx_Norm_Res',rsu,'none',timehrs,0)   
         call writescalh5(outlist(2)%afile,apath,'Vy_Norm_Res',rsv,'none',timehrs,0)  
@@ -2109,10 +2109,10 @@ implicit none
     use out_def
     use out_lib
     use prec_def
-#ifdef DEV_MODE
-    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,&
-      udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
-#endif
+!#ifdef DEV_MODE
+!    use q3d_def, only: q3d,f3dxx,f3dxy,f3dyy,f3du,f3dv,wavcurint,&
+!      udsx,udsy,uzplay,vzplay,nzplay,q3d_lay
+!#endif
     use rol_def, only: roller,rxrs,ryrs,roldiss
     use sal_def, only: sal
     use heat_def, only: heat
@@ -2754,7 +2754,8 @@ implicit none
     real(ikind) :: fac,con
     character(len=37) :: cardname
     character(len=10) :: fromunits,tounits
-    character(len=1000) :: aline
+    !character(len=1000) :: aline    !Test by Wu  1000 is too small for large time list
+    character(len=3000) :: aline
     
     !Get number of list and time information    
     fromunits = 'hrs'
@@ -2884,9 +2885,9 @@ implicit none
     use sal_def,  only: saltrans
     use heat_def, only: heattrans
     use sed_def,  only: sedtrans
-#ifdef DEV_MODE  
-    use q3d_def,  only: q3d
-#endif    
+!#ifdef DEV_MODE  
+!    use q3d_def,  only: q3d
+!#endif    
     use out_def,  only: obs
     implicit none
     
@@ -2918,10 +2919,10 @@ implicit none
           do j=1,obs(i)%nvar !variables
             if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
             if(i==3 .and. j==4 .and. .not.saltrans) cycle
-#ifdef DEV_MODE            
-            if(i==1 .and. j==4 .and. .not.q3d) cycle
-            if(i==3 .and. j==5 .and. .not.q3d) cycle
-#endif
+!#ifdef DEV_MODE            
+!            if(i==1 .and. j==4 .and. .not.q3d) cycle
+!            if(i==3 .and. j==5 .and. .not.q3d) cycle
+!#endif
             open(obs(i)%units(j),file=obs(i)%files(j))
             write(obs(i)%units(j),753) (obs(i)%cells(k),k=1,obs(i)%ncells)
             close(obs(i)%units(j)) !closing the file is useful for viewing the results during the simulation
@@ -2934,9 +2935,9 @@ implicit none
           do j=1,obs(i)%nvar !variables
             if(i==3 .and. j<=3 .and. .not.sedtrans) cycle
             if(i==3 .and. j==4 .and. .not.saltrans) cycle
-#ifdef DEV_MODE           
-            if(i==1 .and. j==4 .and. .not.q3d) cycle
-#endif            
+!#ifdef DEV_MODE           
+!            if(i==1 .and. j==4 .and. .not.q3d) cycle
+!#endif            
             inquire(file=obs(i)%files(j),exist=ok) 
             if(ok)then
               open(obs(i)%units(j),file=obs(i)%files(j),access='append')
@@ -2975,7 +2976,7 @@ implicit none
     use heat_def, only: heattrans,heat
     use comvarbl, only: ctime,timesecs
     use const_def, only: eps
-    use q3d_def, only: q3d
+    !use q3d_def, only: q3d
     !use hot_def, only: coldstart,hstarttime
     use prec_def
     implicit none
@@ -2999,7 +3000,7 @@ implicit none
       call write_obs_var(1,1,u)
       call write_obs_var(1,2,v)
       call write_obs_var(1,3,eta)
-      if(q3d) call write_obs_velpro !Write vertical velocity profiles
+      !if(q3d) call write_obs_velpro !Write vertical velocity profiles
     endif
     
     !Flow
@@ -3060,11 +3061,12 @@ implicit none
 !********************************************************************************   
     use size_def, only: ncellsD
     use flow_def, only: h,u,v,us,vs
-    use out_def, only: obs
+    use out_def,  only: obs
     use comvarbl, only: timehrs
-    use q3d_def, only: nzpsta,zpsta,uzpsta,vzpsta
+    !use q3d_def, only: nzpsta,zpsta,uzpsta,vzpsta
     use prec_def
     implicit none
+    
     !Internal variables
     integer :: i,j,k,iprofile
     real(ikind) :: uc,vc,vx,vy,wx,wy,zap,zwp
@@ -3075,10 +3077,10 @@ implicit none
 973 format(1x,F9.3,1x,I3,255(1x,1pe11.4)) !Note: nzpsta<=100, 17 + 2*nzpsta = 217 <= 255
     do k=1,obs(1)%ncells
       i = obs(1)%cells(k)
-      call q3d_velpro(i,nzpsta,zpsta,iprofile,uc,vc,vx,vy,wx,wy,zap,zwp,&
-        Kc,visvm,visv0,visvslp,uzpsta,vzpsta) !Compute velocity vertical profile
+      !call q3d_velpro(i,nzpsta,zpsta,iprofile,uc,vc,vx,vy,wx,wy,zap,zwp,&
+      !  Kc,visvm,visv0,visvslp,uzpsta,vzpsta) !Compute velocity vertical profile
       write(obs(1)%units(4),973) timehrs,iprofile,h(i),u(i),v(i),us(i),vs(i),&
-        uc,vc,vx,vy,wx,wy,zap,zwp,Kc,visvm,visv0,visvslp,(uzpsta(j),vzpsta(j),j=1,nzpsta)
+        uc,vc,vx,vy,wx,wy,zap,zwp,Kc,visvm,visv0,visvslp  !,(uzpsta(j),vzpsta(j),j=1,nzpsta)
     enddo  
     close(obs(1)%units(4)) !closing the file is useful for viewing the results during the simulation
     
@@ -3506,155 +3508,577 @@ implicit none
     return
     end subroutine write_savept_vector
 
-!!********************************************************************************   
-!    subroutine write_savept_velpro(i,j)
-!!> Writes a scalar savept cell variable to its corresponding file
-!!> written by Mitchell Brown, USACE-ERDC-CHL    
-!!********************************************************************************   
-!    use size_def, only: ncellsD
-!    use out_def, only: savept
-!    use comvarbl, only: timehrs
-!    use prec_def
-!    implicit none
-!    integer, intent(in)    :: i               !< Corresponds to the group number 
-!    integer, intent(in)    :: j               !< Corresponds to the member of the group
-!    integer                :: k
-!
-!    open(savept(i)%funits(j),file=savept(i)%files(j),access='append')
-!973 format(1x,F10.4,255(1X,1pe11.4))
-!    do k=1,savept(i)%ncells  
-!      i=savept(i)%cell(k)
-!      call q3d_velpro(i,nzpsta,zpsta,iprofile,uc,vc,vx,vy,wx,wy,zap,zwp,&
-!        Kc,visvm,visv0,visvslp,uzpsta,vzpsta) !Compute velocity vertical profile
-!      write(savept(i)%funits(j),973) timehrs,(var(savept(i)%cell(k)),k=1,savept(i)%ncells)  
-!    enddo
-!    close(savept(i)%funits(j)) !closing the file is useful for viewing the results during the simulation
-    !
-    !return
-    !end subroutine write_savept_velpro
+!************************************************************************    
+    subroutine print_header
+!************************************************************************        
+    use comvarbl, only: version,revision,release,developmental,rdate,machine,major_version,minor_version,bugfix
+    use diag_def, only: dgfile, dgunit
+    
+    implicit none
+    integer      :: iunit(2),i
+    character*22 :: string
 
+7009  format(' **********************************************************')
+7011  format('              U.S. Army Corps of Engineers                 ')
+7012  format('            Coastal Inlets Research Program                ')
+7013  format('                Coastal Modeling System                    ')
+7014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,1X,A,1X,A)
+8014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,'.',I0,1X,A,1X,A)
+7019  format('    Using Visual Studio 2022 and Intel OneAPI IFX          ')
+7020  format('    Using Visual Studio 2019 and Intel OneAPI IFORT        ')
+7021  format('    Using Visual Studio 2026 and Intel OneAPI IFX          ')
+7114  format('      This version is for testing purposes only!           ')
+7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
+7016  format('               Last updated - ',A10)
+7017  format('       For the latest version of CMS please visit          ')
+7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
+      
+9001  format('    By using this software the user has agreed to the      ')
+9002  format('    terms and conditions of CMS license agreement.         ') 
+9003  format('    A copy of the license can be obtained from the         ')
+9004  format('    website shown above.                                   ')
+          
+    !Declare file names    
+    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
+    dgunit = 9
     
-    
-!Placing these NetCDF routines here for now so I don't have to recompile the 'out_lib' and all its dependencies.  MEB    
-    
-!!**************************************************************************
-!    subroutine writescalnc(afile,apath,aname,var,aunits,timehr,iwritedry)
-!! writes a scalar dataset to the NetCDF file with id number PID
-!!
-!! written by Mitchell Brown, USACE-ERDC-CHL   03/05/2020
-!!**************************************************************************
-!    use size_def, only: ncellsD,ncellsfull,ncellpoly
-!    use netcdf 
-!    use interp_lib, only: interp_scal_cell2node
-!    use prec_def
-!    implicit none
-!    !Input/Output
-!    character(len=*),intent(in) :: afile,apath,aname,aunits
-!    real(ikind),intent(in) :: var(ncellsD),timehr
-!    integer,intent(in) :: iwritedry
-!    !Internal variables
-!    integer :: fid,gid,ierr    
-!    real(8) :: timed  !Must be double    
-!    real(4) :: scalout(ncellsfull) !Must be single
-!    character(len=200) :: afullpath
-!    
-!    if(ncellpoly>0)then
-!      call interp_scal_cell2node(var,scalout,iwritedry)
-!    else
-!      call map_scal_active2full(var,scalout,iwritedry)  
-!    endif
-!    
-!    afullpath=trim(apath)//trim(aname)    
-!    ierr = nf90_open(trim(afile),ND90_WRITE,fid)            !Open existing NC file if it exists
-!    if(ierr /= NF90_NOERR)then
-!      ierr = nf90_create(trim(afile),NF90_CLOBBER,fid)       !Create new file if it didn't exist
-!    endif                 
-!    call OPEN_CREATE_NCDATASET(fid,trim(afullpath),gid,1,aunits,ierr)  !Open/create dataset          
-!    timed = dble(timehr)
-!    call XF_WRITE_SCALAR_TIMESTEP(gid,timed,ncellsfull,scalout,ierr) !Write data to XMDF file
-!    call XF_CLOSE_GROUP(gid,ierr)  !Close dataset    
-!    call XF_CLOSE_FILE(fid,ierr)   !Close XMDF file
-!    
-!    return
-!    end subroutine writescalnc
-!
-!!**************************************************************************
-!    SUBROUTINE OPEN_CREATE_NCDATASET(OCID,STRING1,OCDID,DIM,OUNITS,OCERR)
-!! THIS FUNCTION OPENS OR CREATES A SCALAR OR VECTOR DATASET AND 
-!!   EXITS IF IT CAN'T CREATE ONE.
-!!
-!! - OCID:     parent group/file id
-!! - STRING1:  name for dataset
-!! - OCDID:    child group id
-!! - DIM:      dataset dimensions (1- scalar, 2- vector)
-!! - OUNITS:   Data units ('m','m/s','kg/m^3',etc.)
-!! - REFTIME (in):  SMS Reference time for dataset
-!!
-!! written by MEB 03/05/20
-!!  - fixed time units to hours 
-!!  - added compression option
-!!  - added output units for dataset
-!!**************************************************************************
-!    use comvarbl, only: reftime
-!    use out_def, only: ixmdfcomp
-!    use diag_lib
-!    use netcdf
-!    implicit none
-!    integer OCERR,OCDID,DIM,OCDPID,OCID
-!    character(LEN=*) STRING1,OUNITS    
-!      
-!    SELECT CASE (DIM)
-!      CASE (1)
-!        OCERR = nf90_inq_ncid (OCID, STRING1, OCDID) 
-!        if (OCERR /= nf90_noerr) then
-!          OCERR = nf90_def_grp (OCID, STRING1, OCDID)
-!          if (OCERR /= nf90_noerr) then
-!            call diag_print_error('Could not create scalar NC dataset: ',STRING1)
-!          endif
-!        endif
-!
-!!        CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
-!!        IF(OCERR<0)THEN
-!!          !CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
-!!          !Note: Time units always in hours (hard-wired from SMS)
-!!          CALL XF_CREATE_SCALAR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR)
-!!          IF(OCERR<=0)THEN
-!!            call diag_print_error('Could not create scalar dataset: ',STRING1)            
-!!          ENDIF
-!!          CALL XF_DATASET_REFTIME(OCDID,REFTIME,OCERR)
-!!          CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
-!!          CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
-!!          CALL XF_SCALAR_DATA_LOCATION(OCDID,GRID_LOC_CENTER,OCERR)
-!!        ENDIF
-!      
-!      CASE (2)
-!        OCERR = nf90_inq_ncid (OCID, STRING1, OCDID) 
-!        if (OCERR /= nf90_noerr) then
-!          OCERR = nf90_def_grp (OCID, STRING1, OCDID)
-!          if (OCERR /= nf90_noerr) then
-!            call diag_print_error('Could not create vector NC dataset: ',STRING1)
-!          endif
-!        endif
-!
-!!        CALL XF_OPEN_GROUP(OCID,STRING1,OCDID,OCERR)
-!!        IF(OCERR<0)THEN
-!!          !CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,'none',OUNITS,0,OCDID,OCERR)
-!!          !Note: Time units always in hours (hard-wired from SMS)
-!!          CALL XF_CREATE_VECTOR_DATASET(OCID,STRING1,OUNITS,TS_HOURS,ixmdfcomp,OCDID,OCERR) 
-!!          IF(OCERR<=0)THEN
-!!            call diag_print_error('Could not create vector dataset: ',STRING1)   
-!!          ENDIF
-!!          CALL XF_DATASET_REFTIME(OCDID,REFTIME,OCERR)
-!!          CALL XF_CREATE_PROPERTY_GROUP(OCDID,OCDPID,OCERR)
-!!          CALL XF_WRITE_PROPERTY_FLOAT(OCDPID,PROP_NULL_VALUE,1,-999.0,NONE,OCERR)
-!!          CALL XF_VECTORS_IN_LOCAL_COORDS(OCDID,OCERR)
-!!!          CALL XF_VECTOR_2D_DATA_LOCS (OCDID,GRID_LOC_FACE_I,GRID_LOC_FACE_J,OCERR)
-!!          CALL XF_VECTOR_2D_DATA_LOCS(OCDID,GRID_LOC_CENTER,GRID_LOC_CENTER,OCERR)
-!!        ENDIF
-!      
-!      END SELECT
-!      
-!      RETURN
-!    END SUBROUTINE OPEN_CREATE_NCDATASET
+    open(dgunit,file=dgfile,STATUS='unknown')   
+    iunit = (/6,dgunit/)
+    do i=1,2
+      write(iunit(i),*)
+      write(iunit(i),7009)
+      write(iunit(i),7011)
+      write(iunit(i),7012)
+      write(iunit(i),7013)
+      if(developmental) then    !DEVELOPMENTAL - this overrides the 'release' setting.
+        string='DEVELOPMENTAL for'
+        write(iunit(i),7114)
+      elseif(.not.release)then  !BETA
+        string='BETA for'
+        write(iunit(i),7114)
+      else                      !RELEASE
+        string='RELEASE for'
+      endif
 
+      !Adding logic to show information for a bug fix and print it.      MEB  09/15/20
+      if (bugfix == 0) then
+        write(iunit(i),7014) major_version,minor_version,revision,trim(string),trim(machine)
+      else
+        write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
+      endif
+      
+!only do VS prints if on a windows machine, use nested compile-time flags.
+#if defined(_WIN32)
+ #if defined(VS2022)
+      write(iunit(i),7019)  !write the Visual Studio version, VS2022
+ #elif defined(VS2026)
+      write(iunit(i),7021)  !write the Visual Studio version, VS2026
+ #else
+      write(iunit(i),7020)  !write the Visual Studio version, VS2019
+ #endif
+#endif
+      write(iunit(i),7016) rdate !Last revision date
+
+      write(iunit(i),7017)
+      write(iunit(i),7018)
+      write(iunit(i),*)
+      write(iunit(i),9001)
+      write(iunit(i),9002)
+      write(iunit(i),9003)
+      write(iunit(i),9004)
+      write(iunit(i),7009)
+      write(iunit(i),*)
+    enddo
+    close(dgunit)        
     
+    end subroutine print_header
+
+!*************************************************************
+    subroutine sim_start_print
+! Calculates and prints the elapsed cpu time
+! by Mitch Brown and modified by Alex Sanchez, USACE-ERDC-CHL
+!*************************************************************
+#include "CMS_cpp.h"
+    use cms_def,  only: timebegin, timestart, timenow
+    use diag_def, only: dgunit,dgfile
+    use comvarbl, only: ctime,ctime1
+    use time_lib, only: time_cpu, time_jul, time_cal2str
+    
+#ifdef PROFILE
+    use watch_lib
+#endif   
+    use prec_def
+    implicit none
+    integer :: ita(8),i,iunit(2)
+    character(len=200) :: datetimestr
+
+645 format(' *************************')
+684 format('    START OF SIMULATION   ')
+            
+740 format(I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)
+750 format(2x,A)
+    
+    timebegin = time_cpu() !sec
+    call date_and_time(values=ita)
+    timestart = time_jul(ita) !sec
+    timenow = timestart
+    ctime1 = ctime
+    
+    call time_cal2str(datetimestr,ita(1),ita(2),ita(3),ita(5),ita(6),ita(7))
+    
+    open(dgunit,file=dgfile,access='append') 
+    iunit = (/6,dgunit/)
+    do i=1,2
+      write(iunit(i),*)
+      write(iunit(i),645)
+      write(iunit(i),684)
+      write(iunit(i),750) trim(datetimestr)
+      write(iunit(i),645)  
+    enddo
+    close(dgunit)
+    
+#ifdef PROFILE
+    call watch_start('Simulation')
+#endif
+
+    end subroutine sim_start_print
+        
+!************************************************************************
+    subroutine sim_end_print
+! Calculates and prints the elapsed cpu time
+!
+! by Mitch Brown and modified by Alex Sanchez, USACE-ERDC-CHL
+!************************************************************************
+#include "CMS_cpp.h"
+    use cms_def,  only: timestart, timebegin, cmsflow
+    use comvarbl, only: stimet
+    use diag_def, only: dgunit,dgfile
+    use time_lib, only: time_jul, time_cpu, time_cal2str, time_sec2str
+#ifdef PROFILE
+    use watch_lib
+#endif    
+    use prec_def
+    implicit none
+    integer :: ita(8),i,iunit(2)
+    real*8 :: time_dur,speed
+    character(len=200) :: clocktimestr,cputimestr,datetimestr
+
+970 format(' *********************************')
+971 format('         END OF SIMULATION        ')
+740 format(2x,I4,'-',I2.2,'-',I2.2,1x,I2.2,':',I2.2,':',I2.2)    
+840 format('  - Clock time: ',I0,' min, ',F7.4,' s')
+841 format('  - Clock time: ',I0,' hrs, ',I0,' min, ',F7.4,' s')     
+940 format('  - Computational Speed: ',F0.2)
+720 format('  - CPU time:   ',I0,' min, ',F7.4,' s')
+721 format('  - CPU time:   ',I0,' hrs, ',I0,' min, ',F7.4,' s')   
+    
+850 format('  - Clock time: ',A)    
+730 format('  - CPU time:   ',A)
+750 format(2x,A)
+
+#ifdef PROFILE
+    call watch_stop('Simulation')
+#endif
+    
+    !Wall clock time
+    call date_and_time(values=ita)
+    
+    time_dur = time_jul(ita) - timestart !sec
+    call time_sec2str(time_dur,clocktimestr)
+
+    call time_cal2str(datetimestr,ita(1),ita(2),ita(3),ita(5),ita(6),ita(7))
+    
+    !Speed 
+    speed = dble(stimet)/max(time_dur,0.00001) 
+    
+    !CPU time
+    time_dur = time_cpu() - timebegin
+    call time_sec2str(time_dur,cputimestr)
+    
+    open(dgunit,file=dgfile,access='append')    
+    iunit = (/6,dgunit/)     
+    do i=1,2
+      write(iunit(i),*)    
+      write(iunit(i),970)
+      write(iunit(i),971)
+      write(iunit(i),750) trim(datetimestr)
+      write(iunit(i),850) trim(clocktimestr)
+      if(cmsflow)then
+        write(iunit(i),940) speed        
+      endif
+      write(iunit(i),730) trim(cputimestr) 
+      write(iunit(i),970)
+    enddo
+    close(dgunit)
+    
+#ifdef PROFILE
+    call watch_output
+    call watch_destroy
+#endif   
+    
+    end subroutine sim_end_print
+
+!********************************************************************************
+    subroutine cms_print
+! Prints the general CMS settings to the screen and diagnostic file
+! written by Alex Sanchez, USACE-CHL
+!********************************************************************************    
+    use comvarbl,  only: flowpath,ctlfile, input_ver, advfile, read_adv, SMS_ver
+    use cms_def,   only: noptset,noptwse,noptvel,noptzb,wavsimfile,wavepath  
+    use cms_def,   only: dtsteer,radpath,wavpath,perpath,dirpath,disspath
+    use cms_def,   only: noptxtrpfl,xtrpdistfl,noptxtrpwav,xtrpdistwav
+    use diag_def,  only: dgunit, dgfile
+    use geo_def,   only: wgrdfile
+    use tool_def,  only: vstrlz    
+    
+    implicit none
+    integer :: iunit(2),i, first, second
+    character :: aname*200,apath*200,aext*10,astring*200,dstring*200,adate*8,atime*10,azone*5,adir*200
+
+341 format(' ',A,T30,A,A)     !Added for vstrlz function results
+342 format(' ',A,T30,I0,'.',I0,A)  
+887 format(' ',A,T30,A)
+    
+    call getcwd(adir)
+    call DATE_AND_TIME (date=adate,time=atime,zone=azone)
+    dstring=adate(5:6)//'/'//adate(7:8)//'/'//adate(1:4)
+    dstring=trim(dstring)//' '//atime(1:2)//':'//atime(3:4)//' '//azone
+
+    open(dgunit,file=dgfile,access='append') 
+    iunit = (/6,dgunit/)
+    
+    do i=1,2
+      write(iunit(i),*) 
+      write(iunit(i),887) 'Actual Start Date/Time: ',trim(dstring)
+      if(noptset>=2)then   
+        write(iunit(i),887)  "Working Directory:  ","'"//trim(adir)//"'"
+        if (flowpath /= '') write(iunit(i),887)    'CMS-Flow Path:',trim(flowpath)
+        call fileparts(ctlfile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext
+        write(iunit(i),887)  'CMS-Flow Card File:',trim(astring)
+        
+        call split_real_to_integers(input_ver,2,first,second)
+        write(iunit(i),342)  'CMS Input Version:',first,second    
+        
+        call split_real_to_integers(SMS_ver,2,first,second)
+        if (SMS_ver == -1) then
+          write(iunit(i),887)  'SMS Version used:','Unknown (13.0 or previous)'
+        else  
+          write(iunit(i),342)  'SMS Version used:',first,second
+        endif
+      endif
+      if (read_adv) then
+        call fileparts(advfile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext
+        write(iunit(i),887)    'Advanced Card File used:',trim(astring)
+      endif
+      if(noptset==1 .or. noptset==3)then
+        write(iunit(i),887)    'CMS-Wave Path:',trim(wavepath)
+        call fileparts(WavSimFile,apath,aname,aext)
+        astring=trim(aname) // '.' // aext
+        write(iunit(i),887)    'CMS-Wave Sim File:',trim(astring)   
+      endif  
+      if(noptset==3)then  
+        write(iunit(i),887)    'Steering Mode:','ON'
+        write(iunit(i),341)    'Steering Interval:',trim(vstrlz(dtsteer/3600.0,'(F0.3)')),' hrs'
+        write(iunit(i),887)    'Wave-to-Flow Coupling:'
+        write(iunit(i),887)    '  Temporal Interpolation:','LINEAR'
+        write(iunit(i),887)    '  Temporal Extrapolation: '
+        write(iunit(i),887)    '    Water Level: '
+        select case(noptwse)
+        case(0)
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = 0.0'     
+        case(1)
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid)'    
+        case(2)
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = tide(wave_time,flow_grid)'
+        case(3)
+          write(iunit(i),887)  '      wse(wave_time,wave_grid) = wse(flow_time,flow_grid) '
+          write(iunit(i),887)  '             + tide(wave_time) - tide(flow_time)'
+        end select 
+        write(iunit(i),887)    '    Current Velocities:'
+        select case(noptvel)
+        case(0)
+          write(iunit(i),887)  '      vel(wave_time,wave_grid) = 0.0'     
+        case(1)
+          write(iunit(i),887)  '      vel(wave_time,wave_grid) = vel(flow_time,flow_grid)'
+        end select
+        write(iunit(i),887)    '    Bed Elevation: '
+        select case(noptzb)
+        case(0)
+          write(iunit(i),887)  '      zb(wave_grid) = zb(wave_grid)'    
+        case(1)
+          write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(flow_time,flow_grid)'     
+        case(2)
+          write(iunit(i),887)  '      zb(wave_time,wave_grid) = zb(start_time,wave_grid) '    
+          write(iunit(i),887)  '           + zb(flow_time,flow_grid) - zb(start_time,flow_grid)'    
+        end select
+        !write(iunit(i),764)    '  Extrapolation Distance:   ',xtrpdistfl,' m'        
+      elseif(noptset==4)then    
+        write(iunit(i),*) ' '
+        write(iunit(i),887)    'Forcing with Single Wave Condition:',trim(wgrdfile)
+        write(iunit(i),887)    '  Wave Height Dataset:'     ,'- '//trim(wavpath)
+        write(iunit(i),887)    '  Wave Period Dataset:'     ,'- '//trim(perpath)      
+        write(iunit(i),887)    '  Wave Direction Dataset:'  ,'- '//trim(dirpath)      
+        write(iunit(i),887)    '  Wave Dissipation Dataset:','- '//trim(disspath)      
+        write(iunit(i),887)    '  Radiation Stress Dataset:','- '//trim(radpath)
+      endif      
+    enddo
+    close(dgunit)
+    
+    end subroutine cms_print
+    
+!********************************************************************************
+    subroutine wave_only_print (simfile,iprpp,icur,ibreak,irs,kout,ibnd,  &
+          iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
+          imud,iwnd,isolv,ixmdf,iproc,iview,iroll)
+! Prints the known CMS-Wave parameters to the screen and diagnostic file
+! written by Mitchell Brown, USACE-CHL
+!********************************************************************************    
+    use diag_def, only: dgunit, dgfile
+
+    implicit none
+    
+    integer, intent(in)      :: iprpp,icur,ibreak,irs,ibnd,iwet,ibf,iark,iarkr,iwvbk
+    integer, intent(in)      :: igrav,irunup,imud,iwnd,isolv,ixmdf,iproc,iview,iroll,kout
+    integer, intent(in)      :: nonln
+    real, intent(in)         :: akap,bf,ark,arkr
+    character(len=*), intent(in) :: simfile
+    
+    integer :: iunit(2),i
+    logical :: isOpen
+    character :: aname*200,apath*200,aext*10,astring*200
+    
+    inquire(unit=dgunit,opened=isOpen)
+    if(isOpen) close(dgunit)
+    open(dgunit,file=dgfile,access='append') 
+    iunit = (/6,dgunit/)
+    call fileparts(simfile,apath,aname,aext)
+    astring=trim(aname) // '.' // aext
+    do i=1,2
+      call print_wave_status(iunit(i),iprpp,icur,ibreak,irs,ibnd,iwet,ibf,iark,iarkr,iwvbk,igrav,&
+         irunup,imud,iwnd,isolv,ixmdf,iproc,iview,iroll,kout,nonln,akap,bf,ark,arkr,simfile,astring)
+    enddo
+
+    write(dgunit,*) '*** Starting CMS-Wave Run ***'
+    close(dgunit)
+    
+  end subroutine wave_only_print
+  
+!********************************************************************************    
+  subroutine print_wave_status(iunit,iprpp,icur,ibreak,irs,ibnd,iwet,ibf,iark,iarkr,iwvbk,igrav,&
+       irunup,imud,iwnd,isolv,ixmdf,iproc,iview,iroll,kout,nonln,akap,bf,ark,arkr,simfile,astring)
+!********************************************************************************    
+    use tool_def, only: vstrlz
+    implicit none
+      
+    integer, intent(in)      :: iunit,iprpp,icur,ibreak,irs,ibnd,iwet,ibf,iark,iarkr,iwvbk
+    integer, intent(in)      :: igrav,irunup,imud,iwnd,isolv,ixmdf,iproc,iview,iroll,kout
+    integer, intent(in)      :: nonln
+    real, intent(in)         :: akap,bf,ark,arkr
+    character(len=*), intent(in) :: simfile,astring
+   
+342 format(' ',A,T40,F0.2,A)   
+354 format(' ',A,T40,A,A)      !Added for vstrlz function results
+887 format(' ',A,T40,A)        
+889 format(' ',A,T40,I0,A)     
+    
+    write(iunit,887)     'CMS-Wave Sim File:',trim(astring)
+    write(iunit,887)     '  Mode: Waves Only'
+    select case (iview)
+      case(0)
+        write(iunit,887) "  Half-Plane Spectral Forcing"
+      case(1)
+        write(iunit,887) "  Full-Plane Spectral Forcing (ignore 'wave.spc')"
+      case(2)
+        write(iunit,887) "  Full-Plane Spectral Forcing (read 'wave.spc')"
+    end select
+      
+    select case (iprpp)
+      case(0)
+        write(iunit,887) 'Wave Propagation:','Waves and Wind'
+      case(1)
+        write(iunit,887) 'Wave Propagation:','Waves (neglect wind input)'
+      case(-1)
+        write(iunit,887) 'Wave Propagation:','Waves and Wind (Fast Mode)'
+    end select
+
+    select case (icur)
+      case(0)
+        write(iunit,887) 'Wave modified by current:','OFF'
+      case(1)
+        write(iunit,887) 'Wave modified by current:','ON, multiple currents read sequentially'
+      case(2)
+        write(iunit,887) 'Wave modified by current:','ON, first current set only'
+    end select
+
+    select case (ibreak)
+      case(0)
+        write(iunit,887) 'Breaking/Dissipation output:','OFF'
+      case(1)
+        write(iunit,887) 'Breaking/Dissipation output:','ON, Breaking Indices written'
+      case(2)
+        write(iunit,887) 'Breaking/Dissipation output:','ON, Dissipation Fluxes written'
+    end select
+
+    select case (irs)
+      case(0)
+        write(iunit,887) 'Radiation Stress Output:','OFF'
+      case(1)
+        write(iunit,887) 'Radiation Stress Output:','ON'
+      case(2)
+        write(iunit,887) 'Radiation Stress and Wave Setup:','Maximum water level written'
+    end select
+
+    select case (kout)
+      case(0)
+        write(iunit,887) 'Spectral and Parameter Output:','OFF'
+      case default
+        write(iunit,887) 'Spectral and Parameter Output:','ON'
+        write(iunit,889) '  Output for ',kout,' cells'
+    end select
+
+    select case (ibnd)
+      case(0)
+        write(iunit,887) 'Nested Grid:','OFF'
+      case(1)
+        write(iunit,887) 'Nested Grid:','ON (Linear Interpolation)'
+      case(2)
+        write(iunit,887) 'Nested Grid:','ON (Morphic Interpolation)'
+    end select
+
+    select case (iwet)
+      case(0)
+        write(iunit,887) 'Wetting/Drying:','ON'
+      case(1)
+        write(iunit,887) 'Wetting/Drying:','OFF'
+    end select
+
+    select case (ibf)
+      case(0)
+        write(iunit,887) 'Bottom Friction:','OFF'
+      case(1)
+        write(iunit,887) 'Bottom Friction:','ON, Constant Darcy-Weisbach'
+        write(iunit,354) '  Value: ',trim(vstrlz(bf,'(f0.2)'))
+      case(2)
+        write(iunit,887) 'Bottom Friction:','ON, Variable Darcy-Weisbach'
+      case(3)
+        write(iunit,887) "Bottom Friction:","ON, Constant Manning's"
+        write(iunit,354) '  Value: ',trim(vstrlz(bf,'(f0.2)'))
+      case(4)
+        write(iunit,887) "Bottom Friction:","ON, Variable Manning's"
+    end select
+
+    select case (iark)
+      case(0)
+        write(iunit,887) 'Forward Reflection:','OFF'
+      case(1)
+        write(iunit,887) 'Forward Reflection:','ON, Constant'
+        write(iunit,354) '  Value: ',trim(vstrlz(ark,'(f0.2)'))
+      case(2)
+        write(iunit,887) 'Forward Reflection:','ON, Variable'
+    end select
+
+    select case (iarkr)
+      case(0)
+        write(iunit,887) 'Backward Reflection:','OFF'
+      case(1)
+        write(iunit,887) 'Backward Reflection:','ON, Constant'
+        write(iunit,354) '  Value: ',trim(vstrlz(arkr,'(f0.2)'))
+      case(2)
+        write(iunit,887) 'Backward Reflection:','ON, Variable'
+    end select
+      
+    select case (nonln)
+      case(0)
+        write(iunit,887) 'Nonlinear Wave-Wave Interaction:','OFF'
+      case(1)
+        write(iunit,887) 'Nonlinear Wave-Wave Interaction:','ON'
+    end select
+      
+    select case (igrav)
+      case(0)
+        write(iunit,887) 'Infragravity Waves:','OFF'
+      case(1)
+        write(iunit,887) 'Infragravity Waves:','ON'
+    end select
+      
+    select case (irunup)
+      case(0)
+        write(iunit,887) 'Wave Runup Calculations:','OFF'
+      case(1)
+        write(iunit,887) 'Wave Runup Calculations:','ON (relative to absolute datum)'
+      case(2)
+        write(iunit,887) 'Wave Runup Calculations:','ON (relative to updated MWL)'
+    end select
+      
+    select case (imud)
+      case(0)
+        write(iunit,887) "Muddy Bottom Calculations:","ON (read from 'mud.dat')"
+      case(1)
+        write(iunit,887) 'Muddy Bottom Calculations:','OFF'
+    end select
+    
+    select case (iwnd)
+      case(0)
+        write(iunit,887) "Wind Forcing:","ON (if 'wind.dat' exists)"
+      case(1)
+        write(iunit,887) "Wind Forcing:","OFF"
+      case(2)
+        write(iunit,887) "Wind Forcing:","ON (dismiss incident wave inflation under stronger wind forcing)"
+    end select
+    
+    select case (isolv)
+      case(0)
+        write(iunit,887) "Matrix Solver:","GSR"
+      case(1)
+        write(iunit,887) "Matrix Solver:","ADI (no parallelization)"
+    end select
+     
+    select case (ixmdf)
+      case(0)
+        write(iunit,887) "Output:","ASCII"
+      case(1)
+        write(iunit,887) "Output:","XMDF"
+      case(2)
+        write(iunit,887) "Input/Output:","XMDF"
+      case(-1)
+        write(iunit,887) "Output:","ASCII"
+    end select
+      
+    select case (iproc)
+      case(0)
+        write(iunit,887)   "Number of Processors:","1"
+      case(1)
+        write(iunit,887)   "Number of Processors:","1"
+      case default
+        if (isolv.eq.0) then
+          write(iunit,889) "Number of Processors:",iproc
+          write(iunit,887) "  Note: Processors should approximately equal Total Rows/300"
+        else
+          write(iunit,887) "Number of Processors:","1 (no parallelization with ADI)"
+        endif
+    end select
+      
+    select case (iwvbk)
+      case(0)
+        write(iunit,887) 'Wave Breaking Formula:','Extended Goda'
+      case(1)
+        write(iunit,887) 'Wave Breaking Formula:','Extended Miche'
+      case(2)
+        write(iunit,887) 'Wave Breaking Formula:','Battjes and Janssen'
+      case(3)
+        write(iunit,887) 'Wave Breaking Formula:','Chawla and Kirby'
+      case(4)
+        write(iunit,887) 'Wave Breaking Formula:','Battjes and Janssen (2007)'
+      case(5)
+        write(iunit,887) 'Wave Breaking Formula:','Miche (original)'
+      case(6)
+        write(iunit,887) 'Wave Breaking Formula:','Lifting Breaking'
+    end select
+
+    write(iunit,889) 'Wave Roller effect:',iroll,' (min. 0, max. 4)'
+    write(iunit,354) 'Diffraction Intensity Factor:',trim(vstrlz(akap,'(f0.2)')),' (min. 0, max. 4)'
+    write(iunit,887) ''
+
+  end subroutine print_wave_status

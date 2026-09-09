@@ -98,86 +98,6 @@ d1: do k=1,10
     implicit none
     integer :: nt,nf
 
-!    !Settings for solver 
-!    if(ncelljoint>0 .and. (nsolv==6 .or. nsolv==7))then
-!      nsolv = 4
-!    endif
-!    select case(nsolv)
-!    case(0) !ADI
-!      if(nswp0(1)==0) nswp(1)=40        
-!      if(nswp0(2)==0) nswp(2)=10
-!      if(nswp0(3)==0) nswp(3)=10
-!      nswp(4)=10
-!      nswp(5)=10    
-!    case(1) !Gauss-Seidel
-!      if(nswp0(1)==0) nswp(1)=100
-!      if(nswp0(2)==0) nswp(2)=30
-!      if(nswp0(3)==0) nswp(3)=30
-!      nswp(4)=15
-!      nswp(5)=15
-!      if(maxit0==0) maxit=30+ncells/5000
-!    case(2) !Gauss-Seidel-SOR
-!      if(nswp0(1)==0) nswp(1)=80        
-!      if(nswp0(2)==0) nswp(2)=20
-!      if(nswp0(3)==0) nswp(3)=20
-!      nswp(4)=15
-!      nswp(5)=15        
-!!      nswp(1)=100
-!!      nswp(2)=15
-!!      nswp(3)=15
-!!      nswp(4)=15
-!!      nswp(5)=10
-!      if(maxit0==0) maxit=30+ncells/5000
-!    case(3) !BiCGSTAB
-!      if(nswp0(1)==0) nswp(1)=15
-!      if(nswp0(2)==0) nswp(2)=5
-!      if(nswp0(3)==0) nswp(3)=5
-!      nswp(4)=5
-!      nswp(5)=5
-!      if(maxit0==0) maxit=20+ncells/10000
-!    case(4) !GMRES
-!      if(nswp0(1)==0) nswp(1)=20
-!      if(nswp0(2)==0) nswp(2)=5
-!      if(nswp0(3)==0) nswp(3)=5
-!      nswp(4)=3
-!!      nswp(4)=5
-!      nswp(5)=3
-!      if(maxit0==0) maxit=20+ncells/10000 
-!    case(5) !Hybrid
-!      if(nswp0(1)==0) nswp(1)=20
-!      if(nswp0(2)==0) nswp(2)=5
-!      if(nswp0(3)==0) nswp(3)=5
-!      nswp(4)=3
-!!      nswp(4)=5
-!      nswp(5)=3
-!     if(maxit0==0) maxit=20+ncells/10000  
-!    case(6) !SIP
-!      if(nswp0(1)==0) nswp(1)=40
-!      if(nswp0(2)==0) nswp(2)=7
-!      if(nswp0(3)==0) nswp(3)=7
-!      nswp(4)=3
-!      nswp(5)=3
-!      if(maxit0==0) maxit=20+ncells/10000
-!    case(7) !ICCG
-!      if(nswp0(1)==0) nswp(1)=30
-!      if(nswp0(2)==0) nswp(2)=7
-!      if(nswp0(3)==0) nswp(3)=7
-!      nswp(4)=3
-!      nswp(5)=3
-!      if(maxit0==0) maxit=20+ncells/10000
-!    !case(8) !CGSTAB !Still under testing
-!    !  if(nswp0(1)==0) nswp(1)=30
-!    !  if(nswp0(2)==0) nswp(2)=7
-!    !  if(nswp0(3)==0) nswp(3)=7
-!    !  nswp(4)=3
-!    !  nswp(5)=3
-!    !  if(maxit0==0) maxit=20+ncells/10000      
-!    end select      
-!    nswp0=nswp      
-!    maxit0=maxit      
-!    rmom0=1.e10
-!    rmom=0.0   
-    
     if(nsolv<3 .or. nsolv>5) return
     
     nt = 40
@@ -240,6 +160,8 @@ d1: do k=1,10
     rmom(n)=sqrt(adak(ncells,res)/real(ncells,kind=ikind))   !RMS of normalized residuals   
     
     select case(nsolv)
+!!      case(0)
+!!        call tdma2d(phi,ap,n)
       case(1)
         call gauss_seidel(nswp(n),acoef,ap,ss,phi)
       case(2)

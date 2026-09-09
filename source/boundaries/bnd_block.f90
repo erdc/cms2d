@@ -319,7 +319,7 @@ subroutine tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffset
              velblockread = .true.
 
           case ('TIDAL_CONSTITUENTS_BEGIN', 'TIDAL_BEGIN')
-call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffsetmode,offsetfile,offsetpath,wseoffset,ntiwse)       !(hli 10/04/17)
+             call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffsetmode,offsetfile,offsetpath,wseoffset,ntiwse)       !(hli 10/04/17)
              istidal = .true.
 
           case ('HARMONIC_CONSTITUENTS_BEGIN', 'HARMONIC_BEGIN')
@@ -333,9 +333,9 @@ call tidal_block(ibndtype,ntc,name,amp,phase,speed,f,vu,angle_wave,ioffsetmode,o
           case ('PARENT_BEGIN', 'PARENT_SIMULATION_BEGIN')
              if (ibndtype == 0) ibndtype = 7
              if (ibndtype == 7 .or. ibndtype == 8) then
- call parent_block(ctlfilepar, grdfilepar, projpar, wsefilepar, wsepathpar, velfilepar, velpathpar, tjuldaypar, timestarthr, ntiwse)
+               call parent_block(ctlfilepar, grdfilepar, projpar, wsefilepar, wsepathpar, velfilepar, velpathpar, tjuldaypar, timestarthr, ntiwse)
              else
- call diag_print_error('Found conflicting boundary specifications', '  Parent block specification conflicts with the boundary type')
+               call diag_print_error('Found conflicting boundary specifications', '  Parent block specification conflicts with the boundary type')
              end if
              nestblockread = .true.
 

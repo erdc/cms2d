@@ -468,16 +468,6 @@
       ncells = ncells + 1 !Active cells
       idmap(ii) = ncells    
       
-!      if(abs(xtemp(ii)-4555.0+xOrigin)<small .and. abs(ytemp(ii)-2355.0+yOrigin)<small)then
-!        continue
-!      endif
-!      if(abs(xtemp(ii)-2695.0+xOrigin)<small .and. abs(ytemp(ii)-1485.0+yOrigin)<small)then
-!        continue
-!      endif
-!      if(ii==28055)then
-!        continue
-!      endif
-            
       do k=1,7,2
         nck = loctemp(ii,k)
         nck2 = loctemp(ii,k+1)
@@ -694,16 +684,6 @@
     if(ndum/=ncellsD)then
       call diag_print_error('Problem reading telescoping file')
     endif        
-
-!**** TEMPORARY *******************
-!Set constant manning, surface elevation
-!    manncont = 0.025
-!    do i=1,ncellsD
-!      coefman(i) = manncont   !Wu
-!      eta(i)=0.0   !Wu
-!      p(i) = 0.0 !Initial water surface elevation
-!    enddo
-!**** TEMPORARY *******************
 
     allocate( isolated(ncells) )
     nIsolated = 0  
@@ -1191,12 +1171,6 @@ loopj: do j=1,numnode  !number of faces
     else
       call geo_init_poly     !Geospatial variable initialization  
     endif 
-    !if(n2Dor3D==3) then  
-    !   call geometry3D      !For 3D
-    !   call allocate_fl3D
-    !   call geo_var3D
-    !   if(noptset==3) call allocate_wavestress3D  !For 3D   
-    !endif
     
     if(bathydata%ison) call geo_init_bathydata
     

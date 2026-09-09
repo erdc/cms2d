@@ -5,8 +5,8 @@
 	</Platforms>
 	<Configurations>
 		<Configuration Name="Debug|x64" UseCompiler="ifxCompiler">
-			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" DebugParameter="debugParameterAll" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
-			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.2dx64.lib"/>
+			<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Preprocess="preprocessYes" AdditionalIncludeDirectories="..\source\main\" PreprocessorDefinitions="VS2022" EnableEnhancedInstructionSet="codeArchSSE3" OpenMP="OpenMPParallelCode" F2003Semantics="true" DebugParameter="debugParameterUsed" WarnDeclarations="true" WarnIgnoreLOC="true" WarnTruncateSource="true" WarnUncalled="true" WarnInterfaces="true" FloatingPointExceptionHandling="fpe0" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true"/>
+			<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="MSVCRTD; LIBCMTD" GenerateDebugInformation="true" GenerateMapFile="true" SubSystem="subSystemConsole" StackReserveSize="92428800" AdditionalDependencies="..\external_libraries\XMDF\xmdf2.2dx64.lib"/>
 			<Tool Name="VFResourceCompilerTool"/>
 			<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 			<Tool Name="VFCustomBuildTool"/>
@@ -203,11 +203,8 @@
 			<File RelativePath="..\source\output\output.F90"/>
 			<File RelativePath="..\source\interpolation\plagr_lib.f90"/>
 			<File RelativePath="..\source\main\prestart.f90"/>
-			<File RelativePath="..\source\quasi3d\q3d_def.F90">
+			<File RelativePath="..\source\roller\rol_def.f90">
 			</File>
-			<File RelativePath="..\source\quasi3d\q3d_lib.F90"/>
-			<File RelativePath="..\source\quasi3d\quasi3d.F90"/>
-			<File RelativePath="..\source\roller\rol_def.f90"/>
 			<File RelativePath="..\source\roller\roller.F90"/>
 			<File RelativePath="..\source\salinity\sal_bnd.f90"/>
 			<File RelativePath="..\source\salinity\sal_def.f90"/>

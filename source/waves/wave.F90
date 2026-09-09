@@ -85,11 +85,9 @@
       call steer_init !Needs to be called after CMS-Wave
       call interp_coef_flwav
       call interp_coef_wavfl
-      !if(n2Dor3D==3) call allocate_wavestress3D2   !For 3D
       call rol_init      
       call freememory_fl_wav 
       call getwave        
-      !if(n2Dor3D==3) call getwave3D    !For 3D
       call diag_print_message('*** Finished CMS-Wave Run ***',' ','*** Starting CMS-Flow Run ***' )      
       timehrs=ctime/3600.0
       tswave1=ctime
@@ -116,12 +114,6 @@
         !waveibr(ii)=waveibr2(ii)
         wavediss(ii)=wavediss2(ii)*ramp
       enddo
-      !do ii=1,ncells3DD
-      !   wavestrx3D1(ii)=wavestrx3D2(ii)
-      !   wavestry3D1(ii)=wavestry3D2(ii)
-      !   wavestrx3D(ii)=wavestrx3D2(ii)*ramp
-      !   wavestry3D(ii)=wavestry3D2(ii)*ramp
-      ! enddo
     elseif(noptset==4)then !Constant wave conditions
       timehrs=ctime/3600.0
       ramp=min(timehrs/rampdur,1.0)
@@ -338,7 +330,8 @@
 !$OMP END PARALLEL DO
 
     !Modifies the wave dissipation
-!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2)
+!!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2) 
+!$OMP PARALLEL DO PRIVATE(i,i1,i2,j,j1,j2,val)       !added val,  by Wu, 2026-2-16  
     do i=1,nwavei
       i1=min(i+1,nwavei); i2=max(i-1,1)
       do j=1,nwavej

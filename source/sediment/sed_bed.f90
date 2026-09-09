@@ -32,29 +32,32 @@
     subroutine bedchange
 ! Calculates the bed change terms for single-size sediment transport
 ! written by Alex Sanchez, USACE-ERDC-CHL  
+! Revised by Weiming Wu, Clarkson University
 !**************************************************************************
     use size_def, only: ncells,ncellsD
     use comvarbl, only: dtime, timehrs
     use sed_def, only: scalemorph,solid,rhosed,alphat,&
-        wsfall,Ctk,Ctkstar,Sb,dzb !,cohesivesed,Etkstar,wsfallcohsed
+        wsfall,Ctk,Ctkstar,Sb,dzb,cohesivesed,Etkstar,wsfallcohsed,alphacoh,rhobed
      use prec_def
      implicit none
      integer :: i
      real(ikind) :: fac
     
-    fac = scalemorph*dtime/solid/rhosed     !for mass balance, scalemorph=1.0     
+    if(cohesivesed)then
 !$OMP PARALLEL DO PRIVATE(i)
-    !if(cohesivesed)then
-    !   do i=1,ncells
-    !      dzb(i)=fac*((alphat(i)*wsfallcohsed(i)*Ctk(i,1)-Etkstar(i,1))+Sb(i,1))   !Note idry is already included in alphat
-    !   enddo  
-    !else
       do i=1,ncells
-        !dz(i)=fac*((alphat(i)*wsfall(1)*Ctk(i,1)-Etkstar(i,1))+Sb(i,1))   !Note idry is already included in alphat
+        dzb(i)=scalemorph*dtime/rhobed(i,1)   &
+              *((alphacoh(i)*wsfallcohsed(i)*Ctk(i,1)-Etkstar(i,1))+Sb(i,1))   !Note idry is already included in alphat
+      enddo  
+!$OMP END PARALLEL DO
+    else
+      fac = scalemorph*dtime/solid/rhosed     !for mass balance, scalemorph=1.0     
+!$OMP PARALLEL DO PRIVATE(i)
+      do i=1,ncells
         dzb(i)=fac*(alphat(i)*wsfall(1)*(Ctk(i,1)-Ctkstar(i,1))+Sb(i,1))   !Note iwet is already included in alphat
       enddo  
-    !endif
 !$OMP END PARALLEL DO
+    endif
     
     return
     end subroutine bedchange
@@ -66,7 +69,7 @@
 !
 ! written by Alex Sanchez, USACE-ERDC-CHL  
 !**************************************************************************
-    use sed_def, only: nhard,idhard,hardzb,CtstarP,zb1,dzb !,EtstarP
+    use sed_def, only: nhard,idhard,hardzb,CtstarP,zb1,dzb,EtstarP
     use geo_def, only: zb
     implicit none
     integer :: ih,i
@@ -75,8 +78,7 @@
        i=idhard(ih)
        if((zb1(i)+dzb(i))<hardzb(i))then
          CtstarP(i,:) = 0.7*CtstarP(i,:)
-         !EtstarP(i,:) = 0.7*EtstarP(i,:)   !Wu
-         !write(*,*) i,zb1(i)+dzb(i),hardzb(i)
+         EtstarP(i,:) = 0.7*EtstarP(i,:)   !Wu
         !Move hardbottom, small mass balance error
 !         zb(i)=hardzb(i)
 !         dzi=zb(i)-zb1(i)
@@ -135,7 +137,8 @@
       else
         pbkstar(i,:) = pbk(i,:,2) !note: pbk(i,ks,2) does not change until bedgrad subroutine   
       endif
-      Ctkp = Ctkstar(i,:)/max(pbk(i,:,1),1.0e-20) !kg/m^3    !HLI 01/13/2017
+      !Ctkp = Ctkstar(i,:)/max(pbk(i,:,1),1.0e-20) !kg/m^3    !HLI 01/13/2017
+      Ctkp = CtstarP(i,:)                                       !added by Wu, 2026-3-18
       aws = alphat(i)*wsfall(:)
       fterm = rhosed*solid*db(i,1) + fmdt*aws*Ctkp !kg/m^2
       fterm2 = db1(i,1)*pbk1(i,:) + (db(i,1)-db1(i,1))*pbkstar(i,:)
@@ -164,7 +167,7 @@
       dbdz = dzb(i) - db(i,1) + db1(i,1) !Update rise or fall of lower bound of mixing laye, note dzb from previous iteration    
       pbk(i,:,1) = (dzbk(i,:) + db1(i,1)*pbk1(i,:) - dbdz*pbkstar(i,:))/db(i,1)            
       pbk(i,:,1) = pbk(i,:,1)*rxb + pbktemp*rxm !Relaxation      
-!      where(pbk(i,:,1)<1.0e-20) pbk(i,:,1)=1.0e-20 
+      !where(pbk(i,:,1)<1.0e-20) pbk(i,:,1)=1.0e-20     !Opened by Wu, 2026-3-18 
       pbksum = sum(max(pbk(i,:,1),1.0e-20)) !sum fraction    !HLI 01/13/2017
 #ifdef DIAG_MODE
       if(abs(pbksum-1.0)>0.1 .or. isnankind(pbksum))then
@@ -182,6 +185,85 @@
 
     return
     end subroutine bedchangesort
+    
+!**************************************************************************
+    subroutine bedchangesort_cohesivesed
+    ! Calculates the total and fractional bed change, mixing layer thickness and sorting
+    ! for nonuniform sediment transport
+    ! written by Weiming Wu, Clarkson University
+    !**************************************************************************    
+    use size_def, only: ncells
+    use flow_def, only: iwet
+    use comvarbl, only: dtime
+    use diag_def
+    use diag_lib
+    use sed_def
+    use prec_def
+    implicit none
+    integer :: i,ih,ks,js,itg,im,jstar,iwr,irm
+    real(ikind) :: fac,dbdm,dzi,zbi,val
+    real(ikind) :: fterm(nsed),fterm2(nsed),fterm3(nsed)
+    !real(ikind) :: znum(nsed),zdem(nsed),Ctkp(nsed),aws(nsed)   !Closed by Wu
+    real(ikind) :: znum(nsed),zdem(nsed),Etkp(nsed),aws(nsed)     !Wu
+    real(ikind) :: pbksum,pbktemp(nsed),rxb,rxm,fmdt
+ 	
+    rxb = 0.5
+    rxm = 1.0-rxb 
+
+    fmdt = scalemorph*dtime !Apply morphologic scaling factor here
+    
+!$OMP PARALLEL DO PRIVATE(i,dbdm,Etkp,aws,fterm,fterm2,fterm3,znum,zdem,pbktemp,pbksum) REDUCTION(MAX:errpbk)   
+    do i=1,ncells  	  	  
+       !!   if(idry(i).eq.0 .or. zb(i).le.hardzb(i)+1.0e-6) then
+       if(iwet(i).eq.0)then
+          dm(i) = 0.0; dmk(i,:) = 0.0
+          dzb(i) = 0.0; dzbk(i,:) = 0.0 
+          cycle    	   	
+       endif
+ 	  
+       !...Mixing Layer 
+       dbms(i,1) = db(i,1)*rhobed(i,1)
+       
+       !...Bed change 	     	  	      
+       dbdm = dm(i) - dbms(i,1) + dbms1(i,1) !Rise or fall of lower bound of mixing layer       
+       if(dbdm.ge.0.0)then        
+          pbkstar(i,:) = pbk1(i,:) !from last time step
+       else
+          pbkstar(i,:) = pbk(i,:,2) !note: pbk(i,ks,2) does not change until bedgrad subroutine   
+       endif
+       !Etkp=Etkstar(i,:)/max(pbk(i,:,1),1.0e-20) !kg/m^3
+       Etkp = EtstarP(i,:)
+       aws = alphat(i)*wsfall(:)
+       if(cohesivesed) aws(1) = alphacoh(i)*wsfallcohsed(i)      
+       fterm = dbms(i,1) + fmdt*Etkp !kg/m^2
+       fterm2 = dbms1(i,1)*pbk1(i,:) + (dbms(i,1)-dbms1(i,1))*pbkstar(i,:)
+       fterm2 = aws*Ctk(i,:)*dbms(i,1) - Etkp*fterm2
+       fterm2 = fmdt*(fterm2 + Sb(i,:)*dbms(i,1)) !kg/m^2 **************
+       fterm3 = fmdt*Etkp*pbkstar(i,:) !kg/m^2
+       znum = fterm2/fterm         
+       zdem = fterm3/fterm 	         
+       dm(i) = sum(znum)/(1.0-sum(zdem)) !Total bed change      
+       dmk(i,:) = (fterm2 + dm(i)*fterm3)/fterm !Fractional bed change      
+ 
+       !...Sorting      
+       pbktemp = pbk(i,:,1) !Save old values for convergence test 
+       dbdm = dm(i) - dbms(i,1) + dbms1(i,1)
+       pbk(i,:,1) = (dmk(i,:) + dbms1(i,1)*pbk1(i,:) - dbdm*pbkstar(i,:))/dbms(i,1)            
+       pbk(i,:,1) = pbk(i,:,1)*rxb + pbktemp*rxm !Relaxation      
+       !where(pbk(i,:,1).lt.1.0e-20) pbk(i,:,1)=1.0e-20 
+       pbksum=sum(max(pbk(i,:,1),1.0e-20)) !sum fraction         
+       pbk(i,:,1)=max(pbk(i,:,1),1.0e-20)/pbksum     
+       !pbk(i,:,1)=pbk(i,:,1)/pbksum     
+       errpbk=max(errpbk,maxval(abs(pbk(i,:,1)-pbktemp))) !check error
+       
+       dzb(i) = dm(i)/rhobed(i,1)   
+       dzbk(i,:) = dmk(i,:)/rhobed(i,1) 
+     
+    enddo !i 
+!$OMP END PARALLEL DO
+
+    return
+    end subroutine bedchangesort_cohesivesed
     
 !**************************************************************************
     subroutine bedgrad()
@@ -279,119 +361,187 @@
     return
     end subroutine bedgrad
     
-!!**************************************************************************
-!    subroutine bedgrad_consolid
-!    ! Calculates bed material gradation for sub-mixing layers
-!    ! written by  Weiming Wu, NCCHE
-!    !**************************************************************************
-!    use case_size   
-!    use fl2d
-!    use comvarbl, only: small,dtime
-!    use sedmod
-!    use precision
-!    implicit none
-!    integer :: i,js,ih,n,jj,klay
-!    real(ikind) :: dbdz,xchg,pbksum,zbotlay,tconsolidstar,rhobedcohold
-!
-!!$OMP PARALLEL    
-!!$OMP DO PRIVATE(i,dbdz)                        
-!    do i=1,ncells
-!      if(idry(i).eq.0)then
-!        dbms(i,:)=dbms1(i,:)
-!        tconsolid(i,:)=tconsolid(i,:)+dtime
-!        cycle !db(i,js), and pbk(i,ks,js=2,nlay) stay the same
-!      endif
-!      dbdz=dbms(i,1)-dbms1(i,1)-dm(i) !Rise or fall of lower bound of mixing layer, inverse sign (positive is down)
-!
-!      if(dbdz.le.0.0)then              
-!        tconsolidstar=pbkstar(i,1)*dbdz*tconsolid(i,1)
-!      else
-!        tconsolidstar=pbkstar(i,1)*dbdz*tconsolid(i,2)   
-!      endif
-!
-!      dbms(i,2)=dbms1(i,2)-dbdz  !Calculate second layer thickness  **************  
-!      if(dbms(i,2).le.dbmax*rhobed(i,2) .and. dbms(i,2).ge.dbmin*rhobed(i,2))then !Second layer ok                              
-!        if(dbdz.le.0.0)then        
-!          tconsolid(i,2)=(dbms1(i,2)*pbk(i,1,2)*tconsolid(i,2)-dbdz*pbkstar(i,1)*tconsolid(i,1))  &
-!                          /(dbms1(i,2)*pbk(i,1,2)-dbdz*pbkstar(i,1)+small)
-!        endif
-!        tconsolid(i,2)=tconsolid(i,2)+dtime
-!        pbk(i,:,2)=(dbms1(i,2)*pbk(i,:,2)-dbdz*pbkstar(i,:))/dbms(i,2)
-!        dbms(i,3:nlay)=dbms1(i,3:nlay)     
-!        tconsolid(i,3:nlay)=tconsolid(i,3:nlay)+dtime
-!      elseif(dbms(i,2).gt.dbmax*rhobed(i,2))then !Second layer too thick, split into two              
-!        !First merge last two layers   
-!        dbms(i,nlay)=dbms1(i,nlay)+dbms1(i,nlay-1)     
-!        tconsolid(i,nlay)= (dbms1(i,nlay)*pbk(i,1,nlay)*tconsolid(i,nlay)   &
-!                            +dbms1(i,nlay-1)*pbk(i,1,nlay-1)*tconsolid(i,nlay-1))  &
-!                          /(dbms1(i,nlay)*pbk(i,1,nlay)+dbms1(i,nlay-1)*pbk(i,1,nlay-1)+small)  &
-!                          +dtime
-!        pbk(i,:,nlay)=(dbms1(i,nlay)*pbk(i,:,nlay)+dbms1(i,nlay-1)*pbk(i,:,nlay-1))/dbms(i,nlay)
-!        !Move index of layers 4 to nlay-1        
-!        dbms(i,4:nlay-1)=dbms1(i,3:nlay-2)
-!        pbk(i,:,4:nlay-1)=pbk(i,:,3:nlay-2)     
-!        tconsolid(i,4:nlay-1)=tconsolid(i,3:nlay-2)+dtime
-!        !Calculate second and third layers
-!        if(-dbdz.gt.dbsplit*rhobed(i,2))then !dbdz is large enough make it the second layer
-!          dbms(i,2)=-dbdz
-!          dbms(i,3)=dbms1(i,2)
-!          pbk(i,:,3)=pbk(i,:,2)
-!          pbk(i,:,2)=pbk1(i,:)
-!          tconsolid(i,3)=tconsolid(i,2)+dtime
-!          tconsolid(i,2)=tconsolid(i,1)+dtime
-!        else !dbdz is small so second layer split into equal parts
-!          dbms(i,2)=0.5*dbms(i,2)   !Note that db(i,2)=db1(i,2)-dbdz was set above
-!          dbms(i,3)=dbms(i,2)
-!          !Note that for db(i,2).gt.dbmax, dbdz.le.0.0  must be true so pbkstar=pbk1(i,:)
-!          tconsolid(i,3)=tconsolid(i,2)+dtime
-!          tconsolid(i,2)= ((dbms(i,2)+dbdz)*pbk(i,1,2)*tconsolid(i,2)-dbdz*pbk1(i,1)*tconsolid(i,1))  &
-!                           /((dbms(i,2)+dbdz)*pbk(i,1,2)-dbdz*pbk1(i,1)+small) &
-!                         +dtime
-!          pbk(i,:,3)=pbk(i,:,2)
-!          pbk(i,:,2)=((dbms(i,2)+dbdz)*pbk(i,:,2)-dbdz*pbk1(i,:))/dbms(i,2)   
-!        endif                                         
-!      else !Second layer too thin, merge with third layer
-!        dbms(i,2)=dbms(i,2)+dbms1(i,3)  
-!        tconsolid(i,2)= ((dbms1(i,2)-dbdz)*pbk(i,1,2)*tconsolid(i,2)+dbms1(i,3)*pbk(i,1,3)*tconsolid(i,3))  &
-!                         /((dbms1(i,2)-dbdz)*pbk(i,1,2)+dbms1(i,3)*pbk(i,1,3)+small) &
-!                       +dtime
-!        pbk(i,:,2)=((dbms1(i,2)-dbdz)*pbk(i,:,2)+dbms1(i,3)*pbk(i,:,3))/dbms(i,2)
-!        dbms(i,3:nlay-1)=dbms1(i,4:nlay)
-!        pbk(i,:,3:nlay-1)=pbk(i,:,4:nlay)
-!        tconsolid(i,3:nlay-1)=tconsolid(i,4:nlay)+dtime
-!      endif
-!
-!      tconsolid(i,1)= ((dbms1(i,1)*pbk1(i,1)+min(0.0,dmk(i,1)))*tconsolid(i,1)+tconsolidstar)  &
-!                         /(dbms(i,1)*pbk(i,1,1)+small) +dtime
-!    enddo !i
-!!$OMP END DO
-!!$OMP END PARALLEL     
-!    
-!    do i=1,ncells
-!       do klay=1,nlay
-!          if(tconsolid(i,klay).lt.31536000.0) then  !less than 1 yr
-!             rhobedcoh(i,klay)=rhobedcoh0*(1.0-arhobed*exp(-prhobed*tconsolid(i,klay)))/(1.0-arhobed)
-!          else
-!             rhobedcoh(i,klay)=rhobedcoh1yr+betarhobed*log(tconsolid(i,klay)/31536000.0)
-!          endif
-!          rhobed(i,klay)=1.0/(pbk(i,1,klay)/rhobedcoh(i,klay)+(1.0-pbk(i,1,klay))/rhobednoncoh)
-!       enddo
-!    enddo
-!
-!    do i=1,ncells
-!       dz(i)=dm(i)/rhobed(i,1)   ! Near-bed exchange
-!       do klay=1,nlay
-!          if(tconsolid(i,klay).lt.31536000.0) then  !less than 1 yr
-!             rhobedcohold=rhobedcoh0*(1.0-arhobed*exp(-prhobed*(tconsolid(i,klay)-dtime)))/(1.0-arhobed)
-!          else
-!             rhobedcohold=rhobedcoh1yr+betarhobed*log((tconsolid(i,klay)-dtime)/31536000.0)
-!          endif
-!          dz(i)=dz(i)+dbms(i,klay)*(1.0/rhobedcoh(i,klay)-1.0/rhobedcohold)   !Consolidation
-!       enddo
-!    enddo
-!
-!    return
-!    end subroutine bedgrad_consolid
+!**************************************************************************
+    subroutine bedgrad_consolid()
+    ! Calculates bed material gradation for sub-mixing layers
+    ! written by  Weiming Wu, Clarkson University
+    !**************************************************************************
+    use size_def   
+    use flow_def
+    use const_def, only: small, great
+    use comvarbl, only: dtime
+    use sed_def, only: db, db1, dzb, pbk, pbk1, pbkstar, dbmax, dbmin, nlay, scalemorph
+    use sed_def, only: dm,dmk,dbms,dbms1,rhobed,rhobedcoh,tconsolid,tconsolid1  !,tconsolid0(:)
+    use sed_def, only: arhobed,prhobed,rhobedcoh0,tdexp,rhobedcohtdexp,rhobedcoh1yr,betarhobed,rhobednoncoh
+    use prec_def
+    implicit none
+    integer :: i,j,klay
+    real(ikind) :: dbdm,tconsolidstar,rhobedcohold,fmdt
+   
+    fmdt = scalemorph*dtime !Apply morphologic scaling factor here
+    
+!$OMP PARALLEL    
+!$OMP DO PRIVATE(i,dbdm,tconsolidstar)                        
+    do i=1,ncells
+      if(iwet(i)==0)then
+        dbms(i,:)=dbms1(i,:)
+        tconsolid(i,:)=tconsolid1(i,:)+fmdt
+        cycle !db(i,js), and pbk(i,ks,js=2,nlay) stay the same
+      endif
+      dbdm = dm(i) - dbms(i,1) + dbms1(i,1) !Rise or fall of lower bound of mixing layer     
+      if(dbdm.ge.0.0)then              
+        tconsolidstar = tconsolid1(i,1)
+      else
+        tconsolidstar = tconsolid1(i,2)   
+      endif
+      dbms(i,2) = dbms1(i,2) + dbdm  !Calculate second layer thickness  **************  
+      if(dbms(i,2).le.dbmax*rhobed(i,2) .and. dbms(i,2).ge.dbmin*rhobed(i,2))then !Second layer ok                              
+        if(dbdm.ge.0.0)then        
+          tconsolid(i,2) = (dbms1(i,2)*pbk(i,1,2)*tconsolid1(i,2)+dbdm*pbkstar(i,1)*tconsolidstar)  &
+                          /(dbms1(i,2)*pbk(i,1,2)+dbdm*pbkstar(i,1)+small)
+        endif
+        tconsolid(i,2) = tconsolid1(i,2) + fmdt
+        pbk(i,:,2) = (dbms1(i,2)*pbk(i,:,2)+dbdm*pbkstar(i,:))/dbms(i,2)
+        dbms(i,3:nlay) = dbms1(i,3:nlay)     
+        tconsolid(i,3:nlay) = tconsolid1(i,3:nlay) + fmdt
+      elseif(dbms(i,2).gt.dbmax*rhobed(i,2))then !Second layer too thick, split into two              
+          !First merge last two layers   
+        dbms(i,nlay) = dbms1(i,nlay) + dbms1(i,nlay-1)     
+        tconsolid(i,nlay) = (dbms1(i,nlay)*pbk(i,1,nlay)*tconsolid1(i,nlay)   &
+                            +dbms1(i,nlay-1)*pbk(i,1,nlay-1)*tconsolid1(i,nlay-1))  &
+                          /(dbms1(i,nlay)*pbk(i,1,nlay)+dbms1(i,nlay-1)*pbk(i,1,nlay-1)+small)  &
+                          +fmdt
+        pbk(i,:,nlay) = (dbms1(i,nlay)*pbk(i,:,nlay)+dbms1(i,nlay-1)*pbk(i,:,nlay-1))/dbms(i,nlay)
+          !Move index of layers 4 to nlay-1        
+        dbms(i,4:nlay-1) = dbms1(i,3:nlay-2)
+        pbk(i,:,4:nlay-1) = pbk(i,:,3:nlay-2)     
+        tconsolid(i,4:nlay-1) = tconsolid1(i,3:nlay-2) + fmdt
+           !Calculate second and third layers
+        if(dbdm.gt.dbmin*rhobed(i,2))then !dbdz is large enough make it the second layer
+          dbms(i,2) = dbdm
+          dbms(i,3) = dbms1(i,2)
+          pbk(i,:,3) = pbk(i,:,2)
+          !!pbk(i,:,2)=pbk1(i,:)
+          pbk(i,:,2) = pbkstar(i,:)
+          tconsolid(i,3) = tconsolid1(i,2) + fmdt
+          !!tconsolid(i,2)=tconsolid1(i,1)+fmdt
+          tconsolid(i,2) = tconsolidstar + fmdt
+        else !dbdz is small so second layer split into equal parts
+          if(dbdm.ge.0.0)then        
+            tconsolid(i,2) = (dbms1(i,2)*pbk(i,1,2)*tconsolid1(i,2)+dbdm*pbkstar(i,1)*tconsolidstar)  &
+                          /(dbms1(i,2)*pbk(i,1,2)+dbdm*pbkstar(i,1)+small) + fmdt
+          endif
+          pbk(i,:,2) = (dbms1(i,2)*pbk(i,:,2)+dbdm*pbkstar(i,:))/dbms(i,2)
+          dbms(i,3) = 0.5*dbms(i,2)   !Note that db(i,2)=db1(i,2)+dbdz was set above
+          dbms(i,2) = dbms(i,3)
+          tconsolid(i,3) = tconsolid1(i,2)
+          pbk(i,:,3) = pbk(i,:,2)
+
+          !!dbms(i,2)=0.5*dbms(i,2)   !Note that db(i,2)=db1(i,2)-dbdz was set above
+          !!dbms(i,3)=dbms(i,2)
+          !!!Note that for db(i,2).gt.dbmax, dbdz.le.0.0  must be true so pbkstar=pbk1(i,:)
+          !!tconsolid(i,3)=tconsolid(i,2)+fmdt
+          !!tconsolid(i,2)= ((dbms(i,2)-dbdm)*pbk(i,1,2)*tconsolid(i,2)+dbdm*pbk1(i,1)*tconsolid(i,1))  &
+          !!                 /((dbms(i,2)-dbdm)*pbk(i,1,2)+dbdm*pbk1(i,1)+small) &
+          !!               +fmdt
+          !!pbk(i,:,3)=pbk(i,:,2)
+          !!pbk(i,:,2)=((dbms(i,2)-dbdm)*pbk(i,:,2)+dbdm*pbk1(i,:))/dbms(i,2)   
+        endif                                         
+      else !Second layer too thin, merge with third layer
+        if(dbdm.ge.0.0)then        
+          tconsolid(i,2) = (dbms1(i,2)*pbk(i,1,2)*tconsolid1(i,2)+dbdm*pbkstar(i,1)*tconsolidstar)  &
+                          /(dbms1(i,2)*pbk(i,1,2)+dbdm*pbkstar(i,1)+small)
+        endif
+        pbk(i,:,2) = (dbms1(i,2)*pbk(i,:,2)+dbdm*pbkstar(i,:))/dbms(i,2)
+        tconsolid(i,2)= (dbms(i,2)*pbk(i,1,2)*tconsolid1(i,2)+dbms1(i,3)*pbk(i,1,3)*tconsolid1(i,3))  &
+                         /(dbms(i,2)*pbk(i,1,2)+dbms1(i,3)*pbk(i,1,3)+small) &
+                       +fmdt
+        pbk(i,:,2)=(dbms(i,2)*pbk(i,:,2)+dbms1(i,3)*pbk(i,:,3))/(dbms(i,2)+dbms1(i,3))
+        dbms(i,2)=dbms(i,2)+dbms1(i,3)  
+        !!pbk(i,:,2)=((dbms1(i,2)-dbdz)*pbk(i,:,2)+dbms1(i,3)*pbk(i,:,3))/dbms(i,2)
+        if(dbms1(i,nlay)>=dbmax*rhobed(i,nlay))then !split last layer
+          dbms(i,3:nlay-2) = dbms1(i,4:nlay-1)
+          pbk(i,:,3:nlay-2) = pbk(i,:,4:nlay-1)
+          tconsolid(i,3:nlay-2)=tconsolid1(i,4:nlay-1)+fmdt
+          dbms(i,nlay-1) = 0.5*dbms1(i,nlay)
+          dbms(i,nlay) = dbms(i,nlay-1)
+          pbk(i,:,nlay-1) = pbk(i,:,nlay)
+          !pbk(i,:,nlay) = pbk(i,:,nlay) stays the same
+          tconsolid(i,nlay-1)=tconsolid1(i,nlay)+fmdt
+          tconsolid(i,nlay)=tconsolid1(i,nlay)+fmdt
+        else !add bottom layer
+          dbms(i,3:nlay-1) = dbms1(i,4:nlay)
+          pbk(i,:,3:nlay-1) = pbk(i,:,4:nlay)
+          tconsolid(i,3:nlay-1)=tconsolid1(i,4:nlay)+fmdt
+          dbms(i,nlay) = dbms1(i,nlay)
+          pbk(i,:,nlay) = pbk(i,:,nlay)
+          tconsolid(i,nlay)=tconsolid1(i,nlay)+fmdt
+          !tconsolid(i,nlay) = great 
+        endif    
+      endif
+           
+      if(dbdm.le.0.0) then
+        if(dmk(i,1).ge.0.0) then
+          tconsolid(i,1)= (dbms1(i,1)*pbk1(i,1)*tconsolid1(i,1)-dbdm*pbkstar(i,1)*tconsolidstar)  &
+                         /(dbms(i,1)*pbk(i,1,1)-dbdm*pbkstar(i,1)+dmk(i,1)+small) + fmdt
+        else
+          tconsolid(i,1)= (max(0.0,dbms1(i,1)*pbk1(i,1)+dmk(i,1))*tconsolid1(i,1)  &
+                           -dbdm*pbkstar(i,1)*tconsolidstar)  &
+                         /(max(0.0,dbms(i,1)*pbk(i,1,1)+dmk(i,1))-dbdm*pbkstar(i,1)+small) + fmdt
+        endif    
+      else  
+        if(dmk(i,1).ge.0.0) then
+          tconsolid(i,1)= (dbms1(i,1)*pbk1(i,1)*tconsolid1(i,1))  &
+                         /(dbms(i,1)*pbk(i,1,1)+dmk(i,1)+small) + fmdt
+        else
+          tconsolid(i,1)= tconsolid1(i,1) + fmdt
+        endif    
+      endif     
+      !tconsolid(i,1)= (max(0.0,dbms1(i,1)*pbk1(i,1)+min(0.0,dmk(i,1)))*tconsolid(i,1)  &
+      !                     - min(0.0,dbdm)*pbkstar(i,1)*tconsolidstar)  &
+      !               /(max(0.0,dbms(i,1)*pbk(i,1,1)+min(0.0,dmk(i,1)))     &
+      !                     - min(0.0,dbdm)*pbkstar(i,1) + max(0.0,dmk(i,1))+small) + fmdt     
+    enddo !i
+!$OMP END DO
+!$OMP END PARALLEL     
+
+    do i=1,ncells
+    do j=2,nlay
+      pbk(i,:,j) = max(pbk(i,:,j),small)/sum(max(pbk(i,:,j),small))  
+    enddo
+    enddo
+    
+    do i=1,ncells
+      do klay=1,nlay
+        if(tconsolid(i,klay).le.tdexp) then  !less than tdexp, use exponential form
+          rhobedcoh(i,klay)=rhobedcoh0*(1.0-arhobed*exp(-prhobed*tconsolid(i,klay)))/(1.0-arhobed)
+        elseif((tconsolid(i,klay).gt.tdexp).and.(tconsolid(i,klay).lt.31536000.0)) then  !less than 1 yr
+          rhobedcoh(i,klay)=rhobedcohtdexp+(rhobedcoh1yr-rhobedcohtdexp)  & 
+                                    *(tconsolid(i,klay)-tdexp)/(31536000.0-tdexp)        
+        else
+          rhobedcoh(i,klay)=rhobedcoh1yr+betarhobed*alog10(tconsolid(i,klay)/31536000.0)
+        endif
+        rhobed(i,klay)=1.0/(pbk(i,1,klay)/rhobedcoh(i,klay)+(1.0-pbk(i,1,klay))/rhobednoncoh)
+      enddo
+    enddo
+
+    do i=1,ncells
+      !dzb(i)=dm(i)/rhobed(i,1)   ! Near-bed exchange
+      do klay=1,nlay
+        if(tconsolid(i,klay).le.tdexp) then  !less than tdexp, use exponential form
+          rhobedcohold=rhobedcoh0*(1.0-arhobed*exp(-prhobed*(tconsolid(i,klay)-fmdt)))/(1.0-arhobed)
+        elseif((tconsolid(i,klay).gt.tdexp).and.(tconsolid(i,klay).lt.31536000.0)) then  !less than 1 yr
+          rhobedcohold=rhobedcohtdexp+(rhobedcoh1yr-rhobedcohtdexp)  &
+                                    *(tconsolid(i,klay)-fmdt-tdexp)/(31536000.0-tdexp)        
+        else
+          rhobedcohold=rhobedcoh1yr+betarhobed*alog10((tconsolid(i,klay)-fmdt)/31536000.0)
+        endif
+        dzb(i)=dzb(i)+dbms(i,klay)*pbk(i,1,klay)*(1.0/rhobedcoh(i,klay)-1.0/rhobedcohold)   !Consolidation
+      enddo
+    enddo
+
+    return
+    end subroutine bedgrad_consolid
     
 !*******************************************************************************
     subroutine mixing_layer

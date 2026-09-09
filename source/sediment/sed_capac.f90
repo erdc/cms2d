@@ -31,9 +31,8 @@ subroutine sedcapac_lundcirp
   integer :: i,ks,iripple
   real(ikind) :: tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb
   real(ikind) :: fcf,fwf,fcwf,BDpart,Ustc,Ustw,Hrms,phi,alfa,ur,gamma,um
-  real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac
+  real(ikind) :: Qss,Qbs,Qsm,Qsr,Qbm,Qba,Qts,Uw,T,dbrk,fac, Hw             !Hw, added by Wu
   !logical :: isnankind
-  !write(*,*)'bdj in sedcapac_lundcirp , noptset = ',noptset                                                              
 
   iripple = 1               
   if(noptset>=3)then  !Waves
@@ -54,7 +53,7 @@ subroutine sedcapac_lundcirp
         fac=0.5+0.5*cos(pi*min(max(h(i)/max(Whgt2(i),0.01)-1.0,0.0)/2.0,1.0))
       endif
       do ks=1,nsed
-        call susplund(h(i),uv(i),Worb(i),rhosed,rhow,diam(ks),   &
+        call susplund(h(i),uv(i),Whgt(i),Worb(i),rhosed,rhow,diam(ks),   &      !Whgt(i), added by Wu
              wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
              fcf,fwf,wavediss(i),taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                 
         call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)
@@ -79,6 +78,7 @@ subroutine sedcapac_lundcirp
     enddo
   else         !No waves
     phi = 0.0; Uw = 0.0; T = 10.0; dbrk = 0.0
+    Hw = 0.0     !added by Wu, July 2025
     do i=1,ncells  
       if(iwet(i)==0)then
         CtstarP(i,:)=0.0
@@ -88,7 +88,7 @@ subroutine sedcapac_lundcirp
       call shearlund(iripple,h(i),uv(i),Uw,T,phi,rhosed,rhow,D50(i),&
            tauct,tauwt,tauwmt,taucwt,taucwmt,tauctb,taucwtb,taucwmtb,fcf,fwf,fcwf)
       do ks=1,nsed
-        call susplund(h(i),uv(i),Uw,rhosed,rhow,diam(ks),       &
+        call susplund(h(i),uv(i),Hw,Uw,rhosed,rhow,diam(ks),       &         !Hw, added by Wu
              wsfall(ks),dstar(ks),tauct,tauwt,tauwmt,taucwt,taucwmt,&
              fcf,fwf,dbrk,taucr(ks),cak(i,ks),epsvk(i,ks),Qss,BDpart,Ustc,Ustw)                
         call bedlund(rhosed,rhow,tauctb,taucwtb,taucwmtb,taucr(ks),Qbs)                            
@@ -296,9 +296,6 @@ subroutine sedcapac_watanabe
            rsk(i,ks) = Qss/max(Qts,small) !Fraction of suspended sediment      
            CtstarP(i,ks) = (scalebed*(1.0-rsk(i,ks))+scalesus*rsk(i,ks))*CtstarP(i,ks)
            CtstarP(i,ks) = min(CtstarP(i,ks),Cteqmax)
-           !if(isnankind(rsk(i,ks)))then
-           !  continue
-           !endif
         enddo !ks
      enddo !i
      !$OMP END PARALLEL DO      
@@ -412,7 +409,6 @@ subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
   dr = 2.*mag_r/numsteps
   CSPs = 0.
   do i = 1,numsteps
-     ! write(*,*) CSPs
      r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
      f = 1./sqrt(2.*3.14)*exp(-.5*r**2.);
      Uwc = 1.*abs(u)+1.*sigT*cos(alpha)*r;
@@ -423,7 +419,6 @@ subroutine prob_susload(u,v,sigT,alpha,Tp,CSwf,CSPs)
         CSPs = CSPs+dr*f
      endif
   enddo
-  !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSPs',u,v,sigT,alpha,Tp,CSwf,CSPs
   return
 end subroutine prob_susload
 
@@ -444,7 +439,6 @@ subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
   dr = 2.*mag_r/numsteps
   CSDf = 0.
   do i = 1,numsteps
-     ! write(*,*) CSPs
      r = -mag_r + 2.*mag_r*(float(i)-1.)/float(numsteps-1)
      f = 1./sqrt(2.*3.14)*exp(-.5*r**2.);
      Uwc = 1.*abs(u)+1.*sigT*cos(alpha)*r;
@@ -454,6 +448,129 @@ subroutine get_CSDf(u,v,sigT,alpha,Tp,CSwf,CSDf)
      CSDf = CSDf + dr*diss*f;
   enddo
 
-  !write(*,*),'bdj u,v,sigT,alpha,Tp,CSwf,CSDf',u,v,sigT,alpha,Tp,CSwf,CSDf
   return
 end subroutine get_CSDf
+
+
+!******************************************************************  
+subroutine cohsedentrain
+!   Cohesive sediment entrainment rate
+!   by W. Wu, Clarkson Univ.
+!******************************************************************          
+  use size_def
+  use geo_def
+  use flow_def
+  use fric_def 
+  use const_def
+  use wave_flowgrid_def
+  use sed_def
+  use cms_def
+  use prec_def
+  implicit none
+  integer :: i,k,nck,kkdf,kkk
+  real(ikind) :: aw,taubc,taubw,taub,coefksr,coefks,riplenw,riphegw,Urms,phi,fw,worbi  !worbind
+  real(ikind) :: bedchangei,taubgr,taubcgr,taubwgr,coefksgr,fwgr,gammaw
+  
+  !Calculate crtical shear stress for erosion, tau_ce, for cohesive sediment
+  if(methcoherodcr.eq.2) then   !depth-varying tau_ce, pares of tau_cr and depth below the bed
+    do i=1,ncells
+      bedchangei=zb0(i)-zb(i)-0.5*dzb(i)
+      if(bedchangei.le.coheroddep(1)) coherodcr(i)=coherodtauce(1)
+      do k=2,numbtaucedep
+        if((bedchangei.gt.coheroddep(k-1)).and.(bedchangei.le.coheroddep(k))) then
+          coherodcr(i)=coherodtauce(k-1)+(coherodtauce(k)-coherodtauce(k-1))*  &
+                           (bedchangei-coheroddep(k-1))/(coheroddep(k)-coheroddep(k-1))
+        endif
+      enddo
+      if(bedchangei.gt.coheroddep(numbtaucedep)) coherodcr(i)=coherodtauce(numbtaucedep)
+    enddo
+  elseif(methcoherodcr.eq.4) then  !function of mud dry density 
+    do i=1,ncells
+      coherodcr(i)=coherodcralpha*rhobedcoh(i,1)**coherodcrbeta
+    enddo
+  elseif(methcoherodcr.eq.5) then  !function of excess mud dry density by Nicholson and O'Conor (1986)
+    do i=1,ncells
+      coherodcr(i)=coherodcratrho0+coherodcrtau*(rhobedcoh(i,1)-rhobedcohercr0)**coherodcrn
+    enddo
+  endif
+    
+  !Calculate the entrainment rate for cohesive sediment, E
+  if(cmswave)then  !Waves 
+    do i=1,ncells
+      phi=abs(wang(i)-atan2(v(i),u(i)))     !Current-wave angle              	
+      !phi=wang(i)-atan2(v(i),u(i))     !Current-wave angle              	
+      worbi=Worb(i)
+      !worbind=1.0
+      do k=1,ncface(i)
+        nck=cell2cell(k,i)   !loconect(i,k)
+        if(iwet(nck).eq.0) then
+          !worbi=0.0; worbind=0.0;  kkdf=kkface(idirface(i,k))
+          !do kkk=1,ncface(i)    !Assume boundary face does not split
+          !   if(idirface(i,kkk).eq.kkdf) then
+          !      !worbi=worbi+Worb(loconect(i,kkk))
+          !      worbi=worbi+Worb(cell2cell(kkk,i))
+          !      worbind=worbind+1.0
+          !   endif
+          !enddo                   
+          !worbi=worbi/worbind
+          worbi=worbi*0.5 
+        endif   
+      enddo
+      Urms=worbi/1.41421356      !sqtwo  
+      aw=Urms*Wper(i)/2.0/pi  !Wave excursion
+      aw=max(0.00000000001, aw)
+
+      !riplenw=aw/(1.0+0.00187*aw/d50(i)*(1.0-exp(-(0.0002*aw/d50(i))**1.5)))  !Soulsby and Whitehouse (2005)
+      !  !!riphegw=0.15*(1.0-exp(-(5000.0*d50(i)/aw)**3.5))*riplenw
+      !  !!coefksr=12.0*riphegw**2/riplenw  !Form roughness
+      !riphegw=0.15*(1.0-exp(-(min(10.0,5000.0*d50(i)/aw))**3.5))   !Delta/L
+      !coefksr=12.0*riphegw**2*riplenw  !Form roughness   
+
+      gammaw=Urms**2/((rhosed/rhow-1.0)*grav*d50(i))
+      if(gammaw.le.10.0) then      !ripple geometry, Van Rijn (1993)
+        riphegw=0.22*aw
+        coefksr=12.0*riphegw*0.18
+      elseif((gammaw.gt.10.0).and.(gammaw.le.250.0)) then
+        riphegw=0.0028*aw*(2.5-0.01*gammaw)**5
+        coefksr=12.0*riphegw*0.02*(2.5-0.01*gammaw)**2.5
+      elseif(gammaw.gt.250.0) then
+        coefksr=0.0
+      endif            
+      
+      coefks=d50(i)+coefksr
+        !coefks=1.5*d90(i)+coefksr
+        !!coefks=1.5*d90(i)+coefksr*worbind         
+      coefksgr=d50(i)    !Grain roughness
+        !!coefksgr=1.5*d90(i)    !Grain roughnes
+
+      !fw=0.237*(aw/coefks)**(-0.52)   !Soulsby's wave friction coefficient   
+      fw=min(0.237*(coefks/aw)**0.52, 0.15)   !Soulsby's wave friction coefficient  
+      taubw=0.25*fw*Urms**2*rhow    !Bed shear stress by current    
+      fwgr=min(0.237*(coefksgr/aw)**0.52, 0.15)   !Soulsby's wave friction coefficient  
+      taubwgr=0.25*fwgr*Urms**2*rhow    !Bed shear stress by current    
+                
+      taubc=bsxy(i)    !rhow*grav*(abs(uv(i))*coefman(i))**2*h(i)**(-0.3333333)  !Bed shear stress by current	
+      taubcgr=taubc*(cohmangrain/coefman(i))**1.5    ! grain bed shear stress by current	
+
+      taub=sqrt(taubc**2+taubw**2+2.0*taubc*taubw*cos(phi))
+      cohbsxy(i)=max(taub, 0.00000000001)
+
+      taubgr=sqrt(taubcgr**2+taubwgr**2+2.0*taubcgr*taubwgr*cos(phi))
+      EtstarP(i,1)=coherodm(i)*(max(0.0, taubgr/coherodcr(i)-1.0))**coherodn
+        !EtstarP(i,1)=coherodm(i)*(max(0.0, cohbsxy(i)/coherodcr(i)-1.0))**coherodn
+      rsk(i,1)=1.0
+    enddo
+  else
+    do i=1,ncells
+      cohbsxy(i)=max(bsxy(i), 0.00000000001) 
+      taubcgr=max(bsxy(i)*(cohmangrain/coefman(i))**1.5, 0.00000000001)    !Grain bed shear stress
+      EtstarP(i,1)=coherodm(i)*(max(0.0, taubcgr/coherodcr(i)-1.0))**coherodn
+        !EtstarP(i,1)=coherodm(i)*(max(0.0, cohbsxy(i)/coherodcr(i)-1.0))**coherodn
+      rsk(i,1)=1.0
+    enddo
+  endif
+    
+  return
+endsubroutine cohsedentrain
+    
+

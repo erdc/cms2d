@@ -17,6 +17,7 @@
 #include "CMS_cpp.h"
     use comp_lib
     use comvarbl
+    use const_def, only: small
     use der_def, only: nder,nlim,gow,goa
     use der_lib, only: der_grad_eval
     use diag_def
@@ -26,14 +27,15 @@
     use geo_def, only: idmap,zb,zbk,dzbx,dzby,ncface
     use interp_lib, only: interp_scal_cell2face
     use prec_def    
-    use q3d_def
-    use q3d_lib, only: q3d_eddyvert_mean
+    !use q3d_def
+    !use q3d_lib, only: q3d_eddyvert_mean
     use sed_def
     use size_def
     use solv_def, only: iconv
     implicit none
     integer :: i,k,ks
-    real(ikind) :: val,chgpbk,chgCtk
+    !real(ikind) :: val,chgpbk,chgCtk
+    real(ikind) :: chgpbk,chgCtk,tempovar   !Modified by Wu
     logical :: convCtk,convpbk
     real(ikind) :: tausx,tausy,ustars
 #ifdef DIAG_MODE
@@ -61,8 +63,6 @@
     !=== Incipient Motion Correction for Bedslope ======
     if(ibedslope==1) call bedslopecor_dey
     
-    !write(*,*)'bdj in sed_imp,ready to go to sedcapac, icapac=',icapac
-    
     !=== Transport Capacity =====
     select case(icapac)  !CtstarP(i,ks),rs(i,ks)
     case(1); call sedcapac_lundcirp !Lund-CIRP
@@ -72,8 +72,6 @@
     case(5); call wucapac           !Wu et al. (2000) (under testing)
     case(6); call sedcapac_c2shore   !bdj                                        
     end select
-    
-    !if(cohesivesed) call cohsedentrain !Cohesive sediment   !Wu 
     
 #ifdef DIAG_MODE
     do i=1,ncells
@@ -88,12 +86,12 @@
     
     !=== Vertical diffusivity =======
     !Note: The vertical diffusivity is used in the total load correction factor calculation.
-    if(icapac/=1 .AND. q3d)then
-      do i=1,ncells  
-        call surface_windwave_stress(i,tausx,tausy,ustars)
-        epsvk(i,:) = q3d_eddyvert_mean(h(i),bsxy(i),ustars)/schmidt !Assume Schmidt number the same for all size classes
-      enddo    
-    endif
+    !if(icapac/=1 .AND. q3d)then       !Closed by Wu
+    !  do i=1,ncells  
+    !    call surface_windwave_stress(i,tausx,tausy,ustars)
+    !    epsvk(i,:) = q3d_eddyvert_mean(h(i),bsxy(i),ustars)/schmidt !Assume Schmidt number the same for all size classes
+    !  enddo    
+    !endif
     
     !=== Horizontal Mixing Coefficient ====
 !$OMP PARALLEL DO PRIVATE(i,k)
@@ -132,8 +130,8 @@
       !!enddo !ks
     !enddo !ih
     
-    !=== Inflow Boundary Conditions ====
-    call sedbnd_eval  !CtstarP(nck,:)
+    !!=== Inflow Boundary Conditions ====
+    !call sedbnd_eval  !CtstarP(nck,:)    !Moved below
     
     !=== Determine whether to update morphology (bed) and bed composition ====
     if(timehrs<tStartMorph .or. scalemorph<1.0e-6)then
@@ -150,25 +148,31 @@
     !=== Adaptation coefficient ==============
     call adaptcoef !alphat(i)           
     
-    !if(cohesivesed) call fallvel_cohsed   !By Wu
-    !
-    !if(cohesivesed) then   !Wu
-    !   do i=1,ncells
+    dzb = 0.0      !set dzb at 0.0 before iteration, Test by Wu, 2026-3-20
+    if(cohesivesed) then
+      call cohsedentrain !Cohesive sediment   !Wu    
+      call fallvel_cohsed   !By Wu
+      do i=1,ncells
+        tempovar=max(alphat(i)*wsfall(1),alphacoh(i)*wsfallcohsed(i)+small)
+        EtstarP(i,1)=min(EtstarP(i,1),tempovar*200.0)
+        CtstarP(i,1)=EtstarP(i,1)/tempovar
     !      EtstarP(i,1)=min(EtstarP(i,1),wsfallcohsed(i)*200.0)
+          !EtstarP(i,1)=min(EtstarP(i,1),alphacoh(i)*wsfallcohsed(i)*200.0)
     !      CtstarP(i,1)=EtstarP(i,1)/wsfallcohsed(i)
-    !   enddo
-    !   if(nsed.gt.1) then
-    !      do i=1,ncells
-    !         EtstarP(i,2:nsed)=alphat(i)*wsfall(2:nsed)*CtstarP(i,2:nsed)
+          !CtstarP(i,1)=EtstarP(i,1)/(alphat(i)*wsfall(1)+small)
+          !CtstarP(i,1)=EtstarP(i,1)/max(alphat(i)*wsfall(1),alphacoh(i)*wsfallcohsed(i)+small)
+      enddo
+      if(nsed.gt.1) then
+        do i=1,ncells             
+          EtstarP(i,2:nsed)=alphat(i)*wsfall(2:nsed)*CtstarP(i,2:nsed)
     !         EtstarP(i,2:nsed)=EtstarP(i,2:nsed)+(EtstarP(i,1)-EtstarP(i,2:nsed))*  & !affected by cohesive sed.
     !                              (max(0.0,min(1.0,(pbk1(i,1)-pcmin)/(pcmax-pcmin))))**2
-    !      enddo
-    !   endif
-    !else
-    !   do i=1,ncells
-    !      EtstarP(i,:)=alphat(i)*wsfall*CtstarP(i,:)
-    !   enddo
-    !endif
+        enddo
+      endif
+    endif
+
+    !=== Inflow Boundary Conditions ====
+    call sedbnd_eval  !CtstarP(nck,:)    !Moved to here by Wu
     
     !=== Total load correction factor ========
     select case(ibt) !btk(i,ks)
@@ -195,7 +199,31 @@
     errCtk0 = 0.0_ikind
     errpbk0 = 0.0_ikind
     do itersed=1,maxitersed 
-       !if(cohesivesed) call fallvel_cohsed   !By Wu
+        
+       if(cohesivesed.and.(itersed.gt.1)) then
+         if((methcoherodcr.ge.2).and.(methcoherodcr.le.5)) then
+           call cohsedentrain      !update tau_ce and entrainment rate   !Wu
+           call fallvel_cohsed     !By Wu
+           do i=1,ncells
+             tempovar=max(alphat(i)*wsfall(1),alphacoh(i)*wsfallcohsed(i)+small)
+             EtstarP(i,1)=min(EtstarP(i,1),tempovar*200.0)
+             CtstarP(i,1)=EtstarP(i,1)/tempovar
+               !EtstarP(i,1)=min(EtstarP(i,1),wsfallcohsed(i)*200.0)
+               !EtstarP(i,1)=min(EtstarP(i,1),alphacoh(i)*wsfallcohsed(i)*200.0)
+               !CtstarP(i,1)=EtstarP(i,1)/wsfallcohsed(i)
+               !CtstarP(i,1)=EtstarP(i,1)/(alphat(i)*wsfall(1)+small)
+               !CtstarP(i,1)=EtstarP(i,1)/max(alphat(i)*wsfall(1),alphacoh(i)*wsfallcohsed(i)+small)
+           enddo
+           if(nsed.gt.1) then
+             do i=1,ncells             
+               EtstarP(i,2:nsed)=alphat(i)*wsfall(2:nsed)*CtstarP(i,2:nsed)
+                 !EtstarP(i,2:nsed)=EtstarP(i,2:nsed)+(EtstarP(i,1)-EtstarP(i,2:nsed))*  & !affected by cohesive sed.
+                 !                     (max(0.0,min(1.0,(pbk1(i,1)-pcmin)/(pcmax-pcmin))))**2
+             enddo
+           endif
+         endif          
+       endif
+
        errCtk = 0.0_ikind
        errpbk = 0.0_ikind
        rsCtkmax = 0.0
@@ -207,6 +235,7 @@
          case(4); call coeffsourcesink_c(exponentialcoef,ks)
          case default; call coeffsourcesink_c(upwindcoef,ks)
          end select
+         
          if(ncellsimple==ncells)then !No gradients required
            select case(ndsch) !Anti-diffusion corrections
            case(5); call defcorhlpa(Ctk(:,ks),su)
@@ -251,11 +280,12 @@
          if(singlesize)then !no sorting needed
            call bedchange !dzb(i)
          else
-           !if(consolidation)then
-           !  call bedchangesort_consolid
-           !else  
-             call bedchangesort !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
-           !endif
+           if(cohesivesed) then     !added by Wu
+             call bedchangesort_cohesivesed()
+             if(consolidation) call bedgrad_consolid()   
+           else  
+             call bedchangesort() !db(i,1),dzb(i),dzbk(i,ks),pbk(i,ks,1)
+           endif
          endif
          call struct_dzb !dzb(i) and optionally dzbk(i,ks)
          call check_hardbottom
@@ -288,7 +318,7 @@
          !chgpbk=abs(errpbk-errpbk0)  !Absolute error change, bed composition
          !convCtk=(convCtk .or. chgCtk<=1.0e-7)
          !convpbk=(convpbk .or. chgpbk<=1.0e-6)
-         if(convCtk .and. convpbk) exit
+           if(convCtk .and. convpbk) exit   !This statement repeats the above one. Remove it?   comment by Wu, 2025-8-24
          !chgCtk=chgCtk/max(errCtk0,tolCtk) !Relative error change, concentrations
          !chgpbk=chgpbk/max(errpbk0,tolpbk) !Relative error change, bed composition
          !convCtk=(convCtk .or. chgCtk<=0.01)
@@ -298,13 +328,18 @@
          errpbk0=errpbk
         endif
        endif
+  
     enddo !iteration loop
     rmom(4) = errCtk  
     
     !=== Bed sorting and gradation =============
     if(.not.singlesize .and. calcbedcomp)then
-      call bedgrad !pbk(i,ks,2:nlay)
-      !if(.not.consolidation) call bedgrad !pbk(i,ks,2:nlay) !Wu
+      !if(consolidation) then     !added by Wu
+      !  call bedgrad_consolid()
+      !else
+      !  call bedgrad()
+      !endif  
+      if(.not.consolidation) call bedgrad()
     endif  
       
     !=== Write final sediment error estimates ====   
@@ -408,6 +443,7 @@
     use flow_def, only: iwet,su,h1,sp,h,h2,visk,hk,acoef,flux
     use sed_def,  only: ctk1,btk1,btk,ctk2,btk2,hardzb,dzbmax,ctk,rhosed,solid,pbk,alphat,wsfall
     use sed_def,  only: scalemorph,sb,ctstarp,ctkstar,rsk,cmixbedload,diam
+    use sed_def,  only: wsfallcohsed,Etkstar,EtstarP,cohesivesed,alphacoh 
     use fric_def, only: bsvel
 !!#ifdef DEV_MODE
 !!    use q3d_def
@@ -472,26 +508,27 @@
       !--- Limit capacity to avoid excessive erosion or eroding past the hard bottom ---
       dzblim = min(zb(i)-hardzb(i),dzbmax)
       TempVar = alphat(i)*wsfall(ks) + 1.0e-20                                         !MEB 01/13/2017
-      !print*, TempVar, dtime 
       Ctkstarhard = Ctk(i,ks) + rhosed*solid*pbk(i,ks,1)*dzblim /(TempVar*max(scalemorph,1.0)*dtime) + Sb(i,ks)/TempVar   !changed scalemorph to computed val - meb 03/11/2019
-      
       
       Ctkstarhard = max(Ctkstarhard,0.0)
       CtstarP(i,ks) = min(CtstarP(i,ks),Ctkstarhard/max(pbk(i,ks,1),1.0e-6))
       
       !--- Fractional Equilibrium Concentration ---------
       Ctkstar(i,ks)=CtstarP(i,ks)*pbk(i,ks,1)
+      !if(cohesivesed) Etkstar(i,ks)=EtstarP(i,ks)*pbk(i,ks,1)   !Wu
+      if(cohesivesed) Etkstar(i,ks)=alphat(i)*wsfall(ks)*Ctkstar(i,ks)  !Wu
       
       !--- Erosion and Deposition terms -----------------------------------------
       awsvolp=areap(i)*alphat(i)*wsfall(ks) !Note iwet is already included in alphat
       su(i)=su(i)+awsvolp*Ctkstar(i,ks)
+      !sp(i)=sp(i)-awsvolp
+      !!su(i)=su(i)+areap(i)*iwet(i)*Etkstar(i,ks)
+      if(cohesivesed.and.ks.eq.1) then       
+        sp(i)=sp(i)-areap(i)*alphacoh(i)*wsfallcohsed(i)  !Note idry is already included in alphat
+      else
       sp(i)=sp(i)-awsvolp
-      !su(i)=su(i)+areap(i)*iwet(i)*Etkstar(i,ks)
-      !if(cohesivesed.and.ks.eq.1) then       
-      !  sp(i)=sp(i)-areap(i)*alphat(i)*wsfallcohsed(i)  !Note idry is already included in alphat
-      !else
       !  sp(i)=sp(i)-areap(i)*alphat(i)*wsfall(ks) !Note idry is already included in alphat  
-      !endif
+      endif
 
       !--- Matrix Coefficients ----------------------------------
       do k=1,ncface(i)    
@@ -507,9 +544,6 @@
           call diag_print_error('Problem calculating transport capacity')     
         endif
       enddo      
-      ! if(i.ge.1514.and.i.le.1524) then
-      !    write(*,*)'bdj i, h(i), u(i), acoef(1,i), Ct(i)',i, h(i), u(i), acoef(1,i), Ct(i)
-      ! endif
 
       !--- Wetting and drying -------------------------
       if(iwet(i)==1)then
@@ -586,9 +620,9 @@
         if(iwet(i)==0) cycle
         nck=cell2cell(k,i)
         if(flux(k,i)<0.0)then !Inflow
-           Ctk(nck,ks)=pbk(i,ks,1)*CtstarP(nck,ks)
-           !Ctk(nck,ks)=Ctk(i,ks)*CtstarP(nck,ks)/CtstarP(i,ks) !Better but needs testing
-           su(i)=su(i)+acoef(k,i)*Ctk(nck,ks) !Flux bc
+           !Ctk(nck,ks)=pbk(i,ks,1)*CtstarP(nck,ks)   !Changed by Wu, 2026-6-14
+           !!Ctk(nck,ks)=Ctk(i,ks)*CtstarP(nck,ks)/CtstarP(i,ks) 
+           su(i)=su(i)+acoef(k,i)*Ctk(nck,ks) !Flux bc, Ctk is calculated in sedbnd_eval  !Change by Wu, 2026-6-14
            sp(i)=sp(i)-acoef(k,i)
         else                  !Outflow         
            Ctk(nck,ks)=Ctk(i,ks)  !Copy to dummy cell       

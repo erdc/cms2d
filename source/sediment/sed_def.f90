@@ -245,7 +245,12 @@ module sed_def
     
     !Boundary conditions
     integer :: isedinflowbc,nsedflux,nsedsource,nsedbc
-    real(ikind) :: Qtotin,facQtotin    
+    integer :: nQseg
+    real(ikind) :: Qtotin,facQtotin,Ctotin      !Ctotin added by Wu 4/4/2025    
+    real(ikind), allocatable :: CtotinMultRiv(:)     !Sediment concentr. in different river BC, added by Wu, 2026-3-16
+    real(ikind), allocatable :: QtQa(:),QtQb(:),psinMultRiv(:,:)    ! added by Wu, 2026-3-16, sediment rating curve
+    real(ikind), allocatable :: QtQaFract(:,:),QtQbFract(:,:)       ! added by Wu, 2026-5-14, fractional sediment rating curve
+    real(ikind), allocatable :: QSeg(:,:),CtFractSeg(:,:,:) ! added by Wu, 2026-5-14, Segmented fractional sediment rating curve
     real(ikind), allocatable :: sedbnd(:,:)
     !Flux and source boundaries
     type sed_driver !Multiple sed rates, one for each cell in string
@@ -392,15 +397,18 @@ module sed_def
     
     !Cohesive Sediment
     logical :: cohesivesed, consolidation
-    integer :: methcoherodcr
+    integer :: methcoherodcr,numbtaucedep
     real(ikind) :: wsfallmax, cohk1, cohk2, cohcp, cohn, cohr
     real(ikind) :: cohsalkmax, cohsalcp, cohsaln, cohtaubp, cohturbn1, cohturbn2, cohturbk1
-    real(ikind) :: cohdepmax0,cohdepmin0, coherodm0, coherodcr0,coherodn
-    real(ikind) :: pcmax,pcmin,rhobedcoh0,arhobed,prhobed,rhobedcoh1yr,betarhobed,rhobednoncoh
+    real(ikind) :: cohdepmax0,cohdepmin0, coherodm0, coherodcr0,coherodn,cohmangrain
+    real(ikind) :: pcmax,pcmin,rhobedcoh0,arhobed,prhobed,tdexp,rhobedcohtdexp,  &
+                   rhobedcoh1yr,betarhobed,rhobednoncoh
     real(ikind), allocatable :: cohdepmax(:),cohdepmin(:), wsfallcohsed(:),coherodm(:), coherodcr(:)  ! Max and min critical shear stresss for deposition
-    real(ikind), allocatable :: cohbsxy(:)
+    real(ikind), allocatable :: cohbsxy(:),alphacoh(:)
     real(ikind), allocatable :: dm(:),dmk(:,:),dbms(:,:),dbms1(:,:),rhobed(:,:),rhobedcoh(:,:)
-    real(ikind), allocatable :: tconsolid(:,:),tconsolid0(:)
+    real(ikind), allocatable :: tconsolid(:,:),tconsolid1(:,:),tconsolid0(:)
+    real(ikind), allocatable :: coherodtauce(:),coheroddep(:)
+    real(ikind) :: coherodcralpha,coherodcrbeta
     real(ikind) :: coherodcratrho0,coherodcrtau,rhobedcohercr0,coherodcrn
     
     end module sed_def

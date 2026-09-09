@@ -463,10 +463,6 @@ dj:   do j=1,nj
           write(*,'(A,F6.2)') '    Percent complete: ',float(ij)*100/float(ni*nj)
         endif
         
-        !if(i==79 .and. j==85)then
-        !  continue
-        !endif
-        
         !Falls on the same point
         !distmin = 1.0e20 !Initialize
         do ii=1,nc
@@ -849,10 +845,6 @@ d1: do ii=1,nc
       if(mod(ii,10000)==0)then
         write(*,'(A,F6.2)') '    Percent complete: ',float(ii)*100/float(nc)
       endif
-      
-      !if(mapid(ii)==9040)then
-      !  continue
-      !endif
       
       !Search or overlapping points
       do i=1,ni
@@ -2050,9 +2042,6 @@ d1: do i=1,npts !Points
     
     !!!Precompute area of cell-connected polygons enclosing nodes
     !!do jj=1,nn !nodes
-    !!  !!if(jj==178)then
-    !!  !!  continue  
-    !!  !!endif  
     !!  do k=1,nnc(jj)  
     !!    xpoly(k) = xc(n2c(k,jj)) !Global coordinates
     !!    ypoly(k) = yc(n2c(k,jj)) !Global coordinates      
@@ -2121,9 +2110,6 @@ d2:   do j=1,nj
         
         !Check if point is in cell-based polygons surrounding nodes
         do jj=1,nn !Nodes
-          !!if(jj==266)then
-          !!  continue
-          !!endif
           xpoly = 0.0; ypoly = 0.0 !Initialize
           npoly = 0
           do k=1,nnc(jj)
@@ -2282,13 +2268,6 @@ d2:   do j=1,nj
       if(ii1==1 .and. iimax==ni-1 .and. jj1==1 .and. jjmax==nj-1)then
         write(msg,*) '  No wind grid cell found for CMS cell i,x,y = ',k,Cx,Cy
         call diag_print_message(msg)
-        !!Nearest neighbor
-        !distmin = 1.0e20
-        !do i=1,ni
-        !  do j=1,nj
-        !    
-        !  enddo
-        !enddo
         goto 5555  !move to next CMS grid cell
       else !expand search area and continue
         ii1 = max(ii1-1,1)
@@ -2773,7 +2752,8 @@ d2:   do j=1,nj
 !$OMP END PARALLEL DO
 
     case(0) !No treatment
-!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)
+!!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn)    !added phitemp,phiktemp, by Wu, 2026-2-26
+!$OMP PARALLEL DO PRIVATE(i,j,k,nck,jcn,phitemp,phiktemp)
       do i=1,ncells
         do j=1,nxyface(i)
           k=kxyface(j,i)

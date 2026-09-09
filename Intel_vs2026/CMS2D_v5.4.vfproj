@@ -32,16 +32,11 @@
 			<File RelativePath="..\source\main\CMS_cpp.h"/>
 		</Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-			<File RelativePath="..\source\CMakeLists.txt">
-			</File>
-			<File RelativePath="..\docs\user\installation.rst">
-			</File>
-			<File RelativePath="..\source\logsheet.txt">
-			</File>
-			<File RelativePath="..\source\readme.txt">
-			</File>
-			<File RelativePath="..\docs\user\whatsnew.rst">
-			</File>
+			<File RelativePath="..\source\CMakeLists.txt"/>
+			<File RelativePath="..\docs\user\installation.rst"/>
+			<File RelativePath="..\source\logsheet.txt"/>
+			<File RelativePath="..\source\readme.txt"/>
+			<File RelativePath="..\docs\user\whatsnew.rst"/>
 		</Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 			<Filter Name="Explicit Scheme">
@@ -156,8 +151,7 @@
 			<File RelativePath="..\source\utilities\diagnostics.f90"/>
 			<File RelativePath="..\source\dredge\dredge_def.f90"/>
 			<File RelativePath="..\source\dredge\dredge_op.F90"/>
-			<File RelativePath="..\source\dredge\dredge_setup.F90">
-			</File>
+			<File RelativePath="..\source\dredge\dredge_setup.F90"/>
 			<File RelativePath="..\source\flow\flow.F90"/>
 			<File RelativePath="..\source\flow\flow_def.f90"/>
 			<File RelativePath="..\source\flow\flow_eddyvis.f90"/>
@@ -198,10 +192,8 @@
 			<File RelativePath="..\source\output\output.F90"/>
 			<File RelativePath="..\source\interpolation\plagr_lib.f90"/>
 			<File RelativePath="..\source\main\prestart.f90"/>
-			<File RelativePath="..\source\quasi3d\q3d_def.F90"/>
-			<File RelativePath="..\source\quasi3d\q3d_lib.F90"/>
-			<File RelativePath="..\source\quasi3d\quasi3d.F90"/>
-			<File RelativePath="..\source\roller\rol_def.f90"/>
+			<File RelativePath="..\source\roller\rol_def.f90">
+			</File>
 			<File RelativePath="..\source\roller\roller.F90"/>
 			<File RelativePath="..\source\salinity\sal_bnd.f90"/>
 			<File RelativePath="..\source\salinity\sal_def.f90"/>

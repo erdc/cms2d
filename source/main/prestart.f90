@@ -32,7 +32,7 @@
     use const_def
     use dredge_def
 #ifdef DEV_MODE
-    use q3d_def
+    !use q3d_def
     use veg_def
 #endif
 #ifdef PROFILE
@@ -80,7 +80,7 @@
     call diag_default
     call wave_default
 #ifdef DEV_MODE
-    call q3d_default    !Quasi-3D 
+    !call q3d_default    !Quasi-3D 
     call veg_default    !Vegetation
 #endif
 
@@ -126,8 +126,9 @@
         call out_cards(cardname,foundcard);           if(foundcard) cycle
         call diag_cards(cardname,foundcard);          if(foundcard) cycle
         call wave_cards(cardname,foundcard);          if(foundcard) cycle
+
 #ifdef DEV_MODE
-        call q3d_cards(cardname,foundcard);    if(foundcard) cycle
+        !call q3d_cards(cardname,foundcard);    if(foundcard) cycle
         call veg_cards(cardname,foundcard);    if(foundcard) cycle
 #endif
         call dredge_cards(cardname,foundcard); if(foundcard) cycle
@@ -238,7 +239,7 @@
     if(save_point) call save_point_init  !Save Point cells, Mitch 5/8/2012
     call stat_init                   !Simulation Statistics
 #ifdef DEV_MODE
-    if(q3d) call q3d_init            !Quasi-3D
+    !if(q3d) call q3d_init            !Quasi-3D
     if(veg) call veg_init            !Vegetation
 #endif    
     if(dredging) call dredge_init    !Dredge operations
@@ -261,7 +262,7 @@
     call out_print         !Output
     call stat_print        !Simulation statistics
 #ifdef DEV_MODE
-    if(q3d) call q3d_print !Quasi-3D
+    !if(q3d) call q3d_print !Quasi-3D
     if(veg) call veg_print !Vegetation
 #endif
 
@@ -329,9 +330,9 @@
     endif
     call fric_eval  
     call flow_eddyvis
-#ifdef DEV_MODE
-    if(q3d) call q3d_flow
-#endif
+!#ifdef DEV_MODE
+!    if(q3d) call q3d_flow
+!#endif
 
 !!*********** TEMPORARY ************************************************    
 !! For idealized case testing

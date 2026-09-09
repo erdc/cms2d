@@ -1024,7 +1024,7 @@
 !***********************************************************************
     subroutine solv_ssorac(nmaxiter,acoef,ap,su,phi)
 ! Symmetric Gauss-Seidel solver with Successive-Over-Relaxation 
-! and ACceleration
+! and Acceleration
 ! written by Alex Sanchez, USACE-CHL
 !***********************************************************************
     use size_def, only: ncells,ncellsD,nmaxfaces

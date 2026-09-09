@@ -33,13 +33,13 @@ contains
 
       implicit none
       !Input/Output
-      character(len=*), intent(in) :: bidfile             !Boundary ID file
-      character(len=*), intent(in) :: bidpath             !Boundary ID path
-      integer, intent(in) :: iBndStrType         !Boundary string type, 1-cellstring, 2-nodestring
-      integer, intent(inout) :: idbnd            !Boundary ID number (for *.2dm and *.bid files)
-      integer, intent(out):: nstrcells           !Number of cells in boundary string
-      integer, intent(inout), pointer:: icells(:) !Boundary cells
-      integer, intent(inout), pointer:: kfaces(:) !Boundary faces
+      character(len=*), intent(in) :: bidfile              !Boundary ID file
+      character(len=*), intent(in) :: bidpath              !Boundary ID path
+      integer,          intent(in) :: iBndStrType          !Boundary string type, 1-cellstring, 2-nodestring
+      integer,          intent(inout) :: idbnd             !Boundary ID number (for *.2dm and *.bid files)
+      integer,          intent(out):: nstrcells            !Number of cells in boundary string
+      integer,          intent(inout), pointer:: icells(:) !Boundary cells
+      integer,          intent(inout), pointer:: kfaces(:) !Boundary faces
       !Internal Variables
       integer :: nstrnodes
       character*10 :: aext
@@ -104,8 +104,8 @@ contains
       implicit none
       !Input/Output
       character(len=*), intent(in)  :: bidfile, bidpath
-      integer, intent(out) :: nstrcells
-      integer, intent(inout), pointer :: icells(:)
+      integer,          intent(out) :: nstrcells
+      integer,          intent(inout), pointer :: icells(:)
       !Internal variables
       integer(XID) :: pid, gid
       integer :: ierr
@@ -246,43 +246,43 @@ contains
       id1 = icells(1)
       id2 = icells(2)
       do k = 1, ncface(id2) !Determine the outward face (boundary)
-         if (cell2cell(k, id2) > ncells) then
-            nbndtemp = nbndtemp + 1
-            ibndtemp(nbndtemp) = id1
-            do kk = 1, ncface(id1)
-               if (idirface(kk, id1) == idirface(k, id2)) then
-                  kfacetemp(nbndtemp) = kk
-                  exit
-               end if
-            end do
-         end if
+        if (cell2cell(k, id2) > ncells) then
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id1
+          do kk = 1, ncface(id1)
+            if (idirface(kk, id1) == idirface(k, id2)) then
+              kfacetemp(nbndtemp) = kk
+              exit
+            end if
+          end do
+        end if
       end do
 
       do j = 2, nstrcells - 1   !Wu
-         id = icells(j)
-         do k = 1, ncface(id) !Determine the outward face (boundary)
-            if (cell2cell(k, id) > ncells) then
-               nbndtemp = nbndtemp + 1
-               ibndtemp(nbndtemp) = id
-               kfacetemp(nbndtemp) = k
-            end if
-         end do !k
+        id = icells(j)
+        do k = 1, ncface(id) !Determine the outward face (boundary)
+          if (cell2cell(k, id) > ncells) then
+            nbndtemp = nbndtemp + 1
+            ibndtemp(nbndtemp) = id
+            kfacetemp(nbndtemp) = k
+          end if
+        end do !k
       end do !j
 
       !Use second-to-last cell to determine outward face of last cell in string
       id1 = icells(nstrcells)
       id2 = icells(nstrcells - 1)
       do k = 1, ncface(id2) !Determine the outward face (boundary)
-         if (cell2cell(k, id2) > ncells) then
-            nbndtemp = nbndtemp + 1
-            ibndtemp(nbndtemp) = id1
-            do kk = 1, ncface(id1)
-               if (idirface(kk, id1) == idirface(k, id2)) then
-                  kfacetemp(nbndtemp) = kk
-                  exit
-               end if
-            end do
-         end if
+        if (cell2cell(k, id2) > ncells) then
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id1
+          do kk = 1, ncface(id1)
+            if (idirface(kk, id1) == idirface(k, id2)) then
+              kfacetemp(nbndtemp) = kk
+              exit
+            end if
+          end do
+        end if
       end do !k-face
 
       if (nbndtemp == 0) then
@@ -292,21 +292,21 @@ contains
 
       !Note: The variable 'bndcorner' is never used except here.  Do we even need all the extra code here for it?
       if (nstrcells /= nbndtemp) then
-         nbndcorner = nbndtemp - nstrcells
-         if (allocated(bndcorner)) deallocate (bndcorner)    !meb 03/06/2019  If another WSE cellstring has a corner, you have to deallocate first.
-         allocate (bndcorner(nbndcorner))
+        nbndcorner = nbndtemp - nstrcells
+        if (allocated(bndcorner)) deallocate (bndcorner)    !meb 03/06/2019  If another WSE cellstring has a corner, you have to deallocate first.
+        allocate (bndcorner(nbndcorner))
 
-         deallocate (icells)
-         nstrcells = nbndtemp
-         allocate (icells(nstrcells))
-         icells(1:nstrcells) = ibndtemp(1:nstrcells)
-         j = 1
-         do i = 2, nstrcells
-            if (icells(i - 1) == icells(i)) then
-               bndcorner(j) = icells(i)
-               j = j + 1
-            end if
-         end do
+        deallocate (icells)
+        nstrcells = nbndtemp
+        allocate (icells(nstrcells))
+        icells(1:nstrcells) = ibndtemp(1:nstrcells)
+        j = 1
+        do i = 2, nstrcells
+          if (icells(i - 1) == icells(i)) then
+            bndcorner(j) = icells(i)
+            j = j + 1
+          end if
+        end do
       end if
       allocate (kfaces(nstrcells))
       kfaces(1:nstrcells) = kfacetemp(1:nstrcells)
@@ -319,8 +319,8 @@ contains
 !*************************************************************
       use size_def, only: ncells, ncellsD
       use geo_def, only: ncface, cell2cell
-
       implicit none
+
       !Input/Output
       integer, intent(inout)         :: nstrcells
       integer, intent(inout), pointer :: icells(:)
@@ -335,40 +335,40 @@ contains
       id1 = icells(1)
       id2 = icells(2)
       do k = 1, ncface(id2) !Determine the outward face (boundary)
-         if (cell2cell(k, id2) > ncells) then
-            nbndtemp = nbndtemp + 1
-            ibndtemp(nbndtemp) = id1
-            kfacetemp(nbndtemp) = k
-         end if
+        if (cell2cell(k, id2) > ncells) then
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id1
+          kfacetemp(nbndtemp) = k
+        end if
       end do
 
       do j = 2, nstrcells - 1   !   !Wu
-         id = icells(j)
-         do k = 1, ncface(id) !Determine the outward face (boundary)
-            if (cell2cell(k, id) > ncells) then
-               nbndtemp = nbndtemp + 1
-               ibndtemp(nbndtemp) = id
-               kfacetemp(nbndtemp) = k
-            end if
-         end do !k
+        id = icells(j)
+        do k = 1, ncface(id) !Determine the outward face (boundary)
+          if (cell2cell(k, id) > ncells) then
+            nbndtemp = nbndtemp + 1
+            ibndtemp(nbndtemp) = id
+            kfacetemp(nbndtemp) = k
+          end if
+        end do !k
       end do !j
 
       !Use second-to-last cell to determine outward face of last cell in string
       id1 = icells(nstrcells)
       id2 = icells(nstrcells - 1)
       do k = 1, ncface(id2) !Determine the outward face (boundary)
-         if (cell2cell(k, id2) > ncells) then
-            nbndtemp = nbndtemp + 1
-            ibndtemp(nbndtemp) = id1
-            kfacetemp(nbndtemp) = k
-         end if
+        if (cell2cell(k, id2) > ncells) then
+          nbndtemp = nbndtemp + 1
+          ibndtemp(nbndtemp) = id1
+          kfacetemp(nbndtemp) = k
+        end if
       end do !k-face
 
       if (nstrcells /= nbndtemp) then
-         deallocate (icells)
-         nstrcells = nbndtemp
-         allocate (icells(nstrcells))
-         icells(1:nstrcells) = ibndtemp(1:nstrcells)
+        deallocate (icells)
+        nstrcells = nbndtemp
+        allocate (icells(nstrcells))
+        icells(1:nstrcells) = ibndtemp(1:nstrcells)
       end if
       allocate (kfaces(nstrcells))
       kfaces(1:nstrcells) = kfacetemp(1:nstrcells)
@@ -385,8 +385,8 @@ contains
       use geo_def, only: nncell, node2cell, ncface, cell2node
       use bnd_def, only: bc_str, nbcstr
       use prec_def, only: ikind
-
       implicit none
+
       !Input/Output
       integer, intent(in) :: nstrnodes           !Number of nodes on boundary string
       integer, intent(in) :: jnodes(nstrnodes)   !Node ID's on boundary string
@@ -401,27 +401,27 @@ contains
 
       icells = 0
       do j = 1, nstrnodes - 1
-         nd1 = jnodes(j)
-         nd2 = jnodes(j + 1)
+        nd1 = jnodes(j)
+        nd2 = jnodes(j + 1)
 
-         !Search neighboring cells for one connected to nd1 and nd2
-         dok: do k = 1, nncell(nd1)
-            ii = node2cell(k, nd1)
-            if (ii > ncells) cycle
-            do jj = 1, ncface(ii)
-               if (jj == ncface(ii)) then
-                  jj2 = 1
-               else
-                  jj2 = jj + 1
-               end if
-               if ((cell2node(jj, ii) == nd1 .and. cell2node(jj2, ii) == nd2) .or. &
-                   (cell2node(jj, ii) == nd2 .and. cell2node(jj2, ii) == nd1)) then
-                  icells(j) = ii
-                  kfaces(j) = jj
-                  exit dok
-               end if
-            end do   !jj neighboring node
-         end do dok !k neighboring cell
+        !Search neighboring cells for one connected to nd1 and nd2
+        dok: do k = 1, nncell(nd1)
+          ii = node2cell(k, nd1)
+          if (ii > ncells) cycle
+          do jj = 1, ncface(ii)
+            if (jj == ncface(ii)) then
+              jj2 = 1
+            else
+              jj2 = jj + 1
+            end if
+            if ((cell2node(jj, ii) == nd1 .and. cell2node(jj2, ii) == nd2) .or. &
+                (cell2node(jj, ii) == nd2 .and. cell2node(jj2, ii) == nd1)) then
+              icells(j) = ii
+              kfaces(j) = jj
+              exit dok
+            end if
+          end do   !jj neighboring node
+        end do dok !k neighboring cell
 
       end do       !j node pair
 

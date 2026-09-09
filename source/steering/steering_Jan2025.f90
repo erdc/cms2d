@@ -660,9 +660,9 @@
     use wave_flowgrid_def
     use wave_wavegrid_def, only: nwavei,nwavej
     use wave_def, only: depin,etain,uin,vin,azimuth       !Dynamic allocation by Wu, 2024-11
-#ifdef DEV_MODE
-    use q3d_def, only: ivelwav
-#endif    
+!#ifdef DEV_MODE
+!    use q3d_def, only: ivelwav
+!#endif    
     implicit none
     
     integer :: ii,i,j,idate
@@ -688,7 +688,7 @@
     
     !--- Still Water Depths ----------------------------
     !(bathymetry only updated in wave model for wet cells)
-    !If bathymetry if being passed from flow to wave model
+    !If bathymetry is being passed from flow to wave model
     select case(noptzb)
     case(1) !Last bed elevation
 !$OMP PARALLEL 
@@ -825,9 +825,9 @@
         enddo
 !$OMP END PARALLEL DO
 #ifdef DEV_MODE
-      case(2) !Surfaces
-        call q3d_flow_vel_surface(ueff,veff)
-      case(3) !Weighted
+      !case(2) !Surfaces
+      !  call q3d_flow_vel_surface(ueff,veff)
+      !case(3) !Weighted
         !call q3d_flow_vel_weighted!(ueff,veff)
       end select
 #endif
@@ -959,7 +959,7 @@
     use diag_lib
     use prec_def
     use geo_def,   only: azimuth_fl
-    use cms_def,   only: ndissm,npersm,wavedisstol
+    use cms_def,   only: ndissm,npersm,wavedisstol,nradsm   !nradsm added by Wu. 2025-7-4
     use rol_def,   only: roller
     use sed_def,   only: sedtrans,wavesedtrans
     use size_def,  only: ncells,ncellsD
@@ -1173,7 +1173,7 @@
 
 !**********************************************************************
     subroutine smooth_wavegrid_scal(val,niter,ibc)
-! Smooths a wave variables on the wave grid
+! Smooths a wave variable on the wave grid
 ! by using the following stencil
 !        1/6
 !   1/6  1/3  1/6
@@ -1272,7 +1272,7 @@
     
 !**********************************************************************
     subroutine smooth_wavegrid_vec(vecx,vecy,niter)
-! Smooths a wave variables on the wave grid
+! Smooths a wave vector on the wave grid
 ! by using the following stencil
 !        1/6
 !   1/6  1/3  1/6
@@ -1320,7 +1320,7 @@
     
 !**********************************************************************
     subroutine smooth_flowgrid_scal(val,niter)
-! Smooths a wave variables on the flow grid
+! Smooths a wave variable on the flow grid
 ! written by Alex Sanchez, USACE-CHL       
 !***********************************************************************    
     use size_def
@@ -1367,7 +1367,7 @@
     
 !**********************************************************************
     subroutine smooth_flowgrid_vec(vecx,vecy,niter)
-! Smooths a wave variables on the flow grid
+! Smooths a wave vector on the flow grid
 ! written by Alex Sanchez, USACE-CHL       
 !***********************************************************************    
     use size_def
@@ -1493,7 +1493,7 @@
 #ifdef XMDF_IO
       call readscalsteph5(wgrdfile,wavpath,nsteer,tswave2,Whgt2,ierr)                 !Updated with 'wgrdfile' to use since there is no _grid.h5 file anymore.  MEB  06/10/2021 
 #else
-      call diag_print_error('Cannot read initial wave condition without XMDF')
+      call diag_print_error('ERROR: Cannot read initial wave condition without XMDF')
 #endif     
       if(ierr>=0)then
 #ifdef XMDF_IO
@@ -1692,6 +1692,7 @@
     subroutine tidevalue(tswave2,tide2)
 !   evaluation of Tide at boundaris for steering 
 !   Made by Weiming Wu, NCCHE, April 2009
+!   Later updated by Alex Sanchez
 !***********************************************************************
     use bnd_def
     use size_def

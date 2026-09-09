@@ -43,9 +43,9 @@
     use met_def,  only: presconst, windconst, windvar, presvar, windsta, pressta, iwndlagr, rain_evap
     use solv_def, only: iconv
     
-#ifdef DEV_MODE
-    use q3d_def
-#endif
+!#ifdef DEV_MODE
+!    use q3d_def
+!#endif
 
 #ifdef PROFILE
     use watch_lib
@@ -54,7 +54,6 @@
     implicit none
     integer :: i
 
-!3   format('ntime=',i8,',  dt=',F8.3,', time=',1pe12.5)
 3   format('ntime=',i8,',  dt=',F8.3,', time=',1pe12.5,', Active Cells=',i0)
 4   format(1x,i8,3(3x,1pe12.4))
 5   format('Forcing ramp % = ',F6.2)
@@ -88,8 +87,6 @@
     if(windsta .or. pressta) call metsta_eval   !Spatially variable wind and pressure stations
    
     !Print to screen
-!    write(msg,3) ntime,dtime,ctime
-
     write(msg,3) ntime,dtime,ctime,number_wet_cells()
     if (ramp.lt.1) then
       write(msg2,5) ramp*100    
@@ -247,9 +244,9 @@
 #ifdef PROFILE
       call watch_stop('flow_eddyvis')
 #endif       
-#ifdef DEV_MODE
-      if(q3d) call q3d_flow
-#endif      
+!#ifdef DEV_MODE
+!      if(q3d) call q3d_flow
+!#endif      
       if(debug_mode) call flow_step_stat(0)
 #ifdef PROFILE
       call watch_stop('flow_imp outer var')
@@ -361,17 +358,6 @@
 !$OMP END DO
     endif
     
-!Note: Preciptation and Evaporation moved to flow_rainevap
-!    !Precipitation and Evaporation
-!    if(rain_evap)then
-!      val = ramp*(rain-evap)/3600.0 !Note conversion from m/hr to m/s
-!!$OMP DO PRIVATE(i)
-!      do i=1,ncells
-!        sspp0(i)=sspp0(i)+val*areap(i)*iwet(i) !source/sink
-!      enddo
-!!$OMP END DO        
-!    endif
-    
     !Wave forcing
     if(noptset>=3)then
 !$OMP DO PRIVATE(i)       
@@ -424,7 +410,7 @@
     use met_def,  only: iwndlagr,windconst,windvar,presvar,windsta,cdWndareap,wndx,wndy,uwind,vwind,pressatmdx,pressatmdy,pressta
     use wave_flowgrid_def, only: wunitx,wunity,worbrep,wlen,wper
 #ifdef DEV_MODE
-    use q3d_def
+    !use q3d_def
     use veg_def
 #endif
 
@@ -456,12 +442,6 @@
         ddk=visk(k,i)*hk(k,i)*dsxy(k,i)
         acoef(k,i)=schmcoef(ddk,flux(k,i))
       enddo
-      !!!Save variables for momentum interpolation and pressure-correction equation
-      !!!Notes: These are the same for u and v. Wind sink term is ignored for the sake of speed
-      !!asum=sum(acoef(1:ncface(i),i))
-      !!apu=iwet(i)*relax(2)/max((asum-sp(i)),1.0e-6) !=1/ap(i)
-      !!apuareap(i)=apu*areap(i) !Pressure-correction and momentum interpolation
-      !!sumu(i)=asum*apu        !Pressure-correction equation
     enddo 
 !$OMP END DO 
     
@@ -510,7 +490,8 @@
 #ifdef DEV_MODE
     !Bottom streaming
     if(noptset>=3 .and. waveflux .and. bbl_stream)then 
-!$OMP DO PRIVATE(i)  
+!!$OMP DO PRIVATE(i)  
+!$OMP DO PRIVATE(i,za,val)            !Wu, 2026-2-24
       do i=1,ncells
         !za = h(i)*fric_normapprough(uelwc(i),uv(i),cfrict(i)) !Apparent roughness
         !za = 0.00533*max(worbrep(i),1.0e-5)**2.25  !Apparent roughness
@@ -524,20 +505,20 @@
     endif
 
     !3D Dispersion Terms
-    if(q3d .and. q3d_to_flow)then
-!$OMP DO PRIVATE(i,dvarx,dvary)
-      do i=1,ncells
-        call dx2d(gow,i,f3dxx,dvarx)
-        call dy2d(gow,i,f3dxy,dvary)
-        f3du(i) = -(dvarx+dvary)
-        su(i)=su(i)-(dvarx+dvary)*areap(i)*ramp
-        call dx2d(gow,i,f3dxy,dvarx)
-        call dy2d(gow,i,f3dyy,dvary)
-        f3dv(i) = -(dvarx+dvary)
-        sv(i)=sv(i)-(dvarx+dvary)*areap(i)*ramp
-      enddo
-!$OMP END DO      
-    endif
+    !if(q3d .and. q3d_to_flow)then
+!!$OMP DO PRIVATE(i,dvarx,dvary)
+    !  do i=1,ncells
+    !    call dx2d(gow,i,f3dxx,dvarx)
+    !    call dy2d(gow,i,f3dxy,dvary)
+    !    f3du(i) = -(dvarx+dvary)
+    !    su(i)=su(i)-(dvarx+dvary)*areap(i)*ramp
+    !    call dx2d(gow,i,f3dxy,dvarx)
+    !    call dy2d(gow,i,f3dyy,dvary)
+    !    f3dv(i) = -(dvarx+dvary)
+    !    sv(i)=sv(i)-(dvarx+dvary)*areap(i)*ramp
+    !  enddo
+!!$OMP END DO      
+    !endif
 
     !Vegetation
     if(veg)then
@@ -552,17 +533,6 @@
     endif
 #endif
     
-!!$OMP DO PRIVATE(i,apu,asum)
-!    do i=1,ncells
-!      !Save variables for momentum interpolation and pressure-correction equation
-!      !Notes: These are the same for u and v. Wind and vegetation included in sp term
-!      asum=sum(acoef(1:ncface(i),i))
-!      apu=iwet(i)*relax(2)/max((asum-sp(i)),1.0e-6) !=1/ap(i)
-!      apuareap(i)=apu*areap(i) !Pressure-correction and momentum interpolation
-!      sumu(i)=asum*apu        !Pressure-correction equation
-!    enddo 
-!!$OMP END DO     
-
 !$OMP END PARALLEL    
 
 !#ifdef DEV_MODE
@@ -673,27 +643,6 @@
     enddo
 #endif
     
-!**** ONLY FOR TESTING **************
-!    if(noptset>=3)then
-!!$OMP DO PRIVATE(i,ii,k,nck,nck1,q2k)
-!      do ii=1,ncelljoint
-!         i=idcelljoint(ii)  
-!         do k=1,ncface(i)-1
-!           nck=cell2cell(k,i)
-!           nck1=cell2cell(i,k+1)
-!           if(idirface(k,i)==idirface(i,k+1) .and. iwet(nck)==1 .and. iwet(nck1)==1)then !Same direction
-!             q2k=(flux(k,i)/hk(k,i)+flux(i,k+1)/hk(i,k+1))/2.0
-!             flux(k,i)=q2k*hk(k,i)
-!             flux(i,k+1)=q2k*hk(i,k+1)
-!             flux(llec2llec(k,i),nck)=flux(k,i)
-!             flux(nck1,llec2llec(k+1,i))=flux(i,k+1)
-!           endif
-!         enddo
-!      enddo
-!!$OMP END DO
-!    endif
-!**** ONLY FOR TESTING **************
-
     call bndflux
 
 !--- Source/sink terms -------------------------------------------------    
@@ -1009,10 +958,6 @@
       enddo
     enddo
 
-    !do i=1,ncellsD
-    !  h(i)=max(hmin,p(i)*gravinv-zb(i)) !Update water depth
-    !enddo
- 
     !call flow_wetdry(1)  !Added by Wu
     !call der_update
     !
@@ -1277,7 +1222,8 @@
 !believed to be caused by the corrector step in the SIMPLEC algorithm.
 
     if(ncellpoly>0)then
-!$OMP PARALLEL DO PRIVATE(i,k,uf,vf,umin,vmin,umax,vmax,vel)  
+!!$OMP PARALLEL DO PRIVATE(i,k,uf,vf,umin,vmin,umax,vmax,vel)    !Changed by Wu, 2026-2-24
+!$OMP PARALLEL DO PRIVATE(i)  !,k,uf,vf,umin,vmin,umax,vmax,vel)  
       do i=1,ncells
         if(h(i)>hmin .and. iwet(i)==1)then
         !if(iwet(i)==1)then
@@ -1293,7 +1239,8 @@
       enddo
 !$OMP END PARALLEL DO        
     else    
-!$OMP PARALLEL DO PRIVATE(i,k,uf,vf,umin,vmin,umax,vmax) !,vel,fx,fy,sx,sy  
+!!$OMP PARALLEL DO PRIVATE(i,k,uf,vf,umin,vmin,umax,vmax) !,vel,fx,fy,sx,sy    !Changed by Wu, 2026-2-24
+!$OMP PARALLEL DO PRIVATE(i,k,uf,vf,umin,vmin,umax,vmax,vel)  !,fx,fy,sx,sy  
       do i=1,ncells
         if(h(i)>hmin .and. iwet(i)==1)then
         !if(iwet(i)==1)then
@@ -1308,9 +1255,6 @@
             vmin=min(vmin,vf)
             vmax=max(vmax,vf)
           enddo
-          !if(u(i)>umax .or. u(i)<umin .or. v(i)>vmax .or. v(i)<vmin)then
-          !  continue  
-          !endif
           u(i)=min(max(u(i),umin),umax)
           v(i)=min(max(v(i),vmin),vmax)
           !if(u(i)>umax .or. u(i)<umin)then
@@ -1746,299 +1690,299 @@ di:   do i=1,ncells
     return
     end subroutine check_conv
     
-!**************************************************************************
-    subroutine flow_pred
-! Predictor step for implicit temporal solution scheme
-! Does a simple prediction of the next time step using using an explicit
-! formulation which is used as the initial guess for the implicit scheme
-! rather than the final solution of the previous time step.
-! Still under testing....
-! written by Alex Sanchez, USACE-CHL
-!**************************************************************************
-#include "CMS_cpp.h"
-#ifdef DEV_MODE
-    use size_def
-    use geo_def, only: idirface,ncface,cell2cell,areap,dx,dy,ds,&
-        llec2llec,nxyface,kxyface,fnx,fny,dsxy,zb
-    use flow_def
-    use fric_def, only: cbcfuwcap,wallfric,z0,wallfac,cfrict,uelwc
-    use fric_lib, only: wall_coef
-    use wave_flowgrid_def, only: worb,worbrep,wper,wang  
-    use interp_def, only: fintp
-    use comvarbl
-    use comp_lib
-    use diag_def
-    use diag_lib
-    use met_def, only: iwndlagr,windconst,windvar,presvar,&
-         wndx,wndy,uwind,vwind,cdWndareap,pressatmdx,pressatmdy,&
-         tauwx,tauwy,tauwindx,tauwindy
-    use wave_flowgrid_def, only: wavestrx,wavestry    
-    use cms_def, only: noptset
-    use prec_def
-    implicit none
-    integer :: i,j,k,nck,ierr
-    real(ikind) :: sumanu1,sumanv1,sumacoef,delta,vparl,z0wall
-    real(ikind) :: rmsh,rmsu,rmsv,forcex,forcey,gammawall
-    real(ikind) :: ww(3),psi,cbuwc,uni,unk,val,ddk,fric_bed
-
-    !Calculate RMSE of predicted and calculated values
-    rmsh=0.0; rmsu=0.0; rmsv=0.0
-    if(pred_corr)then      
-      do i=1,ncells
-        rmsh=rmsh+(hpred(i)-h(i))**2
-        rmsu=rmsu+(upred(i)-u(i))**2
-        rmsv=rmsv+(vpred(i)-v(i))**2
-      enddo
-    else
-      do i=1,ncells
-        rmsh=rmsh+(h1(i)-h(i))**2
-        rmsu=rmsu+(u1(i)-u(i))**2
-        rmsv=rmsv+(v1(i)-v(i))**2
-      enddo
-    endif
-    rmsh=sqrt(rmsh/real(ncells,kind=ikind))
-    rmsu=sqrt(rmsu/real(ncells,kind=ikind))
-    rmsv=sqrt(rmsv/real(ncells,kind=ikind))  
-      
-787 format(3(3x,1pe12.4))     
-    write(msg,787,iostat=ierr) rmsh,rmsu,rmsv
-    call diag_print_message('RMSE of predicted values: ',msg)
-    
-    !Make new prediction
-    if(.true.)then
-    psi=0.5
-    ww(1)=1.0-psi/2.0
-    ww(2)=1.0-psi
-    ww(3)=psi/2.0
-!$OMP PARALLEL    
-!$OMP DO PRIVATE(i,cbuwc,val)      
-    do i=1,ncells
-      !hpred(i)=h(i)-dtime*(h(i)*dux(i)+u(i)*dhx(i)+h(i)*dvy(i)+v(i)*dhy(i))
-      hpred(i)=h(i)-iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i)) !Water depth prediction
-      !hpred(i)=1.0/ww(1)*(h(i)*ww(2)+h1(i)*ww(3) &
-      !  -iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i))) !Water depth prediction
-      !if(h(i)<1.0e-6)then
-      !  hpred(i)=1.0e-6
+!!**************************************************************************
+!    subroutine flow_pred
+!! Predictor step for implicit temporal solution scheme
+!! Does a simple prediction of the next time step using using an explicit
+!! formulation which is used as the initial guess for the implicit scheme
+!! rather than the final solution of the previous time step.
+!! Still under testing....
+!! written by Alex Sanchez, USACE-CHL
+!!**************************************************************************
+!#include "CMS_cpp.h"
+!#ifdef DEV_MODE
+!    use size_def
+!    use geo_def, only: idirface,ncface,cell2cell,areap,dx,dy,ds,&
+!        llec2llec,nxyface,kxyface,fnx,fny,dsxy,zb
+!    use flow_def
+!    use fric_def, only: cbcfuwcap,wallfric,z0,wallfac,cfrict,uelwc
+!    use fric_lib, only: wall_coef
+!    use wave_flowgrid_def, only: worb,worbrep,wper,wang  
+!    use interp_def, only: fintp
+!    use comvarbl
+!    use comp_lib
+!    use diag_def
+!    use diag_lib
+!    use met_def, only: iwndlagr,windconst,windvar,presvar,&
+!         wndx,wndy,uwind,vwind,cdWndareap,pressatmdx,pressatmdy,&
+!         tauwx,tauwy,tauwindx,tauwindy
+!    use wave_flowgrid_def, only: wavestrx,wavestry    
+!    use cms_def, only: noptset
+!    use prec_def
+!    implicit none
+!    integer :: i,j,k,nck,ierr
+!    real(ikind) :: sumanu1,sumanv1,sumacoef,delta,vparl,z0wall
+!    real(ikind) :: rmsh,rmsu,rmsv,forcex,forcey,gammawall
+!    real(ikind) :: ww(3),psi,cbuwc,uni,unk,val,ddk,fric_bed
+!
+!    !Calculate RMSE of predicted and calculated values
+!    rmsh=0.0; rmsu=0.0; rmsv=0.0
+!    if(pred_corr)then      
+!      do i=1,ncells
+!        rmsh=rmsh+(hpred(i)-h(i))**2
+!        rmsu=rmsu+(upred(i)-u(i))**2
+!        rmsv=rmsv+(vpred(i)-v(i))**2
+!      enddo
+!    else
+!      do i=1,ncells
+!        rmsh=rmsh+(h1(i)-h(i))**2
+!        rmsu=rmsu+(u1(i)-u(i))**2
+!        rmsv=rmsv+(v1(i)-v(i))**2
+!      enddo
       !endif
-      if(hpred(i)<hmin)then
-        hpred(i)=hmin  
-        upred(i)=0.0
-        vpred(i)=0.0
-      else
-        !call d2xy2d(i,dux,duy,d2uix2,d2uiy2)
-        !call d2xy2d(i,dvx,dvy,d2vix2,d2viy2)
-        !upred(i)=u(i)+dtime*(-u(i)*dux(i)-v(i)*duy(i)+forcex(i)/h(i)+fc(i)*v(i)-dpx(i)+vis(i)*(d2uix2+d2uiy2)) !Note: Mixing terms
-        !vpred(i)=v(i)+dtime*(-u(i)*dvx(i)-v(i)*dvy(i)+forcey(i)/h(i)-fc(i)*u(i)-dpy(i)+vis(i)*(d2vix2+d2viy2))
-        upred(i)=u(i)+dtime*(-u(i)*dux(i)-v(i)*duy(i)+forcex(i)/h(i)+fc(i)*v(i)-dpx(i)) !Note: Mixing terms
-        vpred(i)=v(i)+dtime*(-u(i)*dvx(i)-v(i)*dvy(i)+forcey(i)/h(i)-fc(i)*u(i)-dpy(i))
-        !upred(i)=upred(i)/(1.0+cfrict(i)*uelwc(i)/h(i)) !Bottom friction treated semi-implicitly for stability
-        !vpred(i)=vpred(i)/(1.0+cfrict(i)*uelwc(i)/h(i)) !Bottom friction treated semi-implicitly for stability
-        !upred(i)=1.0/ww(1)*(u(i)*ww(2)+u1(i)*ww(3) &
-        !    -dtime*(u(i)*dux(i)+v(i)*duy(i)-forcex(i)/h(i)-fc(i)*v(i)+dpx(i)))        
-        !vpred(i)=1.0/ww(1)*(v(i)*ww(2)+v1(i)*ww(3) &
-        !    -dtime*(u(i)*dvx(i)+v(i)*dvy(i)-forcey(i)/h(i)+fc(i)*u(i)+dpy(i)))
-        if(noptset>=3)then
-          cbuwc=fric_bed(h(i),cfrict(i),z0(i),vpred(i),vpred(i),&
-                us(i),vs(i),worb(i),worbrep(i),wper(i),wang(i)) 
-        else
-          cbuwc=cfrict(i)*sqrt(upred(i)*upred(i)+vpred(i)*vpred(i))
-        endif
-        val=1.0+dtime*cbuwc/h(i)
-        upred(i)=upred(i)/val !Bottom friction treated semi-implicitly for stability
-        vpred(i)=vpred(i)/val !Bottom friction treated semi-implicitly for stability
-      endif
-    enddo      
-!$OMP END DO   
-!$OMP END PARALLEL
-    else !Conservative form
-!$OMP PARALLEL
-!$OMP DO PRIVATE(i)      
-    do i=1,ncells
-      su(i)=-cbcfuwcap(i)*u(i)+( fc(i)*v(i)-dpx(i))*h(i)*areap(i)
-      sv(i)=-cbcfuwcap(i)*v(i)+(-fc(i)*u(i)-dpy(i))*h(i)*areap(i)
-      sp(i)=-cbcfuwcap(i)
-      do k=1,ncface(i)
-        ddk=visk(k,i)*hk(k,i)*dsxy(k,i)
-        acoef(k,i)=hybridcoef(ddk,flux(k,i))
-      enddo
-    enddo  
-!$OMP END DO   
-
-    !Wind (Lagrangian Reference Frame)
-    if(iwndlagr==1)then
-      if(windconst)then
-!$OMP DO PRIVATE(i)  
-        do i=1,ncells
-          su(i)=su(i)+cdWndareap(i)*(wndx-u(i)+us(i)) !source/sink
-          sv(i)=sv(i)+cdWndareap(i)*(wndy-v(i)+vs(i)) !source/sink
-          sp(i)=sp(i)-cdWndareap(i)      !sink, must be non-positive
-        enddo
-!$OMP END DO        
-      elseif(windvar)then
-!$OMP DO PRIVATE(i)  
-        do i=1,ncells
-          su(i)=su(i)+cdWndareap(i)*(uwind(i)-u(i)+us(i)) !source/sink
-          sv(i)=sv(i)+cdWndareap(i)*(vwind(i)-v(i)+vs(i)) !source/sink
-          sp(i)=sp(i)-cdWndareap(i)      !sink, must be non-positive
-        enddo
-!$OMP END DO
-      endif
-    else !Eulerian Referenc Frame
-      if(windconst)then
-!$OMP DO PRIVATE(i)    
-        do i=1,ncells    
-          su(i)=su(i)+tauwx*areap(i)
-          sv(i)=sv(i)+tauwy*areap(i)
-        enddo
-!$OMP END DO  
-      elseif(windvar)then    
-!$OMP DO PRIVATE(i)    
-        do i=1,ncells    
-          su(i)=su(i)+tauwindx(i)*areap(i)
-          sv(i)=sv(i)+tauwindy(i)*areap(i)
-        enddo
-!$OMP END DO        
-      endif        
-    endif   
-   
-    !Wave forcing
-    if(noptset>=3)then
-!$OMP DO PRIVATE(i)       
-      do i=1,ncells
-        su(i)=su(i)+wavestrx(i)*areap(i)
-        sv(i)=sv(i)+wavestry(i)*areap(i)
-      enddo    
-!$OMP END DO 
-      !Wave velocity forcing
-      if(waveflux)then
-!$OMP DO PRIVATE(i)  
-        do i=1,ncells       
-          su(i)=su(i)+cbcfuwcap(i)*us(i) 
-          sv(i)=sv(i)+cbcfuwcap(i)*vs(i) 
-        enddo
-!$OMP END DO
-      endif
-    endif  
-    
-    !Atmospheric pressure gradients
-    if(presvar)then
-!$OMP DO PRIVATE(i)  
-      do i=1,ncells       
-        su(i)=su(i)-pressatmdx(i)*h(i)*areap(i)/rhow
-        sv(i)=sv(i)-pressatmdy(i)*h(i)*areap(i)/rhow
-      enddo
-!$OMP END DO  
-    endif
-!$OMP END PARALLEL
-
-    !Deferred Corrections
-    select case(ndsch) !Anti-diffusion corrections
-    case(5)                                                      !Chris 4
-      call defcorhlpagrad(u,dux,duy,su)
-      call defcorhlpagrad(v,dvx,dvy,sv)
-    case(6)                                                      !Chris 5
-      call defcorgammagrad(gammadefcor,u,dux,duy,su)
-      call defcorgammagrad(gammadefcor,v,dvx,dvy,sv)
-    case(7)                                                      !Chris 6
-      call defcorgammagrad(cubistadefcor,u,dux,duy,su)
-      call defcorgammagrad(cubistadefcor,v,dvx,dvy,sv)
-    case(8)                                                      !Chris 7
-      call defcorgammagrad(alvsmartdefcor,u,dux,duy,su)
-      call defcorgammagrad(alvsmartdefcor,v,dvx,dvy,sv)  
-    case(9)                                                      !Chris 8
-      call defcorgammagrad(hoabdefcor,u,dux,duy,su)
-      call defcorgammagrad(hoabdefcor,v,dvx,dvy,sv)
-    end select  
-    if(skewcor)then !Skewness corrections
-      call defcorparagradvec(dux,duy,dvx,dvy,su,sv)
-    endif
-    
-!--- Dry nodes --------------------------------------------------------
-    if(wallfric)then
-!$OMP PARALLEL DO PRIVATE(i,k,nck,delta,vparl,z0wall,gammawall)            
-      do i=1,ncells
-        if(iwet(i)==1)then
-           spu(i)=sp(i)
-           spv(i)=sp(i) 
-           do k=1,ncface(i)
-             nck=cell2cell(k,i)
-             if(iwet(nck)==0)then    !side is dry            
-               !vparl=sqrt(u(i)*u(i)+v(i)*v(i))    
-               z0wall=z0(i)*wallfac
-               if(idirface(k,i)==1.or.idirface(k,i)==3)then   !north/south face
-                 vparl=abs(u(i))                                  
-                 delta=0.5*dy(i)
-                 !call wall_gamma(viscos,delta,z0wall,vparl,gammawall) !Valid for smooth to rough flow
-                 gammawall = wall_coef(delta,z0wall)*vparl
-                 spu(i)=spu(i)-gammawall*ds(k,i)*h(i)
-               else                 !east/west face
-                 vparl=abs(v(i))
-                 delta=0.5*dx(i)
-                 !call wall_gamma(viscos,delta,z0wall,vparl,gammawall) !Valid for smooth to rough flow
-                 gammawall = wall_coef(delta,z0wall)*vparl
-                 spv(i)=spv(i)-gammawall*ds(k,i)*h(i)
-               endif
-               acoef(k,i)=0.0
-             endif
-           enddo
-        endif
-      enddo
-!$OMP END PARALLEL DO
-    else !No wall friction
-!$OMP PARALLEL DO PRIVATE(i)
-      do i=1,ncells
-        spu(i)=sp(i)
-        spv(i)=sp(i)
-      enddo     
-!$OMP END PARALLEL DO      
-    endif    
-
-!$OMP PARALLEL DO PRIVATE(i,k,sumanu1,sumanv1,sumacoef)  
-    do i=1,ncells
-      !Water level
-      hpred(i)=h(i)-iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i)) !Water depth prediction
-      !Current velocities
-      ap(i)=hpred(i)*areap(i)/dtime  
-      sumanu1=0.0; sumanv1=0.0; sumacoef=0.0
-      do k=1,ncface(i)
-        nck=cell2cell(k,i)  
-        sumanu1=sumanu1+acoef(k,i)*u(nck)
-        sumanv1=sumanv1+acoef(k,i)*v(nck)
-        sumacoef=sumacoef+acoef(k,i)
-      enddo
-      upred(i)=iwet(i)*(sumanu1+(ap(i)-sumacoef)*u(i)+su(i))/(ap(i)-spu(i))
-      vpred(i)=iwet(i)*(sumanv1+(ap(i)-sumacoef)*v(i)+sv(i))/(ap(i)-spv(i))
-    enddo
-!$OMP END PARALLEL DO
-    endif
-
+!    rmsh=sqrt(rmsh/real(ncells,kind=ikind))
+!    rmsu=sqrt(rmsu/real(ncells,kind=ikind))
+!    rmsv=sqrt(rmsv/real(ncells,kind=ikind))  
+!      
+!787 format(3(3x,1pe12.4))     
+!    write(msg,787,iostat=ierr) rmsh,rmsu,rmsv
+!    call diag_print_message('RMSE of predicted values: ',msg)
+!    
+!    !Make new prediction
+!    if(.true.)then
+!    psi=0.5
+!    ww(1)=1.0-psi/2.0
+!    ww(2)=1.0-psi
+!    ww(3)=psi/2.0
+!!$OMP PARALLEL    
+!!$OMP DO PRIVATE(i,cbuwc,val)      
+!    do i=1,ncells
+!      !hpred(i)=h(i)-dtime*(h(i)*dux(i)+u(i)*dhx(i)+h(i)*dvy(i)+v(i)*dhy(i))
+!      hpred(i)=h(i)-iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i)) !Water depth prediction
+!      !hpred(i)=1.0/ww(1)*(h(i)*ww(2)+h1(i)*ww(3) &
+!      !  -iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i))) !Water depth prediction
+!      !if(h(i)<1.0e-6)then
+!      !  hpred(i)=1.0e-6
+!      !endif
+!      if(hpred(i)<hmin)then
+!        hpred(i)=hmin  
+!        upred(i)=0.0
+!        vpred(i)=0.0
+!      else
+!        !call d2xy2d(i,dux,duy,d2uix2,d2uiy2)
+!        !call d2xy2d(i,dvx,dvy,d2vix2,d2viy2)
+!        !upred(i)=u(i)+dtime*(-u(i)*dux(i)-v(i)*duy(i)+forcex(i)/h(i)+fc(i)*v(i)-dpx(i)+vis(i)*(d2uix2+d2uiy2)) !Note: Mixing terms
+!        !vpred(i)=v(i)+dtime*(-u(i)*dvx(i)-v(i)*dvy(i)+forcey(i)/h(i)-fc(i)*u(i)-dpy(i)+vis(i)*(d2vix2+d2viy2))
+!        upred(i)=u(i)+dtime*(-u(i)*dux(i)-v(i)*duy(i)+forcex(i)/h(i)+fc(i)*v(i)-dpx(i)) !Note: Mixing terms
+!        vpred(i)=v(i)+dtime*(-u(i)*dvx(i)-v(i)*dvy(i)+forcey(i)/h(i)-fc(i)*u(i)-dpy(i))
+!        !upred(i)=upred(i)/(1.0+cfrict(i)*uelwc(i)/h(i)) !Bottom friction treated semi-implicitly for stability
+!        !vpred(i)=vpred(i)/(1.0+cfrict(i)*uelwc(i)/h(i)) !Bottom friction treated semi-implicitly for stability
+!        !upred(i)=1.0/ww(1)*(u(i)*ww(2)+u1(i)*ww(3) &
+!        !    -dtime*(u(i)*dux(i)+v(i)*duy(i)-forcex(i)/h(i)-fc(i)*v(i)+dpx(i)))        
+!        !vpred(i)=1.0/ww(1)*(v(i)*ww(2)+v1(i)*ww(3) &
+!        !    -dtime*(u(i)*dvx(i)+v(i)*dvy(i)-forcey(i)/h(i)+fc(i)*u(i)+dpy(i)))
+!        if(noptset>=3)then
+!          cbuwc=fric_bed(h(i),cfrict(i),z0(i),vpred(i),vpred(i),&
+!                us(i),vs(i),worb(i),worbrep(i),wper(i),wang(i)) 
+!        else
+!          cbuwc=cfrict(i)*sqrt(upred(i)*upred(i)+vpred(i)*vpred(i))
+!        endif
+!        val=1.0+dtime*cbuwc/h(i)
+!        upred(i)=upred(i)/val !Bottom friction treated semi-implicitly for stability
+!        vpred(i)=vpred(i)/val !Bottom friction treated semi-implicitly for stability
+!      endif
+!    enddo      
+!!$OMP END DO   
+!!$OMP END PARALLEL
+!    else !Conservative form
+!!$OMP PARALLEL
+!!$OMP DO PRIVATE(i)      
+!    do i=1,ncells
+!      su(i)=-cbcfuwcap(i)*u(i)+( fc(i)*v(i)-dpx(i))*h(i)*areap(i)
+!      sv(i)=-cbcfuwcap(i)*v(i)+(-fc(i)*u(i)-dpy(i))*h(i)*areap(i)
+!      sp(i)=-cbcfuwcap(i)
+!      do k=1,ncface(i)
+!        ddk=visk(k,i)*hk(k,i)*dsxy(k,i)
+!        acoef(k,i)=hybridcoef(ddk,flux(k,i))
+!      enddo
+!    enddo  
+!!$OMP END DO   
+!
+!    !Wind (Lagrangian Reference Frame)
+!    if(iwndlagr==1)then
+!      if(windconst)then
+!!$OMP DO PRIVATE(i)  
+!        do i=1,ncells
+!          su(i)=su(i)+cdWndareap(i)*(wndx-u(i)+us(i)) !source/sink
+!          sv(i)=sv(i)+cdWndareap(i)*(wndy-v(i)+vs(i)) !source/sink
+!          sp(i)=sp(i)-cdWndareap(i)      !sink, must be non-positive
+!        enddo
+!!$OMP END DO        
+!      elseif(windvar)then
+!!$OMP DO PRIVATE(i)  
+!        do i=1,ncells
+!          su(i)=su(i)+cdWndareap(i)*(uwind(i)-u(i)+us(i)) !source/sink
+!          sv(i)=sv(i)+cdWndareap(i)*(vwind(i)-v(i)+vs(i)) !source/sink
+!          sp(i)=sp(i)-cdWndareap(i)      !sink, must be non-positive
+!        enddo
+!!$OMP END DO
+!      endif
+!    else !Eulerian Referenc Frame
+!      if(windconst)then
+!!$OMP DO PRIVATE(i)    
+!        do i=1,ncells    
+!          su(i)=su(i)+tauwx*areap(i)
+!          sv(i)=sv(i)+tauwy*areap(i)
+!        enddo
+!!$OMP END DO  
+!      elseif(windvar)then    
+!!$OMP DO PRIVATE(i)    
+!        do i=1,ncells    
+!          su(i)=su(i)+tauwindx(i)*areap(i)
+!          sv(i)=sv(i)+tauwindy(i)*areap(i)
+!        enddo
+!!$OMP END DO        
+!      endif        
+!    endif   
+!   
+!    !Wave forcing
+!    if(noptset>=3)then
+!!$OMP DO PRIVATE(i)       
+!      do i=1,ncells
+!        su(i)=su(i)+wavestrx(i)*areap(i)
+!        sv(i)=sv(i)+wavestry(i)*areap(i)
+!      enddo    
+!!$OMP END DO 
+!      !Wave velocity forcing
+!      if(waveflux)then
+!!$OMP DO PRIVATE(i)  
+!        do i=1,ncells       
+!          su(i)=su(i)+cbcfuwcap(i)*us(i) 
+!          sv(i)=sv(i)+cbcfuwcap(i)*vs(i) 
+!        enddo
+!!$OMP END DO
+!      endif
+!    endif  
+!    
+!    !Atmospheric pressure gradients
+!    if(presvar)then
+!!$OMP DO PRIVATE(i)  
+!      do i=1,ncells       
+!        su(i)=su(i)-pressatmdx(i)*h(i)*areap(i)/rhow
+!        sv(i)=sv(i)-pressatmdy(i)*h(i)*areap(i)/rhow
+!      enddo
+!!$OMP END DO  
+!    endif
+!!$OMP END PARALLEL
+!
+!    !Deferred Corrections
+!    select case(ndsch) !Anti-diffusion corrections
+!    case(5)                                                      !Chris 4
+!      call defcorhlpagrad(u,dux,duy,su)
+!      call defcorhlpagrad(v,dvx,dvy,sv)
+!    case(6)                                                      !Chris 5
+!      call defcorgammagrad(gammadefcor,u,dux,duy,su)
+!      call defcorgammagrad(gammadefcor,v,dvx,dvy,sv)
+!    case(7)                                                      !Chris 6
+!      call defcorgammagrad(cubistadefcor,u,dux,duy,su)
+!      call defcorgammagrad(cubistadefcor,v,dvx,dvy,sv)
+!    case(8)                                                      !Chris 7
+!      call defcorgammagrad(alvsmartdefcor,u,dux,duy,su)
+!      call defcorgammagrad(alvsmartdefcor,v,dvx,dvy,sv)  
+!    case(9)                                                      !Chris 8
+!      call defcorgammagrad(hoabdefcor,u,dux,duy,su)
+!      call defcorgammagrad(hoabdefcor,v,dvx,dvy,sv)
+!    end select  
+!    if(skewcor)then !Skewness corrections
+!      call defcorparagradvec(dux,duy,dvx,dvy,su,sv)
+!    endif
+!    
+!!--- Dry nodes --------------------------------------------------------
+!    if(wallfric)then
+!!$OMP PARALLEL DO PRIVATE(i,k,nck,delta,vparl,z0wall,gammawall)            
+!      do i=1,ncells
+!        if(iwet(i)==1)then
+!           spu(i)=sp(i)
+!           spv(i)=sp(i) 
+!           do k=1,ncface(i)
+!             nck=cell2cell(k,i)
+!             if(iwet(nck)==0)then    !side is dry            
+!               !vparl=sqrt(u(i)*u(i)+v(i)*v(i))    
+!               z0wall=z0(i)*wallfac
+!               if(idirface(k,i)==1.or.idirface(k,i)==3)then   !north/south face
+!                 vparl=abs(u(i))                                  
+!                 delta=0.5*dy(i)
+!                 !call wall_gamma(viscos,delta,z0wall,vparl,gammawall) !Valid for smooth to rough flow
+!                 gammawall = wall_coef(delta,z0wall)*vparl
+!                 spu(i)=spu(i)-gammawall*ds(k,i)*h(i)
+!               else                 !east/west face
+!                 vparl=abs(v(i))
+!                 delta=0.5*dx(i)
+!                 !call wall_gamma(viscos,delta,z0wall,vparl,gammawall) !Valid for smooth to rough flow
+!                 gammawall = wall_coef(delta,z0wall)*vparl
+!                 spv(i)=spv(i)-gammawall*ds(k,i)*h(i)
+!               endif
+!               acoef(k,i)=0.0
+!             endif
+!           enddo
+!        endif
+!      enddo
+!!$OMP END PARALLEL DO
+!    else !No wall friction
 !!$OMP PARALLEL DO PRIVATE(i)
 !    do i=1,ncells  
-!      h(i)=hpred(i)
-!      eta(i)=h(i)+zb(i)
-!      p(i)=grav*eta(i)
-!      u(i)=upred(i)
-!      v(i)=vpred(i)
+!        spu(i)=sp(i)
+!        spv(i)=sp(i)
 !    enddo      
 !!$OMP END PARALLEL DO
+!    endif    
 !
-!!$OMP PARALLELDO PRIVATE(i,j,k,nck,uni,unk)      
+!!$OMP PARALLEL DO PRIVATE(i,k,sumanu1,sumanv1,sumacoef)  
 !    do i=1,ncells      
-!      do j=1,nxyface(i)
-!         k=kxyface(j,i)
+!      !Water level
+!      hpred(i)=h(i)-iwet(i)*dtime/areap(i)*sum(flux(1:ncface(i),i)) !Water depth prediction
+!      !Current velocities
+!      ap(i)=hpred(i)*areap(i)/dtime  
+!      sumanu1=0.0; sumanv1=0.0; sumacoef=0.0
+!      do k=1,ncface(i)
 !         nck=cell2cell(k,i)
-!         hk(k,i)=fintp(k,i)*h(nck)+(1.0-fintp(k,i))*h(i)
-!         uni=fnx(k,i)*u(i)+fny(k,i)*v(i)
-!         unk=fnx(k,i)*u(nck)+fny(k,i)*v(nck)
-!         flux(k,i)=iwet(i)*iwet(nck)*ds(k,i)*hk(k,i)*(fintp(k,i)*unk+(1.0-fintp(k,i))*uni) !Outward flux
-!         flux(llec2llec(k,i),nck)=-flux(k,i)         
+!        sumanu1=sumanu1+acoef(k,i)*u(nck)
+!        sumanv1=sumanv1+acoef(k,i)*v(nck)
+!        sumacoef=sumacoef+acoef(k,i)
 !       enddo
+!      upred(i)=iwet(i)*(sumanu1+(ap(i)-sumacoef)*u(i)+su(i))/(ap(i)-spu(i))
+!      vpred(i)=iwet(i)*(sumanv1+(ap(i)-sumacoef)*v(i)+sv(i))/(ap(i)-spv(i))
 !    enddo
 !!$OMP END PARALLEL DO
-
-#endif
-    return
-    end subroutine flow_pred
+!    endif
+!
+!!!$OMP PARALLEL DO PRIVATE(i)
+!!    do i=1,ncells  
+!!      h(i)=hpred(i)
+!!      eta(i)=h(i)+zb(i)
+!!      p(i)=grav*eta(i)
+!!      u(i)=upred(i)
+!!      v(i)=vpred(i)
+!!    enddo      
+!!!$OMP END PARALLEL DO
+!!
+!!!$OMP PARALLELDO PRIVATE(i,j,k,nck,uni,unk)      
+!!    do i=1,ncells      
+!!      do j=1,nxyface(i)
+!!         k=kxyface(j,i)
+!!         nck=cell2cell(k,i)
+!!         hk(k,i)=fintp(k,i)*h(nck)+(1.0-fintp(k,i))*h(i)
+!!         uni=fnx(k,i)*u(i)+fny(k,i)*v(i)
+!!         unk=fnx(k,i)*u(nck)+fny(k,i)*v(nck)
+!!         flux(k,i)=iwet(i)*iwet(nck)*ds(k,i)*hk(k,i)*(fintp(k,i)*unk+(1.0-fintp(k,i))*uni) !Outward flux
+!!         flux(llec2llec(k,i),nck)=-flux(k,i)         
+!!       enddo
+!!    enddo
+!!!$OMP END PARALLEL DO
+!
+!#endif
+!    return
+!    end subroutine flow_pred
 
 !***************************************************
     subroutine check_momentum

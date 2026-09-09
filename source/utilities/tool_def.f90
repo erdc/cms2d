@@ -174,6 +174,47 @@
     character(len=1), intent(in) :: c
     is_digit = (c >= '0' .and. c <= '9')
   end function is_digit
+  
+!**************************************************************    
+  subroutine check_percentile_file(filename, pathname)
+! Checks each percentile file to make sure that there are no negative values.
+! Added by M. Brown - 5/11/2026
+!**************************************************************    
+    use XMDF
+    use diag_def,  only: msg, msg2
+    use diag_lib,  only: diag_print_error
+    use const_def, only: READWRITE
+    implicit none
+  
+    character(len=*),intent(in) :: filename,pathname
+  
+    integer :: ERROR, NTIMES
+    real(4) :: A_MIN(1)
+    integer(XID) :: PID, DGID
+  
+    CALL XF_OPEN_FILE (TRIM(filename),READWRITE,PID,ERROR)
+    IF (ERROR.LT.0) THEN
+      write(msg,*) 'CANNOT OPEN FILE: ', TRIM(filename)
+      call DIAG_PRINT_ERROR(msg)   
+    ENDIF
+  
+    CALL XF_OPEN_GROUP (PID,pathname,DGID,ERROR)
+    IF (ERROR.LT.0) THEN 
+      call XF_CLOSE_FILE(PID, ERROR)
+      write(msg,*) 'CANNOT OPEN DATASET: ', TRIM(pathname)
+      call DIAG_PRINT_ERROR(msg)
+    ENDIF
+  
+    CALL XF_GET_DATASET_MINS(DGID, 1, A_MIN, ERROR)
+    if (A_MIN(1) < 0.0) then
+      call XF_CLOSE_FILE(PID, ERROR)
+      write(MSG,*) 'Minimum dataset value in dataset: ',TRIM(pathname),' is negative.'
+      write(msg2,*) 'Sediment percentile datasets must contain only positive values.'
+      call DIAG_PRINT_ERROR(msg, msg2)
+    endif
+  
+  end subroutine
+    
 
 !************************************************************
     end module tool_def      

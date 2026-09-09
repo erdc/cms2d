@@ -1517,7 +1517,7 @@ contains
 !   thetap - Mean bed Shields parameter based on grain roughness [-]
 !   thetaref - Reference Shields parameter at which there is 
 !     a low but measurable reference transport rate, as defined 
-!     in Parker (1990) [-]. Griemann et al. (2008) estimated or 
+!     in Parker (1990) [-]. Griemann et al. (2008) estimated or 
 !     calibrated it for each particle type and bed roughness.
 !   s - Sediment specific gravity [-]
 !   d - Sediment diameter [L]

@@ -80,6 +80,7 @@
     !--- Bed-slope effects ----------------------------------
     !Diffusion term
     do_bedslope = .true.   !Calculate bed-slope term
+    !do_bedslope = .false.   !Calculate bed-slope term        !Test by Wu
     dcoeff = 0.1           !Bed-slope diffusion coefficient   
     !Incipient motion and rate
     ibedslope = -1      !-1-Automatic, 0-None, 1-Dey (2001), 2-Bailard (1981), 2-Wu et al. (2000) 
@@ -123,6 +124,7 @@
 
     !--- Limiters ----------------------------------------------------------
     Cteqmax = 200.0        !Maximum mass concentration [kg/m^3]
+    !Cteqmax = 1200.0        !Maximum mass concentration [kg/m^3]    !Test by Wu
     dzbmax = 0.5           !Maximum bed change per time step [m]
     !Cteqmax = (1.0-poros)*rhosed !Maximum mass concentration   !From Chris' code
     
@@ -191,6 +193,10 @@
     scalewaveasym = 1.0
     scaleundertow = 1.0
     
+    cohesivesed = .false.                  !added by Wu
+    consolidation = .false.
+    methcoherodcr = 1
+    
     !--- Percentile diameter -----------
     nperinp = 0
     OutPerDiam = .false.
@@ -233,11 +239,13 @@
     use math_lib, only: sortup
     use diag_lib
     use sed_def
+    use bnd_def,  only: nQstr        !added by Wu, 2026-3-26
     use EXP_Global_def,    only: isedform, dtsed, dtmorph, a0, thetac
     use EXP_transport_def, only: rate_avalanche
     
     implicit none
-    integer :: i,j,ks,ipr,ndiamlim,nn,ierr
+    integer :: i,j,ks,ipr,ndiamlim,nn,ierr,iriv,ised
+    integer :: iQseg, nQsegtemp   !Added by Wu 5/14/2026
     character(len=37) :: cardname,cdum    
     character(len=200) :: afile,apath
     character(len=120), allocatable :: temppath(:)
@@ -420,13 +428,11 @@
       if(poros<0.3)then
         write(msg2,*) '  Porosity: ',poros
         call diag_print_warning('Extremely low sediment porosity specified',msg2,&
-         '  Consider using a larger value',&
-         '  Note: The sediment porosity is not a calibration parameter')  
+         '  Consider using a larger value','  Note: The sediment porosity is not a calibration parameter')  
       elseif(poros>0.46)then
         write(msg2,*) '  Porosity: ',poros
         call diag_print_warning('Extremely high sediment porosity specified',msg2,&
-         '  Consider using a larger value',&
-         '  Note: The sediment porosity is not a calibration parameter')      
+         '  Consider using a larger value','  Note: The sediment porosity is not a calibration parameter')      
       endif
       
     case('SEDIMENT_COREY_SHAPE_FACTOR')  
@@ -582,16 +588,57 @@
         facQtotin = 0.0
       case('INFLOW_RATE') 
         isedinflowbc = 2
+      case('INFLOW_CONCENTRATION')          !Added by Wu, 4/4/2025
+        isedinflowbc = 3
+        allocate(CtotinMultRiv(nQstr))
+        allocate(psinMultRiv(nQstr,nsed))       !Sediment Inflow Size Composition,  Added by Wu, 2026-3-16
+        psinMultRiv=1.0/FLOAT(nsed)             !Initialize to equal fraction for each size class
+      case('INFLOW_Ct_QCurve')                  !Added by Wu, 3/16/2026
+        isedinflowbc = 5
+        allocate(QtQa(nQstr),QtQb(nQstr))
+        allocate(psinMultRiv(nQstr,nsed))       !Sediment Inflow Size Composition,  Added by Wu, 2026-3-16
+        psinMultRiv=1.0/FLOAT(nsed)             !Initialize to equal fraction for each size class
+      case('INFLOW_Ct_QCurve_Fraction')         !Fractional rating curve Qtk ~ Q,  Added by Wu, 5/14/2026
+        isedinflowbc = 7
+        allocate(QtQaFract(nQstr,nsed),QtQbFract(nQstr,nsed))
+      case('INFLOW_Ct_QCurve_Fraction_Segmented')       !Segmented fractional rating curve Qtk ~ Q,  Added by Wu, 5/14/2026
+        isedinflowbc = 9
       case('CAPACITY')
         isedinflowbc = 1  
       end select  
-      
-!    case('SEDIMENT_CONC_CELLSTRING')             
       
     case('SEDIMENT_INFLOW_TRANSPORT_RATE')
       backspace(77)
       read(77,*) cardname, Qtotin
         
+    case('SEDIMENT_INFLOW_CONCENTRATION')      !Added by Wu, 4/4/2025
+      backspace(77)
+      read(77,*) cardname, (CtotinMultRiv(iriv), iriv=1,nQstr)   !CtotinMultRiv in kg/m^3
+      
+    case('SEDIMENT_INFLOW_Qt_QCurve')      !Added by Wu, 3/16/2026
+      backspace(77)
+      read(77,*) cardname, (QtQa(iriv),QtQb(iriv), iriv=1,nQstr)   
+      
+    case('SEDIMENT_INFLOW_SizeComp')      !Added by Wu, 3/16/2026
+      backspace(77)
+      read(77,*) cardname, ((psinMultRiv(iriv,ks),ks=1,nsed), iriv=1,nQstr)   !fraction, 0-1.0 scale      
+
+    case('SEDIMENT_INFLOW_Qt_QCurve_Fract')      !Added by Wu, 5/14/2026
+      backspace(77)
+      read(77,*) cardname, ((QtQaFract(iriv,ised),QtQbFract(iriv,ised), ised=1,nsed), iriv=1,nQstr)   
+
+    case('SEDIMENT_INFLOW_Ct_QCurve_Fract_Seg')      !Added by Wu, 5/14/2026
+      backspace(77)
+      read(77,*) cardname, nQseg
+      allocate(QSeg(nQstr,nQseg),CtFractSeg(nQstr,nQseg,nsed))
+      backspace(77)
+      read(77,*) cardname,nQsegtemp,((QSeg(iriv,iQseg),(CtFractSeg(iriv,iQseg,ised), ised=1,nsed),  &
+                                        iQseg=1,nQseg), iriv=1,nQstr)    !CtFractSeg  kg/m^3
+      QSeg=alog10(QSeg)                !Convert to log10 for interpolation, added by Wu, 5/14/2026
+      CtFractSeg=alog10(CtFractSeg)    !Convert to log10 for interpolation
+           
+    !case('SEDIMENT_CONC_CELLSTRING')             
+
     case('SEDIMENT_INFLOW_LOADING_FACTOR')  
       backspace(77)
       read(77,*) cardname, facQtotin
@@ -737,6 +784,7 @@
       singlesize = .false.
       bedlay(:)%ipbkinp = bedlay(1)%ipbkinp
       bedlay(:)%inppbk = .true.
+      !sedclass(:)%idiam = 0    ! this added by Wu, Test by Wu
       
     case('BED_FRACTIONAL_COMPOSITION_DATASET')
       backspace(77)
@@ -754,6 +802,7 @@
       bedlay(:)%geostddev = bedlay(1)%geostddev
       bedlay(:)%ipbkinp = 1 !D50_SIGMA
       bedlay(:)%inppbk = .true.
+      !sedclass(:)%idiam = 0    ! this added by Wu, Test by Wu
         
     case('SEDIMENT_SIZE_CLASS_NUMBER')  
       backspace(77)
@@ -839,14 +888,16 @@
       bedlay(:)%dbpath = bedlay(1)%dbpath 
       singlesize = .false.
       
-    case('BED_LAYERS_MAX_NUMBER','BED_LAYER_MAX_NUMBER')
+    !case('BED_LAYERS_MAX_NUMBER','BED_LAYER_MAX_NUMBER')
+    case('BED_LAYERS_MAX_NUMBER','BED_LAYER_MAX_NUMBER', &
+         'BED_LAYERS_NUMBER','NUMBER_BED_LAYERS')
       backspace(77)
       read(77,*) cardname, nlay   
       call bedlay_resize
         
-    case('BED_LAYERS_NUMBER','NUMBER_BED_LAYERS')
-      backspace(77)
-      read(77,*) cardname, nlayinp
+    !case('BED_LAYERS_NUMBER','NUMBER_BED_LAYERS')        !This card does not work, Tested by Wu
+    !  backspace(77)
+    !  read(77,*) cardname, nlayinp
       
     case('BED_LAYERS_CONSTANT_THICKNESS','BED_LAYER_CONSTANT_THICKNESS',&
          'BED_LAYERS_THICKNESS_CONSTANT','BED_LAYER_THICKNESS_CONSTANT')
@@ -910,9 +961,11 @@
         iadapttot = 5 !Max of bed and suspended adaptation lengths
       elseif(Ltot<-1.9)then 
         iadapttot = 6 !Weighted average
-      elseif(Ltot<0.1)then 
+      !elseif(Ltot<0.1)then            
+      elseif(Ltot<0.02)then            ! Changed by Wu, to lower the limit to 0.02 m
         iadapttot = 1
-        Ltot = max(Ltot,0.1)
+        !Ltot = max(Ltot,0.1)
+        Ltot = max(Ltot,0.02)          !Changed by Wu
       endif
         
     case('ADAPTATION_TIME_TOTAL')
@@ -1027,8 +1080,6 @@
       backspace(77)
       read(77,*) cardname, tolpbk
         
-!    case('SEDIMENT_INFLOW_BC') 
-
     !=== Erosion of dry cells ============================
 #ifdef DEV_MODE
     case('EROSION_DRY_CELLS','ERODE_DRY_CELLS')
@@ -1055,23 +1106,15 @@
     !=== Cohesive Sediments =================================
     case('COHESIVE_SEDIMENT')
       backspace(77)   
-      read(77,*) cardname, ks   
-      if(ks.eq.1) then 
-        cohesivesed = .true.
-        backspace(77)   
-        read(77,*) cardname, ks, cohk1, cohk2, cohcp, cohn, cohr,   &
+      read(77,*) cardname, cohk1, cohk2, cohcp, cohn, cohr,   &
                    cohsalkmax, cohsalcp, cohsaln, cohtaubp, cohturbn1, cohturbn2, cohturbk1, &
                    cohdepmax0,cohdepmin0, coherodm0, coherodcr0,coherodn, &  
-                   pcmax,pcmin  
-        endif
+                 pcmax,pcmin,cohmangrain  
+      cohesivesed = .true.
 
     case('COHESIVE_SEDIMENT_SIMPLE')   !Less Input Parameters     
       backspace(77)   
-      read(77,*) cardname, ks   
-      if(ks.eq.1)then 
-        cohesivesed = .true.
-        backspace(77)   
-        read(77,*) cardname, ks, cohk1, cohcp, cohsalkmax, cohtaubp, cohturbk1, &
+      read(77,*) cardname, cohk1, cohcp, cohsalkmax, cohtaubp, cohturbk1, &
                     cohdepmax0, coherodm0, coherodcr0  
         cohk2=0.008
         cohn=1.3
@@ -1085,18 +1128,36 @@
         coherodn=2.5
         pcmax=0.6
         pcmin=0.1
+      cohmangrain=0.016   !Grain Manning's n
+      cohesivesed = .true.
+
+    case('CRITICAL_SHEAR_STRESS_EROSION')
+      backspace(77)   
+      read(77,*) cardname, methcoherodcr   
+      backspace(77)   
+      if(methcoherodcr.eq.2) then      !depth-varying tau_ce , paires of tau_cr and depth below the bed
+        read(77,*) cardname,methcoherodcr,numbtaucedep
+        allocate(coherodtauce(numbtaucedep),coheroddep(numbtaucedep))
+        backspace(77)   
+        read(77,*) cardname,methcoherodcr,numbtaucedep,(coheroddep(j),coherodtauce(j),j=1,numbtaucedep) 
+      elseif(methcoherodcr.eq.4) then  !function of mud dry density 
+        read(77,*) cardname,methcoherodcr,coherodcralpha,coherodcrbeta   
+      elseif(methcoherodcr.eq.5) then  !function of excess mud dry density
+        read(77,*) cardname,methcoherodcr,coherodcratrho0,coherodcrtau,rhobedcohercr0,coherodcrn   
       endif
 
     case('BED_CONSOLIDATION')
       backspace(77)   
-      read(77,*) cardname, ks   
-      if(ks.eq.1) then 
-        consolidation = .true.
         allocate(tconsolid0(nlay))
-        backspace(77)   
-        read(77,*) cardname, ks, rhobedcoh0, arhobed, prhobed, rhobedcoh1yr, betarhobed, &  
-                   rhobednoncoh,(tconsolid0(j), j=1,nlay), &
-                   methcoherodcr,coherodcratrho0,coherodcrtau,rhobedcohercr0,coherodcrn
+      read(77,*) cardname, rhobedcoh0, arhobed, prhobed, tdexp, rhobedcoh1yr, betarhobed, &  
+                 rhobednoncoh,(tconsolid0(j), j=1,nlay)  
+      consolidation = .true.
+      tdexp = tdexp * 86400.0 !Convert from days to seconds
+      rhobedcohtdexp = rhobedcoh0*(1.0-arhobed*exp(-prhobed*tdexp))/(1.0-arhobed) 
+      if(rhobedcohtdexp.gt.rhobedcoh1yr) then
+        call diag_print_warning('Early exponential consolidation yields dry density > that of 1 yr')
+        call diag_print_warning('check card: BED_CONSOLIDATION')
+        pause
       endif
         
     !=== Boundary Conditions ==================  
@@ -1370,11 +1431,12 @@ d1: do ii=1,10
 ! written by Alex Sanchez, USACE-CHL
 !**************************************************
     use size_def
-    use geo_def, only: grdfile
+    use geo_def,  only: grdfile
     use comvarbl, only: flowpath
     use sed_def
     use diag_lib
     use prec_def
+    use tool_def, only: check_percentile_file
     
     implicit none
     integer :: i,ii,ks,ierr,jlay,ipr,nsedchk
@@ -1496,6 +1558,7 @@ d1: do ii=1,30
                 bedlay(jlay)%perdiam(i)%inp = .false.
               else
                 bedlay(jlay)%perdiam(i)%inp = .true.  
+                call check_percentile_file(file, path)      !Added 5/11/2026 to ensure percentile datasets contain all positive values.
               endif  
             endif
           else            
@@ -1516,8 +1579,8 @@ d1: do ii=1,30
     bedlay(jlay)%inppbk = .true.  
     
     return
-    end subroutine bedlay_block
-    
+  end subroutine bedlay_block
+  
 !**************************************************************    
     subroutine bedlay_resize()
 ! written by Alex Sanchez, USACE-CHL    
@@ -1579,6 +1642,7 @@ d1: do ii=1,30
 #include "CMS_cpp.h"
     use size_def, only: ncells,ncellsD
     use geo_def, only: zb,zb0                                
+    use bnd_def,  only: nQstr        !added by Wu, 2026-3-26
     use flow_def, only: rhow,viscos,grav,gravinv
     use comvarbl, only: ntsch
     !use hot_def, only: coldstart                            !never used, commented out   MEB  01/26/2022
@@ -1597,7 +1661,7 @@ d1: do ii=1,30
     use prec_def
     
     implicit none
-    integer :: i,j,jj,ks,ierr
+    integer :: i,j,jj,ks,ierr,klay
     real(ikind), allocatable :: d16lay(:),d35lay(:),d50lay(:),d84lay(:),d90lay(:)
     character(len=200) :: file,path
     character(len=100) :: msg2
@@ -1625,15 +1689,17 @@ d1: do ii=1,30
       endif
       
       !--- Layer thickness thresholds ------------------------
-      dbmax = max(dbmax,5.0*dbmin) !Maximum layer thickness for new layers. Existing layers are not affected
       if(mixlayconst)then
         dmconst = max(dmconst,db1min)  !for constant mixing layer thickness
+        dbmin=max(dbmin,dmconst)       !ensure dbmin>=dmconst, added by Wu, 2026-3-21
       endif
+      dbmax = max(dbmax,5.0*dbmin) !Maximum layer thickness for new layers. Existing layers are not affected
       
       !--- Sediment size class diameters ------------
       allocate(diam(nsed),diamlim(nsed+1))
       if (.not. allocated(d50lay)) allocate(d50lay(ncellsD))   !(hli, 03/15/16)     Moved from above to allocate if not already allocated.  MEB 07/20/22
       !Calculate grain sizes if none specified
+           
       if(sum(sedclass(:)%idiam)==0)then !No diameters specified 
         select case(bedlay(1)%ipbkinp)  !use surface layer
         case(1)
@@ -1655,6 +1721,7 @@ d1: do ii=1,30
       endif      
       !Use input mode
       do ks=1,nsed
+      
         select case(sedclass(ks)%idiam) 
         case(1)    
           diam(ks) = sedclass(ks)%diam !Characteristic diameter
@@ -1662,7 +1729,7 @@ d1: do ii=1,30
           diam(ks) = sqrt(sedclass(ks)%diamlim(1)*sedclass(ks)%diamlim(2)) !Diameter limits
         case default
           write(msg2,*) '  Size class: ',ks
-          call diag_print_error('Missing grain size for ',msg2)  
+          call diag_print_error('Missing grain size for ',msg2)     !This cause problem, Tested by Wu
         end select
       enddo
       
@@ -1741,7 +1808,6 @@ d1: do ii=1,30
           end select  
         endif
         
-        msg2 = 'Percentile datasets cannot have negative values.'                    !Added to check for negative values  10/26/23  MEB   
         select case(bedlay(j)%ipbkinp)
         case(0) !None
           if(j==1)then
@@ -1767,7 +1833,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)     
-          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d50sigma(nsed,diam,diamlim,d50lay,bedlay(j)%geostddev,pbk(:,:,j)) !Note: assumes units of mm for d50, diam, sedsigma       
           deallocate(d50lay)
           
@@ -1789,7 +1854,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)
-          if(minval(d16lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
           
           call fileext(trim(file),aext)      
@@ -1803,7 +1867,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)     
-          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(84))%file; path = bedlay(j)%perdiam(ipd(84))%path
 
           call fileext(trim(file),aext)      
@@ -1817,7 +1880,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)          
-          if(minval(d84lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d16d50d84(nsed,diam,diamlim,d16lay,d50lay,d84lay,pbk(:,:,j))
           deallocate(d16lay,d50lay,d84lay)
           
@@ -1839,7 +1901,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path)       
-          if(minval(d35lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(50))%file; path = bedlay(j)%perdiam(ipd(50))%path
           
           call fileext(trim(file),aext)      
@@ -1852,7 +1913,6 @@ d1: do ii=1,30
             call readscalTxt(file,d50lay,ierr)
           end select
           if(ierr<0) call dper_read_error_msg(file,path)   
-          if(minval(d50lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           file = bedlay(j)%perdiam(ipd(90))%file; path = bedlay(j)%perdiam(ipd(90))%path
           
           call fileext(trim(file),aext)      
@@ -1866,7 +1926,6 @@ d1: do ii=1,30
           end select
           
           if(ierr<0) call dper_read_error_msg(file,path) 
-          if(minval(d90lay).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB
           call bed_d35d50d90(nsed,diam,diamlim,d35lay,d50lay,d90lay,pbk(:,:,j)) !Calculates grain size distribution from D35,D50,D90
           deallocate(d35lay,d50lay,d90lay)
           
@@ -1925,7 +1984,6 @@ d1: do ii=1,30
       
       !Bed layer thickness
       allocate(db(ncellsD,nlay),db1(ncellsD,nlay))
-
       do j=1,nlay
         select case(bedlay(j)%idbinp)
         case(0) !None specified
@@ -1979,16 +2037,13 @@ d1: do ii=1,30
           !First merge last two layers   
           db(i,nlay) = db1(i,nlay) + db1(i,nlay-1)     
           pbk(i,:,nlay) = (db1(i,nlay)*pbk(i,:,nlay) + db1(i,nlay-1)*pbk(i,:,nlay-1)) / db(i,nlay)
-          
           !Move index of layers 3 to nlay-1        
           db(i,3:nlay-1) = db1(i,2:nlay-2)
           pbk(i,:,3:nlay-1) = pbk(i,:,2:nlay-2)
-          
           !Recalculate layers 1 and 2
           db(i,2) = db1(i,1) - db(i,1)          
           pbk(i,:,2) = pbk(i,:,1)          
           !Note: Mixing layer composition does not change   
-          
         else !Layer too thin to split, revert back to initial value
           db(i,1) = db1(i,1)  
         endif
@@ -2034,7 +2089,6 @@ d1: do ii=1,30
         end select
         
         if(ierr<0) call dper_read_error_msg(file,path)        
-        if(minval(d50).lt.0) call diag_print_error(msg2)                           !Added to check for negative values  10/26/23  MEB        
         d50 = d50/1000.0
       endif      
       if(.not.allocated(sedclass))then  !No grain size specified. Determine from d50
@@ -2126,6 +2180,12 @@ d1: do ii=1,30
     allocate(rsCtk(ncellsD),rsCtkmax(ncellsD))
     rsCtk = 0.0
     rsCtkmax = 0.0
+    
+    if(cohesivesed) then
+      allocate(Etkstar(ncellsD,nsed),EtstarP(ncellsD,nsed))  !Wu
+      Etkstar = 0.0   ! Entrainment rate  !Wu
+      EtstarP = 0.0   !  !Wu    
+    endif      
     
     !Total-load transport
     allocate(qtx(ncellsD),qty(ncellsD))  
@@ -2313,6 +2373,50 @@ d1: do ii=1,30
     !Maximum sediment concentration
     Cteqmax = min(Cteqmax,(1.0-poros)*rhosed)
     
+    if(cohesivesed) then     !Cohesive sediment !Wu
+      allocate(dm(ncellsD),dmk(ncellsD,nsed))
+      allocate(dbms(ncellsD,nlay),dbms1(ncellsD,nlay))
+      allocate(rhobed(ncellsD,nlay),rhobedcoh(ncellsD,nlay))
+      allocate(cohdepmax(ncellsD),cohdepmin(ncellsD), wsfallcohsed(ncellsD),coherodm(ncellsD), coherodcr(ncellsD))
+      allocate(cohbsxy(ncellsD),alphacoh(ncellsD))   
+      do i=1,ncellsD
+         cohdepmax(i)=cohdepmax0
+         cohdepmin(i)=cohdepmin0
+         coherodm(i)=coherodm0
+         coherodcr(i)=coherodcr0
+         alphacoh(i)=1.0
+         alphat(i)=1.0
+         cohbsxy(i)=0.0
+         rhobed(i,1)=solid*rhosed
+         rhobedcoh(i,1)=solid*rhosed       
+         if(nsed.gt.1) then
+           dbms(i,1)=db(i,1)*rhobed(i,1)
+           dbms1(i,1)=dbms(i,1)
+         endif
+      enddo
+    endif
+    
+    if(consolidation) then   !Bed consolidation !Wu 
+      allocate(tconsolid(ncellsD,nlay),tconsolid1(ncellsD,nlay))
+      do i=1,ncellsD
+         tconsolid(i,:)=tconsolid0(:)
+         tconsolid1(i,:)=tconsolid0(:)
+         do klay=1,nlay
+             if(tconsolid(i,klay).le.tdexp) then  !less than tdexp, use exponential form
+               rhobedcoh(i,klay)=rhobedcoh0*(1.0-arhobed*exp(-prhobed*tconsolid(i,klay)))/(1.0-arhobed)
+            elseif((tconsolid(i,klay).gt.tdexp).and.(tconsolid(i,klay).lt.31536000.0)) then  !less than 1 yr
+               rhobedcoh(i,klay)=rhobedcohtdexp+(rhobedcoh1yr-rhobedcohtdexp)  &
+                                    *(tconsolid(i,klay)-tdexp)/(31536000.0-tdexp)
+            else
+               rhobedcoh(i,klay)=rhobedcoh1yr+betarhobed*alog10(tconsolid(i,klay)/31536000.0)
+            endif
+            rhobed(i,klay)=1.0/(pbk(i,1,klay)/rhobedcoh(i,klay)+(1.0-pbk(i,1,klay))/rhobednoncoh)
+            dbms(i,klay)=db(i,klay)*rhobed(i,klay)
+            dbms1(i,klay)=dbms(i,klay)
+         enddo
+      enddo
+    endif
+
     return
     end subroutine sed_init    
         
@@ -2953,7 +3057,6 @@ d1: do ii=1,30
       do i=1,ncells
         qtx(i)=qtx(i)+sum(Qws(i,:))*Wunitx(i)
         qty(i)=qty(i)+sum(Qws(i,:))*Wunity(i)
-       ! if (i.eq.487) write(*,*)'in sed_total, now adding Qws, total load transport qtx(487),qty(487)',qtx(i),qty(i)   !bdj 01/2021
       enddo
 !$OMP END PARALLEL DO    
     endif
@@ -3086,6 +3189,7 @@ d1: do ii=1,30
       write(iunit(ii),*) 'Ctk(i,ks) =',Ctk(i,ks)
       write(iunit(ii),*) 'Ctkstar(i,ks) =',Ctkstar(i,ks)
       write(iunit(ii),*) 'CtstarP(i,ks) =',CtstarP(i,ks)
+      if(cohesivesed) write(iunit(ii),*) 'EtstarP(i,ks) =',EtstarP(i,ks)
       write(iunit(ii),*) 'pbk(i,ks,1) =',pbk(i,ks,1)
       write(iunit(ii),*) 'Sb(i,ks) =',Sb(i,ks)
       write(iunit(ii),*) 'alphat(i) =' ,alphat(i)
@@ -3449,62 +3553,73 @@ d1: do ii=1,30
     return
     end subroutine sed_balance
     
-!!***************************************
-!    subroutine fallvel_cohsed
-!! Cohesive sediment fall velocity formula -  By Wu    
-!!**************************************
-!    use case_size
-!    use comvarbl, only: viscos
-!    use fl2d, only: bsxy
-!    use sedmod   
-!    use salmod, only: saltrans, sal
-!    use precision
-!    implicit none
-!    integer :: i
-!    !real(ikind) :: d(n),ds(n),ws(n)
-!    real(ikind) :: correcsed, cohk,  correcsal, correcturb
-! 
-!    !wsfallmax=wsfall(1)*(0.000022/diam(1))**1.8*cohk1*cohcp**cohn*cohsalkmax*   &
-!    !                           (1.0+cohturbk1*cohtaubp**cohturbn1)
-!    !write(*,*) "Cohesive sediment wsfallmax=", wsfallmax
-!
-!    do i=1,ncells
-!       wsfallcohsed(i)=wsfall(1)*(0.000022/diam(1))**1.8
-!
+!***************************************
+    subroutine fallvel_cohsed
+! Cohesive sediment fall velocity formula -  By Wu    
+!**************************************
+    use size_def
+    use flow_def      
+    use sed_def   
+    use sal_def, only: saltrans, sal
+    use prec_def  
+    implicit none
+    integer :: i
+    real(ikind) :: correcsed, cohk,  correcsal, correcturb
+ 
+    !wsfallmax=wsfall(1)*(0.000022/diam(1))**1.8*cohk1*cohcp**cohn*cohsalkmax*   &
+    !                           (1.0+cohturbk1*cohtaubp**cohturbn1)
+    
+    do i=1,ncells
+       wsfallcohsed(i)=wsfall(1)*max(1.0,(0.000022/diam(1))**1.8)
+
 !       !cohk1=wsfallmax/wsfallcohsed(i)/cohcp**cohn/cohsalkmax/   &
 !       !               (1.0+cohturbk1*cohtaubp**cohturbn1)
-!       if(Ctk(i,1).lt.cohcp) then ! Effect of Sed. Concentration on Settling
-!          correcsed=cohk1*Ctk(i,1)**cohn
-!       else
-!          cohk=cohk1*cohcp**cohn/(1.0-cohk2*cohcp)**cohr
-!          correcsed=cohk*(max(0.0,1.0-cohk2*Ctk(i,1)))**cohr
-!       endif
-!       correcsed=max(correcsed, wsfall(1)/wsfallcohsed(i))
-!    
-!       if(saltrans) then   ! Effect of Salinity on Settling
-!          if(sal(i).lt.cohsalcp) then
-!             correcsal=1.0+(cohsalkmax-1.0)*(sal(i)/cohsalcp)**cohsaln
-!          else
-!             correcsal=cohsalkmax
-!          endif   
-!       else            
-!          correcsal=1.0
-!       endif
-!
-!       if(cohbsxy(i).lt.cohtaubp) then   !effect of turbulence on settling
-!          correcturb=1.0+cohturbk1*cohbsxy(i)**cohturbn1
-!       else
-!          correcturb=(1.0+cohturbk1*cohtaubp**cohturbn1)  &
-!                         *(cohbsxy(i)/cohtaubp)**(-cohturbn2)
-!       endif               
-!            
-!       wsfallcohsed(i)=wsfallcohsed(i)*correcsed*correcsal*correcturb
+       if(Ctk(i,1).lt.cohcp) then ! Effect of Sed. Concentration on Settling
+          correcsed=cohk1*Ctk(i,1)**cohn
+          !correcsed=max(1.0,cohk1*Ctk(i,1)**cohn)
+       else
+          cohk=cohk1*cohcp**cohn/(1.0-cohk2*cohcp)**cohr
+          correcsed=cohk*(max(0.0,1.0-cohk2*Ctk(i,1)))**cohr
+       endif
+       correcsed=max(correcsed, wsfall(1)/wsfallcohsed(i))
+       
+       if(saltrans) then   ! Effect of Salinity on Settling
+          if(sal(i).lt.cohsalcp) then
+             correcsal=1.0+(cohsalkmax-1.0)*(sal(i)/cohsalcp)**cohsaln
+          else
+             correcsal=cohsalkmax
+          endif   
+       else            
+          correcsal=1.0
+       endif
+    
+       if(cohbsxy(i).lt.cohtaubp) then   !effect of turbulence on settling
+          correcturb=1.0+cohturbk1*cohbsxy(i)**cohturbn1
+       else
+          correcturb=(1.0+cohturbk1*cohtaubp**cohturbn1)  &
+                         *(cohbsxy(i)/cohtaubp)**(-cohturbn2)
+       endif               
+       
+       wsfallcohsed(i)=wsfallcohsed(i)*correcsed*correcsal*correcturb
 !       wsfallcohsed(i)=max(wsfallcohsed(i), wsfall(1))
-!       !wsfallcohsed(i)=max(wsfallcohsed(i), 0.0001*wsfall(1))
-!    enddo
-!
-!    return
-!    end subroutine 
+       wsfallcohsed(i)=max(wsfallcohsed(i), 0.0001*wsfall(1))
+       
+    enddo
+    
+    do i=1,ncells
+        if(cohbsxy(i).le.cohdepmin(i)) then
+          alphacoh(i) = 1.0
+        else if(cohbsxy(i).gt.cohdepmin(i).and.cohbsxy(i).le.cohdepmax(i)) then
+          alphacoh(i) = 1.0-(cohbsxy(i)-cohdepmin(i))   &
+                              /(cohdepmax(i)-cohdepmin(i))
+        else if(cohbsxy(i).gt.cohdepmax(i)) then
+          alphacoh(i) = 0.0
+        endif
+        alphacoh(i) = alphacoh(i)*iwet(i)     
+    enddo   
+        
+    return
+    end subroutine fallvel_cohsed
 
 !*******************************************************************    
     subroutine sed_concdepthchange

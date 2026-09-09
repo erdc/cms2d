@@ -151,7 +151,8 @@
     integer :: i,k
     real(ikind) :: pbm(nsed)
 
-!$OMP PARALLEL DO PRIVATE(i,k)    
+!!$OMP PARALLEL DO PRIVATE(i,k)    
+!$OMP PARALLEL DO PRIVATE(i,k,pbm)    !Added pbm, by Wu, 2026-2-16
     do i=1,ncells
       pbm = pbk(i,:,1)  
       do k=1,nsed

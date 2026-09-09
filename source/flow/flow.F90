@@ -127,7 +127,8 @@
     relax(3) = relax(2)  !v
     relax(4) = 0.8       !c
     relax(5) = 0.8       !s
-    relax(8) = 1.0       !p
+    !relax(8) = 1.0       !p
+    relax(8) = 0.6       !p    !Changed by Wu for better stability
     relaxsor = 1.8
     facpp = 0.2
     
@@ -162,7 +163,6 @@
     
     !Advanced card default file name. Added to version 5.1.13 MEB
     advfile = 'advanced.cmcards'
-    
     
     return        
     end subroutine flow_default
@@ -304,7 +304,6 @@
       read(stringname(3:5),*) jday !julian day (1-366)
       call julianday2calendarmonthday(iyr,jday,imo,iday)
 
-    
     case('STARTING_JDATE_HOUR')
       backspace(77)
       read(77,*) cardname, ihr      
@@ -1253,8 +1252,6 @@
     real(ikind) :: usumi,vsumi,vissumi
     real(ikind) :: uni,unk,fp,fk
     
-    !hdry=hmin  ! added by Wu temp
-    
     if(iflagdry==0)then
 !$OMP PARALLEL DO PRIVATE(i)         
       do i=1,ncellsD
@@ -1320,8 +1317,6 @@
 !--- Structures --------------------------------------    
     call struct_wetdry
 
-    !narrowchannels=.false.  !Added by Wu
-    
 !--- Special cases -------------------------------------
     if(narrowchannels)then !Allow one-cell-wide channels (always allowed for unstructured meshes)
       nddryswitch=1
@@ -1337,7 +1332,6 @@
           endif
         enddo !i-cells
 !$OMP END PARALLEL DO      
-        !continue
       enddo !while  
     else !Remove narrow channels (only for Cartesian grids)
       nddryswitch=1      
@@ -1580,9 +1574,6 @@
 #endif
 !$OMP PARALLEL DO PRIVATE(i)
       do i=1,ncellsD
-        !if(i==501)then
-        !  continue
-        !endif
         h(i)=p(i)*gravinv-zb(i)
         if(h(i)<hdry)then
           !h(i)=hdry
@@ -1841,7 +1832,6 @@
     call struct_pond(iwet,ipond)
 
 !!........ Check Internal Nodes
-!!!      do ik=1,10   !Repeat 3 times --- Temporary
     npond=10
     do while(npond>0)
       npond=0

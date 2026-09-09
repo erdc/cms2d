@@ -63,4 +63,3 @@ contains
 
 end module time_test
 
-!call waveorbrms_jonswap(3.0,10.2480,10.0,ubr)
