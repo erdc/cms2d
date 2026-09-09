@@ -11,6 +11,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   
 !    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           
 !    Dynamic allocation of arrays implemented by W.Wu, Nov 2024  
+!    Updates by Wu/Brown, 2026
 !***************************************************************
 !  Basic equation to be solved is wave action balance equation
 !  with independent variables of x, y, q (angle).  
@@ -26,6 +27,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use diag_lib, only: diag_print_message, diag_print_error
       use diag_def, only: dgunit
       use wave_def                                                   !Wu, Nov. 2024  
+      
       double precision edate, jdate, iwind_date, icur_date, ieta_date
       logical getfile,getfile1,getfile2,getfile3
       logical getfile6,getfile9,getfile10  
@@ -1463,13 +1465,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       cgp=0.0
       wdd=0.0
       fsp=0.0
-      sxx=0.0
-      syy=0.0
-      sxy=0.0
-      sxxx=0.0
-      sxyx=0.0
-      sxyy=0.0
-      syyy=0.0
+      if(irs>=1) then       !Radiation stress arrays only allocated when irs>=1, MEB
+        sxx=0.0
+        syy=0.0
+        sxy=0.0
+        sxxx=0.0
+        sxyx=0.0
+        sxyy=0.0
+        syyy=0.0
+      endif
       amud=0.0
       diss=0.0
       dsfd=0.0
@@ -1494,16 +1498,20 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iplane.le.1) then
         u1 =0.0
         v1 =0.0
-        u10=0.0
-        v10=0.0
+        if(iwind>=1) then    !Wind arrays only allocated when iwind>=1, MEB
+          u10=0.0
+          v10=0.0
+        endif
         sw13=0.0
         sa13=0.0
         tw13=0.0
         ta13=0.0
         dw13=0.0
         da13=0.0
-        wxrs=0.0
-        wyrs=0.0
+        if(irs>=1) then      !Radiation stress arrays only allocated when irs>=1, MEB
+          wxrs=0.0
+          wyrs=0.0
+        endif
       end if
 
       write(*,*) ' '
@@ -10007,15 +10015,19 @@ contains
   
     integer, intent(in) :: ipmx,jpmx,igpx,jgpx
       
-    allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
+    allocate( dep0(ipmx,jpmx) )
+    if(iark==2)  allocate( reflty(ipmx,jpmx) )  !Only needed for a spatial forward reflection coef. file, MEB
+    if(iarkr==2) allocate( refltx(ipmx,jpmx) )  !Only needed for a spatial backward reflection coef. file, MEB
     allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
-    allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
+    allocate( dvarxx(ipmx),dvaryy(jpmx) )
     allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
-    allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
-    allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
-    allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
-    allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
-    allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
+    allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )
+    if(irs>=1) then         !Radiation stress arrays only needed when radiation stress output is enabled, MEB
+      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
+      allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
+      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
+      allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
+    endif
     allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
     allocate( disx(ipmx),disy(jpmx) )
     allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
@@ -10036,7 +10048,7 @@ contains
     allocate( ix1(igpx),ix2(igpx) )
     allocate( u(ipmx,jpmx),v(ipmx,jpmx) )
     allocate( u1(ipmx,jpmx),v1(ipmx,jpmx) )
-    allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
+    if(iwind>=1) allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )  !Wind arrays only needed when a wind file was found, MEB
     allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
     allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
 
