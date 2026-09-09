@@ -567,11 +567,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       !Dynamic allocation added by Wu, Nov. 2024
       komx=instruc   
-      allocate( istruc1(komx),jstruc1(komx),dstruc1(komx),          &
-                istruc3(komx),jstruc3(komx),dstruc3(komx),          &  
-                k3(komx),dstruc33(komx),                            &
-                istruc4(komx),jstruc4(komx),dstruc4(komx),          &
-                kstruc4(komx),k4(komx),dstruc44(komx) )
+      allocate( istruc1(komx),jstruc1(komx),dstruc1(komx) )
+      allocate( istruc3(komx),jstruc3(komx),dstruc3(komx) )
+      allocate( k3(komx),dstruc33(komx) )
+      allocate( istruc4(komx),jstruc4(komx),dstruc4(komx) )
+      allocate( kstruc4(komx),k4(komx),dstruc44(komx) )
+      
       nomx=max(instruc,ni*nj)       !Wu, Nov. 2024. 
       allocate( istruc2(nomx),jstruc2(nomx),dstruc2(nomx) )          
       !End adding    
@@ -1352,10 +1353,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       allocate( sgma0(jgpx,mpd),sgma1(jgpx,mpd) )
       allocate( cwk(jpmx,2,mpd),cgk(jpmx,2,mpd) )           
       
-      allocate ( sr(2*ipmx,npf,mpd),ia(5,mpmx) )
-      allocate ( aa(5,mpmx) )
-      allocate ( b(mpmx) )
-      allocate ( x(mpmx) )
+      allocate( sr(2*ipmx,npf,mpd),ia(5,mpmx) )
+      allocate( aa(5,mpmx) )
+      allocate( b(mpmx) )
+      allocate( x(mpmx) )
       !End adding                      by Wu, Nov. 2024
       
       itms = 0 + n  !N is number of times that were skipped during hot start or 0 if cold start.
@@ -3862,12 +3863,13 @@ contains
 
       CALL XF_CLOSE_GROUP (DGID, ERROR)
       CALL XF_CLOSE_FILE (PID,ERROR)
+      DEALLOCATE (height,period,dir,brkdiss,radstr,wave,depth,surge,currents,surgew)
       return
 
 956   write(msg,*) 'Could not access: ',XMDFFile
       call diag_print_error(msg)
-	  
-      return 
+      DEALLOCATE (height,period,dir,brkdiss,radstr,wave,depth,surge,currents,surgew)
+      return
       end subroutine xmdfout_inline
 #endif
       END SUBROUTINE CMS_Wave_inline 
@@ -5371,7 +5373,7 @@ contains
         end do
       end do
 !
-1000  DEALLOCATE (KRC,JR,RKK,angl,hsgg,h13a,h13b)
+1000  DEALLOCATE (KRC,JR,RKK,angl,hsgg,h13a,h13b,IJBP,dd11)
 	 
       RETURN     
 	  END SUBROUTINE SETIN_inline
@@ -9995,13 +9997,16 @@ contains
     return
   end subroutine cmswave_cards
 
+!***********************************************************************   
   subroutine allocate_initialize_vars (ipmx,jpmx,igpx,jgpx)
-  !Moved all these allocataions and initializations to a subroutine
+!***********************************************************************   
+  !Moved all these allocations and initializations to a subroutine
   !MEB  03/25/2025
-  use wave_def
-  implicit none 
+!***********************************************************************   
+    use wave_def
+    implicit none 
   
-  integer, intent(in) :: ipmx,jpmx,igpx,jgpx
+    integer, intent(in) :: ipmx,jpmx,igpx,jgpx
       
     allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
     allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
@@ -10071,4 +10076,4 @@ contains
     !bfric = 0.0; amud = 0.0
     !ex = 0.0; ey = 0.0
 
-      end subroutine
+  end subroutine

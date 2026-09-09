@@ -1,6 +1,13 @@
 What's New
 ==========
 
+v5.4.7.3 (09 September 2026)
+-------------------------
+
+Changes
+^^^^^^^
+* Added missing DEALLOCATE statements in wave code to potentially fix a 'insufficient virtual memory' issue.
+
 v5.4.7.2 (14 April 2026)
 -------------------------
 

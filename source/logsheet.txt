@@ -1,18 +1,15 @@
-== Version 5.4.7.2 (04/14/2026) ==
-* Corrected a few APPEND statements for compiler that is now more strict.
-* Added vs2026 solution
-
-== Version 5.4.7.1 (02/26/2026) ==
-* Added functionality to write new naming convention for pertinent output datasets (See 5.4.7).
-* Added CF Compliance attributes to output datasets written bed layer thickness, bed layer fractions, and sediment percentiles
-* Now writing CF compliance attributes to each solution's root group instead of "PROPRERTIES" group.
-* Stop writing CF attributes for vector datasets.  Will implement on separated scalars at a later date.
-* Added new function to test a character to see if it is a numeric digit.
-
-== Version 5.4.7 (02/23/2026) ==
+== Version 5.4.7.3 (09/09/2026) ==
 * Change fractional dataset names from "Datasets/Fraction_01 (1)" to "Datasets/Fraction_S1_L1" for updates in SMS for sediment mapping for readability in the input files.
 ** Retain previous format for backward compatibility
 * Initialize some output logical variables related to sediment mapping.
+* (5.4.7.1) Added functionality to write new naming convention for pertinent output datasets (See 5.4.7).
+* (5.4.7.1) Added CF Compliance attributes to output datasets written bed layer thickness, bed layer fractions, and sediment percentiles
+* (5.4.7.1) Now writing CF compliance attributes to each solution's root group instead of "PROPRERTIES" group.
+* (5.4.7.1) Stop writing CF attributes for vector datasets.  Will implement on separated scalars at a later date.
+* (5.4.7.1) Added new function to test a character to see if it is a numeric digit.
+* (5.4.7.2) Corrected a few APPEND statements for compiler that is now more strict.
+* (5.4.7.2) Added vs2026 solution
+* (5.4.7.3) Added missing DEALLOCATE statements in wave code to potentially fix a 'insufficient virtual memory' issue.
 
 == Version 5.4.6 (07/03/2025) ==
 * If hardbottom dataset seems inverted (elevations instead of depths), give warning and write out cells unless there are > 250.
@@ -28,7 +25,7 @@
 * Bug fix in steering for printing out correct timestamp when it has only 8 digits instead of 12.
 * Ignore certain Advanced cards if they are already handled. Print warning message.
 
-== Version 5.4.4 (05/19/2025) ==
+== Version 5.4.4.4 (05/19/2025) ==
 * Minor changes to wave code to initialize a few variables.
 * Added test to ensure initial mixing layer thickness is always less than thicknesses for bed layers.
 * Added test for met station wind data import.
