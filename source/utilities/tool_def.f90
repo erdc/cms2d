@@ -10,7 +10,30 @@
         module procedure rround4, rround8
       end interface
   
-      contains
+  contains
+  
+!************************************************************************ 
+    pure function center(str,width) result(out) 
+! Returns str centered within a field of 'width' characters. 
+! Leading/trailing blanks in str are ignored; if str is longer than 
+! width it is truncated.  Extra odd space goes to the right. 
+!************************************************************************ 
+    character(len=*), intent(in)  :: str 
+    integer,          intent(in)  :: width 
+    character(len=:), allocatable :: out 
+    integer :: n, lpad 
+ 
+    n = len_trim(adjustl(str)) 
+    if (n >= width) then 
+      out = adjustl(str) 
+      out = out(1:width) 
+    else 
+      lpad = (width - n)/2 
+      out = repeat(' ',lpad)//trim(adjustl(str)) 
+    endif 
+ 
+    end function center 
+    
 !************************************************************
       function vstrlz4(flt,gfmt) result(gbuf)
 ! This function will take a single precision float (4-bit) variable and a format declaration, then convert it to a string. 
@@ -215,6 +238,44 @@
   
   end subroutine
     
+FUNCTION xmdf_error(code) RESULT(name) 
+  use ERRORDEFINITIONS 
+  implicit none 
+   
+  integer, intent(in) :: code 
+  character(len=50)   :: name 
+   
+  select case(code) 
+  ! File errors -40xx 
+    case(ERROR_FILE_NOT_HDF5)             ; name = 'ERROR_FILE_NOT_HDF5 (-4001)' 
+    case(ERROR_FILE_NOT_XMDF)             ; name = 'ERROR_FILE_NOT_XMDF (-4002)' 
+  ! Attribute errors -41xx 
+    case(ERROR_ATTRIBUTE_NOT_SUPPORTED)   ; name = 'ERROR_ATTRIBUTE_NOT_SUPPORTED (-4101)' 
+  ! Datatype errors -42xx 
+    case(ERROR_INCORRECT_DATATYPE)        ; name = 'ERROR_INCORRECT_DATATYPE (-4201)' 
+  ! Dataset errors -43xx 
+    case(ERROR_DATASET_SIZE_INCORRECT)    ; name = 'ERROR_DATASET_SIZE_INCORRECT (-4301)' 
+    case(ERROR_DATASET_NO_DATA)           ; name = 'ERROR_DATASET_NO_DATA (-4302)' 
+    case(ERROR_DATASET_DOES_NOT_EXIST)    ; name = 'ERROR_DATASET_DOES_NOT_EXIST (-4303)' 
+    case(ERROR_DATASET_INVALID)           ; name = 'ERROR_DATASET_INVALID (-4304)' 
+  ! Group errors -44xx 
+    case(ERROR_GROUP_TYPE_INCONSISTENT)   ; name = 'ERROR_GROUP_TYPE_INCONSISTENT (-4401)' 
+  ! Mesh errors -45xx 
+    case(ERROR_ELEMENT_NUM_INCORRECT)     ; name = 'ERROR_ELEMENT_NUM_INCORRECT (-4501)'   !inconsistent element number 
+    case(ERROR_NODE_NUM_INCORRECT)        ; name = 'ERROR_NODE_NUM_INCORRECT (-4502)' 
+    case(ERROR_NOT_MESH_GROUP)            ; name = 'ERROR_NOT_MESH_GROUP (-4503)' 
+    case(ERROR_MESH_INCOMPLETE)           ; name = 'ERROR_MESH_INCOMPLETE (-4504)' 
+    case(ERROR_MESH_INVALID)              ; name = 'ERROR_MESH_INVALID (-4505)' 
+  ! Grid errors 
+    case(ERROR_GRID_TYPE_INVALID)         ; name = 'ERROR_GRID_TYPE_INVALID (-4601)' 
+    case(ERROR_GRID_NUM_DIMS)             ; name = 'ERROR_GRID_NUM_DIMS (-4602)' 
+    case(ERROR_GRID_EXTRUDE_TYPE_INVALID) ; name = 'ERROR_GRID_EXTRUDE_TYPE_INVALID (-4603)' 
+    case(ERROR_GRID_NUMVALS_INCORRECT)    ; name = 'ERROR_GRID_NUMVALS_INCORRECT (-4604)' 
+  ! Others 
+    case(ERROR_OTHER)                     ; name = 'ERROR_OTHER (-9901)' 
+  end select 
+   
+  end FUNCTION xmdf_error 
 
 !************************************************************
     end module tool_def      

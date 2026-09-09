@@ -3508,91 +3508,82 @@ implicit none
     return
     end subroutine write_savept_vector
 
-!************************************************************************    
-    subroutine print_header
-!************************************************************************        
-    use comvarbl, only: version,revision,release,developmental,rdate,machine,major_version,minor_version,bugfix
-    use diag_def, only: dgfile, dgunit
-    
-    implicit none
-    integer      :: iunit(2),i
-    character*22 :: string
-
-7009  format(' **********************************************************')
-7011  format('              U.S. Army Corps of Engineers                 ')
-7012  format('            Coastal Inlets Research Program                ')
-7013  format('                Coastal Modeling System                    ')
-7014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,1X,A,1X,A)
-8014  format('       CMS2D, Version ',I0,'.',I0,'.',I0,'.',I0,1X,A,1X,A)
-7019  format('    Using Visual Studio 2022 and Intel OneAPI IFX          ')
-7020  format('    Using Visual Studio 2019 and Intel OneAPI IFORT        ')
-7021  format('    Using Visual Studio 2026 and Intel OneAPI IFX          ')
-7114  format('      This version is for testing purposes only!           ')
-7015  format(' Coupled Hydrodynamic, Wave, and Sediment Transport Model  ')
-7016  format('               Last updated - ',A10)
-7017  format('       For the latest version of CMS please visit          ')
-7018  format('        https://cirpwiki.info/wiki/CMS_Releases            ')
-      
-9001  format('    By using this software the user has agreed to the      ')
-9002  format('    terms and conditions of CMS license agreement.         ') 
-9003  format('    A copy of the license can be obtained from the         ')
-9004  format('    website shown above.                                   ')
-          
-    !Declare file names    
-    dgfile = 'CMS_DIAG.txt' !Diagnostic file is always in flow path
-    dgunit = 9
-    
-    open(dgunit,file=dgfile,STATUS='unknown')   
-    iunit = (/6,dgunit/)
-    do i=1,2
-      write(iunit(i),*)
-      write(iunit(i),7009)
-      write(iunit(i),7011)
-      write(iunit(i),7012)
-      write(iunit(i),7013)
-      if(developmental) then    !DEVELOPMENTAL - this overrides the 'release' setting.
-        string='DEVELOPMENTAL for'
-        write(iunit(i),7114)
-      elseif(.not.release)then  !BETA
-        string='BETA for'
-        write(iunit(i),7114)
-      else                      !RELEASE
-        string='RELEASE for'
-      endif
-
-      !Adding logic to show information for a bug fix and print it.      MEB  09/15/20
-      if (bugfix == 0) then
-        write(iunit(i),7014) major_version,minor_version,revision,trim(string),trim(machine)
-      else
-        write(iunit(i),8014) major_version,minor_version,revision,bugfix,trim(string),trim(machine)
-      endif
-      
-!only do VS prints if on a windows machine, use nested compile-time flags.
-#if defined(_WIN32)
- #if defined(VS2022)
-      write(iunit(i),7019)  !write the Visual Studio version, VS2022
- #elif defined(VS2026)
-      write(iunit(i),7021)  !write the Visual Studio version, VS2026
- #else
-      write(iunit(i),7020)  !write the Visual Studio version, VS2019
- #endif
-#endif
-      write(iunit(i),7016) rdate !Last revision date
-
-      write(iunit(i),7017)
-      write(iunit(i),7018)
-      write(iunit(i),*)
-      write(iunit(i),9001)
-      write(iunit(i),9002)
-      write(iunit(i),9003)
-      write(iunit(i),9004)
-      write(iunit(i),7009)
-      write(iunit(i),*)
-    enddo
-    close(dgunit)        
-    
+!************************************************************************ 
+    subroutine print_header 
+!************************************************************************ 
+    use comvarbl, only: revision,release,developmental,rdate,machine, & 
+                        major_version,minor_version,bugfix 
+    use diag_def, only: dgfile, dgunit 
+    use tool_def, only: center 
+ 
+    implicit none 
+    integer, parameter :: hw = 58        !banner width 
+    integer            :: iunit(2),i 
+    character(len=22)  :: string 
+    character(len=200) :: astr 
+ 
+    dgfile = 'CMS_DIAG.txt' 
+    dgunit = 9 
+ 
+    !Compose the version line once, outside the unit loop 
+    if(developmental)then      !overrides the 'release' setting 
+      string = 'DEVELOPMENTAL for' 
+    elseif(.not.release)then 
+      string = 'BETA for' 
+    else 
+      string = 'RELEASE for' 
+    endif 
+ 
+    if(bugfix == 0)then 
+      write(astr,'(A,I0,".",I0,".",I0,1X,A,1X,A)') 'CMS2D, Version ', & 
+        major_version,minor_version,revision,trim(string),trim(machine) 
+    else 
+      write(astr,'(A,I0,".",I0,".",I0,".",I0,1X,A,1X,A)') 'CMS2D, Version ', & 
+        major_version,minor_version,revision,bugfix,trim(string),trim(machine) 
+    endif 
+ 
+    open(dgunit,file=dgfile,status='unknown') 
+    iunit = (/6,dgunit/) 
+ 
+    do i=1,2 
+      write(iunit(i),*) 
+      write(iunit(i),'(1X,A)') repeat('*',hw) 
+      write(iunit(i),'(1X,A)') center('U.S. Army Corps of Engineers',hw) 
+      write(iunit(i),'(1X,A)') center('Coastal Inlets Research Program',hw) 
+      write(iunit(i),'(1X,A)') center('Coastal Modeling System',hw) 
+ 
+      if(developmental .or. .not.release)then 
+        write(iunit(i),'(1X,A)') center('This version is for testing purposes only!',hw) 
+      endif 
+ 
+      write(iunit(i),'(1X,A)') center(trim(astr),hw) 
+ 
+#if defined(_WIN32) 
+ #if defined(VS2022) 
+      write(iunit(i),'(1X,A)') center('Using Visual Studio 2022 and Intel OneAPI IFX',hw) 
+ #elif defined(VS2026) 
+      write(iunit(i),'(1X,A)') center('Using Visual Studio 2026 and Intel OneAPI IFX',hw) 
+ #else 
+      write(iunit(i),'(1X,A)') center('Using Visual Studio 2019 and Intel OneAPI IFORT',hw) 
+ #endif 
+#endif 
+ 
+      write(iunit(i),'(1X,A)') center('Coupled Hydrodynamic, Wave, and Sediment Transport Model',hw) 
+      write(iunit(i),'(1X,A)') center('Last updated - '//rdate,hw) 
+      write(iunit(i),'(1X,A)') center('For the latest version of CMS please visit',hw) 
+      write(iunit(i),'(1X,A)') center('https://cirpwiki.info/wiki/CMS_Releases',hw) 
+      write(iunit(i),*) 
+      write(iunit(i),'(1X,A)') center('By using this software the user has agreed to the',hw) 
+      write(iunit(i),'(1X,A)') center('terms and conditions of CMS license agreement.',hw) 
+      write(iunit(i),'(1X,A)') center('A copy of the license can be obtained from the',hw) 
+      write(iunit(i),'(1X,A)') center('website shown above.',hw) 
+      write(iunit(i),'(1X,A)') repeat('*',hw) 
+      write(iunit(i),*) 
+    enddo 
+    close(dgunit) 
+ 
     end subroutine print_header
-
+  
 !*************************************************************
     subroutine sim_start_print
 ! Calculates and prints the elapsed cpu time

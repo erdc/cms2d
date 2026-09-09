@@ -539,85 +539,297 @@ contains
 
 !********************************************************************************
     subroutine read_grid14(grd14file,numelems,numnodes,xn,yn,zn,elem2node)
-! Reads the parent ADCIRC grid file    
-!********************************************************************************
-    use diag_def
-    use diag_lib
-    use prec_def
-    implicit none
-    !Input/Output
-    integer,      intent(out)            :: numelems       !Number of elements
-    integer,      intent(out)            :: numnodes       !Number of nodes
-    integer,      intent(inout), pointer :: elem2node(:,:) !Element to node connectivity
-    real(ikind),  intent(inout), pointer :: xn(:)          !Nodal point global coordinates (output points)
-    real(ikind),  intent(inout), pointer :: yn(:)          !Nodal point global coordinates (output points)
-    real(ikind),  intent(inout), pointer :: zn(:)          !Nodal point global coordinates (output points)
-    character(len=*),intent(in)          :: grd14file      !ADCIRC grid file
-    !Internal variables
-    integer :: i,k,id,numedges
-    logical :: found
-
-    inquire(file=grd14file,exist=found)
-    if(.not.found)then
-      call diag_print_error('Could not find ADCIRC grid file: ',grd14file)
-    endif
-    open(unit=14,file=grd14file)
-    read(14,*) !Skip first line
-    read(14,*) numelems,numnodes
+! Reads the parent ADCIRC grid file
+! Improvements by Claude - 06/30/2026 
+!******************************************************************************** 
+    use diag_def, only: msg2 
+    use diag_lib, only: diag_print_error 
+    use prec_def, only: ikind 
+    implicit none 
+   
+    !Input/Output 
+    integer,      intent(out)            :: numelems       !Number of elements 
+    integer,      intent(out)            :: numnodes       !Number of nodes 
+    integer,      intent(inout), pointer :: elem2node(:,:) !Element to node connectivity 
+    real(ikind),  intent(inout), pointer :: xn(:)          !Nodal point global coordinates (output points) 
+    real(ikind),  intent(inout), pointer :: yn(:)          !Nodal point global coordinates (output points) 
+    real(ikind),  intent(inout), pointer :: zn(:)          !Nodal point global coordinates (output points) 
+    character(len=*),intent(in)          :: grd14file      !ADCIRC grid file 
+   
+    !Internal variables 
+    integer :: i,k,id,numedges, io_stat 
+    logical :: found 
+    character(len=256) :: io_msg 
+ 
+    !Check file existence 
+    inquire(file=grd14file,exist=found) 
+    if(.not.found)then 
+      call diag_print_error('Could not find ADCIRC grid file: '//trim(grd14file)) 
+    endif 
+   
+  !Open file with error handling 
+    open(unit=14,file=grd14file, status='old', action='read', iostat=io_stat, iomsg=io_msg) 
+    if (io_stat /= 0) then 
+      write(msg2, '(A,I0)') 'File open error: ', io_stat 
+      call diag_print_error(trim(io_msg), trim(msg2)) 
+    endif 
+   
+  !Skip header and read dimensions 
+    read(14,*, iostat=io_stat) 
+    if(io_stat /= 0) goto 999 
+    read(14,*, iostat=io_stat) numelems,numnodes 
+    if(io_stat /= 0) goto 999 
+     
+  !Allocate coordinate arrays 
+    allocate(xn(numnodes),yn(numnodes),zn(numnodes), stat=io_stat) 
+    if (io_stat /= 0) call diag_print_error('Memory allocation failed for coordinates') 
+   
+  !Read nodes = skip unnecessary ID field 
+    do i=1,numnodes 
+      read(14,*,iostat=io_stat) id, xn(i), yn(i), zn(i) 
+      if(io_stat /= 0) then 
+        write(msg2,'(A,I0)') 'Node: ',i 
+        call diag_print_error('Problem reading node coordinates at ', trim(msg2)) 
+      endif 
+    enddo 
+   
+  !Allocate connectivity array 
+    allocate(elem2node(3,numelems),stat=io_stat) 
+    if(io_stat /= 0) call diag_print_error('Memory allocation failed for connectivity') 
+   
+  !Read elements 
+    do i=1,numelems 
+      read(14,*, iostat=io_stat) id,numedges,elem2node(1,i), elem2node(2,i), elem2node(3,i) 
+      if(io_stat /= 0) then  
+        write(msg2,'(A,A10)') 'Element: ',i 
+        call diag_print_error('Problem reading ADCIRC grid connectivity at ', trim(msg2)) 
+      endif 
+      if(id /= i)then 
+        write(msg2,'(A,I0)') '  Element: ',i 
+        call diag_print_error('Problem reading ADCIRC grid connectivity at ', trim(msg2)) 
+      endif 
+    enddo 
+   
+    close(14)     
+    return 
+   
+  999 continue 
+    close(14) 
+    write(msg2,'(A,I0)') 'I/O error code: ', io_stat 
+    call diag_print_error('Unexpected end of ADCIRC file', trim(msg2)) 
+   
+    end subroutine read_grid14   
     
-    allocate(xn(numnodes),yn(numnodes),zn(numnodes))
-    do i=1,numnodes
-      read(14,*) id,xn(i),yn(i),zn(i)
-    enddo
-    allocate(elem2node(3,numelems))
-    do i=1,numelems
-      read(14,*) id,numedges,(elem2node(k,i),k=1,3)
-      if(id/=i)then
-        write(msg2,*) '  Element: ',i
-        call diag_print_error('Problem reading ADCIRC grid connectivity at ',msg2)
-      endif
-    enddo
-    close(14)
+!******************************************************************** 
+    subroutine write_grid14(grdfile,grdname,ne,nn,xn,yn,zn,e2n) 
+! Writes an ADCIRC Grid File     
+! Author: Alex Sanchez, USACE-CHL 
+! Improvements by Claude - 06/30/2026 
+!******************************************************************** 
+    use diag_def, only: msg, msg2 
+    use diag_lib, only: diag_print_error 
+    use prec_def, only: ikind 
+    implicit none 
+   
+    !Input/Output 
+    integer,         intent(in) :: ne,nn     !# of elements and nodes 
+    integer,         intent(in) :: e2n(3,ne) !element to node connectivity 
+    real(ikind),     intent(in) :: xn(nn),yn(nn),zn(nn) !node coordinates 
+    character(len=*),intent(in) :: grdfile !Grid file 
+    character(len=*),intent(in) :: grdname !Grid name 
+   
+    !Internal variables 
+    integer :: j, k, io_stat 
+    character(len=256) :: io_msg 
+     
+    msg = '' 
+ 
+    !Open file with error handling 
+    open(144, file=grdfile, status='replace', action='write', iostat=io_stat, iomsg=io_msg) 
+    if(io_stat /= 0) call diag_print_error('Problem opening grid file: ', trim(io_msg)) 
+   
+  !Write header and dimensions 
+    write(144,'(A)', iostat=io_stat) trim(grdname) 
+    if (io_stat /= 0) goto 999 
+    write(144, '(I6,I6)', iostat=io_stat) ne,nn 
+    do k=1,nn 
+      write(144, '(I6,3(1x,E16.8))', iostat=io_stat) k,xn(k),yn(k),zn(k) 
+      if (io_stat /= 0) then 
+        write(msg,'(A,I0)') 'Error writing node: ', k 
+        goto 999 
+      end if 
+    enddo 
+   
+  !write elements 
+    do j=1,ne 
+      write(144, '(I6,1x,I3,3(1x,I6))', iostat=io_stat) j, 3, e2n(1,j), e2n(2,j), e2n(3,j) 
+      if (io_stat /= 0) then 
+        write(msg,'(A,I0)') 'Error writing element: ', j 
+        goto 999 
+      end if 
+    end do 
+     
+    close(144) 
+    return 
+     
+999 continue 
+    write(msg2,'(A,I0,A)') 'I/O error (', io_stat, ') writing grid file' 
+    if (msg == '') then 
+      call diag_print_error(msg2) 
+    else 
+      call diag_print_error(msg, msg2) 
+    endif 
+    close(144) 
+     
+    end subroutine write_grid14 
     
-    return
-    end subroutine read_grid14
-    
-!********************************************************************
-    subroutine write_grid14(grdfile,grdname,ne,nn,xn,yn,zn,e2n)
-! Writes an ADCIRC Grid File    
-! Author: Alex Sanchez, USACE-CHL
-!********************************************************************
-    use prec_def
-    implicit none
-    !Input/Output
-    integer,         intent(in) :: ne,nn     !# of elements and nodes
-    integer,         intent(in) :: e2n(3,ne) !element to node connectivity
-    real(ikind),     intent(in) :: xn(nn),yn(nn),zn(nn) !node coordinates
-    character(len=*),intent(in) :: grdfile !Grid file
-    character(len=*),intent(in) :: grdname !Grid name
-    !Internal variables
-    integer :: j,k
-
-222 format(I6,I6)
-333 format(I6,3(1x,F20.10))
-444 format(I6,1x,I3,3(1x,I6))
-    
-    open(144,file=grdfile)
-    write(144,'(A)') grdname
-    write(144,222) ne,nn
-    do k=1,nn
-      write(144,333) k,xn(k),yn(k),zn(k)
-    enddo
-    do j=1,ne
-      write(144,444) j,3,(e2n(k,j),k=1,3)
-    enddo    
-    close(144)
-    
-    return
-    end subroutine write_grid14
-
 !********************************************************************    
-    subroutine trisubrect(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,nes,nns,xns,yns,zns,e2ns,kns)
+    subroutine trisubrect(ne, nn, xn, yn, zn, e2n, xmin, xmax, ymin, ymax, & 
+                         nes, nns, xns, yns, zns, e2ns, kns) 
+! Extracts a submesh from an unstructured triangular mesh overlapping a rectangular domain 
+! Author: Alex Sanchez, USACE-CHL 
+! Improvements by Claude, 06/30/2026 
+!******************************************************************** 
+    use diag_lib 
+    use prec_def 
+    implicit none         
+   
+    !---- Input/Output ----------------------------------------------------- 
+    !Parent triangular mesh 
+    integer,       intent(in) :: ne            !Number of elements 
+    integer,       intent(in) :: nn            !Number of nodes 
+    integer,       intent(in) :: e2n(3, ne)    !Element to node connectivity 
+    real(ikind),   intent(in) :: xn(nn), yn(nn), zn(nn) !Node global geometry 
+    !Rectangular subdomain 
+    real(ikind),   intent(in) :: xmin, xmax, ymin, ymax !Rectangular domain 
+    !Child triangular mesh 
+    integer,       intent(out) :: nes          !Number of elements on sub grid 
+    integer,       intent(out) :: nns          !Number of nodes on sub grid 
+    integer, intent(out), pointer :: e2ns(:,:) !Element to node mapping on sub grid     
+    integer, intent(out), pointer :: kns(:)    !Node mapping from sub to full grid 
+    real(ikind), intent(out), pointer :: xns(:), yns(:), zns(:) !Subgrid nodal geometry     
+     
+    !---- Internal variables ------------------------------------------------------ 
+    integer :: i, j, k, n, node_idx, elem_idx 
+    integer, allocatable :: ies(:)  !Element in (1) or out (0) of rectangular domain 
+    integer, allocatable :: ins(:)  !Node in (1) or out (0) of rectangular domain 
+    integer, allocatable :: jes(:)  !Element mapping from sub to full grid     
+    integer, allocatable :: jns(:)  !Node mapping from full to sub grid 
+    integer stat_alloc 
+     
+    !--- Subgrid Element sublist ----------------- 
+    ! Find elements that overlap rectangular domain and tag elements and nodes 
+    allocate(ies(ne), ins(nn), stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Memory allocation failed in trisubrect') 
+      return 
+    end if 
+     
+    ies = 0 
+    ins = 0 
+     
+    ! Filter elements and mark contained nodes 
+    do j = 1, ne 
+      do k = 1, 3 
+        n = e2n(k, j)  !Node index on full grid 
+        if (xn(n) >= xmin .and. xn(n) <= xmax .and. & 
+            yn(n) >= ymin .and. yn(n) <= ymax) then 
+          ies(j) = 1             !Element is in domain 
+          ins(e2n(1:3, j)) = 1   !Mark all three nodes as included 
+          exit                   !Early exit - found one node in domain 
+        end if 
+      end do 
+    end do 
+     
+    !----- Make Element and Node Sublist ------------------- 
+    ! Count and extract element sublist 
+    nes = sum(ies) 
+    if (nes == 0) then 
+      call diag_print_error('No elements found in rectangular domain', '') 
+      deallocate(ies, ins) 
+      return 
+    end if 
+     
+    allocate(jes(nes), stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Memory allocation failed for element mapping', '') 
+      deallocate(ies, ins) 
+      return 
+    end if 
+     
+    elem_idx = 0 
+    do j = 1, ne 
+      if (ies(j) == 1) then 
+        elem_idx = elem_idx + 1 
+        jes(elem_idx) = j 
+      end if 
+    end do 
+     
+    ! Count and extract node sublist 
+    nns = sum(ins) 
+    if (nns == 0) then 
+      call diag_print_error('No nodes found in rectangular domain', '') 
+      deallocate(ies, ins, jes) 
+      return 
+    end if 
+     
+    allocate(kns(nns), jns(nn), stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Memory allocation failed for node mapping', '') 
+      deallocate(ies, ins, jes) 
+      return 
+    end if 
+     
+    jns = 0  !Initialize mapping array 
+    node_idx = 0 
+    do n = 1, nn 
+      if (ins(n) == 1) then 
+        node_idx = node_idx + 1 
+        kns(node_idx) = n      !Node sub list: global index 
+        jns(n) = node_idx      !Reverse mapping: local index 
+      end if 
+    end do 
+         
+    !--- Element to node mapping on subgrid ----------------- 
+    allocate(e2ns(3, nes), stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Memory allocation failed for element-node connectivity', '') 
+      deallocate(ies, ins, jes, kns, jns) 
+      return 
+    end if 
+     
+    do i = 1, nes 
+      j = jes(i) 
+      e2ns(1, i) = jns(e2n(1, j)) 
+      e2ns(2, i) = jns(e2n(2, j)) 
+      e2ns(3, i) = jns(e2n(3, j)) 
+    end do 
+     
+    !---- Extract subnode locations ------------------------ 
+    allocate(xns(nns), yns(nns), zns(nns), stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Memory allocation failed for subgrid coordinates', '') 
+      deallocate(ies, ins, jes, kns, jns, e2ns) 
+      return 
+    end if 
+     
+    do j = 1, nns 
+      k = kns(j) 
+      xns(j) = xn(k) 
+      yns(j) = yn(k) 
+      zns(j) = zn(k) 
+    end do 
+     
+    ! Clean up temporary arrays 
+    deallocate(ies, ins, jes, jns, stat=stat_alloc) 
+    if (stat_alloc /= 0) then 
+      call diag_print_error('Error deallocating temporary arrays in trisubrect', '') 
+    end if 
+     
+    end subroutine trisubrect 
+     
+!********************************************************************     
+    subroutine trisubrect_orig(ne,nn,xn,yn,zn,e2n,xmin,xmax,ymin,ymax,nes,nns,xns,yns,zns,e2ns,kns) 
 ! Extracts a submesh from an unstructured triangular overlapping a rectangular domain
 ! Author: Alex Sanchez, USACE-CHL
 !********************************************************************
@@ -723,7 +935,7 @@ contains
     deallocate(ies,ins,jes,jns)
     
     return
-    end subroutine trisubrect
+    end subroutine trisubrect_orig
     
 !***********************************************************************
     subroutine assign_proj_names(proj)

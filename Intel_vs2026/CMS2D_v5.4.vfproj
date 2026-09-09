@@ -220,8 +220,7 @@
 			<File RelativePath="..\source\statistics\stat_def.f90"/>
 			<File RelativePath="..\source\statistics\statistics.F90"/>
 			<File RelativePath="..\source\steering\steer_def.f90"/>
-			<File RelativePath="..\source\steering\steering_Sep2026.f90">
-			</File>
+			<File RelativePath="..\source\steering\steering_Sep2026.f90"/>
 			<File RelativePath="..\source\boundaries\tide_fac.f90">
 				<FileConfiguration Name="Debug|x64">
 					<Tool Name="VFFortranCompilerTool" Diagnostics="diagnosticsDisableAll"/>
@@ -237,10 +236,9 @@
 			<File RelativePath="..\source\vegetation\vegetation.F90"/>
 			<File RelativePath="..\source\utilities\watch_def.F90"/>
 			<File RelativePath="..\source\utilities\watch_lib.F90"/>
-			<File RelativePath="..\source\utilities\watch_test.F90">
-			</File>
+			<File RelativePath="..\source\utilities\watch_test.F90"/>
 			<File RelativePath="..\source\waves\wave.F90"/>
-			<File RelativePath="..\source\waves\wave_def_Jan2025.f90">
+			<File RelativePath="..\source\waves\wave_def_Sep2026.f90">
 			</File>
 			<File RelativePath="..\source\waves\wave_lib.F90"/>
 			<File RelativePath="..\source\waves\wave_rad_stress_fl.f90"/>

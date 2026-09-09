@@ -14,9 +14,12 @@
 ! 2005-11-01
 !******************************************************************
       use const_def, only: pi
-      use flow_def, only: grav
+      use flow_def,  only: grav
       use prec_def
+      use diag_lib,  only: diag_print_error
+      use diag_def,  only: msg, msg2, msg3, msg4, msg5
       implicit none
+      
       integer :: iripple
       real(ikind), parameter:: kappa=0.4
       real(ikind) :: DEP,UC,UW,T,PHI,RHOS,RHOW,D50, &
@@ -26,6 +29,7 @@
                RKWF,RKCF,RKS,XI,PSI,RKTW,RKTC,&
                Z0S,Z0FW,Z0FC,Z0TW,Z0TC,Z0W,Z0C,Z0CB,Z0WB,&
                FCFB,FCWFB,RRR,RRRB,FWFB,X,TAUWTB,TAUWMTB
+      real(ikind) :: XI_ARG
       
 ! IRIPPLE=0 : DO NOT INCLUDE RIPPLES
 ! IRIPPLE=1 : INCLUDE RIPPLES
@@ -118,7 +122,21 @@
 ! PROFILE FOR THE CURRENT VELOCITY - NUMERICALLY DETERMINED SOLUTION 
 ! IN NON-DIMENSIONAL TERMS APPROXIMATED BY POLYNOMIALS (FLAT BED)
       IF(UC > 0.001 .and. dep >= 0.001)THEN
-        XI=LOG(UC**2 / (RHOS/RHOW-1.0) / GRAV / DEP)
+        XI_ARG = UC**2 / (RHOS/RHOW-1.0) / GRAV / DEP
+        if (XI_ARG > 0) then
+          XI = LOG(XI_ARG)   !LOG is only defined for positive, non-zero values.
+        else
+          write(msg,*)  'Object of LOG is zero or negative for "UC**2 / (RHOS/RHOW-1.0) / GRAV / DEP", where:'
+          write(msg2,*) '- UC:   ',UC
+          write(msg3,*) '- RHOS: ',RHOS
+          write(msg4,*) '- RHOW: ',RHOW
+          write(msg5,*) '- DEP:  ',DEP
+          call diag_print_error(msg, msg2, msg3, msg4, msg5)
+        endif
+        
+        !Clamp XI to a physically reasonable range - MEB 5/12/2026
+        XI = MAX(-20.0, MIN(XI, 10.0))
+        
         IF(XI < -4.0)THEN
           PSI=-4.167248 + 1.269405*XI + 0.0083*XI**2
         ELSEIF(XI >= -4.0 .AND. XI < -1.0)THEN
@@ -126,6 +144,7 @@
         ELSE
           PSI=-3.907731 + 1.461098*XI + 0.086438*XI**2 + 0.028461*XI**3
         ENDIF
+        if (PSI > 700.0) PSI = 700.0  !Clamp PSI to prevent EXP overflow (real*8 max=709, real*4 max=88) - MEB  5/12/2026 
         RKTC=EXP(PSI)*DEP
       ELSE
         RKTC=0.0

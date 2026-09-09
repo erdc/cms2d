@@ -26,8 +26,9 @@ contains
 !*************************************************************  
     use xmdf
     use prec_def
-    use diag_def,  only: msg
+    use diag_def,  only: msg, msg2, msg3
     use diag_lib,  only: diag_print_error
+    use tool_def,  only: xmdf_error
     use const_def, only: READONLY
     implicit none
     
@@ -43,24 +44,43 @@ contains
     character(100) :: thepath
        
     call XF_OPEN_FILE(afile,READONLY,pid,ierr)
-    msg = "Unable to open file: '" // trim(afile) // "'"
-    if (ierr < 0) call diag_print_error (msg)
+    if (ierr < 0) then
+      msg = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
+    endif
     
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
     call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
-    msg = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
-    if (ierr < 0) call diag_print_error (msg)
+    if (ierr < 0) then
+      msg = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call XF_CLOSE_FILE(pid, ierr)
+      call diag_print_error (msg, msg3)
+    endif
 
     call XF_GET_PROPERTY_NUMBER(gid,trim(aname),nn,ierr)
-    msg = "Unable to obtain number of times from file: '" // trim(afile) // "'"
-    if (ierr < 0) call diag_print_error (msg)
+    if (ierr < 0) then
+      msg  = "Unable to obtain number of times from file: '" // trim(afile) // "'"
+      msg2 = " - Dataset: '" // TRIM(thepath) // "', Subset: '" // TRIM(aname) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid, ierr)
+      call diag_print_error (msg, msg2, msg3)
+    endif
 
     allocate(vec(nn),ftemp(nn))
     call XF_READ_PROPERTY_FLOAT(gid,trim(aname),nn,ftemp(1),ierr)
-    msg = "Unable to get list of times from file: '" // trim(afile) // "'"
-    if (ierr < 0) call diag_print_error (msg)
+    if (ierr < 0) then
+      msg  = "Unable to get list of times from file: '" // trim(afile) // "'"
+      msg2 = " - Dataset: '" // TRIM(thepath) // "', Subset: '" // TRIM(aname) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid, ierr)
+      call diag_print_error (msg, msg2, msg3)
+    endif
 
     vec = ftemp !Useful for converting precision    
     call XF_CLOSE_GROUP(gid,ierr)
@@ -76,13 +96,15 @@ contains
 ! Reads a scalar dataset located in apath from afile XMDF file 
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
-    use size_def, only: ncellsD,ncellsfull,ncellpoly
-    use geo_def, only: idmap
+    use size_def,   only: ncellsD,ncellsfull,ncellpoly
+    use geo_def,    only: idmap
     use interp_lib, only: interp_scal_node2cell
-    use diag_lib
+    use diag_def,   only: msg,msg2,msg3
+    use diag_lib,   only: diag_print_error
+    use tool_def,   only: xmdf_error
     use xmdf
     use prec_def
-    use const_def, only: READONLY
+    use const_def,  only: READONLY
     implicit none
     
     !Input/Output
@@ -90,38 +112,42 @@ contains
     real(ikind), intent(out) :: var(ncellsD)
     integer, intent(out) :: ierr
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: iloc
     real(4) :: vtemp(ncellsfull)
-    character(len=200) :: msg2,msg3,thepath
+    character(len=200) :: thepath
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-    if(ierr<0) call diag_print_error('Could not open file: ',trim(afile))
+    call XF_OPEN_FILE(afile,READONLY,pid,ierr)
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
+    endif
     
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not open dataset from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
       return
     endif
        
     call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,ncellsfull,vtemp,ierr)
     if(ierr<0)then
-      !call XF_CLOSE_GROUP(gid,ierr)
-      !call XF_CLOSE_FILE(fid,ierr)  
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !call diag_print_error('Could not read scalar dataset from',msg2,msg3)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)  
+      msg  = "Unable to read scalar dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
       return
     endif
     
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
                 
     if(ncellpoly>0)then
       call interp_scal_node2cell(vtemp,var) !Interpolate node to cell centers
@@ -137,11 +163,12 @@ contains
 ! Reads the a time step of a scalar located in apath from afile XMDF file 
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
-    use size_def, only: ncellsD,ncellsfull,ncellpoly
-    use geo_def, only: idmap
+    use size_def,   only: ncellsD,ncellsfull,ncellpoly
+    use geo_def,    only: idmap
     use interp_lib, only: interp_scal_node2cell
-    use diag_def
-    use diag_lib
+    use diag_def,   only: msg,msg2,msg3
+    use diag_lib,   only: diag_print_error, diag_print_message
+    use tool_def,   only: xmdf_error
     use xmdf
     use prec_def
     use const_def,  only: READONLY
@@ -153,26 +180,28 @@ contains
     real(ikind), intent(out):: var(ncellsD),thrs
     integer, intent(out) :: ierr    
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull) !Must be single
     character(100) :: thepath
     
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-    if(ierr<0)then
-      call diag_print_error('Could not open file: ',afile)
+    call XF_OPEN_FILE(afile,READONLY,pid,ierr)
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
     endif
           
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !call diag_print_warning('Could not open dataset from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
       ierr = -2 !Could not open group
       return
     endif     
@@ -180,11 +209,11 @@ contains
     call XF_READ_SCALAR_VALUES_TIMESTEP(gid,itsind,ncellsfull,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !write(msg4,*,iostat=ierr) '  Time Step: ',itsind
-      !call diag_print_warning('Could not read scalar time step',msg2,msg3,msg4)
+      call XF_CLOSE_FILE(pid,ierr)  
+      msg  = "Unable to read scalar timestep: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg2 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      write(msg3,*,iostat=ierr) '  Time Step: ',itsind
+      call diag_print_message(msg,msg2,msg3)
       ierr = 3 !Could not read timestep value
       return
     endif 
@@ -194,16 +223,16 @@ contains
     call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr)
     if(ierr<0)then
       thrs = -999.0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_warning('Could not read time stamp from',msg2,msg3)
+      msg  = "Unable to read times: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg2 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg, msg2)
       ierr = 4 !Could not read time stamp
     else
       thrs = timesd(itsind)
     endif
     
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
            
     if(ncellpoly>0)then
       call interp_scal_node2cell(vtemp,var) !Interpolate node to cell centers
@@ -220,11 +249,12 @@ contains
 ! written by Alex Sanchez, USACE-CHL
 !************************************************************************
 !#include "CMS_cpp.h"
-    use size_def, only: ncellsD,ncellsfull,ncellpoly
-    use geo_def, only: idmap
+    use size_def,   only: ncellsD,ncellsfull,ncellpoly
+    use geo_def,    only: idmap
     use interp_lib, only: interp_scal_node2cell
-    use diag_def
-    use diag_lib
+    use diag_def,   only: msg,msg2,msg3
+    use diag_lib,   only: diag_print_error, diag_print_message
+    use tool_def,   only: xmdf_error
     use xmdf
     use prec_def
     use const_def,  only: READONLY
@@ -236,21 +266,28 @@ contains
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: iloc
     real(8), allocatable :: timed(:) !Output time
     real(4) :: vtemp(ncellsfull) !Must be single
     character(100) :: thepath
     
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)   
-    if(ierr<0) call diag_print_error('Could not open file: ',afile)
-      
+    call XF_OPEN_FILE(afile,READONLY,pid,ierr)
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
+    endif
+    
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = -2
       return
     endif
@@ -258,30 +295,30 @@ contains
     call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not read number of times from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get number of times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
     endif
     
     call XF_READ_SCALAR_VALUES_TIMESTEP(gid,ntimes,ncellsfull,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_error('Could not read last time step scalar values from',msg2,msg3,msg4)
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read last time step for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg2,msg3)
     endif
     
     allocate(timed(ntimes))
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)
     if(ierr<0)then
       thrs = -999.0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_warning('Could not read times from',msg2,msg3,msg4)
+      msg  = "Unable to read times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg2,msg3)
       ierr = 4 !Could not read time stamp
     else
       thrs = timed(ntimes)
@@ -291,14 +328,14 @@ contains
     call XF_GET_DATASET_REFTIME(gid,reftimed,ierr)
     if(ierr<0)then
       reftimed = -999.0d0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_warning('Could not read reference time from',msg2,msg3)
+      msg  = "Unable to get reference time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = 5 !Could not read time stamp
     endif  
 
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
             
     if(ncellpoly>0)then
       call interp_scal_node2cell(vtemp,var) !Interpolate node to cell centers
@@ -318,10 +355,11 @@ contains
     use size_def, only: ncellsD,ncellsfull,ncellpoly
     use geo_def, only: idmap
     use interp_lib, only: interp_scal_node2cell
-    use diag_def
-    use diag_lib
+    use diag_def,   only: msg, msg2, msg3
+    use diag_lib,   only: diag_print_error,diag_print_message
     use xmdf
     use prec_def
+    use tool_def,   only: xmdf_error
     use const_def, only: READONLY
     implicit none
     
@@ -332,28 +370,31 @@ contains
     real(ikind), intent(out) :: var(ncellsD)    
     real(8),intent(out) :: reftimed          !Reference time 
     integer, intent(out) :: ierr
+    
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: i,nstep,ntimes,iloc
     real(8), allocatable :: timed(:) !Output time
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull) !Must be single
     character(100) :: thepath
     
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)   
-    if(ierr<0) call diag_print_error('Could not open file: ',afile)
+    call XF_OPEN_FILE(trim(afile),READONLY,pid,ierr)   
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
+    endif
       
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)
-!#ifdef DIAG_MODE
-!      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-!      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-!      call diag_print_warning('Could not open dataset from ',msg2,msg3)
-!#endif
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg, msg3)
       ierr = -2
       return
     endif
@@ -361,19 +402,21 @@ contains
     call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not read number of times from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get number of times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
     endif
     
     allocate(timed(ntimes))
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)
     if(ierr<0)then
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_warning('Could not read times from',msg2,msg3,msg4)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to read times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg2,msg3)
       ierr = 4 !Could not read time stamp
     else
       nstep = 1
@@ -387,10 +430,12 @@ contains
         endif
       enddo
       if(terrdmin>0.001)then
-        write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-        write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-        write(msg4,*,iostat=ierr) '  Time: ',thrs,' hrs'
-        call diag_print_warning('Could not find time: ',msg2,msg3,msg4)
+        call XF_CLOSE_GROUP(gid,ierr)
+        call XF_CLOSE_FILE(pid,ierr)
+        msg  = "Unable to find time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+        write(msg2,*,iostat=ierr) ' - Time: ',thrs,' hrs'
+        msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+        call diag_print_error(msg,msg2,msg3)
       endif
     endif
     deallocate(timed)
@@ -398,24 +443,26 @@ contains
     call XF_READ_SCALAR_VALUES_TIMESTEP(gid,nstep,ncellsfull,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_error('Could not read last time step scalar values from',msg2,msg3,msg4)
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read last time step for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg2,msg3)
     endif
     
     call XF_GET_DATASET_REFTIME(gid,reftimed,ierr)
     if(ierr<0)then
       reftimed = -999.0d0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_warning('Could not read reference time from',msg2,msg3)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get reference time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)      
       ierr = 5 !Could not read time stamp
     endif  
 
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
             
     if(ncellpoly>0)then
       call interp_scal_node2cell(vtemp,var) !Interpolate node to cell centers
@@ -434,9 +481,11 @@ contains
     use size_def
     use geo_def, only: idmap
     use interp_lib, only: interp_vec_node2cell
-    use diag_lib
+    use diag_def,   only: msg, msg2, msg3
+    use diag_lib,   only: diag_print_error,diag_print_message
     use xmdf
     use prec_def
+    use tool_def,   only: xmdf_error    
     use const_def,  only: READONLY
     implicit none
     
@@ -445,38 +494,42 @@ contains
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD)
     integer, intent(out) :: ierr
     !Internal
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: iloc
     real(4) :: vtemp(ncellsfull*2) !Must be single
-    character(len=200) :: msg2,msg3,thepath
+    character(len=200) :: thepath
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-    if(ierr<0) call diag_print_error('Could not open file: ',afile)
+    call XF_OPEN_FILE(trim(afile),READONLY,pid,ierr)        
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
+    endif
 
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'    
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)  
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not open dataset from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
+      ierr = -2
       return
     endif
     
     call XF_READ_VECTOR_VALUES_TIMESTEP(gid,1,ncellsfull,2,vtemp,ierr)     
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not read vector dataset from',msg2,msg3) 
-      return
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read vector dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
     endif
 
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
     
     if(ncellpoly>0)then
       call interp_vec_node2cell(vtemp,vecx,vecy)  !Map from nodes to cell-centers
@@ -495,9 +548,11 @@ contains
     use size_def,only: ncellsD,ncellsfull,ncellpoly
     use geo_def, only: idmap
     use interp_lib, only: interp_vec_node2cell
-    use diag_lib
+    use diag_def,   only: msg, msg2, msg3
+    use diag_lib,   only: diag_print_error,diag_print_message
     use xmdf
     use prec_def
+    use tool_def,   only: xmdf_error
     use const_def,  only: READONLY
     implicit none
     
@@ -507,38 +562,40 @@ contains
     real(ikind), intent(out) :: vecx(ncellsD),vecy(ncellsD),thrs
     integer, intent(out) :: ierr
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: ntimes,iloc
     real(8),allocatable :: timesd(:) !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
-    character(len=200) :: msg2,msg3,msg4,thepath
+    character(len=200) :: thepath
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
-    if(ierr<0)then
-      call diag_print_error('Could not open file: ',afile)
+    call XF_OPEN_FILE(trim(afile),READONLY,pid,ierr)        
+    if (ierr < 0) then
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
     endif
               
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !call diag_print_warning('Could not open dataset from',msg2,msg3)
-      ierr = -2 !Could not open group
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
+      ierr = -2
       return
     endif
                
     call XF_READ_VECTOR_VALUES_TIMESTEP(gid,itsind,ncellsfull,2,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !write(msg4,*,iostat=ierr) '  Time step: ',itsind
-      !call diag_print_warning('Could not read vector time step values',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read last time step for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg2,msg3)
       ierr = 3 !Could not read timestep
       return
     endif
@@ -548,17 +605,19 @@ contains
     call XF_GET_DATASET_TIMES(gid,ntimes,timesd,ierr)
     if(ierr<0)then
       thrs = -999.0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',itsind
-      call diag_print_warning('Could not read time stamp from',msg2,msg3,msg4)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get number of times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = 4
+      return
     else
       thrs = timesd(itsind)
     endif
     
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
             
     if(ncellpoly>0)then
       call interp_vec_node2cell(vtemp,vecx,vecy)  !Map from nodes to cell-centers
@@ -577,9 +636,10 @@ contains
     use size_def, only: ncellsD,ncellsfull,ncellpoly
     use geo_def, only: idmap
     use interp_lib, only: interp_vec_node2cell
-    use diag_def
-    use diag_lib
+    use diag_def,   only: msg, msg2, msg3
+    use diag_lib,   only: diag_print_error,diag_print_message
     use prec_def
+    use tool_def,   only: xmdf_error
     use xmdf
     use const_def,  only: READONLY
     implicit none
@@ -590,27 +650,29 @@ contains
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr,ntimes
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: iloc
     real(8), allocatable :: timed(:)  !Output times
     real(4) :: vtemp(ncellsfull*2) !Must be single
     character(100) :: thepath
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
+    call XF_OPEN_FILE(trim(afile),READONLY,pid,ierr)        
     if(ierr<0)then
       ierr = -1 !Could not open file
-      call diag_print_error('Could not open file: ',afile)
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
     endif
       
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)  
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !call diag_print_warning('Could not open dataset from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = -2
       return
     endif
@@ -618,34 +680,32 @@ contains
     call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not read number of times from ',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get number of times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
     endif
     
     call XF_READ_VECTOR_VALUES_TIMESTEP(gid,ntimes,ncellsfull,2,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      return
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read last time step for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg2,msg3)
     endif
-      
-!    string = trim(apath) // 'TIME'
-!    call XF_OPEN_GROUP(fid,trim(string),gid,ierr)
-!    if(ierr<0)then
-!      call diag_print_error('Invalid dataset path: ',thepath)
-!    endif    
-!    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,1,thrs,ierr)
         
     allocate(timed(ntimes))
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)   
     if(ierr<0)then
       thrs = -999.0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_warning('Could not read times from ',msg2,msg3,msg4)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to read times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg2,msg3)
       ierr = 4
     else
       thrs = timed(ntimes)
@@ -655,14 +715,16 @@ contains
     call XF_GET_DATASET_REFTIME(gid,reftimed,ierr)
     if(ierr<0)then
       reftimed = -999.0d0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_warning('Could not read reference time from',msg2,msg3)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get reference time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = 5
     endif
       
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
             
     if(ncellpoly>0)then
       call interp_vec_node2cell(vtemp,vecx,vecy)  !Map from nodes to cell-centers
@@ -674,16 +736,17 @@ contains
     end subroutine readveclasth5
 
 !********************************************************************************
-      subroutine readvectimeh5(afile,apath,thrs,vecx,vecy,reftimed,ierr)
+  subroutine readvectimeh5(afile,apath,thrs,vecx,vecy,reftimed,ierr)
 ! Reads a scalar located in apath from afile XMDF file 
 ! written by Alex Sanchez, USACE-CHL
 !********************************************************************************
-    use size_def, only: ncellsD,ncellsfull,ncellpoly
-    use geo_def, only: idmap
+    use size_def,   only: ncellsD,ncellsfull,ncellpoly
+    use geo_def,    only: idmap
     use interp_lib, only: interp_vec_node2cell
-    use diag_def
-    use diag_lib
+    use diag_def,   only: msg, msg2, msg3
+    use diag_lib,   only: diag_print_error,diag_print_message
     use prec_def
+    use tool_def,   only: xmdf_error
     use xmdf
     use const_def,  only: READONLY
     implicit none
@@ -696,28 +759,29 @@ contains
     real(8), intent(out) :: reftimed            !Reference time
     integer, intent(out) :: ierr
     !Internal Variables
-    integer(XID) :: fid,gid
+    integer(XID) :: pid,gid
     integer :: i,nstep,ntimes,iloc
     real(8), allocatable :: timed(:)  !Output times
     real(8) :: thrsd,terrd,terrdmin
     real(4) :: vtemp(ncellsfull*2) !Must be single
     character(100) :: thepath
 
-    call XF_OPEN_FILE(trim(afile),READONLY,fid,ierr)        
+    call XF_OPEN_FILE(trim(afile),READONLY,pid,ierr)        
     if(ierr<0)then
-      ierr = -1 !Could not open file
-      call diag_print_error('Could not open file: ',afile)
+      msg  = "Unable to open file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error (msg, msg3)
     endif
       
     thepath = trim(apath)
     iloc=index(thepath,'\')
     if (iloc.gt.0) thepath(iloc:iloc)='/'
-    call XF_OPEN_GROUP(fid,trim(thepath),gid,ierr)
+    call XF_OPEN_GROUP(pid,trim(thepath),gid,ierr)
     if(ierr<0)then
-      call XF_CLOSE_FILE(fid,ierr)  
-      !write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      !write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      !call diag_print_warning('Could not open dataset from',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to open dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = -2
       return
     endif
@@ -725,26 +789,21 @@ contains
     call XF_GET_DATASET_NUM_TIMES(gid,ntimes,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_error('Could not read number of times from ',msg2,msg3)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get number of times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg3)
     endif
-      
-!    string = trim(apath) // 'TIME'
-!    call XF_OPEN_GROUP(fid,trim(string),gid,ierr)
-!    if(ierr<0)then
-!      call diag_print_error('Invalid dataset path: ',thepath)
-!    endif    
-!    call XF_READ_SCALAR_VALUES_TIMESTEP(gid,1,1,thrs,ierr)
         
     allocate(timed(ntimes))
     call XF_GET_DATASET_TIMES(gid,ntimes,timed,ierr)   
     if(ierr<0)then
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      write(msg4,*,iostat=ierr) '  Time step: ',ntimes
-      call diag_print_warning('Could not read times from ',msg2,msg3,msg4)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to read times for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg2,msg3)
       ierr = 4
     else
       nstep = 1
@@ -758,10 +817,12 @@ contains
         endif
       enddo
       if(terrdmin>0.001)then
-        write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-        write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-        write(msg4,*,iostat=ierr) '  Time: ',thrs,' hrs'
-        call diag_print_warning('Could not find time: ',msg2,msg3,msg4)
+        call XF_CLOSE_GROUP(gid,ierr)
+        call XF_CLOSE_FILE(pid,ierr)
+        msg  = "Unable to find time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+        write(msg2,*,iostat=ierr) ' - Time: ',thrs,' hrs'
+        msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+        call diag_print_error(msg,msg2,msg3)
       endif
     endif
     deallocate(timed)
@@ -769,21 +830,27 @@ contains
     call XF_READ_VECTOR_VALUES_TIMESTEP(gid,nstep,ncellsfull,2,vtemp,ierr)
     if(ierr<0)then
       call XF_CLOSE_GROUP(gid,ierr)
-      call XF_CLOSE_FILE(fid,ierr)  
+      call XF_CLOSE_FILE(pid,ierr) 
+      msg  = "Unable to read last time step for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      write(msg2,*,iostat=ierr) ' - Time step: ',ntimes
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_error(msg,msg2,msg3)
       return
     endif
     
     call XF_GET_DATASET_REFTIME(gid,reftimed,ierr)
     if(ierr<0)then
       reftimed = -999.0d0
-      write(msg2,*,iostat=ierr) '  File: ',trim(afile)
-      write(msg3,*,iostat=ierr) '  Path: ',trim(thepath)
-      call diag_print_warning('Could not read reference time from',msg2,msg3)
+      call XF_CLOSE_GROUP(gid,ierr)
+      call XF_CLOSE_FILE(pid,ierr)
+      msg  = "Unable to get reference time for dataset: '" // trim(thepath) // "from file: '" // trim(afile) // "'"
+      msg3 = " - XMDF Error: '" // trim(xmdf_error(ierr)) // "'"
+      call diag_print_message(msg,msg3)
       ierr = 5
     endif
       
     call XF_CLOSE_GROUP(gid,ierr)
-    call XF_CLOSE_FILE(fid,ierr)
+    call XF_CLOSE_FILE(pid,ierr)
             
     if(ncellpoly>0)then
       call interp_vec_node2cell(vtemp,vecx,vecy)  !Map from nodes to cell-centers

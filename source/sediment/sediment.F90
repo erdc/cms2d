@@ -3162,14 +3162,15 @@ d1: do ii=1,30
 !
 ! written by Alex Sanchez, USACE-CHL
 !***********************************************************************
-    use flow_def
-    use geo_def, only: icol,irow,mapid,zb,igridtype
+    use flow_def, only: SU, SP, H, ETA, UV, U, V
+    use geo_def,  only: icol,irow,mapid,zb,igridtype
     use sed_def
     use wave_flowgrid_def
     use cms_def
     use comvarbl
     use diag_def
     implicit none
+    
     integer :: i,ii,ks,iunit(2)
       
     iunit(1) = 6
@@ -3182,9 +3183,9 @@ d1: do ii=1,30
       else
         write(iunit(ii),*) 'id =',i,'ks =',ks     
       endif
-      if(igridtype==0)then
-        write(iunit(ii),*) ' Column =',icol(i),' Row =',irow(i)
-      endif
+      
+      if(igridtype==0) write(iunit(ii),*) ' Column =',icol(i),' Row =',irow(i)
+      
       write(iunit(ii),*) 'Ctk1(i,ks) =',Ctk1(i,ks)
       write(iunit(ii),*) 'Ctk(i,ks) =',Ctk(i,ks)
       write(iunit(ii),*) 'Ctkstar(i,ks) =',Ctkstar(i,ks)
@@ -3193,15 +3194,15 @@ d1: do ii=1,30
       write(iunit(ii),*) 'pbk(i,ks,1) =',pbk(i,ks,1)
       write(iunit(ii),*) 'Sb(i,ks) =',Sb(i,ks)
       write(iunit(ii),*) 'alphat(i) =' ,alphat(i)
-      write(iunit(ii),*) 'su(i) =',su(i)
-      write(iunit(ii),*) 'sp(i) =',sp(i)
-      write(iunit(ii),*) 'h(i) =',h(i)
-      write(iunit(ii),*) 'eta(i) =',eta(i)
+      if (allocated(su))  write(iunit(ii),*) 'su(i) =',su(i) 
+      if (allocated(sp))  write(iunit(ii),*) 'sp(i) =',sp(i) 
+      if (allocated(h))   write(iunit(ii),*) 'h(i) =',h(i) 
+      if (allocated(eta)) write(iunit(ii),*) 'eta(i) =',eta(i)
       write(iunit(ii),*) 'zb(i) =',zb(i)
       write(iunit(ii),*) 'dzb(i) =',dzb(i)
-      write(iunit(ii),*) 'uv(i) =',uv(i)
-      write(iunit(ii),*) 'u(i) =',u(i)
-      write(iunit(ii),*) 'v(i) =',v(i)
+      if (allocated(uv))  write(iunit(ii),*) 'uv(i) =',uv(i) 
+      if (allocated(u))   write(iunit(ii),*) 'u(i) =',u(i) 
+      if (allocated(v))   write(iunit(ii),*) 'v(i) =',v(i) 
       if(noptset>=3)then
         write(iunit(ii),*) 'Whgt(i) =',Whgt(i)
         write(iunit(ii),*) 'Worb(i) =',Worb(i)

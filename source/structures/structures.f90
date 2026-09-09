@@ -212,11 +212,13 @@
     use struct_def
     use flow_def, only: viscos
     use comvarbl, only: SMS_ver
+    use diag_lib, only: diag_print_error
 #ifdef XMDF_IO
     use in_xmdf_lib, only: readscalh5
 #endif
     use in_lib, only: readscalTxt
     implicit none
+    
     integer :: i,i1,itg,im,iwr,icv,irm,kk,ierr   !hli(11/19/13)
     character(len=10) :: aext    
     integer :: j,idum
@@ -266,7 +268,8 @@
     endif  
     
     if (rmblock == 1 .and. nrubmoundcells > 0) then 
-      do irm=1,nrubmoundcells     
+      do irm=1,nrubmoundcells
+        if(rubmoundporo(irm) == 0.0) call diag_print_error('Rubble Mound porosity can not be <= 0.0.') 
         select case (methrubmoundab(irm))
         case (1)             !Sidiropoulou et al. (2007)
           rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5) *rubmoundporo(irm)**0.06         
