@@ -1,12 +1,10 @@
-== Version 5.4.8.0 (09/09/2026) ==
+== Version 5.4.8 (09/14/2026) ==
 * Integrated changes from Wu (Clarkson BAA)
 ** Implement sediment influx (Cohesive/Non-cohesive mixtures) on river boundary
 ** A few OpenMP directive improvements
 ** A few improvements for stability (relax(8) in flow.f90 amd other)
 ** Eliminate oscillations in deep water when using Lund-CIRP formula
 * Test each sediment percentile dataset when reading cards to ensure all non-negative values.
-* Begin updating Wave code to use file unit variable names instead of constant numbers (i.e.,"WaveUnit" instead of 66)
-* Use Claude to improve efficiency and readability for some Wave subroutines (commented in affected routines).
 * Added function to return specific messages based on XMDF error codes.
 * Fix a few issues reading cards with Explicit solution scheme
 * Improve diagnostic output for in_xmdf_lib calls.
