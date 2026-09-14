@@ -11,8 +11,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 !    FINISHED BY H.MASE AT UNIVERSITY OF LIVERPOOL, 30/12/'02   
 !    UPDATED BY LIHWA LIN, USACE ERDC, 30 April, 2020           
 !    Dynamic allocation of arrays implemented by W.Wu, Nov 2024  
-!    Updates by Wu/Brown, 2026
-!    Modifications for file units and efficiency (Claude) by M.Brown, May 2026
 !***************************************************************
 !  Basic equation to be solved is wave action balance equation
 !  with independent variables of x, y, q (angle).  
@@ -28,8 +26,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       use diag_lib, only: diag_print_message, diag_print_error
       use diag_def, only: dgunit
       use wave_def                                                   !Wu, Nov. 2024  
-      use file_def
-      
       double precision edate, jdate, iwind_date, icur_date, ieta_date
       logical getfile,getfile1,getfile2,getfile3
       logical getfile6,getfile9,getfile10  
@@ -42,6 +38,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       integer numthreads,NTHR
 
 ! ... Input file variables
+      CHARACTER*180  SimFile   
       CHARACTER*80 :: cardname                                        !Mitch 10/18/2021
       logical :: foundfile, foundcard
       logical :: is66open
@@ -52,8 +49,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       SAVE dvarxxt, dvaryyt                  !These variables were reset to initialized values runs after the initial, so I am saving their value for the subsequent runs.  MEB  04/05/2022
  
       iunit = (/6,dgunit/)
-      call initialize_file_units  !Added 5/28/2026 MEB
-      
       iwbk = 0
       if(noptset == 3 .and. nsteer > 1) then  !added these statements to initialize some variables that are not set on iterations after the first.  MEB  12/16/2021
         iwbk = iwvbk
@@ -62,8 +57,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       else                                   !if first time through, delete this pesky file
         inquire(file='nest1.dat',exist=getfile6)
         if (getfile6) then
-          open(unit=Nest1Unit,file='nest1.dat',status='old')  
-          close(Nest1Unit, status='DELETE')
+          open(unit=7,file='nest1.dat',status='old')  
+          close(7, status='DELETE')
         endif
       endif
       
@@ -92,44 +87,43 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
 !Read filenames from .sim file and get correct paths set right.
       SimFile = trim(wavepath) // WavSimFile
-      CALL STWfiles_inline
+      CALL STWfiles_inline (SimFile)
 
       inquire(file=OptsFile,exist=foundfile) 
       if(.not.foundfile)then
         call diag_print_error('Could not find file: '//trim(OptsFile))   !If the file wasn't found, it still tried to open.  MEB  01/26/2022
       endif
-      open (OptsUnit, file = OptsFile,  status = 'old')
+      open (11, file = OptsFile,  status = 'old')
       
       inquire(file=EngInFile,exist=foundfile) 
       if(.not.foundfile)then
         call diag_print_error('Could not find file: '//trim(EngInFile))
       endif
-      open (EngInUnit,  file = EngInFile, status = 'old')
+      open (8,  file = EngInFile, status = 'old')
       
       inquire(file=DepFile,exist=foundfile) 
       if(.not.foundfile)then
         call diag_print_error('Could not find file: '//trim(DepFile))
       endif
-      open (DepUnit, file = DepFile,   status = 'old')
+      open (15, file = DepFile,   status = 'old')
       
-      open (StrucUnit, file = StrucFile, status = 'unknown')
-      read(StrucUnit,'(a180)',end=339,err=339) text
-      backspace(StrucUnit)
+      open (23, file = StrucFile, status = 'unknown')
+      read(23,'(a180)',end=339,err=339) text
+      backspace(23)
       go to 340
 339   continue
-      close(StrucUnit)
-      
+      close(23)
 340   inquire(file='struct.dat',exist=getfile)
       if(getfile) then
         write(*,*) ' *** struct.dat FILE FOUND ***'
         write(*,*) '     Read struct.dat file'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' *** struct.dat FILE FOUND ***'
-          write(dgunit,*) '     Read struct.dat file'
-          write(dgunit,*) ' '
+          write(9,*) ' *** struct.dat FILE FOUND ***'
+          write(9,*) '     Read struct.dat file'
+          write(9,*) ' '
         endif
-        open(unit=StrucUnit,file='struct.dat',status='old')
+        open(unit=23,file='struct.dat',status='old')
       end if
 
       iwnd=0
@@ -140,12 +134,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '      Read wind.dat'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' *** wind FILE FOUND ***'
-          write(dgunit,*) '     Read wind file'
-          write(dgunit,*) ' '
+          write(9,*) ' *** wind FILE FOUND ***'
+          write(9,*) '     Read wind file'
+          write(9,*) ' '
         endif       
-        open(unit=WindUnit,file='wind.dat',status='old')
-        read(WindUnit,*,end=181,err=181) niwindc, njwindc
+        open(unit=27,file='wind.dat',status='old')
+        read(27,*,end=181,err=181) niwindc, njwindc
         iwind=1
         go to 180
       end if
@@ -157,12 +151,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '     Read wind file'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' *** wind FILE FOUND ***'
-          write(dgunit,*) '     Read wind file'
-          write(dgunit,*) ' '
+          write(9,*) ' *** wind FILE FOUND ***'
+          write(9,*) '     Read wind file'
+          write(9,*) ' '
         endif       
-        open(unit=WindUnit,file= WindFile,status='old')
-        read(WindUnit,*,end=180,err=180) niwindc, njwindc
+        open(unit=27,file= WindFile,status='old')
+        read(27,*,end=180,err=180) niwindc, njwindc
         iwind=1
       end if
 180   continue      
@@ -171,9 +165,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iwind1=0
       inquire(file='wind1.dat',exist=getfile16)
       if(getfile16.and.iwnd.eq.0) then
-        open(unit=Wind1Unit,file='wind1.dat',status='old')
-        read(Wind1Unit,*) iwind1
-        close(Wind1Unit)
+        open(unit=7,file='wind1.dat',status='old')
+        read(7,*) iwind1
+        close(7)
         do l=1,179
           if(SimFile(l:l+1).eq.'  ') exit
         end do
@@ -185,15 +179,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       end if
   
       if(getfile10.and.iwnd.eq.0) then
-        open(unit=Wind1Unit,file='wind1.dat',status='unknown')
-        write(Wind1Unit,*) iwind1+1
+        open(unit=7,file='wind1.dat',status='unknown')
+        write(7,*) iwind1+1
         write(*,*) ' '
         write(*,*) ' *** Please check Cycle Number ***'
         write(*,*) '     You are in Cycle',iwind1+1
         write(*,*) '     Check Cycle Number is correct not!!'
         write(*,*) ' *** Modify wind1.dat for correct cycle?'
         write(*,*) ' '
-        close(Wind1Unit)
+        close(7)
       end if 
 
 !Set default values for parameters
@@ -226,7 +220,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       
 !Read parameters from OptsFile (.std)
       itxt=0
-      read(OptsUnit,'(a150)') text
+      read(11,'(a150)') text
       read(text,*) cardname, itxt      !This line should have the card 'CMS_WAVE_STD' followed by a 1 or 2.  If not, the original format will be read.
       
       select case (cardname)
@@ -234,7 +228,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(itxt.eq.2) then             !New format effort to be more readable - card first, then value(s)  MEB 10/18/21
           call diag_print_message('Reading Options File with Card Format Version 2',' ')
           do  
-            read(OptsUnit,*,iostat=ierr) cardname
+            read(11,*,iostat=ierr) cardname
             if(ierr .ne. 0) exit
             if(cardname(1:14)=='END_PARAMETERS') then
               if ((suppress_obs) .and. (kout .gt. 0)) then
@@ -252,9 +246,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           enddo
         else                           !Previous format - value(s), then card  MEB 10/18/21
           call diag_print_message('','Waves: Reading Options File with Card Format Version 1')
-          backspace(OptsUnit)
+          backspace(11)
           do 
-            read(OptsUnit,'(a80)',iostat=ierr) text
+            read(11,'(a80)',iostat=ierr) text
             if (ierr .ne. 0) exit
             do 138 k=1,75
               kk3=k+3
@@ -279,7 +273,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
                 allocate( ijsp(2,iabs(kout)) )   !Dynamic allocation  added by Wu Sept 2024
                                          !if itxt=0, this is repeated below. possible problem
                 if(iabs(kout).ge.1) then
-                  read (OptsUnit,*) (ijsp(1,nn),ijsp(2,nn),nn=1,iabs(kout))
+                  read (11,*) (ijsp(1,nn),ijsp(2,nn),nn=1,iabs(kout))
                 end if
                 goto 139
               else if(text(k:kk5).eq.'!inest') then
@@ -287,7 +281,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
                 allocate( inest(nest),jnest(nest) ) !Dynamic allocation  added by Wu Sept 2024
                                           !if itxt=0, this is repeated below. possible problem
                 if(nest.ge.1) then
-                  read (OptsUnit,*) (inest(nn),jnest(nn),nn=1,nest)
+                  read (11,*) (inest(nn),jnest(nn),nn=1,nest)
                 end if
                 goto 139
               else if(text(k:kk4).eq.'!ibnd') then
@@ -365,9 +359,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iibreak=0
       inquire(file='std.dat',exist=getfile17)
       if(getfile17) then
-        open(unit=StdUnit,file='std.dat',status='old')
-        read(StdUnit,'(a150)') text
-        close(StdUnit)
+        open(unit=20,file='std.dat',status='old')
+        read(20,'(a150)') text
+        close(20)
         read(text,*,end=133,err=133)icc, icc, iibreak, icc, icc1, icc,    &
           iwet,ibf,iark,iarkr,akap,bf,ark,arkr,iwvbk,nonln,igrav,irunup,  &
           imud,iwnd,isolv,ixmdf,iproc,iview,iroll
@@ -382,14 +376,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(akap.gt.4.) then
         write(*,*)   '*** diffraction coef akap > 4, reset to 4 ***'
         if(noptset.eq.3)then
-          write(dgunit,*) '*** diffraction coef akap > 4, reset to 4 ***'
+          write(9,*) '*** diffraction coef akap > 4, reset to 4 ***'
         endif
         akap=4.
       end if
       if(bf.gt.1.) then
         write(*,*)   '*** bed friction index bf > 1, reset to 1 ***'
         if(noptset.eq.3)then
-          write(dgunit,*) '*** bed friction index bf > 1, reset to 1 ***'
+          write(9,*) '*** bed friction index bf > 1, reset to 1 ***'
         endif
         bf=1.
       end if
@@ -397,14 +391,14 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(ark.gt.1.) then
         write(*,*)   '*** norm reflect index ark > 1, reset to 1 ***'
         if(noptset.eq.3)then
-          write(dgunit,*) '*** norm reflect index ark > 1, reset to 1 ***'
+          write(9,*) '*** norm reflect index ark > 1, reset to 1 ***'
         endif
         ark=1.
       end if
       if(arkr.gt.1.) then
         write(*,*)   '*** sea reflect index arkr > 1, reset to 1 ***'
         if(noptset.eq.3)then
-          write(dgunit,*) '*** sea reflect index arkr > 1, reset to 1 ***'
+          write(9,*) '*** sea reflect index arkr > 1, reset to 1 ***'
         endif
         arkr=1.
       end if
@@ -416,8 +410,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if (SimFile(l-11:l-5).eq.'swsteer') ixmdf=0
       
       if(iabs(kout).ge.1.and.ixmdf.ne.2) then
-        if(kout.ge.1) open (EngOutUnit, file = EngOutFile, status = 'unknown')
-        open (ObsUnit, file = ObsFile,status='unknown',access='append')
+        if(kout.ge.1) open (10, file = EngOutFile, status = 'unknown')
+        open (12, file = ObsFile,status='unknown',access='append')
       end if
 
       dindex=0.
@@ -425,7 +419,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 ! --- dindex=dy, so dx and dy can be same or different
 ! --- dindex=999, given variable dx(i) and dy(j) arrarys at the end of the dep file
 
-      read(DepUnit,'(a150)') text
+      read(15,'(a150)') text
       read(text,*,end=330,err=330) ni,nj,dmesh,dindex
 330   continue
       
@@ -453,7 +447,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       dstruc33=0.
       tide0=0.
       do j = nj, 1, -1
-        read (DepUnit, *) (dep0(i, j), i = 1, ni)
+        read (15, *) (dep0(i, j), i = 1, ni)
         if(depmax0.lt.dep0(1,j)) depmax0=dep0(1,j)
         if(depmin0.gt.dep0(1,j)) depmin0=dep0(1,j)
         do i=1,ni
@@ -478,13 +472,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(noptset.ne.3)then
         inquire(file=SurgeFile,exist=getfile4)
         if(getfile4) then
-          open (SurgeUnit,file=SurgeFile,status='old')
-          read (SurgeUnit,'(a30)',end=119,err=119) text1
-          read (SurgeUnit,'(a150)',end=119,err=119) text
+          open (21,file=SurgeFile,status='old')
+          read (21,'(a30)',end=119,err=119) text1
+          read (21,'(a150)',end=119,err=119) text
           READ(text,*) ieta_date
 
           igetfile4=1
-          read (SurgeUnit,*,end=119,err=119) ((eta(i,j),i=1,ni),j=nj,1,-1)
+          read (21,*,end=119,err=119) ((eta(i,j),i=1,ni),j=nj,1,-1)
 
           do i=1,ni
             do j=2,nj-1
@@ -524,21 +518,21 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*)   'Constant dx=',dmesh
         write(*,*)   'Constant dy=',dindex
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) 'Constant dx=',dmesh
-          write(dgunit,*) 'Constant dy=',dindex
+          write(9,*) ' '
+          write(9,*) 'Constant dx=',dmesh
+          write(9,*) 'Constant dy=',dindex
         endif
       end if
 
       if(dindex.eq.999.) then
         write(*,*) ' '
-        read(DepUnit,*,end=332,err=332) (dvarxx(i),i=1,ni)
-        read(DepUnit,*,err=332) (dvaryy(j),j=1,nj)
+        read(15,*,end=332,err=332) (dvarxx(i),i=1,ni)
+        read(15,*,err=332) (dvaryy(j),j=1,nj)
         write(*,*)   '*** Variable dx & dy arrays ***'
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) '*** Variable dx & dy arrays ***'
-          write(dgunit,*) ' '
+          write(9,*) ' '
+          write(9,*) '*** Variable dx & dy arrays ***'
+          write(9,*) ' '
         endif
         go to 338
 332     continue
@@ -548,7 +542,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '  So switch to square cell grid'
       end if
 338   continue
-      close(DepUnit)
+      close(15)
 
       dvarxxt=0.
       do i=1,ni
@@ -568,7 +562,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       ijstruc1=0
       ijstruc3=0
       ijstruc4=0
-      read(StrucUnit,*,IOSTAT=IOS) instruc
+      read(23,*,IOSTAT=IOS) instruc
 
       !Dynamic allocation added by Wu, Nov. 2024
       komx=instruc   
@@ -586,7 +580,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         jstruc=0
         kstruc=0
         dummy=-1000.
-        read(StrucUnit,'(a180)',IOSTAT=IOS) text
+        read(23,'(a180)',IOSTAT=IOS) text
         IF (IOS.NE.0) EXIT
         read(text,*,IOSTAT=IOS) istruc,jstruc,kstruc,dummy
         if(jstruc.eq.0) CYCLE
@@ -634,7 +628,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           dep0(istruc,jstruc)=eta(istruc,jstruc)-dummy
         end if
       ENDDO
-      rewind(StrucUnit)
+      rewind(23)
 
       ijstruc2=0
       if(irunup.ge.1.and.depmin.lt.-.01) then
@@ -664,12 +658,12 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
         write(*,*) '*** Automatic Runup trigger ***'
       else
-        read(StrucUnit,*,IOSTAT=IOS) instruc
+        read(23,*,IOSTAT=IOS) instruc
         DO ijk=1,instruc
           jstruc=0
           kstruc=0
           dummy=-1000.
-          read(StrucUnit,'(a180)',IOSTAT=IOS) text
+          read(23,'(a180)',IOSTAT=IOS) text
           IF (IOS.NE.0) EXIT
           read(text,*,IOSTAT=IOS) istruc,jstruc,kstruc,dummy
           if(jstruc.eq.0) CYCLE
@@ -685,7 +679,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end if
           end if
         END DO      
-        close(StrucUnit)
+        close(23)
       end if
 
       if(ijstruc1.ge.1) then
@@ -696,10 +690,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '********************************'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) '*** Land/reef/trench feature ***'
-          write(dgunit,*) '   (need feature depth info, can be negative for land)'
-          write(dgunit,'(A,I0)') ' Total Struc 1 Cell(s): ',ijstruc1
+          write(9,*) ' '
+          write(9,*) '*** Land/reef/trench feature ***'
+          write(9,*) '   (need feature depth info, can be negative for land)'
+          write(9,'(A,I0)') ' Total Struc 1 Cell(s): ',ijstruc1
           write(*,*) '********************************'
           write(*,*) ' '
         endif  
@@ -713,11 +707,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '*******************************'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) '*** Wave run-up calculation ***'
-          write(dgunit,*) '    (input max beach height or top structure elev.,'
-          write(dgunit,*) '     no effect if elev < 0 m)'
-          write(dgunit,'(A,I0)') ' Total Struc 2 Cell(s): ',ijstruc2
+          write(9,*) ' '
+          write(9,*) '*** Wave run-up calculation ***'
+          write(9,*) '    (input max beach height or top structure elev.,'
+          write(9,*) '     no effect if elev < 0 m)'
+          write(9,'(A,I0)') ' Total Struc 2 Cell(s): ',ijstruc2
           write(*,*) '*******************************'
           write(*,*) ' '
         endif 
@@ -742,10 +736,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '***************************'
           write(*,*) ' '
           if(noptset.eq.3)then
-            write(dgunit,*) ' '
-            write(dgunit,*) '*** Floating Breakwater ***'
-            write(dgunit,*) '    (need average draft < depth & > 0.05 m)'
-            write(dgunit,'(A,I0)') ' Total Struc 3 Cell(s): ',ic3
+            write(9,*) ' '
+            write(9,*) '*** Floating Breakwater ***'
+            write(9,*) '    (need average draft < depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 3 Cell(s): ',ic3
             write(*,*) '***************************'
             write(*,*) ' '
           endif
@@ -758,10 +752,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '**********************************'
           write(*,*) ' '
           if(noptset.eq.3)then
-            write(dgunit,*) ' '
-            write(dgunit,*) '*** Flexible Porous Breakwater ***'
-            write(dgunit,*) '    (need without-breakwater depth & > 0.05 m)'
-            write(dgunit,'(A,I0)') ' Total Struc 6 Cell(s): ',ic6
+            write(9,*) ' '
+            write(9,*) '*** Flexible Porous Breakwater ***'
+            write(9,*) '    (need without-breakwater depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 6 Cell(s): ',ic6
             write(*,*) '**********************************'
             write(*,*) ' '
           endif       
@@ -774,10 +768,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '***********************************'
           write(*,*) ' '
           if(noptset.eq.3)then
-            write(dgunit,*) ' '
-            write(dgunit,*) '*** Normal Permeable Breakwater ***'
-            write(dgunit,*) '    (need without-breakwater depth & > 0.05 m)'
-            write(dgunit,'(A,I0)') ' Total Struc 7 Cell(s): ',ic7
+            write(9,*) ' '
+            write(9,*) '*** Normal Permeable Breakwater ***'
+            write(9,*) '    (need without-breakwater depth & > 0.05 m)'
+            write(9,'(A,I0)') ' Total Struc 7 Cell(s): ',ic7
             write(*,*) '***********************************'
             write(*,*) ' '
           endif
@@ -791,10 +785,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) '*******************************'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) '*** Bottom-mound Breakwater ***'
-          write(dgunit,*) '    (input crest elevation can be submerged < 0 m)'
-          write(dgunit,'(A,I0)') ' Total Struc 4/5 Cell(s): ',ijstruc4
+          write(9,*) ' '
+          write(9,*) '*** Bottom-mound Breakwater ***'
+          write(9,*) '    (input crest elevation can be submerged < 0 m)'
+          write(9,'(A,I0)') ' Total Struc 4/5 Cell(s): ',ijstruc4
           write(*,*) '*******************************'
           write(*,*) ' '
         endif
@@ -809,20 +803,20 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '     Read forward reflection coef file'
           write(*,*) ' '
           if(noptset.eq.3)then
-            write(dgunit,*) ' *** FrflFile Found ***'
-            write(dgunit,*) '     Read forward reflection coef file'
-            write(dgunit,*) ' '
+            write(9,*) ' *** FrflFile Found ***'
+            write(9,*) '     Read forward reflection coef file'
+            write(9,*) ' '
           endif
-          open(unit=FrflUnit,file=FrflFile,status='old')
-          read(FrflUnit,*) kbi,kbj,qmesh
+          open(unit=18,file=FrflFile,status='old')
+          read(18,*) kbi,kbj,qmesh
           if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-            close(FrflUnit)
+            close(18)
             call diag_print_error('Wrong forward reflection field file')
           end if
           do j=nj,1,-1
-            read(FrflUnit,*) (reflty(i,j),i=1,ni)
+            read(18,*) (reflty(i,j),i=1,ni)
           enddo
-          close(FrflUnit)
+          close(18)
           iark=2
         else
           iark=1
@@ -838,19 +832,19 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '     Read backward reflection coef file'
           write(*,*) ' '
           if(noptset.eq.3)then
-            write(dgunit,*) ' *** BrflFile FOUND ***'
-            write(dgunit,*) '     Read backward reflection coef file'
+            write(9,*) ' *** BrflFile FOUND ***'
+            write(9,*) '     Read backward reflection coef file'
           endif
-          open(unit=BrflUnit,file=BrflFile,status='old')
-          read(BrflUnit,*) kbi,kbj,qmesh
+          open(unit=18,file=BrflFile,status='old')
+          read(18,*) kbi,kbj,qmesh
           if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-            close(BrflUnit)
+            close(18)
             call diag_print_error('Wrong backward reflection field file')
           end if
           do j=nj,1,-1
-            read(BrflUnit,*) (refltx(i,j),i=1,ni)
+            read(18,*) (refltx(i,j),i=1,ni)
           enddo
-          close(BrflUnit)
+          close(18)
           iarkr=2
         else
           iarkr=1
@@ -863,21 +857,21 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' *** MudFile Found ***'
         write(*,*) ' '
         if(noptset.eq.3)then
-          write(dgunit,*) ' '
-          write(dgunit,*) ' *** MudFile Found ***'
-          write(dgunit,*) ' '
+          write(9,*) ' '
+          write(9,*) ' *** MudFile Found ***'
+          write(9,*) ' '
         endif                   
-        open(unit=MudUnit,file=MudFile,status='old')
-        read(MudUnit,*,end=190,err=190) kbi,kbj,qmesh
+        open(unit=29,file=MudFile,status='old')
+        read(29,*,end=190,err=190) kbi,kbj,qmesh
         if(kbi.ne.ni.or.kbj.ne.nj.or.dmesh.ne.qmesh) then
-          close(MudUnit)
+          close(29)
           call diag_print_error('Wrong mud field file')
         end if
-        close(MudUnit)
+        close(29)
         go to 191
       end if
   190 imud=1
-      close(MudUnit)
+      close(29)
 191   continue
 
       if(ibf.eq.2 .or. ibf.eq.4) then          !Only try to read the files if a variable type has been chosen, otherwise keep moving.  MEB  11/15/2021
@@ -887,13 +881,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) ' *** Friction File FOUND ***'
           write(*,*) '     Read friction coef file'
           write(*,*) ' '
-          open(unit=FricUnit,file=FricFile,status='old')
-          read(FricUnit,*) kbi,kbj
+          open(unit=28,file=FricFile,status='old')
+          read(28,*) kbi,kbj
           if(kbi.ne.ni.or.kbj.ne.nj) then
-            close(FricUnit)
+            close(28)
             call diag_print_error('Wrong friction field file')
           end if
-          close(FricUnit)
+          close(28)
         else
           write(*,*) '' 
           call diag_print_error(' *** Friction File expected but NOT FOUND ***')
@@ -905,20 +899,20 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if (iabs(kout) .ge. 1) then
           allocate( ijsp(2,iabs(kout)) )   !Dynamic allocation  added by Wu, Nov. 2024
           do nn = 1, iabs(kout)
-            read (OptsUnit, *) ijsp(1,nn), ijsp(2,nn)
+            read (11, *) ijsp(1,nn), ijsp(2,nn)
           enddo
         endif
 
         !  read in nesting output points
         nest=0
-        read (OptsUnit,*,end=109) nest            !This may read nest again, Check Line 454
+        read (11,*,end=109) nest            !This may read nest again, Check Line 454
         allocate( inest(nest),jnest(nest) ) !Dynamic allocation  added by Wu, Nov. 2024
         do nn = 1, nest
-          read (OptsUnit, *) inest(nn), jnest(nn)
+          read (11, *) inest(nn), jnest(nn)
         enddo
       endif
 
-      if(nest.ne.0) open (NestUnit, file = NestFile, status = 'unknown')
+      if(nest.ne.0) open (13, file = NestFile, status = 'unknown')
 !     azimuth read from .sim file in Subroutine STWfiles
 
 109   continue
@@ -930,11 +924,11 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       if(ixmdf.eq.0) then
         if (coldstart) then
-          open (WaveUnit, file = WaveFile, status = 'unknown')
-          write (WaveUnit, *) ni, nj, dmesh
+          open (66, file = WaveFile, status = 'unknown')
+          write (66, *) ni, nj, dmesh
         else
-          inquire(WaveUnit,OPENED=is66open) 
-          if (.not.is66open) open (WaveUnit, file = WaveFile, status = 'old', position='APPEND')  
+          inquire(66,OPENED=is66open) 
+          if (.not.is66open) open (66, file = WaveFile, status = 'old', position='APPEND')  
         endif
       end if
 
@@ -942,8 +936,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(ixmdf.ge.1) go to 131
 ! ***
       if(ibreak.gt.0)then
-        open (BreakUnit, file = BreakFile, status = 'unknown')
-        write (BreakUnit, *) ni, nj, dmesh
+        open (17, file = BreakFile, status = 'unknown')
+        write (17, *) ni, nj, dmesh
       endif
 
       inquire(file=TotalFile,exist=getfile11)                          !Mitch 03/22/2017
@@ -972,55 +966,55 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if (isteer.eq.1) then
           if(SimFile(l-13:l-12).eq.'\1') then
             if(iwet.ne.-1) then
-              open(TotalUnit,file=TotalFile,status='unknown')
-              write (TotalUnit, *) ni, nj, dmesh
+              open(95,file=TotalFile,status='unknown')
+              write (95, *) ni, nj, dmesh
             end if
             if(iwet.ne.-2) then
-              open(SwellUnit,file=SwellFile,status='unknown')                 !Mitch 03/22/2017
-              open(SeaUnit,file=SeaFile,status='unknown')                   !Mitch 03/22/2017
-              write (SwellUnit, *) ni, nj, dmesh
-              write (SeaUnit, *) ni, nj, dmesh
+              open(96,file=SwellFile,status='unknown')                 !Mitch 03/22/2017
+              open(97,file=SeaFile,status='unknown')                   !Mitch 03/22/2017
+              write (96, *) ni, nj, dmesh
+              write (97, *) ni, nj, dmesh
             end if
           else
             if(iwet.ne.-1) then
-              open(TotalUnit,file=TotalFile,status='unknown',access='append')
+              open(95,file=TotalFile,status='unknown',access='append')
             end if
             if(iwet.ne.-2) then
-              open(SwellUnit,file=SwellFile,status='unknown',access='append') !Mitch 03/22/2017
-              open(SeaUnit,file=SeaFile,status='unknown',access='append')   !Mitch 03/22/2017
+              open(96,file=SwellFile,status='unknown',access='append') !Mitch 03/22/2017
+              open(97,file=SeaFile,status='unknown',access='append')   !Mitch 03/22/2017
             end if
           end if
         else
           if(iwet.ne.-1) then
-            open(TotalUnit,file=TotalFile,status='unknown')
-            write (TotalUnit, *) ni, nj, dmesh
+            open(95,file=TotalFile,status='unknown')
+            write (95, *) ni, nj, dmesh
           end if
           if(iwet.ne.-2) then
-            open(SwellUnit,file=SwellFile,status='unknown')                     !Mitch 03/22/2017
-            open(SeaUnit,file=SeaFile,status='unknown')                       !Mitch 03/22/2017
-            write (SwellUnit, *) ni, nj, dmesh
-            write (SeaUnit, *) ni, nj, dmesh
+            open(96,file=SwellFile,status='unknown')                     !Mitch 03/22/2017
+            open(97,file=SeaFile,status='unknown')                       !Mitch 03/22/2017
+            write (96, *) ni, nj, dmesh
+            write (97, *) ni, nj, dmesh
           end if
         end if
       end if
 
       if(kout.ge.0) then
         if(irs.ge.1.and.ixmdf.eq.0)then
-          open (RadsUnit, file = RadsFile, status = 'unknown')
-          write (RadsUnit, *) ni, nj, dmesh
+          open (18, file = RadsFile, status = 'unknown')
+          write (18, *) ni, nj, dmesh
           if(irs.ge.2) then
             if(iwet.ne.-2) then
-              open(SetupUnit,file='setup.wav',status='unknown')
-              write(SetupUnit,*) ni,nj,dmesh
+              open(98,file='setup.wav',status='unknown')
+              write(98,*) ni,nj,dmesh
             else
-              open(SetupUnit,file='setup.wav',status='unknown',access='append')
+              open(98,file='setup.wav',status='unknown',access='append')
               if(isteer.eq.0) then
-                write(SetupUnit,*) ni,nj,dmesh
+                write(98,*) ni,nj,dmesh
               else
                 if(SimFile(l-13:l-12).eq.'\1') then
-                  close(SetupUnit)
-                  open(SetupUnit,file=SetupFile,status='unknown')
-                  write(SetupUnit,*) ni,nj,dmesh
+                  close(98)
+                  open(98,file=SetupFile,status='unknown')
+                  write(98,*) ni,nj,dmesh
                 end if
               end if
             end if
@@ -1054,22 +1048,22 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) '     Read 2nd wave file'
           write(*,*) ' '
           iwave=1
-          open(unit=SpecUnit,file=SpecFile,status='old')
-          read(SpecUnit,'(a80)',end=280) text
+          open(unit=24,file=SpecFile,status='old')
+          read(24,'(a80)',end=280) text
           nestin2=1
           read(text,*,end=281,err=281) nff,mdd,nestin2
 281       continue
           write(*,*) '2nd Wave File header =',nff,mdd,nestin2
-          read(SpecUnit,*,end=280,err=280) (cc,nn=1,nff)
+          read(24,*,end=280,err=280) (cc,nn=1,nff)
         end if
 280     continue
         
         iwave1=0
         inquire(file='wave1.dat',exist=getfile19)
         if(getfile19) then
-          open(unit=Wave1Unit,file='wave1.dat',status='old')
-          read(Wave1Unit,*) iwave1
-          close(Wave1Unit)
+          open(unit=26,file='wave1.dat',status='old')
+          read(26,*) iwave1
+          close(26)
           do l=1,179
             if(SimFile(l:l+1).eq.'  ') exit
           end do
@@ -1090,30 +1084,30 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if (SimFile(l-11:l-5).ne.'swsteer') go to 350
           do i=1,iwave1
             do j=1,nestin2
-              READ(SpecUnit,*,err=410,end=410) icc
-              READ(SpecUnit,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
+              READ(24,*,err=410,end=410) icc
+              READ(24,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
             end do
           end do
 
-          read(SpecUnit,*,err=334,end=334) icc
-          backspace(SpecUnit)
+          read(24,*,err=334,end=334) icc
+          backspace(24)
           go to 335
 334       continue
-          rewind(SpecUnit)
-          read(SpecUnit,*) nff,mdd
-          read(SpecUnit,*) (cc,nn=1,nff)
+          rewind(24)
+          read(24,*) nff,mdd
+          read(24,*) (cc,nn=1,nff)
           iwave1=0
 335       continue
 
-          open(unit=Wave1Unit,file='wave1.dat',status='unknown')
-          write(Wave1Unit,*) iwave1+1
+          open(unit=25,file='wave1.dat',status='unknown')
+          write(25,*) iwave1+1
           write(*,*) ' '
           write(*,*) ' *** Please check Cycle Number ***'
           write(*,*) '     You are in Cycle',iwave1+1
           write(*,*) '     Check Cycle Number is correct not!!'
           write(*,*) ' *** Modify wave1.dat for correct cycle?'
           write(*,*) ' '
-          close(Wave1Unit)
+          close(25)
         end if
 350     continue
       end if
@@ -1125,9 +1119,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       else
         inquire(file='nest.dat',exist=getfile5)
         if(getfile5) then
-          !If nesting enabled and 'nest.dat' exists, close old EngInFile and use 'nest.dat' instead
-          close(EngInUnit)
-          open(unit=EngInUnit,file='nest.dat',status='old')
+          close(8)
+          open(unit=8,file='nest.dat',status='old')
           write(*,*) ' '
           write(*,*) ' *** nest.dat FILE FOUND ***'
           write(*,*) '     Read new nested spectral input file'
@@ -1137,9 +1130,9 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         inest1=0
         inquire(file='nest1.dat',exist=getfile6)
         if(getfile6) then
-          open(unit=Nest1Unit,file='nest1.dat',status='old')
-          read(Nest1Unit,*) inest1
-          close(Nest1Unit)
+          open(unit=7,file='nest1.dat',status='old')
+          read(7,*) inest1
+          close(7)
           do l=1,179
             if(SimFile(l:l+1).eq.'  ') exit
           end do
@@ -1151,18 +1144,18 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         end if
 
         if(getfile5) then
-          open(unit=Nest1Unit,file='nest1.dat',status='unknown')
-          write(Nest1Unit,*) inest1+1
+          open(unit=7,file='nest1.dat',status='unknown')
+          write(7,*) inest1+1
           write(*,*) ' '
           write(*,*) ' *** Please check Cycle Number ***'
           write(*,*) '     You are in Cycle',inest1+1
           write(*,*) '     Check Cycle Number is correct not!!'
           write(*,*) ' *** Modify nest1.dat for correct cycle?'
           write(*,*) ' '
-          close(Nest1Unit)
+          close(7)
         end if
 
-        read(EngInUnit,*) NFF,MDD,NESTIN1,azimnest
+        read(8,*) NFF,MDD,NESTIN1,azimnest
 
         if(azimuth.ge.330..and.abs(azimnest).le.10.) then
           azimnest=azimnest+360.
@@ -1186,15 +1179,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       
       allocate( ffcn(npf),dsfd(npf,mpd) )
 
-      READ(EngInUnit,*) (FFCN(NN),NN=1,NFF)
+      READ(8,*) (FFCN(NN),NN=1,NFF)
 
       if(kout.ge.1.and.ixmdf.ne.2) then
         if(iarkr.eq.0) then
-          write (EngOutUnit, *) nff, mdd
+          write (10, *) nff, mdd
         else
-          write (EngOutUnit, *) nff, mdd*2
+          write (10, *) nff, mdd*2
         end if
-        write (EngOutUnit, 9015) (ffcn(k), k = 1, nff)
+        write (10, 9015) (ffcn(k), k = 1, nff)
 9015    format (5(E15.7))
       end if
 
@@ -1203,37 +1196,37 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(noptset.eq.3 .and. nsteer.eq.1 .and. .not.coldstart)then !Alex
         n=int(ctime/dtsteer)
         write(*,*)
-        write(dgunit,*) 
+        write(9,*) 
         write(*,*) 'Skipping ',n,' spectra'        
-        write(dgunit,*) 'Skipping ',n,' spectra'
+        write(9,*) 'Skipping ',n,' spectra'
 
         if(ibnd.eq.0) then
           do i=1,n
-            read(EngInUnit,*,end=410) eDate,ws,wd,fp,Tide
+            read(8,*,end=410) eDate,ws,wd,fp,Tide
             idate = int(mod(edate,100000.))
             kdate = int(edate/100000.)
             if(edate.lt.99999999.) then
               kdate=0
               idate=int(edate)
             end if
-            read(EngInUnit,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
+            read(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
           enddo
         else
           if(getfile5) then
             do i=1,n
               do j=1,nestin
-                read(EngInUnit,'(a150)',err=1333,end=1333) test
-                !READ(EngInUnit,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)   NF was zero.  MEB 05/04/2022
-                READ(EngInUnit,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
+                read(8,'(a150)',err=1333,end=1333) test
+                !READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)   NF was zero.  MEB 05/04/2022
+                READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           else
             do i=1,n
               do j=1,nestin1   !was 'nestin' which returned zero.
-                read(EngInUnit,'(a150)',err=1333,end=1333) test  !skip over edate, ws, wd, fp, Tide
-                read(EngInUnit,*)                                !skip over 3 values
-                !READ(EngInUnit,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)             NF was zero.  MEB 05/04/2022
-                READ(EngInUnit,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
+                read(8,'(a150)',err=1333,end=1333) test  !skip over edate, ws, wd, fp, Tide
+                read(8,*)                                !skip over 3 values
+                !READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)             NF was zero.  MEB 05/04/2022
+                READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NFF)
               end do
             end do
           end if
@@ -1245,21 +1238,21 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
           write(*,*) ' '
           if(keepi2.lt.0) keepi2=0
-          rewind(EngInUnit)
-          READ(EngInUnit,*)
-          READ(EngInUnit,*) (FFCN(NN),NN=1,NFF)
+          rewind(8)
+          READ(8,*)
+          READ(8,*) (FFCN(NN),NN=1,NFF)
           do i=1,keepi2
             do j=1,nestin
-              read(EngInUnit,'(a150)',err=1333,end=1333) test
-              READ(EngInUnit,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              read(8,'(a150)',err=1333,end=1333) test
+              READ(8,*,err=1333,end=1333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
             end do
           end do
 
 1343      continue
           if(getfile5) then
-            read(EngInUnit,'(a150)',err=1333,end=1333) text
+            read(8,'(a150)',err=1333,end=1333) text
           else
-            read(EngInUnit,'(a150)',end=420) text
+            read(8,'(a150)',end=420) text
           end if
           hs13(1)=0.
           read(text,*,end=1421,err=1421) eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
@@ -1277,18 +1270,18 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           if(getfile18) then
             do i=1,n
               do j=1,nestin2
-                READ(SpecUnit,*,err=410,end=410) icc
-                READ(SpecUnit,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
+                READ(24,*,err=410,end=410) icc
+                READ(24,*,err=410,end=410) ((cc,MM=1,MDD),NN=1,NFF)
               end do
             end do
 
-            read(SpecUnit,*,err=1334,end=1334) icc
-            backspace(SpecUnit)
+            read(24,*,err=1334,end=1334) icc
+            backspace(24)
             go to 1335
 1334        continue
-            rewind(SpecUnit)
-            read(SpecUnit,*) nff,mdd
-            read(SpecUnit,*) (cc,nn=1,nff)
+            rewind(24)
+            read(24,*) nff,mdd
+            read(24,*) (cc,nn=1,nff)
 1335        continue
           end if
         endif
@@ -1296,8 +1289,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
       inst=0
       if(nest.ge.1) then
-        write (NestUnit, *) nff, mdd, nest, azimuth
-        write (NestUnit, 9015) (ffcn(k), k = 1, nff)
+        write (13, *) nff, mdd, nest, azimuth
+        write (13, 9015) (ffcn(k), k = 1, nff)
         if(iview.ge.1) then
           dummy=azimuth+180.
           if(dummy.ge.360.) dummy=dummy-360.
@@ -1308,22 +1301,22 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             end do
             if(l.lt.14) l=14
             if (SimFile(l-13:l-5).eq.'\1swsteer') then
-              open(WavSpcUnit,file='wav.spc',status='unknown')
-              write (WavSpcUnit, *) nff, mdd, nest, dummy
-              write (WavSpcUnit, 9015) (ffcn(k), k = 1, nff)
+              open(30,file='wav.spc',status='unknown')
+              write (30, *) nff, mdd, nest, dummy
+              write (30, 9015) (ffcn(k), k = 1, nff)
             else
               if(SimFile(l-11:l-5).ne.'swsteer') then
-                open(WavSpcUnit,file='wav.spc',status='unknown')
-                write (WavSpcUnit, *) nff, mdd, nest, dummy
-                write (WavSpcUnit, 9015) (ffcn(k), k = 1, nff)
+                open(30,file='wav.spc',status='unknown')
+                write (30, *) nff, mdd, nest, dummy
+                write (30, 9015) (ffcn(k), k = 1, nff)
               else
-                open(WavSpcUnit,file='wav.spc',status='unknown',access='append')
+                open(30,file='wav.spc',status='unknown',access='append')
               end if
             end if
           else
-            open(WavSpcUnit,file='wav.spc',status='unknown')
-            write (WavSpcUnit, *) nff, mdd, nest, dummy
-            write (WavSpcUnit, 9015) (ffcn(k), k = 1, nff)
+            open(30,file='wav.spc',status='unknown')
+            write (30, *) nff, mdd, nest, dummy
+            write (30, 9015) (ffcn(k), k = 1, nff)
           end if
         end if
         do l=1,179
@@ -1332,15 +1325,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(l.lt.14) l=14
         if(SimFile(l-13:l-5).eq.'\1swsteer') then
           inst=1
-          open(NstDatUnit,file='nst.dat',status='unknown')
-          write (NstDatUnit, *) nff, mdd, nest, azimuth
-          write (NstDatUnit, 9015) (ffcn(k), k = 1, nff)
-          close(NstDatUnit)
+          open(14,file='nst.dat',status='unknown')
+          write (14, *) nff, mdd, nest, azimuth
+          write (14, 9015) (ffcn(k), k = 1, nff)
+          close(14)
         endif
         inquire(file='nst.dat',exist=getfile9)
         if(getfile9) then
           inst=1
-          open(NstDatUnit,file='nst.dat',status='unknown',access='append')
+          open(14,file='nst.dat',status='unknown',access='append')
         end if
       end if
 
@@ -1375,25 +1368,25 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' *** ShipFile Found ***'
         write(*,*) ' '
         igetfile20=1
-        open(unit=ShipUnit,file=ShipFile,status='old')
-        read(ShipUnit,*) nship
+        open(unit=39,file=ShipFile,status='old')
+        read(39,*) nship
         allocate( ShipL(nship),ShipB(nship),ShipD(nship),ShipS(nship) )   !Added by Wu, Nov. 2024
         if(nship.eq.0) then
-          close(ShipUnit)
+          close(39)
           call diag_print_error('Wrong Shiptrack file')
         end if
-        read(ShipUnit,*) (shipL(n),shipB(n),shipD(n),shipS(n),n=1,nship)
+        read(39,*) (shipL(n),shipB(n),shipD(n),shipS(n),n=1,nship)
       end if
 
       if(iprpp.eq.1.or.iprpp.eq.-2) then
         if(iwind.ge.1) then
           iwind=0
-          close(WindUnit)
+          close(27)
         end if
       end if
       if(iwnd.eq.1) then
         iwind=0
-        close(WindUnit)
+        close(27)
       end if
 
       iwbk=iwvbk
@@ -1470,15 +1463,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       cgp=0.0
       wdd=0.0
       fsp=0.0
-      if(irs>=1) then       !Radiation stress arrays only allocated when irs>=1, MEB
-        sxx=0.0
-        syy=0.0
-        sxy=0.0
-        sxxx=0.0
-        sxyx=0.0
-        sxyy=0.0
-        syyy=0.0
-      endif
+      sxx=0.0
+      syy=0.0
+      sxy=0.0
+      sxxx=0.0
+      sxyx=0.0
+      sxyy=0.0
+      syyy=0.0
       amud=0.0
       diss=0.0
       dsfd=0.0
@@ -1503,26 +1494,22 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iplane.le.1) then
         u1 =0.0
         v1 =0.0
-        if(iwind>=1) then    !Wind arrays only allocated when iwind>=1, MEB
-          u10=0.0
-          v10=0.0
-        endif
+        u10=0.0
+        v10=0.0
         sw13=0.0
         sa13=0.0
         tw13=0.0
         ta13=0.0
         dw13=0.0
         da13=0.0
-        if(irs>=1) then      !Radiation stress arrays only allocated when irs>=1, MEB
-          wxrs=0.0
-          wyrs=0.0
-        endif
+        wxrs=0.0
+        wyrs=0.0
       end if
 
       write(*,*) ' '
       print *, 'inside time loop, itms = ', itms
       write(*,*) ' '
-      if(noptset.eq.3) write(dgunit,*) 'inside time loop, itms = ', itms
+      if(noptset.eq.3) write(9,*) 'inside time loop, itms = ', itms
       
       nf=nff
       md=mdd
@@ -1533,7 +1520,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(wd.lt.0.) wd=wd+360.
         wd=wd-180.
         if(iwave.eq.1) then
-          read(SpecUnit,'(a150)',end=424) text
+          read(24,'(a150)',end=424) text
           READ(text,*,err=423,end=424) JDATE,ws1,wd1,fp1,Tide1,xc(1),yc(1),hs13(1)
           if(abs(hs13(1)).gt.900.) hs13(1)=0.
 423       continue
@@ -1574,19 +1561,19 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(noptset.ne.3)then
         if(itms.ge.2) then
           if(getfile4) then !Alex
-            read(SurgeUnit,'(a150)',end=219,err=219) text
+            read(21,'(a150)',end=219,err=219) text
             READ(text,*) ieta_date
-            open (DepUnit,file=DepFile,status='old')
-            read (DepUnit,*)
+            open (15,file=DepFile,status='old')
+            read (15,*)
             do j=nj,1,-1
-              read (DepUnit,*) (dep0(i,j),i=1,ni)
-              read (SurgeUnit,*,end=219,err=219) (eta(i,j),i=1,ni)
+              read (15,*) (dep0(i,j),i=1,ni)
+              read (21,*,end=219,err=219) (eta(i,j),i=1,ni)
               do i=1,ni
                 if(dep0(i,j).lt.-20.) dep0(i,j)=-20.
                 if(iwet.eq.1.and.dep0(i,j).lt..01) dep0(i,j)=-10.
               end do
             end do
-            close(DepUnit)
+            close(15)
 
             do i=1,ni
               do j=2,nj-1
@@ -1626,7 +1613,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       endif
 
       if(ibnd.eq.0) then
-        READ(EngInUnit,*,end=420) eDate,ws,wd,fp,Tide
+        READ(8,*,end=420) eDate,ws,wd,fp,Tide
         idate = int(mod(edate,100000.))
         kdate = int(edate/100000.)
         if(edate.lt.99999999.) then
@@ -1637,15 +1624,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if(getfile5) then
           do i=1,inest1
             do j=1,nestin
-              read(EngInUnit,'(a150)',err=333,end=333) test
-              READ(EngInUnit,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              read(8,'(a150)',err=333,end=333) test
+              READ(8,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
             end do
           end do
         else
           do i=1,inest1
             do j=1,nestin
-              read(EngInUnit,*)
-              READ(EngInUnit,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+              read(8,*)
+              READ(8,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
             end do
           end do
         end if
@@ -1657,21 +1644,21 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' *** Reset Input Spectrum to No.', keepi2+1
         write(*,*) ' '
         if(keepi2.lt.0) keepi2=0
-        rewind(EngInUnit)
-        READ(EngInUnit,*)
-        READ(EngInUnit,*) (FFCN(NN),NN=1,NFF)
+        rewind(8)
+        READ(8,*)
+        READ(8,*) (FFCN(NN),NN=1,NFF)
         do i=1,keepi2
           do j=1,nestin
-            read(EngInUnit,'(a150)',err=333,end=333) test
-            READ(EngInUnit,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
+            read(8,'(a150)',err=333,end=333) test
+            READ(8,*,err=333,end=333) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
           end do
         end do
 
 343     continue
         if(getfile5) then
-          read(EngInUnit,'(a150)',err=333,end=333) text
+          read(8,'(a150)',err=333,end=333) text
         else
-          read(EngInUnit,'(a150)',end=420) text
+          read(8,'(a150)',end=420) text
         end if
         hs13(1)=0.
         read(text,*,end=421,err=421) eDate,ws,wd,fp,Tide,xc(1),yc(1),hs13(1)
@@ -1711,7 +1698,6 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 424   continue
       iengspc=8
       if(iplane.eq.2) iengspc=24
-      
       READ(iengspc,*,end=410) ((DSFD(NN,MM),MM=1,MDD),NN=1,NF)
 
       DTH = 180./float(MDD+1)
@@ -2088,7 +2074,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iplane.eq.2) go to 426
 
       write(*,*) 'Original 4*sqrt(E) :',hs0,'m'
-      if(noptset.eq.3) write(dgunit,*) 'Original 4*sqrt(E) :',hs0,'m'
+      if(noptset.eq.3) write(9,*) 'Original 4*sqrt(E) :',hs0,'m'
       write(*,*) 'isteer,iidate =',isteer,iidate
       hs1=hs0
 
@@ -2381,26 +2367,26 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       write(*,*) ' '
       if(ibf.eq.0) goto 402
       if(getfile8) then
-        open(unit=FricUnit,file=FricFile,status='old')
-        read(FricUnit,*) kbi,kbj
+        open(unit=28,file=FricFile,status='old')
+        read(28,*) kbi,kbj
           if(imod.eq.0) then
             do j=nj,1,-1
-              read(FricUnit,*,err=401,end=401) (bfric(i,j),i=1,ni)
+              read(28,*,err=401,end=401) (bfric(i,j),i=1,ni)
             enddo
           elseif(imod.eq.2) then
             do j=1,nj
-              read(FricUnit,*,err=401,end=401) (bfric(i,j),i=ni,1,-1)
+              read(28,*,err=401,end=401) (bfric(i,j),i=ni,1,-1)
             enddo
           elseif(imod.eq.1) then
             do i=ni,1,-1
-              read(FricUnit,*,err=401,end=401) (bfric(i,j),j=nj,1,-1)
+              read(28,*,err=401,end=401) (bfric(i,j),j=nj,1,-1)
             enddo
           else
             do i=1,ni
-              read(FricUnit,*,err=401,end=401) (bfric(i,j),j=1,nj)
+              read(28,*,err=401,end=401) (bfric(i,j),j=1,nj)
             enddo
           end if
-        close(FricUnit)
+        close(28)
         go to 400
       else
         go to 402
@@ -2434,26 +2420,26 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       
 ! Mud
       if(getfile7.and.imud.le.0) then
-        open(unit=MudUnit,file=MudFile,status='old')
-        read(MudUnit,*) kbi,kbj
+        open(unit=29,file=MudFile,status='old')
+        read(29,*) kbi,kbj
         if(imod.eq.0) then
           do j=nj,1,-1
-            read(MudUnit,*) (amud(i,j),i=1,ni)
+            read(29,*) (amud(i,j),i=1,ni)
           enddo
         elseif(imod.eq.2) then
           do j=1,nj
-            read(MudUnit,*) (amud(i,j),i=ni,1,-1)
+            read(29,*) (amud(i,j),i=ni,1,-1)
           enddo
         elseif(imod.eq.1) then
           do i=ni,1,-1
-            read(MudUnit,*) (amud(i,j),j=nj,1,-1)
+            read(29,*) (amud(i,j),j=nj,1,-1)
           enddo
         else
           do i=1,ni
-            read(MudUnit,*) (amud(i,j),j=1,nj)
+            read(29,*) (amud(i,j),j=1,nj)
           enddo
         end if
-        close(MudUnit)
+        close(29)
       end if
       
 !Currents
@@ -2461,8 +2447,8 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         if (icur .ge. 1) then
           if(iplane.eq.2) go to 428
           if(itms.eq.1.or.icur.ge.2) then
-            open (CurrUnit, file = CurrFile, status = 'old')
-            read(CurrUnit,*) nic, njc
+            open (16, file = CurrFile, status = 'old')
+            read(16,*) nic, njc
           end if
           if(imod.eq.0.or.imod.eq.2) then
             if ((nic .ne. ni) .or. (njc .ne. nj)) call diag_print_error('Current field size does not match depth grid size')
@@ -2471,28 +2457,28 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
           endif
           
           ! read constant current field
-          read(CurrUnit,'(a150)') text
+          read(16,'(a150)') text
           READ(text,*) icur_date
           write(*,*) 'Current Index =',icur_date
           write(*,*) ' '
           if(imod.eq.0) then
             do j = nj, 1, -1
-              read (CurrUnit, *) (u1(i, j), v1(i, j), i = 1, ni)
+              read (16, *) (u1(i, j), v1(i, j), i = 1, ni)
             enddo
           end if
           if(imod.eq.2) then
             do j = 1, nj
-              read (CurrUnit, *) (u1(i, j), v1(i, j), i = ni, 1, -1)
+              read (16, *) (u1(i, j), v1(i, j), i = ni, 1, -1)
             enddo
           end if
           if(imod.eq.1) then
             do i = ni, 1, -1
-              read (CurrUnit, *) (v1(i, j), u1(i, j), j = nj, 1, -1)
+              read (16, *) (v1(i, j), u1(i, j), j = nj, 1, -1)
             enddo
           end if
           if(imod.eq.3) then
             do i = 1, ni
-              read (CurrUnit, *) (v1(i, j), u1(i, j), j = 1, nj)
+              read (16, *) (v1(i, j), u1(i, j), j = 1, nj)
             enddo
           end if
 
@@ -2501,15 +2487,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
             v1=v1*1.2
           end if
 
-          read(CurrUnit,'(a150)',end=161,err=165) text
+          read(16,'(a150)',end=161,err=165) text
           READ(text,*) icur_date
           go to 162
 165       call diag_print_error('Current Input Index Error')
-161       close(CurrUnit)
+161       close(16)
           icur=3
           go to 163
 162       continue
-          backspace(unit=CurrUnit)
+          backspace(unit=16)
 163       continue
 
 428       continue
@@ -2593,33 +2579,33 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       if(iwind.ge.1) then
         if(iplane.eq.2) go to 429
         do k=1,iwind1
-          read(WindUnit,'(a150)',err=258,end=258) text
+          read(27,'(a150)',err=258,end=258) text
           READ(text,*,err=258,end=258) iwind_date
           go to 259
 258       continue
-          rewind(unit=WindUnit)
-          read(WindUnit,'(a150)') text1
-          read(WindUnit,'(a150)') text
+          rewind(unit=27)
+          read(27,'(a150)') text1
+          read(27,'(a150)') text
           READ(text,*) iwind_date
 259       continue
           write(*,*) 'Wind Index =',iwind_date
           if(mod(imod,2).eq.0) then
             do j=1,nj
-              read(WindUnit,*) (u10(i,j),v10(i,j), i=1,ni)
+              read(27,*) (u10(i,j),v10(i,j), i=1,ni)
             end do
           else
             do i=1,ni
-              read(WindUnit,*) (u10(i,j),v10(i,j), j=1,nj)
+              read(27,*) (u10(i,j),v10(i,j), j=1,nj)
             end do
           end if
         end do
-        read(WindUnit,'(a150)',err=268,end=268) text
+        read(27,'(a150)',err=268,end=268) text
         READ(text,*,err=268,end=268) iwind_date
         go to 269
 268     continue
-        rewind(unit=WindUnit)
-        read(WindUnit,'(a150)') text1
-        read(WindUnit,'(a150)') text
+        rewind(unit=27)
+        read(27,'(a150)') text1
+        read(27,'(a150)') text
         READ(text,*) iwind_date
 269     continue
         write(*,*) 'Wind Index =',iwind_date
@@ -2627,23 +2613,23 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
 
         if(imod.eq.0) then
           do j = nj, 1, -1
-            read (WindUnit, *) (u10(i, j), v10(i, j), i = 1, ni)
+            read (27, *) (u10(i, j), v10(i, j), i = 1, ni)
           enddo
         end if
 
         if(imod.eq.2) then
           do j = 1, nj
-            read (WindUnit, *) (u10(i, j), v10(i, j), i = ni, 1, -1)
+            read (27, *) (u10(i, j), v10(i, j), i = ni, 1, -1)
           enddo
         end if
         if(imod.eq.1) then
           do i = ni, 1, -1
-            read (WindUnit, *) (v10(i, j), u10(i, j), j = nj, 1, -1)
+            read (27, *) (v10(i, j), u10(i, j), j = nj, 1, -1)
           enddo
         end if
         if(imod.eq.3) then
           do i = 1, ni
-            read (WindUnit, *) (v10(i, j), u10(i, j), j = 1, nj)
+            read (27, *) (v10(i, j), u10(i, j), j = 1, nj)
           enddo
         end if
 429     continue
@@ -2871,13 +2857,13 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
         write(*,*) ' *** block.dat FILE FOUND ***'
         write(*,*) '     Read block cell file'
         write(*,*) ' '
-        open(unit=BlockUnit,file='block.dat',status='old')
-        read(BlockUnit,*) kblock
+        open(unit=19,file='block.dat',status='old')
+        read(19,*) kblock
         do k=1,kblock
-          read(BlockUnit,*) iblock,jblock
+          read(19,*) iblock,jblock
           if(iblock.ne.1) d1(iblock,jblock)=0.
         ENDDO
-        close(BlockUnit)
+        close(19)
       end if
 
       do i=1,ni
@@ -2917,15 +2903,15 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       enddo
 
       if(nblock.eq.1) then
-        open(unit=BlockUnit,file='block.dat',status='old')
-        read(BlockUnit,*) kblock
+        open(unit=19,file='block.dat',status='old')
+        read(19,*) kblock
         do k=1,kblock
-          read(BlockUnit,*) iblock,jblock
+          read(19,*) iblock,jblock
           ijb(iblock,jblock)=-1
           if(ijb(iblock,jblock+1).eq.4) ijb(iblock,jblock+1)=2
           if(ijb(iblock,jblock-1).eq.5) ijb(iblock,jblock-1)=2
         enddo
-        close(BlockUnit)
+        close(19)
       end if
 
       ikap=1
@@ -3091,10 +3077,10 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       write(*,*) 'Peak Index=',ibig,fp,fcn(ibig)
       
       if(noptset.eq.3 .and. nsteer.eq.1)then
-        write(dgunit,*) 'Total frequency bin =',nf
-        write(dgunit,*) 'exist frequency bin =',(fcn(nn),nn=1,nf)
-        write(dgunit,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
-        write(dgunit,*) 'Peak Index=',ibig,fp,fcn(ibig)
+        write(9,*) 'Total frequency bin =',nf
+        write(9,*) 'exist frequency bin =',(fcn(nn),nn=1,nf)
+        write(9,*) 'Normalized 1-D spec =',(fsp(nn)/big,nn=1,nf)
+        write(9,*) 'Peak Index=',ibig,fp,fcn(ibig)
       endif        
 
 	  if(fp.eq.0.) fp=fcn(ibig)
@@ -3539,7 +3525,6 @@ contains
       use diag_def,  only: msg
       use diag_lib,  only: diag_print_error
       use const_def, only: READWRITE
-      use file_def,  only: XMDFUnit
       implicit none       !Added by Wu 2025_Jan
       
       integer ibeg,iend,iinc,jbeg,jend,jinc,NIJ
@@ -3687,8 +3672,8 @@ contains
       IF (ITMS==1) THEN
         INQUIRE(FILE=XMDFFile,EXIST=FOUND)
         IF (FOUND) THEN
-          OPEN(XMDFUnit,FILE=XMDFFile)
-          CLOSE(XMDFUnit,STATUS='DELETE',ERR=956)
+          OPEN(1000,FILE=XMDFFile)
+          CLOSE(1000,STATUS='DELETE',ERR=956)
         ENDIF
       ENDIF
 
@@ -3899,7 +3884,6 @@ contains
       use wave_def, only: NF,MD,JGMX,HS0,PRD,IBND,DX,DY,DXX,DMESH,WCC,HSB,HSG,DCD,  &
                           DVARX,SI,SIMAX,SJJ,DSFD,DMNJ,SLF,imd,cflat
       implicit none       !Added by Wu 2025_Jan
-      
       integer :: MM,NN,JJ,mmdcd,m1
       real(ikind) ::  dcdmm,c1
       
@@ -3985,7 +3969,6 @@ contains
 !-------------------------------------------------------
       use prec_def     
       use global_inline, only: ipmx,igpx,jgpx
-      use diag_def, only: dgunit
       use wave_lib, only: wave_Hmax
       use wave_def, only: island,imd,imod,hpai,pai,rad,nf,md,imax,jmax,igmx,jgmx
       use wave_def, only: ick3,ick4,hs0,wd,ws,aslop  
@@ -4004,7 +3987,6 @@ contains
       use wave_def, only: istruc4,jstruc4,dstruc4,kstruc4,k4 
       use wave_def, only: sw13,sa13,tw13,ta13,dw13,da13,iplane,cflat     
       implicit none       !Added by Wu 2025_Jan
-      
       integer ikap
       integer i,j,k,l,leap,mm,mm1,nn,kkpeak,ipeak,i1,iii,jop,nn13
       integer j1,m2,n1,n2,ic,ic1,ic2,i3,nbig,jk,jc,ni2,inv
@@ -4017,8 +3999,8 @@ contains
       real(ikind) alpha,deplow,dd,cc0,deg,pd,wskeep
 !
       INTEGER, ALLOCATABLE :: KRC(:),JR(:)
-      REAL(ikind), ALLOCATABLE :: RKK(:),angl(:),hsgg(:),ijbp(:,:)
-      REAL(ikind), ALLOCATABLE :: h13a(:),h13b(:),dd11(:)
+      REAL(ikind), ALLOCATABLE :: RKK(:),angl(:),hsgg(:),ijbp(:,:),   &
+                           h13a(:),h13b(:),dd11(:)
       INTEGER II,JJ,KK,iddd
 !
 !-----------------------------------------------------
@@ -4396,7 +4378,7 @@ contains
 
         write(*,9999) iii
  9999   format ('Column ', i0)
-        if(mod(iii,10).eq.0) write(dgunit,9999) iii
+        if(mod(iii,10).eq.0) write(9,9999) iii
 !
         j1=jgmx/2
         ss=sj(1)
@@ -4729,10 +4711,10 @@ contains
       if(h13add.gt..5) h13ave=h13ave/h13add
       if(iplane.le.1) then
         write(*,9020) h13ave
-        if(mod(iii,10).eq.0) write(dgunit,9020) h13ave
+        if(mod(iii,10).eq.0) write(9,9020) h13ave
       else
         write(*,9021) h13ave
-        if(mod(iii,10).eq.0) write(dgunit,9021) h13ave
+        if(mod(iii,10).eq.0) write(9,9021) h13ave
       end if
 
       i3=iii+1
@@ -5307,7 +5289,7 @@ contains
 
       DO 220 JJ=1,JGMX
       cc=(D1(II,JJ)**2-H13(II,JJ)**2)/cflat**2
-
+!
       if(cc.lt.0.) cc=0.
       if(SJ(JJ).GT.cc) THEN
          if(sj(jj).gt.1.e-15) then
@@ -5328,13 +5310,13 @@ contains
 !
         SJ(JJ)=cc
       end if
-
+!
       SS=SJ(JJ)
-
+!
       IF(SS.LT.1.0E-15) GOTO 220
       H13R(INV,JJ)=cflat*SQRT(SS)
       T13R(INV,JJ)=1./FJF(JJ)
-
+!
       sumx=0.
       sumy=0.
       do 5077 mm=imd,md
@@ -5346,7 +5328,7 @@ contains
       sumy=sumy+scp(jj,mm)*sina(mm)
  5077 continue
       DEG=atan2(sumy,sumx)/rad
-
+!
       PD=180.0
       IF(DEG.LT.0) PD=-180.0
       DMNR(INV,JJ)=PD-DEG
@@ -5354,6 +5336,7 @@ contains
 !
       do 233 k=1,kout
       if(IJSP(1,k).eq.inv) then
+!
          jop=ijsp(2,k)
          do mm=imd,md
          mm1=md+mm-imd+1
@@ -5361,11 +5344,12 @@ contains
          sop(k,nn,mm1)=si(jop,nn,mm)/df(nn)/dth
          end do
          end do
+!
       end if
   233 continue
-
+!
       if(irs.ge.1) call sxycalc_inline(inv)
-
+!
       IF(II.GE.IGMX) GOTO 250
       II=II+1
       GOTO 150
@@ -5375,7 +5359,7 @@ contains
       IBACK=0
 !
       ws=wskeep
-
+!
       do ii=1,ni2
         inv=imax-ii
         cc=dvarx(inv)
@@ -5407,7 +5391,6 @@ contains
       use wave_def, only: akap,imd,isolv,NF,MD,MDD,JGMX,ICHOICE,ws,IBACK
       use wave_def, only: FCN,DCM,IJB,SCP,SI,SJ,DF,sgma0,sgma1,d1       !Dynamic allocation by Wu, 2025-Jan     
       implicit none
-      
       integer II,IKAP
       integer IFC,k,JCP,JJ,JJB,JB,JE,MM,JJSI,large,md1,md4
       integer NMX,JBE,mb,me,MARK
@@ -5780,10 +5763,9 @@ contains
 !   wave breaking dissipation are also calculated
 !---------------------------------------------------
       use prec_def     
-      use wave_def, only: md,ICK3,ICK4,TP,DVARX,DVARY,dcm,pai2,imd,depmax0     !Dynamic allocation by Wu, 2025-Jan
-      use wave_def, only: ijb,dep,d1,cwk,cgk,DEPM,DMNJ,SLF,wlmn,cmn,sigm,u,v,u1,v1,t13     
+      use wave_def, only: md,ICK3,ICK4,TP,DVARX,DVARY,dcm,pai2,imd,depmax0,  &     !Dynamic allocation by Wu, 2025-Jan
+                      ijb,dep,d1,cwk,cgk,DEPM,DMNJ,SLF,wlmn,cmn,sigm,u,v,u1,v1,t13     
       implicit none           !Added by Wu 2025_Jan
-      
       integer ii,jb,je,i1,mm,jj,jjb,jje,jj1,jjb1
       real(ikind) fc,g,om,cw,cg,sig,akk
       real(ikind) dep11,u11,v11,dep12,u12,v12,dep21,u21,v21,dep22,u22,v22
@@ -5972,14 +5954,13 @@ contains
       SUBROUTINE SETAB_inline(II,JB,JE,NMX,FC,DFC,IFC,IKAP)
 !  akap= coefficient of diffraction term
       use prec_def     
-      use wave_def, only: PAI2,PAI,HPAI,RAD,akap,iprp,igrav,imd,nonln,imud
-      use wave_def, only: NF,MD,MDD,ICK3,ICHOICE,HS0,wd,ws,ph0,wdd
-      use wave_def, only: TP,IBACK,IWIND,WSMAG,DTH,DXX,depmax0,HSG
-      use wave_def, only: DVARX,DVARY,IJB,DEP,DBIG,CWK,CGK,SCP,SI 
-      use wave_def, only: AA,IA,B,DCM,IWVBK,d1,u,v, u1,v1, u10,v10
-      use wave_def, only: cosa,sina,bfric,amud,ix1,H13,T13,g,iview         !Dynamic allocation by Wu 2025-Jan
+      use wave_def, only: PAI2,PAI,HPAI,RAD,akap,iprp,igrav,imd,nonln,imud,   &
+                          NF,MD,MDD,ICK3,ICHOICE,HS0,wd,ws,ph0,wdd,      &
+                          TP,IBACK,IWIND,WSMAG,DTH,DXX,depmax0,HSG,      &
+                          DVARX,DVARY,IJB,DEP,DBIG,CWK,CGK,SCP,SI,       &
+                          AA,IA,B,DCM,IWVBK,d1,u,v, u1,v1, u10,v10,      &
+                          cosa,sina,bfric,amud,ix1,H13,T13,g,iview         !Dynamic allocation by Wu 2025-Jan
       implicit none           !Added by Wu 2025_Jan
-      
       integer II,JB,JE,NMX,IFC,IKAP,JMESH,NN,M,N,jgrav,jm,JJ
       integer nln,JBV,J1,II1,JBM,JJM,KK,na2,na3
       real(ikind) FC,DFC,g2,om,om2,om4,om8,om5,om2g,om35,wss,winp1,deca1
@@ -6499,90 +6480,78 @@ contains
       RETURN
 	 END SUBROUTINE SETAB_inline
 
-!------------------------------------------------
-!  Reused probability function in several of the Wave breaking functions.
-!------------------------------------------------
-pure real(ikind) function prob_term(X)
-!------------------------------------------------
-  use prec_def, only: ikind
-  real(ikind), intent(in) :: X
-  real(ikind)             :: PX
-  if (X > 25.0) then
-    prob_term = 0.0
-  else
-    PX = 0.7853982 * X
-    prob_term = (1.0 + PX) / exp(PX)
-  end if
-end function prob_term
 
 !------------------------------------------------
 !  subroutine to obtain wave breaking energy dissipation term
 !------------------------------------------------
       SUBROUTINE WVBRK2_inline(CAB,JBV,II,JM,JJ,om)
 !---------------------------------------------------------------
-!  Energy dissipation term: Battjes and Janssen (1978) bore model.
-!  Breaker parameter based on Miche's criterion (gamma = 0.73 default).
-!  Parameters are calculated in subroutine veloc.
-!  Rewritten with Claude - 5/28/2026
+!  energy dissipation term is Battjes and Janssen's(1978)
+!    bore model with a breaker parameter based on Miche's criterion of
+!    gama=0.73
+!  parameters used in this subroutine are calculated 
+!    in subroutine veloc
 !---------------------------------------------------------------
       use prec_def     
-  USE global_inline, ONLY: gamma_bj78
-  use wave_def, only: IBK, HSB, DEPM, SLF, wlmn, sigm, PAI2
-  implicit none
+      USE global_inline, ONLY: gamma_bj78                    !added MEB 10/19/2021
+      use wave_def, only: IBK,HSB,DEPM,SLF,wlmn,sigm,PAI2    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,om,slj,gama,alfabj,H13,hrms,dep,wnk,sig,hmax,B,Q0,Qb,B2,EQ0,Dab    
 
-  integer,     intent(in)  :: JBV, II, JM, JJ
-  real(ikind), intent(out) :: CAB
-  real(ikind), intent(in)  :: om
-  real(ikind)              :: slj, gama, alfabj, H13, hrms, dep, &
-                              wnk, sig, hmax, B, Q0, Qb, B2, EQ0, Dab
+! --- ibk=1 and jbv>=6 means no wave breaking
+      IF(IBK.EQ.1) GOTO 10
+      IF(JBV.GE.6) GOTO 10
 
-  ! Default: no breaking
-  CAB = 0.0
-  slj = SLF(JM)
-
-  ! Skip if breaking disabled, JBV threshold exceeded, or slope out of range
-  if (IBK == 1 .or. JBV >= 6)  return
-  if (slj >= 0.04_ikind)       return
+	  slj=slf(jm)
+      if(slj.ge.0.04) go to 10
       
-  ! Breaker index: user-specified or Miche default
-  gama = merge(gamma_bj78, 0.73_ikind, gamma_bj78 /= -1.0_ikind)
+      if(gamma_bj78 .ne. -1) then
+        gama = gamma_bj78          !allow use of user-specified value if requested  MEB 10/19/2021
+      else
+        gama=0.73                  !otherwise use default value.
+      endif
     
-  alfabj = 0.707_ikind
+	  alfabj=0.707
       H13=HSB(JJ)
-  hrms   = H13  / 1.414_ikind
-  dep    = DEPM(JM)
-  wnk    = PAI2 / wlmn(JM)
-  sig    = sigm(JM)
+	  hrms=h13/1.414
+	  dep=depm(jm)
+	  wnk=pai2/wlmn(jm)
+	  sig=sigm(jm)
+	
       hmax=gama*dep 
 
-  if (wnk < 0.0_ikind) return
+	  if(wnk.lt.0.0) goto 10
 
-  ! Wave height ratio
-  B = merge(hrms / hmax, 0.0_ikind, hmax > 0.0_ikind .and. hrms > 0.0_ikind)
-
-  ! Initial breaking fraction Q0
-  if (B <= 0.5_ikind) then
-    Q0 = 0.0_ikind
-  else if (B < 1.0_ikind) then
-    Q0 = (2.0_ikind * B - 1.0_ikind)**2
+	  if(hmax.gt.0.0.and.hrms.gt.0.0) then
+	    B=hrms/hmax
 	  else
-    Q0 = 1.0_ikind
-  end if
-  
-  ! Breaking fraction Qb via implicit approximation
-  if (B <= 0.2_ikind) then
-    Qb = 0.0_ikind
-  else if (B < 1.0_ikind) then
+	    B=0.0
+	  endif
+	  if(B.le.0.5) then
+	    Q0=0.0
+	  elseif(B.lt.1.0) then
+	    Q0=(2.0*B-1.0)**2
+	  endif
+	  if(B.le.0.2) then
+	    Qb=0.0
+      elseif(B.lt.1.0) then
 	    B2=B*B
-    EQ0 = exp((Q0 - 1.0_ikind) / B2)
+	    EQ0=exp((Q0-1.0)/B2)
 	    Qb=Q0-B2*(Q0-EQ0)/(B2-EQ0)
 	  else
-    Qb = 1.0_ikind
-  end if
+	    Qb=1.0
+	  endif
 
-  Dab = 0.04_ikind * alfabj * Qb * sig * hmax**2
-  CAB = 8.0_ikind  * Dab / sig / hrms**2 * om
+	  Dab=0.04*alfabj*Qb*sig*hmax**2
+	  cab=8.0*dab/sig/hrms**2*om
+	  goto 20
+ 
+   10 CAB=0.0
 
+20	  continue
+	  
+      RETURN
 	  END SUBROUTINE WVBRK2_inline
 
 
@@ -6591,486 +6560,442 @@ end function prob_term
 !------------------------------------------------
       SUBROUTINE WVBRK4_inline(CAB,JBV,II,JM,JJ)
 !---------------------------------------------------------------
-!  Energy dissipation term: Battjes and Janssen (2007)
-!  also based on Alsina and Baldock (2007).
-!  Rewritten with Claude - 5/28/2026
+!  energy dissipation term is Battjes and Janssen's(2007)
+!    also based on Alsina and Baldock (2007)
 !---------------------------------------------------------------
       use prec_def     
       USE GLOBAL_inline, ONLY: JGPX
-  use wave_def, only: IBK, HSB, DEPM, wlmn, sigm, PAI2, IBR
-  implicit none
-      
-  integer,     intent(in)  :: JBV, II, JM, JJ
-  real(ikind), intent(out) :: CAB
-  real(ikind)              :: wnk, y, Hmax, fp, Hrms, R, Qb, Db
-  integer                  :: i, j, j2, ijbr
-  real(ikind)              :: erf_inline   ! external pure function                
+      use wave_def, only: IBK,HSB,DEPM,wlmn,sigm,PAI2,IBR    !Dynamic allocation by Wu, 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ,i,j,j2,ijbr
+      real(ikind) CAB,wnk,y2,y,Hmax,fp,Hrms,R,Qb,Db
+      real(ikind) :: erf_inline          !Function                       
          
-  ! Default: no breaking
-  CAB = 0.0
+      cab=0.0
     
-  ! Skip if breaking disabled or JBV threshold exceeded
-  if (IBK == 1 .or. JBV >= 6) return
+! --- ibk=1 and jbv>=6 means no wave breaking
+      if(IBK.EQ.1.or.JBV.GE.6) return
 		
-  wnk  = PAI2 / wlmn(JM)
-  i    = max(II  - 1, 1)
-  j    = max(JJ  - 1, 1)
-  j2   = min(JJ  + 1, JGPX)
-  ijbr = IBR(i, JJ) + IBR(i, j) + IBR(i, j2)
+      wnk=pai2/wlmn(jm)
+	
+      i=max(ii-1,1)
+      j=max(jj-1,1)
+      j2=min(jj+1,JGPX)
+      ijbr=ibr(i,jj)+ibr(i,j)+ibr(i,j2)
 
-  ! Breaking index gamma: Grasmeijer formulation
-  y    = max(0.64_ikind, 0.76_ikind * wnk * DEPM(JM) + 0.29_ikind)
+      y2=0.76*wnk*depm(jm)+0.29  !Grasmeijer
+      y=max(0.64,y2) 
 
-  ! Maximum wave height (depth-limited)
-  Hmax = max(0.88_ikind / wnk * tanh(y * wnk * DEPM(JM) / 0.88_ikind), &
-             0.64_ikind * DEPM(JM))
-  
-  ! Skip if sea state is below breaking threshold (random waves, Alex)
-  if (HSB(JJ) <= 0.72_ikind * Hmax .and. ijbr == 0) return
+      !Hmax=0.88/wnk*tanh(y*wnk*d/0.88)       
+      Hmax=0.88/wnk*tanh(y*wnk*depm(jm)/0.88)      !Changed by Wu, 2025-Jan 
+      Hmax=max(Hmax,0.64*depm(jm))
+      if(Hsb(jj).le.0.72*Hmax.and.ijbr.eq.0) return  !Alex, for random waves
 
-  fp   = sigm(JM) / PAI2            ! frequency (Hz)
-  Hrms = HSB(JJ)  / 1.414_ikind
+      fp=sigm(jm)/pai2 !Frequency, Hz
+      Hrms=Hsb(jj)/1.414
 
       R=Hmax/Hrms
-  Qb  = 1.0_ikind + 0.7523_ikind * (R**3 + 1.5_ikind * R) / exp(R**2) &
-        - erf_inline(R)
-  Db  = -2.60127_ikind * fp / DEPM(JM) * Qb * Hrms**3
+      Qb=1.0+0.7523*(R**3+1.5*R)/exp(R**2)-erf_inline(R)
+      Db=-2.60127*fp/depm(jm)*Qb*Hrms**3
+      cab=-0.8154944*Db/Hrms**2      !Dissipation coefficient, 0.8154944=8.0/9.8
 
-  ! Dissipation coefficient; 0.8154944 = 8/9.8
-  CAB = -0.8154944_ikind * Db / Hrms**2
-
+      RETURN
 	  END SUBROUTINE WVBRK4_inline
 	
 
-!---------------------------------------------------------------
-pure real(ikind) function erf_inline(x)
-!---------------------------------------------------------------
-!  Error function approximation via Taylor series.
-!  Used in wave breaking formulation of Alsina and Baldock (2007).
-!  Rewritten with Claude - 5/28/2026
-!---------------------------------------------------------------
-  use prec_def
-  implicit none
+!*****************************************     
+      real function erf_inline(x)
+!Calculates the error function
+!used in wave breaking formulation of Alsina and Baldock (2007)
+!*****************************************
+      tol=0.0001
+      fac = 1.1284*x
+      eps = tol/fac
 
-  real(ikind), intent(in) :: x
-  real(ikind), parameter  :: TOL = 1.0e-4_ikind
-  real(ikind), parameter  :: TWO_OVER_SQRTPI = 1.1284195_ikind
-  real(ikind)             :: fac, eps, E, S
-  integer                 :: k  
-
-  ! Large-argument shortcut
-  if (x >= 3.0_ikind) then
-    erf_inline = 1.0_ikind
+      if (x.gt.3.0) then
+        erf_inline = 1.0
         return	
-  end if
-
-  fac = TWO_OVER_SQRTPI * x
-  eps = TOL / fac
-  
-  E = 1.0_ikind
-  S = 1.0_ikind
+      endif
+      E=1.0
+      S=1.0
       do k=1,40
-    E = -(2.0_ikind * k - 1.0_ikind) * x**2 / &
-         ((2.0_ikind * k + 1.0_ikind) * k) * E
+        dk = dble(k)
+        E = -((2.0*dk-1.0)*x**2.0)/((2.0*dk+1.0)*k)*E
+        if (abs(E).le.eps) then
+          exit
+        endif
         S = S + E
-    if (abs(E) <= eps) exit
-  end do
-
-  erf_inline = min(fac * S, 1.0_ikind)
-
-END function erf_inline
-	
-
-!------------------------------------------------
-!  subroutine to obtain wave breaking energy dissipation term
-!------------------------------------------------
- SUBROUTINE WVBRK_inline(CAB,JBV,II,JM,JJ,um,vm,fc)
-!---------------------------------------------------------------
-!  Energy dissipation term: extended Goda breaker index (Sakai et al.)
-!  with current effects. Rayleigh distribution assumed for wave height.
-!  Parameters are calculated in subroutine veloc.
-!  Rewritten with Claude - 5/28/2026
-!---------------------------------------------------------------
-  use prec_def     
-  USE GLOBAL_inline, ONLY: A
-  use wave_def, only: TP, DXX, IBK, WL0, HSB, DEPM, SLF, cmn, PAI
-  implicit none
-
-  integer,     intent(in)  :: JBV, II, JM, JJ
-  real(ikind), intent(out) :: CAB
-  real(ikind), intent(in)  :: um, vm, fc
-  real(ikind)              :: ced, slj, ALF, g, qstar, ed, SL43, TANB, &
-                              EXD, HB, DLHB, H13, X1, X2, PR1, PR2
-  real(ikind)              :: prob_term
-
-  ! Default: no breaking
-  CAB = 0.0
-
-  ! Skip if slope is out of valid range
-  slj = SLF(JM)
-  if (slj <= 0.0 .or. slj >= 0.04) return
-
-  ! Skip if breaking is disabled or JBV threshold exceeded
-  if (IBK == 1 .or. JBV >= 6)      return
-
-  ALF=1.6
-  g=9.806
-  
-  ! Current-effect correction factor
-  ced = 1.0
-  if (um < 0.0) then
-    qstar=sqrt(um**2+vm**2)/g**2/TP**3
-    ed    = qstar * slj**0.25 * WL0
-    if (ed <= 0.0005) then
-      ced=1.0
-    else if (ed >= 0.0024) then
-      ced=0.506
-    else
-      ced=1.13-260.0*ed
-    end if
-  end if
-      
-  ! Breaker height and gradient
-  SL43 = slj**1.333333
-  TANB = 1.0+15.0*SL43
-  EXD  = exp(-4.712389 * DEPM(JM) * TANB / WL0)
-  HB   = A*WL0*(1.0-EXD)*ced               
-  DLHB = A * 0.75 * PAI * DXX * TANB * slj * EXD * ced
-  H13  = HSB(JJ)
-  X1   = (ALF*(HB+DLHB)/H13)**2
-  X2   = (ALF*(HB-DLHB)/H13)**2
-
-  PR1 = prob_term(X1)
-  PR2 = prob_term(X2)
-        
-  if (PR1 /= 1.0 .and. DXX /= 0.0) then
-    CAB = (PR2-PR1)*CMN(JM) / ((1.0-PR1)*DXX)
-  end if
-
-END SUBROUTINE WVBRK_inline
-	
-
-!------------------------------------------------
-!  subroutine to obtain wave breaking energy dissipation term
-!------------------------------------------------
-SUBROUTINE WVBRK3_inline(CAB,JBV,II,JM,JJ)
-!---------------------------------------------------------------
-!  Energy dissipation term: Chawla and Kirby (2002) breaker model
-!  Includes both current and depth-limited wave breaking following
-!  Thornton and Guza (1983).
-!  Parameters are calculated in subroutine veloc.
-!  Rewritten with Claude - 5/28/2026
-!---------------------------------------------------------------
-  use prec_def     
-  use wave_def, only: IBK, HSB, DEPM, SLF, wlmn, sigm, PAI2
-  implicit none
-
-  integer,     intent(in)  :: JBV, II, JM, JJ
-  real(ikind), intent(out) :: CAB
-  real(ikind)              :: slj, g, gama, beta, H13, hrms, dep, &
-                              wnk, sig, tkh, ab, dab1, dab2, dab3, dab
-
-  ! Default: no breaking
-  CAB = 0.0
-
-  ! Skip conditions: breaking disabled, JBV threshold, or slope out of range
-  if (IBK == 1)        return
-  if (JBV >= 6)        return
-
-  slj = SLF(JM)
-  if (slj >= 0.04)     return
-
-  g    = 9.806
-  gama = 0.6
-  beta = 0.4
-  H13  = HSB(JJ)
-  hrms = H13 / 1.414
-  dep  = DEPM(JM)
-  wnk  = PAI2 / wlmn(JM)
-  sig  = sigm(JM)
-
-  if (wnk < 0.0) return
-
-  tkh=wnk/tanh(wnk*dep)
-  ab=1.0+(tkh*hrms/gama)**2
-  dab1=1.0-1.0/ab**2.5
-  dab2=(tkh/gama)**2
-  dab3=sqrt(g*tkh)
-
-  ! TODO: verify whether a factor of g*wnk is missing from dab3
-  !       (see original comment: "dab3=sqrt(g*tkh)*g*wnk")
-
-  dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
-  CAB = 8.0 * dab / sig / hrms**2
-END SUBROUTINE WVBRK3_inline
-	
-
-!------------------------------------------------
-!  subroutine to obtain wave breaking energy dissipation term
-!------------------------------------------------
-SUBROUTINE WVBRK1_inline(CAB,JBV,II,JM,JJ,fc)
-!---------------------------------------------------------------
-!  energy dissipation term formulated using a modified
-!  Miche's breaker index to include current effects.
-!  Parameters used here are calculated in subroutine veloc.
-!  Rewritten with Claude - 5/28/2026
-!---------------------------------------------------------------
-  use prec_def     
-  use wave_def, only: DXX, IBK, HSB, DEPM, SLF, wlmn, cmn   
-  implicit none
-      
-  integer,      intent(in)  :: JBV, II, JM, JJ
-  real(ikind),  intent(out) :: CAB
-  real(ikind),  intent(in)  :: fc
-  real(ikind)               :: gmh, ALF, SLJ, gm, HB, DLHB, H13, &
-                               X1, X2, PX1, PR1, PX2, PR2 
-  real(ikind)               :: prob_term
-
-  ! Default: no breaking
-  CAB = 0.0
-      
-  ! Skip conditions: large wavenumber, breaking disabled, or JBV threshold
-! -- ibk=1 and jbv>=6 means no wave breaking
-  if (wlmn(JM) <= 0.0)   return
-  if (IBK == 1)          return
-  if (JBV >= 6)          return
-
-  ALF = 1.6
-  SLJ = SLF(JM)
-  
-  ! Skip if slope is out of valid range
-  if (SLJ <= 0.0 .or. SLJ >= 0.04) return
-  
-  ! Breaking index gamma based on slope
-  if (SLJ <= 0.1) then
-    gm = 0.8 + 5.0 * SLJ
-  else
-    gm = 1.3
-  end if  
-  
-  gmh  = min(7.14 * gm * DEPM(JM) / wlmn(JM), 10.0)
-  HB   = 0.14 * wlmn(JM) * tanh(gmh)
-  DLHB = 0.5 * SLJ * DXX * gm / cosh(gmh)**2
-  H13  = HSB(JJ)
-  X1   = (ALF*(HB+DLHB)/H13)**2
-  X2   = (ALF*(HB-DLHB)/H13)**2
-  
-  PR1 = prob_term(X1)
-  PR2 = prob_term(X2)
-
-  CAB = (PR2 - PR1) / (1.0 - PR1) * CMN(JM) / DXX
-  
-END subroutine WVBRK1_inline
-
-
-!------------------------------------------------
-!  Find reflection coefficient, called by SETAB
-!  Rewritten with Claude - 5/28/2026
-!------------------------------------------------
-real FUNCTION CKR_inline(II,JJ)
-  use wave_def, only: KRMX, KR, RK
-  implicit none
-
-  integer, intent(in) :: II, JJ
-  integer              :: K
-
-  CKR_inline = 0.0
-  do K = 1, KRMX
-    if (KR(1,K) == II .and. KR(2,K) == JJ) then
-      CKR_inline = RK(K)
-      return
-    end if
-  end do
+      enddo
+      erf_inline = fac*S
+      if (erf_inline.gt.1.0) erf_inline = 1.0
 	  
-END FUNCTION CKR_inline
-
-
-!---------------------------------------------------------------
-!  Find structure angle, called by SETAB.
-!  Rewritten with Claude - 5/28/2026
-!---------------------------------------------------------------
-pure real function aKR_inline(II, JJ)
-  use wave_def, only: KRMX, KR, yangl
-  implicit none
-
-  integer, intent(in) :: II, JJ
-  integer             :: K
-
-  aKR_inline = 0.0
-  do K = 1, KRMX
-    if (KR(1,K) == II .and. KR(2,K) == JJ) then
-      aKR_inline = yangl(K)	  
       return
-    end if
-  end do
-
-END function aKR_inline
-
-
-SUBROUTINE GSM_inline(II,JB,JE,NMX,MARK)
-!---------------------------------------------------------------
-!  Matrix solution by Gauss-Seidel iteration.
-!---------------------------------------------------------------
-  use prec_def     
-  USE GLOBAL_INLINE, ONLY: MPMX
-  use wave_def, only: MD, ws, DMESH, SCP, AA, IA, B, X, imd
-  implicit none
-  
-  integer,     intent(in)    :: II, JB, JE, NMX
-  integer,     intent(inout) :: MARK
-  integer                    :: LIM, JUDG, I, ICC, IP, K, J, M, MX
-  real(ikind)                :: DLTA, ws1000, XXMAX, CA, XX, ABXX, &
-                                XLIM, XMAX, S, VAA, PPX, PX
-  real(ikind), allocatable   :: x0(:)
-
-  ! --- Iteration parameters (tighter for fine grids)
-  if (DMESH <= 0.5_ikind) then
-    LIM  = 10000
-    DLTA = 1.0e-6_ikind
-  else
-      LIM=1000
-    DLTA = 1.0e-3_ikind
-      end if
-  ws1000 = ws * 1000.0_ikind
-
-  allocate(x0(MPMX))  
-  
-  ! --- Initial guess: x(i) = b(i) / a(i,i), or zero if diagonal is tiny
-  JUDG  = 0
-  XXMAX = 0.0_ikind
-  do I = 1, NMX
-    CA = AA(1,I)
-    if (abs(CA) >= 1.0e-4_ikind) then
-      XX = B(I)/CA
-    else
-      XX = 0.0_ikind
-    end if
-    if (XX > 1.0e-20_ikind) JUDG = 1
-    X(I)  = XX
-    x0(I) = XX
-    ABXX  = abs(XX)
-    if (XXMAX < ABXX) XXMAX = ABXX
-  end do
-  
-  if (JUDG == 0) then
-    call store_gsr_solution(JB, JE, MX)
-    deallocate(x0)
-    return
-  end if
-  
-  XLIM = XXMAX / 1000.0_ikind
-  ICC  = 0
-  
-  ! --- Gauss-Seidel iteration loop
-  iteration: do
-    ICC  = ICC + 1
-    XMAX = 0.0_ikind
-
-    rows: do I = 1, NMX
-      if (abs(AA(1,I)) < 1.0e-4_ikind) cycle rows
-
-        IP=0
-      S  = 0.0_ikind
-
-      cols: do J = 1, 5
-        VAA = AA(J,I)
-        if (abs(VAA) < 1.0e-4_ikind) cycle cols
-        K = IA(J,I)
-
-        if (J == 1) then
-          ! Diagonal entry
-          if (I /= K) then
-            MARK = 1
-            write(*,*) 'GSM TYPE 1:', II
-            deallocate(x0)
-            return
-          end if
-          CA = VAA
-          IP = 1
-        else
-          ! Off-diagonal entry
-          if (I == K) cycle cols
-          if (K > 0 .and. X(K) > 1.0e-18_ikind) then
-            if (abs(S) > 100.0_ikind) S = 0.0_ikind
-            S = S + VAA * X(K)
-          end if
-        end if
-      end do cols
-
-      if (IP == 0) then
-        MARK = 1
-        write(*,*) 'GSM TYPE 1:', II
-        deallocate(x0)
-        return
-      end if
-
-      PX   = X(I)
-      XX   = (B(I)-S)/CA
-      X(I) = XX
-      if (abs(PX) >= XLIM) then
-        PPX  = abs((XX - PX) / PX)
-        if (XMAX < PPX) XMAX = PPX
-      end if
-    end do rows
-
-    if (ICC > LIM) then
-      MARK = 2
-      write(*,*) 'GSM TYPE 2:', II, ICC, XMAX
-      deallocate(x0)
-      return
-    end if
-
-    if (XMAX <= DLTA) exit iteration
-  end do iteration
-  
-  call store_gsr_solution(JB, JE, MX)
-  deallocate(x0)
-
-  END SUBROUTINE GSM_inline
+	  end function erf_inline
 	
-!-------------------------------------------------
-! This store_gsr_solution routine used in two different GSM routines.
-!-------------------------------------------------
-SUBROUTINE store_gsr_solution(JB, JE, MX)
-  use prec_def
-  use wave_def, only: MD, SCP, X, imd
-  implicit none
 
-  integer, intent(in)  :: JB, JE
-  integer, intent(out) :: MX
-  integer              :: J, M
+!------------------------------------------------
+!  subroutine to obtain wave breaking energy dissipation term
+!------------------------------------------------
+      SUBROUTINE WVBRK_inline(CAB,JBV,II,JM,JJ,um,vm,fc)
+!---------------------------------------------------------------
+!  energy dissipation term is the extended (by Sakai et al.)
+!    Goda's breaker index in order to include current effects
+!    the Rayleigh distribution assumption for wave height is used
+!  parameters used in this subroutine are calculated 
+!    in subroutine veloc
+!---------------------------------------------------------------
+      use prec_def     
+      USE GLOBAL_inline, ONLY: A
+      use wave_def, only: TP,DXX,IBK,WL0,HSB,DEPM,SLF,cmn,PAI    !!Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,um,vm,fc,ced,slj,ALF,g,qstar,ed,SL43,TANB,EXD,HB
+      real(ikind) DLHB,H13,X1,X2,PR1,PX1,PR2,PX2
 
-  MX = 0
-  do J = JB, JE
-    do M = imd, MD
-      MX = MX+1
-      if (X(MX) > 5000.0_ikind) X(MX) = 0.0_ikind
-        SCP(J,M) = X(MX)
-    end do
-  end do
+! -- ibk=1 and jbv>=6 means no wave breaking
+      ced=1.0
+      slj=slf(jm)
 
-END SUBROUTINE store_gsr_solution
-  
-!-------------------------------------------------
-! This store_adi_solution routine used in within ADI routines.
-!-------------------------------------------------
-SUBROUTINE store_adi_solution(JB, JE, F)
-  use prec_def
-  use wave_def, only: MD, SCP, imd
-  implicit none
+      if(slj .ge. 0.04 .or. slj .le. 0.00) then
+        CAB = 0.0
+      else
+        ALF=1.6
+        g=9.806
+        if(um.lt.0.) then
+          qstar=sqrt(um**2+vm**2)/g**2/TP**3
+          ed=qstar*slj**.25*WL0
+	      if (ed.lt.0.0005) then
+            ced=1.0
+          elseif(ed.gt.0.0024) then
+            ced=0.506
+	      else
+            ced=1.13-260.0*ed
+          endif
+        else
+          ced=1.0
+        endif
+      
+        !Rewriting this section to eliminate all these GOTO statements  MEB  04/06/2022                                 
+        !   IF(IBK.EQ.1) GOTO 10
+        !   IF(JBV.GE.6) GOTO 10
+        !
+        !   SL43 = SLJ**1.333333
+        !   TANB = 1.0+15.0*SL43
+        !   EXD = EXP(-4.712389*DEPM(JM)*TANB/WL0)
+        !   HB = A*WL0*(1.0-EXD)*ced               
+        !   DLHB = A*0.75*PAI*DXX*TANB*SLJ*EXD*ced
+        !   H13 = HSB(JJ)
+        !   X1 = (ALF*(HB+DLHB)/H13)**2
+        !   X2 = (ALF*(HB-DLHB)/H13)**2
+        !   IF(X1.GT.25.) GOTO 30
+        !   PX1=.7853982*X1
+        !   PR1=(1.0+PX1)/EXP(PX1)
+        !   GOTO 40
+        !30 PR1=0.0
+        !40 IF(X2.GT.25.) GOTO 50
+        !   PX2=.7853982*X2
+        !   PR2=(1.0+PX2)/EXP(PX2)
+        !   GOTO 60
+        !50 PR2=0.0
+        !60 CAB=(PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
+        !   GOTO 20
+        !10 CAB=0.0
+        !20 continue
+      
+        if(IBK .EQ. 1 .or. JBV .GE. 6) then
+          CAB = 0.0
+        else
+          SL43 = SLJ**1.333333
+          TANB = 1.0+15.0*SL43
+          EXD  = EXP(-4.712389*DEPM(JM)*TANB/WL0)
+          HB   = A*WL0*(1.0-EXD)*ced               
+          DLHB = A*0.75*PAI*DXX*TANB*SLJ*EXD*ced
+          H13  = HSB(JJ)
+          X1   = (ALF*(HB+DLHB)/H13)**2
+          X2   = (ALF*(HB-DLHB)/H13)**2
+          if (X1 .GT. 25.0) then
+            PR1 = 0.0
+          else
+            PX1 = 0.7853982*X1
+            PR1 = (1.0+PX1)/EXP(PX1)
+          endif
+          if (X2 .GT. 25.0) then
+            PR2 = 0.0
+          else
+            PX2 = 0.7853982*X2
+            PR2 = (1.0+PX2)/EXP(PX2)
+          endif
+        
+          if ((PR1 .ne. 1.0) .and. (DXX .ne. 0.0)) then
+            CAB = (PR2-PR1)*CMN(JM) / ((1.0-PR1)*DXX)
+          else
+            CAB = 0.0
+          endif
+        endif
+      endif
 
-  integer,     intent(in)    :: JB, JE
-  real(ikind), intent(inout) :: F(0:,0:)
-  integer                    :: J, M
+      RETURN
+      END SUBROUTINE WVBRK_inline
+	
 
-  do M = imd, MD
-    do J = JB, JE
-      if (F(J,M) > 5000.0_ikind) F(J,M) = 0.0_ikind
-      SCP(J,M) = F(J,M)
-    end do
-  end do
+!------------------------------------------------
+!  subroutine to obtain wave breaking energy dissipation term
+!------------------------------------------------
+      SUBROUTINE WVBRK3_inline(CAB,JBV,II,JM,JJ)
+!---------------------------------------------------------------
+!  energy dissipation term is Chawla and Kirby (2002)
+!    breaker model in order to include both current and depth limited
+!    wave breaking
+!    following Thornton and Guza's approach (1983)
+!  parameters used in this subroutine are calculated in subroutine velo!  
+!---------------------------------------------------------------
+      use prec_def     
+      use wave_def, only: IBK,HSB,DEPM,SLF,wlmn,sigm,PAI2      !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,slj,g,gama,beta,H13,hrms,dep,wnk,sig,tkh,ab,dab1,dab2,dab3,dab      
 
-END SUBROUTINE store_adi_solution
+! -- ibk=1 and jbv>=6 means no wave breaking
+      IF(IBK.EQ.1) GOTO 10
+      IF(JBV.GE.6) GOTO 10
+
+	  slj=slf(jm)
+      if(slj.ge.0.04) go to 10
+      g=9.806
+      gama=0.6
+      beta=0.4
+      H13=HSB(JJ)
+	  hrms=h13/1.414
+	  dep=depm(jm)
+	  wnk=pai2/wlmn(jm)
+	  sig=sigm(jm)
+
+	  if(wnk.lt.0.0) goto 10
+
+	  tkh=wnk/tanh(wnk*dep)
+	  ab=1.0+(tkh*hrms/gama)**2
+	  dab1=1.0-1.0/ab**2.5
+	  dab2=(tkh/gama)**2
+	  dab3=sqrt(g*tkh)
+
+	  !     dab3=sqrt(g*tkh)*g*wnk
+      ! --- is it g*wnk missing in the equation?
+	  dab=0.0529*beta*wnk*dab3*dab2*dab1*hrms**5
+	  cab=8.0*dab/sig/hrms**2
+	  goto 20
+ 
+   10 CAB=0.0
+
+20    continue
+      
+      RETURN
+      END SUBROUTINE WVBRK3_inline
+	
+
+!------------------------------------------------
+!  subroutine to obtain wave breaking energy dissipation term
+!------------------------------------------------
+      SUBROUTINE WVBRK1_inline(CAB,JBV,II,JM,JJ,fc)
+!---------------------------------------------------------------
+!  energy dissipation term is formulated by using a modified
+!    Miche's breaker index in order to include current effects
+!  parameters used in this subroutine are calculated 
+!    in subroutine veloc
+!---------------------------------------------------------------
+      use prec_def     
+      use wave_def, only: DXX,IBK,HSB,DEPM,SLF,wlmn,cmn    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer JBV,II,JM,JJ
+      real(ikind) CAB,fc,gmh,ALF,SLJ,gm,HB,DLHB,H13,X1,X2,PX1,PR1,PX2,PR2    
+
+! -- skip of large wavenumber
+      if(wlmn(jm).le.0.0) go to 10
+! -- skip of large wavenumber
+
+! -- ibk=1 and jbv>=6 means no wave breaking
+      IF(IBK.EQ.1) GOTO 10
+      IF(JBV.GE.6) GOTO 10
+
+      gmh=5.
+      ALF=1.6
+      SLJ=SLF(JM)
+      IF(SLJ.LE.0) GOTO 10
+      if(slj.ge.0.04) go to 10
+      if(slj.le.0.1) gm=0.8+5.0*slj
+      if(slj.gt.0.1) gm=1.3
+      gmh=min(7.14*gm*depm(jm)/wlmn(jm),10.)
+      HB=0.14*wlmn(jm)*tanh(gmh)
+      DLHB=0.5*slj*dxx*gm/cosh(gmh)**2
+      H13=HSB(JJ)
+      X1=(ALF*(HB+DLHB)/H13)**2
+      X2=(ALF*(HB-DLHB)/H13)**2
+      IF(X1.GT.25.) GOTO 30
+      PX1=.7853982*X1
+      PR1=(1.0+PX1)/EXP(PX1)
+      GOTO 40
+   30 PR1=0.0
+   40 IF(X2.GT.25.) GOTO 50
+      PX2=.7853982*X2
+      PR2=(1.0+PX2)/EXP(PX2)
+      GOTO 60
+   50 PR2=0.0
+   60 CAB=(PR2-PR1)/(1.0-PR1)*CMN(JM)/DXX
+      GOTO 20
+
+   10 CAB=0.0
+
+20	  continue
+	  
+      RETURN
+      END subroutine WVBRK1_inline
+
+
+!------------------------------------------------
+!  FINDING REFLECTION COEFF.
+!------------------------------------------------
+      real FUNCTION CKR_inline(II,JJ)
+!  ****   FINDING REFLECTION COEFF. CALLED BY SETAB
+      use wave_def, only: KRMX,KR,RK      !Dynamic allocation by Wu, 2024-11
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JJ,K
+	  
+      K=1
+   20 IF(KR(1,K).EQ.II) GOTO 10
+   40 K=K+1
+      IF(K.LE.KRMX) GOTO 20
+      CKR_inline=0
+      GOTO 30
+   10 IF(KR(2,K).NE.JJ) GOTO 40
+      CKR_inline=RK(K)
+	  
+   30 RETURN
+      END FUNCTION CKR_inline
+
+
+!------------------------------------------------
+!  FINDING structure angle
+!------------------------------------------------
+      real FUNCTION aKR_inline(II,JJ)
+!  ****   FINDING structure angle CALLED BY SETAB
+      use wave_def, only: KRMX,KR,yangl    !Dynamic allocation by Wu, 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JJ,K
+	  
+      K=1
+   20 IF(KR(1,K).EQ.II) GOTO 10
+   40 K=K+1
+      IF(K.LE.KRMX) GOTO 20
+      aKR_inline=0
+      GOTO 30
+   10 IF(KR(2,K).NE.JJ) GOTO 40
+      aKR_inline=yangl(K)
+	  
+   30 RETURN
+      END FUNCTION aKR_inline
+
+
+!------------------------------------------------
+!  CALCULATION OF Matrix BY GAUSS-SEIDEL METHOD
+!------------------------------------------------
+      SUBROUTINE GSM_inline(II,JB,JE,NMX,MARK)
+      use prec_def     
+      USE GLOBAL_INLINE, ONLY: MPMX
+      use wave_def, only: MD,ws,DMESH,SCP,AA,IA,B,X,imd    !Dynamic allocation by Wu 2025-Jan
+      implicit none           !Added by Wu 2025_Jan
+      integer II,JB,JE,MX,NMX,MARK
+      integer LIM,JUDG,I,ICC,IP,K,J,M
+      real(ikind) DLTA,ws1000,XXMAX,CA,XX,ABXX,XLIM,XMAX,S,VAA,PPX,PX
+
+      REAL(ikind),ALLOCATABLE :: x0(:)
+      ALLOCATE (x0(mpmx))
+
+      LIM=1000
+      DLTA=0.001
+      if(dmesh.le..5) then
+        LIM=10000
+        DLTA=.000001
+      end if
+      ws1000=ws*1000.
+
+      JUDG=0
+      XXMAX=0
+      DO 20 I=1,NMX
+        CA=AA(1,I)
+        IF(ABS(CA).LT.1.0E-4) GOTO 21
+        XX=B(I)/CA
+        GOTO 22
+   21   XX=0
+   22   IF(XX.GT.1.0E-20) JUDG=1
+        X(I)=XX
+        x0(i)=xx
+        ABXX=ABS(XX)
+        IF(XXMAX.LT.ABXX) XXMAX=ABXX
+   20 CONTINUE
+      IF(JUDG.EQ.0) GOTO 11
+      XLIM=XXMAX/1000.0
+      ICC=0
+   70 ICC=ICC+1
+      XMAX=0.0
+      DO 10 I=1,NMX
+        IF(ABS(AA(1,I)).LT.1.0E-4) GOTO 10
+        IP=0
+        S=0.
+        DO 30 J=1,5
+          VAA=AA(J,I)
+          IF(ABS(VAA).LT.1.0E-4) GOTO 30
+          K=IA(J,I)
+          IF(J.EQ.1) GOTO 40
+          IF(I.EQ.K) GOTO 30
+          IF (K.GT.0) THEN
+            if(x(k).gt.1.0E-18) then
+              if(abs(s).gt.100.) s=0.
+              S=S+VAA*X(K)
+            endif
+          ENDIF
+          GOTO 30
+   40     IF(I.NE.K) THEN
+            MARK=1
+            GOTO 50
+          END IF
+          CA=VAA
+          IP=1
+   30   CONTINUE
+        IF(IP.EQ.0) THEN
+          MARK=1
+          GOTO 50
+        END IF
+        PX=X(I)
+        XX=(B(I)-S)/CA
+        X(I)=XX
+        IF(ABS(PX).LT.XLIM) GOTO 10
+        PPX=(XX-PX)/PX
+        PPX=ABS(PPX)
+        IF(XMAX.LT.PPX) XMAX=PPX
+   10 CONTINUE
+      IF(ICC.GT.LIM) THEN
+        MARK=2
+        GOTO 60
+      END IF
+      IF(XMAX.GT.DLTA) GOTO 70
+   11 MX=0
+      DO J=JB,JE   !80
+        DO M=imd,MD
+          MX=MX+1
+          if(x(mx) .gt. 5000.0) x(mx)=0.
+          SCP(J,M)=X(MX)
+        ENDDO
+      ENDDO
+   80 CONTINUE
+      GOTO 90
+   50 write(*,*) 'GSM TYPE 1:',II
+      go to 90
+   60 write(*,*) 'GSM TYPE 2:',II,ICC,XMAX
+!
+   90 DEALLOCATE (x0)
+   
+      RETURN
+      END subroutine GSM_inline
+	
 
 !-------------------------------------------------
 !  subroutine to output the results 
@@ -7092,8 +7017,7 @@ END SUBROUTINE store_adi_solution
                           istruc4,jstruc4,dstruc4,dstruc44,           &
                           sw13,sa13,tw13,ta13,dw13,da13,              &
                           x0,y0,azimuth,isteer,iidate,sinaz,cosaz,    &
-                          g,iview,iplane,irunup
-      use file_def, only: wavefile,DepFile
+                          DepFile,g,iview,iplane,irunup,wavefile
       USE GLOBAL_INLINE, ONLY: NPF,MPD2,IPMX,JPMX
       implicit none           !Added by Wu 2025_Jan
       
@@ -7418,7 +7342,7 @@ END SUBROUTINE store_adi_solution
         if(iplane.eq.1) go to 430
 
         if(ksim.eq.1) then
-          open(unit=25,file='wave.pts',status='unknown')
+          open(25,file='wave.pts',status='unknown')
           if(kdate.gt.0) then
             if(idate.le.9999) then
               idate1=mod(kdate,10)*100000+idate
@@ -8626,7 +8550,7 @@ END SUBROUTINE store_adi_solution
           do nn=1,nff
             WRITE(10,510) (sp1(nn,mm)*c1,mm=1,mddd)
           enddo
-  510     format(17(1x,pe10.3))  !changed from f8.3 by Ding for vegetation  5/15/26
+  510     format(17(1x,f8.3))
   138     continue
 
           ll=0
@@ -8718,16 +8642,17 @@ END SUBROUTINE store_adi_solution
       END SUBROUTINE OUTFILE_inline
 	
 
-SUBROUTINE STWfiles_inline
+SUBROUTINE STWfiles_inline(SimFile)
 !---------------------------------------------------------------
 !  Reads STWAVE/WABED/CMS-Wave data file names from the .sim file.
 !  Rewritten by Claude, 5/28/2026
 !---------------------------------------------------------------
   USE diag_lib, only: diag_print_error
   USE diag_def, only: msg
-  use wave_def, only: RAD, x0, y0, azimuth, sinaz, cosaz
-  use file_def
+  use wave_def
   implicit none
+  
+  character(len=*), intent(in) :: SimFile
       
   integer        :: ILOC
   logical        :: ExistFile
@@ -8924,7 +8849,6 @@ SUBROUTINE SetPath_inline(PATH,FNAME)
   FNAME = trim(adjustl(PATH)) // trim(adjustl(FNAME))
 
 END SUBROUTINE SetPath_inline
-
 
 !********************************************************************************
       subroutine dissip1_inline(i)
@@ -9390,27 +9314,23 @@ END SUBROUTINE SetPath_inline
       end subroutine rstress_inline
 	
 
-SUBROUTINE RUNNING_TIME_inline(TIME_BEGIN,TIME_END)
-!---------------------------------------------------------------
-!  Report elapsed CPU time in hours, minutes, and seconds.
-!  Rewritten by Claude, 05/28/2026
-!---------------------------------------------------------------
-  use prec_def     
-  implicit none
+!********************************************************************************
+      SUBROUTINE RUNNING_TIME_inline(TIME_BEGIN,TIME_END)
+      use prec_def     
+      REAL(ikind) TIME_BEGIN,TIME_END,RTIME
+      INTEGER HH,MM
+	  REAL(ikind) SS
 
-  real(ikind), intent(in) :: TIME_BEGIN, TIME_END
-  real(ikind)             :: RTIME, SS
-  integer                 :: HH, MM
+      RTIME=TIME_END-TIME_BEGIN
+      HH=RTIME/3600.
+      MM=(RTIME-HH*3600.)/60.
+      SS=RTIME-HH*3600-MM*60
 
-  RTIME = TIME_END-TIME_BEGIN
-  HH    = int(RTIME / 3600.0_ikind)
-  MM    = int((RTIME - HH * 3600.0_ikind) / 60.0_ikind)
-  SS    = RTIME - HH * 3600.0_ikind - MM * 60.0_ikind
-
-  write(*, '(A, I4, A, I2.2, A, F7.4, A)') &
-    ' CPU time: ', HH, 'h ', MM, 'm ', SS, 's'
-
-END SUBROUTINE RUNNING_TIME_inline
+      WRITE(*,200) HH,MM,SS
+ 200  FORMAT(' CPU-TIME=',1X,I4,'h',I2,'m',F10.7,'s')
+      
+      RETURN
+	  END SUBROUTINE RUNNING_TIME_inline
 	
 
 !------------------------------------------------
@@ -10017,19 +9937,15 @@ END SUBROUTINE RUNNING_TIME_inline
   
     integer, intent(in) :: ipmx,jpmx,igpx,jgpx
       
-    allocate( dep0(ipmx,jpmx) )
-    if(iark==2)  allocate( reflty(ipmx,jpmx) )  !Only needed for a spatial forward reflection coef. file, MEB
-    if(iarkr==2) allocate( refltx(ipmx,jpmx) )  !Only needed for a spatial backward reflection coef. file, MEB
+    allocate( dep0(ipmx,jpmx),refltx(ipmx,jpmx),reflty(ipmx,jpmx) )
     allocate( exx(igpx,jgpx),eyy(igpx,jgpx) )
-    allocate( dvarxx(ipmx),dvaryy(jpmx) )
+    allocate( dvarxx(ipmx),dvaryy(jpmx) )                        
     allocate( depin(ipmx,jpmx),etain(ipmx,jpmx) )
-    allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )
-    if(irs>=1) then         !Radiation stress arrays only needed when radiation stress output is enabled, MEB
-      allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
-      allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
-      allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
-      allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
-    endif
+    allocate( uin(ipmx,jpmx),vin(ipmx,jpmx) )    
+    allocate( sxx(ipmx,jpmx),sxy(ipmx,jpmx),syy(ipmx,jpmx) )
+    allocate( wxrs(ipmx,jpmx),wyrs(ipmx,jpmx) )
+    allocate( sxxx(ipmx,jpmx),sxyx(ipmx,jpmx) )
+    allocate( sxyy(ipmx,jpmx),syyy(ipmx,jpmx) )
     allocate( d1(ipmx,jpmx),cgp(ipmx,jpmx) )
     allocate( disx(ipmx),disy(jpmx) )
     allocate( sw13(igpx,jgpx),sa13(igpx,jgpx) )
@@ -10050,7 +9966,7 @@ END SUBROUTINE RUNNING_TIME_inline
     allocate( ix1(igpx),ix2(igpx) )
     allocate( u(ipmx,jpmx),v(ipmx,jpmx) )
     allocate( u1(ipmx,jpmx),v1(ipmx,jpmx) )
-    if(iwind>=1) allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )  !Wind arrays only needed when a wind file was found, MEB
+    allocate( u10(ipmx,jpmx),v10(ipmx,jpmx) )
     allocate( bfric(ipmx,jpmx),amud(ipmx,jpmx) )
     allocate( ex(ipmx,jpmx),ey(ipmx,jpmx) )      
 
