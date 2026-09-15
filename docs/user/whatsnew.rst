@@ -6,11 +6,13 @@ v5.4.8 (14 September 2026)
 
 Changes
 ^^^^^^^
-* Integrated changes from Wu (Clarkson BAA)
-** Implement sediment influx (Cohesive/Non-cohesive mixtures) on river boundary
-** A few OpenMP directive improvements
-** A few improvements for stability (relax(8) in flow.f90 amd other)
-** Eliminate oscillations in deep water when using Lund-CIRP formula
+* Integrated changes from implicit developer
+
+  * Implement sediment influx (Cohesive/Non-cohesive mixtures) on river boundary
+  * A few OpenMP directive improvements
+  * A few improvements for stability (relax(8) in flow.f90 amd other)
+  * Eliminate oscillations in deep water when using Lund-CIRP formula
+
 * Test each sediment percentile dataset when reading cards to ensure all non-negative values.
 * Added function to return specific messages based on XMDF error codes.
 * Fix a few issues reading cards with Explicit solution scheme
