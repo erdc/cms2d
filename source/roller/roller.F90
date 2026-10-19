@@ -86,6 +86,10 @@
       read(77,*) cardname,rol_courant   
       rol_courant = max(min(rol_courant,1.0),0.01)
       
+    case('ROLLER_MASS_FLUX','ROLLER_VOLUME_FLUX','ROLLER_FLUX_VELOCITY')
+      call card_boolean(77,rolflux,ierr)    
+      if(rolflux) roller = .true.
+      
     case default
       foundcard = .false.
           

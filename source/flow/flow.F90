@@ -415,10 +415,11 @@
          'STOKES_VELOCITIES','WAVE_VOLUME_FLUX','WAVE_TRANSPORT_VELOCITY')
       call card_boolean(77,waveflux,ierr)
         
-    case('ROLLER_MASS_FLUX','ROLLER_VOLUME_FLUX','ROLLER_FLUX_VELOCITY')
-      call card_boolean(77,rolflux,ierr)    
-      if(rolflux) roller = .true.
-      
+    !This case was missing from the Roller section, so I moved it from here to there. MEB  10/16/26
+    !case('ROLLER_MASS_FLUX','ROLLER_VOLUME_FLUX','ROLLER_FLUX_VELOCITY')
+    !  call card_boolean(77,rolflux,ierr)    
+    !  if(rolflux) roller = .true.
+    !  
     case('EXPLICIT_PRINT_INTERVAL')
       call card_scalar(77,'sec','sec',outinterval,ierr)
       continue

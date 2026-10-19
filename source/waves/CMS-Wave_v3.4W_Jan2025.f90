@@ -217,6 +217,7 @@ Subroutine CMS_Wave_inline !(noptset,nsteer)     !Wu
       iproc=1
       iview=0
       iroll=0
+      instruc = 0
       
 !Read parameters from OptsFile (.std)
       itxt=0
@@ -9917,6 +9918,8 @@ END SUBROUTINE SetPath_inline
         read(11,*) aCard
         if (aCard .eq. 'VERTICAL_PROJECTION_END') finished = .true.
       enddo
+    case('WV_WIND_ONLY')                           !CMS doesn't use this, but SMS uses it to set the right options in the interface in 13.4+
+      continue
         
     case default
       foundcard = .false.

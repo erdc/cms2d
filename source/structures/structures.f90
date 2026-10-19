@@ -269,7 +269,12 @@
     
     if (rmblock == 1 .and. nrubmoundcells > 0) then 
       do irm=1,nrubmoundcells
-        if(rubmoundporo(irm) == 0.0) call diag_print_error('Rubble Mound porosity can not be <= 0.0.') 
+        if(rubmoundporo(irm) == 0.0) then
+          call diag_print_error('Rubble Mound porosity can not be <= 0.0.') 
+        endif
+        if(rubmounddia(irm) == 0.0) then
+          call diag_print_error('Rubble Mound rock diameter can not be <= 0.0.') 
+        endif
         select case (methrubmoundab(irm))
         case (1)             !Sidiropoulou et al. (2007)
           rubmounda(irm)=0.00333*rubmounddia(irm)**(-1.5) *rubmoundporo(irm)**0.06         
@@ -280,6 +285,8 @@
         case (3)             !Ward (1964)
           rubmounda(irm)=360.0*viscos/grav/rubmounddia(irm)**2         
           rubmoundb(irm)=10.44/grav/rubmounddia(irm)
+        case default
+          call diag_print_error('Method for Rubble Mound is not set or set incorrectly')
         end select
       enddo
     endif

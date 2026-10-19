@@ -2864,6 +2864,7 @@ d1: do ii=1,30
     if (ninvwarn > 0) then   !If there are a bunch of these, the dataset is probably inverted from what it should be. 
       write(msg,97) ninvwarn
       write(msg2,98)
+      msg3 = ''
       if (ninvwarn < 250) write(msg3,101)     !Don't write if there is a huge number of cells
       
       call diag_print_warning(msg,msg2,msg3)
