@@ -2789,10 +2789,10 @@ d1: do ii=1,30
 !***********************************************************************   
 #include "CMS_cpp.h"
     use size_def, only: ncells,ncellsD
-    use geo_def
+    use geo_def,  only: zb, mapid
+    use struct_def, only: nrubmoundcells, idrubmound
     use comvarbl
     use sed_def
-    use tool_def,   only: rround
 #ifdef XMDF_IO
     use xmdf
     use in_xmdf_lib, only: readscalh5
@@ -2800,10 +2800,13 @@ d1: do ii=1,30
     use in_lib, only: readscalTxt
     use diag_lib
     use prec_def
-    
+
     implicit none
-    real    :: val, tmphardzb, tmpzb
-    integer :: i,ih,ierr,icount,roundval
+    logical, allocatable :: isrubmound(:)
+    real(ikind) :: val, hbelev
+    real(ikind), parameter :: hbtol = 0.001     !Tolerance for hard bottom vs. bed elevation, zb has 3 decimals at most
+    real(ikind), parameter :: invtol = 1.0e-6   !Tolerance for hard bottom value equal to bed elevation
+    integer :: i,ih,ierr,icount
     integer :: nhbwarn, ninvwarn
     integer, allocatable :: hbwarn(:), invwarn(:),idhardtemp(:)
     character(len=100) :: msg,msg2,msg3
@@ -2843,16 +2846,35 @@ d1: do ii=1,30
     invwarn  = 0
     nhbwarn  = 0
     hbwarn   = 0
-    roundval = 6
-    do I=1,ncells
-      tmphardzb = rround(hardzb(i),roundval)
-      tmpzb = rround(zb(i),roundval)
-      if (tmphardzb  == tmpzb) then
-        if (abs(tmpzb) .ne. 0.0) then   !Ignore if the depths are exactly 0.00
-          ninvwarn = ninvwarn + 1
-          invwarn(ninvwarn) = i          
-        endif
+
+    !struct_init sets zb at rubble mound cells to the structure base, so skip the above-bed warning there
+    allocate(isrubmound(ncellsD))
+    isrubmound = .false.
+    do i=1,nrubmoundcells
+      isrubmound(idrubmound(i)) = .true.
+    enddo
+
+    do i=1,ncells
+      if(abs(hardzb(i)+999.0) <= 1.0e-4) cycle   !Exactly -999.0 is the flag for no hard bottom (fully erodible)
+
+      nhard=nhard+1
+      idhardtemp(nhard)=i
+
+      !Dataset values are depths (positive down), convert to elevations (positive up).
+      !The hard bottom must be at or below the bed, i.e. hbelev <= zb or equivalently hard bottom depth >= bed depth.
+      hbelev = -hardzb(i)
+      if(hbelev > zb(i)+hbtol .and. .not.isrubmound(i))then
+        nhbwarn = nhbwarn + 1
+        hbwarn(nhbwarn) = i
       endif
+
+      !A value equal to the bed elevation (not its negative) means elevations were probably given instead of depths
+      if(abs(hardzb(i)-zb(i)) <= invtol .and. abs(zb(i)) > invtol)then   !Ignore if exactly 0.00
+        ninvwarn = ninvwarn + 1
+        invwarn(ninvwarn) = i
+      endif
+
+      hardzb(i) = min(hbelev,zb(i))   !Hard bottom must be at or below the bed elevation
     enddo
     
  97 format('There are ',i0,' instances where the hardbottom value is exactly inverted from the depth value.')
@@ -2875,25 +2897,7 @@ d1: do ii=1,30
       close(200)
     endif
     
-    roundval = 3
-    do i=1,ncells
-      if(abs(hardzb(i)+999.0) > 1.0e-4)then  !If exactly -999.0 ignore, otherwise this is a hard bottom defined cell.
-        nhard=nhard+1
-        idhardtemp(nhard)=i
-        hardzb(i) = -hardzb(i) !Note sign change from depths to elevations
-        
-        !Check elevations
-        tmphardzb = rround(hardzb(i),roundval)
-        tmpzb = rround(zb(i),roundval)
-        if(tmphardzb > tmpzb+0.001)then   !Add 0.001 to account for potential rounding issue since zb had 3 significant digits at most and hardzb has more.
-          nhbwarn = nhbwarn + 1
-          hbwarn(nhbwarn) = i
-        endif
-        hardzb(i)=min(hardzb(i),zb(i)) !Note: Hard bottom must be at or below the bed elevation
-      endif
-    enddo
-    
-    if(nhbwarn > 0) then 
+    if(nhbwarn > 0) then
       write(msg2,100) nhbwarn
       write(msg3,101) 
       call diag_print_warning(msg2,msg3,'')
