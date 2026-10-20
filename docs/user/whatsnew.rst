@@ -1,7 +1,7 @@
 What's New
 ==========
 
-v5.4.8 (14 September 2026)
+v5.4.8.1 (20 October 2026)
 -------------------------
 
 Changes
@@ -18,43 +18,24 @@ Changes
 * Fix a few issues reading cards with Explicit solution scheme
 * Improve diagnostic output for in_xmdf_lib calls.
 * Fix for floating overflow in LundCirp sediment transport code for currents.
+* (5.4.8.1) Bug fix for Hardbottom checks when Rubble Mound cells specified and fix garbled output in status.
 
 v5.4.7.3 (09 September 2026)
 -------------------------
 
 Changes
 ^^^^^^^
-* Added missing DEALLOCATE statements in wave code to potentially fix a 'insufficient virtual memory' issue.
-
-v5.4.7.2 (14 April 2026)
--------------------------
-
-Changes
-^^^^^^^
-* Corrected a few APPEND statements for compiler that is now more strict.
-* Added vs2026 solution
-
-v5.4.7.1 (26 February 2026)
--------------------------
-
-Changes
-^^^^^^^
-* Added functionality to write new naming convention for pertinent output datasets (See 5.4.7).
-* Added CF Compliance attributes to output datasets written bed layer thickness, bed layer fractions, and sediment percentiles
-* Now writing CF compliance attributes to each solution's root group instead of "PROPRERTIES" group.
-* Stop writing CF attributes for vector datasets.  Will implement on separated scalars at a later date.
-* Added new function to test a character to see if it is a numeric digit.
-
-v5.4.7 (23 February 2026)
--------------------------
-
-Changes
-^^^^^^^
-* Change fractional dataset names from "Datasets/Fraction_01 (1)" to "Datasets/Fraction_S1_L1" for updates in SMS for sediment mapping for readability.
-
- * Retain previous format for backward compatibility
-
+* Change fractional dataset names from "Datasets/Fraction_01 (1)" to "Datasets/Fraction_S1_L1" for updates in SMS for sediment mapping for readability. Retain previous format for backward compatibility
 * Initialize some output logical variables related to sediment mapping.
+* (5.4.7.1) Added functionality to write new naming convention for pertinent output datasets.
+* (5.4.7.1) Added CF Compliance attributes to output datasets written bed layer thickness, bed layer fractions, and sediment percentiles
+* (5.4.7.1) Now writing CF compliance attributes to each solution's root group instead of "PROPRERTIES" group.
+* (5.4.7.1) Stop writing CF attributes for vector datasets.  Will implement on separated scalars at a later date.
+* (5.4.7.1) Added new function to test a character to see if it is a numeric digit.
+* (5.4.7.2) Corrected a few APPEND statements for compiler that is now more strict.
+* (5.4.7.2) Added vs2026 solution
+* (5.4.7.3) Added missing DEALLOCATE statements in wave code to potentially fix a 'insufficient virtual memory' issue.
+
 
 v5.4.6 (03 July 2025)
 -------------------------

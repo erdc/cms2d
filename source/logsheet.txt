@@ -1,4 +1,4 @@
-== Version 5.4.8 (09/14/2026) ==
+== Version 5.4.8.1 (10/20/2026) ==
 * Integrated changes from Wu (Clarkson BAA)
 ** Implement sediment influx (Cohesive/Non-cohesive mixtures) on river boundary
 ** A few OpenMP directive improvements
@@ -9,6 +9,7 @@
 * Fix a few issues reading cards with Explicit solution scheme
 * Improve diagnostic output for in_xmdf_lib calls.
 * Fix for floating overflow in LundCirp sediment transport code for currents.
+* (5.4.8.1) Bug fix for Hardbottom checks when Rubble Mound cells specified and fix garbled output in status.
 
 == Version 5.4.7.3 (09/09/2026) ==
 * Change fractional dataset names from "Datasets/Fraction_01 (1)" to "Datasets/Fraction_S1_L1" for updates in SMS for sediment mapping for readability in the input files.
