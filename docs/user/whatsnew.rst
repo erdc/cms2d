@@ -106,7 +106,7 @@ Changes
 Version 5.3.x
 -------------
 
-The What's New list for version 5.3.x is in the 5.3 documentation: `5.3 What's New <https://cms2d.readthedocs.io/en/5.3/user/whatsnew.html>`_ (also available from the version menu).
+The What's New list for version 5.3.x is in the 5.3 documentation: `5.3 What's New <https://cms2d.readthedocs.io/en/cms_v5.3/user/whatsnew.html>`_ (also available from the version menu).
 
 
 Previous changes 
